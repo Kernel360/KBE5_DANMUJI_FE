@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { useState } from 'react';
 import ProjectRegisterModal from '../components/ProjectRegisterModal';
 import ProjectEditModal from '../components/ProjectEditModal';
@@ -167,8 +166,4 @@ export default function ProjectPage() {
       />
     </div>
   );
-=======
-export default function ProjectPage() {
-  return <div>프로젝트 관리 페이지</div>;
->>>>>>> b97c2b31261b3c0b870a1107fb1cf2bce356a3be
 } 
