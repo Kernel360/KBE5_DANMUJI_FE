@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 const summary = [
   { label: '전체 회사', value: 12, icon: '/src/assets/company.svg', color: 'bg-yellow-100', iconColor: 'text-yellow-500' },
   { label: '전체 회원', value: 34, icon: '/src/assets/member.svg', color: 'bg-blue-100', iconColor: 'text-blue-500' },
@@ -74,4 +75,8 @@ export default function DashboardPage() {
       </div>
     </div>
   );
+=======
+export default function DashboardPage() {
+  return <div>대시보드 페이지</div>;
+>>>>>>> b97c2b31261b3c0b870a1107fb1cf2bce356a3be
 } 
