@@ -8,6 +8,7 @@ import ProjectPage from './pages/ProjectPage';
 
 function App() {
   return (
+<<<<<<< HEAD
     <Router>
       <div className="flex h-screen bg-gray-50">
         <Sidebar />
@@ -25,6 +26,17 @@ function App() {
         </div>
       </div>
     </Router>
+=======
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: '#f9fafb'
+    }}>
+      <LoginPage />
+    </div>
+>>>>>>> ff3a4a6d239734a8e4d2b5f71c9d8a2308f55f8c
   );
 }
 
