@@ -17,8 +17,12 @@ import { FaProjectDiagram } from "react-icons/fa";
 import { HiBuildingOffice2 } from "react-icons/hi2";
 import { HiUsers } from "react-icons/hi2";
 
+import danmujiLogo from '../../assets/danmuji-logo.png';
+
 const LogoImage = styled.img`
-  /* Add specific styles for the logo if needed, otherwise remove this comment */
+  height: 48px;
+  width: auto;
+  display: block;
 `;
 
 export const Sidebar: React.FC = () => {
@@ -32,7 +36,7 @@ export const Sidebar: React.FC = () => {
   return (
     <SidebarContainer>
       <LogoArea>
-        <LogoImage src="/assets/danmuji-logo.png" alt="Danmuji Logo" />
+        <LogoImage src={danmujiLogo} alt="Danmuji Logo" />
       </LogoArea>
       <Divider />
       <UserProfile
