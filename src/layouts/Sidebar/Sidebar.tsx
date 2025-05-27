@@ -8,18 +8,14 @@ import {
   LogoArea,
   Divider,
   MainMenu,
+  LogoImage,
 } from "./Sidebar.styles";
-import styled from "styled-components";
 
 // Import necessary icons from react-icons
 import { MdDashboard } from "react-icons/md";
 import { FaProjectDiagram } from "react-icons/fa";
 import { HiBuildingOffice2 } from "react-icons/hi2";
 import { HiUsers } from "react-icons/hi2";
-
-const LogoImage = styled.img`
-  /* Add specific styles for the logo if needed, otherwise remove this comment */
-`;
 
 export const Sidebar: React.FC = () => {
   const navigate = useNavigate();

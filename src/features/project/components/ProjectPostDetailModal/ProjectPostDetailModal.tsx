@@ -7,7 +7,6 @@ import {
   StatusBadge,
   ModalTitle,
   HeaderRight,
-  ActionButton,
   CloseButton,
   ModalBody,
   Section,
@@ -23,7 +22,6 @@ import {
   CommentItem,
   CommentMeta,
   CommentAuthor,
-  CommentActions,
   CommentText,
   CommentInputContainer,
   CommentTextArea,
@@ -59,7 +57,7 @@ interface ProjectPostDetailModalProps {
   // Keep original interface name
   open: boolean;
   onClose: () => void;
-  postId: number | null; // 게시글 ID
+  postId?: number | null; // 게시글 ID (Optional로 변경)
 }
 
 // Mock function to simulate fetching post data
@@ -124,7 +122,7 @@ const ProjectPostDetailModal: React.FC<ProjectPostDetailModalProps> = ({
 
   useEffect(() => {
     const loadPost = async () => {
-      if (open && postId !== null) {
+      if (open && postId !== null && postId !== undefined) {
         setLoading(true);
         const postData = await fetchPostData(postId);
         setPost(postData);
@@ -212,52 +210,45 @@ const ProjectPostDetailModal: React.FC<ProjectPostDetailModalProps> = ({
               <SectionTitle>첨부 파일</SectionTitle>
               <FileList>
                 {post.files.map((file, index) => (
-                  <FileItem key={index}>
-                    <FileName onClick={() => handleFileDownload(file)}>
-                      {file.name}
-                    </FileName>
-                    <FileSize>{file.size}</FileSize>
+                  <FileItem
+                    key={index}
+                    onClick={() => handleFileDownload(file)}
+                  >
+                    <FileName>{file.name}</FileName>
+                    <FileSize>({file.size})</FileSize>
                   </FileItem>
                 ))}
               </FileList>
             </Section>
           )}
 
-          <CommentsSection>
-            <SectionTitle>댓글 ({post.comments?.length || 0})</SectionTitle>
-            <CommentsList>
-              {post.comments && post.comments.length > 0 ? (
-                post.comments.map((comment) => (
+          {post.comments && post.comments.length > 0 && (
+            <CommentsSection>
+              <SectionTitle>댓글</SectionTitle>
+              <CommentsList>
+                {post.comments.map((comment) => (
                   <CommentItem key={comment.id}>
                     <CommentMeta>
                       <CommentAuthor>{comment.author}</CommentAuthor>
-                      <CommentActions>
-                        <span>{comment.date}</span>
-                      </CommentActions>
+                      <span>{comment.date}</span>
                     </CommentMeta>
                     <CommentText>{comment.text}</CommentText>
+                    {/* TODO: Add reply/edit/delete options */}
                   </CommentItem>
-                ))
-              ) : (
-                <p>아직 댓글이 없습니다.</p>
-              )}
-            </CommentsList>
-            <CommentInputContainer>
-              <CommentTextArea
-                placeholder="댓글을 입력하세요"
-                value={commentText}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                  setCommentText(e.target.value)
-                }
-              />
-              <CommentSubmitButton
-                onClick={handleCommentSubmit}
-                disabled={!commentText.trim()}
-              >
-                등록
-              </CommentSubmitButton>
-            </CommentInputContainer>
-          </CommentsSection>
+                ))}
+              </CommentsList>
+              <CommentInputContainer>
+                <CommentTextArea
+                  placeholder="댓글을 입력하세요..."
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                />
+                <CommentSubmitButton onClick={handleCommentSubmit}>
+                  등록
+                </CommentSubmitButton>
+              </CommentInputContainer>
+            </CommentsSection>
+          )}
         </ModalBody>
       </ModalPanel>
     </ModalOverlay>

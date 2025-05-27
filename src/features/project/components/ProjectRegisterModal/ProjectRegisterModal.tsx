@@ -93,7 +93,7 @@ export default function ProjectRegisterModal({
   if (!open) return null;
 
   const handleSave = () => {
-    onRegister &&
+    if (onRegister) {
       onRegister({
         name: name,
         client: client,
@@ -104,6 +104,7 @@ export default function ProjectRegisterModal({
         end: end,
         status: status.value,
       });
+    }
     onClose();
   };
 
