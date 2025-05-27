@@ -33,5 +33,5 @@ export const MainMenu = styled.nav`
   padding: 12px 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
 `;

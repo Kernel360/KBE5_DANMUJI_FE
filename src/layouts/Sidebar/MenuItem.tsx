@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom"; // Remove useNavigate import
+import type { IconType } from "react-icons";
 
 const MenuItemContainer = styled.div<{ $isActive: boolean }>`
   padding: 12px 16px;
@@ -12,7 +13,6 @@ const MenuItemContainer = styled.div<{ $isActive: boolean }>`
   background-color: ${({ $isActive }) =>
     $isActive ? "#f3f4f6" : "transparent"};
   border-radius: 6px;
-  margin: 0 8px;
 
   &:hover {
     background-color: #f3f4f6;
@@ -26,6 +26,7 @@ const IconWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  /* Add color based on active state if needed */
 `;
 
 const MenuText = styled.div`
@@ -34,30 +35,27 @@ const MenuText = styled.div`
 `;
 
 interface MenuItemProps {
-  icon: string;
+  icon: IconType;
   text: string;
-  path: string;
   isActive: boolean;
   onClick: () => void;
 }
 
 export const MenuItem: React.FC<MenuItemProps> = ({
-  icon,
+  icon: Icon,
   text,
-  path,
   isActive,
   onClick,
 }) => {
-  const navigate = useNavigate();
-
   const handleClick = () => {
     onClick();
-    navigate(path);
   };
 
   return (
     <MenuItemContainer $isActive={isActive} onClick={handleClick}>
-      <IconWrapper>{icon}</IconWrapper>
+      <IconWrapper>
+        {<Icon />} {/* Render the Icon component */}
+      </IconWrapper>
       <MenuText>{text}</MenuText>
     </MenuItemContainer>
   );

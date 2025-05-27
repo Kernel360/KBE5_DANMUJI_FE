@@ -30,21 +30,24 @@ const CardGrid = styled.div`
   }
 `;
 
-const Card = styled.div<{ $color: string }>`
+const Card = styled.div<{ $bgcolor: string }>`
   display: flex;
   align-items: center;
   gap: 1rem;
   padding: 1.5rem;
   border-radius: 0.75rem;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  background-color: ${(props) => props.$color};
+  background-color: ${(props) => props.$bgcolor};
 `;
 
-const IconContainer = styled.div<{ $iconColor: string }>`
+const IconContainer = styled.div<{ $iconbgcolor: string }>`
   border-radius: 9999px;
   padding: 0.75rem;
-  background-color: rgba(255, 255, 255, 0.8);
-  ${(props) => props.$iconColor && `background-color: ${props.$iconColor};`}
+  background-color: white;
+  color: ${(props) => props.$iconbgcolor};
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 const Icon = styled.img`
@@ -67,27 +70,73 @@ const CardLabel = styled.div`
   margin-top: 0.25rem;
 `;
 
+const RecentActivityContainer = styled.div`
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 1.5rem;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+`;
+
+const RecentActivityCard = styled.div`
+  background-color: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  padding: 1.5rem;
+`;
+
+const RecentActivityTitle = styled.div`
+  font-weight: 700;
+  font-size: 1.125rem;
+  margin-bottom: 1rem;
+`;
+
+const RecentActivityList = styled.ul`
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  dividing-line: 1px solid #e5e7eb;
+`;
+
+const RecentActivityItem = styled.li`
+  padding: 0.5rem 0;
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  border-bottom: 1px solid #e5e7eb; /* divide-y */
+
+  &:last-child {
+    border-bottom: none;
+  }
+`;
+
+const RecentActivityDate = styled.span`
+  color: #9ca3af;
+`;
+
 const summary = [
   {
     label: "전체 회사",
     value: 12,
     icon: "/src/assets/company.svg",
-    color: "bg-yellow-100",
-    iconColor: "text-yellow-500",
+    color: "#fef3c7",
+    iconColor: "#f59e0b",
   },
   {
     label: "전체 회원",
     value: 34,
     icon: "/src/assets/member.svg",
-    color: "bg-blue-100",
-    iconColor: "text-blue-500",
+    color: "#dbeafe",
+    iconColor: "#3b82f6",
   },
   {
     label: "전체 프로젝트",
     value: 7,
     icon: "/src/assets/project.svg",
-    color: "bg-green-100",
-    iconColor: "text-green-500",
+    color: "#dcfce7",
+    iconColor: "#22c55e",
   },
 ];
 
@@ -115,8 +164,8 @@ export default function DashboardPage() {
       </Header>
       <CardGrid>
         {summary.map((card) => (
-          <Card key={card.label} $color={card.color}>
-            <IconContainer $iconColor={card.iconColor}>
+          <Card key={card.label} $bgcolor={card.color}>
+            <IconContainer $iconbgcolor={card.iconColor}>
               <Icon src={card.icon} alt="" />
             </IconContainer>
             <CardContent>
@@ -126,41 +175,41 @@ export default function DashboardPage() {
           </Card>
         ))}
       </CardGrid>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white rounded-xl shadow p-6">
-          <div className="font-bold text-lg mb-4">최근 등록된 회사</div>
-          <ul className="divide-y">
+      <RecentActivityContainer>
+        <RecentActivityCard>
+          <RecentActivityTitle>최근 등록된 회사</RecentActivityTitle>
+          <RecentActivityList>
             {recentCompanies.map((c, i) => (
-              <li key={i} className="py-2 flex justify-between text-sm">
+              <RecentActivityItem key={i}>
                 <span>{c.name}</span>
-                <span className="text-gray-400">{c.date}</span>
-              </li>
+                <RecentActivityDate>{c.date}</RecentActivityDate>
+              </RecentActivityItem>
             ))}
-          </ul>
-        </div>
-        <div className="bg-white rounded-xl shadow p-6">
-          <div className="font-bold text-lg mb-4">최근 등록된 회원</div>
-          <ul className="divide-y">
+          </RecentActivityList>
+        </RecentActivityCard>
+        <RecentActivityCard>
+          <RecentActivityTitle>최근 등록된 회원</RecentActivityTitle>
+          <RecentActivityList>
             {recentMembers.map((m, i) => (
-              <li key={i} className="py-2 flex justify-between text-sm">
+              <RecentActivityItem key={i}>
                 <span>{m.name}</span>
-                <span className="text-gray-400">{m.date}</span>
-              </li>
+                <RecentActivityDate>{m.date}</RecentActivityDate>
+              </RecentActivityItem>
             ))}
-          </ul>
-        </div>
-        <div className="bg-white rounded-xl shadow p-6">
-          <div className="font-bold text-lg mb-4">최근 등록된 프로젝트</div>
-          <ul className="divide-y">
+          </RecentActivityList>
+        </RecentActivityCard>
+        <RecentActivityCard>
+          <RecentActivityTitle>최근 등록된 프로젝트</RecentActivityTitle>
+          <RecentActivityList>
             {recentProjects.map((p, i) => (
-              <li key={i} className="py-2 flex justify-between text-sm">
+              <RecentActivityItem key={i}>
                 <span>{p.name}</span>
-                <span className="text-gray-400">{p.date}</span>
-              </li>
+                <RecentActivityDate>{p.date}</RecentActivityDate>
+              </RecentActivityItem>
             ))}
-          </ul>
-        </div>
-      </div>
+          </RecentActivityList>
+        </RecentActivityCard>
+      </RecentActivityContainer>
     </DashboardContainer>
   );
 }
