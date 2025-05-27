@@ -12,6 +12,7 @@ import CompanyPage from "./features/company/pages/CompanyPage";
 import MemberPage from "./features/user/pages/MemberPage";
 import ProjectPage from "./features/project/pages/ProjectPage";
 import BoardPage from "./features/board/pages/BoardPage";
+import LoginPage from "./features/auth/pages/LoginPage";
 
 const AppContainer = styled.div`
   display: flex;
@@ -40,11 +41,12 @@ function App() {
           <PageContent>
             <Routes>
               <Route path="/" element={<Navigate to="/dashboard" />} />
+              <Route path="/login" element={<LoginPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/company" element={<CompanyPage />} />
               <Route path="/members" element={<MemberPage />} />
               <Route path="/projects" element={<ProjectPage />} />
-              <Route path="/board" element={<BoardPage />} />
+              <Route path="/dashboard2" element={<BoardPage />} />
             </Routes>
           </PageContent>
         </MainContent>
