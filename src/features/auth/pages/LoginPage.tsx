@@ -39,17 +39,17 @@ export default function LoginPage() {
           <Subtitle>Please sign in to your account</Subtitle>
           <Form onSubmit={handleSubmit}>
             <Input
-              type="text"
+                type="text"
               placeholder="아이디"
-              value={id}
+                value={id}
               onChange={(e) => setId(e.target.value)}
-            />
+              />
             <Input
-              type="password"
+                type="password"
               placeholder="비밀번호"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-            />
+              />
             <Button type="submit">로그인</Button>
           </Form>
           <SecureConnection>

@@ -306,10 +306,14 @@ export const TableCell = styled.td.withConfig({
   vertical-align: middle; /* 이미지 기준 세로 정렬 */
 `;
 
-export const TableLink = styled.a`
-  color: #4f46e5; /* Indigo */
+export const TableLink = styled.button`
+  color: #4f46e5;
   cursor: pointer;
   text-decoration: none;
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
 
   &:hover {
     text-decoration: underline;

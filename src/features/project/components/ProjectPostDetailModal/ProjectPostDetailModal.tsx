@@ -65,24 +65,24 @@ const fetchPostData = async (postId: number): Promise<PostData | null> => {
   console.log(`Fetching post data for ID: ${postId}`);
   const dummyPosts: PostData[] = [
     {
-      id: 1,
+      id: 10,
       title: "데이터베이스 설계 완료 보고서",
       status: "승인",
       author: "이개발",
       date: "2023.09.10",
-      content: `프로젝트의 데이터베이스 설계가 완료되었습니다. 주요 테이블 구조와 관계 설정이 모두 마무리되었으며, 성능 최적화를 위한 인덱스 설계도 포함되어 있습니다.\n\n첨부된 ERD 문서와 SQL 스크립트를 검토해 주시기 바랍니다. 특히 사용자 인증 관련 테이블 구조에 대한 피드백 부탁드립니다.`, // Use \n for newlines
+      content: `프로젝트의 데이터베이스 설계가 완료되었습니다. 주요 테이블 구조와 관계 설정이 모두 마무리되었으며, 성능 최적화를 위한 인덱스 설계도 포함되어 있습니다.\n\n첨부된 ERD 문서와 SQL 스크립트를 검토해 주시기 바랍니다. 특히 사용자 인증 관련 테이블 구조에 대한 피드백 부탁드립니다.`,
       relatedLink: "https://wiki.xyz-software.com/erpproject/db-design",
       files: [
         {
           name: "ERP_DB_ERD_v1.2.pdf",
           size: "2.4MB",
           url: "/dummy-files/ERP_DB_ERD_v1.2.pdf",
-        }, // Example dummy URL
+        },
         {
           name: "ERP_DB_SQL_Scripts.zip",
           size: "1.8MB",
           url: "/dummy-files/ERP_DB_SQL_Scripts.zip",
-        }, // Example dummy URL
+        },
       ],
       comments: [
         {
@@ -106,6 +106,14 @@ const fetchPostData = async (postId: number): Promise<PostData | null> => {
       ],
     },
     // Add more dummy posts as needed
+    {
+      id: 1, // 기존 더미 데이터 유지 또는 다른 ID로 수정
+      title: "기존 샘플 게시글",
+      status: "대기",
+      author: "샘플 작성자",
+      date: "2023.01.01",
+      content: "이것은 샘플 게시글 내용입니다.",
+    },
   ];
   return dummyPosts.find((post) => post.id === postId) || null;
 };

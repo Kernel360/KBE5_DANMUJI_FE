@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { AiOutlineSearch } from "react-icons/ai";
 import ProjectPostDetailModal from "../components/ProjectPostDetailModal/ProjectPostDetailModal";
 import {
   PageContainer,
@@ -28,7 +27,6 @@ import {
   FilterSelect,
   SearchContainer,
   SearchInput,
-  SearchIcon,
   CreateButton,
   TableContainer,
   Table,
@@ -162,6 +160,7 @@ export default function ProjectPostPage() {
   const [filter, setFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
   const [posts] = useState(initialPosts);
 
   const filteredPosts = posts.filter((post) => {
@@ -183,8 +182,15 @@ export default function ProjectPostPage() {
     return postValue.includes(searchTermLower);
   });
 
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  const openModal = (postId: number) => {
+    setSelectedPostId(postId);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedPostId(null);
+  };
 
   return (
     <PageContainer>
@@ -298,9 +304,10 @@ export default function ProjectPostPage() {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
-                  <SearchIcon />
                 </SearchContainer>
-                <CreateButton onClick={openModal}>작업 추가</CreateButton>
+                <CreateButton onClick={() => openModal(0)}>
+                  작업 추가
+                </CreateButton>
               </RightToolbar>
             </Toolbar>
 
@@ -323,7 +330,9 @@ export default function ProjectPostPage() {
                     <TableRow key={index}>
                       <TableCell $align="left">{post.id}</TableCell>
                       <TableCell $align="left">
-                        <TableLink href="#">{post.title}</TableLink>
+                        <TableLink onClick={() => openModal(post.id)}>
+                          {post.title}
+                        </TableLink>
                       </TableCell>
                       <TableCell $align="left">{post.author}</TableCell>
                       <TableCell $align="center">
@@ -360,7 +369,11 @@ export default function ProjectPostPage() {
         {activeTab === "이력 관리" && <div>이력 관리 내용</div>}
       </TabContent>
 
-      <ProjectPostDetailModal open={isModalOpen} onClose={closeModal} />
+      <ProjectPostDetailModal
+        open={isModalOpen}
+        onClose={closeModal}
+        postId={selectedPostId}
+      />
     </PageContainer>
   );
 }
