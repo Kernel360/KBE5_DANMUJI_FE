@@ -1,34 +1,55 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import "./App.css";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import styled from "styled-components";
+import { Sidebar } from "./layouts/Sidebar";
+import { Topbar } from "./layouts/Topbar";
+import DashboardPage from "./features/dashboard/pages/DashboardPage";
+import CompanyPage from "./features/company/pages/CompanyPage";
+import MemberPage from "./features/user/pages/MemberPage";
+import ProjectPage from "./features/project/pages/ProjectPage";
+import BoardPage from "./features/board/pages/BoardPage";
+
+const AppContainer = styled.div`
+  display: flex;
+  height: 100vh;
+  background-color: #f9fafb;
+`;
+
+const MainContent = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+`;
+
+const PageContent = styled.div`
+  flex: 1;
+  padding: 32px;
+`;
 
 function App() {
-  const [count, setCount] = useState(0);
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <Router>
+      <AppContainer>
+        <Sidebar />
+        <MainContent>
+          <Topbar />
+          <PageContent>
+            <Routes>
+              <Route path="/" element={<Navigate to="/dashboard" />} />
+              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/company" element={<CompanyPage />} />
+              <Route path="/members" element={<MemberPage />} />
+              <Route path="/projects" element={<ProjectPage />} />
+              <Route path="/board" element={<BoardPage />} />
+            </Routes>
+          </PageContent>
+        </MainContent>
+      </AppContainer>
+    </Router>
   );
 }
 
