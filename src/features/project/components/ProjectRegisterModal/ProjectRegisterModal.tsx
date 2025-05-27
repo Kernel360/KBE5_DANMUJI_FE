@@ -56,7 +56,12 @@ interface ProjectEditModalProps {
   };
 }
 
-export default function ProjectEditModal({ open, onClose, onSave, project }: ProjectEditModalProps) {
+export default function ProjectEditModal({
+  open,
+  onClose,
+  onSave,
+  project,
+}: ProjectEditModalProps) {
   const [name, setName] = useState("");
   const [client, setClient] = useState("");
   const [clientManagers, setClientManagers] = useState<MemberOption[]>([]);
@@ -75,7 +80,10 @@ export default function ProjectEditModal({ open, onClose, onSave, project }: Pro
       setDevManagers(project.devManagers || []);
       setStart(project.start || "");
       setEnd(project.end || "");
-      setStatus(statusOptions.find(opt => opt.value === project.status) || statusOptions[0]);
+      setStatus(
+        statusOptions.find((opt) => opt.value === project.status) ||
+          statusOptions[0]
+      );
     }
   }, [project, open]);
 
@@ -101,17 +109,28 @@ export default function ProjectEditModal({ open, onClose, onSave, project }: Pro
         <div className="text-xl font-bold mb-6">프로젝트 수정</div>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-semibold mb-1">프로젝트명</label>
-            <input type="text" className="w-full border rounded px-3 py-2" value={name} onChange={e => setName(e.target.value)} />
+            <label className="block text-sm font-semibold mb-1">
+              프로젝트명
+            </label>
+            <input
+              type="text"
+              className="w-full border rounded px-3 py-2"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
           </div>
           <div className="border-b pb-4 mb-4">
             <div className="font-semibold text-gray-700 mb-2">고객사 정보</div>
             <div className="mb-2">
-              <label className="block text-sm font-semibold mb-1">고객사명</label>
+              <label className="block text-sm font-semibold mb-1">
+                고객사명
+              </label>
               <Select
                 options={companyOptions}
-                value={companyOptions.find(opt => opt.value === client) || null}
-                onChange={val => setClient(val ? val.value : "")}
+                value={
+                  companyOptions.find((opt) => opt.value === client) || null
+                }
+                onChange={(val) => setClient(val ? val.value : "")}
                 placeholder="고객사 선택"
                 className="w-full"
                 classNamePrefix="react-select"
@@ -119,12 +138,14 @@ export default function ProjectEditModal({ open, onClose, onSave, project }: Pro
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold mb-1">고객사 담당자(다중 선택)</label>
+              <label className="block text-sm font-semibold mb-1">
+                고객사 담당자(다중 선택)
+              </label>
               <Select
                 isMulti
                 options={dummyMembers}
                 value={clientManagers}
-                onChange={val => setClientManagers(val as MemberOption[])}
+                onChange={(val) => setClientManagers(val as MemberOption[])}
                 placeholder="고객사 담당자 검색/선택"
                 className="w-full"
                 classNamePrefix="react-select"
@@ -134,11 +155,13 @@ export default function ProjectEditModal({ open, onClose, onSave, project }: Pro
           <div className="border-b pb-4 mb-4">
             <div className="font-semibold text-gray-700 mb-2">개발사 정보</div>
             <div className="mb-2">
-              <label className="block text-sm font-semibold mb-1">개발사명</label>
+              <label className="block text-sm font-semibold mb-1">
+                개발사명
+              </label>
               <Select
                 options={companyOptions}
-                value={companyOptions.find(opt => opt.value === dev) || null}
-                onChange={val => setDev(val ? val.value : "")}
+                value={companyOptions.find((opt) => opt.value === dev) || null}
+                onChange={(val) => setDev(val ? val.value : "")}
                 placeholder="개발사 선택"
                 className="w-full"
                 classNamePrefix="react-select"
@@ -146,12 +169,14 @@ export default function ProjectEditModal({ open, onClose, onSave, project }: Pro
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold mb-1">개발사 담당자(다중 선택)</label>
+              <label className="block text-sm font-semibold mb-1">
+                개발사 담당자(다중 선택)
+              </label>
               <Select
                 isMulti
                 options={dummyMembers}
                 value={devManagers}
-                onChange={val => setDevManagers(val as MemberOption[])}
+                onChange={(val) => setDevManagers(val as MemberOption[])}
                 placeholder="개발사 담당자 검색/선택"
                 className="w-full"
                 classNamePrefix="react-select"
@@ -161,11 +186,21 @@ export default function ProjectEditModal({ open, onClose, onSave, project }: Pro
           <div className="flex gap-4">
             <div className="flex-1">
               <label className="block text-sm font-semibold mb-1">시작일</label>
-              <input type="date" className="w-full border rounded px-3 py-2" value={start} onChange={e => setStart(e.target.value)} />
+              <input
+                type="date"
+                className="w-full border rounded px-3 py-2"
+                value={start}
+                onChange={(e) => setStart(e.target.value)}
+              />
             </div>
             <div className="flex-1">
               <label className="block text-sm font-semibold mb-1">종료일</label>
-              <input type="date" className="w-full border rounded px-3 py-2" value={end} onChange={e => setEnd(e.target.value)} />
+              <input
+                type="date"
+                className="w-full border rounded px-3 py-2"
+                value={end}
+                onChange={(e) => setEnd(e.target.value)}
+              />
             </div>
           </div>
           <div>
@@ -173,17 +208,27 @@ export default function ProjectEditModal({ open, onClose, onSave, project }: Pro
             <Select
               options={statusOptions}
               value={status}
-              onChange={val => setStatus(val as StatusOption)}
+              onChange={(val) => setStatus(val as StatusOption)}
               className="w-full"
               classNamePrefix="react-select"
             />
           </div>
         </div>
         <div className="flex justify-end gap-2 mt-8">
-          <button className="px-4 py-2 rounded bg-gray-200 text-gray-700 font-semibold" onClick={onClose}>취소</button>
-          <button className="px-4 py-2 rounded bg-blue-500 text-white font-semibold hover:bg-blue-600" onClick={handleSave}>저장</button>
+          <button
+            className="px-4 py-2 rounded bg-gray-200 text-gray-700 font-semibold"
+            onClick={onClose}
+          >
+            취소
+          </button>
+          <button
+            className="px-4 py-2 rounded bg-blue-500 text-white font-semibold hover:bg-blue-600"
+            onClick={handleSave}
+          >
+            저장
+          </button>
         </div>
       </div>
     </div>
   );
-} 
+}
