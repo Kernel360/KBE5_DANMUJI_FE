@@ -4,32 +4,16 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import styled from "styled-components";
 import { Sidebar } from "./layouts/Sidebar";
 import { Topbar } from "./layouts/Topbar";
 import DashboardPage from "./features/dashboard/pages/DashboardPage";
 import CompanyPage from "./features/company/pages/CompanyPage";
 import MemberPage from "./features/user/pages/MemberPage";
 import ProjectPage from "./features/project/pages/ProjectPage";
-import BoardPage from "./features/board/pages/BoardPage";
+import DashboardPage2 from "./features/board/pages/DashboardPage";
 import LoginPage from "./features/auth/pages/LoginPage";
-
-const AppContainer = styled.div`
-  display: flex;
-  height: 100vh;
-  background-color: #f9fafb;
-`;
-
-const MainContent = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-`;
-
-const PageContent = styled.div`
-  flex: 1;
-  padding: 32px;
-`;
+import ProjectPostPage from "./features/project/pages/ProjectPostPage";
+import { AppContainer, MainContent, PageContent } from "./App.styled";
 
 function App() {
   return (
@@ -46,7 +30,8 @@ function App() {
               <Route path="/company" element={<CompanyPage />} />
               <Route path="/members" element={<MemberPage />} />
               <Route path="/projects" element={<ProjectPage />} />
-              <Route path="/dashboard2" element={<BoardPage />} />
+              <Route path="/projects/posts" element={<ProjectPostPage />} />
+              <Route path="/dashboard2" element={<DashboardPage2 />} />
             </Routes>
           </PageContent>
         </MainContent>

@@ -1,120 +1,20 @@
 import React, { useState, useEffect } from "react";
 import Select from "react-select";
-import styled from "styled-components";
-
-const ModalOverlay = styled.div`
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(0, 0, 0, 0.3);
-`;
-
-const ModalContent = styled.div`
-  background-color: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  width: 100%;
-  max-width: 28rem; /* max-w-md */
-  padding: 2rem;
-  position: relative;
-`;
-
-const ModalTitle = styled.div`
-  font-size: 1.25rem; /* text-xl */
-  font-weight: 700; /* font-bold */
-  margin-bottom: 1.5rem; /* mb-6 */
-`;
-
-const FormSection = styled.div`
-  /* space-y-4 */
-  & > div {
-    margin-bottom: 1rem;
-
-    &:last-child {
-      margin-bottom: 0;
-    }
-  }
-`;
-
-const FormGroup = styled.div``;
-
-const Label = styled.label`
-  display: block;
-  font-size: 0.875rem; /* text-sm */
-  font-weight: 600; /* font-semibold */
-  margin-bottom: 0.25rem; /* mb-1 */
-`;
-
-const Input = styled.input`
-  width: 100%;
-  border: 1px solid #d1d5db; /* border */
-  border-radius: 0.25rem; /* rounded */
-  padding: 0.5rem 0.75rem; /* px-3 py-2 */
-
-  &:focus {
-    outline: none;
-    border-color: #3b82f6; /* focus:border-blue-500 */
-    box-shadow: 0 0 0 1px #3b82f6; /* focus:ring-blue-500 */
-  }
-`;
-
-const SectionDivider = styled.div`
-  border-bottom: 1px solid #e5e7eb; /* border-b */
-  padding-bottom: 1rem; /* pb-4 */
-  margin-bottom: 1rem; /* mb-4 */
-`;
-
-const SectionTitle = styled.div`
-  font-weight: 600; /* font-semibold */
-  color: #374151; /* text-gray-700 */
-  margin-bottom: 0.5rem; /* mb-2 */
-`;
-
-const DateInputContainer = styled.div`
-  display: flex;
-  gap: 1rem; /* gap-4 */
-`;
-
-const DateInputWrapper = styled.div`
-  flex: 1; /* flex-1 */
-`;
-
-const ButtonGroup = styled.div`
-  display: flex;
-  justify-content: flex-end; /* justify-end */
-  gap: 0.5rem; /* gap-2 */
-  margin-top: 2rem; /* mt-8 */
-`;
-
-const Button = styled.button<{ $variant?: "primary" | "secondary" }>`
-  padding: 0.5rem 1rem; /* px-4 py-2 */
-  border-radius: 0.25rem; /* rounded */
-  font-weight: 600; /* font-semibold */
-  cursor: pointer;
-
-  ${(props) =>
-    props.$variant === "primary"
-      ? `
-    background-color: #3b82f6; /* bg-blue-500 */
-    color: white; /* text-white */
-
-    &:hover {
-      background-color: #2563eb; /* hover:bg-blue-600 */
-    }
-  `
-      : `
-    background-color: #e5e7eb; /* bg-gray-200 */
-    color: #374151; /* text-gray-700 */
-
-    &:hover {
-      background-color: #d1d5db; /* hover:bg-gray-300 */
-    }
-  `}
-`;
+import {
+  ModalOverlay,
+  ModalContent,
+  ModalTitle,
+  FormSection,
+  FormGroup,
+  Label,
+  Input,
+  SectionDivider,
+  SectionTitle,
+  DateInputContainer,
+  DateInputWrapper,
+  ButtonGroup,
+  Button,
+} from "./ProjectRegisterModal.styled";
 
 const companyOptions = [
   { value: "ABC", label: "ABC 주식회사" },
@@ -146,37 +46,28 @@ interface StatusOption {
   label: string;
 }
 
-interface ProjectEditModalProps {
-  open: boolean;
-  onClose: () => void;
-  onSave: (data: {
-    client: string;
-    clientManagers: MemberOption[];
-    dev: string;
-    devManagers: MemberOption[];
-    name: string;
-    start: string;
-    end: string;
-    status: string;
-  }) => void;
-  project: {
-    client: string;
-    clientManagers: MemberOption[];
-    dev: string;
-    devManagers: MemberOption[];
-    name: string;
-    start: string;
-    end: string;
-    status: string;
-  };
+interface RegisterData {
+  name: string;
+  client: string;
+  clientManagers: MemberOption[];
+  dev: string;
+  devManagers: MemberOption[];
+  start: string;
+  end: string;
+  status: string;
 }
 
-export default function ProjectEditModal({
+interface ProjectRegisterModalProps {
+  open: boolean;
+  onClose: () => void;
+  onRegister: (data: RegisterData) => void;
+}
+
+export default function ProjectRegisterModal({
   open,
   onClose,
-  onSave,
-  project,
-}: ProjectEditModalProps) {
+  onRegister,
+}: ProjectRegisterModalProps) {
   const [name, setName] = useState("");
   const [client, setClient] = useState("");
   const [clientManagers, setClientManagers] = useState<MemberOption[]>([]);
@@ -187,136 +78,136 @@ export default function ProjectEditModal({
   const [status, setStatus] = useState<StatusOption>(statusOptions[0]);
 
   useEffect(() => {
-    if (project) {
-      setName(project.name || "");
-      setClient(project.client || "");
-      setClientManagers(project.clientManagers || []);
-      setDev(project.dev || "");
-      setDevManagers(project.devManagers || []);
-      setStart(project.start || "");
-      setEnd(project.end || "");
-      setStatus(
-        statusOptions.find((opt) => opt.value === project.status) ||
-          statusOptions[0]
-      );
+    if (open) {
+      setName("");
+      setClient("");
+      setClientManagers([]);
+      setDev("");
+      setDevManagers([]);
+      setStart("");
+      setEnd("");
+      setStatus(statusOptions[0]);
     }
-  }, [project, open]);
+  }, [open]);
 
   if (!open) return null;
 
   const handleSave = () => {
-    onSave &&
-      onSave({
-        name,
-        client,
-        clientManagers,
-        dev,
-        devManagers,
-        start,
-        end,
+    onRegister &&
+      onRegister({
+        name: name,
+        client: client,
+        clientManagers: clientManagers,
+        dev: dev,
+        devManagers: devManagers,
+        start: start,
+        end: end,
         status: status.value,
       });
+    onClose();
   };
 
   return (
     <ModalOverlay>
       <ModalContent>
-        <ModalTitle>프로젝트 수정</ModalTitle>
+        <ModalTitle>새 프로젝트 등록</ModalTitle>
         <FormSection>
+          {/* 프로젝트 정보 */}
+          <SectionTitle>프로젝트 정보</SectionTitle>
           <FormGroup>
-            <Label>프로젝트명</Label>
+            <Label htmlFor="projectName">프로젝트명</Label>
             <Input
               type="text"
+              id="projectName"
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
           </FormGroup>
-          <SectionDivider>
-            <SectionTitle>고객사 정보</SectionTitle>
-            <FormGroup>
-              <Label>고객사명</Label>
-              <Select
-                options={companyOptions}
-                value={
-                  companyOptions.find((opt) => opt.value === client) || null
-                }
-                onChange={(val) => setClient(val ? val.value : "")}
-                placeholder="고객사 선택"
-                classNamePrefix="react-select"
-                isClearable
-              />
-            </FormGroup>
-            <FormGroup>
-              <Label>고객사 담당자(다중 선택)</Label>
-              <Select
-                isMulti
-                options={dummyMembers}
-                value={clientManagers}
-                onChange={(val) => setClientManagers(val as MemberOption[])}
-                placeholder="고객사 담당자 검색/선택"
-                classNamePrefix="react-select"
-              />
-            </FormGroup>
-          </SectionDivider>
-          <SectionDivider>
-            <SectionTitle>개발사 정보</SectionTitle>
-            <FormGroup>
-              <Label>개발사명</Label>
-              <Select
-                options={companyOptions}
-                value={companyOptions.find((opt) => opt.value === dev) || null}
-                onChange={(val) => setDev(val ? val.value : "")}
-                placeholder="개발사 선택"
-                classNamePrefix="react-select"
-                isClearable
-              />
-            </FormGroup>
-            <FormGroup>
-              <Label>개발사 담당자(다중 선택)</Label>
-              <Select
-                isMulti
-                options={dummyMembers}
-                value={devManagers}
-                onChange={(val) => setDevManagers(val as MemberOption[])}
-                placeholder="개발사 담당자 검색/선택"
-                classNamePrefix="react-select"
-              />
-            </FormGroup>
-          </SectionDivider>
-          <DateInputContainer>
-            <DateInputWrapper>
-              <Label>시작일</Label>
-              <Input
-                type="date"
-                value={start}
-                onChange={(e) => setStart(e.target.value)}
-              />
-            </DateInputWrapper>
-            <DateInputWrapper>
-              <Label>종료일</Label>
-              <Input
-                type="date"
-                value={end}
-                onChange={(e) => setEnd(e.target.value)}
-              />
-            </DateInputWrapper>
-          </DateInputContainer>
+          <SectionDivider />
+
+          {/* 회사 정보 */}
+          <SectionTitle>회사 정보</SectionTitle>
           <FormGroup>
-            <Label>상태</Label>
+            <Label htmlFor="client">고객사</Label>
             <Select
+              id="client"
+              options={companyOptions}
+              onChange={(option) => setClient(option?.value || "")}
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label htmlFor="clientManagers">고객사 담당자</Label>
+            <Select
+              id="clientManagers"
+              options={dummyMembers}
+              isMulti
+              onChange={(options) =>
+                setClientManagers(options as MemberOption[])
+              }
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label htmlFor="developer">개발사</Label>
+            <Select
+              id="developer"
+              options={companyOptions}
+              onChange={(option) => setDev(option?.value || "")}
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label htmlFor="devManagers">개발사 담당자</Label>
+            <Select
+              id="devManagers"
+              options={dummyMembers}
+              isMulti
+              onChange={(options) => setDevManagers(options as MemberOption[])}
+            />
+          </FormGroup>
+          <SectionDivider />
+
+          {/* 기간 및 상태 */}
+          <SectionTitle>기간 및 상태</SectionTitle>
+          <FormGroup>
+            <Label htmlFor="projectPeriod">프로젝트 기간</Label>
+            <DateInputContainer>
+              <DateInputWrapper>
+                <Input
+                  type="date"
+                  id="projectStart"
+                  value={start}
+                  onChange={(e) => setStart(e.target.value)}
+                />
+              </DateInputWrapper>
+              <span>~</span>
+              <DateInputWrapper>
+                <Input
+                  type="date"
+                  id="projectEnd"
+                  value={end}
+                  onChange={(e) => setEnd(e.target.value)}
+                />
+              </DateInputWrapper>
+            </DateInputContainer>
+          </FormGroup>
+          <FormGroup>
+            <Label htmlFor="projectStatus">프로젝트 상태</Label>
+            <Select
+              id="projectStatus"
               options={statusOptions}
               value={status}
-              onChange={(val) => setStatus(val as StatusOption)}
-              classNamePrefix="react-select"
+              onChange={(option) =>
+                setStatus((option as StatusOption) || statusOptions[0])
+              }
             />
           </FormGroup>
         </FormSection>
+
         <ButtonGroup>
           <Button $variant="secondary" onClick={onClose}>
             취소
           </Button>
           <Button $variant="primary" onClick={handleSave}>
-            저장
+            등록
           </Button>
         </ButtonGroup>
       </ModalContent>
