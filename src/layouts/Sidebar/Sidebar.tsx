@@ -17,6 +17,7 @@ import { FaProjectDiagram } from "react-icons/fa";
 import { HiBuildingOffice2 } from "react-icons/hi2";
 import { HiUsers } from "react-icons/hi2";
 
+
 import danmujiLogo from '../../assets/danmuji-logo.png';
 
 const LogoImage = styled.img`

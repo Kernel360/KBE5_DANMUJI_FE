@@ -102,7 +102,7 @@ const RegInput = styled(Input)`
 interface Props {
   open: boolean;
   onClose: () => void;
-  onSubmit: (data: any) => void;
+  onSubmit: (data: { [key: string]: string }) => void;
 }
 
 export default function CompanyRegisterModal({
@@ -117,18 +117,18 @@ export default function CompanyRegisterModal({
 
   if (!open) return null;
 
-  // 폼 상태는 간단히 useRef로 처리(실제 사용시 useState로 확장 가능)
-  let form: any = {};
-
   const handleRegInput = (
     e: React.ChangeEvent<HTMLInputElement>,
     len: number,
     nextRef?: React.RefObject<HTMLInputElement>
   ) => {
-    let value = e.target.value.replace(/[^0-9]/g, "");
+    const target = e.target as HTMLInputElement;
+    let value = target.value.replace(/[^0-9]/g, "");
     if (value.length > len) value = value.slice(0, len);
-    e.target.value = value;
-    if (value.length === len && nextRef) nextRef.current?.focus();
+    target.value = value;
+    if (value.length === len && nextRef?.current) {
+      nextRef.current.focus();
+    }
   };
 
   return (
