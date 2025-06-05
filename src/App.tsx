@@ -24,7 +24,8 @@ function App() {
           <Topbar />
           <PageContent>
             <Routes>
-              <Route path="/" element={<Navigate to="/dashboard" />} />
+              {/* <Route path="/" element={<Navigate to="/dashboard" />} /> */}
+              <Route path="/" element={<LoginPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/company" element={<CompanyPage />} />
