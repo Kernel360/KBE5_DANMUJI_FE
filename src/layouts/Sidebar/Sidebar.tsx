@@ -7,15 +7,24 @@ import {
   SidebarContainer,
   LogoArea,
   Divider,
-  MainMenu,
-  LogoImage,
+  MainMenu
 } from "./Sidebar.styles";
+import styled from "styled-components";
 
 // Import necessary icons from react-icons
 import { MdDashboard } from "react-icons/md";
 import { FaProjectDiagram } from "react-icons/fa";
 import { HiBuildingOffice2 } from "react-icons/hi2";
 import { HiUsers } from "react-icons/hi2";
+
+
+import danmujiLogo from '../../assets/danmuji-logo.png';
+
+const LogoImage = styled.img`
+  height: 48px;
+  width: auto;
+  display: block;
+`;
 
 export const Sidebar: React.FC = () => {
   const navigate = useNavigate();
@@ -28,7 +37,7 @@ export const Sidebar: React.FC = () => {
   return (
     <SidebarContainer>
       <LogoArea>
-        <LogoImage src="/assets/danmuji-logo.png" alt="Danmuji Logo" />
+        <LogoImage src={danmujiLogo} alt="Danmuji Logo" />
       </LogoArea>
       <Divider />
       <UserProfile

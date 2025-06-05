@@ -24,6 +24,19 @@ interface CompanyData {
   phone?: string;
 }
 
+const RegNumberRow = styled.div`
+  display: flex;
+  gap: 8px;
+  align-items: center;
+`;
+
+const RegInput = styled(Input)`
+  width: 3.5rem;
+  text-align: center;
+  padding-left: 0;
+  padding-right: 0;
+`;
+
 interface Props {
   open: boolean;
   onClose: () => void;
@@ -120,13 +133,12 @@ export default function CompanyEditModal({
           </FormGroup>
           <FormGroup>
             <Label>사업자등록번호</Label>
-            <div className="flex gap-2">
-              <Input
+            <RegNumberRow>
+              <RegInput
                 name="reg1"
                 required
                 ref={reg1}
                 maxLength={3}
-                className="w-14 border rounded px-2 py-2 text-center"
                 placeholder="000"
                 onInput={(e) => handleRegInput(e, 3, reg2)}
                 inputMode="numeric"
@@ -134,13 +146,12 @@ export default function CompanyEditModal({
                 value={formData.reg?.split("-")[0] || ""}
                 onChange={handleChange}
               />
-              <span className="self-center">-</span>
-              <Input
+              <span>-</span>
+              <RegInput
                 name="reg2"
                 required
                 ref={reg2}
                 maxLength={2}
-                className="w-10 border rounded px-2 py-2 text-center"
                 placeholder="00"
                 onInput={(e) => handleRegInput(e, 2, reg3)}
                 inputMode="numeric"
@@ -148,13 +159,12 @@ export default function CompanyEditModal({
                 value={formData.reg?.split("-")[1] || ""}
                 onChange={handleChange}
               />
-              <span className="self-center">-</span>
-              <Input
+              <span>-</span>
+              <RegInput
                 name="reg3"
                 required
                 ref={reg3}
                 maxLength={5}
-                className="w-16 border rounded px-2 py-2 text-center"
                 placeholder="00000"
                 onInput={(e) => handleRegInput(e, 5)}
                 inputMode="numeric"
@@ -162,7 +172,7 @@ export default function CompanyEditModal({
                 value={formData.reg?.split("-")[2] || ""}
                 onChange={handleChange}
               />
-            </div>
+            </RegNumberRow>
           </FormGroup>
           <FormGroup>
             <Label>주소</Label>
