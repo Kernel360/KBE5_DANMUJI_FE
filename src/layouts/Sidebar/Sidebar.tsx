@@ -7,13 +7,9 @@ import {
   SidebarContainer,
   LogoArea,
   Divider,
-<<<<<<< HEAD
   MainMenu
-=======
-  MainMenu,
-  LogoImage,
->>>>>>> 4d3e692e61a3107aa66158e1bd9cce6739dfd0c5
 } from "./Sidebar.styles";
+import styled from "styled-components";
 
 // Import necessary icons from react-icons
 import { MdDashboard } from "react-icons/md";
@@ -21,7 +17,7 @@ import { FaProjectDiagram } from "react-icons/fa";
 import { HiBuildingOffice2 } from "react-icons/hi2";
 import { HiUsers } from "react-icons/hi2";
 
-<<<<<<< HEAD
+
 import danmujiLogo from '../../assets/danmuji-logo.png';
 
 const LogoImage = styled.img`
@@ -30,8 +26,6 @@ const LogoImage = styled.img`
   display: block;
 `;
 
-=======
->>>>>>> 4d3e692e61a3107aa66158e1bd9cce6739dfd0c5
 export const Sidebar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
