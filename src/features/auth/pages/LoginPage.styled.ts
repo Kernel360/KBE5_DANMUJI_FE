@@ -3,17 +3,40 @@ import styled from "styled-components";
 export const LoginContainer = styled.div`
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
-  background-color: #f9fafb;
-`;
-
-export const LoginContent = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
+  background-color: #f5f5f5;
+  position: relative;
+`;
+
+export const LoginWrapper = styled.div`
+  display: flex;
+  width: 1100px;
+  min-height: 650px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px 0 rgba(0,0,0,0.06);
+  overflow: hidden;
+`;
+
+export const LoginLeft = styled.div`
+  background: #fdb924;
+  color: white;
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 48px;
+`;
+
+export const LoginRight = styled.div`
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 0 48px;
+  background: white;
 `;
 
 export const LoginCard = styled.div`
@@ -95,10 +118,12 @@ export const SecureConnection = styled.div`
 `;
 
 export const Footer = styled.footer`
-  text-align: center;
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
   color: #9ca3af;
   font-size: 0.75rem;
-  padding: 2rem 0;
-  width: 900px;
-  margin: 0 auto;
+  text-align: center;
 `;
+
