@@ -42,7 +42,7 @@ interface Props {
   open: boolean;
   onClose: () => void;
   onSave: (data: CompanyData) => void;
-  initialData: CompanyData;
+  initialData: CompanyData | null;
 }
 
 export default function CompanyEditModal({
