@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { useState, useEffect } from 'react';
 import CompanyRegisterModal from '../components/CompanyRegisterModal';
 import CompanyEditModal from '../components/CompanyEditModal';
@@ -6,12 +7,22 @@ import styled from 'styled-components';
 export interface Company {
   id: number;
   name: string;
-  reg: string;
-  addr: string;
-  owner: string;
+  bizNo: number;
+  address: string;
+  ceoName: string;
   email: string;
-  companyType: 'CLIENT' | 'AGENCY';
-  phone: string;
+  bio: string;
+  tel: string;
+}
+
+interface CompanyRegisterRequest {
+  name: string;
+  bizNo: number; // 합친 문자열
+  address: string;
+  ceoName: string;
+  email: string;
+  bio: string;
+  tel: string;
 }
 
 export interface CompanyFormData {
@@ -19,11 +30,11 @@ export interface CompanyFormData {
   reg1: string;
   reg2: string;
   reg3: string;
-  addr: string;
-  owner: string;
+  address: string;
+  ceoName: string;
   email: string;
-  companyType: 'CLIENT' | 'AGENCY';
-  phone: string;
+  bio: string;
+  tel: string;
 }
 
 // styled-components
@@ -80,6 +91,8 @@ const RegisterButton = styled.button`
 `;
 const TableWrapper = styled.div`
   overflow-x: auto;
+  overflow-y: auto;
+  min-height: 460px;  /* 46px * 10행 */
   border-radius: 0.5rem;
   box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px 0 rgba(0,0,0,0.06);
   background: #fff;
@@ -151,6 +164,11 @@ const CurrentPageButton = styled.button`
   cursor: not-allowed;
 `;
 
+const formatBizNo = (bizNo: string) => {
+  if (bizNo.length !== 10) return bizNo;
+  return `${bizNo.slice(0, 3)}-${bizNo.slice(3, 5)}-${bizNo.slice(5)}`;
+};
+
 export default function CompanyPage() {
   const [search, setSearch] = useState('');
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -159,50 +177,66 @@ export default function CompanyPage() {
   const [editData, setEditData] = useState<Company | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState<{
+    size: number;
+    number: number;
+    totalElements: number;
+    totalPages: number;
+  } | null>(null);
+
+  const handlePageChange = (newPage: number) => {
+    fetchCompanies(newPage);
+  };
+
+  const fetchCompanies = async (pageNumber: number = 0) => {
+    try {
+      setLoading(true);
+      const response = await fetch(`http://localhost:8087/api/companies?page=${pageNumber}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      setCompanies(data.data.content);
+      setPage(data.data.page);
+    } catch (err: unknown) {
+      let errorMessage = "An unknown error occurred";
+      if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+      setError(errorMessage);
+      console.error("Failed to fetch companies:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchCompanies = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch('/api/companies');
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data: Company[] = await response.json();
-        setCompanies(data);
-      } catch (err: unknown) {
-        let errorMessage = "An unknown error occurred";
-        if (err instanceof Error) {
-          errorMessage = err.message;
-        }
-        setError(errorMessage);
-        console.error("Failed to fetch companies:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchCompanies();
   }, []);
 
   const filtered = companies.filter(c => c.name.includes(search));
 
-  const handleRegister = (data: { [key: string]: string }) => {
-    const reg = `${data.reg1 || ''}-${data.reg2 || ''}-${data.reg3 || ''}`;
-    setCompanies(prev => [
-      ...prev,
-      {
-        id: prev.length > 0 ? prev[prev.length - 1].id + 1 : 1,
-        name: data.name || '',
-        reg,
-        addr: data.addr || '',
-        owner: data.owner || '',
-        email: data.email || '',
-        companyType: data.companyType as 'CLIENT' | 'AGENCY',
-        phone: data.phone || '',
-      },
-    ]);
-    setModalOpen(false);
+  const handleRegister = (data: CompanyFormData) => {
+    const bizNoString = `${data.reg1}${data.reg2}${data.reg3}`;
+    const bizNoNumber = parseInt(bizNoString, 10); // string → number 변환
+  
+    const company: CompanyRegisterRequest = {
+      name: data.name,
+      bizNo: bizNoNumber,
+      address: data.address,
+      ceoName: data.ceoName,
+      email: data.email,
+      bio: data.bio,
+      tel: data.tel,
+    };
+  
+    axios.post("/companies", company)
+      .then(() => {
+        console.log("등록 성공");
+      })
+      .catch((err) => {
+        console.error("등록 실패", err);
+      });
   };
 
   const handleEdit = (data: CompanyData) => {
@@ -241,7 +275,6 @@ export default function CompanyPage() {
             <tr>
               <Th>번호</Th>
               <Th>회사명</Th>
-              <Th>회사 구분</Th>
               <Th>사업자등록번호</Th>
               <Th>주소</Th>
               <Th>사업자 명</Th>
@@ -262,14 +295,13 @@ export default function CompanyPage() {
             )}
             {!loading && !error && filtered.map((c, idx) => (
               <Tr key={c.id}>
-                <Td>{idx + 1}</Td>
+                <Td>{c.id}</Td>
                 <Td>{c.name}</Td>
-                <Td>{c.companyType === 'CLIENT' ? '고객사' : '개발사'}</Td>
-                <Td>{c.reg}</Td>
-                <Td>{c.addr}</Td>
-                <Td>{c.owner}</Td>
+                <Td>{formatBizNo(c.bizNo.toString())}</Td>
+                <Td>{c.address}</Td>
+                <Td>{c.ceoName}</Td>
                 <Td>{c.email}</Td>
-                <Td>{c.phone}</Td>
+                <Td>{c.tel}</Td>
                 <Td>
                   <ActionButton onClick={() => { setEditModalOpen(true); setEditData(c); }}>수정</ActionButton>
                   <DeleteButton>삭제</DeleteButton>
@@ -280,12 +312,33 @@ export default function CompanyPage() {
         </StyledTable>
       </TableWrapper>
       <PaginationWrapper>
-        <nav>
-          <PageButton disabled>{'<'}</PageButton>
-          <CurrentPageButton>1</CurrentPageButton>
-          <PageButton disabled>{'>'}</PageButton>
-        </nav>
-      </PaginationWrapper>
+  <nav>
+  <PageButton
+      disabled={!page || page.number === 0}
+      onClick={() => page && handlePageChange(page.number - 1)}
+    >
+      {'<'}
+    </PageButton>
+
+    {/* 페이지 번호 버튼들을 동적으로 생성 */}
+    {Array.from({ length: page?.totalPages ?? 0 }, (_, idx) => (
+      idx === (page?.number ?? 0) ? (
+        <CurrentPageButton key={idx}>{idx + 1}</CurrentPageButton>
+      ) : (
+        <PageButton key={idx} onClick={() => handlePageChange(idx)}>
+          {idx + 1}
+        </PageButton>
+      )
+    ))}
+
+    <PageButton
+      disabled={!page || page.number + 1 >= (page?.totalPages ?? 0)}
+      onClick={() => page && handlePageChange(page.number + 1)}
+    >
+      {'>'}
+    </PageButton>
+  </nav>
+</PaginationWrapper>
     </Container>
   );
 } 
