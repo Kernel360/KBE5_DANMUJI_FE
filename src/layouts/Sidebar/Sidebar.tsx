@@ -7,7 +7,7 @@ import {
   SidebarContainer,
   LogoArea,
   Divider,
-  MainMenu,
+  MainMenu
 } from "./Sidebar.styles";
 import styled from "styled-components";
 
