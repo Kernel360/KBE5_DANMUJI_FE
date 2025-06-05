@@ -1,41 +1,60 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, RefObject } from 'react';
+
+interface CompanyData {
+  name: string;
+  companyType: string;
+  reg: string;
+  addr: string;
+  owner: string;
+  email: string;
+  phone: string;
+  [key: string]: any; // Add index signature for form data access if needed
+}
 
 interface Props {
   open: boolean;
   onClose: () => void;
-  onSave: (data: any) => void;
-  initialData: any;
+  onSave: (data: CompanyData) => void; // Use CompanyData type
+  initialData: CompanyData | null; // Use CompanyData or null type
 }
 
 export default function CompanyEditModal({ open, onClose, onSave, initialData }: Props) {
-  const reg1 = useRef<HTMLInputElement>(null);
-  const reg2 = useRef<HTMLInputElement>(null);
-  const reg3 = useRef<HTMLInputElement>(null);
-  const formRef = useRef<HTMLFormElement>(null);
+  const reg1 = useRef<HTMLInputElement | null>(null);
+  const reg2 = useRef<HTMLInputElement | null>(null);
+  const reg3 = useRef<HTMLInputElement | null>(null);
+  const formRef = useRef<HTMLFormElement | null>(null);
 
   useEffect(() => {
     if (open && formRef.current && initialData) {
       // 폼 값 세팅
-      formRef.current.name.value = initialData.name || '';
-      formRef.current.companyType.value = initialData.companyType || '';
+      // Access form elements safely
+      const form = formRef.current;
+      form.name.value = initialData.name || '';
+      form.companyType.value = initialData.companyType || '';
       const [r1, r2, r3] = (initialData.reg || '').split('-');
-      formRef.current.reg1.value = r1 || '';
-      formRef.current.reg2.value = r2 || '';
-      formRef.current.reg3.value = r3 || '';
-      formRef.current.addr.value = initialData.addr || '';
-      formRef.current.owner.value = initialData.owner || '';
-      formRef.current.email.value = initialData.email || '';
-      formRef.current.phone.value = initialData.phone || '';
+      if (form.reg1) form.reg1.value = r1 || '';
+      if (form.reg2) form.reg2.value = r2 || '';
+      if (form.reg3) form.reg3.value = r3 || '';
+      form.addr.value = initialData.addr || '';
+      form.owner.value = initialData.owner || '';
+      form.email.value = initialData.email || '';
+      form.phone.value = initialData.phone || '';
     }
   }, [open, initialData]);
 
   if (!open) return null;
 
-  const handleRegInput = (e: React.ChangeEvent<HTMLInputElement>, len: number, nextRef?: React.RefObject<HTMLInputElement>) => {
+  const handleRegInput = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    len: number,
+    nextRef?: RefObject<HTMLInputElement>
+  ) => {
     let value = e.target.value.replace(/[^0-9]/g, '');
     if (value.length > len) value = value.slice(0, len);
     e.target.value = value;
-    if (value.length === len && nextRef) nextRef.current?.focus();
+    if (value.length === len && nextRef && nextRef.current) {
+      nextRef.current.focus();
+    }
   };
 
   return (
@@ -47,7 +66,16 @@ export default function CompanyEditModal({ open, onClose, onSave, initialData }:
           ref={formRef}
           onSubmit={e => {
             e.preventDefault();
-            const data = Object.fromEntries(new FormData(e.currentTarget));
+            const formData = new FormData(e.currentTarget);
+            const data: CompanyData = {
+              name: formData.get('name') as string,
+              companyType: formData.get('companyType') as string,
+              reg: `${formData.get('reg1')}-${formData.get('reg2')}-${formData.get('reg3')}`,
+              addr: formData.get('addr') as string,
+              owner: formData.get('owner') as string,
+              email: formData.get('email') as string,
+              phone: formData.get('phone') as string,
+            };
             onSave(data);
           }}
           className="flex flex-col gap-4"
@@ -71,19 +99,19 @@ export default function CompanyEditModal({ open, onClose, onSave, initialData }:
             <label className="block text-sm font-medium mb-1">사업자등록번호</label>
             <div className="flex gap-2">
               <input name="reg1" required ref={reg1} maxLength={3} className="w-14 border rounded px-2 py-2 text-center" placeholder="000"
-                onInput={e => handleRegInput(e as any, 3, reg2)}
+                onInput={e => handleRegInput(e, 3, reg2)}
                 inputMode="numeric"
                 pattern="[0-9]*"
               />
               <span className="self-center">-</span>
               <input name="reg2" required ref={reg2} maxLength={2} className="w-10 border rounded px-2 py-2 text-center" placeholder="00"
-                onInput={e => handleRegInput(e as any, 2, reg3)}
+                onInput={e => handleRegInput(e, 2, reg3)}
                 inputMode="numeric"
                 pattern="[0-9]*"
               />
               <span className="self-center">-</span>
               <input name="reg3" required ref={reg3} maxLength={5} className="w-16 border rounded px-2 py-2 text-center" placeholder="00000"
-                onInput={e => handleRegInput(e as any, 5)}
+                onInput={e => handleRegInput(e, 5)}
                 inputMode="numeric"
                 pattern="[0-9]*"
               />
