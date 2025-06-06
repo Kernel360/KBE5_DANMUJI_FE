@@ -47,8 +47,8 @@ export default function ForgotPasswordPage() {
       <ComponentWrapper>
         <LeftPanel showLockInfo={submitted} />
         <ComponentRight>
-          <ComponentCard>
             <DanmujiLogo />
+          <ComponentCard>
             {submitted ? (
               <div>
                 <MailIconImage

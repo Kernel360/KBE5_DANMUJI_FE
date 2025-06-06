@@ -33,10 +33,11 @@ export const ComponentRight = styled.div`
   width: 50%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
   padding: 0 48px;
   background: white;
+  position: relative;
+  
 `;
 
 export const ComponentCard = styled.div`
@@ -47,11 +48,17 @@ export const ComponentCard = styled.div`
   width: 100%;
   max-width: 420px;
   padding: 2rem;
+  
+  position: absolute;
+  top: 7rem;
 `;
 
 export const Logo = styled.div`
-  text-align: center;
-  margin-bottom: 2rem;
+  position: absolute;
+  top: 4rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
 `;
 
 export const LogoImage = styled.img`

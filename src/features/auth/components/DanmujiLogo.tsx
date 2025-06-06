@@ -1,4 +1,3 @@
-import React from "react";
 import { Logo, LogoImage } from "./UserPage.styled";
 
 export const DanmujiLogo = () => (
