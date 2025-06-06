@@ -4,23 +4,27 @@ import {
   Route,
   useLocation,
 } from "react-router-dom";
+// layout
 import { Sidebar } from "./layouts/Sidebar";
 import { Topbar } from "./layouts/Topbar";
 import Footer from "./layouts/Footer/Footer";
+// un authorization pages
+import LoginPage from "./features/auth/pages/LoginPage";
+import ForgotPasswordPage from "./features/auth/pages/ForgotPasswordPage";
+// admin pages
 import DashboardPage from "./features/dashboard/pages/DashboardPage";
 import CompanyPage from "./features/company/pages/CompanyPage";
 import MemberPage from "./features/user/pages/MemberPage";
 import ProjectPage from "./features/project/pages/ProjectPage";
+// user pages
 import DashboardPage2 from "./features/board/pages/DashboardPage";
-import LoginPage from "./features/auth/pages/LoginPage";
 import ProjectPostPage from "./features/project/pages/ProjectPostPage";
+// etc
 import { AppContainer, MainContent, PageContent } from "./App.styled";
 
 const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
-  const isLoginPage = location.pathname === "/" || location.pathname === "/login";
-
-  if (isLoginPage) {
+  if (["/", "/login", "/forgot-password"].includes(location.pathname)) {
     return <>{children}</>;
   }
 
@@ -48,6 +52,7 @@ function App() {
           <Route path="/projects" element={<ProjectPage />} />
           <Route path="/projects/posts" element={<ProjectPostPage />} />
           <Route path="/dashboard2" element={<DashboardPage2 />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         </Routes>
       </LayoutWrapper>
       <Footer />
