@@ -98,9 +98,6 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
-      <footer className="text-center text-gray-400 text-xs py-8 w-[900px] mx-auto">
-        © 2025 Back2Basics. All rights reserved.
-      </footer>
     </div>
   );
 } 

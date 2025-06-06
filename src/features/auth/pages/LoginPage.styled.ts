@@ -117,13 +117,3 @@ export const SecureConnection = styled.div`
   font-size: 0.75rem;
 `;
 
-export const Footer = styled.footer`
-  position: absolute;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-  color: #9ca3af;
-  font-size: 0.75rem;
-  text-align: center;
-`;
-
