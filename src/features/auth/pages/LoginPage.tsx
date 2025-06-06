@@ -11,22 +11,41 @@ import {
   Input,
   Button,
   SecureConnection,
-  Footer,
 } from "./LoginPage.styled";
 
 export default function LoginPage() {
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // 로그인 로직
-  };
-
   const handleForgotPassword = () => {
     // 비밀번호 찾기 페이지 이동
     window.location.href = "/forgot-password";
+  };  
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include", // 쿠키 포함
+        body: JSON.stringify({ username: id, password }),
+      });
+  
+      if (res.ok) {
+        // 로그인 성공 처리 (예: 대시보드로 이동)
+        window.location.href = "/dashboard";
+      } else {
+        // 실패 처리
+        alert("로그인 실패");
+      }
+    } catch (err) {
+      alert("네트워크 오류");
+    }
   };
+  // ...existing code...
 return (
   <>
     <LoginContainer>
@@ -77,8 +96,6 @@ return (
         </LoginRight>
       </LoginWrapper>
     </LoginContainer>
-
-    <Footer>© 2025 Back2Basics. All rights reserved.</Footer>
   </>
 );
 
