@@ -6,6 +6,7 @@ import {
 } from "react-router-dom";
 import { Sidebar } from "./layouts/Sidebar";
 import { Topbar } from "./layouts/Topbar";
+import Footer from "./layouts/Footer/Footer";
 import DashboardPage from "./features/dashboard/pages/DashboardPage";
 import CompanyPage from "./features/company/pages/CompanyPage";
 import MemberPage from "./features/user/pages/MemberPage";
@@ -49,6 +50,7 @@ function App() {
           <Route path="/dashboard2" element={<DashboardPage2 />} />
         </Routes>
       </LayoutWrapper>
+      <Footer />
     </Router>
   );
 }
