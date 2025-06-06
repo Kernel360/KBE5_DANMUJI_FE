@@ -8,9 +8,15 @@ import {
   Logo,
   LogoImage,
   Form,
+  Title,
   Input,
   Button,
   SecureConnection,
+  DescIconImage,
+  DescIconText,
+  DescIconContainer,
+  LeftTitle,
+  LeftDesc,
 } from "./LoginPage.styled";
 
 export default function LoginPage() {
@@ -48,7 +54,8 @@ export default function LoginPage() {
       } else {
         const data = await res.json().catch(() => null);
 
-        if (data?.code === "C005") { // 잘못된 아이디나 비밀번호
+        if (data?.code === "C005") {
+          // 잘못된 아이디나 비밀번호
           alert(data.message);
         } else {
           alert("알 수 없는 오류가 발생했습니다.");
@@ -65,38 +72,49 @@ export default function LoginPage() {
       <LoginContainer>
         <LoginWrapper>
           <LoginLeft>
-            <div>
-              <h2>단계별 무리없는 지원 시스템</h2>
-              <div>Project Management System</div>
-              <ul>
-                <li>
-                  <span>✔️</span>효율적인 프로젝트 관리 시스템
-                </li>
-                <li>
-                  <span>👥</span>팀 협업 및 커뮤니케이션 향상
-                </li>
-                <li>
-                  <span>📊</span>실시간 데이터 분석 및 보고서
-                </li>
-              </ul>
-            </div>
+            <LeftTitle>단계 별 무리 없는 지원 시스템</LeftTitle>
+            <LeftDesc>Project Management System</LeftDesc>
+            <DescIconContainer>
+              <DescIconImage
+                src="/src/assets/Check-Icon.png"
+                alt="Description Icon"
+              />
+              <DescIconText>효율적인 프로젝트 관리 시스템</DescIconText>
+            </DescIconContainer>
+            <DescIconContainer>
+              <DescIconImage
+                src="/src/assets/Team-Icon.png"
+                alt="Description Icon"
+              />
+              <DescIconText>팀 협업 및 커뮤니케이션 향상</DescIconText>
+            </DescIconContainer>
+            <DescIconContainer>
+              <DescIconImage
+                src="/src/assets/Chart-Icon.png"
+                alt="Description Icon"
+              />
+              <DescIconText>실시간 데이터 분석 및 보고서</DescIconText>
+            </DescIconContainer>
           </LoginLeft>
           <LoginRight>
+            <Logo>
+              <LogoImage src="/src/assets/danmuji_logo.png" alt="Logo" />
+            </Logo>
             <LoginCard>
-              <Logo>
-                <LogoImage src="/src/assets/danmuji_logo.png" alt="Logo" />
-              </Logo>
+              <Title>로그인</Title>
               <Form onSubmit={handleSubmit}>
-                <div>아이디</div>
+                  <label htmlFor="username">아이디</label>
                 <Input
                   type="text"
-                  placeholder="아이디를 입력하세요"
+                  id="username"
+                  placeholder="아이디"
                   value={id}
                   onChange={(e) => setId(e.target.value)}
                 />
-                <div>비밀번호</div>
+                  <label htmlFor="password">비밀번호</label>
                 <Input
                   type="password"
+                  id="password"
                   placeholder="비밀번호"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
