@@ -64,28 +64,28 @@ return (
         <LoginRight>
           <LoginCard>
             <Logo>
-              <LogoImage src="/logo.png" alt="Logo" />
-              <span>Danmuji</span>
+              <LogoImage src="/src/assets/danmuji_logo.png" alt="Logo" />
             </Logo>
-            <div>로그인</div>
             <Form onSubmit={handleSubmit}>
+            <div>아이디</div>
               <Input
                 type="text"
                 placeholder="아이디를 입력하세요"
                 value={id}
                 onChange={(e) => setId(e.target.value)}
               />
-              <div style={{ display: "flex", justifyContent: "flex-end", fontSize: 12, marginBottom: 4 }}>
-                <span style={{ color: "#fdb924", cursor: "pointer" }} onClick={handleForgotPassword}>
-                  비밀번호를 잊으셨나요?
-                </span>
-              </div>
+            <div>비밀번호</div>
               <Input
                 type="password"
                 placeholder="비밀번호"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
+              <div style={{ display: "flex", justifyContent: "flex-end", fontSize: 12, marginBottom: 4 }}>
+                <span style={{ color: "#fdb924", cursor: "pointer" }} onClick={handleForgotPassword}>
+                  비밀번호를 잊으셨나요?
+                </span>
+              </div>
               <Button type="submit">로그인</Button>
             </Form>
             <SecureConnection>
