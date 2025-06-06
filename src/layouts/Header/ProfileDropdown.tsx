@@ -10,8 +10,10 @@ import {
   MenuItem,
   Divider,
 } from "./ProfileDropdown.styled";
+import { useAuth } from "@/contexts/AuthContexts";
 
 export const ProfileDropdown: React.FC = () => {
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleDropdown = () => {
@@ -50,16 +52,12 @@ export const ProfileDropdown: React.FC = () => {
   return (
     <DropdownContainer>
       <ProfileButton onClick={toggleDropdown}>
-        <UserName>이개발</UserName>
+        <UserName>{user?.name ?? ""}</UserName>
         <DropdownIcon>▼</DropdownIcon>
       </ProfileButton>
       {isOpen && (
         <DropdownMenu>
-          <UserProfile
-            name="이개발"
-            company="XYZ 소프트웨어"
-            role="개발자"
-          />
+          <UserProfile />
           <Divider />
           <MenuList>
             <MenuItem onClick={() => console.log("Profile clicked")}>

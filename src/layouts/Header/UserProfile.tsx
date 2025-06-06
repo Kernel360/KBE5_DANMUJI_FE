@@ -1,5 +1,4 @@
 import React from "react";
-import type { UserProfileProps } from "./Header.types";
 import {
   ProfileContainer,
   UserInfo,
@@ -7,18 +6,17 @@ import {
   UserCompany,
   UserRole,
 } from "./UserProfile.styled";
+import { useAuth } from "@/contexts/AuthContexts";
 
-export const UserProfile: React.FC<UserProfileProps> = ({
-  name,
-  company,
-  role,
-}) => {
+export const UserProfile: React.FC = () => {
+  const { user } = useAuth();
+
   return (
     <ProfileContainer>
       <UserInfo>
-        <UserName>{name}</UserName>
-        <UserCompany>{company}</UserCompany>
-        <UserRole>{role}</UserRole>
+        <UserName>{user?.name ?? ""}</UserName>
+        <UserCompany>{user?.companyName ?? ""}</UserCompany>
+        <UserRole>{user?.position ?? ""}</UserRole>
       </UserInfo>
     </ProfileContainer>
   );

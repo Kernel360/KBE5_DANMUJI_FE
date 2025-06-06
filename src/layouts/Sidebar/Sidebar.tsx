@@ -33,6 +33,7 @@ const LogoImage = styled.img`
 
 export const Sidebar: React.FC = () => {
   const { role } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -48,7 +49,7 @@ export const Sidebar: React.FC = () => {
         <LogoImage src={danmujiLogo} alt="Danmuji Logo" />
       </LogoArea>
       <Divider />
-      <UserProfile name="이개발" company="XYZ 소프트웨어" role="개발자" />
+      <UserProfile />
       <MainMenu>
         <MenuItem
           icon={MdDashboard}
@@ -72,7 +73,7 @@ export const Sidebar: React.FC = () => {
             <ul style={{ listStyle: "none", paddingLeft: 36, margin: 0 }}>
               <li>
                 <MenuItemSide
-                  icon={FaPlay} 
+                  icon={FaPlay}
                   text="진행 중인 프로젝트"
                   isActive={location.pathname === "/projects/active"}
                   onClick={() =>
