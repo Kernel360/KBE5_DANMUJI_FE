@@ -67,3 +67,20 @@ export const MenuItemContainer = styled.div<{ $isActive: boolean }>`
     transition: color 0.2s;
   }
 `;
+export const MenuItemSideContainer = styled.div<{ $isActive: boolean }>`
+  padding: 8px 24px;
+  display: flex;
+  margin-top: 4px;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  color: ${({ $isActive }) => ($isActive ? '#374151' : '#9ca3af')};
+  background-color: ${({ $isActive }) => ($isActive ? '#fef3c7' : 'transparent')};
+  border-radius: 4px;
+
+  &:hover {
+    background-color: #fef3c7;
+    color: #111827;
+  }
+`;

@@ -1,13 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { UserProfile } from "../Header/UserProfile";
 import { MenuItem } from "./MenuItem";
+import { MenuItemSide } from "./MenuItemSide";
 
 import {
   SidebarContainer,
   LogoArea,
   Divider,
-  MainMenu
+  MainMenu,
 } from "./Sidebar.styles";
 import styled from "styled-components";
 
@@ -19,7 +20,7 @@ import { HiUsers } from "react-icons/hi2";
 
 import { useAuth } from "@/contexts/AuthContexts";
 
-import danmujiLogo from '../../assets/danmuji_logo.png';
+import danmujiLogo from "../../assets/danmuji_logo.png";
 
 const LogoImage = styled.img`
   height: 48px;
@@ -32,8 +33,10 @@ export const Sidebar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const handleMenuItemClick = (menuItem: string, path: string) => {
-    navigate(path);
+  const handleMenuItemClick = (menuItem: string, path?: string) => {
+    if (path) {
+      navigate(path);
+    }
   };
 
   return (
@@ -42,11 +45,7 @@ export const Sidebar: React.FC = () => {
         <LogoImage src={danmujiLogo} alt="Danmuji Logo" />
       </LogoArea>
       <Divider />
-      <UserProfile
-        name="이개발"
-        company="XYZ 소프트웨어"
-        role="개발자"
-      />
+      <UserProfile name="이개발" company="XYZ 소프트웨어" role="개발자" />
       <MainMenu>
         <MenuItem
           icon={MdDashboard}
@@ -54,13 +53,57 @@ export const Sidebar: React.FC = () => {
           isActive={location.pathname === "/dashboard"}
           onClick={() => handleMenuItemClick("대시보드", "/dashboard")}
         />
-        <MenuItem
-          icon={FaProjectDiagram}
-          text="프로젝트 관리"
-          isActive={location.pathname === "/projects"}
-          onClick={() => handleMenuItemClick("프로젝트 관리", "/projects")}
-        />
-                {/* 관리자 전용 메뉴 */}
+        <div>
+          <MenuItem
+            icon={FaProjectDiagram}
+            text="프로젝트 관리"
+            isActive={location.pathname.startsWith("/projects")}
+            onClick={() => {
+              role === "ROLE_USER" &&
+                handleMenuItemClick("프로젝트 관리", "/projects/active");
+              role === "ROLE_ADMIN" &&
+                handleMenuItemClick("프로젝트 관리", "/projects");
+            }}
+          />
+          {role === "ROLE_USER" && (
+            <ul style={{ listStyle: "none", paddingLeft: 36, margin: 0 }}>
+              <li>
+                <MenuItemSide
+                  text="진행 중인 프로젝트"
+                  isActive={location.pathname === "/projects/active"}
+                  onClick={() =>
+                    handleMenuItemClick(
+                      "진행 중인 프로젝트",
+                      "/projects/active"
+                    )
+                  }
+                />
+              </li>
+              <li>
+                <MenuItemSide
+                  text="완료된 프로젝트"
+                  isActive={location.pathname === "/projects/completed"}
+                  onClick={() =>
+                    handleMenuItemClick(
+                      "완료된 프로젝트",
+                      "/projects/completed"
+                    )
+                  }
+                />
+              </li>
+              <li>
+                <MenuItemSide
+                  text="모든 프로젝트"
+                  isActive={location.pathname === "/projects/all"}
+                  onClick={() =>
+                    handleMenuItemClick("모든 프로젝트", "/projects/all")
+                  }
+                />
+              </li>
+            </ul>
+          )}
+        </div>
+        {/* 관리자 전용 메뉴 */}
         {role === "ROLE_ADMIN" && (
           <>
             <MenuItem
