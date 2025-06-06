@@ -46,6 +46,7 @@ export default function LoginPage() {
         } else {
           alert("로그인에 실패했습니다.");
         }
+          alert("로그인 되었습니다.");
       } else {
         const data = await res.json().catch(() => null);
 
