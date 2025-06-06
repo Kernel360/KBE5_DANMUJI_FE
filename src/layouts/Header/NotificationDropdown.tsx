@@ -11,7 +11,7 @@ import {
   EmptyState,
 } from "./NotificationDropdown.styled";
 import type { Notification } from "./Header.types";
-
+import { FaBell } from "react-icons/fa";
 export const NotificationDropdown: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -33,7 +33,7 @@ export const NotificationDropdown: React.FC = () => {
   return (
     <DropdownContainer>
       <NotificationButton onClick={toggleDropdown}>
-        🔔
+        <FaBell />
         {notifications.some((n) => !n.isRead) && <NotificationBadge />}
       </NotificationButton>
       {isOpen && (
