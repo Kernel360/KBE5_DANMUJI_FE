@@ -7,19 +7,6 @@ export const ProfileContainer = styled.div`
   gap: 12px;
 `;
 
-export const Avatar = styled.div`
-  width: 40px;
-  height: 40px;
-  border-radius: 20px;
-  background-color: #fdb924;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  font-size: 16px;
-`;
-
 export const UserInfo = styled.div`
   display: flex;
   flex-direction: column;
