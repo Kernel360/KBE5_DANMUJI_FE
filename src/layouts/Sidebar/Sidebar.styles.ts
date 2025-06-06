@@ -6,8 +6,12 @@ export const SidebarContainer = styled.div`
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  align-items: center;
   padding: 20px 0;
+`;
+
+export const ProfileArea = styled.div`
+  align-items: left;
+  margin-left: 20px;
 `;
 
 export const LogoArea = styled.div`
@@ -18,7 +22,7 @@ export const Divider = styled.hr`
   width: 80%;
   border: none;
   border-top: 1px solid #e5e7eb;
-  margin: 20px 0;
+  margin: 15px 0;
 `;
 
 export const MainMenu = styled.nav`

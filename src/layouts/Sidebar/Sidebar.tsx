@@ -9,6 +9,7 @@ import {
   LogoArea,
   Divider,
   MainMenu,
+  ProfileArea,
 } from "./Sidebar.styles";
 import styled from "styled-components";
 
@@ -48,7 +49,8 @@ export const Sidebar: React.FC = () => {
         <LogoImage src={danmujiLogo} alt="Danmuji Logo" />
       </LogoArea>
       <Divider />
-      <UserProfile />
+      <ProfileArea><UserProfile /></ProfileArea>
+      <Divider />
       <MainMenu>
         <MenuItem
           icon={MdDashboard}
