@@ -17,8 +17,9 @@ import { FaProjectDiagram } from "react-icons/fa";
 import { HiBuildingOffice2 } from "react-icons/hi2";
 import { HiUsers } from "react-icons/hi2";
 
+import { useAuth } from "@/contexts/AuthContexts";
 
-import danmujiLogo from '../../assets/danmuji-logo.png';
+import danmujiLogo from '../../assets/danmuji_logo.png';
 
 const LogoImage = styled.img`
   height: 48px;
@@ -27,6 +28,7 @@ const LogoImage = styled.img`
 `;
 
 export const Sidebar: React.FC = () => {
+  const { role } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -36,7 +38,7 @@ export const Sidebar: React.FC = () => {
 
   return (
     <SidebarContainer>
-      <LogoArea>
+      <LogoArea onClick={() => handleMenuItemClick("홈", "/dashboard")}>
         <LogoImage src={danmujiLogo} alt="Danmuji Logo" />
       </LogoArea>
       <Divider />
@@ -44,7 +46,6 @@ export const Sidebar: React.FC = () => {
         name="이개발"
         company="XYZ 소프트웨어"
         role="개발자"
-        initial="이"
       />
       <MainMenu>
         <MenuItem
@@ -59,18 +60,23 @@ export const Sidebar: React.FC = () => {
           isActive={location.pathname === "/projects"}
           onClick={() => handleMenuItemClick("프로젝트 관리", "/projects")}
         />
-        <MenuItem
-          icon={HiBuildingOffice2}
-          text="회사 관리"
-          isActive={location.pathname === "/company"}
-          onClick={() => handleMenuItemClick("회사 관리", "/company")}
-        />
-        <MenuItem
-          icon={HiUsers}
-          text="멤버 관리"
-          isActive={location.pathname === "/members"}
-          onClick={() => handleMenuItemClick("멤버 관리", "/members")}
-        />
+                {/* 관리자 전용 메뉴 */}
+        {role === "ROLE_ADMIN" && (
+          <>
+            <MenuItem
+              icon={HiBuildingOffice2}
+              text="회사 관리"
+              isActive={location.pathname === "/company"}
+              onClick={() => handleMenuItemClick("회사 관리", "/company")}
+            />
+            <MenuItem
+              icon={HiUsers}
+              text="멤버 관리"
+              isActive={location.pathname === "/members"}
+              onClick={() => handleMenuItemClick("멤버 관리", "/members")}
+            />
+          </>
+        )}
       </MainMenu>
     </SidebarContainer>
   );
