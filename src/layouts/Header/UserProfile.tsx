@@ -2,7 +2,6 @@ import React from "react";
 import type { UserProfileProps } from "./Header.types";
 import {
   ProfileContainer,
-  Avatar,
   UserInfo,
   UserName,
   UserCompany,
@@ -13,11 +12,9 @@ export const UserProfile: React.FC<UserProfileProps> = ({
   name,
   company,
   role,
-  initial,
 }) => {
   return (
     <ProfileContainer>
-      <Avatar>{initial}</Avatar>
       <UserInfo>
         <UserName>{name}</UserName>
         <UserCompany>{company}</UserCompany>

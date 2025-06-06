@@ -59,7 +59,6 @@ export const ProfileDropdown: React.FC = () => {
             name="이개발"
             company="XYZ 소프트웨어"
             role="개발자"
-            initial="이"
           />
           <Divider />
           <MenuList>

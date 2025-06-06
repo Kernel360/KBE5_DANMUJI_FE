@@ -16,6 +16,7 @@ export const NotificationButton = styled.button`
   cursor: pointer;
   position: relative;
   color: #6b7280;
+  font-size: 20px;
 
   &:hover {
     background-color: #f3f4f6;

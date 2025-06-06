@@ -6,7 +6,6 @@ import {
   TopbarContainer,
   PageTitle,
   UserInfo,
-  CompanyName,
   UserDropdown,
 } from "./Topbar.styles";
 
@@ -32,7 +31,6 @@ export const Topbar: React.FC = () => {
     <TopbarContainer>
       <PageTitle>{getPageTitle()}</PageTitle>
       <UserInfo>
-        <CompanyName>XYZ 소프트웨어</CompanyName>
         <UserDropdown>
           <ProfileDropdown />
         </UserDropdown>
