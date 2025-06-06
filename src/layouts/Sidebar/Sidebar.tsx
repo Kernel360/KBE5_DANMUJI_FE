@@ -14,9 +14,12 @@ import styled from "styled-components";
 
 // Import necessary icons from react-icons
 import { MdDashboard } from "react-icons/md";
-import { FaProjectDiagram } from "react-icons/fa";
 import { HiBuildingOffice2 } from "react-icons/hi2";
 import { HiUsers } from "react-icons/hi2";
+import { FaFlagCheckered } from "react-icons/fa";
+import { FaPlay } from "react-icons/fa";
+import { FaAlignLeft } from "react-icons/fa";
+import { FaArchive } from "react-icons/fa";
 
 import { useAuth } from "@/contexts/AuthContexts";
 
@@ -55,7 +58,7 @@ export const Sidebar: React.FC = () => {
         />
         <div>
           <MenuItem
-            icon={FaProjectDiagram}
+            icon={FaArchive}
             text="프로젝트 관리"
             isActive={location.pathname.startsWith("/projects")}
             onClick={() => {
@@ -69,6 +72,7 @@ export const Sidebar: React.FC = () => {
             <ul style={{ listStyle: "none", paddingLeft: 36, margin: 0 }}>
               <li>
                 <MenuItemSide
+                  icon={FaPlay} 
                   text="진행 중인 프로젝트"
                   isActive={location.pathname === "/projects/active"}
                   onClick={() =>
@@ -81,6 +85,7 @@ export const Sidebar: React.FC = () => {
               </li>
               <li>
                 <MenuItemSide
+                  icon={FaFlagCheckered}
                   text="완료된 프로젝트"
                   isActive={location.pathname === "/projects/completed"}
                   onClick={() =>
@@ -93,6 +98,7 @@ export const Sidebar: React.FC = () => {
               </li>
               <li>
                 <MenuItemSide
+                  icon={FaAlignLeft}
                   text="모든 프로젝트"
                   isActive={location.pathname === "/projects/all"}
                   onClick={() =>
