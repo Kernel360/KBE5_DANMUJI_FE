@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-export const LoginContainer = styled.div`
+export const ComponentContainer = styled.div`
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -9,7 +9,7 @@ export const LoginContainer = styled.div`
   position: relative;
 `;
 
-export const LoginWrapper = styled.div`
+export const ComponentWrapper = styled.div`
   display: flex;
   width: 1100px;
   min-height: 650px;
@@ -19,7 +19,7 @@ export const LoginWrapper = styled.div`
   overflow: hidden;
 `;
 
-export const LoginLeft = styled.div`
+export const ComponentLeft = styled.div`
   background: #fdb924;
   color: white;
   width: 50%;
@@ -29,7 +29,7 @@ export const LoginLeft = styled.div`
   padding: 0 48px;
 `;
 
-export const LoginRight = styled.div`
+export const ComponentRight = styled.div`
   width: 50%;
   display: flex;
   flex-direction: column;
@@ -39,7 +39,7 @@ export const LoginRight = styled.div`
   background: white;
 `;
 
-export const LoginCard = styled.div`
+export const ComponentCard = styled.div`
   background-color: white;
   border-radius: 1rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),

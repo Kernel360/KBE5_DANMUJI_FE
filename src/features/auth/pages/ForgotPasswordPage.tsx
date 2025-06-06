@@ -1,29 +1,18 @@
 import React, { useState } from "react";
+import { LeftPanel } from "@/features/auth/components/LeftPanel";
+import { DanmujiLogo } from "@/features/auth/components/DanmujiLogo";
 import {
-  LoginContainer,
-  LoginWrapper,
-  LoginLeft,
-  LoginRight,
-  LoginCard,
-  Logo,
-  LogoImage,
+  ComponentContainer,
+  ComponentWrapper,
+  ComponentRight,
+  ComponentCard,
   Title,
   Subtitle,
   Form,
   Input,
   Button,
-  SecureConnection,
-  LockIconImage,
-  LockText,
-  LockTitle,
-  LockContainer,
-  DescIconImage,
-  DescIconText,
-  DescIconContainer,
-  LeftTitle,
-  LeftDesc,
   MailIconImage,
-} from "./LoginPage.styled";
+} from "../components/UserPage.styled";
 import { useNavigate } from "react-router-dom";
 
 export default function ForgotPasswordPage() {
@@ -54,58 +43,12 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <LoginContainer>
-      <LoginWrapper>
-        <LoginLeft>
-          {/* <Logo>
-            <LogoImage src="/src/assets/danmuji_logo.png" alt="Logo" />
-          </Logo> */}
-          <LeftTitle>단계 별 무리 없는 지원 시스템</LeftTitle>
-          <LeftDesc>Project Management System</LeftDesc>
-          <DescIconContainer>
-            <DescIconImage
-              src="/src/assets/Check-Icon.png"
-              alt="Description Icon"
-            />
-            <DescIconText>효율적인 프로젝트 관리 시스템</DescIconText>
-          </DescIconContainer>
-          <DescIconContainer>
-            <DescIconImage
-              src="/src/assets/Team-Icon.png"
-              alt="Description Icon"
-            />
-            <DescIconText>팀 협업 및 커뮤니케이션 향상</DescIconText>
-          </DescIconContainer>
-          <DescIconContainer>
-            <DescIconImage
-              src="/src/assets/Chart-Icon.png"
-              alt="Description Icon"
-            />
-            <DescIconText>실시간 데이터 분석 및 보고서</DescIconText>
-          </DescIconContainer>
-          {submitted && (
-            <>
-              <LockContainer>
-                <LockIconImage
-                  src="/src/assets/lock-icon.png"
-                  alt="Lock Icon"
-                />
-                <LockTitle>보안 정보</LockTitle>
-              </LockContainer>
-              <LockText>
-                <br /> 이메일로 전송된 링크는 30분 동안 유효합니다.
-                <br />
-                개인정보 보호를 위해 링크를 공유하지 마세요.
-              </LockText>
-            </>
-          )}
-        </LoginLeft>
-
-        <LoginRight>
-          <LoginCard>
-            <Logo>
-              <LogoImage src="/src/assets/danmuji_logo.png" alt="Logo" />
-            </Logo>
+    <ComponentContainer>
+      <ComponentWrapper>
+        <LeftPanel showLockInfo={submitted} />
+        <ComponentRight>
+          <ComponentCard>
+            <DanmujiLogo />
             {submitted ? (
               <div>
                 <MailIconImage
@@ -197,9 +140,9 @@ export default function ForgotPasswordPage() {
             >
               로그인 화면으로
             </div>
-          </LoginCard>
-        </LoginRight>
-      </LoginWrapper>
-    </LoginContainer>
+          </ComponentCard>
+        </ComponentRight>
+      </ComponentWrapper>
+    </ComponentContainer>
   );
 }

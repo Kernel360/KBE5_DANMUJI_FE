@@ -1,23 +1,18 @@
 import React, { useState } from "react";
+import { LeftPanel } from "@/features/auth/components/LeftPanel";
+import { DanmujiLogo } from "@/features/auth/components/DanmujiLogo";
+
 import {
-  LoginContainer,
-  LoginWrapper,
-  LoginLeft,
-  LoginRight,
-  LoginCard,
-  Logo,
-  LogoImage,
-  Form,
+  ComponentContainer,
+  ComponentWrapper,
+  ComponentRight,
+  ComponentCard,
   Title,
+  Form,
   Input,
   Button,
   SecureConnection,
-  DescIconImage,
-  DescIconText,
-  DescIconContainer,
-  LeftTitle,
-  LeftDesc,
-} from "./LoginPage.styled";
+} from "../components/UserPage.styled";
 
 export default function LoginPage() {
   const [id, setId] = useState("");
@@ -69,38 +64,12 @@ export default function LoginPage() {
   // ...existing code...
   return (
     <>
-      <LoginContainer>
-        <LoginWrapper>
-          <LoginLeft>
-            <LeftTitle>단계 별 무리 없는 지원 시스템</LeftTitle>
-            <LeftDesc>Project Management System</LeftDesc>
-            <DescIconContainer>
-              <DescIconImage
-                src="/src/assets/Check-Icon.png"
-                alt="Description Icon"
-              />
-              <DescIconText>효율적인 프로젝트 관리 시스템</DescIconText>
-            </DescIconContainer>
-            <DescIconContainer>
-              <DescIconImage
-                src="/src/assets/Team-Icon.png"
-                alt="Description Icon"
-              />
-              <DescIconText>팀 협업 및 커뮤니케이션 향상</DescIconText>
-            </DescIconContainer>
-            <DescIconContainer>
-              <DescIconImage
-                src="/src/assets/Chart-Icon.png"
-                alt="Description Icon"
-              />
-              <DescIconText>실시간 데이터 분석 및 보고서</DescIconText>
-            </DescIconContainer>
-          </LoginLeft>
-          <LoginRight>
-            <Logo>
-              <LogoImage src="/src/assets/danmuji_logo.png" alt="Logo" />
-            </Logo>
-            <LoginCard>
+      <ComponentContainer>
+        <ComponentWrapper>
+          <LeftPanel />
+          <ComponentRight>
+            <DanmujiLogo />
+            <ComponentCard>
               <Title>로그인</Title>
               <Form onSubmit={handleSubmit}>
                   <label htmlFor="username">아이디</label>
@@ -142,10 +111,10 @@ export default function LoginPage() {
                 </span>
                 Secure, encrypted connection
               </SecureConnection>
-            </LoginCard>
-          </LoginRight>
-        </LoginWrapper>
-      </LoginContainer>
+            </ComponentCard>
+          </ComponentRight>
+        </ComponentWrapper>
+      </ComponentContainer>
     </>
   );
 }

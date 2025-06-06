@@ -1,30 +1,50 @@
-import React from 'react';
+import React from "react";
+import {
+  ComponentLeft,
+  LeftTitle,
+  LeftDesc,
+  DescIconContainer,
+  DescIconImage,
+  DescIconText,
+  LockContainer,
+  LockIconImage,
+  LockTitle,
+  LockText,
+} from "../components/UserPage.styled";
 
-const features = [
-  "효율적인 프로젝트 관리 시스템",
-  "팀 협업 및 커뮤니케이션 향상",
-  "실시간 데이터 분석 및 보고서"
-];
+type Props = {
+  showLockInfo?: boolean;
+};
 
-const icons = [
-  "fa-tasks",
-  "fa-users",
-  "fa-chart-bar"
-];
+export const LeftPanel: React.FC<Props> = ({ showLockInfo = false }) => (
+  <ComponentLeft>
+    <LeftTitle>단계 별 무리 없는 지원 시스템</LeftTitle>
+    <LeftDesc>Project Management System</LeftDesc>
+    <DescIconContainer>
+      <DescIconImage src="/src/assets/Check-Icon.png" alt="Check Icon" />
+      <DescIconText>효율적인 프로젝트 관리 시스템</DescIconText>
+    </DescIconContainer>
+    <DescIconContainer>
+      <DescIconImage src="/src/assets/Team-Icon.png" alt="Team Icon" />
+      <DescIconText>팀 협업 및 커뮤니케이션 향상</DescIconText>
+    </DescIconContainer>
+    <DescIconContainer>
+      <DescIconImage src="/src/assets/Chart-Icon.png" alt="Chart Icon" />
+      <DescIconText>실시간 데이터 분석 및 보고서</DescIconText>
+    </DescIconContainer>
 
-const LeftPanel: React.FC = () => (
-  <div className="w-1/2 bg-yellow-400 p-12 flex flex-col justify-center text-white">
-    <h1 className="text-2xl font-bold mb-1">단계별 무리없는 지원 시스템</h1>
-    <p className="mb-10">Project Management System</p>
-    <div className="space-y-6">
-      {features.map((feature, index) => (
-        <div key={index} className="flex items-start">
-          <i className={`fas ${icons[index]} mr-3 mt-1`}></i>
-          <p>{feature}</p>
-        </div>
-      ))}
-    </div>
-  </div>
+    {showLockInfo && (
+      <>
+        <LockContainer>
+          <LockIconImage src="/src/assets/lock-icon.png" alt="Lock Icon" />
+          <LockTitle>보안 정보</LockTitle>
+        </LockContainer>
+        <LockText>
+          <br /> 이메일로 전송된 링크는 30분 동안 유효합니다.
+          <br />
+          개인정보 보호를 위해 링크를 공유하지 마세요.
+        </LockText>
+      </>
+    )}
+  </ComponentLeft>
 );
-
-export default LeftPanel;
