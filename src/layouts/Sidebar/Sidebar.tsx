@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { UserProfile } from "../Header/UserProfile";
 import { MenuItem } from "./MenuItem";
@@ -33,11 +33,10 @@ const LogoImage = styled.img`
 
 export const Sidebar: React.FC = () => {
   const { role } = useAuth();
-  const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const handleMenuItemClick = (menuItem: string, path?: string) => {
+  const handleMenuItemClick = (_menuItem: string, path?: string) => {
     if (path) {
       navigate(path);
     }
