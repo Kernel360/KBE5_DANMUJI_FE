@@ -23,23 +23,28 @@ export default function ForgotPasswordPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
-    // try {
-    //   const res = await fetch("/api/users/password/reset-mail/request", {
-    //     method: "POST",
-    //     headers: { "Content-Type": "application/json" },
-    //     body: JSON.stringify({ username, email }),
-    //   });
+    try {
+      const res = await fetch("/api/users/password/reset-mail/request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, email }),
+      });
 
-    //   if (res.ok) {
-    //     setSubmitted(true);
-    //   } else {
-    //     const data = await res.json().catch(() => null);
-    //     alert(data?.message || "오류가 발생했습니다.");
-    //   }
-    // } catch (err) {
-    //   alert("네트워크 오류입니다. 다시 시도해주세요.");
-    // }
+      if (res.ok) {
+        setSubmitted(true);
+      } else {
+        const data = await res.json().catch(() => null);
+        if (data?.code === "U001") {
+          alert(
+            "입력하신 아이디로 등록된 사용자를 찾을 수 없습니다.\n아이디를 다시 확인해주세요."
+          );
+        } else {
+          alert("비밀번호 재설정 메일 전송에 실패했습니다. 다시 시도해주세요.");
+        }
+      }
+    } catch (err) {
+      alert("네트워크 오류입니다. 다시 시도해주세요.");
+    }
   };
 
   return (
@@ -47,7 +52,7 @@ export default function ForgotPasswordPage() {
       <ComponentWrapper>
         <LeftPanel showLockInfo={submitted} />
         <ComponentRight>
-            <DanmujiLogo />
+          <DanmujiLogo />
           <ComponentCard>
             {submitted ? (
               <div>
