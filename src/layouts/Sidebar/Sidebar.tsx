@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { UserProfile } from "../Header/UserProfile";
 import { MenuItem } from "./MenuItem";
@@ -9,6 +9,7 @@ import {
   LogoArea,
   Divider,
   MainMenu,
+  ProfileArea,
 } from "./Sidebar.styles";
 import styled from "styled-components";
 
@@ -36,7 +37,7 @@ export const Sidebar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const handleMenuItemClick = (menuItem: string, path?: string) => {
+  const handleMenuItemClick = (_menuItem: string, path?: string) => {
     if (path) {
       navigate(path);
     }
@@ -48,7 +49,8 @@ export const Sidebar: React.FC = () => {
         <LogoImage src={danmujiLogo} alt="Danmuji Logo" />
       </LogoArea>
       <Divider />
-      <UserProfile name="이개발" company="XYZ 소프트웨어" role="개발자" />
+      <ProfileArea><UserProfile /></ProfileArea>
+      <Divider />
       <MainMenu>
         <MenuItem
           icon={MdDashboard}
@@ -72,7 +74,7 @@ export const Sidebar: React.FC = () => {
             <ul style={{ listStyle: "none", paddingLeft: 36, margin: 0 }}>
               <li>
                 <MenuItemSide
-                  icon={FaPlay} 
+                  icon={FaPlay}
                   text="진행 중인 프로젝트"
                   isActive={location.pathname === "/projects/active"}
                   onClick={() =>

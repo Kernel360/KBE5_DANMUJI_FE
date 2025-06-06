@@ -13,17 +13,20 @@ export const UserInfo = styled.div`
 `;
 
 export const UserName = styled.div`
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   color: #111827;
+  margin-top: 4px;
 `;
 
 export const UserCompany = styled.div`
-  font-size: 12px;
+  margin-top: 4px;
+  font-size: 13px;
   color: #6b7280;
 `;
 
 export const UserRole = styled.div`
-  font-size: 12px;
+  margin-top: 4px;
+  font-size: 11px;
   color: #6b7280;
 `;
