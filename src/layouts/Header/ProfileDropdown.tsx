@@ -11,6 +11,7 @@ import {
   Divider,
 } from "./ProfileDropdown.styled";
 import { useAuth } from "@/contexts/AuthContexts";
+import api from "@/api/axios";
 
 export const ProfileDropdown: React.FC = () => {
   const { user } = useAuth();
@@ -20,34 +21,22 @@ export const ProfileDropdown: React.FC = () => {
     setIsOpen(!isOpen);
   };
 
-  const handleLogout = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const res = await fetch("/api/auth/logout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include", // 쿠키 포함
-      });
-      setIsOpen(false);
-  
-      if (res.ok) {
-        localStorage.removeItem("accessToken");
-        window.location.href = "/";
-      } else {
-        // 로그아웃 실패 로그
-        const data = await res.json().catch(() => null);
-        console.log(data.message);
+const handleLogout = async (e: React.FormEvent) => {
+  e.preventDefault();
+  try {
+    await api.post("/api/auth/logout", null, {
+      withCredentials: true, // 쿠키 포함
+    });
 
-        localStorage.removeItem("accessToken");
-        window.location.href = "/";
-      }
-    } catch (err) {
-      console.log("네트워크 오류가 발생했습니다.");
-      window.location.href = "/";
-    }
-  };
+    setIsOpen(false);
+    localStorage.removeItem("accessToken");
+    window.location.href = "/";
+  } catch (error: any) {
+    console.error("로그아웃 실패:", error?.response?.data?.message || error);
+    localStorage.removeItem("accessToken");
+    window.location.href = "/";
+  }
+};
 
   return (
     <DropdownContainer>
