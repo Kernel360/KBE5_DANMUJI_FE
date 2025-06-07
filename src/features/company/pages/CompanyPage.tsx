@@ -191,7 +191,7 @@ export default function CompanyPage() {
   const fetchCompanies = async (pageNumber: number = 0) => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:8087/api/companies?page=${pageNumber}`);
+      const response = await fetch(`/api/companies?page=${pageNumber}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
