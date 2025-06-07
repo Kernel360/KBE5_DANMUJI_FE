@@ -6,8 +6,12 @@ export const SidebarContainer = styled.div`
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  align-items: center;
   padding: 20px 0;
+`;
+
+export const ProfileArea = styled.div`
+  align-items: left;
+  margin-left: 20px;
 `;
 
 export const LogoArea = styled.div`
@@ -18,7 +22,7 @@ export const Divider = styled.hr`
   width: 80%;
   border: none;
   border-top: 1px solid #e5e7eb;
-  margin: 20px 0;
+  margin: 15px 0;
 `;
 
 export const MainMenu = styled.nav`
@@ -65,5 +69,22 @@ export const MenuItemContainer = styled.div<{ $isActive: boolean }>`
   svg {
     color: ${({ $isActive }) => ($isActive ? '#fff' : '#6b7280')};
     transition: color 0.2s;
+  }
+`;
+export const MenuItemSideContainer = styled.div<{ $isActive: boolean }>`
+  padding: 8px 24px;
+  display: flex;
+  margin-top: 4px;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  color: ${({ $isActive }) => ($isActive ? '#374151' : '#9ca3af')};
+  background-color: ${({ $isActive }) => ($isActive ? '#fef3c7' : 'transparent')};
+  border-radius: 4px;
+
+  &:hover {
+    background-color: #fef3c7;
+    color: #111827;
   }
 `;

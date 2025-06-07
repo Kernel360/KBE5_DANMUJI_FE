@@ -2,7 +2,6 @@ interface UserProfileProps {
   name: string;
   company: string;
   role: string;
-  initial: string;
 }
 
 interface Notification {
@@ -16,7 +15,6 @@ interface UserProfile {
   name: string;
   email: string;
   role: string;
-  avatar?: string;
 }
 
 export type { UserProfileProps, Notification, UserProfile };

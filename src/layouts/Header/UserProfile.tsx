@@ -1,27 +1,33 @@
 import React from "react";
-import type { UserProfileProps } from "./Header.types";
 import {
   ProfileContainer,
-  Avatar,
   UserInfo,
   UserName,
   UserCompany,
   UserRole,
 } from "./UserProfile.styled";
+import { FaBuilding } from "react-icons/fa";
+import { useAuth } from "@/contexts/AuthContexts";
+import { IoPersonSharp } from "react-icons/io5";
+export const UserProfile: React.FC = () => {
+  const { user } = useAuth();
+  const { role } = useAuth();
 
-export const UserProfile: React.FC<UserProfileProps> = ({
-  name,
-  company,
-  role,
-  initial,
-}) => {
   return (
     <ProfileContainer>
-      <Avatar>{initial}</Avatar>
       <UserInfo>
-        <UserName>{name}</UserName>
-        <UserCompany>{company}</UserCompany>
-        <UserRole>{role}</UserRole>
+        <div style={{ display: "flex", alignItems: "center", gap: "9px" }}>
+          <IoPersonSharp /> <UserName>{user?.name ?? ""}</UserName>
+        </div>
+        {role === "ROLE_USER" && (
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: "9px", marginTop: "4px" ,  color: "#6b7280"}}>
+              <FaBuilding />{" "}
+              <UserCompany> {user?.companyName ?? ""}, </UserCompany>
+            <UserRole> {user?.position ?? ""} </UserRole>
+            </div>
+          </div>
+        )}
       </UserInfo>
     </ProfileContainer>
   );

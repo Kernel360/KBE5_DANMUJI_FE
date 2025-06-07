@@ -10,33 +10,54 @@ import {
   MenuItem,
   Divider,
 } from "./ProfileDropdown.styled";
+import { useAuth } from "@/contexts/AuthContexts";
 
 export const ProfileDropdown: React.FC = () => {
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
 
-  const handleLogout = () => {
-    // 로그아웃 로직 구현
-    console.log("Logout clicked");
+  const handleLogout = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch("/api/auth/logout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include", // 쿠키 포함
+      });
+      setIsOpen(false);
+  
+      if (res.ok) {
+        localStorage.removeItem("accessToken");
+        window.location.href = "/";
+      } else {
+        // 로그아웃 실패 로그
+        const data = await res.json().catch(() => null);
+        console.log(data.message);
+
+        localStorage.removeItem("accessToken");
+        window.location.href = "/";
+      }
+    } catch (err) {
+      console.log("네트워크 오류가 발생했습니다.");
+      window.location.href = "/";
+    }
   };
 
   return (
     <DropdownContainer>
       <ProfileButton onClick={toggleDropdown}>
-        <UserName>이개발</UserName>
+        <UserName>{user?.name ?? ""}</UserName>
         <DropdownIcon>▼</DropdownIcon>
       </ProfileButton>
       {isOpen && (
         <DropdownMenu>
-          <UserProfile
-            name="이개발"
-            company="XYZ 소프트웨어"
-            role="개발자"
-            initial="이"
-          />
+          <UserProfile />
           <Divider />
           <MenuList>
             <MenuItem onClick={() => console.log("Profile clicked")}>
