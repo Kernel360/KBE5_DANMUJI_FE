@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getPosts } from "../services/postService";
+import { PostStatus } from "../types/post";
 import type { Post, PostCreateData } from "../types/post";
 import ProjectPostDetailModal from "../components/ProjectPostDetailModal/ProjectPostDetailModal";
 import ProjectPostCreateModal from "../components/ProjectPostCreateModal/ProjectPostCreateModal";
@@ -46,7 +47,7 @@ export default function ProjectPostPage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-  const [statusFilter, setStatusFilter] = useState<string>("ALL");
+  const [statusFilter, setStatusFilter] = useState<PostStatus | "ALL">("ALL");
   const [searchTerm, setSearchTerm] = useState("");
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
@@ -63,22 +64,31 @@ export default function ProjectPostPage() {
       try {
         setLoading(true);
         setError(null);
-        const response = await getPosts(currentProjectId, currentPage);
+        const response = await getPosts(
+          currentProjectId,
+          currentPage,
+          10,
+          statusFilter === "ALL" ? undefined : statusFilter
+        );
         setPosts(response.data.content);
         setTotalPages(response.data.page.totalPages);
         if (response.data.content.length > 0) {
           setProjectInfo(response.data.content[0].project);
         }
       } catch (err) {
-        setError("게시글을 불러오는 중 오류가 발생했습니다.");
-        console.error("게시글 목록 조회 중 오류:", err);
+        if (err instanceof Error && err.message.includes("완료")) {
+          console.log(err.message);
+        } else {
+          setError("게시글을 불러오는 중 오류가 발생했습니다.");
+          console.error("게시글 목록 조회 중 오류:", err);
+        }
       } finally {
         setLoading(false);
       }
     };
 
     fetchPosts();
-  }, [projectId, currentPage]);
+  }, [projectId, currentPage, statusFilter]);
 
   const handlePostClick = (postId: number) => {
     setSelectedPostId(postId);
@@ -112,13 +122,13 @@ export default function ProjectPostPage() {
     return matchesStatus && matchesSearch;
   });
 
-  const getStatusText = (status: string) => {
+  const getStatusText = (status: PostStatus) => {
     switch (status) {
-      case "PENDING":
+      case PostStatus.PENDING:
         return "대기";
-      case "APPROVED":
+      case PostStatus.APPROVED:
         return "승인";
-      case "REJECTED":
+      case PostStatus.REJECTED:
         return "반려";
       default:
         return status;
@@ -189,12 +199,14 @@ export default function ProjectPostPage() {
           <LeftToolbar>
             <FilterSelect
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
+              onChange={(e) =>
+                setStatusFilter(e.target.value as PostStatus | "ALL")
+              }
             >
               <option value="ALL">승인상태: 전체</option>
-              <option value="PENDING">대기</option>
-              <option value="APPROVED">승인</option>
-              <option value="REJECTED">반려</option>
+              <option value={PostStatus.PENDING}>대기</option>
+              <option value={PostStatus.APPROVED}>승인</option>
+              <option value={PostStatus.REJECTED}>반려</option>
             </FilterSelect>
             <SearchContainer>
               <SearchInput
