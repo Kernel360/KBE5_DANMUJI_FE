@@ -1,6 +1,7 @@
 // src/contexts/AuthContext.tsx
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
+import api from "@/api/axios";
 
 interface AuthContextProps {
   role: string | null;
@@ -62,19 +63,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       if (!token) return;
 
       try {
-        const res = await fetch("/api/users/me", {
+        const res = await api.get("/api/users/me", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
-        if (!res.ok) throw new Error("사용자 정보를 불러올 수 없습니다.");
-
-        const result = await res.json();
-        setUser(result.data);
+        setUser(res.data.data);
       } catch (err) {
         console.error("유저 정보 로딩 실패:", err);
-        localStorage.removeItem("accessToken"); // 토큰 삭제
+        localStorage.removeItem("accessToken");
         setUser(null);
       }
     };
