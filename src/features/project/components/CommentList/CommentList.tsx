@@ -6,6 +6,8 @@ import {
   CommentItem,
   CommentMeta,
   CommentAuthor,
+  CommentAuthorName,
+  CommentAuthorIp,
   CommentDate,
   CommentText,
   CommentActions,
@@ -105,9 +107,20 @@ const CommentList: React.FC<CommentListProps> = ({
     <div key={comment.id}>
       <CommentItem $depth={depth}>
         <CommentMeta>
-          <CommentAuthor>{comment.author.name}</CommentAuthor>
+          <CommentAuthor>
+            <CommentAuthorName>{comment.author.name}</CommentAuthorName>
+            <CommentAuthorIp>({comment.authorIp})</CommentAuthorIp>
+          </CommentAuthor>
           <CommentDate>
-            {new Date(comment.createdAt).toLocaleString()}
+            <span>{new Date(comment.createdAt).toLocaleString()}</span>
+            {comment.updatedAt && comment.updatedAt !== comment.createdAt && (
+              <>
+                <span>•</span>
+                <span>
+                  수정됨 {new Date(comment.updatedAt).toLocaleString()}
+                </span>
+              </>
+            )}
           </CommentDate>
         </CommentMeta>
         {editingCommentId === comment.id ? (

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getPosts } from "../services/postService";
+import { getPosts, createPost } from "../services/postService";
 import { PostStatus } from "../types/post";
 import type { Post, PostCreateData } from "../types/post";
 import ProjectPostDetailModal from "../components/ProjectPostDetailModal/ProjectPostDetailModal";
@@ -70,6 +70,13 @@ export default function ProjectPostPage() {
           10,
           statusFilter === "ALL" ? undefined : statusFilter
         );
+        console.log(
+          "게시글 목록 authorIp:",
+          response.data.content.map((post) => ({
+            postId: post.postId,
+            authorIp: post.authorIp,
+          }))
+        );
         setPosts(response.data.content);
         setTotalPages(response.data.page.totalPages);
         if (response.data.content.length > 0) {
@@ -108,9 +115,69 @@ export default function ProjectPostPage() {
     setIsCreateModalOpen(false);
   };
 
-  const handleCreatePost = (data: PostCreateData) => {
-    console.log("새 게시글 생성:", data);
-    handleCreateModalClose();
+  const handleCreatePost = async (data: PostCreateData) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // 현재 프로젝트 ID 설정
+      const currentProjectId = parseInt(projectId || "1");
+      if (isNaN(currentProjectId)) {
+        throw new Error("유효하지 않은 프로젝트 ID입니다.");
+      }
+
+      // 게시글 생성 API 호출
+      const response = await createPost({
+        ...data,
+        projectId: currentProjectId,
+      });
+
+      // 성공 메시지가 포함된 경우도 성공으로 처리
+      if (response.success || response.message?.includes("완료")) {
+        // 게시글 목록 새로고침
+        const updatedPosts = await getPosts(
+          currentProjectId,
+          currentPage,
+          10,
+          statusFilter === "ALL" ? undefined : statusFilter
+        );
+        setPosts(updatedPosts.data.content);
+        setTotalPages(updatedPosts.data.page.totalPages);
+
+        // 모달 닫기
+        handleCreateModalClose();
+      } else {
+        throw new Error(response.message || "게시글 생성에 실패했습니다.");
+      }
+    } catch (err) {
+      // 성공 메시지가 포함된 경우 에러로 처리하지 않음
+      if (err instanceof Error && err.message.includes("완료")) {
+        console.log(err.message);
+        // 게시글 목록 새로고침
+        const currentProjectId = parseInt(projectId || "1");
+        if (!isNaN(currentProjectId)) {
+          const updatedPosts = await getPosts(
+            currentProjectId,
+            currentPage,
+            10,
+            statusFilter === "ALL" ? undefined : statusFilter
+          );
+          setPosts(updatedPosts.data.content);
+          setTotalPages(updatedPosts.data.page.totalPages);
+        }
+        // 모달 닫기
+        handleCreateModalClose();
+      } else {
+        console.error("게시글 생성 중 오류:", err);
+        setError(
+          err instanceof Error
+            ? err.message
+            : "게시글 생성 중 오류가 발생했습니다."
+        );
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const filteredPosts = posts.filter((post) => {

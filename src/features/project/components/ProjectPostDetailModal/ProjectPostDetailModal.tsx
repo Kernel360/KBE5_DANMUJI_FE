@@ -71,34 +71,51 @@ const ProjectPostDetailModal: React.FC<ProjectPostDetailModalProps> = ({
 
   useEffect(() => {
     const fetchPostAndComments = async () => {
-      if (!open || !postId) {
-        setPost(null);
-        setComments([]);
-        setLoading(false);
-        setError(null);
-        return;
-      }
+      if (!postId) return;
 
       try {
         setLoading(true);
         setError(null);
-
         const [postResponse, commentsResponse] = await Promise.all([
           getPostDetail(postId),
           getComments(postId),
         ]);
 
+        console.log("게시글 상세 authorIp:", {
+          postId: postResponse.data.postId,
+          authorIp: postResponse.data.authorIp,
+        });
+
+        // 댓글 목록이 있을 때만 authorIp 출력
+        if (commentsResponse.data && Array.isArray(commentsResponse.data)) {
+          console.log(
+            "댓글 목록 authorIp:",
+            commentsResponse.data.map((comment) => ({
+              commentId: comment.id,
+              authorIp: comment.authorIp,
+            }))
+          );
+        } else {
+          console.log("댓글 목록이 없습니다.");
+        }
+
         setPost(postResponse.data);
         setComments(commentsResponse.data || []);
       } catch (err) {
-        setError("게시글을 불러오는데 실패했습니다.");
-        console.error("게시글 상세 조회 중 오류:", err);
+        if (err instanceof Error && err.message.includes("완료")) {
+          console.log(err.message);
+        } else {
+          setError("게시글을 불러오는데 실패했습니다.");
+          console.error("게시글 상세 조회 중 오류:", err);
+        }
       } finally {
         setLoading(false);
       }
     };
 
-    fetchPostAndComments();
+    if (open && postId) {
+      fetchPostAndComments();
+    }
   }, [open, postId]);
 
   const handleCommentSubmit = async () => {
@@ -258,10 +275,14 @@ const ProjectPostDetailModal: React.FC<ProjectPostDetailModalProps> = ({
           </HeaderTop>
           <PostMeta>
             <span>작성자: {post?.author.name || ""}</span>
+            <span>IP: {post?.authorIp || ""}</span>
             <span>
               작성일:{" "}
               {post?.createdAt ? new Date(post.createdAt).toLocaleString() : ""}
             </span>
+            {post?.updatedAt && post.updatedAt !== post.createdAt && (
+              <span>수정일: {new Date(post.updatedAt).toLocaleString()}</span>
+            )}
           </PostMeta>
         </ModalHeader>
 

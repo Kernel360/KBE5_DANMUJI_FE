@@ -36,14 +36,30 @@ export const CommentMeta = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 `;
 
-export const CommentAuthor = styled.span`
+export const CommentAuthor = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   font-weight: 600;
   color: #111827;
 `;
 
-export const CommentDate = styled.span`
+export const CommentAuthorName = styled.span``;
+
+export const CommentAuthorIp = styled.span`
+  color: #6b7280;
+  font-size: 0.875rem;
+  font-weight: normal;
+`;
+
+export const CommentDate = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   color: #6b7280;
   font-size: 0.875rem;
 `;
