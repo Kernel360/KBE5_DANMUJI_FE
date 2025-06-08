@@ -1,28 +1,21 @@
+import api from "../../../api/axios";
 import type {
   PostCreateData,
   ApiResponse,
   PostCreateResponse,
-  PostDetail,
-  Comment,
+  PostListResponse,
+  Post,
+  CommentListResponse,
 } from "../types/post";
-
-const API_BASE_URL = "http://localhost:8080/api";
 
 export const createPost = async (
   postData: PostCreateData
 ): Promise<ApiResponse<PostCreateResponse>> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/posts`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(postData),
-    });
+    const response = await api.post("/api/posts", postData);
+    const result = response.data;
 
-    const result = await response.json();
-
-    if (!result.success) {
+    if (result.success === false) {
       throw new Error(result.message || "게시글 생성에 실패했습니다.");
     }
 
@@ -33,56 +26,53 @@ export const createPost = async (
   }
 };
 
-export const getPostDetail = async (
-  postId: number
-): Promise<ApiResponse<PostDetail>> => {
+export const getPostDetail = async (postId: number) => {
   try {
-    // 게시글 상세 정보와 댓글을 병렬로 요청
-    const [postResponse, commentsResponse] = await Promise.all([
-      fetch(`${API_BASE_URL}/posts/${postId}`),
-      fetch(`${API_BASE_URL}/comments/${postId}`),
-    ]);
-
-    const [postResult, commentsResult] = await Promise.all([
-      postResponse.json(),
-      commentsResponse.json(),
-    ]);
-
-    if (!postResult.success) {
-      throw new Error(postResult.message || "게시글 조회에 실패했습니다.");
-    }
-
-    if (!commentsResult.success) {
-      throw new Error(commentsResult.message || "댓글 조회에 실패했습니다.");
-    }
-
-    // 게시글 상세 정보에 댓글 목록을 추가
-    return {
-      ...postResult,
-      data: {
-        ...postResult.data,
-        comments: commentsResult.data,
-      },
-    };
+    const response = await api.get<{
+      status: string;
+      code: string;
+      message: string;
+      data: Post;
+    }>(`/api/posts/${postId}`);
+    return response.data;
   } catch (error) {
     console.error("게시글 상세 조회 중 오류 발생:", error);
     throw error;
   }
 };
 
-export const getPosts = async (projectId: number) => {
+export const getPosts = async (
+  projectId: number,
+  page: number = 0,
+  size: number = 10
+): Promise<PostListResponse> => {
   try {
-    const response = await fetch(
-      `${API_BASE_URL}/posts?projectId=${projectId}`
+    const response = await api.get<PostListResponse>(
+      `/api/posts/projects/${projectId}`,
+      {
+        params: {
+          page,
+          size,
+        },
+      }
     );
-
-    if (!response.ok) {
-      throw new Error("게시글 목록 조회에 실패했습니다.");
-    }
-
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error("게시글 목록 조회 중 오류 발생:", error);
+    throw error;
+  }
+};
+
+export const getComments = async (
+  postId: number
+): Promise<CommentListResponse> => {
+  try {
+    const response = await api.get<CommentListResponse>(
+      `/api/comments/${postId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("댓글 목록 조회 중 오류:", error);
     throw error;
   }
 };

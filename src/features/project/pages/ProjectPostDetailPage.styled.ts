@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { darken } from "polished";
 
 export const PageContainer = styled.div`
   padding: 24px;
@@ -87,4 +88,44 @@ export const CommentSection = styled.div`
   margin-top: 32px;
   padding-top: 32px;
   border-top: 1px solid #eee;
+`;
+
+export const CommentInputContainer = styled.div`
+  margin-bottom: 20px;
+`;
+
+export const CommentTextArea = styled.textarea`
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #dddddd;
+  border-radius: 4px;
+  resize: vertical;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 10px;
+
+  &:focus {
+    outline: none;
+    border-color: #4f46e5;
+  }
+`;
+
+export const CommentSubmitButton = styled.button`
+  padding: 8px 16px;
+  background-color: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: ${darken(0.1, "#4f46e5")};
+  }
+
+  &:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }
 `;

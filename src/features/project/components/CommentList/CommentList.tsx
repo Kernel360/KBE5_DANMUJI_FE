@@ -4,13 +4,18 @@ import Comment from "../Comment/Comment";
 import { CommentListContainer, CommentCount } from "./CommentList.styled";
 
 interface CommentListProps {
-  comments: Comment[];
+  comments?: Comment[];
   onReply: (parentId: number, content: string) => void;
 }
 
-const CommentList: React.FC<CommentListProps> = ({ comments, onReply }) => {
+const CommentList: React.FC<CommentListProps> = ({
+  comments = [],
+  onReply,
+}) => {
   // 댓글을 부모-자식 관계로 구조화
   const structuredComments = useMemo(() => {
+    if (!comments || comments.length === 0) return [];
+
     const commentMap = new Map<number, Comment>();
     const rootComments: Comment[] = [];
 
@@ -39,9 +44,13 @@ const CommentList: React.FC<CommentListProps> = ({ comments, onReply }) => {
   return (
     <CommentListContainer>
       <CommentCount>댓글 {comments.length}개</CommentCount>
-      {structuredComments.map((comment) => (
-        <Comment key={comment.id} comment={comment} onReply={onReply} />
-      ))}
+      {structuredComments.length > 0 ? (
+        structuredComments.map((comment) => (
+          <Comment key={comment.id} comment={comment} onReply={onReply} />
+        ))
+      ) : (
+        <p>댓글이 없습니다.</p>
+      )}
     </CommentListContainer>
   );
 };

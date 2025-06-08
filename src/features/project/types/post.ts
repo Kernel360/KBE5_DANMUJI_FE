@@ -19,36 +19,75 @@ export type PostCreateResponse = {
   title: string;
 };
 
-export type Author = {
+export interface Author {
   id: number;
   name: string;
-};
+}
 
-export type Project = {
+export interface Project {
   id: number;
   name: string;
   description: string;
   startDate: string;
   endDate: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: string | null;
+  updatedAt: string | null;
   deletedAt: string | null;
-  isDeleted: boolean;
   status: string;
-  steps: any[]; // TODO: ProjectStep 타입 정의 필요
-};
+  steps: any[];
+  deleted: boolean;
+}
 
-export type Comment = {
+export interface CommentAuthor {
+  id: number;
+  name: string;
+}
+
+export interface Comment {
   id: number;
   postId: number;
   parentCommentId: number | null;
   authorIp: string;
-  author: Author;
+  author: CommentAuthor;
   content: string;
   createdAt: string;
   updatedAt: string;
-  replies?: Comment[]; // 대댓글 목록
-};
+}
+
+export interface Post {
+  postId: number;
+  parentId: number | null;
+  authorIp: string | null;
+  author: Author;
+  title: string;
+  content: string;
+  type: "NOTICE" | "QUESTION" | "REPORT" | "GENERAL";
+  status: "PENDING" | "APPROVED" | "REJECTED";
+  priority: number;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  completedAt: string | null;
+  project: Project;
+  delete: boolean;
+}
+
+export interface PageInfo {
+  size: number;
+  number: number;
+  totalElements: number;
+  totalPages: number;
+}
+
+export interface PostListResponse {
+  status: string;
+  code: string;
+  message: string;
+  data: {
+    content: Post[];
+    page: PageInfo;
+  };
+}
 
 export type PostDetail = {
   postId: number;
@@ -68,3 +107,10 @@ export type PostDetail = {
   comments: Comment[];
   delete: boolean;
 };
+
+export interface CommentListResponse {
+  status: string;
+  code: string;
+  message: string;
+  data: Comment[];
+}
