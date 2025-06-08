@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import type { Post, Comment } from "../types/post";
-import { getPostDetail, getComments } from "../services/postService";
+import {
+  getPostDetail,
+  getComments,
+  deletePost,
+} from "../services/postService";
 import CommentList from "../components/CommentList/CommentList";
 import {
   PageContainer,
@@ -83,6 +87,29 @@ export default function PostDetailPage() {
     }
   };
 
+  const handleDelete = async () => {
+    if (!postId || !window.confirm("정말로 이 게시글을 삭제하시겠습니까?")) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await deletePost(parseInt(postId));
+      if (response.status === "OK") {
+        alert("게시글이 성공적으로 삭제되었습니다.");
+        // 프로젝트 게시글 목록 페이지로 이동
+        navigate(`/projects/${post?.project.projectId}/posts`);
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (err) {
+      setError("게시글 삭제 중 오류가 발생했습니다.");
+      console.error("게시글 삭제 중 오류:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const getStatusText = (status: string) => {
     switch (status) {
       case "PENDING":
@@ -135,9 +162,7 @@ export default function PostDetailPage() {
               <ActionButton onClick={() => navigate(`/posts/${postId}/edit`)}>
                 수정
               </ActionButton>
-              <ActionButton onClick={() => window.confirm("삭제하시겠습니까?")}>
-                삭제
-              </ActionButton>
+              <ActionButton onClick={handleDelete}>삭제</ActionButton>
             </PostActions>
           </PostHeader>
 

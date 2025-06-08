@@ -85,9 +85,10 @@ export type Post = {
 
 // API 응답 타입
 export type ApiResponse<T> = {
-  success: boolean;
-  message?: string;
-  data: T;
+  status: "OK" | "ERROR";
+  code: string;
+  message: string;
+  data?: T;
 };
 
 // 게시글 생성 응답 타입
@@ -114,3 +115,12 @@ export type PostListResponse = ApiResponse<{
 // 댓글 목록 응답 타입
 export type CommentListResponse = ApiResponse<Comment[]>;
 export type CommentResponse = ApiResponse<Comment>;
+
+// 게시글 수정 요청 데이터 타입
+export type PostUpdateRequest = {
+  title?: string;
+  content?: string;
+  type?: PostType;
+  status?: PostStatus;
+  priority?: PostPriority;
+};

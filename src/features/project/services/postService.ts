@@ -11,6 +11,7 @@ import type {
   PostStatus,
   PostType,
   PostPriority,
+  PostUpdateRequest,
 } from "../types/post";
 import { AxiosError } from "axios";
 import type { AxiosResponse } from "axios";
@@ -138,7 +139,7 @@ export const getPosts = async (
 // 게시글 수정
 export const updatePost = async (
   postId: number,
-  postData: Partial<PostCreateData>
+  postData: PostUpdateRequest
 ): Promise<ApiResponse<Post>> => {
   try {
     const response = await api.put<ApiResponse<Post>>(

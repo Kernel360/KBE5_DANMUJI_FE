@@ -96,9 +96,13 @@ export default function PostEditPage() {
 
     try {
       setLoading(true);
-      await updatePost(parseInt(postId), formData);
-      alert("게시글이 성공적으로 수정되었습니다.");
-      navigate(`/posts/${postId}`);
+      const response = await updatePost(parseInt(postId), formData);
+      if (response.status === "OK") {
+        alert("게시글이 성공적으로 수정되었습니다.");
+        navigate(`/posts/${postId}`);
+      } else {
+        throw new Error(response.message);
+      }
     } catch (err) {
       setError("게시글 수정 중 오류가 발생했습니다.");
       console.error("게시글 수정 중 오류:", err);
