@@ -58,12 +58,14 @@ interface ProjectPostDetailModalProps {
   open: boolean;
   onClose: () => void;
   postId: number | null;
+  onDeleteSuccess?: () => void; // 삭제 성공 후 목록을 새로고침하는 콜백
 }
 
 const ProjectPostDetailModal: React.FC<ProjectPostDetailModalProps> = ({
   open,
   onClose,
   postId,
+  onDeleteSuccess,
 }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -253,7 +255,10 @@ const ProjectPostDetailModal: React.FC<ProjectPostDetailModalProps> = ({
       if (response.success) {
         alert("게시글이 성공적으로 삭제되었습니다.");
         onClose();
-        window.location.reload();
+        // 삭제 성공 후 목록 새로고침 콜백 호출
+        if (onDeleteSuccess) {
+          onDeleteSuccess();
+        }
       } else {
         alert(response.message || "게시글 삭제에 실패했습니다.");
         setError(response.message);

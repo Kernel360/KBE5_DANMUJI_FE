@@ -56,46 +56,42 @@ export default function ProjectPostPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [projectInfo, setProjectInfo] = useState<Post["project"] | null>(null);
 
-  useEffect(() => {
-    const fetchPosts = async () => {
-      const currentProjectId = parseInt(projectId || "1");
-      if (isNaN(currentProjectId)) return;
+  const fetchPosts = async () => {
+    const currentProjectId = parseInt(projectId || "1");
+    if (isNaN(currentProjectId)) return;
 
-      try {
-        setLoading(true);
-        setError(null);
-        const response = await getPosts(
-          currentProjectId,
-          currentPage,
-          10,
-          statusFilter === "ALL" ? undefined : statusFilter
-        );
-        console.log(
-          "게시글 목록 authorIp:",
-          response.data.content.map((post) => ({
-            postId: post.postId,
-            authorIp: post.authorIp,
-          }))
-        );
-        setPosts(response.data.content);
-        setTotalPages(response.data.page.totalPages);
-        if (response.data.content.length > 0) {
-          setProjectInfo(response.data.content[0].project);
-        }
-      } catch (err) {
-        if (err instanceof Error && err.message.includes("완료")) {
-          console.log(err.message);
-        } else {
-          setError("게시글을 불러오는 중 오류가 발생했습니다.");
-          console.error("게시글 목록 조회 중 오류:", err);
-        }
-      } finally {
-        setLoading(false);
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await getPosts(
+        currentProjectId,
+        currentPage,
+        10,
+        statusFilter === "ALL" ? undefined : statusFilter,
+        undefined,
+        undefined,
+        searchTerm
+      );
+      setPosts(response.data.content);
+      setTotalPages(response.data.page.totalPages);
+      if (response.data.content.length > 0) {
+        setProjectInfo(response.data.content[0].project);
       }
-    };
+    } catch (err) {
+      if (err instanceof Error && err.message.includes("완료")) {
+        console.log(err.message);
+      } else {
+        setError("게시글을 불러오는 중 오류가 발생했습니다.");
+        console.error("게시글 목록 조회 중 오류:", err);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchPosts();
-  }, [projectId, currentPage, statusFilter]);
+  }, [projectId, currentPage, statusFilter, searchTerm]);
 
   const handlePostClick = (postId: number) => {
     setSelectedPostId(postId);
@@ -177,6 +173,28 @@ export default function ProjectPostPage() {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handlePostDelete = (deletedPostId: number) => {
+    // 삭제된 게시글을 목록에서 제거
+    setPosts((prevPosts) =>
+      prevPosts.filter((post) => post.postId !== deletedPostId)
+    );
+  };
+
+  const handleDeleteSuccess = () => {
+    // 현재 페이지가 마지막 페이지이고, 현재 페이지에 게시글이 하나만 있었다면
+    // 이전 페이지로 이동
+    if (
+      currentPage === totalPages - 1 &&
+      posts.length === 1 &&
+      currentPage > 0
+    ) {
+      setCurrentPage(currentPage - 1);
+    } else {
+      // 그 외의 경우 현재 페이지의 게시글 목록을 다시 불러옴
+      fetchPosts();
     }
   };
 
@@ -350,6 +368,7 @@ export default function ProjectPostPage() {
           open={isDetailModalOpen}
           onClose={handleDetailModalClose}
           postId={selectedPostId}
+          onDeleteSuccess={handleDeleteSuccess}
         />
 
         <ProjectPostCreateModal
