@@ -2,6 +2,7 @@ import React, { useState, useMemo } from "react";
 import type { Comment } from "../../types/post";
 import { updateComment, deleteComment } from "../../services/postService";
 import { ApiError } from "../../services/postService";
+import { useAuth } from "@/contexts/AuthContexts";
 import {
   CommentContainer,
   CommentItem,
@@ -39,6 +40,7 @@ const CommentList: React.FC<CommentListProps> = ({
   onReply,
   onCommentUpdate,
 }) => {
+  const { user } = useAuth();
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   const [editText, setEditText] = useState("");
   const [errorMap, setErrorMap] = useState<Record<number, string>>({});
@@ -68,6 +70,11 @@ const CommentList: React.FC<CommentListProps> = ({
 
     return rootComments;
   }, [comments]);
+
+  // 현재 사용자가 댓글 작성자인지 확인하는 함수
+  const isCommentAuthor = (comment: Comment) => {
+    return user?.id === comment.author.id;
+  };
 
   const handleEditClick = (comment: Comment) => {
     setEditingCommentId(comment.id);
@@ -182,12 +189,16 @@ const CommentList: React.FC<CommentListProps> = ({
                   답글
                 </ReplyButton>
               )}
-              <EditButton onClick={() => handleEditClick(comment)}>
-                수정
-              </EditButton>
-              <DeleteButton onClick={() => handleDeleteClick(comment.id)}>
-                삭제
-              </DeleteButton>
+              {isCommentAuthor(comment) && (
+                <>
+                  <EditButton onClick={() => handleEditClick(comment)}>
+                    수정
+                  </EditButton>
+                  <DeleteButton onClick={() => handleDeleteClick(comment.id)}>
+                    삭제
+                  </DeleteButton>
+                </>
+              )}
             </CommentActions>
           </>
         )}
