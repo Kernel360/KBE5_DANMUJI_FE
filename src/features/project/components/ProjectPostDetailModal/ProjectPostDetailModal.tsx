@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContexts";
 import type { Comment, Post } from "../../types/post";
 import {
   getPostDetail,
@@ -65,6 +66,7 @@ const ProjectPostDetailModal: React.FC<ProjectPostDetailModalProps> = ({
   postId,
 }) => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [post, setPost] = useState<Post | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -72,6 +74,8 @@ const ProjectPostDetailModal: React.FC<ProjectPostDetailModalProps> = ({
   const [commentText, setCommentText] = useState("");
   const [replyText, setReplyText] = useState<string>("");
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
+
+  const isAuthor = post?.author?.id === user?.id;
 
   useEffect(() => {
     const fetchPostAndComments = async () => {
@@ -314,12 +318,16 @@ const ProjectPostDetailModal: React.FC<ProjectPostDetailModalProps> = ({
               <ModalTitle>{post?.title || ""}</ModalTitle>
             </HeaderLeft>
             <HeaderRight>
-              <ActionButton className="edit" onClick={handleEdit}>
-                수정
-              </ActionButton>
-              <ActionButton className="delete" onClick={handleDelete}>
-                삭제
-              </ActionButton>
+              {isAuthor && (
+                <>
+                  <ActionButton className="edit" onClick={handleEdit}>
+                    수정
+                  </ActionButton>
+                  <ActionButton className="delete" onClick={handleDelete}>
+                    삭제
+                  </ActionButton>
+                </>
+              )}
               <ActionButton onClick={onClose}>닫기</ActionButton>
             </HeaderRight>
           </HeaderTop>
