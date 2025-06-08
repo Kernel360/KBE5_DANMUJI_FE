@@ -4,84 +4,120 @@ export const ModalOverlay = styled.div`
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent backdrop */
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
-  justify-content: flex-end; /* Align modal panel to the right */
-  align-items: flex-start; /* Align to the top of the overlay */
-  z-index: 1000; /* Ensure it's above other content */
+  justify-content: flex-end;
+  align-items: stretch;
+  z-index: 1000;
 `;
 
 export const ModalPanel = styled.div<{ $open: boolean }>`
-  background-color: white;
-  width: 450px; /* Fixed width for the sidebar-like modal */
-  height: 100vh; /* Full viewport height */
-  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2); /* Shadow on the left side */
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto; /* Enable scrolling for modal content */
-  border-top-left-radius: 8px; /* Apply border-radius only to the top-left */
-  border-bottom-left-radius: 8px; /* Apply border-radius only to the bottom-left */
-  transform: translateX(
-    ${(props) => (props.$open ? "0%" : "100%")}
-  ); /* Slide in/out */
-  transition: transform 0.3s ease-out; /* Smooth transition */
+  background: white;
+  width: 450px;
+  height: 100vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
+  transform: translateX(${({ $open }) => ($open ? "0%" : "100%")});
+  transition: transform 0.3s ease-out;
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
 `;
 
 export const ModalHeader = styled.div`
-  padding: 20px;
-  border-bottom: 1px solid #e5e7eb;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  padding: 1.5rem;
+  border-bottom: 1px solid #eee;
   position: sticky;
   top: 0;
-  background-color: white;
-  z-index: 10;
+  background: white;
+  z-index: 1;
 `;
 
 export const HeaderTop = styled.div`
   display: flex;
   justify-content: space-between;
-  width: 100%;
   align-items: center;
+  margin-bottom: 1rem;
 `;
 
 export const HeaderLeft = styled.div`
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 1rem;
 `;
 
-export const StatusBadge = styled.span<{ $status: string }>`
-  font-weight: 600;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  width: fit-content;
+export const HeaderRight = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
 
-  ${(props) => {
-    if (props.$status === "승인")
-      return `
-        background-color: #d1fae5;
-        color: #059669;
-      `;
-    if (props.$status === "대기")
-      return `
-        background-color: #fef9c3;
-        color: #a16207;
-      `;
-    if (props.$status === "반려")
-      return `
-        background-color: #fee2e2;
-        color: #dc2626;
-      `;
-    return `
-      background-color: #e5e7eb;
-      color: #4b5563;
-    `;
-  }}
+export const ActionButton = styled.button`
+  padding: 0.5rem 1rem;
+  background-color: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background-color: #e5e7eb;
+  }
+`;
+
+export const ModalTitle = styled.h2`
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+`;
+
+export const PostMeta = styled.div`
+  display: flex;
+  gap: 1.5rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+`;
+
+export const StatusBadge = styled.span<{ status: string }>`
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background-color: ${({ status }) => {
+    switch (status) {
+      case "PENDING":
+        return "#fef3c7";
+      case "APPROVED":
+        return "#d1fae5";
+      case "REJECTED":
+        return "#fee2e2";
+      default:
+        return "#f3f4f6";
+    }
+  }};
+  color: ${({ status }) => {
+    switch (status) {
+      case "PENDING":
+        return "#92400e";
+      case "APPROVED":
+        return "#065f46";
+      case "REJECTED":
+        return "#991b1b";
+      default:
+        return "#374151";
+    }
+  }};
 `;
 
 export const PanelTitle = styled.h2`
@@ -96,12 +132,6 @@ export const PostPanelTitle = styled.span`
   font-weight: bold;
   color: #333333;
   min-width: 60px; /* 라벨 너비 고정 */
-`;
-
-export const HeaderRight = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
 `;
 
 export const IconWrapper = styled.div`
@@ -357,5 +387,28 @@ export const CommentActions = styled.div`
       text-decoration: underline;
       color: #2c3e50;
     }
+  }
+`;
+
+export const ReplyInputContainer = styled(CommentInputContainer)`
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+`;
+
+export const CancelButton = styled.button`
+  padding: 0.5rem 1rem;
+  background-color: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background-color: #e5e7eb;
   }
 `;

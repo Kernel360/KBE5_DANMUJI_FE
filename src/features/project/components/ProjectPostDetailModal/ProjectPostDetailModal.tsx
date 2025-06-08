@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
 import type { Comment, Post } from "../../types/post";
-import { getPostDetail, getComments } from "../../services/postService";
+import {
+  getPostDetail,
+  getComments,
+  createComment,
+} from "../../services/postService";
 import CommentList from "../CommentList/CommentList";
 // import { BiMinimize, BiExpand } from "react-icons/bi"; // BiMinimize, BiExpand 임포트 주석 처리
 import {
@@ -33,6 +37,11 @@ import {
   CommentSubmitButton,
   CommentButtonGroup,
   QuestionButton,
+  ModalTitle,
+  PostMeta,
+  ActionButton,
+  ReplyInputContainer,
+  CancelButton,
 } from "./ProjectPostDetailModal.styled.ts";
 
 interface File {
@@ -57,6 +66,8 @@ const ProjectPostDetailModal: React.FC<ProjectPostDetailModalProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [commentText, setCommentText] = useState("");
+  const [replyText, setReplyText] = useState<string>("");
+  const [replyingTo, setReplyingTo] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchPostAndComments = async () => {
@@ -94,26 +105,45 @@ const ProjectPostDetailModal: React.FC<ProjectPostDetailModalProps> = ({
     if (!commentText.trim() || !postId) return;
 
     try {
-      // TODO: 댓글 작성 API 구현 후 추가
-      console.log("댓글 작성:", commentText);
+      await createComment(postId, commentText);
       setCommentText("");
-      // 댓글 작성 후 댓글 목록 새로고침 로직 필요 (API 구현 후)
+      // 댓글 작성 후 댓글 목록 새로고침
+      const commentsResponse = await getComments(postId);
+      setComments(commentsResponse.data || []);
     } catch (err) {
       console.error("댓글 작성 중 오류:", err);
       alert("댓글 작성 중 오류가 발생했습니다.");
     }
   };
 
-  const handleReply = async (parentId: number, content: string) => {
-    if (!content.trim() || !postId) return;
+  const handleReply = (commentId: number) => {
+    setReplyingTo(commentId);
+    setReplyText("");
+  };
+
+  const handleReplySubmit = async () => {
+    if (!postId || !replyingTo || !replyText.trim()) return;
 
     try {
-      // TODO: 답글 작성 API 구현 후 추가
-      console.log("답글 작성:", { parentId, content });
-      // 답글 작성 후 댓글 목록 새로고침 로직 필요 (API 구현 후)
-    } catch (err) {
-      console.error("답글 작성 중 오류:", err);
+      await createComment(postId, replyText, replyingTo);
+      setReplyText("");
+      setReplyingTo(null);
+      // 댓글 목록 새로고침
+      const commentsResponse = await getComments(postId);
+      setComments(commentsResponse.data || []);
+    } catch (error) {
+      console.error("답글 작성 중 오류:", error);
       alert("답글 작성 중 오류가 발생했습니다.");
+    }
+  };
+
+  const handleCommentUpdate = async () => {
+    if (!postId) return;
+    try {
+      const commentsResponse = await getComments(postId);
+      setComments(commentsResponse.data || []);
+    } catch (error) {
+      console.error("댓글 목록 새로고침 중 오류:", error);
     }
   };
 
@@ -176,6 +206,7 @@ const ProjectPostDetailModal: React.FC<ProjectPostDetailModalProps> = ({
     comment.content.includes("질문")
   ); // 임시 필터링
 
+  // 모달이 열려있지 않으면 렌더링하지 않음
   if (!open) return null;
 
   if (loading) {
@@ -212,49 +243,26 @@ const ProjectPostDetailModal: React.FC<ProjectPostDetailModalProps> = ({
 
   return (
     <ModalOverlay>
-      <ModalPanel $open={open}>
+      <ModalPanel $open={open} onClick={(e) => e.stopPropagation()}>
         <ModalHeader>
           <HeaderTop>
             <HeaderLeft>
-              <StatusBadge $status={getStatusText(post.status)}>
-                승인상태: {getStatusText(post.status)}
+              <StatusBadge status={post?.status || ""}>
+                {getStatusText(post?.status || "")}
               </StatusBadge>
-              <PanelTitle>게시글 상세</PanelTitle>
+              <ModalTitle>{post?.title || ""}</ModalTitle>
             </HeaderLeft>
             <HeaderRight>
-              {/* <IconWrapper onClick={() => console.log("Minimize clicked")}>
-                <BiMinimize />
-              </IconWrapper>
-              <IconWrapper onClick={() => console.log("Expand clicked")}>
-                <BiExpand />
-              </IconWrapper> */}
-              <CloseButton onClick={onClose}>&times;</CloseButton>
+              <ActionButton onClick={onClose}>닫기</ActionButton>
             </HeaderRight>
           </HeaderTop>
-          <PostDetailMeta>
-            <MetaItem>
-              <PostPanelTitle>작성자:</PostPanelTitle> {post.author.name}
-            </MetaItem>
-            <MetaItem>
-              <PostPanelTitle>작성일:</PostPanelTitle>{" "}
-              {formatDate(post.createdAt)}
-            </MetaItem>
-            {post.updatedAt !== post.createdAt && (
-              <MetaItem>
-                <PostPanelTitle>수정일:</PostPanelTitle>{" "}
-                {formatDate(post.updatedAt)}
-              </MetaItem>
-            )}
-            <MetaItem>
-              <PostPanelTitle>유형:</PostPanelTitle> {getTypeText(post.type)}
-            </MetaItem>
-            <MetaItem>
-              <PostPanelTitle>우선순위:</PostPanelTitle> {post.priority}
-            </MetaItem>
-            <MetaItem>
-              <PostPanelTitle>프로젝트:</PostPanelTitle> {post.project.name}
-            </MetaItem>
-          </PostDetailMeta>
+          <PostMeta>
+            <span>작성자: {post?.author.name || ""}</span>
+            <span>
+              작성일:{" "}
+              {post?.createdAt ? new Date(post.createdAt).toLocaleString() : ""}
+            </span>
+          </PostMeta>
         </ModalHeader>
 
         <ModalBody>
@@ -300,7 +308,29 @@ const ProjectPostDetailModal: React.FC<ProjectPostDetailModalProps> = ({
                 </CommentSubmitButton>
               </CommentButtonGroup>
             </CommentInputContainer>
-            <CommentList comments={safeComments} onReply={handleReply} />
+            {replyingTo && (
+              <ReplyInputContainer>
+                <CommentTextArea
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                  placeholder="답글을 입력하세요..."
+                  rows={3}
+                />
+                <CommentButtonGroup>
+                  <CancelButton onClick={() => setReplyingTo(null)}>
+                    취소
+                  </CancelButton>
+                  <CommentSubmitButton onClick={handleReplySubmit}>
+                    답글 등록
+                  </CommentSubmitButton>
+                </CommentButtonGroup>
+              </ReplyInputContainer>
+            )}
+            <CommentList
+              comments={safeComments}
+              onReply={handleReply}
+              onCommentUpdate={handleCommentUpdate}
+            />
           </CommentsSection>
         </ModalBody>
       </ModalPanel>

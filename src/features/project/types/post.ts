@@ -40,14 +40,14 @@ export type Project = {
 
 // 댓글 타입
 export type Comment = {
-  commentId: number;
+  id: number;
   postId: number;
-  parentId: number | null;
+  parentCommentId: number | null;
+  authorIp: string;
   author: Author;
   content: string;
   createdAt: string;
   updatedAt: string;
-  deletedAt: string | null;
   children?: Comment[];
 };
 
@@ -113,3 +113,4 @@ export type PostListResponse = ApiResponse<{
 
 // 댓글 목록 응답 타입
 export type CommentListResponse = ApiResponse<Comment[]>;
+export type CommentResponse = ApiResponse<Comment>;

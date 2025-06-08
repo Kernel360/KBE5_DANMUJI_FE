@@ -38,6 +38,7 @@ const handleApiResponse = async <T>(
     "게시글 삭제 완료",
     "댓글 목록 조회 완료",
     "댓글 작성 완료",
+    "댓글 생성 완료",
     "댓글 수정 완료",
     "댓글 삭제 완료",
   ];
@@ -234,13 +235,15 @@ export const getComments = async (
 // 댓글 작성
 export const createComment = async (
   postId: number,
-  content: string
-): Promise<ApiResponse<Comment>> => {
+  content: string,
+  parentId?: number | null
+): Promise<CommentResponse> => {
   try {
-    const response = await api.post<ApiResponse<Comment>>(
-      `/api/comments/${postId}`,
-      { content }
-    );
+    const response = await api.post<CommentResponse>(`/api/comments`, {
+      postId,
+      parentId,
+      content,
+    });
     return handleApiResponse<Comment>(response);
   } catch (error) {
     if (error instanceof ApiError) throw error;
@@ -258,9 +261,9 @@ export const createComment = async (
 export const updateComment = async (
   commentId: number,
   content: string
-): Promise<ApiResponse<Comment>> => {
+): Promise<CommentResponse> => {
   try {
-    const response = await api.put<ApiResponse<Comment>>(
+    const response = await api.put<CommentResponse>(
       `/api/comments/${commentId}`,
       { content }
     );
@@ -280,12 +283,12 @@ export const updateComment = async (
 // 댓글 삭제
 export const deleteComment = async (
   commentId: number
-): Promise<ApiResponse<void>> => {
+): Promise<CommentResponse> => {
   try {
-    const response = await api.delete<ApiResponse<void>>(
+    const response = await api.delete<CommentResponse>(
       `/api/comments/${commentId}`
     );
-    return handleApiResponse<void>(response);
+    return handleApiResponse<Comment>(response);
   } catch (error) {
     if (error instanceof ApiError) throw error;
     if (error instanceof AxiosError) {
