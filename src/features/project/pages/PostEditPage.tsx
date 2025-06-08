@@ -46,10 +46,7 @@ export default function PostEditPage() {
       try {
         setLoading(true);
         const response = await getPostDetail(parseInt(postId));
-        console.log("게시글 상세 데이터:", response.data); // 디버깅용 로그
-        if (!response.data.project?.projectId) {
-          throw new Error("프로젝트 정보를 찾을 수 없습니다.");
-        }
+        console.log("게시글 상세 데이터:", response.data);
         setPost(response.data);
         setFormData({
           title: response.data.title,
@@ -96,28 +93,29 @@ export default function PostEditPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!postId || !post || !post.project?.projectId || !validateForm()) {
-      console.error("필수 데이터 누락:", {
-        postId,
-        post,
-        projectId: post?.project?.projectId,
-      });
+    if (!postId || !post || !validateForm()) {
+      console.error("필수 데이터 누락:", { postId, post });
+      alert("게시글 정보가 올바르지 않습니다. 다시 시도해주세요.");
       return;
     }
 
     try {
       setLoading(true);
       const response = await updatePost(parseInt(postId), formData);
-      if (response.status === "OK") {
+      if (response.success) {
         alert("게시글이 성공적으로 수정되었습니다.");
-        const projectId = post.project.projectId;
-        console.log("리다이렉트할 프로젝트 ID:", projectId); // 디버깅용 로그
-        navigate(`/projects/${projectId}/posts`);
+        navigate(-1); // 이전 페이지로 돌아가기
       } else {
-        throw new Error(response.message);
+        alert(response.message || "게시글 수정에 실패했습니다.");
+        setError(response.message);
       }
     } catch (err) {
-      setError("게시글 수정 중 오류가 발생했습니다.");
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "게시글 수정 중 오류가 발생했습니다.";
+      alert(errorMessage);
+      setError(errorMessage);
       console.error("게시글 수정 중 오류:", err);
     } finally {
       setLoading(false);

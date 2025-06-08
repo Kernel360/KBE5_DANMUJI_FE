@@ -6,6 +6,7 @@ import {
   getComments,
   createComment,
   deletePost,
+  updatePost,
 } from "../../services/postService";
 import CommentList from "../CommentList/CommentList";
 // import { BiMinimize, BiExpand } from "react-icons/bi"; // BiMinimize, BiExpand 임포트 주석 처리
@@ -233,23 +234,33 @@ const ProjectPostDetailModal: React.FC<ProjectPostDetailModalProps> = ({
   };
 
   const handleDelete = async () => {
-    if (!postId || !window.confirm("정말로 이 게시글을 삭제하시겠습니까?")) {
+    if (!postId) {
+      alert("게시글 정보가 올바르지 않습니다. 다시 시도해주세요.");
+      return;
+    }
+
+    if (!window.confirm("정말로 이 게시글을 삭제하시겠습니까?")) {
       return;
     }
 
     try {
       setLoading(true);
-      const response = await deletePost(parseInt(postId));
-      if (response.status === "OK") {
+      const response = await deletePost(postId);
+      if (response.success) {
         alert("게시글이 성공적으로 삭제되었습니다.");
         onClose();
-        // 목록 페이지 새로고침을 위해 부모 컴포넌트에 알림
         window.location.reload();
       } else {
-        throw new Error(response.message);
+        alert(response.message || "게시글 삭제에 실패했습니다.");
+        setError(response.message);
       }
     } catch (err) {
-      setError("게시글 삭제 중 오류가 발생했습니다.");
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "게시글 삭제 중 오류가 발생했습니다.";
+      alert(errorMessage);
+      setError(errorMessage);
       console.error("게시글 삭제 중 오류:", err);
     } finally {
       setLoading(false);
