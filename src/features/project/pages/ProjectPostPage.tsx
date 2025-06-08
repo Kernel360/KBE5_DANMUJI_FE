@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import type { Post, PostCreateData } from "../types/post";
-import { createPost, getPosts } from "../services/postService";
+import { getPosts } from "../services/postService";
+import type { Post } from "../types/post";
+import ProjectPostDetailModal from "../components/ProjectPostDetailModal/ProjectPostDetailModal";
 import {
   PageContainer,
   MainContentWrapper,
@@ -20,7 +21,6 @@ import {
   SearchContainer,
   SearchInput,
   SearchIcon,
-  CreateButton,
   TableContainer,
   Table,
   TableHead,
@@ -33,7 +33,6 @@ import {
   PaginationContainer,
   PaginationButton,
 } from "./ProjectPostPage.styled";
-import ProjectPostCreateModal from "../components/ProjectPostCreateModal/ProjectPostCreateModal";
 
 export default function ProjectPostPage() {
   const { projectId } = useParams<{ projectId: string }>();
@@ -42,19 +41,21 @@ export default function ProjectPostPage() {
   const [totalPages, setTotalPages] = useState(0);
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [searchTerm, setSearchTerm] = useState("");
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [projectInfo, setProjectInfo] = useState<Post["project"] | null>(null);
 
   useEffect(() => {
     const fetchPosts = async () => {
-      if (!projectId) return;
+      const currentProjectId = parseInt(projectId || "1");
+      if (isNaN(currentProjectId)) return;
 
       try {
         setLoading(true);
         setError(null);
-        const response = await getPosts(parseInt(projectId), currentPage);
+        const response = await getPosts(currentProjectId, currentPage);
         setPosts(response.data.content);
         setTotalPages(response.data.page.totalPages);
         if (response.data.content.length > 0) {
@@ -71,26 +72,14 @@ export default function ProjectPostPage() {
     fetchPosts();
   }, [projectId, currentPage]);
 
-  const handleCreatePost = async (data: PostCreateData) => {
-    try {
-      const response = await createPost({
-        ...data,
-        projectId: parseInt(projectId || "1"),
-      });
-      if (response.success) {
-        alert("게시글이 생성되었습니다.");
-        setIsCreateModalOpen(false);
-        // 목록 새로고침
-        const updatedPosts = await getPosts(
-          parseInt(projectId || "1"),
-          currentPage
-        );
-        setPosts(updatedPosts.data.content);
-      }
-    } catch (error) {
-      console.error("게시글 생성 중 오류:", error);
-      alert("게시글 생성 중 오류가 발생했습니다.");
-    }
+  const handlePostClick = (postId: number) => {
+    setSelectedPostId(postId);
+    setIsDetailModalOpen(true);
+  };
+
+  const handleDetailModalClose = () => {
+    setIsDetailModalOpen(false);
+    setSelectedPostId(null);
   };
 
   const filteredPosts = posts.filter((post) => {
@@ -183,9 +172,10 @@ export default function ProjectPostPage() {
             </SearchContainer>
           </LeftToolbar>
           <RightToolbar>
-            <CreateButton onClick={() => setIsCreateModalOpen(true)}>
+            {/* 게시글 작성 버튼은 이제 모달 내부에서 처리하므로 삭제 */}
+            {/* <CreateButton onClick={() => setIsCreateModalOpen(true)}>
               게시글 작성
-            </CreateButton>
+            </CreateButton> */}
           </RightToolbar>
         </Toolbar>
 
@@ -206,7 +196,10 @@ export default function ProjectPostPage() {
                 <TableRow key={post.postId}>
                   <TableCell>{post.postId}</TableCell>
                   <TableCell>
-                    <TableLink href={`/posts/${post.postId}`}>
+                    <TableLink
+                      as="button"
+                      onClick={() => handlePostClick(post.postId)}
+                    >
                       {post.title}
                     </TableLink>
                   </TableCell>
@@ -253,10 +246,10 @@ export default function ProjectPostPage() {
         </PaginationContainer>
       </MainContentWrapper>
 
-      <ProjectPostCreateModal
-        open={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onSubmit={handleCreatePost}
+      <ProjectPostDetailModal
+        open={isDetailModalOpen}
+        onClose={handleDetailModalClose}
+        postId={selectedPostId}
       />
     </PageContainer>
   );

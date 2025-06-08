@@ -1,16 +1,32 @@
 import styled from "styled-components";
 
 export const ModalOverlay = styled.div`
-  display: contents;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent backdrop */
+  display: flex;
+  justify-content: flex-end; /* Align modal panel to the right */
+  align-items: flex-start; /* Align to the top of the overlay */
+  z-index: 1000; /* Ensure it's above other content */
 `;
 
-export const ModalPanel = styled.div`
+export const ModalPanel = styled.div<{ $open: boolean }>`
   background-color: white;
-  width: 100%;
-  height: 100%;
-  box-shadow: none;
+  width: 450px; /* Fixed width for the sidebar-like modal */
+  height: 100vh; /* Full viewport height */
+  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2); /* Shadow on the left side */
   display: flex;
   flex-direction: column;
+  overflow-y: auto; /* Enable scrolling for modal content */
+  border-top-left-radius: 8px; /* Apply border-radius only to the top-left */
+  border-bottom-left-radius: 8px; /* Apply border-radius only to the bottom-left */
+  transform: translateX(
+    ${(props) => (props.$open ? "0%" : "100%")}
+  ); /* Slide in/out */
+  transition: transform 0.3s ease-out; /* Smooth transition */
 `;
 
 export const ModalHeader = styled.div`
