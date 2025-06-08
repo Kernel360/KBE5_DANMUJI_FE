@@ -161,3 +161,32 @@ export const CancelButton = styled.button`
     background-color: #e5e7eb;
   }
 `;
+
+export const ErrorMessage = styled.div`
+  background-color: #fee2e2;
+  color: #dc2626;
+  padding: 0.75rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+  border: 1px solid #fecaca;
+`;
+
+export const CloseButton = styled.button`
+  background: none;
+  border: none;
+  color: #dc2626;
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 1;
+  }
+`;

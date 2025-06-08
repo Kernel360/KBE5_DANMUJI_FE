@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from "react";
 import type { Comment } from "../../types/post";
 import { updateComment, deleteComment } from "../../services/postService";
+import { ApiError } from "../../services/postService";
 import {
   CommentContainer,
   CommentItem,
@@ -19,6 +20,8 @@ import {
   EditButtonGroup,
   SaveButton,
   CancelButton,
+  ErrorMessage,
+  CloseButton,
 } from "./CommentList.styled";
 
 interface CommentListProps {
@@ -38,6 +41,7 @@ const CommentList: React.FC<CommentListProps> = ({
 }) => {
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   const [editText, setEditText] = useState("");
+  const [errorMap, setErrorMap] = useState<Record<number, string>>({});
 
   // 댓글을 부모-자식 관계로 구성
   const organizedComments = useMemo(() => {
@@ -77,6 +81,7 @@ const CommentList: React.FC<CommentListProps> = ({
 
   const handleSaveEdit = async (commentId: number) => {
     try {
+      setErrorMap((prev) => ({ ...prev, [commentId]: null }));
       await updateComment(commentId, editText);
       setEditingCommentId(null);
       setEditText("");
@@ -85,7 +90,14 @@ const CommentList: React.FC<CommentListProps> = ({
       }
     } catch (error) {
       console.error("댓글 수정 중 오류:", error);
-      alert("댓글 수정 중 오류가 발생했습니다.");
+      if (error instanceof ApiError) {
+        setErrorMap((prev) => ({ ...prev, [commentId]: error.message }));
+      } else {
+        setErrorMap((prev) => ({
+          ...prev,
+          [commentId]: "댓글 수정 중 오류가 발생했습니다.",
+        }));
+      }
     }
   };
 
@@ -93,19 +105,43 @@ const CommentList: React.FC<CommentListProps> = ({
     if (!window.confirm("댓글을 삭제하시겠습니까?")) return;
 
     try {
+      setErrorMap((prev) => ({ ...prev, [commentId]: null }));
       await deleteComment(commentId);
       if (onCommentUpdate) {
         onCommentUpdate();
       }
     } catch (error) {
       console.error("댓글 삭제 중 오류:", error);
-      alert("댓글 삭제 중 오류가 발생했습니다.");
+      if (error instanceof ApiError) {
+        setErrorMap((prev) => ({ ...prev, [commentId]: error.message }));
+      } else {
+        setErrorMap((prev) => ({
+          ...prev,
+          [commentId]: "댓글 삭제 중 오류가 발생했습니다.",
+        }));
+      }
     }
+  };
+
+  const handleCloseError = (commentId: number) => {
+    setErrorMap((prev) => {
+      const newMap = { ...prev };
+      delete newMap[commentId];
+      return newMap;
+    });
   };
 
   const renderComment = (comment: CommentWithReplies, depth: number = 0) => (
     <div key={comment.id}>
       <CommentItem $depth={depth}>
+        {errorMap[comment.id] && (
+          <ErrorMessage>
+            {errorMap[comment.id]}
+            <CloseButton onClick={() => handleCloseError(comment.id)}>
+              &times;
+            </CloseButton>
+          </ErrorMessage>
+        )}
         <CommentMeta>
           <CommentAuthor>
             <CommentAuthorName>{comment.author.name}</CommentAuthorName>

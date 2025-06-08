@@ -7,6 +7,7 @@ import type {
   Post,
   CommentListResponse,
   Comment,
+  CommentResponse,
   PostStatus,
   PostType,
   PostPriority,
@@ -15,7 +16,7 @@ import { AxiosError } from "axios";
 import type { AxiosResponse } from "axios";
 
 // API 에러 타입
-class ApiError extends Error {
+export class ApiError extends Error {
   constructor(message: string, public status?: number) {
     super(message);
     this.name = "ApiError";
