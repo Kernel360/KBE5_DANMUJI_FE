@@ -6,3 +6,15 @@ export type PostCreateData = {
   priority: number;
   projectId: number;
 };
+
+export type ApiResponse<T> = {
+  success: boolean;
+  code: string;
+  message: string;
+  data: T;
+};
+
+export type PostCreateResponse = {
+  id: number;
+  title: string;
+};
