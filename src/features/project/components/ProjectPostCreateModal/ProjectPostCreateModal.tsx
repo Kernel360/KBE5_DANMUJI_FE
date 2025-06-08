@@ -17,6 +17,7 @@ import {
   SubmitButton,
   CancelButton,
 } from "./ProjectPostCreateModal.styled.ts";
+import { PostType, PostStatus } from "../../types/post";
 
 interface ProjectPostCreateModalProps {
   open: boolean;
@@ -32,8 +33,8 @@ const ProjectPostCreateModal: React.FC<ProjectPostCreateModalProps> = ({
   const [formData, setFormData] = useState<PostCreateData>({
     title: "",
     content: "",
-    type: "GENERAL",
-    status: "PENDING",
+    type: PostType.GENERAL,
+    status: PostStatus.PENDING,
     priority: 1,
     projectId: 1, // TODO: 실제 프로젝트 ID로 변경
   });
