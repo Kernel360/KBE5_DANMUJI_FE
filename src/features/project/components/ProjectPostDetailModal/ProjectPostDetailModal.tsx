@@ -20,11 +20,23 @@ import {
   Section,
   SectionTitle,
   PostContent,
+  FileList,
+  FileItem,
+  FileName,
+  FileSize,
   CommentsSection,
+  CommentCountHeader,
+  QuestionCount,
   CommentInputContainer,
   CommentTextArea,
   CommentSubmitButton,
 } from "./ProjectPostDetailModal.styled.ts";
+
+interface File {
+  name: string;
+  size: string;
+  url?: string;
+}
 
 interface ProjectPostDetailModalProps {
   open: boolean;
@@ -63,7 +75,7 @@ const ProjectPostDetailModal: React.FC<ProjectPostDetailModalProps> = ({
         ]);
 
         setPost(postResponse.data);
-        setComments(commentsResponse.data);
+        setComments(commentsResponse.data || []);
       } catch (err) {
         setError("게시글을 불러오는데 실패했습니다.");
         console.error("게시글 상세 조회 중 오류:", err);
@@ -139,6 +151,27 @@ const ProjectPostDetailModal: React.FC<ProjectPostDetailModalProps> = ({
       minute: "2-digit",
     });
   };
+
+  // 임시 파일 데이터
+  const dummyFiles: File[] = [
+    { name: "ERP_DB_ERD_v1.2.pdf", size: "2.4MB", url: "#" },
+    { name: "ERP_DB_SQL_Scripts.zip", size: "1.8MB", url: "#" },
+  ];
+
+  const handleFileDownload = (file: File) => {
+    if (file.url) {
+      window.open(file.url, "_blank");
+    } else {
+      console.log("Download file:", file.name);
+    }
+  };
+
+  // comments가 항상 배열임을 보장하는 안전한 변수
+  const safeComments = comments || [];
+
+  const questionComments = safeComments.filter((comment) =>
+    comment.content.includes("질문")
+  ); // 임시 필터링
 
   if (!open) return null;
 
@@ -227,23 +260,29 @@ const ProjectPostDetailModal: React.FC<ProjectPostDetailModalProps> = ({
             <PostContent>{post.content}</PostContent>
           </Section>
 
-          {/* 기존 파일 첨부 부분은 일단 제외. 필요시 추가 */}
-          {/* {post.files && post.files.length > 0 && (
+          {/* 첨부 파일 섹션 활성화 */}
+          {dummyFiles && dummyFiles.length > 0 && (
             <Section>
               <SectionTitle>첨부 파일</SectionTitle>
               <FileList>
-                {post.files.map((file, index) => (
-                  <FileItem key={index} onClick={() => handleFileDownload(file)}>
+                {dummyFiles.map((file, index) => (
+                  <FileItem
+                    key={index}
+                    onClick={() => handleFileDownload(file)}
+                  >
                     <FileName>{file.name}</FileName>
                     <FileSize>{file.size}</FileSize>
                   </FileItem>
                 ))}
               </FileList>
             </Section>
-          )} */}
+          )}
 
           <CommentsSection>
-            {/* 댓글 수 표시는 CommentList 컴포넌트 내부에서 처리 */}
+            <CommentCountHeader>
+              <span>댓글 ({safeComments.length})</span>
+              <QuestionCount>질문 ({questionComments.length})</QuestionCount>
+            </CommentCountHeader>
             <CommentInputContainer>
               <CommentTextArea
                 value={commentText}
@@ -252,10 +291,10 @@ const ProjectPostDetailModal: React.FC<ProjectPostDetailModalProps> = ({
                 rows={3}
               />
               <CommentSubmitButton onClick={handleCommentSubmit}>
-                댓글 작성
+                등록
               </CommentSubmitButton>
             </CommentInputContainer>
-            <CommentList comments={comments} onReply={handleReply} />
+            <CommentList comments={safeComments} onReply={handleReply} />
           </CommentsSection>
         </ModalBody>
       </ModalPanel>

@@ -10,13 +10,12 @@ import {
   ReplyForm,
   ReplyInput,
   SubmitButton,
-  ReplyList,
-  ReplyItem,
   ReplyAuthorName,
   ReplyContent,
   ReplyDate,
   ReplyFormContainer,
   NestedReplyList,
+  CommentActions,
 } from "./Comment.styled";
 
 interface CommentProps {
@@ -56,11 +55,19 @@ const Comment: React.FC<CommentProps> = ({ comment, onReply, level = 0 }) => {
       </CommentHeader>
       <CommentContent>{comment.content}</CommentContent>
 
-      {level === 0 && (
-        <ReplyButton onClick={() => setIsReplying(!isReplying)}>
-          답글 작성
-        </ReplyButton>
-      )}
+      <CommentActions>
+        {level === 0 && (
+          <ReplyButton onClick={() => setIsReplying(!isReplying)}>
+            답글
+          </ReplyButton>
+        )}
+        <a href="#" onClick={() => console.log("수정 클릭", comment.id)}>
+          수정
+        </a>
+        <a href="#" onClick={() => console.log("삭제 클릭", comment.id)}>
+          삭제
+        </a>
+      </CommentActions>
 
       {isReplying && level === 0 && (
         <ReplyFormContainer>
@@ -68,10 +75,10 @@ const Comment: React.FC<CommentProps> = ({ comment, onReply, level = 0 }) => {
             <ReplyInput
               value={replyContent}
               onChange={(e) => setReplyContent(e.target.value)}
-              placeholder="답글을 입력하세요"
+              placeholder="답글을 입력하세요..."
               required
             />
-            <SubmitButton type="submit">답글 등록</SubmitButton>
+            <SubmitButton type="submit">등록</SubmitButton>
           </ReplyForm>
         </ReplyFormContainer>
       )}

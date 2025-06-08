@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import type { Comment } from "../../types/post";
 import Comment from "../Comment/Comment";
-import { CommentListContainer, CommentCount } from "./CommentList.styled";
+import { CommentListContainer } from "./CommentList.styled";
 
 interface CommentListProps {
   comments?: Comment[];
@@ -43,7 +43,6 @@ const CommentList: React.FC<CommentListProps> = ({
 
   return (
     <CommentListContainer>
-      <CommentCount>댓글 {comments.length}개</CommentCount>
       {structuredComments.length > 0 ? (
         structuredComments.map((comment) => (
           <Comment key={comment.id} comment={comment} onReply={onReply} />

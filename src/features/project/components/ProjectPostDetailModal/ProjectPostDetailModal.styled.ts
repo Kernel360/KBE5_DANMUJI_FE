@@ -30,13 +30,11 @@ export const ModalPanel = styled.div<{ $open: boolean }>`
 `;
 
 export const ModalHeader = styled.div`
-  padding: 1.5rem;
+  padding: 20px;
   border-bottom: 1px solid #e5e7eb;
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   position: sticky;
   top: 0;
   background-color: white;
@@ -53,14 +51,15 @@ export const HeaderTop = styled.div`
 export const HeaderLeft = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 10px;
 `;
 
 export const StatusBadge = styled.span<{ $status: string }>`
   font-weight: 600;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  font-size: 0.875rem;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  width: fit-content;
 
   ${(props) => {
     if (props.$status === "승인")
@@ -86,32 +85,32 @@ export const StatusBadge = styled.span<{ $status: string }>`
 `;
 
 export const PanelTitle = styled.h2`
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #1f2937;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333333;
   margin: 0;
 `;
 
-export const PostPanelTitle = styled.h2`
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1f2937;
-  margin-top: 4px;
+export const PostPanelTitle = styled.span`
+  font-size: 14px;
+  font-weight: bold;
+  color: #333333;
+  min-width: 60px; /* 라벨 너비 고정 */
 `;
 
 export const HeaderRight = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 10px;
 `;
 
 export const IconWrapper = styled.div`
-  color: #6b7280;
-  font-size: 1.25rem;
+  color: #999999;
+  font-size: 18px;
   cursor: pointer;
 
   &:hover {
-    color: #1f2937;
+    color: #333333;
   }
 `;
 
@@ -119,45 +118,39 @@ export const CloseButton = styled.button`
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 1.5rem;
-  color: #6b7280;
+  font-size: 24px;
+  color: #999999;
   line-height: 1;
 
   &:hover {
-    color: #1f2937;
+    color: #333333;
   }
 `;
 
 export const PostDetailMeta = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: auto 1fr; /* 라벨과 값 2열 */
   gap: 8px 16px;
-  font-size: 0.875rem;
-  color: #4b5563;
+  font-size: 14px;
+  color: #666666;
   width: 100%;
 `;
 
 export const MetaItem = styled.div`
   display: flex;
-  justify-content: space-between;
-  span:first-child {
-    font-weight: 600;
-    color: #374151;
-  }
-  span:last-child {
-    color: #4b5563;
-  }
+  align-items: center;
+  gap: 8px;
 `;
 
 export const ModalBody = styled.div`
   flex: 1;
-  padding: 1.5rem;
+  padding: 20px;
 `;
 
 export const Section = styled.div`
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #eeeeee;
 
   &:last-child {
     border-bottom: none;
@@ -166,24 +159,16 @@ export const Section = styled.div`
 `;
 
 export const SectionTitle = styled.h3`
-  font-size: 1rem;
-  font-weight: 600;
-  color: #374151;
-  margin-bottom: 0.75rem;
-`;
-
-export const PostMeta = styled.div`
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.875rem;
-  color: #6b7280;
-  margin-bottom: 1rem;
+  font-size: 16px;
+  font-weight: bold;
+  color: #333333;
+  margin-bottom: 15px;
 `;
 
 export const PostContent = styled.div`
-  font-size: 0.875rem;
-  color: #374151;
-  line-height: 1.5;
+  font-size: 14px;
+  color: #555555;
+  line-height: 1.6;
   white-space: pre-wrap;
 `;
 
@@ -195,147 +180,155 @@ export const FileList = styled.ul`
 
 export const FileItem = styled.li`
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #f3f4f6;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
 
   &:last-child {
     border-bottom: none;
   }
 `;
 
-export const FileName = styled.div`
-  font-size: 0.875rem;
-  color: #3b82f6;
-  cursor: pointer;
+export const FileName = styled.a`
+  color: #2c3e50;
+  text-decoration: none;
+  font-size: 14px;
 
   &:hover {
     text-decoration: underline;
   }
 `;
 
-export const FileSize = styled.div`
-  font-size: 0.875rem;
-  color: #6b7280;
+export const FileSize = styled.span`
+  font-size: 12px;
+  color: #999999;
 `;
 
-export const CommentsSection = styled(Section)`
-  margin-top: 1.5rem;
+export const CommentsSection = styled.div`
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #eeeeee;
+`;
+
+export const CommentCountHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+
+  span {
+    font-weight: bold;
+    color: #333333;
+    font-size: 15px;
+  }
+
+  &::after {
+    content: "";
+    flex-grow: 1;
+    height: 1px;
+    background-color: #dddddd;
+  }
+`;
+
+export const QuestionCount = styled.span`
+  color: #666666;
+  font-weight: normal !important;
+`;
+
+export const CommentInputContainer = styled.div`
+  margin-bottom: 20px;
+  background-color: #ffffff;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+`;
+
+export const CommentTextArea = styled.textarea`
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #dddddd;
+  border-radius: 4px;
+  resize: vertical;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 10px;
+
+  &:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+  }
+`;
+
+export const CommentSubmitButton = styled.button`
+  padding: 8px 16px;
+  background-color: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  float: right; /* 버튼을 오른쪽으로 정렬 */
+
+  &:hover {
+    background-color: #4338ca;
+  }
+
+  &:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }
 `;
 
 export const CommentsList = styled.div`
-  max-height: 200px;
-  overflow-y: auto;
-  margin-bottom: 1rem;
-  padding-right: 0.5rem;
+  max-height: none; /* 스크롤바 제거 */
+  overflow-y: visible; /* 스크롤바 제거 */
+  margin-bottom: 0;
+  padding-right: 0;
 `;
 
 export const CommentItem = styled.div`
-  background-color: #f9fafb;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  margin-bottom: 0.75rem;
+  background-color: #ffffff; /* 흰색 배경 */
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); /* 그림자 */
 `;
 
 export const CommentMeta = styled.div`
   display: flex;
   justify-content: space-between;
-  font-size: 0.75rem;
-  color: #6b7280;
-  margin-bottom: 0.5rem;
+  font-size: 12px;
+  color: #999999;
+  margin-bottom: 8px;
 `;
 
 export const CommentAuthor = styled.span`
-  font-weight: 600;
-  color: #374151;
+  font-weight: bold;
+  color: #333333;
+  font-size: 14px;
+`;
+
+export const CommentText = styled.p`
+  font-size: 14px;
+  color: #555555;
+  line-height: 1.5;
+  margin-bottom: 10px;
 `;
 
 export const CommentActions = styled.div`
-  font-size: 0.75rem;
+  font-size: 12px;
+  text-align: right;
   a {
-    color: #6b7280;
-    margin-left: 0.5rem;
+    color: #666666;
+    margin-left: 10px;
     cursor: pointer;
 
     &:hover {
       text-decoration: underline;
+      color: #2c3e50;
     }
   }
-`;
-
-export const CommentText = styled.div`
-  font-size: 0.875rem;
-  color: #374151;
-  line-height: 1.4;
-`;
-
-export const CommentInputContainer = styled.div`
-  display: flex;
-  gap: 0.75rem;
-  align-items: flex-start;
-`;
-
-export const CommentTextArea = styled.textarea`
-  flex: 1;
-  border: 1px solid #d1d5db;
-  border-radius: 0.25rem;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.875rem;
-  min-height: 60px;
-  resize: vertical;
-
-  &:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 1px #3b82f6;
-  }
-`;
-
-export const CommentSubmitButton = styled.button`
-  background-color: #3b82f6;
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 0.25rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  align-self: flex-start;
-
-  &:hover {
-    background-color: #2563eb;
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-`;
-
-export const TabsContainer = styled.div`
-  display: flex;
-  border-bottom: 1px solid #e5e7eb;
-  margin-top: 1rem;
-`;
-
-export const TabButton = styled.button<{ $active?: boolean }>`
-  padding: 12px 16px;
-  font-size: 14px;
-  font-weight: 600;
-  background-color: transparent;
-  border: none;
-  border-bottom: 2px solid transparent;
-  cursor: pointer;
-  color: ${(props) => (props.$active ? "#4f46e5" : "#6b7280")};
-  border-color: ${(props) => (props.$active ? "#4f46e5" : "transparent")};
-  transition: color 0.2s ease-in-out, border-color 0.2s ease-in-out;
-
-  &:hover {
-    color: #4f46e5;
-    border-color: #4f46e5;
-  }
-`;
-
-export const TabContent = styled.div`
-  padding-top: 1rem;
 `;
