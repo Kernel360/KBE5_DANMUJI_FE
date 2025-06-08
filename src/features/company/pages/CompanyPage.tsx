@@ -239,6 +239,17 @@ export default function CompanyPage() {
       });
   };
 
+  const handleSearch = () => {
+    // 예시: axios 또는 fetch로 API 호출
+    axios.get(`/api/company/search?name=${encodeURIComponent(search)}`)
+      .then(res => {
+        setCompanies(res.data.data); // 검색 결과 상태에 저장
+      })
+      .catch(err => {
+        console.error('검색 오류:', err);
+      });
+  };
+  
   const handleEdit = (data: CompanyData) => {
     if (!editData) return;
     setCompanies(prev => prev.map(c =>
@@ -249,6 +260,20 @@ export default function CompanyPage() {
     setEditModalOpen(false);
     setEditData(null);
   };
+
+  const handleDelete = async (companyId) => {
+  if (!window.confirm("정말 삭제하시겠습니까?")) return;
+
+  try {
+    await axios.delete(`/api/companies/${companyId}`);
+    alert("삭제되었습니다.");
+    // 회사 목록을 다시 불러오거나, 상태에서 제거
+    fetchCompanies(); // 혹은 setCompanies(companies.filter(...))
+  } catch (error) {
+    console.error("삭제 실패:", error);
+    alert("삭제에 실패했습니다.");
+  }
+};
 
   return (
     <Container>
@@ -266,6 +291,12 @@ export default function CompanyPage() {
           placeholder="회사명 검색..."
           value={search}
           onChange={e => setSearch(e.target.value)}
+          onKeyDown={e => {
+            if (e.key === 'Enter') {
+              e.preventDefault(); // form 제출 방지 (있다면)
+              handleSearch();     // 검색 함수 실행
+            }
+          }}
         />
         <RegisterButton onClick={() => setModalOpen(true)}>회사 등록</RegisterButton>
       </SearchSection>
@@ -304,7 +335,7 @@ export default function CompanyPage() {
                 <Td>{c.tel}</Td>
                 <Td>
                   <ActionButton onClick={() => { setEditModalOpen(true); setEditData(c); }}>수정</ActionButton>
-                  <DeleteButton>삭제</DeleteButton>
+                  <button onClick={() => handleDelete(c.id)}>삭제</button>
                 </Td>
               </Tr>
             ))}
