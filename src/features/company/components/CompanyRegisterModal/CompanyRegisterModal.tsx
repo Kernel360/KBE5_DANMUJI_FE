@@ -21,6 +21,20 @@ const ModalContent = styled.div`
   position: relative;
 `;
 
+const TextArea = styled.textarea`
+  width: 100%;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  resize: vertical;
+
+  &:focus {
+    outline: none;
+    border-color: #fdb924;
+    box-shadow: 0 0 0 2px rgba(253, 185, 36, 0.1);
+  }
+`;
+
 const CloseButton = styled.button`
   position: absolute;
   top: 1rem;
@@ -65,24 +79,6 @@ const Input = styled.input`
     outline: none;
     border-color: #fdb924;
     box-shadow: 0 0 0 2px rgba(253, 185, 36, 0.1);
-  }
-`;
-
-const RadioGroup = styled.div`
-  display: flex;
-  gap: 1.5rem;
-  padding: 0.25rem;
-`;
-
-const RadioLabel = styled.label`
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-size: 0.875rem;
-  cursor: pointer;
-
-  input[type="radio"] {
-    accent-color: #fdb924;
   }
 `;
 
@@ -137,39 +133,50 @@ export default function CompanyRegisterModal({
         <CloseButton onClick={onClose}>×</CloseButton>
         <Title>회사 등록</Title>
         <Form
-          ref={formRef}
-          onSubmit={(e) => {
-            e.preventDefault();
-            const data = Object.fromEntries(new FormData(e.currentTarget));
-            onSubmit(data);
-          }}
-        >
+            ref={formRef}
+            onSubmit={async (e) => {
+              e.preventDefault();
+              const formData = new FormData(e.currentTarget);
+              const data = Object.fromEntries(formData) as { [key: string]: string };
+
+              // 사업자등록번호 결합
+              const bizNo = `${data.reg1}${data.reg2}${data.reg3}`;
+
+              const requestBody = {
+                name: data.name,
+                bizNo,
+                address: data.address,
+                ceoName: data.ceoName,
+                email: data.email,
+                tel: data.tel,
+                bio: data.bio
+              };
+
+              try {
+                const response = await fetch("/api/companies", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify(requestBody),
+                });
+
+                if (!response.ok) {
+                  throw new Error("등록 실패");
+                }
+
+                // 성공 시 후처리 (예: 알림, 모달 닫기 등)
+                alert("회사 등록이 완료되었습니다!");
+                onClose();
+              } catch (error) {
+                console.error(error);
+                alert("회사 등록 중 오류가 발생했습니다.");
+              }
+            }}
+          >
           <FormGroup>
             <Label>회사명</Label>
             <Input name="name" required placeholder="회사명을 입력하세요" />
-          </FormGroup>
-          <FormGroup>
-            <Label>회사 구분</Label>
-            <RadioGroup>
-              <RadioLabel>
-                <input
-                  type="radio"
-                  name="companyType"
-                  value="CLIENT"
-                  required
-                />
-                고객사
-              </RadioLabel>
-              <RadioLabel>
-                <input
-                  type="radio"
-                  name="companyType"
-                  value="AGENCY"
-                  required
-                />
-                개발사
-              </RadioLabel>
-            </RadioGroup>
           </FormGroup>
           <FormGroup>
             <Label>사업자등록번호</Label>
@@ -210,11 +217,11 @@ export default function CompanyRegisterModal({
           </FormGroup>
           <FormGroup>
             <Label>주소</Label>
-            <Input name="addr" required placeholder="주소를 입력하세요" />
+            <Input name="address" required placeholder="주소를 입력하세요" />
           </FormGroup>
           <FormGroup>
             <Label>사업자 명</Label>
-            <Input name="owner" required placeholder="사업자 명을 입력하세요" />
+            <Input name="ceoName" required placeholder="사업자 명을 입력하세요" />
           </FormGroup>
           <FormGroup>
             <Label>이메일</Label>
@@ -227,7 +234,15 @@ export default function CompanyRegisterModal({
           </FormGroup>
           <FormGroup>
             <Label>연락처</Label>
-            <Input name="phone" required placeholder="010-0000-0000" />
+            <Input name="tel" required placeholder="010-0000-0000" />
+          </FormGroup>
+          <FormGroup>
+            <Label>소개</Label>
+            <TextArea
+              name="bio"
+              placeholder="회사에 대한 소개를 입력하세요"
+              rows={4}
+            />
           </FormGroup>
           <div className="flex justify-end gap-2 mt-2">
             <button
