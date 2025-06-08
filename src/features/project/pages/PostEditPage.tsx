@@ -46,6 +46,10 @@ export default function PostEditPage() {
       try {
         setLoading(true);
         const response = await getPostDetail(parseInt(postId));
+        console.log("게시글 상세 데이터:", response.data); // 디버깅용 로그
+        if (!response.data.project?.projectId) {
+          throw new Error("프로젝트 정보를 찾을 수 없습니다.");
+        }
         setPost(response.data);
         setFormData({
           title: response.data.title,
@@ -92,14 +96,23 @@ export default function PostEditPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!postId || !validateForm()) return;
+    if (!postId || !post || !post.project?.projectId || !validateForm()) {
+      console.error("필수 데이터 누락:", {
+        postId,
+        post,
+        projectId: post?.project?.projectId,
+      });
+      return;
+    }
 
     try {
       setLoading(true);
       const response = await updatePost(parseInt(postId), formData);
       if (response.status === "OK") {
         alert("게시글이 성공적으로 수정되었습니다.");
-        navigate(`/posts/${postId}`);
+        const projectId = post.project.projectId;
+        console.log("리다이렉트할 프로젝트 ID:", projectId); // 디버깅용 로그
+        navigate(`/projects/${projectId}/posts`);
       } else {
         throw new Error(response.message);
       }

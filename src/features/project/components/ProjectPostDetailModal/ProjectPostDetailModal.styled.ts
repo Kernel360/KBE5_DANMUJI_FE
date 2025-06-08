@@ -50,8 +50,8 @@ export const HeaderLeft = styled.div`
 
 export const HeaderRight = styled.div`
   display: flex;
-  align-items: center;
   gap: 0.5rem;
+  align-items: center;
 `;
 
 export const ActionButton = styled.button`
@@ -66,6 +66,26 @@ export const ActionButton = styled.button`
 
   &:hover {
     background-color: #e5e7eb;
+  }
+
+  &.edit {
+    background-color: #3b82f6;
+    color: white;
+    border-color: #2563eb;
+
+    &:hover {
+      background-color: #2563eb;
+    }
+  }
+
+  &.delete {
+    background-color: #ef4444;
+    color: white;
+    border-color: #dc2626;
+
+    &:hover {
+      background-color: #dc2626;
+    }
   }
 `;
 

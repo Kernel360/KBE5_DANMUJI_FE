@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import type { Comment, Post } from "../../types/post";
 import {
   getPostDetail,
   getComments,
   createComment,
+  deletePost,
 } from "../../services/postService";
 import CommentList from "../CommentList/CommentList";
 // import { BiMinimize, BiExpand } from "react-icons/bi"; // BiMinimize, BiExpand 임포트 주석 처리
@@ -61,6 +63,7 @@ const ProjectPostDetailModal: React.FC<ProjectPostDetailModalProps> = ({
   onClose,
   postId,
 }) => {
+  const navigate = useNavigate();
   const [post, setPost] = useState<Post | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -223,6 +226,36 @@ const ProjectPostDetailModal: React.FC<ProjectPostDetailModalProps> = ({
     comment.content.includes("질문")
   ); // 임시 필터링
 
+  const handleEdit = () => {
+    if (!postId) return;
+    navigate(`/posts/${postId}/edit`);
+    onClose();
+  };
+
+  const handleDelete = async () => {
+    if (!postId || !window.confirm("정말로 이 게시글을 삭제하시겠습니까?")) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await deletePost(parseInt(postId));
+      if (response.status === "OK") {
+        alert("게시글이 성공적으로 삭제되었습니다.");
+        onClose();
+        // 목록 페이지 새로고침을 위해 부모 컴포넌트에 알림
+        window.location.reload();
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (err) {
+      setError("게시글 삭제 중 오류가 발생했습니다.");
+      console.error("게시글 삭제 중 오류:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // 모달이 열려있지 않으면 렌더링하지 않음
   if (!open) return null;
 
@@ -270,6 +303,12 @@ const ProjectPostDetailModal: React.FC<ProjectPostDetailModalProps> = ({
               <ModalTitle>{post?.title || ""}</ModalTitle>
             </HeaderLeft>
             <HeaderRight>
+              <ActionButton className="edit" onClick={handleEdit}>
+                수정
+              </ActionButton>
+              <ActionButton className="delete" onClick={handleDelete}>
+                삭제
+              </ActionButton>
               <ActionButton onClick={onClose}>닫기</ActionButton>
             </HeaderRight>
           </HeaderTop>
