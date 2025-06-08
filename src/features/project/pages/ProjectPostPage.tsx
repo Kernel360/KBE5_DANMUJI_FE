@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getPosts } from "../services/postService";
-import type { Post } from "../types/post";
+import type { Post, PostCreateData } from "../types/post";
 import ProjectPostDetailModal from "../components/ProjectPostDetailModal/ProjectPostDetailModal";
+import ProjectPostCreateModal from "../components/ProjectPostCreateModal/ProjectPostCreateModal";
 import {
   PageContainer,
   MainContentWrapper,
@@ -32,6 +33,12 @@ import {
   StatusBadge,
   PaginationContainer,
   PaginationButton,
+  TabsContainer,
+  TabButton,
+  CreateButton,
+  ProgressBarContainer,
+  ProgressFill,
+  ProgressLabel,
 } from "./ProjectPostPage.styled";
 
 export default function ProjectPostPage() {
@@ -45,6 +52,7 @@ export default function ProjectPostPage() {
   const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [projectInfo, setProjectInfo] = useState<Post["project"] | null>(null);
 
   useEffect(() => {
@@ -82,6 +90,19 @@ export default function ProjectPostPage() {
     setSelectedPostId(null);
   };
 
+  const handleCreateModalOpen = () => {
+    setIsCreateModalOpen(true);
+  };
+
+  const handleCreateModalClose = () => {
+    setIsCreateModalOpen(false);
+  };
+
+  const handleCreatePost = (data: PostCreateData) => {
+    console.log("새 게시글 생성:", data);
+    handleCreateModalClose();
+  };
+
   const filteredPosts = posts.filter((post) => {
     const matchesStatus =
       statusFilter === "ALL" || post.status === statusFilter;
@@ -104,27 +125,12 @@ export default function ProjectPostPage() {
     }
   };
 
-  const getTypeText = (type: string) => {
-    switch (type) {
-      case "NOTICE":
-        return "공지";
-      case "QUESTION":
-        return "질문";
-      case "REPORT":
-        return "보고";
-      case "GENERAL":
-        return "일반";
-      default:
-        return type;
-    }
-  };
-
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("ko-KR", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    });
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, "0");
+    return `${year}.${month}.${day}`;
   };
 
   if (loading) return <div>로딩 중...</div>;
@@ -143,6 +149,29 @@ export default function ProjectPostPage() {
             </ProjectPeriod>
             <ProjectInfoGrid>
               <ProjectInfoItem>
+                <InfoLabel>고객사</InfoLabel>
+                <InfoValue>ABC기업</InfoValue>
+              </ProjectInfoItem>
+              <ProjectInfoItem>
+                <InfoLabel>담당자</InfoLabel>
+                <InfoValue>XYZ 소프트웨어</InfoValue>
+              </ProjectInfoItem>
+              <ProjectInfoItem>
+                <InfoLabel>예산</InfoLabel>
+                <InfoValue>1억원</InfoValue>
+              </ProjectInfoItem>
+              <ProjectInfoItem>
+                <InfoLabel>진행률</InfoLabel>
+                <ProgressBarContainer>
+                  <ProgressFill $progress={75} />
+                </ProgressBarContainer>
+                <ProgressLabel>75%</ProgressLabel>
+              </ProjectInfoItem>
+              <ProjectInfoItem>
+                <InfoLabel>유형</InfoLabel>
+                <InfoValue>IT 개발</InfoValue>
+              </ProjectInfoItem>
+              <ProjectInfoItem>
                 <InfoLabel>상태</InfoLabel>
                 <InfoValue $bold>{projectInfo.status}</InfoValue>
               </ProjectInfoItem>
@@ -150,13 +179,19 @@ export default function ProjectPostPage() {
           </ProjectDetailSection>
         )}
 
+        <TabsContainer>
+          <TabButton $active={true}>게시글관리</TabButton>
+          <TabButton $active={false}>질문관리</TabButton>
+          <TabButton $active={false}>이력관리</TabButton>
+        </TabsContainer>
+
         <Toolbar>
           <LeftToolbar>
             <FilterSelect
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
-              <option value="ALL">전체</option>
+              <option value="ALL">승인상태: 전체</option>
               <option value="PENDING">대기</option>
               <option value="APPROVED">승인</option>
               <option value="REJECTED">반려</option>
@@ -172,10 +207,9 @@ export default function ProjectPostPage() {
             </SearchContainer>
           </LeftToolbar>
           <RightToolbar>
-            {/* 게시글 작성 버튼은 이제 모달 내부에서 처리하므로 삭제 */}
-            {/* <CreateButton onClick={() => setIsCreateModalOpen(true)}>
-              게시글 작성
-            </CreateButton> */}
+            <CreateButton onClick={handleCreateModalOpen}>
+              + 게시글 작성
+            </CreateButton>
           </RightToolbar>
         </Toolbar>
 
@@ -186,8 +220,9 @@ export default function ProjectPostPage() {
                 <TableHeader>번호</TableHeader>
                 <TableHeader>제목</TableHeader>
                 <TableHeader>작성자</TableHeader>
-                <TableHeader>유형</TableHeader>
-                <TableHeader>상태</TableHeader>
+                <TableHeader>승인상태</TableHeader>
+                <TableHeader>결재자</TableHeader>
+                <TableHeader>결재일</TableHeader>
                 <TableHeader>작성일</TableHeader>
               </tr>
             </TableHead>
@@ -204,11 +239,14 @@ export default function ProjectPostPage() {
                     </TableLink>
                   </TableCell>
                   <TableCell>{post.author.name}</TableCell>
-                  <TableCell>{getTypeText(post.type)}</TableCell>
                   <TableCell>
-                    <StatusBadge status={getStatusText(post.status)}>
+                    <StatusBadge $status={getStatusText(post.status)}>
                       {getStatusText(post.status)}
                     </StatusBadge>
+                  </TableCell>
+                  <TableCell>{post.approver?.name || "-"}</TableCell>
+                  <TableCell>
+                    {post.approvedAt ? formatDate(post.approvedAt) : "-"}
                   </TableCell>
                   <TableCell>{formatDate(post.createdAt)}</TableCell>
                 </TableRow>
@@ -218,39 +256,29 @@ export default function ProjectPostPage() {
         </TableContainer>
 
         <PaginationContainer>
-          <PaginationButton
-            onClick={() => setCurrentPage((prev) => Math.max(0, prev - 1))}
-            disabled={currentPage === 0}
-            $isArrow
-          >
-            이전
-          </PaginationButton>
           {Array.from({ length: totalPages }, (_, i) => (
             <PaginationButton
               key={i}
+              $active={i === currentPage}
               onClick={() => setCurrentPage(i)}
-              $active={currentPage === i}
             >
               {i + 1}
             </PaginationButton>
           ))}
-          <PaginationButton
-            onClick={() =>
-              setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1))
-            }
-            disabled={currentPage === totalPages - 1}
-            $isArrow
-          >
-            다음
-          </PaginationButton>
         </PaginationContainer>
-      </MainContentWrapper>
 
-      <ProjectPostDetailModal
-        open={isDetailModalOpen}
-        onClose={handleDetailModalClose}
-        postId={selectedPostId}
-      />
+        <ProjectPostDetailModal
+          open={isDetailModalOpen}
+          onClose={handleDetailModalClose}
+          postId={selectedPostId}
+        />
+
+        <ProjectPostCreateModal
+          open={isCreateModalOpen}
+          onClose={handleCreateModalClose}
+          onSubmit={handleCreatePost}
+        />
+      </MainContentWrapper>
     </PageContainer>
   );
 }

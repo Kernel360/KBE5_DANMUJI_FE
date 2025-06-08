@@ -70,6 +70,8 @@ export interface Post {
   completedAt: string | null;
   project: Project;
   delete: boolean;
+  approver?: Author;
+  approvedAt?: string;
 }
 
 export interface PageInfo {

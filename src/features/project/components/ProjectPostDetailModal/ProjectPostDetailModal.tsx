@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import type { Comment, Post } from "../../types/post";
 import { getPostDetail, getComments } from "../../services/postService";
 import CommentList from "../CommentList/CommentList";
+// import { BiMinimize, BiExpand } from "react-icons/bi"; // BiMinimize, BiExpand 임포트 주석 처리
 import {
   ModalOverlay,
   ModalPanel,
@@ -30,6 +31,8 @@ import {
   CommentInputContainer,
   CommentTextArea,
   CommentSubmitButton,
+  CommentButtonGroup,
+  QuestionButton,
 } from "./ProjectPostDetailModal.styled.ts";
 
 interface File {
@@ -214,17 +217,17 @@ const ProjectPostDetailModal: React.FC<ProjectPostDetailModalProps> = ({
           <HeaderTop>
             <HeaderLeft>
               <StatusBadge $status={getStatusText(post.status)}>
-                {getStatusText(post.status)}
+                승인상태: {getStatusText(post.status)}
               </StatusBadge>
-              <PanelTitle>{post.title}</PanelTitle>
+              <PanelTitle>게시글 상세</PanelTitle>
             </HeaderLeft>
             <HeaderRight>
-              <IconWrapper onClick={() => console.log("Pin clicked")}>
-                {/* <BiPin /> */}
+              {/* <IconWrapper onClick={() => console.log("Minimize clicked")}>
+                <BiMinimize />
               </IconWrapper>
               <IconWrapper onClick={() => console.log("Expand clicked")}>
-                {/* <BiExpand /> */}
-              </IconWrapper>
+                <BiExpand />
+              </IconWrapper> */}
               <CloseButton onClick={onClose}>&times;</CloseButton>
             </HeaderRight>
           </HeaderTop>
@@ -256,7 +259,7 @@ const ProjectPostDetailModal: React.FC<ProjectPostDetailModalProps> = ({
 
         <ModalBody>
           <Section>
-            <SectionTitle>내용</SectionTitle>
+            <SectionTitle>작업 설명</SectionTitle>
             <PostContent>{post.content}</PostContent>
           </Section>
 
@@ -290,9 +293,12 @@ const ProjectPostDetailModal: React.FC<ProjectPostDetailModalProps> = ({
                 placeholder="댓글을 입력하세요..."
                 rows={3}
               />
-              <CommentSubmitButton onClick={handleCommentSubmit}>
-                등록
-              </CommentSubmitButton>
+              <CommentButtonGroup>
+                <QuestionButton type="button">질문</QuestionButton>
+                <CommentSubmitButton onClick={handleCommentSubmit}>
+                  등록
+                </CommentSubmitButton>
+              </CommentButtonGroup>
             </CommentInputContainer>
             <CommentList comments={safeComments} onReply={handleReply} />
           </CommentsSection>

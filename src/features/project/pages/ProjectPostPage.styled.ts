@@ -3,8 +3,8 @@ import { darken } from "polished";
 
 export const PageContainer = styled.div`
   display: flex;
-  height: 100vh; /* Set full viewport height */
-  overflow: hidden; /* Prevent scrolling on the page container itself */
+  /* height: 100vh; */ /* Set full viewport height */
+  /* overflow: hidden; */ /* Prevent scrolling on the page container itself */
   background-color: #f0f2f5; /* Light grey background */
 `;
 
@@ -13,10 +13,10 @@ export const MainContentWrapper = styled.div`
   display: flex;
   padding: 20px; /* Add padding here for the main content area */
   gap: 20px; /* Space between ProjectDetailSection and SidebarWrapper */
-  overflow-y: auto; /* Enable scrolling for main content if needed */
+  /* overflow-y: auto; */ /* Enable scrolling for main content if needed */
   background-color: #ffffff; /* White background for content */
   border-radius: 8px;
-  margin-right: 20px; /* Adjust margin to allow space for the new sidebar */
+  /* margin-right: 20px; */ /* Adjust margin to allow space for the new sidebar */
   flex-direction: column;
 `;
 
@@ -287,27 +287,60 @@ export const SearchIcon = styled.div`
   font-size: 18px;
 `;
 
+export const StatusBadge = styled.span<{ $status: string }>`
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  width: fit-content;
+
+  ${(props) => {
+    if (props.$status === "승인")
+      return `
+        background-color: #d1fae5;
+        color: #059669;
+      `;
+    if (props.$status === "대기")
+      return `
+        background-color: #fef9c3;
+        color: #a16207;
+      `;
+    if (props.$status === "반려")
+      return `
+        background-color: #fee2e2;
+        color: #dc2626;
+      `;
+    return `
+      background-color: #e5e7eb;
+      color: #4b5563;
+    `;
+  }}
+`;
+
 export const CreateButton = styled.button`
-  background-color: #2c3e50;
+  background-color: #6b6b6b; /* 어두운 회색 */
   color: white;
-  padding: 8px 15px;
+  padding: 10px 15px;
   border: none;
   border-radius: 5px;
   font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap; /* 줄바꿈 방지 */
 
   &:hover {
-    background-color: ${darken(0.1, "#2c3e50")};
+    background-color: ${darken(0.05, "#6B6B6B")};
   }
 `;
 
 export const TableContainer = styled.div`
   width: 100%;
-  overflow-x: auto; /* Enable horizontal scrolling for tables */
-  border: 1px solid #e0e0e0;
+  overflow-x: auto;
+  background-color: white;
   border-radius: 8px;
-  background-color: #ffffff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 `;
 
@@ -362,48 +395,12 @@ export const TableLink = styled.a`
   }
 `;
 
-export const StatusBadge = styled.span<{ status: string }>`
-  display: inline-block;
-  padding: 5px 10px;
-  border-radius: 4px; /* Adjust border-radius to match image */
-  font-size: 12px;
-  font-weight: 600; /* Adjust font-weight to match image */
-  color: white;
-  text-align: center;
-  width: fit-content; /* Adjust width to content */
-  background-color: ${(props) => {
-    switch (props.status) {
-      case "승인":
-        return "#d1fae5"; /* Light green for 승인 */
-      case "대기":
-        return "#fef9c3"; /* Light yellow for 대기 */
-      case "반려":
-        return "#fee2e2"; /* Light red for 반려 */
-      default:
-        return "#e5e7eb"; /* Default light grey */
-    }
-  }};
-  color: ${(props) => {
-    switch (props.status) {
-      case "승인":
-        return "#059669"; /* Dark green for 승인 */
-      case "대기":
-        return "#a16207"; /* Dark yellow for 대기 */
-      case "반려":
-        return "#dc2626"; /* Dark red for 반려 */
-      default:
-        return "#4b5563"; /* Default dark grey */
-    }
-  }};
-`;
-
 export const PaginationContainer = styled.div`
   display: flex;
-  justify-content: flex-start; /* Align to the left */
+  justify-content: center; /* 페이지네이션을 가운데로 정렬 */
   align-items: center;
+  gap: 8px;
   margin-top: 20px;
-  padding-top: 15px; /* Add padding to the top */
-  border-top: 1px solid #eee; /* Optional: Add a top border */
 `;
 
 export const PaginationNav = styled.nav``;

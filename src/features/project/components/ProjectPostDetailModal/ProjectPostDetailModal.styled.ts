@@ -282,6 +282,33 @@ export const CommentSubmitButton = styled.button`
   }
 `;
 
+export const CommentButtonGroup = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px; /* 버튼 간 간격 */
+  margin-top: 10px; /* textarea와의 간격 */
+`;
+
+export const QuestionButton = styled.button`
+  padding: 8px 16px;
+  background-color: #f0f0f0; /* 배경색 */
+  color: #333333; /* 글자색 */
+  border: 1px solid #dddddd; /* 테두리 */
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #e0e0e0;
+  }
+
+  &:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }
+`;
+
 export const CommentsList = styled.div`
   max-height: none; /* 스크롤바 제거 */
   overflow-y: visible; /* 스크롤바 제거 */
