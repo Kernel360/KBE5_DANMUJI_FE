@@ -3,15 +3,19 @@ import {
   ModalOverlay,
   ModalPanel,
   ModalHeader,
+  HeaderTop,
   HeaderLeft,
   StatusBadge,
-  ModalTitle,
+  PanelTitle,
+  PostPanelTitle,
   HeaderRight,
+  IconWrapper,
   CloseButton,
+  PostDetailMeta,
+  MetaItem,
   ModalBody,
   Section,
   SectionTitle,
-  PostMeta,
   PostContent,
   FileList,
   FileItem,
@@ -26,7 +30,11 @@ import {
   CommentInputContainer,
   CommentTextArea,
   CommentSubmitButton,
+  TabsContainer,
+  TabButton,
+  TabContent,
 } from "./ProjectPostDetailModal.styled.ts";
+import { BiMinus, BiPlus } from "react-icons/bi";
 
 interface File {
   name: string;
@@ -39,6 +47,7 @@ interface Comment {
   author: string;
   date: string;
   text: string;
+  isQuestion?: boolean; // 질문인지 여부
 }
 
 interface PostData {
@@ -51,14 +60,35 @@ interface PostData {
   relatedLink?: string; // Optional related link
   files?: File[]; // Optional files array
   comments?: Comment[]; // Optional comments array
+  approver?: string;
+  customer?: string;
+  dueDate?: string;
 }
 
 interface ProjectPostDetailModalProps {
-  // Keep original interface name
   open: boolean;
   onClose: () => void;
-  postId?: number | null; // 게시글 ID (Optional로 변경)
+  postId?: number | null;
 }
+
+// Function to format date as YYYY.MM.DD
+const formatDate = (dateString: string) => {
+  try {
+    if (!dateString) return "-"; // Handle empty date strings
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      console.warn(`Invalid date string provided: ${dateString}`);
+      return "Invalid Date";
+    }
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, "0");
+    return `${year}.${month}.${day}`;
+  } catch (error) {
+    console.error("Error formatting date:", error);
+    return "Invalid Date";
+  }
+};
 
 // Mock function to simulate fetching post data
 const fetchPostData = async (postId: number): Promise<PostData | null> => {
@@ -66,12 +96,11 @@ const fetchPostData = async (postId: number): Promise<PostData | null> => {
   const dummyPosts: PostData[] = [
     {
       id: 10,
-      title: "데이터베이스 설계 완료 보고서",
+      title: "데이터베이스 설계 및 구축 보고서",
       status: "승인",
-      author: "이개발",
-      date: "2023.09.10",
+      author: "이지원",
+      date: "2023.08.20",
       content: `프로젝트의 데이터베이스 설계가 완료되었습니다. 주요 테이블 구조와 관계 설정이 모두 마무리되었으며, 성능 최적화를 위한 인덱스 설계도 포함되어 있습니다.\n\n첨부된 ERD 문서와 SQL 스크립트를 검토해 주시기 바랍니다. 특히 사용자 인증 관련 테이블 구조에 대한 피드백 부탁드립니다.`,
-      relatedLink: "https://wiki.xyz-software.com/erpproject/db-design",
       files: [
         {
           name: "ERP_DB_ERD_v1.2.pdf",
@@ -87,46 +116,53 @@ const fetchPostData = async (postId: number): Promise<PostData | null> => {
       comments: [
         {
           id: 1,
-          author: "박관리",
-          date: "2023.09.15",
-          text: "ERD 검토 완료했습니다. 인덱스 설계가 잘 되어 있네요. 승인 처리하겠습니다.",
+          author: "박민수",
+          date: "2023.08.19",
+          text: "ERD 검토 완료했습니다. 전체적 설계가 잘 되어 있으나, 성능 최적화 부분에서 추가 검토가 필요할 것 같습니다. 승인 처리하겠습니다.",
         },
         {
           id: 2,
-          author: "정백엔드",
-          date: "2023.09.12",
-          text: "사용자 인증 테이블에 세션 관리 필드가 추가되면 좋을 것 같습니다.",
+          author: "김현우",
+          date: "2023.08.12",
+          text: "인덱스 설정에서 성능 관련 검토가 필요할 것 같습니다. 특히 복합 인덱스 부분을 다시 한번 확인해주세요.",
+          isQuestion: true,
         },
         {
           id: 3,
-          author: "이개발",
-          date: "2023.09.12",
-          text: "좋은 의견 감사합니다. 다음 버전에 반영하겠습니다.",
+          author: "이지원",
+          date: "2023.08.12",
+          text: "좋은 작업 감사합니다. 다음 단계 진행하겠습니다.",
         },
       ],
+      approver: "박민수",
+      customer: "ABC 기업",
+      dueDate: "2023.08.25",
     },
     // Add more dummy posts as needed
     {
-      id: 1, // 기존 더미 데이터 유지 또는 다른 ID로 수정
-      title: "기존 샘플 게시글",
+      id: 9,
+      title: "UI/UX 디자인 검토 요청",
       status: "대기",
-      author: "샘플 작성자",
-      date: "2023.01.01",
-      content: "이것은 샘플 게시글 내용입니다.",
+      author: "최지수",
+      date: "2023.08.18",
+      content: "UI/UX 디자인 시안 검토 요청합니다.",
+      approver: "최지수",
+      customer: "ABC 기업",
+      dueDate: "2023.08.20",
     },
   ];
   return dummyPosts.find((post) => post.id === postId) || null;
 };
 
-// Rename component back to ProjectPostDetailModal and export as default
 const ProjectPostDetailModal: React.FC<ProjectPostDetailModalProps> = ({
   open,
   onClose,
   postId,
 }) => {
   const [commentText, setCommentText] = useState("");
-  const [post, setPost] = useState<PostData | null>(null); // State to hold post data
-  const [loading, setLoading] = useState(true); // State to manage loading state
+  const [activeTab, setActiveTab] = useState("comments"); // 'comments' or 'questions'
+  const [post, setPost] = useState<PostData | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadPost = async () => {
@@ -136,7 +172,6 @@ const ProjectPostDetailModal: React.FC<ProjectPostDetailModalProps> = ({
         setPost(postData);
         setLoading(false);
       } else if (!open) {
-        // Reset post data when modal is closed
         setPost(null);
         setLoading(false);
       }
@@ -148,15 +183,15 @@ const ProjectPostDetailModal: React.FC<ProjectPostDetailModalProps> = ({
 
   if (loading)
     return (
-      <ModalOverlay onClick={onClose}>
-        <ModalPanel>로딩 중...</ModalPanel>
-      </ModalOverlay>
+      <ModalPanel>
+        <p>로딩 중...</p>
+      </ModalPanel>
     );
   if (!post)
     return (
-      <ModalOverlay onClick={onClose}>
-        <ModalPanel>게시글을 찾을 수 없습니다.</ModalPanel>
-      </ModalOverlay>
+      <ModalPanel>
+        <p>게시글을 찾을 수 없습니다.</p>
+      </ModalPanel>
     );
 
   const handleCommentSubmit = () => {
@@ -167,51 +202,70 @@ const ProjectPostDetailModal: React.FC<ProjectPostDetailModalProps> = ({
     }
   };
 
-  // Function to handle file download
   const handleFileDownload = (file: File) => {
     if (file.url) {
-      // If a URL exists, open in a new tab (simulates download)
       window.open(file.url, "_blank");
     } else {
-      // Otherwise, log the file name (previous behavior)
       console.log("Download file:", file.name);
-      // TODO: Implement actual file download logic if no direct URL (e.g., using a download API)
     }
   };
 
+  const comments =
+    post.comments?.filter((comment) => !comment.isQuestion) || [];
+  const questions =
+    post.comments?.filter((comment) => comment.isQuestion) || [];
+
   return (
-    <ModalOverlay onClick={onClose}>
-      <ModalPanel onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+    <ModalOverlay>
+      <ModalPanel>
         <ModalHeader>
-          <HeaderLeft>
-            <StatusBadge $status={post.status}>{post.status}</StatusBadge>
-            <ModalTitle>{post.title}</ModalTitle>
-          </HeaderLeft>
-          <HeaderRight>
-            <CloseButton onClick={onClose}>&times;</CloseButton>
-          </HeaderRight>
+          <HeaderTop>
+            <HeaderLeft>
+              <PanelTitle>작업 상세</PanelTitle>
+            </HeaderLeft>
+            <HeaderRight>
+              <IconWrapper>
+                <BiMinus />
+              </IconWrapper>
+              <IconWrapper>
+                <BiPlus />
+              </IconWrapper>
+              <CloseButton onClick={onClose}>&times;</CloseButton>
+            </HeaderRight>
+          </HeaderTop>
+          <PostPanelTitle>{post.title}</PostPanelTitle>
+          <PostDetailMeta>
+            <MetaItem>
+              <span>승인상태:</span>
+              <StatusBadge $status={post.status}>{post.status}</StatusBadge>
+            </MetaItem>
+            <MetaItem>
+              <span>작업일:</span>
+              <span>{formatDate(post.date)}</span>
+            </MetaItem>
+            <MetaItem>
+              <span>담당자:</span>
+              <span>{post.author}</span>
+            </MetaItem>
+            <MetaItem>
+              <span>결재자:</span>
+              <span>{post.approver || "-"}</span>
+            </MetaItem>
+            <MetaItem>
+              <span>고객사:</span>
+              <span>{post.customer || "-"}</span>
+            </MetaItem>
+            <MetaItem>
+              <span>완료 예정일:</span>
+              <span>{post.dueDate || "-"}</span>
+            </MetaItem>
+          </PostDetailMeta>
         </ModalHeader>
         <ModalBody>
           <Section>
-            <PostMeta>
-              <div>작성자: {post.author}</div>
-              <div>작성일: {post.date}</div>
-            </PostMeta>
+            <SectionTitle>작업 설명</SectionTitle>
             <PostContent>{post.content}</PostContent>
           </Section>
-
-          {post.relatedLink && (
-            <Section>
-              <SectionTitle>관련 링크</SectionTitle>
-              <a
-                href={post.relatedLink}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {post.relatedLink}
-              </a>
-            </Section>
-          )}
 
           {post.files && post.files.length > 0 && (
             <Section>
@@ -223,40 +277,80 @@ const ProjectPostDetailModal: React.FC<ProjectPostDetailModalProps> = ({
                     onClick={() => handleFileDownload(file)}
                   >
                     <FileName>{file.name}</FileName>
-                    <FileSize>({file.size})</FileSize>
+                    <FileSize>{file.size}</FileSize>
                   </FileItem>
                 ))}
               </FileList>
             </Section>
           )}
 
-          {post.comments && post.comments.length > 0 && (
-            <CommentsSection>
-              <SectionTitle>댓글</SectionTitle>
-              <CommentsList>
-                {post.comments.map((comment) => (
-                  <CommentItem key={comment.id}>
-                    <CommentMeta>
-                      <CommentAuthor>{comment.author}</CommentAuthor>
-                      <span>{comment.date}</span>
-                    </CommentMeta>
-                    <CommentText>{comment.text}</CommentText>
-                    {/* TODO: Add reply/edit/delete options */}
-                  </CommentItem>
-                ))}
-              </CommentsList>
-              <CommentInputContainer>
-                <CommentTextArea
-                  placeholder="댓글을 입력하세요..."
-                  value={commentText}
-                  onChange={(e) => setCommentText(e.target.value)}
-                />
-                <CommentSubmitButton onClick={handleCommentSubmit}>
-                  등록
-                </CommentSubmitButton>
-              </CommentInputContainer>
-            </CommentsSection>
-          )}
+          <CommentsSection>
+            <TabsContainer>
+              <TabButton
+                $active={activeTab === "comments"}
+                onClick={() => setActiveTab("comments")}
+              >
+                댓글 ({comments.length})
+              </TabButton>
+              <TabButton
+                $active={activeTab === "questions"}
+                onClick={() => setActiveTab("questions")}
+              >
+                질문 ({questions.length})
+              </TabButton>
+            </TabsContainer>
+
+            <TabContent>
+              {activeTab === "comments" && (
+                <CommentsList>
+                  {comments.length > 0 ? (
+                    comments.map((comment) => (
+                      <CommentItem key={comment.id}>
+                        <CommentMeta>
+                          <CommentAuthor>{comment.author}</CommentAuthor>
+                          <span>{comment.date}</span>
+                        </CommentMeta>
+                        <CommentText>{comment.text}</CommentText>
+                        {/* TODO: Add reply/edit/delete options */}
+                      </CommentItem>
+                    ))
+                  ) : (
+                    <p>댓글이 없습니다.</p>
+                  )}
+                </CommentsList>
+              )}
+
+              {activeTab === "questions" && (
+                <CommentsList>
+                  {questions.length > 0 ? (
+                    questions.map((comment) => (
+                      <CommentItem key={comment.id}>
+                        <CommentMeta>
+                          <CommentAuthor>{comment.author}</CommentAuthor>
+                          <span>{comment.date}</span>
+                        </CommentMeta>
+                        <CommentText>{comment.text}</CommentText>
+                        {/* TODO: Add reply/edit/delete options */}
+                      </CommentItem>
+                    ))
+                  ) : (
+                    <p>질문이 없습니다.</p>
+                  )}
+                </CommentsList>
+              )}
+            </TabContent>
+
+            <CommentInputContainer>
+              <CommentTextArea
+                placeholder="댓글을 입력하세요..."
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+              />
+              <CommentSubmitButton onClick={handleCommentSubmit}>
+                등록
+              </CommentSubmitButton>
+            </CommentInputContainer>
+          </CommentsSection>
         </ModalBody>
       </ModalPanel>
     </ModalOverlay>

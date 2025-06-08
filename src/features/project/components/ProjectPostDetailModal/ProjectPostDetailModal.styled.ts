@@ -1,43 +1,16 @@
 import styled from "styled-components";
 
 export const ModalOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
-  display: flex;
-  justify-content: flex-end;
+  display: contents;
 `;
 
 export const ModalPanel = styled.div`
   background-color: white;
   width: 100%;
-  max-width: 600px; /* Set a max-width for larger screens */
   height: 100%;
-  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+  box-shadow: none;
   display: flex;
   flex-direction: column;
-  transform: translateX(100%);
-  animation: slideIn 0.3s forwards;
-
-  @keyframes slideIn {
-    to {
-      transform: translateX(0);
-    }
-  }
-
-  @media (min-width: 768px) {
-    /* Adjust width for medium screens and up */
-    width: 60%;
-  }
-
-  @media (min-width: 1024px) {
-    /* Adjust width for large screens and up */
-    width: 40%;
-  }
 `;
 
 export const ModalHeader = styled.div`
@@ -45,6 +18,19 @@ export const ModalHeader = styled.div`
   border-bottom: 1px solid #e5e7eb;
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 8px;
+  position: sticky;
+  top: 0;
+  background-color: white;
+  z-index: 10;
+`;
+
+export const HeaderTop = styled.div`
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
   align-items: center;
 `;
 
@@ -63,53 +49,93 @@ export const StatusBadge = styled.span<{ $status: string }>`
   ${(props) => {
     if (props.$status === "승인")
       return `
-        background-color: #d1fae5; /* green-100 */
-        color: #059669; /* green-600 */
+        background-color: #d1fae5;
+        color: #059669;
       `;
     if (props.$status === "대기")
       return `
-        background-color: #fef9c3; /* yellow-100 */
-        color: #a16207; /* yellow-700 */
+        background-color: #fef9c3;
+        color: #a16207;
       `;
-    // Add more status colors as needed
+    if (props.$status === "반려")
+      return `
+        background-color: #fee2e2;
+        color: #dc2626;
+      `;
     return `
-      background-color: #e5e7eb; /* gray-200 */
-      color: #4b5563; /* gray-600 */
+      background-color: #e5e7eb;
+      color: #4b5563;
     `;
   }}
 `;
 
-export const ModalTitle = styled.h2`
+export const PanelTitle = styled.h2`
   font-size: 1.25rem;
   font-weight: 700;
   color: #1f2937;
   margin: 0;
 `;
 
+export const PostPanelTitle = styled.h2`
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-top: 4px;
+`;
+
 export const HeaderRight = styled.div`
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.5rem;
 `;
 
-export const ActionButton = styled.button`
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 1rem;
+export const IconWrapper = styled.div`
   color: #6b7280;
+  font-size: 1.25rem;
+  cursor: pointer;
 
   &:hover {
     color: #1f2937;
   }
 `;
 
-export const CloseButton = styled(ActionButton)``;
+export const CloseButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.5rem;
+  color: #6b7280;
+  line-height: 1;
+
+  &:hover {
+    color: #1f2937;
+  }
+`;
+
+export const PostDetailMeta = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 16px;
+  font-size: 0.875rem;
+  color: #4b5563;
+  width: 100%;
+`;
+
+export const MetaItem = styled.div`
+  display: flex;
+  justify-content: space-between;
+  span:first-child {
+    font-weight: 600;
+    color: #374151;
+  }
+  span:last-child {
+    color: #4b5563;
+  }
+`;
 
 export const ModalBody = styled.div`
   flex: 1;
   padding: 1.5rem;
-  overflow-y: auto;
 `;
 
 export const Section = styled.div`
@@ -268,4 +294,32 @@ export const CommentSubmitButton = styled.button`
     opacity: 0.5;
     cursor: not-allowed;
   }
+`;
+
+export const TabsContainer = styled.div`
+  display: flex;
+  border-bottom: 1px solid #e5e7eb;
+  margin-top: 1rem;
+`;
+
+export const TabButton = styled.button<{ $active?: boolean }>`
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  background-color: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  color: ${(props) => (props.$active ? "#4f46e5" : "#6b7280")};
+  border-color: ${(props) => (props.$active ? "#4f46e5" : "transparent")};
+  transition: color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+
+  &:hover {
+    color: #4f46e5;
+    border-color: #4f46e5;
+  }
+`;
+
+export const TabContent = styled.div`
+  padding-top: 1rem;
 `;
