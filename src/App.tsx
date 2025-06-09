@@ -26,6 +26,7 @@ import ProjectPage from "./features/project/pages/ProjectPage";
 
 // user pages
 import UserDashboardPage from "./features/board/pages/DashboardPage";
+import PostListPage from "./features/board/pages/PostListPage";
 import ProjectPostPage from "./features/project/pages/ProjectPostPage";
 import PostEditPage from "./features/project/pages/PostEditPage";
 
@@ -96,6 +97,7 @@ const AppRoutes = () => {
 
       {/* 공용 */}
       <Route path="/projects" element={<ProjectPage />} />
+      <Route path="/posts" element={<PostListPage />} />
       <Route path="/projects/:projectId/posts" element={<ProjectPostPage />} />
       <Route path="/posts/:postId/edit" element={<PostEditPage />} />
     </Routes>

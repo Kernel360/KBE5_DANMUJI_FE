@@ -48,7 +48,7 @@ export default function LoginPage() {
       console.log("Request headers:", res.config.headers);
       if (res.status === 200) {
         // 다양한 방식으로 토큰 추출 시도
-        let accessToken =
+        const accessToken =
           res.headers["authorization"]?.replace("Bearer ", "") ||
           res.headers["Authorization"]?.replace("Bearer ", "") ||
           res.data?.token ||

@@ -104,6 +104,22 @@ export const ActionButton = styled.button`
   }
 `;
 
+export const QuestionAnswerButton = styled.button`
+  background-color: #fdb924;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #e6a720;
+  }
+`;
+
 export const CloseButton = styled(ActionButton)``;
 
 export const ModalBody = styled.div`
@@ -251,21 +267,41 @@ export const CommentTextArea = styled.textarea`
 `;
 
 export const CommentSubmitButton = styled.button`
-  background-color: #3b82f6;
-  color: white;
   padding: 0.5rem 1rem;
-  border-radius: 0.25rem;
+  background-color: #fdb924;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
   font-size: 0.875rem;
-  font-weight: 600;
   cursor: pointer;
-  align-self: flex-start;
+  transition: background-color 0.2s;
 
-  &:hover {
-    background-color: #2563eb;
+  &:hover:not(:disabled) {
+    background-color: #e6a720;
   }
 
   &:disabled {
-    opacity: 0.5;
+    background-color: #d1d5db;
     cursor: not-allowed;
   }
+`;
+
+export const LoadingSpinner = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  font-size: 1.125rem;
+  color: #6b7280;
+`;
+
+export const ErrorMessage = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  font-size: 1.125rem;
+  color: #ef4444;
+  text-align: center;
+  padding: 2rem;
 `;

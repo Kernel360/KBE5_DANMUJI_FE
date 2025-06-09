@@ -1,0 +1,226 @@
+import styled from "styled-components";
+import { AiOutlineSearch } from "react-icons/ai";
+
+export const PageContainer = styled.div`
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+`;
+
+export const Header = styled.div`
+  margin-bottom: 2rem;
+`;
+
+export const Title = styled.h1`
+  font-size: 2rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 0.5rem;
+`;
+
+export const Description = styled.p`
+  color: #6b7280;
+  font-size: 1rem;
+`;
+
+export const Toolbar = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+`;
+
+export const FilterSelect = styled.select`
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  background-color: white;
+  font-size: 0.875rem;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+    border-color: #fdb924;
+    box-shadow: 0 0 0 2px rgba(253, 185, 36, 0.1);
+  }
+`;
+
+export const SearchContainer = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+`;
+
+export const SearchInput = styled.input`
+  padding: 0.5rem 2.5rem 0.5rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  width: 300px;
+
+  &:focus {
+    outline: none;
+    border-color: #fdb924;
+    box-shadow: 0 0 0 2px rgba(253, 185, 36, 0.1);
+  }
+`;
+
+export const SearchIcon = styled(AiOutlineSearch)`
+  position: absolute;
+  right: 0.75rem;
+  color: #9ca3af;
+  font-size: 1.125rem;
+`;
+
+export const TableContainer = styled.div`
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  margin-bottom: 2rem;
+`;
+
+export const Table = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+`;
+
+export const TableHead = styled.thead`
+  background-color: #f9fafb;
+`;
+
+export const TableHeader = styled.th<{ $align?: "left" | "center" | "right" }>`
+  padding: 1rem;
+  text-align: ${({ $align }) => $align || "left"};
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.875rem;
+  border-bottom: 1px solid #e5e7eb;
+`;
+
+export const TableBody = styled.tbody``;
+
+export const TableRow = styled.tr`
+  border-bottom: 1px solid #f3f4f6;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #f9fafb;
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+`;
+
+export const TableCell = styled.td<{ $align?: "left" | "center" | "right" }>`
+  padding: 1rem;
+  text-align: ${({ $align }) => $align || "left"};
+  font-size: 0.875rem;
+  color: #374151;
+`;
+
+export const PostTitle = styled.span`
+  color: #3b82f6;
+  font-weight: 500;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+export const StatusBadge = styled.span<{ $status: string }>`
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background-color: ${({ $status }) => {
+    switch ($status) {
+      case "승인":
+        return "#d1fae5";
+      case "대기":
+        return "#fef3c7";
+      case "거부":
+        return "#fee2e2";
+      default:
+        return "#e5e7eb";
+    }
+  }};
+  color: ${({ $status }) => {
+    switch ($status) {
+      case "승인":
+        return "#059669";
+      case "대기":
+        return "#a16207";
+      case "거부":
+        return "#dc2626";
+      default:
+        return "#6b7280";
+    }
+  }};
+`;
+
+export const PaginationContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+`;
+
+export const PaginationNav = styled.nav`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
+export const PaginationButton = styled.button<{ $active?: boolean }>`
+  padding: 0.5rem 1rem;
+  border: 1px solid #d1d5db;
+  background-color: ${({ $active }) => ($active ? "#fdb924" : "white")};
+  color: ${({ $active }) => ($active ? "white" : "#374151")};
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover:not(:disabled) {
+    background-color: ${({ $active }) => ($active ? "#e6a720" : "#f9fafb")};
+    border-color: #9ca3af;
+  }
+
+  &:disabled {
+    background-color: #f3f4f6;
+    color: #9ca3af;
+    cursor: not-allowed;
+  }
+`;
+
+export const VoteCount = styled.span`
+  font-weight: 600;
+  color: #111827;
+`;
+
+export const LoadingSpinner = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  font-size: 1.125rem;
+  color: #6b7280;
+`;
+
+export const ErrorMessage = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  font-size: 1.125rem;
+  color: #ef4444;
+  text-align: center;
+  padding: 2rem;
+`;
