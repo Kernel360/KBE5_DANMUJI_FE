@@ -216,29 +216,6 @@ export default function CompanyPage() {
 
   const filtered = companies.filter(c => c.name.includes(search));
 
-  const handleRegister = (data: CompanyFormData) => {
-    const bizNoString = `${data.reg1}${data.reg2}${data.reg3}`;
-    const bizNoNumber = parseInt(bizNoString, 10); // string → number 변환
-  
-    const company: CompanyRegisterRequest = {
-      name: data.name,
-      bizNo: bizNoNumber,
-      address: data.address,
-      ceoName: data.ceoName,
-      email: data.email,
-      bio: data.bio,
-      tel: data.tel,
-    };
-  
-    axios.post("/companies", company)
-      .then(() => {
-        console.log("등록 성공");
-      })
-      .catch((err) => {
-        console.error("등록 실패", err);
-      });
-  };
-
   const handleSearch = () => {
     // 예시: axios 또는 fetch로 API 호출
     axios.get(`/api/company/search?name=${encodeURIComponent(search)}`)
@@ -250,36 +227,63 @@ export default function CompanyPage() {
       });
   };
   
-  const handleEdit = (data: CompanyData) => {
+  const handleEdit = async (data: CompanyData) => {
     if (!editData) return;
-    setCompanies(prev => prev.map(c =>
-      c.id === editData.id
-        ? { ...c, name: data.name || c.name, reg: data.reg || c.reg, addr: data.addr || c.addr, owner: data.owner || c.owner, email: data.email || c.email, companyType: data.companyType || c.companyType, phone: data.phone || c.phone }
-        : c
-    ));
-    setEditModalOpen(false);
-    setEditData(null);
+
+    try {
+      // PUT 요청 보내기
+      await axios.put(`/api/companies/${editData.id}`, data);
+
+      // 성공 시 상태 업데이트
+      setCompanies(prev => prev.map(c =>
+        c.id === editData.id
+          ? {
+              ...c,
+              name: data.name || c.name,
+              bizNo: data.bizNo || c.bizNo,
+              address: data.address || c.address,
+              ceoName: data.ceoName || c.ceoName,
+              email: data.email || c.email,
+              tel: data.tel || c.tel,
+              bio: data.bio || c.bio,
+            }
+          : c
+      ));
+
+      // 모달 닫기
+      setEditModalOpen(false);
+      setEditData(null);
+      alert("회사 정보가 성공적으로 수정되었습니다.");
+    } catch (error) {
+      console.error("회사 정보 수정 실패:", error);
+      alert("회사 정보 수정에 실패했습니다.");
+    }
   };
 
   const handleDelete = async (companyId) => {
-  if (!window.confirm("정말 삭제하시겠습니까?")) return;
+    if (!window.confirm("정말 삭제하시겠습니까?")) return;
 
-  try {
-    await axios.delete(`/api/companies/${companyId}`);
-    alert("삭제되었습니다.");
-    // 회사 목록을 다시 불러오거나, 상태에서 제거
-    fetchCompanies(); // 혹은 setCompanies(companies.filter(...))
-  } catch (error) {
-    console.error("삭제 실패:", error);
-    alert("삭제에 실패했습니다.");
-  }
-};
+    try {
+      await axios.delete(`/api/companies/${companyId}`);
+      alert("삭제되었습니다.");
+      // 회사 목록을 다시 불러오거나, 상태에서 제거
+      fetchCompanies(); // 혹은 setCompanies(companies.filter(...))
+    } catch (error) {
+      console.error("삭제 실패:", error);
+      alert("삭제에 실패했습니다.");
+    }
+  };
 
   return (
     <Container>
-      <CompanyRegisterModal open={modalOpen} onClose={() => setModalOpen(false)} onSubmit={handleRegister} />
+      <CompanyRegisterModal open={modalOpen} onClose={() => setModalOpen(false)} onRegisterSuccess={fetchCompanies} />
       {editData && (
-        <CompanyEditModal open={editModalOpen} onClose={() => { setEditModalOpen(false); setEditData(null); }} onSave={handleEdit} initialData={editData} />
+        <CompanyEditModal
+          open={editModalOpen}
+          onClose={() => setEditModalOpen(false)}
+          onSave={handleEdit}
+          initialData={editData}
+        />
       )}
       <HeaderSection>
         <Title>회사 관리</Title>
@@ -335,7 +339,7 @@ export default function CompanyPage() {
                 <Td>{c.tel}</Td>
                 <Td>
                   <ActionButton onClick={() => { setEditModalOpen(true); setEditData(c); }}>수정</ActionButton>
-                  <button onClick={() => handleDelete(c.id)}>삭제</button>
+                  <DeleteButton onClick={() => handleDelete(c.id)}>삭제</DeleteButton>
                 </Td>
               </Tr>
             ))}

@@ -98,13 +98,13 @@ const RegInput = styled(Input)`
 interface Props {
   open: boolean;
   onClose: () => void;
-  onSubmit: (data: { [key: string]: string }) => void;
+  onRegisterSuccess?: () => void; // ✅ 새로 추가
 }
 
 export default function CompanyRegisterModal({
   open,
   onClose,
-  onSubmit,
+  onRegisterSuccess
 }: Props) {
   const reg1 = useRef<HTMLInputElement>(null);
   const reg2 = useRef<HTMLInputElement>(null);
@@ -168,6 +168,7 @@ export default function CompanyRegisterModal({
                 // 성공 시 후처리 (예: 알림, 모달 닫기 등)
                 alert("회사 등록이 완료되었습니다!");
                 onClose();
+                onRegisterSuccess?.();
               } catch (error) {
                 console.error(error);
                 alert("회사 등록 중 오류가 발생했습니다.");

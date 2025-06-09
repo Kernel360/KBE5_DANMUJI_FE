@@ -11,18 +11,16 @@ import {
   Input,
   ButtonGroup,
   Button,
-  RadioGroup,
-  RadioLabel,
 } from "./CompanyEditModal.styled";
 
 interface CompanyData {
   name?: string;
-  companyType?: "CLIENT" | "AGENCY"; // 회사 유형을 더 구체적으로 정의
-  reg?: string;
-  addr?: string;
-  owner?: string;
+  bizNo?: number;
+  address?: string;
+  ceoName?: string;
   email?: string;
-  phone?: string;
+  tel?: string;
+  bio?: string;
 }
 
 const RegNumberRow = styled.div`
@@ -51,15 +49,28 @@ export default function CompanyEditModal({
   onSave,
   initialData,
 }: Props) {
-  const reg1 = useRef<HTMLInputElement>(null);
-  const reg2 = useRef<HTMLInputElement>(null);
-  const reg3 = useRef<HTMLInputElement>(null);
+  const reg1Ref = useRef<HTMLInputElement>(null);
+  const reg2Ref = useRef<HTMLInputElement>(null);
+  const reg3Ref = useRef<HTMLInputElement>(null);
+
   const [formData, setFormData] = useState<CompanyData>(initialData || {});
+  const [reg1, setReg1] = useState("");
+  const [reg2, setReg2] = useState("");
+  const [reg3, setReg3] = useState("");
 
   useEffect(() => {
     if (open && initialData) {
-      // 폼 값 세팅
       setFormData(initialData);
+      if (initialData.bizNo !== undefined && initialData.bizNo !== null) {
+        const regStr = String(initialData.bizNo).padStart(10, "0");
+        setReg1(regStr.slice(0, 3));
+        setReg2(regStr.slice(3, 5));
+        setReg3(regStr.slice(5));
+      } else {
+        setReg1("");
+        setReg2("");
+        setReg3("");
+      }
     }
   }, [open, initialData]);
 
@@ -68,12 +79,12 @@ export default function CompanyEditModal({
   const handleRegInput = (
     e: React.FormEvent<HTMLInputElement>,
     len: number,
-    nextRef?: React.RefObject<HTMLInputElement | null>
+    setReg: React.Dispatch<React.SetStateAction<string>>,
+    nextRef?: React.RefObject<HTMLInputElement>
   ) => {
-    const target = e.target as HTMLInputElement;
-    let value = target.value.replace(/[^0-9]/g, "");
+    let value = e.currentTarget.value.replace(/[^0-9]/g, "");
     if (value.length > len) value = value.slice(0, len);
-    target.value = value;
+    setReg(value);
     if (value.length === len && nextRef?.current) {
       nextRef.current.focus();
     }
@@ -86,17 +97,22 @@ export default function CompanyEditModal({
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const fullBizNo = reg1 + reg2 + reg3;
+    const finalData: CompanyData = {
+      ...formData,
+      bizNo: fullBizNo.length === 10 ? Number(fullBizNo) : undefined,
+    };
+    onSave(finalData);
+  };
+
   return (
     <ModalOverlay>
       <ModalContent>
         <CloseButton onClick={onClose}>×</CloseButton>
         <Title>회사 정보 수정</Title>
-        <Form
-          onSubmit={(e) => {
-            e.preventDefault();
-            onSave(formData);
-          }}
-        >
+        <Form onSubmit={handleSubmit}>
           <FormGroup>
             <Label>회사명</Label>
             <Input
@@ -108,90 +124,53 @@ export default function CompanyEditModal({
             />
           </FormGroup>
           <FormGroup>
-            <Label>회사 유형</Label>
-            <RadioGroup>
-              <RadioLabel>
-                <input
-                  type="radio"
-                  name="companyType"
-                  value="CLIENT"
-                  checked={formData.companyType === "CLIENT"}
-                  onChange={handleChange}
-                />
-                고객사
-              </RadioLabel>
-              <RadioLabel>
-                <input
-                  type="radio"
-                  name="companyType"
-                  value="AGENCY"
-                  checked={formData.companyType === "AGENCY"}
-                  onChange={handleChange}
-                />
-                개발사
-              </RadioLabel>
-            </RadioGroup>
-          </FormGroup>
-          <FormGroup>
             <Label>사업자등록번호</Label>
             <RegNumberRow>
               <RegInput
-                name="reg1"
-                required
-                ref={reg1}
+                ref={reg1Ref}
                 maxLength={3}
                 placeholder="000"
-                onInput={(e) => handleRegInput(e, 3, reg2)}
                 inputMode="numeric"
-                pattern="[0-9]*"
-                value={formData.reg?.split("-")[0] || ""}
-                onChange={handleChange}
+                value={reg1}
+                onInput={(e) => handleRegInput(e, 3, setReg1, reg2Ref)}
               />
               <span>-</span>
               <RegInput
-                name="reg2"
-                required
-                ref={reg2}
+                ref={reg2Ref}
                 maxLength={2}
                 placeholder="00"
-                onInput={(e) => handleRegInput(e, 2, reg3)}
                 inputMode="numeric"
-                pattern="[0-9]*"
-                value={formData.reg?.split("-")[1] || ""}
-                onChange={handleChange}
+                value={reg2}
+                onInput={(e) => handleRegInput(e, 2, setReg2, reg3Ref)}
               />
               <span>-</span>
               <RegInput
-                name="reg3"
-                required
-                ref={reg3}
+                ref={reg3Ref}
                 maxLength={5}
                 placeholder="00000"
-                onInput={(e) => handleRegInput(e, 5)}
                 inputMode="numeric"
-                pattern="[0-9]*"
-                value={formData.reg?.split("-")[2] || ""}
-                onChange={handleChange}
+                value={reg3}
+                onInput={(e) => handleRegInput(e, 5, setReg3)}
               />
             </RegNumberRow>
           </FormGroup>
           <FormGroup>
             <Label>주소</Label>
             <Input
-              name="addr"
+              name="address"
               required
               placeholder="주소를 입력하세요"
-              value={formData.addr || ""}
+              value={formData.address || ""}
               onChange={handleChange}
             />
           </FormGroup>
           <FormGroup>
             <Label>사업자 명</Label>
             <Input
-              name="owner"
+              name="ceoName"
               required
               placeholder="사업자 명을 입력하세요"
-              value={formData.owner || ""}
+              value={formData.ceoName || ""}
               onChange={handleChange}
             />
           </FormGroup>
@@ -209,10 +188,10 @@ export default function CompanyEditModal({
           <FormGroup>
             <Label>연락처</Label>
             <Input
-              name="phone"
+              name="tel"
               required
               placeholder="010-0000-0000"
-              value={formData.phone || ""}
+              value={formData.tel || ""}
               onChange={handleChange}
             />
           </FormGroup>
