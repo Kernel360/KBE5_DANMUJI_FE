@@ -27,7 +27,7 @@ export default function LoginPage() {
     e.preventDefault();
     try {
       const res = await api.post(
-        "/api/auth/login",
+        "https://api.danmuji.site/api/auth/login",
         { username: id, password },
         {
           headers: { "Content-Type": "application/json" },
