@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import api from "@/api/axios";
 import { LeftPanel } from "@/features/auth/components/LeftPanel";
 import { DanmujiLogo } from "@/features/auth/components/DanmujiLogo";
 
@@ -26,32 +26,35 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await axios.post(
+      const res = await api.post(
         "/api/auth/login",
         { username: id, password },
         {
           headers: { "Content-Type": "application/json" },
-          withCredentials: true, // 쿠키 포함
+          withCredentials: true,
+          validateStatus: () => true, 
         }
       );
 
-      // accessToken을 헤더에서 추출
-      const accessToken = res.headers["authorization"]?.replace("Bearer ", "");
-      if (accessToken) {
-        localStorage.setItem("accessToken", accessToken);
-        alert("로그인 되었습니다.");
-        window.location.href = "/dashboard";
+      if (res.status === 200) {
+        const accessToken = res.headers["Authorization"]?.replace(
+          "Bearer ",
+          ""
+        );
+        if (accessToken) {
+          localStorage.setItem("accessToken", accessToken);
+          alert("로그인 되었습니다.");
+          window.location.href = "/dashboard";
+        } else {
+          alert("로그인에 실패했습니다.");
+        }
+      } else if (res.data?.code === "C005") {
+        alert("비밀번호가 일치하지 않습니다."); // todo : BE 오류 메세지 수정
       } else {
-        alert("로그인에 실패했습니다.");
+        alert("해당 아이디가 존재하지 않습니다."); // todo : 오류 메세지 수정
       }
-    } catch (err: any) {
-      if (err.response?.data?.code === "C005") {
-        alert(err.response.data.message);
-      } else if (err.response?.data?.message) {
-        alert(err.response.data.message);
-      } else {
-        alert("네트워크 오류가 발생했습니다. 다시 시도해주세요.");
-      }
+    } catch (err) {
+      alert("네트워크 오류가 발생했습니다. 다시 시도해주세요.");
       console.error("Login error:", err);
     }
   };
