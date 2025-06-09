@@ -33,11 +33,15 @@ export default function LoginPage() {
           headers: { "Content-Type": "application/json" },
           withCredentials: true,
           validateStatus: () => true, 
+
         }
       );
-
+console.log("Login response:", res.data);         // 실제 응답 본문
+console.log("Access token:", res.headers["authorization"]);
+console.log("Access token:", res.headers["Authorization"]);
+console.log("res", res)
       if (res.status === 200) {
-        const accessToken = res.headers["Authorization"]?.replace(
+        const accessToken = res.headers["authorization"]?.replace(
           "Bearer ",
           ""
         );
