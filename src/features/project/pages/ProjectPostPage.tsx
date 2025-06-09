@@ -1,7 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { getPosts, createPost } from "../services/postService";
+import { PostStatus } from "../types/post";
+import type { Post, PostCreateData } from "../types/post";
 import ProjectPostDetailModal from "../components/ProjectPostDetailModal/ProjectPostDetailModal";
+import ProjectPostCreateModal from "../components/ProjectPostCreateModal/ProjectPostCreateModal";
 import {
   PageContainer,
+  MainContentWrapper,
   ProjectDetailSection,
   ProjectTitle,
   ProjectDescription,
@@ -10,24 +16,13 @@ import {
   ProjectInfoItem,
   InfoLabel,
   InfoValue,
-  ProgressBarContainer,
-  ProgressLabel,
-  ProgressBar,
-  ProgressFill,
-  StepsContainer,
-  Step,
-  StepCircle,
-  StepLabel,
-  TabsContainer,
-  TabButton,
-  TabContent,
   Toolbar,
   LeftToolbar,
   RightToolbar,
   FilterSelect,
   SearchContainer,
   SearchInput,
-  CreateButton,
+  SearchIcon,
   TableContainer,
   Table,
   TableHead,
@@ -38,342 +33,350 @@ import {
   TableLink,
   StatusBadge,
   PaginationContainer,
-  PaginationNav,
   PaginationButton,
+  TabsContainer,
+  TabButton,
+  CreateButton,
+  ProgressBarContainer,
+  ProgressFill,
+  ProgressLabel,
 } from "./ProjectPostPage.styled";
 
-// Function to format date as YYYY.MM.DD
-const formatDate = (dateString: string) => {
-  try {
-    if (!dateString) return "-"; // Handle empty date strings
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) {
-      console.warn(`Invalid date string provided: ${dateString}`);
-      return "Invalid Date";
+export default function ProjectPostPage() {
+  const { projectId } = useParams<{ projectId: string }>();
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [statusFilter, setStatusFilter] = useState<PostStatus | "ALL">("ALL");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [projectInfo, setProjectInfo] = useState<Post["project"] | null>(null);
+
+  const fetchPosts = async () => {
+    const currentProjectId = parseInt(projectId || "1");
+    if (isNaN(currentProjectId)) return;
+
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await getPosts(
+        currentProjectId,
+        currentPage,
+        10,
+        statusFilter === "ALL" ? undefined : statusFilter,
+        undefined,
+        undefined,
+        searchTerm
+      );
+      setPosts(response.data.content);
+      setTotalPages(response.data.page.totalPages);
+      if (response.data.content.length > 0) {
+        setProjectInfo(response.data.content[0].project);
+      }
+    } catch (err) {
+      if (err instanceof Error && err.message.includes("완료")) {
+        console.log(err.message);
+      } else {
+        setError("게시글을 불러오는 중 오류가 발생했습니다.");
+        console.error("게시글 목록 조회 중 오류:", err);
+      }
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    fetchPosts();
+  }, [projectId, currentPage, statusFilter, searchTerm]);
+
+  const handlePostClick = (postId: number) => {
+    setSelectedPostId(postId);
+    setIsDetailModalOpen(true);
+  };
+
+  const handleDetailModalClose = () => {
+    setIsDetailModalOpen(false);
+    setSelectedPostId(null);
+  };
+
+  const handleCreateModalOpen = () => {
+    setIsCreateModalOpen(true);
+  };
+
+  const handleCreateModalClose = () => {
+    setIsCreateModalOpen(false);
+  };
+
+  const handleCreatePost = async (data: PostCreateData) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // 현재 프로젝트 ID 설정
+      const currentProjectId = parseInt(projectId || "1");
+      if (isNaN(currentProjectId)) {
+        throw new Error("유효하지 않은 프로젝트 ID입니다.");
+      }
+
+      // 게시글 생성 API 호출
+      const response = await createPost({
+        ...data,
+        projectId: currentProjectId,
+      });
+
+      // 성공 메시지가 포함된 경우도 성공으로 처리
+      if (response.success || response.message?.includes("완료")) {
+        // 게시글 목록 새로고침
+        const updatedPosts = await getPosts(
+          currentProjectId,
+          currentPage,
+          10,
+          statusFilter === "ALL" ? undefined : statusFilter
+        );
+        setPosts(updatedPosts.data.content);
+        setTotalPages(updatedPosts.data.page.totalPages);
+
+        // 모달 닫기
+        handleCreateModalClose();
+      } else {
+        throw new Error(response.message || "게시글 생성에 실패했습니다.");
+      }
+    } catch (err) {
+      // 성공 메시지가 포함된 경우 에러로 처리하지 않음
+      if (err instanceof Error && err.message.includes("완료")) {
+        console.log(err.message);
+        // 게시글 목록 새로고침
+        const currentProjectId = parseInt(projectId || "1");
+        if (!isNaN(currentProjectId)) {
+          const updatedPosts = await getPosts(
+            currentProjectId,
+            currentPage,
+            10,
+            statusFilter === "ALL" ? undefined : statusFilter
+          );
+          setPosts(updatedPosts.data.content);
+          setTotalPages(updatedPosts.data.page.totalPages);
+        }
+        // 모달 닫기
+        handleCreateModalClose();
+      } else {
+        console.error("게시글 생성 중 오류:", err);
+        setError(
+          err instanceof Error
+            ? err.message
+            : "게시글 생성 중 오류가 발생했습니다."
+        );
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePostDelete = (deletedPostId: number) => {
+    // 삭제된 게시글을 목록에서 제거
+    setPosts((prevPosts) =>
+      prevPosts.filter((post) => post.postId !== deletedPostId)
+    );
+  };
+
+  const handleDeleteSuccess = () => {
+    // 현재 페이지가 마지막 페이지이고, 현재 페이지에 게시글이 하나만 있었다면
+    // 이전 페이지로 이동
+    if (
+      currentPage === totalPages - 1 &&
+      posts.length === 1 &&
+      currentPage > 0
+    ) {
+      setCurrentPage(currentPage - 1);
+    } else {
+      // 그 외의 경우 현재 페이지의 게시글 목록을 다시 불러옴
+      fetchPosts();
+    }
+  };
+
+  const filteredPosts = posts.filter((post) => {
+    const matchesStatus =
+      statusFilter === "ALL" || post.status === statusFilter;
+    const matchesSearch =
+      post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      post.content.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesStatus && matchesSearch;
+  });
+
+  const getStatusText = (status: PostStatus) => {
+    switch (status) {
+      case PostStatus.PENDING:
+        return "대기";
+      case PostStatus.APPROVED:
+        return "승인";
+      case PostStatus.REJECTED:
+        return "반려";
+      default:
+        return status;
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
     const year = date.getFullYear();
     const month = (date.getMonth() + 1).toString().padStart(2, "0");
     const day = date.getDate().toString().padStart(2, "0");
     return `${year}.${month}.${day}`;
-  } catch (error) {
-    console.error("Error formatting date:", error);
-    return "Invalid Date";
-  }
-};
-
-// Dummy data based on the provided image
-const initialPosts = [
-  {
-    id: 10,
-    title: "데이터베이스 설계 완료 보고서",
-    author: "이개발",
-    status: "승인",
-    approver: "박관리",
-    approvedDate: "2023-09-15",
-    createdDate: "2023-09-10",
-  },
-  {
-    id: 9,
-    title: "UI/UX 디자인 검토 요청",
-    author: "최디자인",
-    status: "대기",
-    approver: "-",
-    approvedDate: "",
-    createdDate: "2023-09-05",
-  },
-  {
-    id: 8,
-    title: "API 개발 진행 상황 보고",
-    author: "정백엔드",
-    status: "승인",
-    approver: "박관리",
-    approvedDate: "2023-08-28",
-    createdDate: "2023-08-25",
-  },
-  {
-    id: 7,
-    title: "프론트엔드 프레임워크 선정 보고서",
-    author: "김프론트",
-    status: "반려",
-    approver: "이개발",
-    approvedDate: "2023-08-20",
-    createdDate: "2023-08-18",
-  },
-  {
-    id: 6,
-    title: "요구사항 정의서 v1.2",
-    author: "이개발",
-    status: "승인",
-    approver: "김고객",
-    approvedDate: "2023-08-10",
-    createdDate: "2023-08-05",
-  },
-  {
-    id: 6,
-    title: "요구사항 정의서 v1.2",
-    author: "이개발",
-    status: "승인",
-    approver: "김고객",
-    approvedDate: "2023-08-10",
-    createdDate: "2023-08-05",
-  },
-  {
-    id: 6,
-    title: "요구사항 정의서 v1.2",
-    author: "이개발",
-    status: "승인",
-    approver: "김고객",
-    approvedDate: "2023-08-10",
-    createdDate: "2023-08-05",
-  },
-  {
-    id: 6,
-    title: "요구사항 정의서 v1.2",
-    author: "이개발",
-    status: "승인",
-    approver: "김고객",
-    approvedDate: "2023-08-10",
-    createdDate: "2023-08-05",
-  },
-  {
-    id: 6,
-    title: "요구사항 정의서 v1.2",
-    author: "이개발",
-    status: "승인",
-    approver: "김고객",
-    approvedDate: "2023-08-10",
-    createdDate: "2023-08-05",
-  },
-  {
-    id: 6,
-    title: "요구사항 정의서 v1.2",
-    author: "이개발",
-    status: "승인",
-    approver: "김고객",
-    approvedDate: "2023-08-10",
-    createdDate: "2023-08-05",
-  },
-];
-
-export default function ProjectPostPage() {
-  const [activeTab, setActiveTab] = useState("details");
-  const [filter, setFilter] = useState("all");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
-  const [posts] = useState(initialPosts);
-
-  const filteredPosts = posts.filter((post) => {
-    const searchTermLower = searchTerm.toLowerCase();
-
-    // Filter by status
-    if (filter !== "all" && post.status !== filter) {
-      return false;
-    }
-
-    // Filter by search term based on selected filter (제목, 작성자 등)
-    let postValue = "";
-    if (filter === "title") {
-      postValue = post.title.toLowerCase();
-    } else if (filter === "author") {
-      postValue = post.author.toLowerCase();
-    } // Add more filter options as needed
-
-    return postValue.includes(searchTermLower);
-  });
-
-  const openModal = (postId: number) => {
-    setSelectedPostId(postId);
-    setIsModalOpen(true);
   };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setSelectedPostId(null);
-  };
+  if (loading) return <div>로딩 중...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <PageContainer>
-      <ProjectDetailSection>
-        <ProjectTitle>클라우드 기반 ERP 시스템 개발</ProjectTitle>
-        <ProjectDescription>
-          기업 자원 관리를 위한 클라우드 기반 ERP 시스템 구축 프로젝트
-        </ProjectDescription>
-        <ProjectPeriod>프로젝트 기간: 2023.06.01 ~ 2023.12.31</ProjectPeriod>
-
-        {/* Step Indicators */}
-        <StepsContainer>
-          <Step>
-            <StepCircle $active={true} />
-            <StepLabel>요구사항 분석</StepLabel>
-          </Step>
-          <Step>
-            <StepCircle $active={true} />
-            <StepLabel>설계</StepLabel>
-          </Step>
-          <Step>
-            <StepCircle $active={true} />
-            <StepLabel>개발</StepLabel>
-          </Step>
-          <Step>
-            <StepCircle $active={false} />
-            <StepLabel>테스트</StepLabel>
-          </Step>
-        </StepsContainer>
-
-        <ProjectInfoGrid>
-          <ProjectInfoItem>
-            <InfoLabel>고객사:</InfoLabel>
-            <InfoValue $bold={true}>ABC 기업</InfoValue>
-          </ProjectInfoItem>
-          <ProjectInfoItem>
-            <InfoLabel>개발사:</InfoLabel>
-            <InfoValue $bold={true}>XYZ 소프트웨어</InfoValue>
-          </ProjectInfoItem>
-          <ProjectInfoItem>
-            <InfoLabel>담당자:</InfoLabel>
-            <InfoValue $bold={true}>김고객</InfoValue>
-          </ProjectInfoItem>
-          <ProjectInfoItem>
-            <InfoLabel>담당자:</InfoLabel>
-            <InfoValue $bold={true}>이개발</InfoValue>
-          </ProjectInfoItem>
-          <ProjectInfoItem>
-            <InfoLabel>직급:</InfoLabel>
-            <InfoValue $bold={true}>IT 팀장</InfoValue>
-          </ProjectInfoItem>
-          <ProjectInfoItem>
-            <InfoLabel>직급:</InfoLabel>
-            <InfoValue $bold={true}>수석 개발자</InfoValue>
-          </ProjectInfoItem>
-        </ProjectInfoGrid>
-
-        {/* Simplified Progress Bar for layout */}
-        <ProgressBarContainer>
-          <ProgressLabel>프로젝트 진행률: 65%</ProgressLabel>
-          <ProgressBar>
-            <ProgressFill $percentage={65} />
-          </ProgressBar>
-        </ProgressBarContainer>
-      </ProjectDetailSection>
-
-      {/* Tabs */}
-      <TabsContainer>
-        <TabButton
-          $active={activeTab === "details"}
-          onClick={() => setActiveTab("details")}
-        >
-          작업 목록
-        </TabButton>
-        <TabButton
-          $active={activeTab === "질문 관리"}
-          onClick={() => setActiveTab("질문 관리")}
-        >
-          질문 관리
-        </TabButton>
-        <TabButton
-          $active={activeTab === "이력 관리"}
-          onClick={() => setActiveTab("이력 관리")}
-        >
-          이력 관리
-        </TabButton>
-      </TabsContainer>
-
-      <TabContent>
-        {activeTab === "details" && (
-          <>
-            {/* Toolbar */}
-            <Toolbar>
-              <LeftToolbar>
-                <span>총 {filteredPosts.length}개</span>
-                <FilterSelect
-                  value={filter}
-                  onChange={(e) => setFilter(e.target.value)}
-                >
-                  <option value="all">전체 상태</option>
-                  <option value="승인">승인</option>
-                  <option value="반려">반려</option>
-                  <option value="대기">대기</option>
-                </FilterSelect>
-              </LeftToolbar>
-              <RightToolbar>
-                <SearchContainer>
-                  <SearchInput
-                    type="text"
-                    placeholder="검색어를 입력하세요"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </SearchContainer>
-                <CreateButton onClick={() => openModal(0)}>
-                  작업 추가
-                </CreateButton>
-              </RightToolbar>
-            </Toolbar>
-
-            {/* Table */}
-            <TableContainer>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableHeader $align="left">번호</TableHeader>
-                    <TableHeader $align="left">제목</TableHeader>
-                    <TableHeader $align="left">작성자</TableHeader>
-                    <TableHeader $align="center">승인상태</TableHeader>
-                    <TableHeader $align="left">결재자</TableHeader>
-                    <TableHeader $align="center">결재일</TableHeader>
-                    <TableHeader $align="center">작성일</TableHeader>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {filteredPosts.map((post, index) => (
-                    <TableRow key={index}>
-                      <TableCell $align="left">{post.id}</TableCell>
-                      <TableCell $align="left">
-                        <TableLink onClick={() => openModal(post.id)}>
-                          {post.title}
-                        </TableLink>
-                      </TableCell>
-                      <TableCell $align="left">{post.author}</TableCell>
-                      <TableCell $align="center">
-                        <StatusBadge $status={post.status}>
-                          {post.status}
-                        </StatusBadge>
-                      </TableCell>
-                      <TableCell $align="left">{post.approver}</TableCell>
-                      <TableCell $align="center">
-                        {formatDate(post.approvedDate)}
-                      </TableCell>
-                      <TableCell $align="center">
-                        {formatDate(post.createdDate)}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-
-            {/* Pagination */}
-            <PaginationContainer>
-              <PaginationNav>
-                <PaginationButton disabled>{"<"}</PaginationButton>
-                <PaginationButton $active={true}>1</PaginationButton>
-                <PaginationButton $active={false}>2</PaginationButton>
-                <PaginationButton disabled>{">"}</PaginationButton>
-              </PaginationNav>
-            </PaginationContainer>
-          </>
+      <MainContentWrapper>
+        {projectInfo && (
+          <ProjectDetailSection>
+            <ProjectTitle>{projectInfo.name}</ProjectTitle>
+            <ProjectDescription>{projectInfo.description}</ProjectDescription>
+            <ProjectPeriod>
+              {formatDate(projectInfo.startDate)} ~{" "}
+              {formatDate(projectInfo.endDate)}
+            </ProjectPeriod>
+            <ProjectInfoGrid>
+              <ProjectInfoItem>
+                <InfoLabel>고객사</InfoLabel>
+                <InfoValue>ABC기업</InfoValue>
+              </ProjectInfoItem>
+              <ProjectInfoItem>
+                <InfoLabel>담당자</InfoLabel>
+                <InfoValue>XYZ 소프트웨어</InfoValue>
+              </ProjectInfoItem>
+              <ProjectInfoItem>
+                <InfoLabel>예산</InfoLabel>
+                <InfoValue>1억원</InfoValue>
+              </ProjectInfoItem>
+              <ProjectInfoItem>
+                <InfoLabel>진행률</InfoLabel>
+                <ProgressBarContainer>
+                  <ProgressFill $progress={75} />
+                </ProgressBarContainer>
+                <ProgressLabel>75%</ProgressLabel>
+              </ProjectInfoItem>
+              <ProjectInfoItem>
+                <InfoLabel>유형</InfoLabel>
+                <InfoValue>IT 개발</InfoValue>
+              </ProjectInfoItem>
+              <ProjectInfoItem>
+                <InfoLabel>상태</InfoLabel>
+                <InfoValue $bold>{projectInfo.status}</InfoValue>
+              </ProjectInfoItem>
+            </ProjectInfoGrid>
+          </ProjectDetailSection>
         )}
-        {/* Add content for other tabs here */}
-        {activeTab === "질문 관리" && <div>질문 관리 내용</div>}
-        {activeTab === "이력 관리" && <div>이력 관리 내용</div>}
-      </TabContent>
 
-      <ProjectPostDetailModal
-        open={isModalOpen}
-        onClose={closeModal}
-        postId={selectedPostId}
-      />
+        <TabsContainer>
+          <TabButton $active={true}>게시글관리</TabButton>
+          <TabButton $active={false}>질문관리</TabButton>
+          <TabButton $active={false}>이력관리</TabButton>
+        </TabsContainer>
+
+        <Toolbar>
+          <LeftToolbar>
+            <FilterSelect
+              value={statusFilter}
+              onChange={(e) =>
+                setStatusFilter(e.target.value as PostStatus | "ALL")
+              }
+            >
+              <option value="ALL">승인상태: 전체</option>
+              <option value={PostStatus.PENDING}>대기</option>
+              <option value={PostStatus.APPROVED}>승인</option>
+              <option value={PostStatus.REJECTED}>반려</option>
+            </FilterSelect>
+            <SearchContainer>
+              <SearchInput
+                type="text"
+                placeholder="검색어를 입력하세요"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <SearchIcon>🔍</SearchIcon>
+            </SearchContainer>
+          </LeftToolbar>
+          <RightToolbar>
+            <CreateButton onClick={handleCreateModalOpen}>
+              + 게시글 작성
+            </CreateButton>
+          </RightToolbar>
+        </Toolbar>
+
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <tr>
+                <TableHeader>번호</TableHeader>
+                <TableHeader>제목</TableHeader>
+                <TableHeader>작성자</TableHeader>
+                <TableHeader>승인상태</TableHeader>
+                <TableHeader>결재자</TableHeader>
+                <TableHeader>결재일</TableHeader>
+                <TableHeader>작성일</TableHeader>
+              </tr>
+            </TableHead>
+            <TableBody>
+              {filteredPosts.map((post) => (
+                <TableRow key={post.postId}>
+                  <TableCell>{post.postId}</TableCell>
+                  <TableCell>
+                    <TableLink
+                      as="button"
+                      onClick={() => handlePostClick(post.postId)}
+                    >
+                      {post.title}
+                    </TableLink>
+                  </TableCell>
+                  <TableCell>{post.author.name}</TableCell>
+                  <TableCell>
+                    <StatusBadge $status={getStatusText(post.status)}>
+                      {getStatusText(post.status)}
+                    </StatusBadge>
+                  </TableCell>
+                  <TableCell>{post.approver?.name || "-"}</TableCell>
+                  <TableCell>
+                    {post.approvedAt ? formatDate(post.approvedAt) : "-"}
+                  </TableCell>
+                  <TableCell>{formatDate(post.createdAt)}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+
+        <PaginationContainer>
+          {Array.from({ length: totalPages }, (_, i) => (
+            <PaginationButton
+              key={i}
+              $active={i === currentPage}
+              onClick={() => setCurrentPage(i)}
+            >
+              {i + 1}
+            </PaginationButton>
+          ))}
+        </PaginationContainer>
+
+        <ProjectPostDetailModal
+          open={isDetailModalOpen}
+          onClose={handleDetailModalClose}
+          postId={selectedPostId}
+          onDeleteSuccess={handleDeleteSuccess}
+        />
+
+        <ProjectPostCreateModal
+          open={isCreateModalOpen}
+          onClose={handleCreateModalClose}
+          onSubmit={handleCreatePost}
+        />
+      </MainContentWrapper>
     </PageContainer>
   );
 }
