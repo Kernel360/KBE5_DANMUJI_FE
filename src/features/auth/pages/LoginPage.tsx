@@ -27,7 +27,7 @@ export default function LoginPage() {
     e.preventDefault();
     try {
       const res = await api.post(
-        "https://api.danmuji.site/api/auth/login",
+        "/api/auth/login",
         { username: id, password },
         {
           headers: { "Content-Type": "application/json" },
@@ -35,10 +35,17 @@ export default function LoginPage() {
           validateStatus: () => true,
         }
       );
-      console.log("Login response:", res.data); // 실제 응답 본문
-      console.log("Access token:", res.headers["authorization"]);
-      console.log("Access token:", res.headers["Authorization"]);
-      console.log("res", res);
+      console.log("Login response:", res.data);
+      console.log("Login status:", res.status);
+      console.log("Authorization header:", res.headers["authorization"]);
+      console.log(
+        "Authorization header (uppercase):",
+        res.headers["Authorization"]
+      );
+      console.log("All response headers:", Object.keys(res.headers));
+      console.log("Request URL:", res.config.url);
+      console.log("Request baseURL:", res.config.baseURL);
+      console.log("Request headers:", res.config.headers);
       if (res.status === 200) {
         // 다양한 방식으로 토큰 추출 시도
         let accessToken =
