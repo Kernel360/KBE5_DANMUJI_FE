@@ -1,11 +1,17 @@
 {
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://api.danmuji.site/api/$1"
+    }
+  ],
   "headers": [
     {
       "source": "/api/(.*)",
       "headers": [
         {
           "key": "Access-Control-Allow-Origin",
-          "value": "https://api.danmuji.site"
+          "value": "https://www.danmuji.site"
         },
         {
           "key": "Access-Control-Allow-Methods",
@@ -24,12 +30,6 @@
           "value": "Authorization, authorization"
         }
       ]
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "https://api.danmuji.site/api/$1"
     }
   ]
 }
