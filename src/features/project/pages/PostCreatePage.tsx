@@ -104,11 +104,7 @@ export default function PostCreatePage() {
       const response = await createPost(requestData);
 
       if (response.success || response.message?.includes("완료")) {
-        alert(
-          parentId
-            ? "답글이 성공적으로 생성되었습니다."
-            : "게시글이 성공적으로 생성되었습니다."
-        );
+        // 성공 시 바로 목록 페이지로 이동 (alert 제거로 부드러운 UX)
         navigate("/posts");
       } else {
         throw new Error(response.message || "게시글 생성에 실패했습니다.");

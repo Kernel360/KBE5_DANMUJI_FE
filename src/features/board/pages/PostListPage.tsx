@@ -103,6 +103,18 @@ export default function PostListPage() {
         setPosts(response.data.content);
         setTotalPages(response.data.page.totalPages);
         setTotalElements(response.data.page.totalElements);
+
+        // 현재 페이지에 게시글이 없고, 총 페이지가 1보다 크면 이전 페이지로 이동
+        if (
+          response.data.content.length === 0 &&
+          response.data.page.totalPages > 1 &&
+          currentPage > 0
+        ) {
+          console.log(
+            `현재 페이지(${currentPage})에 게시글이 없어서 이전 페이지로 이동합니다.`
+          );
+          setCurrentPage(currentPage - 1);
+        }
       }
     } catch (err) {
       if (err instanceof Error && err.message.includes("완료")) {

@@ -154,7 +154,7 @@ export default function PostEditPage() {
       console.log("게시글 수정 API 응답:", response);
 
       if (response.success || response.message?.includes("완료")) {
-        alert("게시글이 성공적으로 수정되었습니다.");
+        // 성공 시 바로 이전 페이지로 이동 (alert 제거로 부드러운 UX)
         navigate(-1); // 이전 페이지로 돌아가기
       } else {
         alert(response.message || "게시글 수정에 실패했습니다.");

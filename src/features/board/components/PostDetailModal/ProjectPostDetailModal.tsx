@@ -131,8 +131,8 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
         }
         setCommentText("");
       }
-    } catch (err) {
-      console.error("댓글 작성 중 오류:", err);
+    } catch (error) {
+      console.error("댓글 작성 중 오류:", error);
       alert("댓글 작성 중 오류가 발생했습니다.");
     } finally {
       setSubmittingComment(false);
@@ -158,7 +158,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
       setReplyText("");
       setReplyingTo(null);
       setReplyPrefix("");
-    } catch (err) {
+    } catch (error) {
       alert("답글 작성 중 오류가 발생했습니다.");
     } finally {
       setSubmittingReply(false);
@@ -190,9 +190,8 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
 
       // 백엔드 응답 형식에 맞춰 성공 여부 확인
       if (response.status === "OK" || response.message?.includes("완료")) {
-        alert("게시글이 성공적으로 삭제되었습니다.");
+        // 성공 시 바로 모달 닫고 콜백 호출 (alert 제거로 부드러운 UX)
         onClose();
-        // 페이지 새로고침을 위해 window.location.reload() 사용
         if (onPostDelete && postId) {
           onPostDelete(postId);
         }
@@ -273,7 +272,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
         const commentsResponse = await getComments(postId);
         setComments(commentsResponse.data || []);
       }
-    } catch (e) {
+    } catch (error) {
       alert("댓글 수정 중 오류가 발생했습니다.");
     }
   };
@@ -287,7 +286,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
         const commentsResponse = await getComments(postId);
         setComments(commentsResponse.data || []);
       }
-    } catch (e) {
+    } catch (error) {
       alert("댓글 삭제 중 오류가 발생했습니다.");
     }
   };
