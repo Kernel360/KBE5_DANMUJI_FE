@@ -44,7 +44,7 @@ export const Sidebar: React.FC = () => {
   return (
     <SidebarContainer>
       <LogoArea onClick={() => handleMenuItemClick("홈", "/dashboard")}>
-        <LogoImage src="/src/assets/danmuji_logo.png" alt="Danmuji Logo" />
+        <LogoImage src="/assets/danmuji_logo.png" alt="Danmuji Logo" />
       </LogoArea>
       <Divider />
       <ProfileArea><UserProfile /></ProfileArea>
