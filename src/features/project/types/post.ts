@@ -35,6 +35,8 @@ export type Project = {
   startDate: string;
   endDate: string;
   status: string;
+  clientCompany: string;
+  developerCompany: string;
 };
 
 // 댓글 타입

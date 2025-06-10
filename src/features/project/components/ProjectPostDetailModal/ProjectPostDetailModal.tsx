@@ -111,6 +111,15 @@ const ProjectPostDetailModal: React.FC<ProjectPostDetailModalProps> = ({
 
         setPost(postResponse.data);
         setComments(commentsResponse.data || []);
+
+        // 디버깅: project 정보 확인
+        console.log("게시글 상세 조회 응답:", postResponse.data);
+        console.log("Project 정보:", postResponse.data.project);
+        console.log("ClientCompany:", postResponse.data.project?.clientCompany);
+        console.log(
+          "DeveloperCompany:",
+          postResponse.data.project?.developerCompany
+        );
       } catch (err) {
         if (err instanceof Error && err.message.includes("완료")) {
           console.log(err.message);
@@ -343,6 +352,14 @@ const ProjectPostDetailModal: React.FC<ProjectPostDetailModalProps> = ({
             {post?.updatedAt && post.updatedAt !== post.createdAt && (
               <span>수정일: {new Date(post.updatedAt).toLocaleString()}</span>
             )}
+            {post?.project?.clientCompany &&
+              post.project.clientCompany.trim() !== "" && (
+                <span>담당자: {post.project.clientCompany}</span>
+              )}
+            {post?.project?.developerCompany &&
+              post.project.developerCompany.trim() !== "" && (
+                <span>개발사: {post.project.developerCompany}</span>
+              )}
           </PostMeta>
         </ModalHeader>
 
