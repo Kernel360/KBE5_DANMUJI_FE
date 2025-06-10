@@ -2,7 +2,8 @@ import styled from "styled-components";
 
 export const AppContainer = styled.div`
   display: flex;
-  height: 100vh;
+  flex-direction: row;
+  min-height: 100vh;
   background-color: #f9fafb;
 `;
 
@@ -14,5 +15,6 @@ export const MainContent = styled.div`
 
 export const PageContent = styled.div`
   flex: 1;
+  overflow-y: auto;
   /* Removed padding as individual pages should control their own spacing */
 `;

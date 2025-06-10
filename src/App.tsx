@@ -44,6 +44,7 @@ const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
       <MainContent>
         <Topbar />
         <PageContent>{children}</PageContent>
+        <Footer />
       </MainContent>
     </AppContainer>
   );
@@ -109,7 +110,7 @@ function App() {
         <LayoutWrapper>
           <AppRoutes />
         </LayoutWrapper>
-        <Footer />
+        {/* <Footer /> */}
       </Router>
     </AuthProvider>
   );
