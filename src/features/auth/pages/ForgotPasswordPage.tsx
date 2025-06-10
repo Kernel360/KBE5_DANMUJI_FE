@@ -54,10 +54,7 @@ export default function ForgotPasswordPage() {
           <ComponentCard>
             {submitted ? (
               <div>
-                <MailIconImage
-                  src="/Success-icon.png"
-                  alt="Check Icon"
-                />
+                <MailIconImage src="/Success-icon.png" alt="Check Icon" />
                 <Title>이메일 전송 완료</Title>
                 <Subtitle>
                   비밀번호 재설정 링크가 전송되었습니다.
