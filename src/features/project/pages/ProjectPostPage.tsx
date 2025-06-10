@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { getPosts, createPost } from "../services/postService";
+import { useParams, useNavigate } from "react-router-dom";
+import { getPosts, createPost, deletePost } from "../services/postService";
 import { PostStatus } from "../types/post";
 import type { Post, PostCreateData } from "../types/post";
+import { useAuth } from "@/contexts/AuthContexts";
 import ProjectPostDetailModal from "../components/ProjectPostDetailModal/ProjectPostDetailModal";
 import ProjectPostCreateModal from "../components/ProjectPostCreateModal/ProjectPostCreateModal";
 import {
@@ -32,6 +33,9 @@ import {
   TableCell,
   TableLink,
   StatusBadge,
+  ActionButtons,
+  EditButton,
+  DeleteButton,
   PaginationContainer,
   PaginationButton,
   TabsContainer,
@@ -44,6 +48,8 @@ import {
 
 export default function ProjectPostPage() {
   const { projectId } = useParams<{ projectId: string }>();
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [posts, setPosts] = useState<Post[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -176,6 +182,46 @@ export default function ProjectPostPage() {
     }
   };
 
+  const handleEditPost = (postId: number) => {
+    navigate(`/posts/${postId}/edit`);
+  };
+
+  const handleDeletePost = async (postId: number) => {
+    if (!window.confirm("정말로 이 게시글을 삭제하시겠습니까?")) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      await deletePost(postId);
+
+      // 삭제 성공 시 목록에서 제거
+      setPosts((prevPosts) =>
+        prevPosts.filter((post) => post.postId !== postId)
+      );
+
+      // 현재 페이지가 마지막 페이지이고, 현재 페이지에 게시글이 하나만 있었다면
+      // 이전 페이지로 이동
+      if (
+        currentPage === totalPages - 1 &&
+        posts.length === 1 &&
+        currentPage > 0
+      ) {
+        setCurrentPage(currentPage - 1);
+      } else {
+        // 그 외의 경우 현재 페이지의 게시글 목록을 다시 불러옴
+        fetchPosts();
+      }
+    } catch (err) {
+      console.error("게시글 삭제 중 오류:", err);
+      setError("게시글 삭제에 실패했습니다.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handlePostDelete = (deletedPostId: number) => {
     // 삭제된 게시글을 목록에서 제거
     setPosts((prevPosts) =>
@@ -226,6 +272,11 @@ export default function ProjectPostPage() {
     const month = (date.getMonth() + 1).toString().padStart(2, "0");
     const day = date.getDate().toString().padStart(2, "0");
     return `${year}.${month}.${day}`;
+  };
+
+  // 현재 사용자가 게시글 작성자인지 확인
+  const isAuthor = (post: Post) => {
+    return user?.id === post.author?.id;
   };
 
   if (loading) return <div>로딩 중...</div>;
@@ -321,6 +372,7 @@ export default function ProjectPostPage() {
                 <TableHeader>결재자</TableHeader>
                 <TableHeader>결재일</TableHeader>
                 <TableHeader>작성일</TableHeader>
+                <TableHeader>관리</TableHeader>
               </tr>
             </TableHead>
             <TableBody>
@@ -346,6 +398,24 @@ export default function ProjectPostPage() {
                     {post.approvedAt ? formatDate(post.approvedAt) : "-"}
                   </TableCell>
                   <TableCell>{formatDate(post.createdAt)}</TableCell>
+                  <TableCell>
+                    {isAuthor(post) && (
+                      <ActionButtons>
+                        <EditButton
+                          onClick={() => handleEditPost(post.postId)}
+                          disabled={loading}
+                        >
+                          수정
+                        </EditButton>
+                        <DeleteButton
+                          onClick={() => handleDeletePost(post.postId)}
+                          disabled={loading}
+                        >
+                          삭제
+                        </DeleteButton>
+                      </ActionButtons>
+                    )}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

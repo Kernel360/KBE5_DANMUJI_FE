@@ -5,19 +5,11 @@ import axios from "axios";
 const getBaseURL = () => {
   // 환경변수에서 API URL 가져오기
   const envApiUrl = import.meta.env.VITE_API_BASE_URL;
-
-  // 현재 호스트명 확인
-  const currentHost = window.location.hostname;
-
-  if (currentHost === "localhost" || currentHost.includes("localhost")) {
-    // 개발 환경: 환경변수가 있으면 사용, 없으면 API 서버 사용
-    return envApiUrl && envApiUrl !== "undefined"
-      ? envApiUrl
-      : "https://api.danmuji.site";
-  } else {
-    // 프로덕션 환경: API 서버 사용
-    return "https://api.danmuji.site";
+  if (!envApiUrl || envApiUrl === "undefined") {
+    throw new Error("API Base URL is not defined in environment variables.");
   }
+
+  return envApiUrl;
 };
 
 const api = axios.create({

@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { FaCommentDots, FaEdit, FaTrash, FaReply } from "react-icons/fa";
 
 export const ModalOverlay = styled.div`
   position: fixed;
@@ -41,7 +42,7 @@ export const ModalPanel = styled.div`
 `;
 
 export const ModalHeader = styled.div`
-  padding: 1.5rem;
+  padding: 1rem;
   border-bottom: 1px solid #e5e7eb;
   display: flex;
   justify-content: space-between;
@@ -104,11 +105,34 @@ export const ActionButton = styled.button`
   }
 `;
 
+export const QuestionAnswerStyledButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #fff7e6;
+  color: #f59e0b;
+  border: none;
+  border-radius: 1.5rem;
+  padding: 0.5rem 1.2rem;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-bottom: 0.5rem;
+  box-shadow: 0 2px 8px 0 rgba(253, 185, 36, 0.08);
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+
+  &:hover {
+    background-color: #fdb924;
+    color: white;
+    box-shadow: 0 4px 12px 0 rgba(253, 185, 36, 0.18);
+  }
+`;
+
 export const CloseButton = styled(ActionButton)``;
 
 export const ModalBody = styled.div`
   flex: 1;
-  padding: 1.5rem;
+  padding: 1rem;
   overflow-y: auto;
 `;
 
@@ -183,8 +207,6 @@ export const CommentsSection = styled(Section)`
 `;
 
 export const CommentsList = styled.div`
-  max-height: 200px;
-  overflow-y: auto;
   margin-bottom: 1rem;
   padding-right: 0.5rem;
 `;
@@ -211,6 +233,10 @@ export const CommentAuthor = styled.span`
 
 export const CommentActions = styled.div`
   font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
   a {
     color: #6b7280;
     margin-left: 0.5rem;
@@ -219,6 +245,22 @@ export const CommentActions = styled.div`
     &:hover {
       text-decoration: underline;
     }
+  }
+`;
+
+export const CommentActionButton = styled.button`
+  background: none;
+  border: none;
+  color: #6b7280;
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  transition: all 0.2s;
+
+  &:hover {
+    background-color: #f3f4f6;
+    color: #374151;
   }
 `;
 
@@ -251,21 +293,147 @@ export const CommentTextArea = styled.textarea`
 `;
 
 export const CommentSubmitButton = styled.button`
-  background-color: #3b82f6;
-  color: white;
   padding: 0.5rem 1rem;
-  border-radius: 0.25rem;
+  background-color: #fdb924;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
   font-size: 0.875rem;
-  font-weight: 600;
   cursor: pointer;
-  align-self: flex-start;
+  transition: background-color 0.2s;
 
-  &:hover {
-    background-color: #2563eb;
+  &:hover:not(:disabled) {
+    background-color: #e6a720;
   }
 
   &:disabled {
-    opacity: 0.5;
+    background-color: #d1d5db;
     cursor: not-allowed;
   }
+`;
+
+export const LoadingSpinner = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  font-size: 1.125rem;
+  color: #6b7280;
+`;
+
+export const ErrorMessage = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  font-size: 1.125rem;
+  color: #ef4444;
+  text-align: center;
+  padding: 2rem;
+`;
+
+export const ModalHeaderActionButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  color: #6366f1;
+  border: none;
+  border-radius: 5px;
+  padding: 0 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  height: 28px;
+  min-width: 0;
+  box-shadow: none;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+
+  &:hover {
+    background: #f3f4f6;
+  }
+
+  &.delete {
+    color: #ef4444;
+  }
+`;
+
+export const ModalHeaderButtonGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+`;
+
+export const ModalHeaderCloseButton = styled.button`
+  background: none;
+  border: none;
+  color: #b0b0b0;
+  font-size: 20px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-left: 2px;
+  transition: background 0.15s;
+  &:hover {
+    background: #f3f4f6;
+  }
+`;
+
+// 대댓글 관련 스타일 컴포넌트
+export const ReplyInputContainer = styled.div`
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background-color: #f8f9fa;
+  border-radius: 0.375rem;
+  border-left: 3px solid #fdb924;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+`;
+
+export const ReplyList = styled.div`
+  margin-top: 0.75rem;
+  padding-left: 1rem;
+  border-left: 2px solid #e5e7eb;
+`;
+
+export const ReplyItem = styled.div`
+  background-color: #f8f9fa;
+  border-radius: 0.375rem;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+  border: 1px solid #e9ecef;
+`;
+
+export const InfoGrid = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+`;
+
+export const InfoRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+
+export const InfoKey = styled.span`
+  min-width: 80px;
+  color: #6b7280;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-align: right;
+`;
+
+export const InfoValue = styled.span`
+  color: #222;
+  font-size: 0.95rem;
+  font-weight: 500;
 `;

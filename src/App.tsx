@@ -27,14 +27,9 @@ import AdminMainPage from "./features/project/pages/AdminMainPage";
 
 // user pages
 import UserDashboardPage from "./features/board/pages/DashboardPage";
-import ProjectPostPage from "./features/project/pages/ProjectPostPage";
-
-
-
-
-// project pages
-import CreateProjectPage from "./features/project/pages/CreateProjectPage";
-import EditProjectPage from "./features/project/pages/EditProjectPage";
+import PostListPage from "./features/board/pages/PostListPage";
+import PostEditPage from "./features/project/pages/PostEditPage";
+import PostCreatePage from "./features/project/pages/PostCreatePage";
 
 // etc
 import { AppContainer, MainContent, PageContent } from "./App.styled";
@@ -106,15 +101,11 @@ const AppRoutes = () => {
       )}
 
       {/* 공용 */}
-
-
-      <Route path="/projects/:projectId/posts" element={<ProjectPostPage />} />
-
-
-
-      <Route path="/projects/posts" element={<ProjectPostPage />} />
-      <Route path="/projects/:projectId/edit" element={<EditProjectPage />} />
-
+      <Route path="/projects" element={<ProjectPage />} />
+      <Route path="/posts" element={<PostListPage />} />
+      <Route path="/posts/create" element={<PostCreatePage />} />
+      <Route path="/posts/:postId/edit" element={<PostEditPage />} />
+      
     </Routes>
   );
 };

@@ -2,48 +2,47 @@ import styled from "styled-components";
 
 export const PageContainer = styled.div`
   padding: 2rem;
-  min-height: 100vh;
-  background-color: #f9fafb;
-`;
-
-export const MainContentWrapper = styled.div`
   max-width: 800px;
   margin: 0 auto;
 `;
 
-export const EditForm = styled.form`
-  background: white;
+export const MainContentWrapper = styled.div`
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+`;
+
+export const CreateForm = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 `;
 
 export const FormTitle = styled.h1`
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-size: 1.875rem;
+  font-weight: 700;
   color: #111827;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 `;
 
 export const FormGroup = styled.div`
-  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 `;
 
 export const Label = styled.label`
-  display: block;
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 600;
   color: #374151;
-  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
 `;
 
 export const Input = styled.input`
-  width: 100%;
   padding: 0.75rem;
   border: 1px solid #d1d5db;
-  border-radius: 6px;
+  border-radius: 0.375rem;
   font-size: 0.875rem;
-  color: #111827;
   transition: border-color 0.2s;
 
   &:focus {
@@ -54,12 +53,11 @@ export const Input = styled.input`
 `;
 
 export const TextArea = styled.textarea`
-  width: 100%;
   padding: 0.75rem;
   border: 1px solid #d1d5db;
-  border-radius: 6px;
+  border-radius: 0.375rem;
   font-size: 0.875rem;
-  color: #111827;
+  font-family: inherit;
   resize: vertical;
   transition: border-color 0.2s;
 
@@ -71,13 +69,11 @@ export const TextArea = styled.textarea`
 `;
 
 export const Select = styled.select`
-  width: 100%;
   padding: 0.75rem;
   border: 2px solid #d1d5db;
-  border-radius: 6px;
+  border-radius: 0.375rem;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #111827;
   background-color: #f9fafb;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -118,7 +114,8 @@ export const Select = styled.select`
 export const ButtonGroup = styled.div`
   display: flex;
   gap: 1rem;
-  margin-top: 2rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
 `;
 
 export const SubmitButton = styled.button`
@@ -126,39 +123,40 @@ export const SubmitButton = styled.button`
   background-color: #fdb924;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s;
 
-  &:hover {
+  &:hover:not(:disabled) {
     background-color: #e6a720;
   }
 
   &:disabled {
-    background-color: #d1d5db;
+    background-color: #9ca3af;
     cursor: not-allowed;
   }
 `;
 
 export const CancelButton = styled.button`
   padding: 0.75rem 1.5rem;
-  background-color: white;
-  color: #374151;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
+  background-color: #6b7280;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background-color 0.2s;
 
   &:hover {
-    background-color: #f9fafb;
-    border-color: #9ca3af;
+    background-color: #4b5563;
   }
 `;
 
 export const ErrorMessage = styled.div`
-  color: #dc2626;
+  color: #ef4444;
   font-size: 0.875rem;
-  margin-top: 0.5rem;
+  margin-top: 0.25rem;
 `;

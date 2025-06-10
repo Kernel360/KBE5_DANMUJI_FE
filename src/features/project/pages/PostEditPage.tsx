@@ -37,6 +37,7 @@ export default function PostEditPage() {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
+    console.log("PostEditPage 마운트됨 - postId:", postId);
     if (!postId) {
       setError("게시글 ID가 제공되지 않았습니다.");
       return;
@@ -45,6 +46,7 @@ export default function PostEditPage() {
     const fetchPost = async () => {
       try {
         setLoading(true);
+        console.log("게시글 상세 조회 시작 - postId:", postId);
         const response = await getPostDetail(parseInt(postId));
         console.log("게시글 상세 데이터:", response.data);
         setPost(response.data);
@@ -74,7 +76,7 @@ export default function PostEditPage() {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: name === "priority" ? parseInt(value, 10) : value,
     }));
     setFormErrors((prev) => ({ ...prev, [name]: "" })); // Clear error on change
   };
@@ -93,6 +95,8 @@ export default function PostEditPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("수정 폼 제출됨 - postId:", postId, "formData:", formData);
+
     if (!postId || !post || !validateForm()) {
       console.error("필수 데이터 누락:", { postId, post });
       alert("게시글 정보가 올바르지 않습니다. 다시 시도해주세요.");
@@ -101,9 +105,31 @@ export default function PostEditPage() {
 
     try {
       setLoading(true);
-      const response = await updatePost(parseInt(postId), formData);
-      if (response.success) {
-        alert("게시글이 성공적으로 수정되었습니다.");
+
+      // 전송할 데이터 준비 (문자열 enum 사용)
+      const requestData = {
+        title: formData.title,
+        content: formData.content,
+        type: formData.type,
+        status: formData.status,
+        priority: formData.priority,
+      };
+
+      console.log("전송할 데이터:", requestData);
+      console.log("데이터 타입 확인:", {
+        title: typeof requestData.title,
+        content: typeof requestData.content,
+        type: typeof requestData.type,
+        status: typeof requestData.status,
+        priority: typeof requestData.priority,
+      });
+
+      console.log("게시글 수정 API 호출 시작");
+      const response = await updatePost(parseInt(postId), requestData);
+      console.log("게시글 수정 API 응답:", response);
+
+      if (response.success || response.message?.includes("완료")) {
+        // 성공 시 바로 이전 페이지로 이동 (alert 제거로 부드러운 UX)
         navigate(-1); // 이전 페이지로 돌아가기
       } else {
         alert(response.message || "게시글 수정에 실패했습니다.");
@@ -170,22 +196,22 @@ export default function PostEditPage() {
             >
               <option value="GENERAL">일반</option>
               <option value="NOTICE">공지</option>
-              <option value="QUESTION">질문</option>
               <option value="REPORT">보고</option>
             </Select>
           </FormGroup>
 
           <FormGroup>
             <Label htmlFor="priority">우선순위</Label>
-            <Input
+            <Select
               id="priority"
               name="priority"
-              type="number"
-              min="1"
-              max="5"
-              value={formData.priority}
+              value={formData.priority.toString()}
               onChange={handleChange}
-            />
+            >
+              <option value="1">낮음</option>
+              <option value="2">보통</option>
+              <option value="3">높음</option>
+            </Select>
           </FormGroup>
 
           <FormGroup>

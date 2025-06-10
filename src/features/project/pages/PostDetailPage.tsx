@@ -94,16 +94,25 @@ export default function PostDetailPage() {
 
     try {
       setLoading(true);
+      console.log("게시글 삭제 시작 - postId:", postId);
       const response = await deletePost(parseInt(postId));
-      if (response.status === "OK") {
+      console.log("게시글 삭제 응답:", response);
+
+      // 백엔드 응답 형식에 맞춰 성공 여부 확인
+      if (response.status === "OK" || response.message?.includes("완료")) {
         alert("게시글이 성공적으로 삭제되었습니다.");
         // 프로젝트 게시글 목록 페이지로 이동
         navigate(`/projects/${post?.project.projectId}/posts`);
       } else {
-        throw new Error(response.message);
+        throw new Error(response.message || "게시글 삭제에 실패했습니다.");
       }
     } catch (err) {
-      setError("게시글 삭제 중 오류가 발생했습니다.");
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "게시글 삭제 중 오류가 발생했습니다.";
+      alert(errorMessage);
+      setError(errorMessage);
       console.error("게시글 삭제 중 오류:", err);
     } finally {
       setLoading(false);

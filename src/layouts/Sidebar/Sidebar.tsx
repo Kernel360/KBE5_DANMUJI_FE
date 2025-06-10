@@ -21,10 +21,9 @@ import { FaFlagCheckered } from "react-icons/fa";
 import { FaPlay } from "react-icons/fa";
 import { FaAlignLeft } from "react-icons/fa";
 import { FaArchive } from "react-icons/fa";
+import { FaComments } from "react-icons/fa";
 
 import { useAuth } from "@/contexts/AuthContexts";
-
-import danmujiLogo from "/assets/danmuji_logo.png";
 
 const LogoImage = styled.img`
   height: 48px;
@@ -46,10 +45,12 @@ export const Sidebar: React.FC = () => {
   return (
     <SidebarContainer>
       <LogoArea onClick={() => handleMenuItemClick("홈", "/dashboard")}>
-        <LogoImage src={danmujiLogo} alt="Danmuji Logo" />
+        <LogoImage src="/danmuji_logo.png" alt="Danmuji Logo" />
       </LogoArea>
       <Divider />
-      <ProfileArea><UserProfile /></ProfileArea>
+      <ProfileArea>
+        <UserProfile />
+      </ProfileArea>
       <Divider />
       <MainMenu>
         <MenuItem
@@ -57,6 +58,12 @@ export const Sidebar: React.FC = () => {
           text="대시보드"
           isActive={location.pathname === "/dashboard"}
           onClick={() => handleMenuItemClick("대시보드", "/dashboard")}
+        />
+        <MenuItem
+          icon={FaComments}
+          text="게시글 목록"
+          isActive={location.pathname === "/posts"}
+          onClick={() => handleMenuItemClick("게시글 목록", "/posts")}
         />
         <div>
           <MenuItem
