@@ -37,7 +37,6 @@ export const ComponentRight = styled.div`
   padding: 0 48px;
   background: white;
   position: relative;
-  
 `;
 
 export const ComponentCard = styled.div`
@@ -48,7 +47,7 @@ export const ComponentCard = styled.div`
   width: 100%;
   max-width: 420px;
   padding: 2rem;
-  
+
   position: absolute;
   top: 7rem;
 `;
@@ -70,7 +69,7 @@ export const LeftTitle = styled.h1`
   margin-bottom: 0.5rem;
 `;
 
-export const LeftDesc = styled.text`
+export const LeftDesc = styled.p`
   font-size: 1rem;
   color: #fff;
   margin-bottom: 2rem;
@@ -93,7 +92,7 @@ export const DescIconImage = styled.img`
   margin-top: 0.2rem;
 `;
 
-export const DescIconText = styled.text`
+export const DescIconText = styled.p`
   font-size: 1rem;
   font-weight: 700;
   margin-left: 0.5rem;
@@ -101,7 +100,7 @@ export const DescIconText = styled.text`
   margin-top: 0.2rem;
 `;
 
-export const DescIconDesc = styled.text`
+export const DescIconDesc = styled.p`
   font-size: 1rem;
   font-weight: 700;
   margin-left: 0.5rem;
@@ -124,7 +123,7 @@ export const LockIconImage = styled.img`
   marginright: 4;
 `;
 
-export const LockTitle = styled.text`
+export const LockTitle = styled.p`
   font-size: 1rem;
   font-weight: 700;
   margin-bottom: -0.2rem;
@@ -132,7 +131,7 @@ export const LockTitle = styled.text`
   display: block;
 `;
 
-export const LockText = styled.text`
+export const LockText = styled.p`
   font-size: 0.8rem;
   font-weight: 700;
   margin-left: 0.5rem;

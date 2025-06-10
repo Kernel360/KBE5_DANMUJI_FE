@@ -35,6 +35,7 @@ export default function LoginPage() {
           validateStatus: () => true,
         }
       );
+
       if (res.status === 200) {
         const accessToken = res.headers["authorization"].replace("Bearer ", "");
         if (accessToken) {

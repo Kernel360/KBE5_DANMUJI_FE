@@ -5,7 +5,6 @@ import axios from "axios";
 const getBaseURL = () => {
   // 환경변수에서 API URL 가져오기
   const envApiUrl = import.meta.env.VITE_API_BASE_URL;
-
   if (!envApiUrl || envApiUrl === "undefined") {
     throw new Error("API Base URL is not defined in environment variables.");
   }

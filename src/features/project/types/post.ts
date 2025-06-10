@@ -8,9 +8,8 @@ export enum PostStatus {
 // 게시글 유형 enum
 export enum PostType {
   GENERAL = "GENERAL",
-  QUESTION = "QUESTION",
-  REPORT = "REPORT",
   NOTICE = "NOTICE",
+  REPORT = "REPORT",
 }
 
 // 우선순위 enum
@@ -22,10 +21,10 @@ export enum PostPriority {
 
 // 작성자 타입
 export type Author = {
-  userId: number;
+  id: number;
   name: string;
-  email: string;
-  role: string;
+  email?: string;
+  role?: string;
 };
 
 // 프로젝트 타입
@@ -59,6 +58,7 @@ export type PostCreateData = {
   status: PostStatus;
   priority: PostPriority;
   projectId: number;
+  parentId?: number | null;
 };
 
 // 게시글 타입 (기존 Post와 PostDetail 통합)
@@ -80,6 +80,7 @@ export type Post = {
   completedAt: string | null;
   approvedAt: string | null;
   comments?: Comment[];
+  questionCount?: number;
   isDeleted: boolean;
 };
 
@@ -93,7 +94,13 @@ export type ApiResponse<T> = {
 
 // 게시글 생성 응답 타입
 export type PostCreateResponse = {
-  postId: number;
+  authorIp: string;
+  authorId: number;
+  title: string;
+  content: string;
+  type: PostType;
+  status: PostStatus;
+  priority: PostPriority;
 };
 
 // 페이지네이션 메타데이터 타입
