@@ -18,6 +18,7 @@ import {
   TableCell,
   StatusBadge,
   PaginationContainer,
+  PaginationInfo,
   PaginationNav,
   PaginationButton,
   PostTitle,
@@ -266,16 +267,10 @@ export default function PostListPage() {
 
       {totalPages > 1 && (
         <PaginationContainer>
-          <div
-            style={{
-              marginBottom: "1rem",
-              textAlign: "center",
-              color: "#6b7280",
-            }}
-          >
+          <PaginationInfo>
             총 {totalElements}개의 게시글 중 {currentPage * itemsPerPage + 1}-
             {Math.min((currentPage + 1) * itemsPerPage, totalElements)}개 표시
-          </div>
+          </PaginationInfo>
           <PaginationNav>
             <PaginationButton
               onClick={() => handlePageChange(currentPage - 1)}

@@ -168,14 +168,25 @@ export const StatusBadge = styled.span<{ $status: string }>`
 
 export const PaginationContainer = styled.div`
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
   margin-top: 2rem;
+  gap: 1rem;
+`;
+
+export const PaginationInfo = styled.div`
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
 `;
 
 export const PaginationNav = styled.nav`
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
 `;
 
 export const PaginationButton = styled.button<{ $active?: boolean }>`
