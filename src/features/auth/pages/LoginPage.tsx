@@ -35,37 +35,15 @@ export default function LoginPage() {
           validateStatus: () => true,
         }
       );
-      console.log("Login response:", res.data);
-      console.log("Login status:", res.status);
-      console.log("Authorization header:", res.headers["authorization"]);
-      console.log(
-        "Authorization header (uppercase):",
-        res.headers["Authorization"]
-      );
-      console.log("All response headers:", Object.keys(res.headers));
-      console.log("Request URL:", res.config.url);
-      console.log("Request baseURL:", res.config.baseURL);
-      console.log("Request headers:", res.config.headers);
+
       if (res.status === 200) {
-        // 다양한 방식으로 토큰 추출 시도
-        const accessToken =
-          res.headers["authorization"]?.replace("Bearer ", "") ||
-          res.headers["Authorization"]?.replace("Bearer ", "") ||
-          res.data?.token ||
-          res.data?.accessToken;
-
-        console.log("Extracted token:", accessToken);
-        console.log("All headers:", Object.keys(res.headers));
-
+        const accessToken = res.headers["authorization"].replace("Bearer ", "");
         if (accessToken) {
           localStorage.setItem("accessToken", accessToken);
-          console.log("Token saved to localStorage");
           alert("로그인 되었습니다.");
           window.location.href = "/dashboard";
         } else {
-          console.error("No token found in headers or response data");
-          console.error("Available headers:", Object.keys(res.headers));
-          console.error("Response data:", res.data);
+          console.error("액세스 토큰이 없습니다.");
           alert("로그인에 실패했습니다.");
         }
       } else if (res.data?.code === "C005") {

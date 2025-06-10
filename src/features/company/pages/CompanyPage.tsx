@@ -1,17 +1,19 @@
-import { useState } from 'react';
+import axios from 'axios';
+import { useState, useEffect } from 'react';
 import CompanyRegisterModal from '../components/CompanyRegisterModal';
 import CompanyEditModal from '../components/CompanyEditModal';
+import CompanyDetailModal from '../components/CompanyDetailModal/CompanyDetailModal';
 import styled from 'styled-components';
 
 export interface Company {
   id: number;
   name: string;
-  reg: string;
-  addr: string;
-  owner: string;
+  bizNo: number;
+  address: string;
+  ceoName: string;
   email: string;
-  companyType: 'CLIENT' | 'AGENCY';
-  phone: string;
+  bio: string;
+  tel: string;
 }
 
 export interface CompanyFormData {
@@ -19,138 +21,30 @@ export interface CompanyFormData {
   reg1: string;
   reg2: string;
   reg3: string;
-  addr: string;
-  owner: string;
+  address: string;
+  ceoName: string;
   email: string;
-  companyType: 'CLIENT' | 'AGENCY';
-  phone: string;
-}
-
-const initialCompanies: Company[] = [
-  { id: 1, name: 'ABC 주식회사', reg: '123-45-67890', addr: '서울시 강남구 테헤란로 123', owner: '홍길동', email: 'abc@company.com', companyType: 'CLIENT', phone: '010-1234-5678' },
-  { id: 2, name: 'DEF 테크놀로지', reg: '234-56-78901', addr: '경기도 성남시 분당구 판교로 456길잡수', owner: '김철수', email: 'def@company.com', companyType: 'AGENCY', phone: '010-2345-6789' },
-  { id: 3, name: 'GHI 시스템즈', reg: '345-67-89012', addr: '서울시 영등포구 여의대로 789', owner: '박영희', email: 'ghi@company.com', companyType: 'CLIENT', phone: '010-3456-7890' },
-];
-
-export default function CompanyPage() {
-  const [search, setSearch] = useState('');
-  const [companies, setCompanies] = useState<Company[]>(initialCompanies);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [editData, setEditData] = useState<Company | null>(null);
-
-  const filtered = companies.filter(c => c.name.includes(search));
-
-  const handleRegister = (data: CompanyFormData) => {
-    const reg = `${data.reg1}-${data.reg2}-${data.reg3}`;
-    setCompanies(prev => [
-      ...prev,
-      {
-        id: prev.length + 1,
-        name: data.name,
-        reg,
-        addr: data.addr,
-        owner: data.owner,
-        email: data.email,
-        companyType: data.companyType,
-        phone: data.phone,
-      },
-    ]);
-    setModalOpen(false);
-  };
-
-  const handleEdit = (data: CompanyFormData) => {
-    if (!editData) return;
-    const reg = `${data.reg1}-${data.reg2}-${data.reg3}`;
-    setCompanies(prev => prev.map(c =>
-      c.id === editData.id
-        ? { ...c, name: data.name, reg, addr: data.addr, owner: data.owner, email: data.email, companyType: data.companyType, phone: data.phone }
-        : c
-    ));
-    setEditModalOpen(false);
-    setEditData(null);
-  };
-
-  return (
-    <Container>
-      <CompanyRegisterModal open={modalOpen} onClose={() => setModalOpen(false)} onSubmit={handleRegister} />
-      <CompanyEditModal open={editModalOpen} onClose={() => { setEditModalOpen(false); setEditData(null); }} onSave={handleEdit} initialData={editData} />
-      <HeaderSection>
-        <Title>회사 관리</Title>
-        <Subtitle>프로젝트 관리 시스템의 회사 정보를 한눈에 확인하세요</Subtitle>
-      </HeaderSection>
-      <SearchSection>
-        <SearchInput
-          type="text"
-          placeholder="회사명 검색..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-        />
-        <RegisterButton onClick={() => setModalOpen(true)}>회사 등록</RegisterButton>
-      </SearchSection>
-      <TableWrapper>
-        <StyledTable>
-          <thead>
-            <tr>
-              <Th>번호</Th>
-              <Th>회사명</Th>
-              <Th>회사 구분</Th>
-              <Th>사업자등록번호</Th>
-              <Th>주소</Th>
-              <Th>사업자 명</Th>
-              <Th>이메일</Th>
-              <Th>연락처</Th>
-              <Th>관리</Th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((c, idx) => (
-              <Tr key={c.id}>
-                <Td>{idx + 1}</Td>
-                <Td>{c.name}</Td>
-                <Td>{c.companyType === 'CLIENT' ? '고객사' : '개발사'}</Td>
-                <Td>{c.reg}</Td>
-                <Td>{c.addr}</Td>
-                <Td>{c.owner}</Td>
-                <Td>{c.email}</Td>
-                <Td>{c.phone}</Td>
-                <Td>
-                  <ActionButton onClick={() => { setEditModalOpen(true); setEditData(c); }}>수정</ActionButton>
-                  <DeleteButton>삭제</DeleteButton>
-                </Td>
-              </Tr>
-            ))}
-          </tbody>
-        </StyledTable>
-      </TableWrapper>
-      <PaginationWrapper>
-        <nav>
-          <PageButton disabled>{'<'}</PageButton>
-          <CurrentPageButton>1</CurrentPageButton>
-          <PageButton disabled>{'>'}</PageButton>
-        </nav>
-      </PaginationWrapper>
-    </Container>
-  );
+  bio: string;
+  tel: string;
 }
 
 // styled-components
 const Container = styled.div`
-  width: 100%;
-  padding: 0 0 32px 0;
+  padding: 32px;
+  background-color: #f9fafb;
 `;
 const HeaderSection = styled.div`
-  margin-bottom: 1.5rem;
+  margin-bottom: 32px;
 `;
-const Title = styled.div`
-  font-size: 1.875rem;
-  font-weight: 800;
+const Title = styled.h1`
+  font-size: 24px;
+  font-weight: 700;
   color: #1f2937;
-  margin-bottom: 0.25rem;
+  margin-bottom: 4px;
 `;
-const Subtitle = styled.div`
+const Subtitle = styled.p`
   color: #6b7280;
-  font-size: 1rem;
+  font-size: 14px;
 `;
 const SearchSection = styled.div`
   display: flex;
@@ -186,38 +80,45 @@ const RegisterButton = styled.button`
     background: #2563eb;
   }
 `;
-const TableWrapper = styled.div`
+const TableContainer = styled.div`
   overflow-x: auto;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px 0 rgba(0,0,0,0.06);
-  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  background-color: white;
 `;
-const StyledTable = styled.table`
+const Table = styled.table`
   min-width: 100%;
-  font-size: 0.875rem;
-  text-align: left;
-  border-collapse: separate;
-  border-spacing: 0;
+  font-size: 14px;
+  border-collapse: collapse;
 `;
-const Th = styled.th`
-  background: #f9fafb;
+const TableHead = styled.thead`
+  background-color: #f9fafb;
   border-bottom: 1px solid #e5e7eb;
-  padding: 0.5rem 1rem;
-  font-weight: 600;
 `;
-const Tr = styled.tr`
+const TableHeader = styled.th`
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #4b5563;
+  white-space: nowrap;
+`;
+const TableBody = styled.tbody``;
+const TableRow = styled.tr`
   border-bottom: 1px solid #e5e7eb;
   &:last-child {
     border-bottom: none;
   }
 `;
-const Td = styled.td`
-  padding: 0.5rem 1rem;
+const TableCell = styled.td`
+  padding: 12px 16px;
+  text-align: left;
+  color: #374151;
+  vertical-align: middle;
 `;
 const ActionButton = styled.button`
   background: #e5e7eb;
   color: #374151;
-  padding: 0.25rem 0.5rem;
+  padding: 6px 12px;
   border-radius: 0.25rem;
   font-size: 0.75rem;
   border: none;
@@ -231,7 +132,7 @@ const ActionButton = styled.button`
 const DeleteButton = styled.button`
   background: #fee2e2;
   color: #ef4444;
-  padding: 0.25rem 0.5rem;
+  padding: 6px 12px;
   border-radius: 0.25rem;
   font-size: 0.75rem;
   border: none;
@@ -241,31 +142,286 @@ const DeleteButton = styled.button`
     background: #fecaca;
   }
 `;
-const PaginationWrapper = styled.div`
+const PaginationContainer = styled.div`
   display: flex;
   justify-content: center;
   margin-top: 1.5rem;
 `;
-const PageButton = styled.button`
-  padding: 0.25rem 0.75rem;
-  border: 1px solid #d1d5db;
-  background: #fff;
-  color: #6b7280;
-  border-radius: 0.375rem 0 0 0.375rem;
-  cursor: pointer;
+const PaginationNav = styled.nav``;
+const PaginationButton = styled.button`
+  padding: 0.5rem 1rem;
+  border: 1px solid #e5e7eb;
+  background-color: white;
+  color: #374151;
+  &:hover {
+    background-color: #f3f4f6;
+  }
+  &:first-child {
+    border-top-left-radius: 0.375rem;
+    border-bottom-left-radius: 0.375rem;
+  }
+  &:last-child {
+    border-top-right-radius: 0.375rem;
+    border-bottom-right-radius: 0.375rem;
+  }
   &:disabled {
-    color: #9ca3af;
-    background: #fff;
     cursor: not-allowed;
+    opacity: 0.5;
   }
 `;
-const CurrentPageButton = styled.button`
-  padding: 0.25rem 0.75rem;
-  border-top: 1px solid #3b82f6;
-  border-bottom: 1px solid #3b82f6;
-  background: #eff6ff;
-  color: #2563eb;
-  font-weight: 700;
-  border-left: none;
-  border-right: none;
-`; 
+const CurrentPageButton = styled(PaginationButton)`
+  background: #3b82f6;
+  color: #fff;
+  border-radius: 0.375rem;
+  font-weight: 600;
+  border: none;
+  cursor: not-allowed;
+  z-index: 10;
+  &:hover {
+    background: #3b82f6;
+  }
+`;
+
+export const formatBizNo = (bizNo: string) => {
+  if (bizNo.length !== 10) return bizNo;
+  return `${bizNo.slice(0, 3)}-${bizNo.slice(3, 5)}-${bizNo.slice(5)}`;
+};
+
+export default function CompanyPage() {
+  const [search, setSearch] = useState('');
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editData, setEditData] = useState<Company | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState<{
+    size: number;
+    number: number;
+    totalElements: number;
+    totalPages: number;
+  } | null>(null);
+  const [isCompanyDetailModalOpen, setIsCompanyDetailModalOpen] = useState(false);
+  const [selectedCompanyForDetail, setSelectedCompanyForDetail] = useState<Company | null>(null);
+
+  const handlePageChange = (newPage: number) => {
+    fetchCompanies(newPage);
+  };
+
+  const fetchCompanies = async (pageNumber: number = 0) => {
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/companies?page=${pageNumber}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      setCompanies(data.data.content);
+      setPage(data.data.page);
+    } catch (err: unknown) {
+      let errorMessage = "An unknown error occurred";
+      if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+      setError(errorMessage);
+      console.error("Failed to fetch companies:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCompanies();
+  }, []);
+
+  const filtered = companies.filter(c => c.name.includes(search));
+
+  const handleSearch = () => {
+    // 예시: axios 또는 fetch로 API 호출
+    axios.get(`/api/company/search?name=${encodeURIComponent(search)}`)
+      .then(res => {
+        setCompanies(res.data.data);
+      })
+      .catch(err => {
+        console.error('검색 오류:', err);
+      });
+  };
+  
+  const handleEdit = async (data: CompanyFormData) => {
+    if (!editData) return;
+
+    try {
+      // Construct the bizNo from reg1, reg2, reg3
+      const bizNoCombined = parseInt(`${data.reg1}${data.reg2}${data.reg3}`, 10);
+
+      const companyUpdateData = {
+        name: data.name,
+        bizNo: bizNoCombined,
+        address: data.address,
+        ceoName: data.ceoName,
+        email: data.email,
+        bio: data.bio,
+        tel: data.tel,
+      };
+
+      // PUT 요청 보내기
+      await axios.put(`/api/companies/${editData.id}`, companyUpdateData);
+
+      // 성공 시 상태 업데이트
+      setCompanies(prev => prev.map(c =>
+        c.id === editData.id
+          ? {
+              ...c,
+              name: data.name || c.name,
+              bizNo: bizNoCombined || c.bizNo,
+              address: data.address || c.address,
+              ceoName: data.ceoName || c.ceoName,
+              email: data.email || c.email,
+              tel: data.tel || c.tel,
+              bio: data.bio || c.bio,
+            }
+          : c
+      ));
+
+      // 모달 닫기
+      setEditModalOpen(false);
+      setEditData(null);
+      alert("회사 정보가 성공적으로 수정되었습니다.");
+    } catch (error) {
+      console.error("회사 정보 수정 실패:", error);
+      alert("회사 정보 수정에 실패했습니다.");
+    }
+  };
+
+  const handleDelete = async (companyId: number) => {
+    if (!window.confirm("정말 삭제하시겠습니까?")) return;
+
+    try {
+      await axios.delete(`/api/companies/${companyId}`);
+      alert("삭제되었습니다.");
+      // 회사 목록을 다시 불러오거나, 상태에서 제거
+      fetchCompanies();
+    } catch (error) {
+      console.error("삭제 실패:", error);
+      alert("삭제에 실패했습니다.");
+    }
+  };
+
+  const handleCompanyClick = (company: Company) => {
+    setSelectedCompanyForDetail(company);
+    setIsCompanyDetailModalOpen(true);
+  };
+
+  return (
+    <Container>
+      <CompanyRegisterModal open={modalOpen} onClose={() => setModalOpen(false)} onRegisterSuccess={fetchCompanies} />
+      {editData && (
+        <CompanyEditModal
+          open={editModalOpen}
+          onClose={() => setEditModalOpen(false)}
+          onSave={handleEdit}
+          initialData={editData}
+        />
+      )}
+      <CompanyDetailModal
+        open={isCompanyDetailModalOpen}
+        onClose={() => setIsCompanyDetailModalOpen(false)}
+        company={selectedCompanyForDetail}
+      />
+      <HeaderSection>
+        <Title>회사 관리</Title>
+        <Subtitle>프로젝트 관리 시스템의 회사 정보를 한눈에 확인하세요</Subtitle>
+      </HeaderSection>
+      <SearchSection>
+        <SearchInput
+          type="text"
+          placeholder="회사명 검색..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          onKeyDown={e => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              handleSearch();
+            }
+          }}
+        />
+        <RegisterButton onClick={() => setModalOpen(true)}>회사 등록</RegisterButton>
+      </SearchSection>
+      <TableContainer>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableHeader>번호</TableHeader>
+              <TableHeader>회사명</TableHeader>
+              <TableHeader>사업자등록번호</TableHeader>
+              <TableHeader>주소</TableHeader>
+              <TableHeader>사업자 명</TableHeader>
+              <TableHeader>이메일</TableHeader>
+              <TableHeader>연락처</TableHeader>
+              <TableHeader>관리</TableHeader>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {loading && (
+              <TableRow><TableCell colSpan={9}>로딩 중...</TableCell></TableRow>
+            )}
+            {error && (
+              <TableRow><TableCell colSpan={9} style={{ color: 'red' }}>오류: {error}</TableCell></TableRow>
+            )}
+            {!loading && !error && filtered.length === 0 && (
+              <TableRow><TableCell colSpan={9}>데이터가 없습니다.</TableCell></TableRow>
+            )}
+            {!loading && !error && filtered.map((c) => (
+              <TableRow key={c.id}>
+                <TableCell>{c.id}</TableCell>
+                <TableCell
+                  onClick={() => handleCompanyClick(c)}
+                  style={{ cursor: "pointer", textDecoration: "underline" }}
+                >
+                  {c.name}
+                </TableCell>
+                <TableCell>{formatBizNo(c.bizNo.toString())}</TableCell>
+                <TableCell>{c.address}</TableCell>
+                <TableCell>{c.ceoName}</TableCell>
+                <TableCell>{c.email}</TableCell>
+                <TableCell>{c.tel}</TableCell>
+                <TableCell>
+                  <ActionButton onClick={() => { setEditModalOpen(true); setEditData(c); }}>수정</ActionButton>
+                  <DeleteButton onClick={() => handleDelete(c.id)}>삭제</DeleteButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <PaginationContainer>
+        <PaginationNav>
+          <PaginationButton
+            disabled={!page || page.number === 0}
+            onClick={() => page && handlePageChange(page.number - 1)}
+          >
+            {'<'}
+          </PaginationButton>
+
+          {/* 페이지 번호 버튼들을 동적으로 생성 */}
+          {Array.from({ length: page?.totalPages ?? 0 }, (_, idx) => (
+            idx === (page?.number ?? 0) ? (
+              <CurrentPageButton key={idx}>{idx + 1}</CurrentPageButton>
+            ) : (
+              <PaginationButton key={idx} onClick={() => handlePageChange(idx)}>
+                {idx + 1}
+              </PaginationButton>
+            )
+          ))}
+
+          <PaginationButton
+            disabled={!page || page.number + 1 >= (page?.totalPages ?? 0)}
+            onClick={() => page && handlePageChange(page.number + 1)}
+          >
+            {'>'}
+          </PaginationButton>
+        </PaginationNav>
+      </PaginationContainer>
+    </Container>
+  );
+} 
