@@ -1,13 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
+  AiOutlineSearch,
+  AiOutlineBarChart,
+  AiOutlineFileText,
+  AiOutlineTag,
+  AiOutlineFile,
+  AiOutlineArrowRight,
+} from "react-icons/ai";
+import {
   PageContainer,
   Header,
   Title,
   Description,
   Toolbar,
   FilterSelect,
-  SearchContainer,
   SearchInput,
   SearchIcon,
   TableContainer,
@@ -242,95 +249,138 @@ export default function PostListPage() {
       <Toolbar>
         <ToolbarLeft>
           <div
-            style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.375rem",
+              minWidth: "120px",
+            }}
           >
             <label
               style={{
                 fontSize: "0.75rem",
                 fontWeight: "600",
                 color: "#374151",
+                marginBottom: "0.125rem",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.25rem",
               }}
             >
+              <AiOutlineBarChart size={14} />
               상태
             </label>
             <FilterSelect
               onChange={handleStatusFilterChange}
               value={statusFilter}
             >
-              <option value="ALL">📊 전체 상태</option>
-              <option value="PENDING">⏳ 대기</option>
-              <option value="APPROVED">✅ 승인</option>
-              <option value="REJECTED">❌ 거부</option>
+              <option value="ALL">전체 상태</option>
+              <option value="PENDING">대기</option>
+              <option value="APPROVED">승인</option>
+              <option value="REJECTED">거부</option>
             </FilterSelect>
           </div>
 
           <div
-            style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.375rem",
+              minWidth: "120px",
+            }}
           >
             <label
               style={{
                 fontSize: "0.75rem",
                 fontWeight: "600",
                 color: "#374151",
+                marginBottom: "0.125rem",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.25rem",
               }}
             >
+              <AiOutlineFileText size={14} />
               유형
             </label>
             <FilterSelect onChange={handleTypeFilterChange} value={typeFilter}>
-              <option value="ALL">📝 전체 유형</option>
-              <option value="GENERAL">💬 일반</option>
-              <option value="NOTICE">📢 공지</option>
+              <option value="ALL">전체 유형</option>
+              <option value="GENERAL">일반</option>
+              <option value="NOTICE">공지</option>
             </FilterSelect>
           </div>
 
           <div
-            style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.375rem",
+              minWidth: "120px",
+            }}
           >
             <label
               style={{
                 fontSize: "0.75rem",
                 fontWeight: "600",
                 color: "#374151",
+                marginBottom: "0.125rem",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.25rem",
               }}
             >
+              <AiOutlineTag size={14} />
               우선순위
             </label>
             <FilterSelect
               onChange={handlePriorityFilterChange}
               value={priorityFilter}
             >
-              <option value="ALL">🎯 전체 우선순위</option>
-              <option value={1}>🟢 낮음 (1)</option>
-              <option value={2}>🟡 보통 (2)</option>
-              <option value={3}>🔴 높음 (3)</option>
+              <option value="ALL">전체 우선순위</option>
+              <option value={1}>낮음 (1)</option>
+              <option value={2}>보통 (2)</option>
+              <option value={3}>높음 (3)</option>
             </FilterSelect>
           </div>
 
           <div
-            style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.375rem",
+              minWidth: "120px",
+            }}
           >
             <label
               style={{
                 fontSize: "0.75rem",
                 fontWeight: "600",
                 color: "#374151",
+                marginBottom: "0.125rem",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.25rem",
               }}
             >
+              <AiOutlineFile size={14} />
               표시 개수
             </label>
             <FilterSelect
               onChange={handleItemsPerPageChange}
               value={itemsPerPage}
             >
-              <option value={10}>📄 10개씩 보기</option>
-              <option value={20}>📄 20개씩 보기</option>
-              <option value={50}>📄 50개씩 보기</option>
+              <option value={10}>10개씩 보기</option>
+              <option value={20}>20개씩 보기</option>
+              <option value={50}>50개씩 보기</option>
             </FilterSelect>
           </div>
         </ToolbarLeft>
         <ToolbarRight>
-          <CreateButton onClick={handleCreatePost}>+ 게시글 작성</CreateButton>
-          <SearchContainer>
+          <CreateButton onClick={handleCreatePost}>
+            <span style={{ fontSize: "1.125rem" }}>+</span>
+            게시글 작성
+          </CreateButton>
+          <div style={{ position: "relative" }}>
             <SearchInput
               type="text"
               placeholder="게시글 제목, 작성자, 내용 검색"
@@ -339,7 +389,7 @@ export default function PostListPage() {
               onKeyDown={handleSearchKeyPress}
             />
             <SearchIcon onClick={handleSearchClick} />
-          </SearchContainer>
+          </div>
         </ToolbarRight>
       </Toolbar>
 
@@ -450,9 +500,12 @@ export default function PostListPage() {
                                 color: "#888",
                                 fontSize: "0.92em",
                                 marginRight: 8,
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "0.25rem",
                               }}
                             >
-                              {"ㄴ"}
+                              <AiOutlineArrowRight size={12} />
                               {topParent.title.length > 15
                                 ? topParent.title.slice(0, 15) + "..."
                                 : topParent.title}

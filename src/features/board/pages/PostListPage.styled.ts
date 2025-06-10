@@ -28,33 +28,37 @@ export const Toolbar = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
-  padding: 1rem;
-  background-color: #f9fafb;
-  border-radius: 0.5rem;
-  border: 1px solid #e5e7eb;
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 0.75rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
 `;
 
 export const FilterSelect = styled.select`
   padding: 0.5rem 0.75rem;
   border: 1px solid #d1d5db;
-  border-radius: 0.375rem;
+  border-radius: 0.5rem;
   background-color: white;
   font-size: 0.875rem;
   cursor: pointer;
-  min-width: 140px;
+  min-width: 120px;
   font-weight: 500;
   color: #374151;
   transition: all 0.2s ease;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 
   &:hover {
     border-color: #9ca3af;
     background-color: #f9fafb;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
   }
 
   &:focus {
     outline: none;
     border-color: #fdb924;
-    box-shadow: 0 0 0 2px rgba(253, 185, 36, 0.1);
+    box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.1);
     background-color: white;
   }
 
@@ -64,23 +68,31 @@ export const FilterSelect = styled.select`
   }
 `;
 
-export const SearchContainer = styled.div`
-  position: relative;
-  display: flex;
-  align-items: center;
-`;
-
 export const SearchInput = styled.input`
-  padding: 0.5rem 2.5rem 0.5rem 1rem;
+  padding: 0.625rem 2.5rem 0.625rem 1rem;
   border: 1px solid #d1d5db;
-  border-radius: 0.375rem;
+  border-radius: 0.5rem;
   font-size: 0.875rem;
-  width: 300px;
+  width: 280px;
+  background-color: white;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+
+  &:hover {
+    border-color: #9ca3af;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+  }
 
   &:focus {
     outline: none;
     border-color: #fdb924;
-    box-shadow: 0 0 0 2px rgba(253, 185, 36, 0.1);
+    box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.1);
+  }
+
+  &::placeholder {
+    color: #9ca3af;
+    font-size: 0.875rem;
   }
 `;
 
@@ -90,10 +102,11 @@ export const SearchIcon = styled(AiOutlineSearch)`
   color: #9ca3af;
   font-size: 1.125rem;
   cursor: pointer;
-  transition: color 0.2s ease;
+  transition: all 0.2s ease;
 
   &:hover {
     color: #fdb924;
+    transform: scale(1.1);
   }
 `;
 
@@ -258,33 +271,37 @@ export const ErrorMessage = styled.div`
 `;
 
 export const CreateButton = styled.button`
-  padding: 0.75rem 1.5rem;
-  background-color: #fdb924;
+  padding: 0.625rem 1.25rem;
+  background: linear-gradient(135deg, #fdb924 0%, #e6a720 100%);
   color: white;
   border: none;
-  border-radius: 0.375rem;
+  border-radius: 0.5rem;
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  box-shadow: 0 2px 4px 0 rgba(253, 185, 36, 0.3);
 
   &:hover {
-    background-color: #e6a720;
+    background: linear-gradient(135deg, #e6a720 0%, #d4941c 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px 0 rgba(253, 185, 36, 0.4);
   }
 
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 2px rgba(253, 185, 36, 0.2);
+    box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.2);
   }
 `;
 
 export const ToolbarLeft = styled.div`
   display: flex;
-  gap: 1rem;
+  gap: 1.5rem;
   align-items: center;
+  flex-wrap: wrap;
 `;
 
 export const ToolbarRight = styled.div`
