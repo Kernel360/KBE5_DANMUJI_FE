@@ -42,7 +42,7 @@ export default function LoginPage() {
           alert("로그인 되었습니다.");
           window.location.href = "/dashboard";
         } else {
-          console.error("No token found in headers or response data");
+          console.error("액세스 토큰이 없습니다.");
           alert("로그인에 실패했습니다.");
         }
       } else if (res.data?.code === "C005") {
