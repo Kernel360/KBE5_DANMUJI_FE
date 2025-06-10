@@ -22,23 +22,16 @@ import ForgotPasswordPage from "./features/auth/pages/ForgotPasswordPage";
 import AdminDashboardPage from "./features/admin/pages/DashboardPage";
 import CompanyPage from "./features/company/pages/CompanyPage";
 import MemberPage from "./features/user/pages/MemberPage";
-
+import AdminMainPage from "./features/project/pages/AdminMainPage";
 
 // user pages
 import UserDashboardPage from "./features/board/pages/DashboardPage";
-import ProjectPostPage from "./features/project/pages/ProjectPostPage";
-
-
-
-
-// project pages
-import CreateProjectPage from "./features/project/pages/CreateProjectPage";
-import EditProjectPage from "./features/project/pages/EditProjectPage";
+import PostListPage from "./features/board/pages/PostListPage";
+import PostEditPage from "./features/project/pages/PostEditPage";
+import PostCreatePage from "./features/project/pages/PostCreatePage";
 
 // etc
 import { AppContainer, MainContent, PageContent } from "./App.styled";
-
-
 
 const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
@@ -100,20 +93,14 @@ const AppRoutes = () => {
         <>
           <Route path="/company" element={<CompanyPage />} />
           <Route path="/members" element={<MemberPage />} />
-          <Route path="/projects/create" element={<CreateProjectPage />} />
+          <Route path="/projects" element={<AdminMainPage />} />
         </>
       )}
 
       {/* 공용 */}
-
-
-      <Route path="/projects/:projectId/posts" element={<ProjectPostPage />} />
-
-
-
-      <Route path="/projects/posts" element={<ProjectPostPage />} />
-      <Route path="/projects/:projectId/edit" element={<EditProjectPage />} />
-
+      <Route path="/posts" element={<PostListPage />} />
+      <Route path="/posts/create" element={<PostCreatePage />} />
+      <Route path="/posts/:postId/edit" element={<PostEditPage />} />
     </Routes>
   );
 };

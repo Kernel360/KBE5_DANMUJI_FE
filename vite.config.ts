@@ -5,9 +5,13 @@ import path from "path";
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: "./", // 상대 경로 설정 추가
+  base: "/", // 루트 경로 설정
   build: {
+    outDir: "dist", // 빌드 출력 디렉토리
     rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, "index.html") // index.html 경로 명시
+      },
       output: {
         // 코드 스플리팅 설정
         manualChunks: {
@@ -19,7 +23,7 @@ export default defineConfig({
     // 청크 크기 경고를 1000KB로 조정
     chunkSizeWarningLimit: 1000,
     // 정적 자산 처리 설정
-    assetsDir: "assets",
+    // assetsDir: "assets",
     // 정적 자산 인라인 제한 (4KB 미만은 base64로 인라인)
     assetsInlineLimit: 4096,
   },
@@ -35,6 +39,12 @@ export default defineConfig({
     fs: {
       // 정적 파일 서빙 허용
       allow: [".."],
+    },
+  },
+  // Vercel에서 SPA 라우팅 문제 해결을 위한 설정
+  preview: {
+    headers: {
+      "Cache-Control": "public, max-age=600", // 캐싱 설정
     },
   },
 });

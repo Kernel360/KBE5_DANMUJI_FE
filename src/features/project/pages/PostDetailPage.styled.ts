@@ -26,6 +26,7 @@ export const PostHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+  gap: 16px;
 `;
 
 export const BackButton = styled.button`
@@ -37,6 +38,8 @@ export const BackButton = styled.button`
   padding: 8px 16px;
   border-radius: 4px;
   transition: background-color 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
 
   &:hover {
     background-color: #f5f5f5;
@@ -46,17 +49,26 @@ export const BackButton = styled.button`
 export const PostActions = styled.div`
   display: flex;
   gap: 10px;
+  flex-shrink: 0;
 `;
 
 export const ActionButton = styled.button`
-  padding: 8px 16px;
+  width: 80px;
+  height: 36px;
+  padding: 0 16px;
   border: 1px solid #dddddd;
   border-radius: 4px;
   background-color: #ffffff;
   color: #333333;
   font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  overflow: hidden;
 
   &:hover {
     background-color: #f5f5f5;
