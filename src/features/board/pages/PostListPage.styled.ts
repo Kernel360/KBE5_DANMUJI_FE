@@ -35,17 +35,32 @@ export const Toolbar = styled.div`
 `;
 
 export const FilterSelect = styled.select`
-  padding: 0.5rem;
+  padding: 0.5rem 0.75rem;
   border: 1px solid #d1d5db;
   border-radius: 0.375rem;
   background-color: white;
   font-size: 0.875rem;
   cursor: pointer;
+  min-width: 140px;
+  font-weight: 500;
+  color: #374151;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: #9ca3af;
+    background-color: #f9fafb;
+  }
 
   &:focus {
     outline: none;
     border-color: #fdb924;
     box-shadow: 0 0 0 2px rgba(253, 185, 36, 0.1);
+    background-color: white;
+  }
+
+  option {
+    padding: 0.5rem;
+    font-weight: 500;
   }
 `;
 
@@ -74,6 +89,12 @@ export const SearchIcon = styled(AiOutlineSearch)`
   right: 0.75rem;
   color: #9ca3af;
   font-size: 1.125rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: #fdb924;
+  }
 `;
 
 export const TableContainer = styled.div`

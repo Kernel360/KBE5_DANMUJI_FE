@@ -302,3 +302,30 @@ export const deleteComment = async (
     throw new ApiError("댓글 삭제 중 알 수 없는 오류가 발생했습니다.");
   }
 };
+
+// 게시글 검색
+export const searchPosts = async (
+  keyword: string,
+  page: number = 0,
+  size: number = 10
+): Promise<PostListResponse> => {
+  try {
+    const response = await api.get<PostListResponse>(`/api/posts/search`, {
+      params: {
+        keyword,
+        page,
+        size,
+      },
+    });
+    return handleApiResponse<PostListResponse["data"]>(response);
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
+    if (error instanceof AxiosError) {
+      throw new ApiError(
+        error.response?.data?.message || "게시글 검색 중 오류가 발생했습니다.",
+        error.response?.status
+      );
+    }
+    throw new ApiError("게시글 검색 중 알 수 없는 오류가 발생했습니다.");
+  }
+};

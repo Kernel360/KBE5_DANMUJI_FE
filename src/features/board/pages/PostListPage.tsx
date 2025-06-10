@@ -30,7 +30,7 @@ import {
   ToolbarRight,
 } from "./PostListPage.styled";
 import PostDetailModal from "../components/PostDetailModal/ProjectPostDetailModal";
-import { getPosts } from "@/features/project/services/postService";
+import { getPosts, searchPosts } from "@/features/project/services/postService";
 import type { Post, PostStatus, PostType } from "@/features/project/types/post";
 import { useLocation } from "react-router-dom";
 
@@ -78,10 +78,12 @@ export default function PostListPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<PostStatus | "ALL">("ALL");
   const [typeFilter, setTypeFilter] = useState<PostType | "ALL">("ALL");
+  const [priorityFilter, setPriorityFilter] = useState<number | "ALL">("ALL");
   const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
 
   // 모든 프로젝트의 게시글을 가져오는 함수 (임시로 프로젝트 ID 1 사용)
   const fetchPosts = async () => {
@@ -89,15 +91,23 @@ export default function PostListPage() {
       setLoading(true);
       setError(null);
 
-      const response = await getPosts(
-        1, // 임시로 프로젝트 ID 1 사용
-        currentPage,
-        itemsPerPage,
-        statusFilter === "ALL" ? undefined : statusFilter,
-        typeFilter === "ALL" ? undefined : typeFilter,
-        undefined,
-        searchTerm
-      );
+      let response;
+
+      // 검색어가 있으면 검색 API 사용, 없으면 일반 목록 API 사용
+      if (searchTerm.trim()) {
+        setIsSearching(true);
+        response = await searchPosts(searchTerm, currentPage, itemsPerPage);
+      } else {
+        setIsSearching(false);
+        response = await getPosts(
+          1, // 임시로 프로젝트 ID 1 사용
+          currentPage,
+          itemsPerPage,
+          statusFilter === "ALL" ? undefined : statusFilter,
+          typeFilter === "ALL" ? undefined : typeFilter,
+          priorityFilter === "ALL" ? undefined : priorityFilter
+        );
+      }
 
       if (response.data) {
         setPosts(response.data.content);
@@ -133,9 +143,9 @@ export default function PostListPage() {
   }, [
     currentPage,
     itemsPerPage,
-    searchTerm,
     statusFilter,
     typeFilter,
+    priorityFilter,
     location.pathname,
   ]);
 
@@ -158,6 +168,16 @@ export default function PostListPage() {
     setCurrentPage(0); // 검색 시 첫 페이지로 이동
   };
 
+  const handleSearchKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      fetchPosts();
+    }
+  };
+
+  const handleSearchClick = () => {
+    fetchPosts();
+  };
+
   const handleStatusFilterChange = (
     e: React.ChangeEvent<HTMLSelectElement>
   ) => {
@@ -167,6 +187,15 @@ export default function PostListPage() {
 
   const handleTypeFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setTypeFilter(e.target.value as PostType | "ALL");
+    setCurrentPage(0);
+  };
+
+  const handlePriorityFilterChange = (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    setPriorityFilter(
+      e.target.value === "ALL" ? "ALL" : Number(e.target.value)
+    );
     setCurrentPage(0);
   };
 
@@ -212,30 +241,92 @@ export default function PostListPage() {
 
       <Toolbar>
         <ToolbarLeft>
-          <FilterSelect
-            onChange={handleStatusFilterChange}
-            value={statusFilter}
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}
           >
-            <option value="ALL">전체 상태</option>
-            <option value="PENDING">대기</option>
-            <option value="APPROVED">승인</option>
-            <option value="REJECTED">거부</option>
-          </FilterSelect>
+            <label
+              style={{
+                fontSize: "0.75rem",
+                fontWeight: "600",
+                color: "#374151",
+              }}
+            >
+              상태
+            </label>
+            <FilterSelect
+              onChange={handleStatusFilterChange}
+              value={statusFilter}
+            >
+              <option value="ALL">📊 전체 상태</option>
+              <option value="PENDING">⏳ 대기</option>
+              <option value="APPROVED">✅ 승인</option>
+              <option value="REJECTED">❌ 거부</option>
+            </FilterSelect>
+          </div>
 
-          <FilterSelect onChange={handleTypeFilterChange} value={typeFilter}>
-            <option value="ALL">전체 유형</option>
-            <option value="GENERAL">일반</option>
-            <option value="NOTICE">공지</option>
-          </FilterSelect>
-
-          <FilterSelect
-            onChange={handleItemsPerPageChange}
-            value={itemsPerPage}
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}
           >
-            <option value={10}>10개씩 보기</option>
-            <option value={20}>20개씩 보기</option>
-            <option value={50}>50개씩 보기</option>
-          </FilterSelect>
+            <label
+              style={{
+                fontSize: "0.75rem",
+                fontWeight: "600",
+                color: "#374151",
+              }}
+            >
+              유형
+            </label>
+            <FilterSelect onChange={handleTypeFilterChange} value={typeFilter}>
+              <option value="ALL">📝 전체 유형</option>
+              <option value="GENERAL">💬 일반</option>
+              <option value="NOTICE">📢 공지</option>
+            </FilterSelect>
+          </div>
+
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}
+          >
+            <label
+              style={{
+                fontSize: "0.75rem",
+                fontWeight: "600",
+                color: "#374151",
+              }}
+            >
+              우선순위
+            </label>
+            <FilterSelect
+              onChange={handlePriorityFilterChange}
+              value={priorityFilter}
+            >
+              <option value="ALL">🎯 전체 우선순위</option>
+              <option value={1}>🟢 낮음 (1)</option>
+              <option value={2}>🟡 보통 (2)</option>
+              <option value={3}>🔴 높음 (3)</option>
+            </FilterSelect>
+          </div>
+
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}
+          >
+            <label
+              style={{
+                fontSize: "0.75rem",
+                fontWeight: "600",
+                color: "#374151",
+              }}
+            >
+              표시 개수
+            </label>
+            <FilterSelect
+              onChange={handleItemsPerPageChange}
+              value={itemsPerPage}
+            >
+              <option value={10}>📄 10개씩 보기</option>
+              <option value={20}>📄 20개씩 보기</option>
+              <option value={50}>📄 50개씩 보기</option>
+            </FilterSelect>
+          </div>
         </ToolbarLeft>
         <ToolbarRight>
           <CreateButton onClick={handleCreatePost}>+ 게시글 작성</CreateButton>
@@ -245,8 +336,9 @@ export default function PostListPage() {
               placeholder="게시글 제목, 작성자, 내용 검색"
               value={searchTerm}
               onChange={handleSearchChange}
+              onKeyDown={handleSearchKeyPress}
             />
-            <SearchIcon />
+            <SearchIcon onClick={handleSearchClick} />
           </SearchContainer>
         </ToolbarRight>
       </Toolbar>
@@ -393,7 +485,9 @@ export default function PostListPage() {
           <div
             style={{ textAlign: "center", padding: "2rem", color: "#6b7280" }}
           >
-            게시글이 없습니다.
+            {searchTerm.trim()
+              ? `"${searchTerm}" 검색 결과가 없습니다.`
+              : "게시글이 없습니다."}
           </div>
         )}
       </TableContainer>
@@ -403,6 +497,7 @@ export default function PostListPage() {
           <PaginationInfo>
             총 {totalElements}개의 게시글 중 {currentPage * itemsPerPage + 1}-
             {Math.min((currentPage + 1) * itemsPerPage, totalElements)}개 표시
+            {searchTerm.trim() && ` (검색어: "${searchTerm}")`}
           </PaginationInfo>
           <PaginationNav>
             <PaginationButton
