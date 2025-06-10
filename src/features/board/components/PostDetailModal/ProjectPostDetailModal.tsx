@@ -36,6 +36,8 @@ import {
   getComments,
   createComment,
   deletePost,
+  updateComment,
+  deleteComment,
 } from "@/features/project/services/postService";
 import type { Post, Comment } from "@/features/project/types/post";
 import QuestionAnswerModal from "../QuestionAnswerModal/QuestionAnswerModal";
@@ -67,6 +69,10 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
   const [replyText, setReplyText] = useState("");
   const [submittingReply, setSubmittingReply] = useState(false);
   const [replyPrefix, setReplyPrefix] = useState("");
+
+  // 댓글 수정 상태 추가
+  const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
+  const [editText, setEditText] = useState("");
 
   useEffect(() => {
     const loadPostData = async () => {
@@ -252,6 +258,36 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
     return isAuthorResult;
   };
 
+  // 댓글 저장
+  const handleSaveEdit = async (commentId: number) => {
+    try {
+      await updateComment(commentId, editText);
+      setEditingCommentId(null);
+      setEditText("");
+      // 목록 새로고침
+      if (postId) {
+        const commentsResponse = await getComments(postId);
+        setComments(commentsResponse.data || []);
+      }
+    } catch (e) {
+      alert("댓글 수정 중 오류가 발생했습니다.");
+    }
+  };
+
+  // 댓글 삭제 함수 추가
+  const handleDeleteComment = async (commentId: number) => {
+    if (!window.confirm("댓글을 삭제하시겠습니까?")) return;
+    try {
+      await deleteComment(commentId);
+      if (postId) {
+        const commentsResponse = await getComments(postId);
+        setComments(commentsResponse.data || []);
+      }
+    } catch (e) {
+      alert("댓글 삭제 중 오류가 발생했습니다.");
+    }
+  };
+
   if (!open) return null;
 
   if (loading) {
@@ -373,12 +409,43 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                               {rootComment.author &&
                                 isAuthor(rootComment.author.id) && (
                                   <>
-                                    <CommentActionButton>
-                                      수정
-                                    </CommentActionButton>
-                                    <CommentActionButton>
-                                      삭제
-                                    </CommentActionButton>
+                                    {editingCommentId === rootComment.id ? (
+                                      <>
+                                        <CommentActionButton
+                                          onClick={() =>
+                                            handleSaveEdit(rootComment.id)
+                                          }
+                                        >
+                                          저장
+                                        </CommentActionButton>
+                                        <CommentActionButton
+                                          onClick={() => {
+                                            setEditingCommentId(null);
+                                            setEditText("");
+                                          }}
+                                        >
+                                          취소
+                                        </CommentActionButton>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <CommentActionButton
+                                          onClick={() => {
+                                            setEditingCommentId(rootComment.id);
+                                            setEditText(rootComment.content);
+                                          }}
+                                        >
+                                          수정
+                                        </CommentActionButton>
+                                        <CommentActionButton
+                                          onClick={() =>
+                                            handleDeleteComment(rootComment.id)
+                                          }
+                                        >
+                                          삭제
+                                        </CommentActionButton>
+                                      </>
+                                    )}
                                   </>
                                 )}
                               <CommentActionButton
@@ -389,23 +456,66 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                             </CommentActions>
                           </CommentMeta>
                           <CommentText>
-                            {rootComment.content
-                              .split(/(@\S+)/g)
-                              .map((part, idx) =>
-                                part.startsWith("@") ? (
-                                  <span
-                                    key={idx}
-                                    style={{
-                                      color: "#fdb924",
-                                      fontWeight: 500,
+                            {editingCommentId === rootComment.id ? (
+                              <div style={{ marginTop: 8 }}>
+                                <CommentTextArea
+                                  value={editText}
+                                  onChange={(e) => setEditText(e.target.value)}
+                                  autoFocus
+                                  rows={3}
+                                  style={{
+                                    border: "1.5px solid #fdb924",
+                                    borderRadius: "0.375rem",
+                                    background: "#fffbe8",
+                                    fontSize: "0.95em",
+                                    padding: "0.75rem",
+                                    resize: "vertical",
+                                  }}
+                                />
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    justifyContent: "flex-end",
+                                    gap: 8,
+                                    marginTop: 6,
+                                  }}
+                                >
+                                  <CommentSubmitButton
+                                    onClick={() =>
+                                      handleSaveEdit(rootComment.id)
+                                    }
+                                  >
+                                    저장
+                                  </CommentSubmitButton>
+                                  <CommentActionButton
+                                    onClick={() => {
+                                      setEditingCommentId(null);
+                                      setEditText("");
                                     }}
                                   >
-                                    {part}
-                                  </span>
-                                ) : (
-                                  <span key={idx}>{part}</span>
+                                    취소
+                                  </CommentActionButton>
+                                </div>
+                              </div>
+                            ) : (
+                              rootComment.content
+                                .split(/(@\S+)/g)
+                                .map((part, idx) =>
+                                  part.startsWith("@") ? (
+                                    <span
+                                      key={idx}
+                                      style={{
+                                        color: "#fdb924",
+                                        fontWeight: 500,
+                                      }}
+                                    >
+                                      {part}
+                                    </span>
+                                  ) : (
+                                    <span key={idx}>{part}</span>
+                                  )
                                 )
-                              )}
+                            )}
                           </CommentText>
                           {replyingTo === rootComment.id && (
                             <ReplyInputContainer>
@@ -446,12 +556,43 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                 <span>{formatDate(reply.createdAt)}</span>
                                 {reply.author && isAuthor(reply.author.id) && (
                                   <>
-                                    <CommentActionButton>
-                                      수정
-                                    </CommentActionButton>
-                                    <CommentActionButton>
-                                      삭제
-                                    </CommentActionButton>
+                                    {editingCommentId === reply.id ? (
+                                      <>
+                                        <CommentActionButton
+                                          onClick={() =>
+                                            handleSaveEdit(reply.id)
+                                          }
+                                        >
+                                          저장
+                                        </CommentActionButton>
+                                        <CommentActionButton
+                                          onClick={() => {
+                                            setEditingCommentId(null);
+                                            setEditText("");
+                                          }}
+                                        >
+                                          취소
+                                        </CommentActionButton>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <CommentActionButton
+                                          onClick={() => {
+                                            setEditingCommentId(reply.id);
+                                            setEditText(reply.content);
+                                          }}
+                                        >
+                                          수정
+                                        </CommentActionButton>
+                                        <CommentActionButton
+                                          onClick={() =>
+                                            handleDeleteComment(reply.id)
+                                          }
+                                        >
+                                          삭제
+                                        </CommentActionButton>
+                                      </>
+                                    )}
                                   </>
                                 )}
                                 <CommentActionButton
@@ -476,20 +617,65 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                               >
                                 답글
                               </span>
-                              {reply.content.split(/(@\S+)/g).map((part, idx) =>
-                                part.startsWith("@") ? (
-                                  <span
-                                    key={idx}
+                              {editingCommentId === reply.id ? (
+                                <div style={{ marginTop: 8 }}>
+                                  <CommentTextArea
+                                    value={editText}
+                                    onChange={(e) =>
+                                      setEditText(e.target.value)
+                                    }
+                                    autoFocus
+                                    rows={3}
                                     style={{
-                                      color: "#fdb924",
-                                      fontWeight: 500,
+                                      border: "1.5px solid #fdb924",
+                                      borderRadius: "0.375rem",
+                                      background: "#fffbe8",
+                                      fontSize: "0.95em",
+                                      padding: "0.75rem",
+                                      resize: "vertical",
+                                    }}
+                                  />
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      justifyContent: "flex-end",
+                                      gap: 8,
+                                      marginTop: 6,
                                     }}
                                   >
-                                    {part}
-                                  </span>
-                                ) : (
-                                  <span key={idx}>{part}</span>
-                                )
+                                    <CommentSubmitButton
+                                      onClick={() => handleSaveEdit(reply.id)}
+                                    >
+                                      저장
+                                    </CommentSubmitButton>
+                                    <CommentActionButton
+                                      onClick={() => {
+                                        setEditingCommentId(null);
+                                        setEditText("");
+                                      }}
+                                    >
+                                      취소
+                                    </CommentActionButton>
+                                  </div>
+                                </div>
+                              ) : (
+                                reply.content
+                                  .split(/(@\S+)/g)
+                                  .map((part, idx) =>
+                                    part.startsWith("@") ? (
+                                      <span
+                                        key={idx}
+                                        style={{
+                                          color: "#fdb924",
+                                          fontWeight: 500,
+                                        }}
+                                      >
+                                        {part}
+                                      </span>
+                                    ) : (
+                                      <span key={idx}>{part}</span>
+                                    )
+                                  )
                               )}
                             </CommentText>
                             {replyingTo === reply.id && (
