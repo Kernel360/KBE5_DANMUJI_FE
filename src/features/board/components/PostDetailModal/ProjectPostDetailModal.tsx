@@ -332,6 +332,13 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
               <ModalTitle>{post.title}</ModalTitle>
             </HeaderLeft>
             <HeaderRight>
+              <ModalHeaderActionButton
+                onClick={() =>
+                  navigate(`/posts/create?parentId=${post.postId}`)
+                }
+              >
+                답글
+              </ModalHeaderActionButton>
               {/* 작성자 본인일 때만 수정/삭제 버튼 표시 */}
               {isAuthor(post.author.id) && (
                 <>

@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { createPost } from "@/features/project/services/postService";
 import type { PostCreateData } from "@/features/project/types/post";
 import {
@@ -20,6 +20,7 @@ import {
 
 export default function PostCreatePage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [formData, setFormData] = useState<PostCreateData>({
     title: "",
     content: "",
@@ -32,8 +33,12 @@ export default function PostCreatePage() {
   const [error, setError] = useState<string | null>(null);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
+  // URL에서 parentId 파라미터 읽기
+  const parentId = searchParams.get("parentId");
+
   // 디버깅을 위한 로그
   console.log("Current formData:", formData);
+  console.log("URL parentId:", parentId);
   console.log("formData.type:", formData.type, "typeof:", typeof formData.type);
   console.log(
     "formData.priority:",
@@ -91,13 +96,19 @@ export default function PostCreatePage() {
         status: formData.status.toString(),
         priority: formData.priority,
         projectId: formData.projectId,
+        // 답글인 경우 parentId 추가
+        ...(parentId && { parentId: parseInt(parentId, 10) }),
       };
 
       console.log("전송할 데이터:", requestData);
       const response = await createPost(requestData);
 
       if (response.success || response.message?.includes("완료")) {
-        alert("게시글이 성공적으로 생성되었습니다.");
+        alert(
+          parentId
+            ? "답글이 성공적으로 생성되었습니다."
+            : "게시글이 성공적으로 생성되었습니다."
+        );
         navigate("/posts");
       } else {
         throw new Error(response.message || "게시글 생성에 실패했습니다.");
@@ -122,7 +133,7 @@ export default function PostCreatePage() {
     <PageContainer>
       <MainContentWrapper>
         <CreateForm onSubmit={handleSubmit}>
-          <FormTitle>새 게시글 작성</FormTitle>
+          <FormTitle>{parentId ? "답글 작성" : "새 게시글 작성"}</FormTitle>
 
           <FormGroup>
             <Label htmlFor="title">제목 *</Label>

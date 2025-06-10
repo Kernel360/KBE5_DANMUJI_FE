@@ -57,6 +57,7 @@ export type PostCreateData = {
   status: PostStatus;
   priority: PostPriority;
   projectId: number;
+  parentId?: number | null;
 };
 
 // 게시글 타입 (기존 Post와 PostDetail 통합)

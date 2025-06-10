@@ -32,6 +32,7 @@ import {
 import PostDetailModal from "../components/PostDetailModal/ProjectPostDetailModal";
 import { getPosts } from "@/features/project/services/postService";
 import type { Post, PostStatus, PostType } from "@/features/project/types/post";
+import { useLocation } from "react-router-dom";
 
 const formatDate = (dateString: string) => {
   const options: Intl.DateTimeFormatOptions = {
@@ -68,6 +69,7 @@ const getTypeText = (type: PostType) => {
 
 export default function PostListPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [posts, setPosts] = useState<Post[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -116,7 +118,14 @@ export default function PostListPage() {
 
   useEffect(() => {
     fetchPosts();
-  }, [currentPage, itemsPerPage, searchTerm, statusFilter, typeFilter]);
+  }, [
+    currentPage,
+    itemsPerPage,
+    searchTerm,
+    statusFilter,
+    typeFilter,
+    location.pathname,
+  ]);
 
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
@@ -237,27 +246,128 @@ export default function PostListPage() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {posts.map((post) => (
-              <TableRow
-                key={post.postId}
-                onClick={() => handlePostClick(post.postId)}
-              >
-                <TableCell>
-                  <PostTitle>{post.title}</PostTitle>
-                </TableCell>
-                <TableCell>{post.author.name}</TableCell>
-                <TableCell $align="center">
-                  <StatusBadge $status={getStatusText(post.status)}>
-                    {getStatusText(post.status)}
-                  </StatusBadge>
-                </TableCell>
-                <TableCell $align="center">{getTypeText(post.type)}</TableCell>
-                <TableCell $align="center">{post.priority}</TableCell>
-                <TableCell $align="center">
-                  {formatDate(post.createdAt)}
-                </TableCell>
-              </TableRow>
-            ))}
+            {posts
+              .filter((post) => !post.parentId)
+              .map((rootPost) => {
+                // 이 게시글을 부모로 하는 모든 답글(1,2,3...depth) 평면적으로 시간순 정렬
+                const allReplies = posts.filter((p) => {
+                  let parent = p.parentId;
+                  while (parent) {
+                    if (parent === rootPost.postId) return true;
+                    const parentPost = posts.find((pp) => pp.postId === parent);
+                    parent = parentPost?.parentId || null;
+                  }
+                  return false;
+                });
+
+                // 시간순 정렬
+                allReplies.sort(
+                  (a, b) =>
+                    new Date(a.createdAt).getTime() -
+                    new Date(b.createdAt).getTime()
+                );
+
+                return [
+                  <TableRow
+                    key={rootPost.postId}
+                    onClick={() => handlePostClick(rootPost.postId)}
+                  >
+                    <TableCell>
+                      <PostTitle>{rootPost.title}</PostTitle>
+                    </TableCell>
+                    <TableCell>{rootPost.author.name}</TableCell>
+                    <TableCell $align="center">
+                      <StatusBadge $status={getStatusText(rootPost.status)}>
+                        {getStatusText(rootPost.status)}
+                      </StatusBadge>
+                    </TableCell>
+                    <TableCell $align="center">
+                      {getTypeText(rootPost.type)}
+                    </TableCell>
+                    <TableCell $align="center">{rootPost.priority}</TableCell>
+                    <TableCell $align="center">
+                      {formatDate(rootPost.createdAt)}
+                    </TableCell>
+                  </TableRow>,
+                  // 모든 답글 게시글(1-depth, 2-depth, 3-depth...) 평면 렌더링
+                  ...allReplies.map((reply) => {
+                    // 답글의 depth 계산
+                    let depth = 0;
+                    let currentParentId = reply.parentId;
+                    while (currentParentId) {
+                      depth++;
+                      const parentPost = posts.find(
+                        (p) => p.postId === currentParentId
+                      );
+                      currentParentId = parentPost ? parentPost.parentId : null;
+                    }
+
+                    // 최상위 부모 게시글 찾기
+                    const topParent = posts.find(
+                      (p) => p.postId === reply.parentId
+                    );
+
+                    // 들여쓰기 계산 (2-depth까지만, 그 이후는 동일)
+                    const paddingLeft = Math.min(depth, 2) * 36 + 36;
+
+                    // 뱃지 색상 (1-depth는 노란색, 2-depth 이상은 회색)
+                    const badgeColor = depth === 1 ? "#fdb924" : "#6b7280";
+
+                    return (
+                      <TableRow
+                        key={reply.postId}
+                        onClick={() => handlePostClick(reply.postId)}
+                        style={{ background: "#f8f9fa" }}
+                      >
+                        <TableCell style={{ paddingLeft }}>
+                          <span
+                            style={{
+                              display: "inline-block",
+                              background: badgeColor,
+                              color: "white",
+                              borderRadius: 4,
+                              fontSize: "0.75em",
+                              padding: "2px 7px",
+                              marginRight: 8,
+                              verticalAlign: "middle",
+                            }}
+                          >
+                            [답글]
+                          </span>
+                          {topParent && (
+                            <span
+                              style={{
+                                color: "#888",
+                                fontSize: "0.92em",
+                                marginRight: 8,
+                              }}
+                            >
+                              {"ㄴ"}
+                              {topParent.title.length > 15
+                                ? topParent.title.slice(0, 15) + "..."
+                                : topParent.title}
+                            </span>
+                          )}
+                          <PostTitle>{reply.title}</PostTitle>
+                        </TableCell>
+                        <TableCell>{reply.author.name}</TableCell>
+                        <TableCell $align="center">
+                          <StatusBadge $status={getStatusText(reply.status)}>
+                            {getStatusText(reply.status)}
+                          </StatusBadge>
+                        </TableCell>
+                        <TableCell $align="center">
+                          {getTypeText(reply.type)}
+                        </TableCell>
+                        <TableCell $align="center">{reply.priority}</TableCell>
+                        <TableCell $align="center">
+                          {formatDate(reply.createdAt)}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  }),
+                ];
+              })}
           </TableBody>
         </Table>
 
