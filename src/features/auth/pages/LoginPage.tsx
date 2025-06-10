@@ -27,7 +27,7 @@ export default function LoginPage() {
     e.preventDefault();
     try {
       const res = await api.post(
-        "https://api.danmuji.site/api/auth/login",
+        "/api/auth/login",
         { username: id, password },
         {
           headers: { "Content-Type": "application/json" },
@@ -35,30 +35,14 @@ export default function LoginPage() {
           validateStatus: () => true,
         }
       );
-      console.log("Login response:", res.data); // 실제 응답 본문
-      console.log("Access token:", res.headers["authorization"]);
-      console.log("Access token:", res.headers["Authorization"]);
-      console.log("res", res);
       if (res.status === 200) {
-        // 다양한 방식으로 토큰 추출 시도
-        let accessToken =
-          res.headers["authorization"]?.replace("Bearer ", "") ||
-          res.headers["Authorization"]?.replace("Bearer ", "") ||
-          res.data?.token ||
-          res.data?.accessToken;
-
-        console.log("Extracted token:", accessToken);
-        console.log("All headers:", Object.keys(res.headers));
-
+        const accessToken = res.headers["authorization"].replace("Bearer ", "");
         if (accessToken) {
           localStorage.setItem("accessToken", accessToken);
-          console.log("Token saved to localStorage");
           alert("로그인 되었습니다.");
           window.location.href = "/dashboard";
         } else {
-          console.error("No token found in headers or response data");
-          console.error("Available headers:", Object.keys(res.headers));
-          console.error("Response data:", res.data);
+          console.error("액세스 토큰이 없습니다.");
           alert("로그인에 실패했습니다.");
         }
       } else if (res.data?.code === "C005") {
