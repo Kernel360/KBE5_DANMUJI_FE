@@ -30,6 +30,8 @@ import UserDashboardPage from "./features/board/pages/DashboardPage";
 import PostListPage from "./features/board/pages/PostListPage";
 import PostEditPage from "./features/project/pages/PostEditPage";
 import PostCreatePage from "./features/project/pages/PostCreatePage";
+import CreateProjectPage from "./features/project/pages/CreateProjectPage";
+import ProjectPage from "./pages/ProjectPage";
 
 // etc
 import { AppContainer, MainContent, PageContent } from "./App.styled";
