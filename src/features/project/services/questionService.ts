@@ -282,3 +282,47 @@ export const setBestAnswer = async (
     throw new ApiError("베스트 답변 설정 중 알 수 없는 오류가 발생했습니다.");
   }
 };
+
+// 질문 상태를 해결됨으로 변경
+export const resolveQuestion = async (
+  questionId: number
+): Promise<ApiResponse<void>> => {
+  try {
+    const response = await api.put<ApiResponse<void>>(
+      `/api/questions/${questionId}/resolved`
+    );
+    return handleApiResponse<void>(response);
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
+    if (error instanceof AxiosError) {
+      throw new ApiError(
+        error.response?.data?.message ||
+          "질문 상태 변경 중 오류가 발생했습니다.",
+        error.response?.status
+      );
+    }
+    throw new ApiError("질문 상태 변경 중 알 수 없는 오류가 발생했습니다.");
+  }
+};
+
+// 질문 상태를 해결안됨으로 변경
+export const unresolveQuestion = async (
+  questionId: number
+): Promise<ApiResponse<void>> => {
+  try {
+    const response = await api.put<ApiResponse<void>>(
+      `/api/questions/${questionId}/unresolved`
+    );
+    return handleApiResponse<void>(response);
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
+    if (error instanceof AxiosError) {
+      throw new ApiError(
+        error.response?.data?.message ||
+          "질문 상태 변경 중 오류가 발생했습니다.",
+        error.response?.status
+      );
+    }
+    throw new ApiError("질문 상태 변경 중 알 수 없는 오류가 발생했습니다.");
+  }
+};

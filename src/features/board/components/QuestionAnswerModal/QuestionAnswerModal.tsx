@@ -50,6 +50,7 @@ import {
   getAnswersByQuestion,
   updateQuestion,
   deleteQuestion,
+  resolveQuestion,
 } from "@/features/project/services/questionService";
 import type { Post } from "@/features/project/types/post";
 import type { Question, Answer } from "@/features/project/types/question";
@@ -86,6 +87,7 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
   const [editQuestionText, setEditQuestionText] = useState("");
   const [updatingQuestion, setUpdatingQuestion] = useState(false);
   const [deletingQuestion, setDeletingQuestion] = useState(false);
+  const [resolvingQuestion, setResolvingQuestion] = useState(false);
 
   useEffect(() => {
     const loadPostData = async () => {
@@ -252,6 +254,33 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
       alert("질문 삭제 중 오류가 발생했습니다.");
     } finally {
       setDeletingQuestion(false);
+    }
+  };
+
+  // 질문 해결됨으로 변경
+  const handleResolveQuestion = async (questionId: number) => {
+    if (
+      !window.confirm("이 질문이 해결되었습니까? 해결됨으로 표시하시겠습니까?")
+    ) {
+      return;
+    }
+
+    try {
+      setResolvingQuestion(true);
+      const response = await resolveQuestion(questionId);
+
+      if (response.status === "CREATED" || response.message?.includes("성공")) {
+        // 질문 목록을 다시 불러오기
+        const questionsResponse = await getQuestionsByPost(postId!);
+        if (questionsResponse.data) {
+          setQuestions(questionsResponse.data.content);
+        }
+      }
+    } catch (err) {
+      console.error("질문 상태 변경 중 오류:", err);
+      alert("질문 상태 변경 중 오류가 발생했습니다.");
+    } finally {
+      setResolvingQuestion(false);
     }
   };
 
@@ -488,11 +517,41 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
                                   >
                                     {deletingQuestion ? "삭제 중..." : "삭제"}
                                   </button>
+                                  {/* 질문 작성자만 해결됨 버튼 표시 */}
+                                  {question.author?.id &&
+                                  isQuestionAuthor(question.author.id) ? (
+                                    <button
+                                      onClick={() =>
+                                        handleResolveQuestion(question.id)
+                                      }
+                                      disabled={resolvingQuestion}
+                                      style={{
+                                        background:
+                                          question.status === "RESOLVED"
+                                            ? "#10b981"
+                                            : "#8b5cf6",
+                                        color: "white",
+                                        border: "none",
+                                        borderRadius: "4px",
+                                        padding: "4px 8px",
+                                        cursor: "pointer",
+                                        fontSize: "0.75rem",
+                                        fontWeight: "500",
+                                      }}
+                                    >
+                                      {resolvingQuestion
+                                        ? "처리 중..."
+                                        : question.status === "RESOLVED"
+                                        ? "해결됨"
+                                        : "해결됨으로 표시"}
+                                    </button>
+                                  ) : (
+                                    <VoteButton>👍 0</VoteButton>
+                                  )}
                                 </>
                               )}
                             </div>
                           )}
-                        <VoteButton>👍 0</VoteButton>
                       </QuestionActions>
                     </QuestionHeader>
                     {editingQuestionId === question.id ? (
