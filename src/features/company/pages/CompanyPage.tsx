@@ -2,22 +2,13 @@ import axios from 'axios';
 import { useState, useEffect } from 'react';
 import CompanyRegisterModal from '../components/CompanyRegisterModal';
 import CompanyEditModal from '../components/CompanyEditModal';
+import CompanyDetailModal from '../components/CompanyDetailModal/CompanyDetailModal';
 import styled from 'styled-components';
 
 export interface Company {
   id: number;
   name: string;
   bizNo: number;
-  address: string;
-  ceoName: string;
-  email: string;
-  bio: string;
-  tel: string;
-}
-
-interface CompanyRegisterRequest {
-  name: string;
-  bizNo: number; // 합친 문자열
   address: string;
   ceoName: string;
   email: string;
@@ -39,21 +30,21 @@ export interface CompanyFormData {
 
 // styled-components
 const Container = styled.div`
-  width: 100%;
-  padding: 0 0 32px 0;
+  padding: 32px;
+  background-color: #f9fafb;
 `;
 const HeaderSection = styled.div`
-  margin-bottom: 1.5rem;
+  margin-bottom: 32px;
 `;
-const Title = styled.div`
-  font-size: 1.875rem;
-  font-weight: 800;
+const Title = styled.h1`
+  font-size: 24px;
+  font-weight: 700;
   color: #1f2937;
-  margin-bottom: 0.25rem;
+  margin-bottom: 4px;
 `;
-const Subtitle = styled.div`
+const Subtitle = styled.p`
   color: #6b7280;
-  font-size: 1rem;
+  font-size: 14px;
 `;
 const SearchSection = styled.div`
   display: flex;
@@ -89,40 +80,45 @@ const RegisterButton = styled.button`
     background: #2563eb;
   }
 `;
-const TableWrapper = styled.div`
+const TableContainer = styled.div`
   overflow-x: auto;
-  overflow-y: auto;
-  min-height: 460px;  /* 46px * 10행 */
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px 0 rgba(0,0,0,0.06);
-  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  background-color: white;
 `;
-const StyledTable = styled.table`
+const Table = styled.table`
   min-width: 100%;
-  font-size: 0.875rem;
-  text-align: left;
-  border-collapse: separate;
-  border-spacing: 0;
+  font-size: 14px;
+  border-collapse: collapse;
 `;
-const Th = styled.th`
-  background: #f9fafb;
+const TableHead = styled.thead`
+  background-color: #f9fafb;
   border-bottom: 1px solid #e5e7eb;
-  padding: 0.5rem 1rem;
-  font-weight: 600;
 `;
-const Tr = styled.tr`
+const TableHeader = styled.th`
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #4b5563;
+  white-space: nowrap;
+`;
+const TableBody = styled.tbody``;
+const TableRow = styled.tr`
   border-bottom: 1px solid #e5e7eb;
   &:last-child {
     border-bottom: none;
   }
 `;
-const Td = styled.td`
-  padding: 0.5rem 1rem;
+const TableCell = styled.td`
+  padding: 12px 16px;
+  text-align: left;
+  color: #374151;
+  vertical-align: middle;
 `;
 const ActionButton = styled.button`
   background: #e5e7eb;
   color: #374151;
-  padding: 0.25rem 0.5rem;
+  padding: 6px 12px;
   border-radius: 0.25rem;
   font-size: 0.75rem;
   border: none;
@@ -136,7 +132,7 @@ const ActionButton = styled.button`
 const DeleteButton = styled.button`
   background: #fee2e2;
   color: #ef4444;
-  padding: 0.25rem 0.5rem;
+  padding: 6px 12px;
   border-radius: 0.25rem;
   font-size: 0.75rem;
   border: none;
@@ -146,25 +142,47 @@ const DeleteButton = styled.button`
     background: #fecaca;
   }
 `;
-const PaginationWrapper = styled.div`
+const PaginationContainer = styled.div`
   display: flex;
   justify-content: center;
   margin-top: 1.5rem;
 `;
-const PageButton = styled.button`
-  padding: 0.25rem 0.75rem;
+const PaginationNav = styled.nav``;
+const PaginationButton = styled.button`
+  padding: 0.5rem 1rem;
+  border: 1px solid #e5e7eb;
+  background-color: white;
+  color: #374151;
+  &:hover {
+    background-color: #f3f4f6;
+  }
+  &:first-child {
+    border-top-left-radius: 0.375rem;
+    border-bottom-left-radius: 0.375rem;
+  }
+  &:last-child {
+    border-top-right-radius: 0.375rem;
+    border-bottom-right-radius: 0.375rem;
+  }
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
 `;
-const CurrentPageButton = styled.button`
-  padding: 0.25rem 0.75rem;
+const CurrentPageButton = styled(PaginationButton)`
   background: #3b82f6;
   color: #fff;
   border-radius: 0.375rem;
   font-weight: 600;
   border: none;
   cursor: not-allowed;
+  z-index: 10;
+  &:hover {
+    background: #3b82f6;
+  }
 `;
 
-const formatBizNo = (bizNo: string) => {
+export const formatBizNo = (bizNo: string) => {
   if (bizNo.length !== 10) return bizNo;
   return `${bizNo.slice(0, 3)}-${bizNo.slice(3, 5)}-${bizNo.slice(5)}`;
 };
@@ -183,6 +201,8 @@ export default function CompanyPage() {
     totalElements: number;
     totalPages: number;
   } | null>(null);
+  const [isCompanyDetailModalOpen, setIsCompanyDetailModalOpen] = useState(false);
+  const [selectedCompanyForDetail, setSelectedCompanyForDetail] = useState<Company | null>(null);
 
   const handlePageChange = (newPage: number) => {
     fetchCompanies(newPage);
@@ -220,19 +240,32 @@ export default function CompanyPage() {
     // 예시: axios 또는 fetch로 API 호출
     axios.get(`/api/company/search?name=${encodeURIComponent(search)}`)
       .then(res => {
-        setCompanies(res.data.data); // 검색 결과 상태에 저장
+        setCompanies(res.data.data);
       })
       .catch(err => {
         console.error('검색 오류:', err);
       });
   };
   
-  const handleEdit = async (data: CompanyData) => {
+  const handleEdit = async (data: CompanyFormData) => {
     if (!editData) return;
 
     try {
+      // Construct the bizNo from reg1, reg2, reg3
+      const bizNoCombined = parseInt(`${data.reg1}${data.reg2}${data.reg3}`, 10);
+
+      const companyUpdateData = {
+        name: data.name,
+        bizNo: bizNoCombined,
+        address: data.address,
+        ceoName: data.ceoName,
+        email: data.email,
+        bio: data.bio,
+        tel: data.tel,
+      };
+
       // PUT 요청 보내기
-      await axios.put(`/api/companies/${editData.id}`, data);
+      await axios.put(`/api/companies/${editData.id}`, companyUpdateData);
 
       // 성공 시 상태 업데이트
       setCompanies(prev => prev.map(c =>
@@ -240,7 +273,7 @@ export default function CompanyPage() {
           ? {
               ...c,
               name: data.name || c.name,
-              bizNo: data.bizNo || c.bizNo,
+              bizNo: bizNoCombined || c.bizNo,
               address: data.address || c.address,
               ceoName: data.ceoName || c.ceoName,
               email: data.email || c.email,
@@ -260,18 +293,23 @@ export default function CompanyPage() {
     }
   };
 
-  const handleDelete = async (companyId) => {
+  const handleDelete = async (companyId: number) => {
     if (!window.confirm("정말 삭제하시겠습니까?")) return;
 
     try {
       await axios.delete(`/api/companies/${companyId}`);
       alert("삭제되었습니다.");
       // 회사 목록을 다시 불러오거나, 상태에서 제거
-      fetchCompanies(); // 혹은 setCompanies(companies.filter(...))
+      fetchCompanies();
     } catch (error) {
       console.error("삭제 실패:", error);
       alert("삭제에 실패했습니다.");
     }
+  };
+
+  const handleCompanyClick = (company: Company) => {
+    setSelectedCompanyForDetail(company);
+    setIsCompanyDetailModalOpen(true);
   };
 
   return (
@@ -285,6 +323,11 @@ export default function CompanyPage() {
           initialData={editData}
         />
       )}
+      <CompanyDetailModal
+        open={isCompanyDetailModalOpen}
+        onClose={() => setIsCompanyDetailModalOpen(false)}
+        company={selectedCompanyForDetail}
+      />
       <HeaderSection>
         <Title>회사 관리</Title>
         <Subtitle>프로젝트 관리 시스템의 회사 정보를 한눈에 확인하세요</Subtitle>
@@ -297,83 +340,88 @@ export default function CompanyPage() {
           onChange={e => setSearch(e.target.value)}
           onKeyDown={e => {
             if (e.key === 'Enter') {
-              e.preventDefault(); // form 제출 방지 (있다면)
-              handleSearch();     // 검색 함수 실행
+              e.preventDefault();
+              handleSearch();
             }
           }}
         />
         <RegisterButton onClick={() => setModalOpen(true)}>회사 등록</RegisterButton>
       </SearchSection>
-      <TableWrapper>
-        <StyledTable>
-          <thead>
-            <tr>
-              <Th>번호</Th>
-              <Th>회사명</Th>
-              <Th>사업자등록번호</Th>
-              <Th>주소</Th>
-              <Th>사업자 명</Th>
-              <Th>이메일</Th>
-              <Th>연락처</Th>
-              <Th>관리</Th>
-            </tr>
-          </thead>
-          <tbody>
+      <TableContainer>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableHeader>번호</TableHeader>
+              <TableHeader>회사명</TableHeader>
+              <TableHeader>사업자등록번호</TableHeader>
+              <TableHeader>주소</TableHeader>
+              <TableHeader>사업자 명</TableHeader>
+              <TableHeader>이메일</TableHeader>
+              <TableHeader>연락처</TableHeader>
+              <TableHeader>관리</TableHeader>
+            </TableRow>
+          </TableHead>
+          <TableBody>
             {loading && (
-              <Tr><Td colSpan={9}>로딩 중...</Td></Tr>
+              <TableRow><TableCell colSpan={9}>로딩 중...</TableCell></TableRow>
             )}
             {error && (
-              <Tr><Td colSpan={9} style={{ color: 'red' }}>오류: {error}</Td></Tr>
+              <TableRow><TableCell colSpan={9} style={{ color: 'red' }}>오류: {error}</TableCell></TableRow>
             )}
             {!loading && !error && filtered.length === 0 && (
-              <Tr><Td colSpan={9}>데이터가 없습니다.</Td></Tr>
+              <TableRow><TableCell colSpan={9}>데이터가 없습니다.</TableCell></TableRow>
             )}
-            {!loading && !error && filtered.map((c, idx) => (
-              <Tr key={c.id}>
-                <Td>{c.id}</Td>
-                <Td>{c.name}</Td>
-                <Td>{formatBizNo(c.bizNo.toString())}</Td>
-                <Td>{c.address}</Td>
-                <Td>{c.ceoName}</Td>
-                <Td>{c.email}</Td>
-                <Td>{c.tel}</Td>
-                <Td>
+            {!loading && !error && filtered.map((c) => (
+              <TableRow key={c.id}>
+                <TableCell>{c.id}</TableCell>
+                <TableCell
+                  onClick={() => handleCompanyClick(c)}
+                  style={{ cursor: "pointer", textDecoration: "underline" }}
+                >
+                  {c.name}
+                </TableCell>
+                <TableCell>{formatBizNo(c.bizNo.toString())}</TableCell>
+                <TableCell>{c.address}</TableCell>
+                <TableCell>{c.ceoName}</TableCell>
+                <TableCell>{c.email}</TableCell>
+                <TableCell>{c.tel}</TableCell>
+                <TableCell>
                   <ActionButton onClick={() => { setEditModalOpen(true); setEditData(c); }}>수정</ActionButton>
                   <DeleteButton onClick={() => handleDelete(c.id)}>삭제</DeleteButton>
-                </Td>
-              </Tr>
+                </TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </StyledTable>
-      </TableWrapper>
-      <PaginationWrapper>
-  <nav>
-  <PageButton
-      disabled={!page || page.number === 0}
-      onClick={() => page && handlePageChange(page.number - 1)}
-    >
-      {'<'}
-    </PageButton>
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <PaginationContainer>
+        <PaginationNav>
+          <PaginationButton
+            disabled={!page || page.number === 0}
+            onClick={() => page && handlePageChange(page.number - 1)}
+          >
+            {'<'}
+          </PaginationButton>
 
-    {/* 페이지 번호 버튼들을 동적으로 생성 */}
-    {Array.from({ length: page?.totalPages ?? 0 }, (_, idx) => (
-      idx === (page?.number ?? 0) ? (
-        <CurrentPageButton key={idx}>{idx + 1}</CurrentPageButton>
-      ) : (
-        <PageButton key={idx} onClick={() => handlePageChange(idx)}>
-          {idx + 1}
-        </PageButton>
-      )
-    ))}
+          {/* 페이지 번호 버튼들을 동적으로 생성 */}
+          {Array.from({ length: page?.totalPages ?? 0 }, (_, idx) => (
+            idx === (page?.number ?? 0) ? (
+              <CurrentPageButton key={idx}>{idx + 1}</CurrentPageButton>
+            ) : (
+              <PaginationButton key={idx} onClick={() => handlePageChange(idx)}>
+                {idx + 1}
+              </PaginationButton>
+            )
+          ))}
 
-    <PageButton
-      disabled={!page || page.number + 1 >= (page?.totalPages ?? 0)}
-      onClick={() => page && handlePageChange(page.number + 1)}
-    >
-      {'>'}
-    </PageButton>
-  </nav>
-</PaginationWrapper>
+          <PaginationButton
+            disabled={!page || page.number + 1 >= (page?.totalPages ?? 0)}
+            onClick={() => page && handlePageChange(page.number + 1)}
+          >
+            {'>'}
+          </PaginationButton>
+        </PaginationNav>
+      </PaginationContainer>
     </Container>
   );
 } 

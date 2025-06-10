@@ -12,16 +12,8 @@ import {
   ButtonGroup,
   Button,
 } from "./CompanyEditModal.styled";
-
-interface CompanyData {
-  name?: string;
-  bizNo?: number;
-  address?: string;
-  ceoName?: string;
-  email?: string;
-  tel?: string;
-  bio?: string;
-}
+import type { CompanyFormData } from '../../pages/CompanyPage';
+import type { Company } from '../../pages/CompanyPage';
 
 const RegNumberRow = styled.div`
   display: flex;
@@ -39,8 +31,8 @@ const RegInput = styled(Input)`
 interface Props {
   open: boolean;
   onClose: () => void;
-  onSave: (data: CompanyData) => void;
-  initialData: CompanyData | null;
+  onSave: (data: CompanyFormData) => void;
+  initialData: Company | null;
 }
 
 export default function CompanyEditModal({
@@ -53,24 +45,53 @@ export default function CompanyEditModal({
   const reg2Ref = useRef<HTMLInputElement>(null);
   const reg3Ref = useRef<HTMLInputElement>(null);
 
-  const [formData, setFormData] = useState<CompanyData>(initialData || {});
+  const [formData, setFormData] = useState<CompanyFormData>({
+    name: "",
+    reg1: "",
+    reg2: "",
+    reg3: "",
+    address: "",
+    ceoName: "",
+    email: "",
+    bio: "",
+    tel: "",
+  });
   const [reg1, setReg1] = useState("");
   const [reg2, setReg2] = useState("");
   const [reg3, setReg3] = useState("");
 
   useEffect(() => {
     if (open && initialData) {
-      setFormData(initialData);
-      if (initialData.bizNo !== undefined && initialData.bizNo !== null) {
-        const regStr = String(initialData.bizNo).padStart(10, "0");
-        setReg1(regStr.slice(0, 3));
-        setReg2(regStr.slice(3, 5));
-        setReg3(regStr.slice(5));
-      } else {
-        setReg1("");
-        setReg2("");
-        setReg3("");
-      }
+      const mappedData: CompanyFormData = {
+        name: initialData.name,
+        reg1: String(initialData.bizNo).padStart(10, "0").slice(0, 3),
+        reg2: String(initialData.bizNo).padStart(10, "0").slice(3, 5),
+        reg3: String(initialData.bizNo).padStart(10, "0").slice(5),
+        address: initialData.address,
+        ceoName: initialData.ceoName,
+        email: initialData.email,
+        bio: initialData.bio,
+        tel: initialData.tel,
+      };
+      setFormData(mappedData);
+      setReg1(mappedData.reg1);
+      setReg2(mappedData.reg2);
+      setReg3(mappedData.reg3);
+    } else if (!open) {
+      setFormData({
+        name: "",
+        reg1: "",
+        reg2: "",
+        reg3: "",
+        address: "",
+        ceoName: "",
+        email: "",
+        bio: "",
+        tel: "",
+      });
+      setReg1("");
+      setReg2("");
+      setReg3("");
     }
   }, [open, initialData]);
 
@@ -80,12 +101,12 @@ export default function CompanyEditModal({
     e: React.FormEvent<HTMLInputElement>,
     len: number,
     setReg: React.Dispatch<React.SetStateAction<string>>,
-    nextRef?: React.RefObject<HTMLInputElement>
+    nextRef?: React.RefObject<HTMLInputElement | null>
   ) => {
     let value = e.currentTarget.value.replace(/[^0-9]/g, "");
     if (value.length > len) value = value.slice(0, len);
     setReg(value);
-    if (value.length === len && nextRef?.current) {
+    if (value.length === len && nextRef && nextRef.current) {
       nextRef.current.focus();
     }
   };
@@ -99,10 +120,11 @@ export default function CompanyEditModal({
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const fullBizNo = reg1 + reg2 + reg3;
-    const finalData: CompanyData = {
+    const finalData: CompanyFormData = {
       ...formData,
-      bizNo: fullBizNo.length === 10 ? Number(fullBizNo) : undefined,
+      reg1: reg1,
+      reg2: reg2,
+      reg3: reg3,
     };
     onSave(finalData);
   };

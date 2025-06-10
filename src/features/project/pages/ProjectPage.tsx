@@ -180,7 +180,7 @@ export default function ProjectPage() {
       <TableContainer>
         <Table>
           <TableHead>
-            <tr>
+            <TableRow>
               <TableHeader>ID</TableHeader>
               <TableHeader>프로젝트명</TableHeader>
               <TableHeader>고객사</TableHeader>
@@ -191,7 +191,7 @@ export default function ProjectPage() {
               <TableHeader>종료일</TableHeader>
               <TableHeader>상태</TableHeader>
               <TableHeader>액션</TableHeader>
-            </tr>
+            </TableRow>
           </TableHead>
           <TableBody>
             {filteredProjects.map((project) => (
@@ -244,11 +244,11 @@ export default function ProjectPage() {
       </TableContainer>
       <PaginationContainer>
         <PaginationNav>
-          {/* Dummy Pagination */}
-          <PaginationButton disabled>Previous</PaginationButton>
+          <PaginationButton disabled>{'<'}</PaginationButton>
           <PaginationButton $active>1</PaginationButton>
-          <PaginationButton>2</PaginationButton>
-          <PaginationButton>Next</PaginationButton>
+          <PaginationButton>{'2'}</PaginationButton>
+          <PaginationButton>{'3'}</PaginationButton>
+          <PaginationButton>{'>'}</PaginationButton>
         </PaginationNav>
       </PaginationContainer>
       {isRegisterModalOpen && (
