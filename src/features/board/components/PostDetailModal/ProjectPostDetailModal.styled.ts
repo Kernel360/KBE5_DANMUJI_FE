@@ -411,3 +411,30 @@ export const ReplyItem = styled.div`
   font-size: 0.8rem;
   border: 1px solid #e9ecef;
 `;
+
+export const InfoGrid = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+`;
+
+export const InfoRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+
+export const InfoKey = styled.span`
+  min-width: 80px;
+  color: #6b7280;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-align: right;
+`;
+
+export const InfoValue = styled.span`
+  color: #222;
+  font-size: 0.95rem;
+  font-weight: 500;
+`;

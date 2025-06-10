@@ -23,6 +23,10 @@ import {
   ReplyInputContainer,
   ModalHeaderButtonGroup,
   ModalHeaderCloseButton,
+  InfoGrid,
+  InfoRow,
+  InfoKey,
+  InfoValue,
 } from "./ProjectPostDetailModal.styled.ts";
 import {
   getPostDetail,
@@ -327,39 +331,41 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
             </ModalHeaderButtonGroup>
           </ModalHeader>
           <ModalBody>
-            {/* 게시글 제목/상태/날짜 */}
-            <div style={{ marginBottom: 20 }}>
-              <div
+            {/* 게시글 제목 */}
+            <div style={{ marginBottom: 28 }}>
+              <span
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  marginBottom: 8,
+                  fontSize: 20,
+                  fontWeight: 700,
+                  color: "#222",
+                  wordBreak: "break-all",
                 }}
               >
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 10,
-                    flex: 1,
-                    minWidth: 0,
-                  }}
-                >
-                  <span
-                    style={{
-                      fontSize: 18,
-                      fontWeight: 700,
-                      color: "#222",
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      flex: 1,
-                      minWidth: 0,
-                    }}
-                  >
-                    {post.title}
-                  </span>
+                {post.title}
+              </span>
+            </div>
+
+            {/* 상세 정보 */}
+            <InfoGrid>
+              <InfoRow>
+                <InfoKey>프로젝트</InfoKey>
+                <InfoValue>{post.project?.name || "-"}</InfoValue>
+              </InfoRow>
+              <InfoRow>
+                <InfoKey>담당자</InfoKey>
+                <InfoValue>{post.author?.name || "-"}</InfoValue>
+              </InfoRow>
+              <InfoRow>
+                <InfoKey>고객사</InfoKey>
+                <InfoValue>
+                  {("clientName" in post
+                    ? (post as { clientName?: string }).clientName
+                    : "-") || "-"}
+                </InfoValue>
+              </InfoRow>
+              <InfoRow>
+                <InfoKey>요청 상태</InfoKey>
+                <InfoValue>
                   <span
                     style={{
                       background: "#e6f9ed",
@@ -368,51 +374,22 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                       fontSize: 13,
                       borderRadius: 8,
                       padding: "2px 12px",
-                      marginLeft: 6,
-                      flexShrink: 0,
+                      marginLeft: 0,
                     }}
                   >
                     {getStatusText(post.status)}
                   </span>
-                </div>
-                <span style={{ color: "#b0b0b0", fontSize: 13, flexShrink: 0 }}>
-                  {formatDate(post.createdAt)}
-                </span>
-              </div>
-              <div
-                style={{
-                  fontSize: 15,
-                  color: "#222",
-                  lineHeight: 1.6,
-                  marginBottom: 8,
-                }}
-              >
-                <div>
-                  담당자{" "}
-                  <b style={{ fontWeight: 600 }}>{post.author?.name || "-"}</b>
-                </div>
-                <div>
-                  고객사{" "}
-                  <b style={{ fontWeight: 600 }}>
-                    {("clientName" in post
-                      ? (post as { clientName?: string }).clientName
-                      : "-") || "-"}
-                  </b>
-                </div>
-                <div>
-                  완료 예정일{" "}
-                  <b style={{ fontWeight: 600 }}>
-                    {"dueDate" in post && (post as { dueDate?: string }).dueDate
-                      ? formatDate((post as { dueDate?: string }).dueDate!)
-                      : "-"}
-                  </b>
-                </div>
-              </div>
-            </div>
+                </InfoValue>
+              </InfoRow>
+              <InfoRow>
+                <InfoKey>작성일</InfoKey>
+                <InfoValue>{formatDate(post.createdAt)}</InfoValue>
+              </InfoRow>
+            </InfoGrid>
 
             {/* 작업 설명 */}
-            <div style={{ margin: "24px 0 0 0" }}>
-              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>
+            <div style={{ margin: "32px 0 0 0" }}>
+              <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 10 }}>
                 작업 설명
               </div>
               <div
@@ -430,8 +407,8 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
             </div>
 
             {/* 첨부 파일 */}
-            <div style={{ margin: "24px 0 0 0" }}>
-              <div style={{ fontWeight: 600, marginBottom: 8, fontSize: 14 }}>
+            <div style={{ margin: "32px 0 0 0" }}>
+              <div style={{ fontWeight: 600, marginBottom: 10, fontSize: 15 }}>
                 첨부 파일
               </div>
               <div>
