@@ -464,9 +464,11 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                   autoFocus
                                   rows={3}
                                   style={{
+                                    width: "100%",
                                     border: "1.5px solid #fdb924",
                                     borderRadius: "0.375rem",
-                                    background: "#fffbe8",
+                                    background: "#fffdfa",
+                                    color: "#222",
                                     fontSize: "0.95em",
                                     padding: "0.75rem",
                                     resize: "vertical",
@@ -627,9 +629,11 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                     autoFocus
                                     rows={3}
                                     style={{
+                                      width: "100%",
                                       border: "1.5px solid #fdb924",
                                       borderRadius: "0.375rem",
-                                      background: "#fffbe8",
+                                      background: "#fffdfa",
+                                      color: "#222",
                                       fontSize: "0.95em",
                                       padding: "0.75rem",
                                       resize: "vertical",
