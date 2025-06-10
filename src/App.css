@@ -40,3 +40,18 @@
 .read-the-docs {
   color: #888;
 }
+
+/* .date-input {
+  background: #fff;
+  color: #333;
+} */
+
+#start-date {
+  background: #fff;
+  color: #333;
+}
+
+#end-date {
+  background: #fff;
+  color: #333;
+}

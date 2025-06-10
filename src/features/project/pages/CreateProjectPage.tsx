@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import * as S from "./CreateProjectpage.styled";
+import AsyncSelect from "react-select/async";
+import { useNavigate } from "react-router-dom";
 
 interface Company {
   id: number;
@@ -19,6 +21,12 @@ export default function ProjectCreatePage() {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
 
+    // 회사 옵션을 react-select 형식으로 변환
+const companyToOption = (company: Company) => ({
+  value: company.id,
+  label: company.name,
+});
+
   // Company & user lists
   const [companies, setCompanies] = useState<Company[]>([]);
   const [devCompanyId, setDevCompanyId] = useState<number | "">("");
@@ -31,21 +39,44 @@ export default function ProjectCreatePage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
+  const navigate = useNavigate();
+
   // Load companies on mount
-  useEffect(() => {
-    fetch("http://localhost:8080/api/companies")
-      .then(res => res.json())
-      .then((response: any) => {
-        const payload = response.data ?? response;
-        const list: Company[] = Array.isArray(payload)
-          ? payload
-          : Array.isArray(payload.content)
-            ? payload.content
-            : [];
-        setCompanies(list);
-      })
-      .catch(err => console.error("Failed to load companies", err));
-  }, []);
+  // useEffect(() => {
+  //   fetch("http://localhost:8080/api/companies")
+  //     .then(res => res.json())
+  //     .then((response: any) => {
+  //       const payload = response.data ?? response;
+  //       const list: Company[] = Array.isArray(payload)
+  //         ? payload
+  //         : Array.isArray(payload.content)
+  //           ? payload.content
+  //           : [];
+  //       setCompanies(list);
+  //     })
+  //     .catch(err => console.error("Failed to load companies", err));
+  // }, []);
+
+  // AsyncSelect에서 사용할 옵션 로더
+  const loadCompanyOptions = async (inputValue: string) => {
+    try {
+      const url =
+        inputValue && inputValue.trim() !== ""
+          ? `http://localhost:8080/api/companies/search?name=${encodeURIComponent(inputValue)}`
+          : "http://localhost:8080/api/companies";
+      const res = await fetch(url);
+      const response = await res.json();
+      const payload = response.data ?? response;
+      const list: Company[] = Array.isArray(payload)
+        ? payload
+        : Array.isArray(payload.content)
+          ? payload.content
+          : [];
+      return list.map(companyToOption);
+    } catch (err) {
+      return [];
+    }
+  };
 
   // Load developers when devCompanyId changes
   useEffect(() => {
@@ -116,7 +147,8 @@ export default function ProjectCreatePage() {
         const data = await res.json();
         throw new Error(data.message || "프로젝트 생성에 실패했습니다");
       }
-      console.log("프로젝트 생성 성공");
+      // 프로젝트 생성 성공 시 /projects로 이동
+      navigate("/projects");
     } catch (err: any) {
       console.error(err);
       setError(err.message);
@@ -173,19 +205,19 @@ export default function ProjectCreatePage() {
                 onChange={date => setStartDate(date)}
                 dateFormat="yyyy-MM-dd"
                 placeholderText="시작일 선택"
-                className="input"
+                className="date-input"
                 required
               />
             </div>
             <div>
-              <S.Label htmlFor="end-date">마감일</S.Label>
+              <S.Label htmlFor="end-date">종료일</S.Label>
               <DatePicker
                 id="end-date"
                 selected={endDate}
                 onChange={date => setEndDate(date)}
                 dateFormat="yyyy-MM-dd"
                 placeholderText="마감일 선택"
-                className="input"
+                className="date-input"
                 required
               />
             </div>
@@ -195,18 +227,29 @@ export default function ProjectCreatePage() {
         {/* 개발사 */}
         <S.Section>
           <S.Label htmlFor="dev-company">개발사 *</S.Label>
-          <S.Select
-            id="dev-company"
-            value={devCompanyId}
-            onChange={e => setDevCompanyId(Number(e.target.value))}
-            required
-          >
-            <option value="">회사 선택</option>
-            {companies.map(c => (
-              <option key={c.id} value={c.id}>{c.name}</option>
-            ))}
-          </S.Select>
+          <AsyncSelect
+            cacheOptions
+            defaultOptions
+            loadOptions={loadCompanyOptions}
+            value={
+              devCompanyId
+                ? companies
+                    .filter(c => c.id === devCompanyId)
+                    .map(companyToOption)[0]
+                : null
+            }
+            onChange={option => {
+              setDevCompanyId(option ? option.value : "");
+            }}
+            placeholder="회사 검색/선택"
+            isClearable
+            inputId="dev-company"
+            styles={{
+              container: base => ({ ...base, width: "100%" }),
+            }}
+          />
         </S.Section>
+
 
         {/* 개발사 담당자 */}
         <S.Section>
@@ -228,17 +271,27 @@ export default function ProjectCreatePage() {
         {/* 고객사 */}
         <S.Section>
           <S.Label htmlFor="client-company">고객사 *</S.Label>
-          <S.Select
-            id="client-company"
-            value={clientCompanyId}
-            onChange={e => setClientCompanyId(Number(e.target.value))}
-            required
-          >
-            <option value="">회사 선택</option>
-            {companies.map(c => (
-              <option key={c.id} value={c.id}>{c.name}</option>
-            ))}
-          </S.Select>
+          <AsyncSelect
+            cacheOptions
+            defaultOptions
+            loadOptions={loadCompanyOptions}
+            value={
+              clientCompanyId
+                ? companies
+                    .filter(c => c.id === clientCompanyId)
+                    .map(companyToOption)[0]
+                : null
+            }
+            onChange={option => {
+              setClientCompanyId(option ? option.value : "");
+            }}
+            placeholder="회사 검색/선택"
+            isClearable
+            inputId="client-company"
+            styles={{
+              container: base => ({ ...base, width: "100%" }),
+            }}
+          />
         </S.Section>
 
         {/* 고객사 담당자 */}
