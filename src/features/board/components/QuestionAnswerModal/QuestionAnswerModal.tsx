@@ -48,9 +48,12 @@ import {
   getQuestionsByPost,
   createAnswer,
   getAnswersByQuestion,
+  updateQuestion,
+  deleteQuestion,
 } from "@/features/project/services/questionService";
 import type { Post } from "@/features/project/types/post";
 import type { Question, Answer } from "@/features/project/types/question";
+import { useAuth } from "@/contexts/AuthContexts";
 
 interface QuestionAnswerModalProps {
   open: boolean;
@@ -63,6 +66,7 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
   onClose,
   postId,
 }) => {
+  const { user } = useAuth();
   const [questionText, setQuestionText] = useState("");
   const [answerText, setAnswerText] = useState("");
   const [selectedQuestionId, setSelectedQuestionId] = useState<number | null>(
@@ -74,6 +78,14 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [submittingQuestion, setSubmittingQuestion] = useState(false);
   const [submittingAnswer, setSubmittingAnswer] = useState(false);
+
+  // 질문 수정 관련 상태
+  const [editingQuestionId, setEditingQuestionId] = useState<number | null>(
+    null
+  );
+  const [editQuestionText, setEditQuestionText] = useState("");
+  const [updatingQuestion, setUpdatingQuestion] = useState(false);
+  const [deletingQuestion, setDeletingQuestion] = useState(false);
 
   useEffect(() => {
     const loadPostData = async () => {
@@ -166,6 +178,76 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
     } finally {
       setSubmittingAnswer(false);
     }
+  };
+
+  // 질문 수정 시작
+  const handleEditQuestion = (question: Question) => {
+    setEditingQuestionId(question.id);
+    setEditQuestionText(question.content);
+  };
+
+  // 질문 수정 취소
+  const handleCancelEdit = () => {
+    setEditingQuestionId(null);
+    setEditQuestionText("");
+  };
+
+  // 질문 수정 저장
+  const handleUpdateQuestion = async () => {
+    if (!editQuestionText.trim() || editingQuestionId === null) return;
+
+    try {
+      setUpdatingQuestion(true);
+      const response = await updateQuestion(
+        editingQuestionId,
+        editQuestionText.trim()
+      );
+
+      if (response.status === "CREATED" || response.message?.includes("성공")) {
+        // 질문 목록을 다시 불러오기
+        const questionsResponse = await getQuestionsByPost(postId!);
+        if (questionsResponse.data) {
+          setQuestions(questionsResponse.data.content);
+        }
+        setEditingQuestionId(null);
+        setEditQuestionText("");
+      }
+    } catch (err) {
+      console.error("질문 수정 중 오류:", err);
+      alert("질문 수정 중 오류가 발생했습니다.");
+    } finally {
+      setUpdatingQuestion(false);
+    }
+  };
+
+  // 질문 삭제
+  const handleDeleteQuestion = async (questionId: number) => {
+    if (!window.confirm("정말로 이 질문을 삭제하시겠습니까?")) {
+      return;
+    }
+
+    try {
+      setDeletingQuestion(true);
+      const response = await deleteQuestion(questionId);
+
+      if (response.status === "CREATED" || response.message?.includes("성공")) {
+        // 질문 목록을 다시 불러오기
+        const questionsResponse = await getQuestionsByPost(postId!);
+        if (questionsResponse.data) {
+          setQuestions(questionsResponse.data.content);
+        }
+      }
+    } catch (err) {
+      console.error("질문 삭제 중 오류:", err);
+      alert("질문 삭제 중 오류가 발생했습니다.");
+    } finally {
+      setDeletingQuestion(false);
+    }
+  };
+
+  // 작성자 본인 여부 확인
+  const isQuestionAuthor = (authorId: number) => {
+    return user?.id === authorId;
   };
 
   const getStatusText = (status: string) => {
@@ -305,10 +387,107 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
                         </div>
                       </div>
                       <QuestionActions>
+                        {isQuestionAuthor(question.author.id) && (
+                          <div style={{ display: "flex", gap: "8px" }}>
+                            {editingQuestionId === question.id ? (
+                              <>
+                                <button
+                                  onClick={handleUpdateQuestion}
+                                  disabled={
+                                    updatingQuestion || !editQuestionText.trim()
+                                  }
+                                  style={{
+                                    background: "#10b981",
+                                    color: "white",
+                                    border: "none",
+                                    borderRadius: "4px",
+                                    padding: "4px 8px",
+                                    cursor: "pointer",
+                                    fontSize: "0.75rem",
+                                    fontWeight: "500",
+                                  }}
+                                >
+                                  {updatingQuestion ? "저장 중..." : "저장"}
+                                </button>
+                                <button
+                                  onClick={handleCancelEdit}
+                                  disabled={updatingQuestion}
+                                  style={{
+                                    background: "#6b7280",
+                                    color: "white",
+                                    border: "none",
+                                    borderRadius: "4px",
+                                    padding: "4px 8px",
+                                    cursor: "pointer",
+                                    fontSize: "0.75rem",
+                                    fontWeight: "500",
+                                  }}
+                                >
+                                  취소
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <button
+                                  onClick={() => handleEditQuestion(question)}
+                                  style={{
+                                    background: "#3b82f6",
+                                    color: "white",
+                                    border: "none",
+                                    borderRadius: "4px",
+                                    padding: "4px 8px",
+                                    cursor: "pointer",
+                                    fontSize: "0.75rem",
+                                    fontWeight: "500",
+                                  }}
+                                >
+                                  수정
+                                </button>
+                                <button
+                                  onClick={() =>
+                                    handleDeleteQuestion(question.id)
+                                  }
+                                  disabled={deletingQuestion}
+                                  style={{
+                                    background: "#ef4444",
+                                    color: "white",
+                                    border: "none",
+                                    borderRadius: "4px",
+                                    padding: "4px 8px",
+                                    cursor: "pointer",
+                                    fontSize: "0.75rem",
+                                    fontWeight: "500",
+                                  }}
+                                >
+                                  {deletingQuestion ? "삭제 중..." : "삭제"}
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        )}
                         <VoteButton>👍 0</VoteButton>
                       </QuestionActions>
                     </QuestionHeader>
-                    <QuestionText>{question.content}</QuestionText>
+                    {editingQuestionId === question.id ? (
+                      <div style={{ marginTop: "1rem" }}>
+                        <textarea
+                          value={editQuestionText}
+                          onChange={(e) => setEditQuestionText(e.target.value)}
+                          style={{
+                            width: "100%",
+                            minHeight: "80px",
+                            padding: "12px",
+                            border: "1px solid #d1d5db",
+                            borderRadius: "4px",
+                            fontSize: "0.875rem",
+                            resize: "vertical",
+                          }}
+                          placeholder="질문 내용을 수정하세요"
+                        />
+                      </div>
+                    ) : (
+                      <QuestionText>{question.content}</QuestionText>
+                    )}
 
                     <AnswerList>
                       {question.answers && question.answers.length > 0 ? (
