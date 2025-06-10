@@ -1,6 +1,7 @@
 // 질문 상태 enum
 export enum QuestionStatus {
-  PENDING = "PENDING",
+  WAITING = "WAITING",
+  ANSWERED = "ANSWERED",
   RESOLVED = "RESOLVED",
 }
 
@@ -12,21 +13,21 @@ export enum AnswerStatus {
 
 // 작성자 타입
 export type Author = {
-  userId: number;
+  id: number;
   name: string;
-  email: string;
-  role: string;
 };
 
 // 질문 타입
 export type Question = {
   id: number;
   postId: number;
+  authorIp: string;
   author: Author;
   content: string;
   status: QuestionStatus;
   createdAt: string;
   updatedAt: string;
+  deletedAt: string | null;
   answers?: Answer[];
 };
 
@@ -74,12 +75,10 @@ export type AnswerCreateResponse = {
 
 // 페이지네이션 메타데이터 타입
 export type PageMetadata = {
-  page: number;
   size: number;
+  number: number;
   totalElements: number;
   totalPages: number;
-  first: boolean;
-  last: boolean;
 };
 
 // 질문 목록 응답 타입

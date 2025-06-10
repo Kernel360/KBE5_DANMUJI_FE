@@ -85,7 +85,7 @@ export const getQuestionsByPost = async (
 ): Promise<QuestionListResponse> => {
   try {
     const response = await api.get<QuestionListResponse>(
-      `/api/questions/posts/${postId}`,
+      `/api/questions/post/${postId}`,
       {
         params: {
           page,

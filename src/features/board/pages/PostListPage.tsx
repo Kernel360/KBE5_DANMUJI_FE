@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  AiOutlineSearch,
   AiOutlineBarChart,
   AiOutlineFileText,
   AiOutlineTag,
@@ -92,7 +91,6 @@ export default function PostListPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isSearching, setIsSearching] = useState(false);
 
   // 모든 프로젝트의 게시글을 가져오는 함수 (임시로 프로젝트 ID 1 사용)
   const fetchPosts = async () => {
@@ -104,10 +102,8 @@ export default function PostListPage() {
 
       // 검색어가 있으면 검색 API 사용, 없으면 일반 목록 API 사용
       if (searchTerm.trim()) {
-        setIsSearching(true);
         response = await searchPosts(searchTerm, currentPage, itemsPerPage);
       } else {
-        setIsSearching(false);
         response = await getPosts(
           1, // 임시로 프로젝트 ID 1 사용
           currentPage,

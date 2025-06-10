@@ -42,12 +42,15 @@ import {
   LoadingSpinner,
   ErrorMessage,
 } from "./QuestionAnswerModal.styled";
+import { getPostDetail } from "@/features/project/services/postService";
 import {
-  getPostDetail,
-  getComments,
-  createComment,
-} from "@/features/project/services/postService";
-import type { Post, Comment } from "@/features/project/types/post";
+  createQuestion,
+  getQuestionsByPost,
+  createAnswer,
+  getAnswersByQuestion,
+} from "@/features/project/services/questionService";
+import type { Post } from "@/features/project/types/post";
+import type { Question, Answer } from "@/features/project/types/question";
 
 interface QuestionAnswerModalProps {
   open: boolean;
@@ -66,7 +69,7 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
     null
   );
   const [post, setPost] = useState<Post | null>(null);
-  const [comments, setComments] = useState<Comment[]>([]);
+  const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [submittingQuestion, setSubmittingQuestion] = useState(false);
@@ -85,15 +88,15 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
             setPost(postResponse.data);
           }
 
-          // 댓글 목록 가져오기 (질문으로 사용)
+          // 질문 목록 가져오기
           try {
-            const commentsResponse = await getComments(postId);
-            if (commentsResponse.data) {
-              setComments(commentsResponse.data);
+            const questionsResponse = await getQuestionsByPost(postId);
+            if (questionsResponse.data) {
+              setQuestions(questionsResponse.data.content);
             }
-          } catch (commentError) {
-            console.log("댓글 로드 실패:", commentError);
-            setComments([]);
+          } catch (questionError) {
+            console.log("질문 로드 실패:", questionError);
+            setQuestions([]);
           }
         } catch (err) {
           setError("게시글을 불러오는 중 오류가 발생했습니다.");
@@ -103,7 +106,7 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
         }
       } else if (!open) {
         setPost(null);
-        setComments([]);
+        setQuestions([]);
         setLoading(false);
         setError(null);
       }
@@ -117,11 +120,17 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
 
     try {
       setSubmittingQuestion(true);
-      const response = await createComment(postId, questionText);
+      const response = await createQuestion({
+        postId,
+        content: questionText.trim(),
+      });
 
       if (response.data) {
-        // 새 질문을 목록에 추가
-        setComments((prev) => [...prev, response.data!]);
+        // 질문 목록을 다시 불러오기
+        const questionsResponse = await getQuestionsByPost(postId);
+        if (questionsResponse.data) {
+          setQuestions(questionsResponse.data.content);
+        }
         setQuestionText("");
       }
     } catch (err) {
@@ -133,29 +142,21 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
   };
 
   const handleAnswerSubmit = async () => {
-    if (!answerText.trim() || !selectedQuestionId || !postId) return;
+    if (!answerText.trim() || !selectedQuestionId) return;
 
     try {
       setSubmittingAnswer(true);
-      const response = await createComment(
-        postId,
-        answerText,
-        selectedQuestionId
-      );
+      const response = await createAnswer({
+        questionId: selectedQuestionId,
+        content: answerText.trim(),
+      });
 
       if (response.data) {
-        // 새 답변을 해당 질문의 답글에 추가
-        setComments((prev) =>
-          prev.map((comment) => {
-            if (comment.id === selectedQuestionId) {
-              return {
-                ...comment,
-                children: [...(comment.children || []), response.data!],
-              };
-            }
-            return comment;
-          })
-        );
+        // 질문 목록을 다시 불러와서 답변 정보 업데이트
+        const questionsResponse = await getQuestionsByPost(postId!);
+        if (questionsResponse.data) {
+          setQuestions(questionsResponse.data.content);
+        }
         setAnswerText("");
         setSelectedQuestionId(null);
       }
@@ -169,14 +170,27 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case "PENDING":
-        return "대기";
-      case "APPROVED":
-        return "승인";
-      case "REJECTED":
-        return "거부";
+      case "WAITING":
+        return "답변 대기";
+      case "ANSWERED":
+        return "답변 완료";
+      case "RESOLVED":
+        return "해결됨";
       default:
         return status;
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "WAITING":
+        return "#f59e0b"; // 주황색
+      case "ANSWERED":
+        return "#10b981"; // 초록색
+      case "RESOLVED":
+        return "#3b82f6"; // 파란색
+      default:
+        return "#6b7280"; // 회색
     }
   };
 
@@ -246,7 +260,7 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
           </Section>
 
           <QuestionSection>
-            <SectionTitle>질문 & 답변 ({comments.length})</SectionTitle>
+            <SectionTitle>질문 & 답변 ({questions.length})</SectionTitle>
 
             <QuestionForm>
               <QuestionTextArea
@@ -266,55 +280,76 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
             </QuestionForm>
 
             <QuestionList>
-              {comments.length > 0 ? (
-                comments.map((comment) => (
-                  <QuestionItem key={comment.id}>
+              {questions.length > 0 ? (
+                questions.map((question) => (
+                  <QuestionItem key={question.id}>
                     <QuestionHeader>
                       <div>
-                        <QuestionAuthor>{comment.author.name}</QuestionAuthor>
+                        <QuestionAuthor>{question.author.name}</QuestionAuthor>
                         <QuestionDate>
-                          {formatDate(comment.createdAt)}
+                          {formatDate(question.createdAt)}
                         </QuestionDate>
-                        <QuestionStatus
-                          $resolved={
-                            comment.children && comment.children.length > 0
-                          }
+                        <div
+                          style={{
+                            display: "inline-block",
+                            background: getStatusColor(question.status),
+                            color: "white",
+                            borderRadius: "4px",
+                            fontSize: "0.75em",
+                            padding: "2px 8px",
+                            marginLeft: "8px",
+                            fontWeight: "500",
+                          }}
                         >
-                          {comment.children && comment.children.length > 0
-                            ? "답변 있음"
-                            : "답변 대기"}
-                        </QuestionStatus>
+                          {getStatusText(question.status)}
+                        </div>
                       </div>
                       <QuestionActions>
                         <VoteButton>👍 0</VoteButton>
                       </QuestionActions>
                     </QuestionHeader>
-                    <QuestionText>{comment.content}</QuestionText>
+                    <QuestionText>{question.content}</QuestionText>
 
                     <AnswerList>
-                      {comment.children && comment.children.length > 0 ? (
-                        comment.children.map((child) => (
-                          <AnswerItem key={child.id} $isBestAnswer={false}>
+                      {question.answers && question.answers.length > 0 ? (
+                        question.answers.map((answer) => (
+                          <AnswerItem
+                            key={answer.id}
+                            $isBestAnswer={answer.isBestAnswer}
+                          >
                             <AnswerHeader>
                               <div>
-                                <AnswerAuthor>{child.author.name}</AnswerAuthor>
+                                <AnswerAuthor>
+                                  {answer.author.name}
+                                </AnswerAuthor>
                                 <AnswerDate>
-                                  {formatDate(child.createdAt)}
+                                  {formatDate(answer.createdAt)}
                                 </AnswerDate>
+                                {answer.isBestAnswer && (
+                                  <BestAnswerBadge>베스트 답변</BestAnswerBadge>
+                                )}
                               </div>
                               <AnswerActions>
                                 <VoteButton>👍 0</VoteButton>
                               </AnswerActions>
                             </AnswerHeader>
-                            <AnswerText>{child.content}</AnswerText>
+                            <AnswerText>{answer.content}</AnswerText>
                           </AnswerItem>
                         ))
                       ) : (
-                        <p>아직 답변이 없습니다.</p>
+                        <p
+                          style={{
+                            color: "#6b7280",
+                            fontStyle: "italic",
+                            margin: "1rem 0",
+                          }}
+                        >
+                          아직 답변이 없습니다.
+                        </p>
                       )}
                     </AnswerList>
 
-                    {selectedQuestionId === comment.id ? (
+                    {selectedQuestionId === question.id ? (
                       <AnswerForm>
                         <AnswerTextArea
                           placeholder="답변을 입력하세요"
@@ -332,14 +367,35 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
                         </AnswerSubmitButton>
                       </AnswerForm>
                     ) : (
-                      <button onClick={() => setSelectedQuestionId(comment.id)}>
+                      <button
+                        onClick={() => setSelectedQuestionId(question.id)}
+                        style={{
+                          background: "#fdb924",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "4px",
+                          padding: "8px 16px",
+                          cursor: "pointer",
+                          fontSize: "0.875rem",
+                          fontWeight: "500",
+                          marginTop: "1rem",
+                        }}
+                      >
                         답변 작성
                       </button>
                     )}
                   </QuestionItem>
                 ))
               ) : (
-                <p>아직 질문이 없습니다.</p>
+                <p
+                  style={{
+                    textAlign: "center",
+                    color: "#6b7280",
+                    padding: "2rem",
+                  }}
+                >
+                  아직 질문이 없습니다. 첫 번째 질문을 작성해보세요!
+                </p>
               )}
             </QuestionList>
           </QuestionSection>
