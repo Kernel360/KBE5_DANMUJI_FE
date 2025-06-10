@@ -1,21 +1,24 @@
 import styled from "styled-components";
 
-export const DashboardContainer = styled.div``;
+export const DashboardContainer = styled.div`
+  padding: 32px;
+  background-color: #f9fafb;
+`;
 
 export const Header = styled.div`
-  margin-bottom: 2rem;
+  margin-bottom: 36px;
 `;
 
-export const Title = styled.div`
-  font-size: 1.875rem;
-  font-weight: 800;
+export const Title = styled.h1`
+  font-size: 24px;
+  font-weight: 700;
   color: #1f2937;
-  margin-bottom: 0.25rem;
+  margin-bottom: 4px;
 `;
 
-export const Description = styled.div`
+export const Description = styled.p`
   color: #6b7280;
-  font-size: 1rem;
+  font-size: 14px;
 `;
 
 export const CardGrid = styled.div`
