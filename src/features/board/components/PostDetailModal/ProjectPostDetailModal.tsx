@@ -11,10 +11,7 @@ import {
   CloseButton,
   ModalHeaderActionButton,
   ModalBody,
-  Section,
   SectionTitle,
-  PostMeta,
-  PostContent,
   CommentsSection,
   CommentsList,
   CommentItem,
@@ -40,6 +37,7 @@ import {
 import type { Post, Comment } from "@/features/project/types/post";
 import QuestionAnswerModal from "../QuestionAnswerModal/QuestionAnswerModal";
 import { useAuth } from "@/contexts/AuthContexts";
+import { FaReply } from "react-icons/fa";
 
 interface PostDetailModalProps {
   open: boolean;
@@ -214,21 +212,6 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
     }
   };
 
-  const getTypeText = (type: string) => {
-    switch (type) {
-      case "NOTICE":
-        return "공지";
-      case "QUESTION":
-        return "질문";
-      case "REPORT":
-        return "보고";
-      case "GENERAL":
-        return "일반";
-      default:
-        return type;
-    }
-  };
-
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("ko-KR", {
       year: "numeric",
@@ -319,17 +302,23 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                 onClick={() =>
                   navigate(`/posts/create?parentId=${post.postId}`)
                 }
+                title="답글달기"
               >
-                답글
+                <FaReply size={14} /> 답글달기
               </ModalHeaderActionButton>
-              {/* 작성자 본인일 때만 수정/삭제 버튼 표시 */}
               {isAuthor(post.author.id) && (
                 <>
-                  <ModalHeaderActionButton onClick={handleEditPost}>
-                    수정
+                  <ModalHeaderActionButton
+                    onClick={handleEditPost}
+                    title="수정"
+                  >
+                    <FaReply size={14} /> 수정
                   </ModalHeaderActionButton>
-                  <ModalHeaderActionButton onClick={handleDeletePost}>
-                    삭제
+                  <ModalHeaderActionButton
+                    onClick={handleDeletePost}
+                    title="삭제"
+                  >
+                    <FaReply size={14} /> 삭제
                   </ModalHeaderActionButton>
                 </>
               )}
@@ -337,18 +326,178 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
             </HeaderRight>
           </ModalHeader>
           <ModalBody>
-            <Section>
-              <PostMeta>
-                <div>작성자: {post.author.name}</div>
-                <div>작성일: {formatDate(post.createdAt)}</div>
-                <div>유형: {getTypeText(post.type)}</div>
-                <div>우선순위: {post.priority}</div>
-                {post.updatedAt !== post.createdAt && (
-                  <div>수정일: {formatDate(post.updatedAt)}</div>
-                )}
-              </PostMeta>
-              <PostContent>{post.content}</PostContent>
-            </Section>
+            {/* 상단 제목/상태/날짜 - 이미지와 동일하게 구조 및 스타일 개선 */}
+            <div style={{ marginBottom: 24 }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  marginBottom: 8,
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span
+                    style={{ fontSize: 18, fontWeight: 700, color: "#222" }}
+                  >
+                    {post.title}
+                  </span>
+                  <span
+                    style={{
+                      background: "#e6f9ed",
+                      color: "#1db46a",
+                      fontWeight: 600,
+                      fontSize: 13,
+                      borderRadius: 8,
+                      padding: "2px 12px",
+                      marginLeft: 6,
+                    }}
+                  >
+                    {getStatusText(post.status)}
+                  </span>
+                </div>
+                <span style={{ color: "#b0b0b0", fontSize: 13 }}>
+                  {formatDate(post.createdAt)}
+                </span>
+              </div>
+              <div
+                style={{
+                  fontSize: 15,
+                  color: "#222",
+                  lineHeight: 1.8,
+                  marginBottom: 8,
+                }}
+              >
+                <div>
+                  담당자{" "}
+                  <b style={{ fontWeight: 600 }}>{post.author?.name || "-"}</b>
+                </div>
+                <div>
+                  고객사{" "}
+                  <b style={{ fontWeight: 600 }}>
+                    {("clientName" in post
+                      ? (post as { clientName?: string }).clientName
+                      : "-") || "-"}
+                  </b>
+                </div>
+                <div>
+                  완료 예정일{" "}
+                  <b style={{ fontWeight: 600 }}>
+                    {"dueDate" in post && (post as { dueDate?: string }).dueDate
+                      ? formatDate((post as { dueDate?: string }).dueDate!)
+                      : "-"}
+                  </b>
+                </div>
+              </div>
+            </div>
+
+            {/* 작업 설명 */}
+            <div style={{ margin: "24px 0 0 0" }}>
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>
+                작업 설명
+              </div>
+              <div
+                style={{
+                  fontSize: 14,
+                  color: "#444",
+                  lineHeight: 1.7,
+                  background: "#f8f9fa",
+                  borderRadius: 8,
+                  padding: 16,
+                }}
+              >
+                {post.content}
+              </div>
+            </div>
+
+            {/* 첨부 파일 */}
+            <div style={{ margin: "24px 0 0 0" }}>
+              <div style={{ fontWeight: 600, marginBottom: 8, fontSize: 14 }}>
+                첨부 파일
+              </div>
+              <div>
+                {("attachments" in post &&
+                (post as { attachments?: { name: string; size: string }[] })
+                  .attachments &&
+                (post as { attachments?: { name: string; size: string }[] })
+                  .attachments.length > 0
+                  ? (post as { attachments: { name: string; size: string }[] })
+                      .attachments
+                  : [
+                      { name: "ERP_DB_ERD_v1.2.pdf", size: "2.4MB" },
+                      { name: "ERP_DB_SQL_Scripts.zip", size: "1.8MB" },
+                    ]
+                ).map((file: { name: string; size: string }, idx: number) => {
+                  const ext = file.name.split(".").pop();
+                  let icon = null;
+                  if (ext === "pdf")
+                    icon = (
+                      <span
+                        style={{
+                          display: "inline-block",
+                          width: 18,
+                          height: 18,
+                          background: "#e74c3c",
+                          borderRadius: 4,
+                          marginRight: 8,
+                        }}
+                      />
+                    );
+                  else if (ext === "zip")
+                    icon = (
+                      <span
+                        style={{
+                          display: "inline-block",
+                          width: 18,
+                          height: 18,
+                          background: "#f1c40f",
+                          borderRadius: 4,
+                          marginRight: 8,
+                        }}
+                      />
+                    );
+                  else
+                    icon = (
+                      <span
+                        style={{
+                          display: "inline-block",
+                          width: 18,
+                          height: 18,
+                          background: "#bdbdbd",
+                          borderRadius: 4,
+                          marginRight: 8,
+                        }}
+                      />
+                    );
+                  return (
+                    <div
+                      key={idx}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        background: "#f7f7f8",
+                        borderRadius: 8,
+                        padding: "10px 14px",
+                        marginBottom: 8,
+                        fontSize: 14,
+                      }}
+                    >
+                      {icon}
+                      <span style={{ flex: 1 }}>{file.name}</span>
+                      <span
+                        style={{
+                          color: "#b0b0b0",
+                          fontSize: 12,
+                          marginLeft: 8,
+                        }}
+                      >
+                        {file.size}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
 
             <CommentsSection>
               <div
@@ -565,7 +714,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                 )
                             )}
                           </CommentText>
-                          {replyingTo === rootComment.id && (
+                          {(replyingTo as number | null) === rootComment.id && (
                             <ReplyInputContainer>
                               <CommentTextArea
                                 placeholder="답글을 입력하세요"
@@ -728,7 +877,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                   )
                               )}
                             </CommentText>
-                            {replyingTo === reply.id && (
+                            {(replyingTo as number | null) === reply.id && (
                               <ReplyInputContainer>
                                 <CommentTextArea
                                   placeholder="답글을 입력하세요"

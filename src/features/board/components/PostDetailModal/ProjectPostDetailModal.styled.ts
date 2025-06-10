@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { FaCommentDots, FaEdit, FaTrash, FaReply } from "react-icons/fa";
 
 export const ModalOverlay = styled.div`
   position: fixed;
@@ -105,18 +106,26 @@ export const ActionButton = styled.button`
 `;
 
 export const QuestionAnswerButton = styled.button`
-  background-color: #fdb924;
-  color: white;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #fff7e6;
+  color: #f59e0b;
   border: none;
-  border-radius: 0.5rem;
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 500;
+  border-radius: 1.5rem;
+  padding: 0.5rem 1.2rem;
+  font-size: 0.93rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s;
+  margin-left: auto;
+  margin-bottom: 0.5rem;
+  box-shadow: 0 2px 8px 0 rgba(253, 185, 36, 0.1);
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
 
   &:hover {
-    background-color: #e6a720;
+    background-color: #fdb924;
+    color: white;
+    box-shadow: 0 4px 12px 0 rgba(253, 185, 36, 0.18);
   }
 `;
 
@@ -325,20 +334,25 @@ export const ErrorMessage = styled.div`
 `;
 
 export const ModalHeaderActionButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
   background-color: #f3f4f6;
   color: #374151;
   border: none;
-  border-radius: 0.375rem;
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
+  border-radius: 1.5rem;
+  padding: 0.32rem 0.85rem;
+  font-size: 0.85rem;
   font-weight: 500;
   cursor: pointer;
-  margin-left: 0.5rem;
-  transition: background-color 0.2s;
+  margin-left: 0.25rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+  transition: background-color 0.18s, color 0.18s, box-shadow 0.18s;
 
   &:hover {
     background-color: #fdb924;
     color: white;
+    box-shadow: 0 2px 8px 0 rgba(253, 185, 36, 0.1);
   }
 `;
 
