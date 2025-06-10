@@ -29,6 +29,9 @@ import UserDashboardPage from "./features/board/pages/DashboardPage";
 import ProjectPostPage from "./features/project/pages/ProjectPostPage";
 import PostEditPage from "./features/project/pages/PostEditPage";
 
+// project pages
+import CreateProjectPage from "./features/project/pages/CreateProjectPage";
+
 // etc
 import { AppContainer, MainContent, PageContent } from "./App.styled";
 
