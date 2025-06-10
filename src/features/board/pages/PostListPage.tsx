@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   PageContainer,
   Header,
@@ -70,6 +71,7 @@ const getTypeText = (type: PostType) => {
 };
 
 export default function PostListPage() {
+  const navigate = useNavigate();
   const [posts, setPosts] = useState<Post[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -158,6 +160,10 @@ export default function PostListPage() {
     setCurrentPage(0);
   };
 
+  const handleCreatePost = () => {
+    navigate("/posts/create");
+  };
+
   if (loading && posts.length === 0) {
     return (
       <PageContainer>
@@ -211,7 +217,7 @@ export default function PostListPage() {
           </FilterSelect>
         </ToolbarLeft>
         <ToolbarRight>
-          <CreateButton>+ 게시글 작성</CreateButton>
+          <CreateButton onClick={handleCreatePost}>+ 게시글 작성</CreateButton>
           <SearchContainer>
             <SearchInput
               type="text"

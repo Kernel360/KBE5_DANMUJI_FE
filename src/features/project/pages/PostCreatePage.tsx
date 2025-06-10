@@ -1,12 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { createPost } from "../services/postService";
-import type {
-  PostCreateData,
-  PostType,
-  PostStatus,
-  PostPriority,
-} from "../types/post";
+import { createPost } from "@/features/project/services/postService";
+import type { PostCreateData } from "@/features/project/types/post";
 import {
   PageContainer,
   MainContentWrapper,
@@ -28,14 +23,24 @@ export default function PostCreatePage() {
   const [formData, setFormData] = useState<PostCreateData>({
     title: "",
     content: "",
-    type: PostType.GENERAL,
-    priority: PostPriority.LOW,
-    status: PostStatus.PENDING,
+    type: "GENERAL",
+    priority: 1,
+    status: "PENDING",
     projectId: 1, // 임시로 프로젝트 ID 1 사용
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+  // 디버깅을 위한 로그
+  console.log("Current formData:", formData);
+  console.log("formData.type:", formData.type, "typeof:", typeof formData.type);
+  console.log(
+    "formData.priority:",
+    formData.priority,
+    "typeof:",
+    typeof formData.priority
+  );
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -43,17 +48,18 @@ export default function PostCreatePage() {
     >
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]:
-        name === "priority"
-          ? (parseInt(value) as PostPriority)
-          : name === "type"
-          ? (value as PostType)
-          : name === "status"
-          ? (value as PostStatus)
-          : value,
-    }));
+    console.log(
+      `handleChange - name: ${name}, value: ${value}, type: ${typeof value}`
+    );
+
+    setFormData((prev) => {
+      const newData = {
+        ...prev,
+        [name]: name === "priority" ? parseInt(value, 10) : value,
+      };
+      console.log(`Updated formData:`, newData);
+      return newData;
+    });
     setFormErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
@@ -144,7 +150,6 @@ export default function PostCreatePage() {
             >
               <option value="GENERAL">일반</option>
               <option value="NOTICE">공지</option>
-              <option value="QUESTION">질문</option>
               <option value="REPORT">보고</option>
             </Select>
           </FormGroup>
@@ -154,12 +159,12 @@ export default function PostCreatePage() {
             <Select
               id="priority"
               name="priority"
-              value={formData.priority}
+              value={formData.priority.toString()}
               onChange={handleChange}
             >
-              <option value={1}>낮음</option>
-              <option value={2}>보통</option>
-              <option value={3}>높음</option>
+              <option value="1">낮음</option>
+              <option value="2">보통</option>
+              <option value="3">높음</option>
             </Select>
           </FormGroup>
 

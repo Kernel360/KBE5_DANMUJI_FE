@@ -93,7 +93,13 @@ export type ApiResponse<T> = {
 
 // 게시글 생성 응답 타입
 export type PostCreateResponse = {
-  postId: number;
+  authorIp: string;
+  authorId: number;
+  title: string;
+  content: string;
+  type: PostType;
+  status: PostStatus;
+  priority: PostPriority;
 };
 
 // 페이지네이션 메타데이터 타입

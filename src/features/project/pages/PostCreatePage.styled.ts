@@ -70,17 +70,44 @@ export const TextArea = styled.textarea`
 
 export const Select = styled.select`
   padding: 0.75rem;
-  border: 1px solid #d1d5db;
+  border: 2px solid #d1d5db;
   border-radius: 0.375rem;
   font-size: 0.875rem;
-  background-color: white;
+  font-weight: 500;
+  background-color: #f9fafb;
   cursor: pointer;
-  transition: border-color 0.2s;
+  transition: all 0.2s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+  padding-right: 2.5rem;
+
+  &:hover {
+    border-color: #9ca3af;
+    background-color: #f3f4f6;
+  }
 
   &:focus {
     outline: none;
     border-color: #fdb924;
-    box-shadow: 0 0 0 2px rgba(253, 185, 36, 0.1);
+    background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.1);
+  }
+
+  /* 선택된 옵션 스타일 */
+  option {
+    font-weight: 500;
+    padding: 0.5rem;
+  }
+
+  /* 선택된 값이 있을 때 스타일 */
+  &:not([value=""]) {
+    background-color: #fef3c7;
+    border-color: #fdb924;
+    color: #92400e;
+    font-weight: 600;
   }
 `;
 
