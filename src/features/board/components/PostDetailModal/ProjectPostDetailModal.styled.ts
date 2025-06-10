@@ -199,8 +199,6 @@ export const CommentsSection = styled(Section)`
 `;
 
 export const CommentsList = styled.div`
-  max-height: 200px;
-  overflow-y: auto;
   margin-bottom: 1rem;
   padding-right: 0.5rem;
 `;
@@ -342,4 +340,31 @@ export const ModalHeaderActionButton = styled.button`
     background-color: #fdb924;
     color: white;
   }
+`;
+
+// 대댓글 관련 스타일 컴포넌트
+export const ReplyInputContainer = styled.div`
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background-color: #f8f9fa;
+  border-radius: 0.375rem;
+  border-left: 3px solid #fdb924;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+`;
+
+export const ReplyList = styled.div`
+  margin-top: 0.75rem;
+  padding-left: 1rem;
+  border-left: 2px solid #e5e7eb;
+`;
+
+export const ReplyItem = styled.div`
+  background-color: #f8f9fa;
+  border-radius: 0.375rem;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+  border: 1px solid #e9ecef;
 `;

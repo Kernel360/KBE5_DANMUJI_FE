@@ -28,6 +28,8 @@ import {
   CommentSubmitButton,
   LoadingSpinner,
   ErrorMessage,
+  ReplyInputContainer,
+  ReplyItem,
 } from "./ProjectPostDetailModal.styled.ts";
 import {
   getPostDetail,
@@ -59,6 +61,12 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [submittingComment, setSubmittingComment] = useState(false);
   const [showQuestionAnswer, setShowQuestionAnswer] = useState(false);
+
+  // 대댓글 관련 상태 추가
+  const [replyingTo, setReplyingTo] = useState<number | null>(null);
+  const [replyText, setReplyText] = useState("");
+  const [submittingReply, setSubmittingReply] = useState(false);
+  const [replyPrefix, setReplyPrefix] = useState("");
 
   useEffect(() => {
     const loadPostData = async () => {
@@ -108,8 +116,11 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
       const response = await createComment(postId, commentText);
 
       if (response.data) {
-        // 새 댓글을 목록에 추가
-        setComments((prev) => [...prev, response.data!]);
+        // 댓글 목록을 다시 불러오기
+        const commentsResponse = await getComments(postId);
+        if (commentsResponse.data) {
+          setComments(commentsResponse.data);
+        }
         setCommentText("");
       }
     } catch (err) {
@@ -117,6 +128,32 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
       alert("댓글 작성 중 오류가 발생했습니다.");
     } finally {
       setSubmittingComment(false);
+    }
+  };
+
+  // 대댓글 생성 함수
+  const handleReplyClick = (comment: Comment) => {
+    setReplyingTo(comment.id);
+    setReplyPrefix(`@${comment.author?.name || "알 수 없는 사용자"} `);
+    setReplyText(`@${comment.author?.name || "알 수 없는 사용자"} `);
+  };
+
+  // 답글 등록
+  const handleReplySubmit = async () => {
+    if (!replyText.trim() || !postId || replyingTo === null) return;
+    try {
+      setSubmittingReply(true);
+      await createComment(postId, replyText, replyingTo); // parentId는 남겨두되, UI는 평면
+      // 댓글 목록 새로고침
+      const commentsResponse = await getComments(postId);
+      setComments(commentsResponse.data || []);
+      setReplyText("");
+      setReplyingTo(null);
+      setReplyPrefix("");
+    } catch (err) {
+      alert("답글 작성 중 오류가 발생했습니다.");
+    } finally {
+      setSubmittingReply(false);
     }
   };
 
@@ -304,24 +341,191 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
               <SectionTitle>댓글 ({comments.length})</SectionTitle>
               <CommentsList>
                 {comments.length > 0 ? (
-                  comments.map((comment) => (
-                    <CommentItem key={comment.id}>
-                      <CommentMeta>
-                        <CommentAuthor>{comment.author.name}</CommentAuthor>
-                        <CommentActions>
-                          <span>{formatDate(comment.createdAt)}</span>
-                          {/* 댓글 작성자 본인일 때만 수정/삭제 버튼 표시 */}
-                          {isAuthor(comment.author.id) && (
-                            <>
-                              <CommentActionButton>수정</CommentActionButton>
-                              <CommentActionButton>삭제</CommentActionButton>
-                            </>
+                  comments
+                    .filter((comment) => !comment.parentCommentId)
+                    .map((rootComment) => {
+                      // 이 댓글을 부모로 하는 모든 답글(1,2,3...depth) 평면적으로 시간순 정렬
+                      const replies = comments.filter((c) => {
+                        let parent = c.parentCommentId;
+                        while (parent) {
+                          if (parent === rootComment.id) return true;
+                          const parentComment = comments.find(
+                            (cc) => cc.id === parent
+                          );
+                          parent = parentComment?.parentCommentId;
+                        }
+                        return false;
+                      });
+                      // 시간순 정렬
+                      replies.sort(
+                        (a, b) =>
+                          new Date(a.createdAt).getTime() -
+                          new Date(b.createdAt).getTime()
+                      );
+                      return [
+                        <CommentItem key={rootComment.id}>
+                          <CommentMeta>
+                            <CommentAuthor>
+                              {rootComment.author?.name || "알 수 없는 사용자"}
+                            </CommentAuthor>
+                            <CommentActions>
+                              <span>{formatDate(rootComment.createdAt)}</span>
+                              {rootComment.author &&
+                                isAuthor(rootComment.author.id) && (
+                                  <>
+                                    <CommentActionButton>
+                                      수정
+                                    </CommentActionButton>
+                                    <CommentActionButton>
+                                      삭제
+                                    </CommentActionButton>
+                                  </>
+                                )}
+                              <CommentActionButton
+                                onClick={() => handleReplyClick(rootComment)}
+                              >
+                                답글
+                              </CommentActionButton>
+                            </CommentActions>
+                          </CommentMeta>
+                          <CommentText>
+                            {rootComment.content
+                              .split(/(@\S+)/g)
+                              .map((part, idx) =>
+                                part.startsWith("@") ? (
+                                  <span
+                                    key={idx}
+                                    style={{
+                                      color: "#fdb924",
+                                      fontWeight: 500,
+                                    }}
+                                  >
+                                    {part}
+                                  </span>
+                                ) : (
+                                  <span key={idx}>{part}</span>
+                                )
+                              )}
+                          </CommentText>
+                          {replyingTo === rootComment.id && (
+                            <ReplyInputContainer>
+                              <CommentTextArea
+                                placeholder="답글을 입력하세요"
+                                value={replyText}
+                                onChange={(
+                                  e: React.ChangeEvent<HTMLTextAreaElement>
+                                ) => setReplyText(e.target.value)}
+                                disabled={submittingReply}
+                                rows={3}
+                              />
+                              <div
+                                style={{
+                                  display: "flex",
+                                  justifyContent: "flex-end",
+                                }}
+                              >
+                                <CommentSubmitButton
+                                  onClick={handleReplySubmit}
+                                  disabled={
+                                    !replyText.trim() || submittingReply
+                                  }
+                                >
+                                  {submittingReply ? "등록 중..." : "답글 등록"}
+                                </CommentSubmitButton>
+                              </div>
+                            </ReplyInputContainer>
                           )}
-                        </CommentActions>
-                      </CommentMeta>
-                      <CommentText>{comment.content}</CommentText>
-                    </CommentItem>
-                  ))
+                        </CommentItem>,
+                        ...replies.map((reply) => (
+                          <CommentItem key={reply.id}>
+                            <CommentMeta>
+                              <CommentAuthor>
+                                {reply.author?.name || "알 수 없는 사용자"}
+                              </CommentAuthor>
+                              <CommentActions>
+                                <span>{formatDate(reply.createdAt)}</span>
+                                {reply.author && isAuthor(reply.author.id) && (
+                                  <>
+                                    <CommentActionButton>
+                                      수정
+                                    </CommentActionButton>
+                                    <CommentActionButton>
+                                      삭제
+                                    </CommentActionButton>
+                                  </>
+                                )}
+                                <CommentActionButton
+                                  onClick={() => handleReplyClick(reply)}
+                                >
+                                  답글
+                                </CommentActionButton>
+                              </CommentActions>
+                            </CommentMeta>
+                            <CommentText>
+                              <span
+                                style={{
+                                  display: "inline-block",
+                                  background: "#f3f4f6",
+                                  color: "#888",
+                                  fontSize: "0.75em",
+                                  borderRadius: 4,
+                                  padding: "2px 6px",
+                                  marginRight: 6,
+                                  verticalAlign: "middle",
+                                }}
+                              >
+                                답글
+                              </span>
+                              {reply.content.split(/(@\S+)/g).map((part, idx) =>
+                                part.startsWith("@") ? (
+                                  <span
+                                    key={idx}
+                                    style={{
+                                      color: "#fdb924",
+                                      fontWeight: 500,
+                                    }}
+                                  >
+                                    {part}
+                                  </span>
+                                ) : (
+                                  <span key={idx}>{part}</span>
+                                )
+                              )}
+                            </CommentText>
+                            {replyingTo === reply.id && (
+                              <ReplyInputContainer>
+                                <CommentTextArea
+                                  placeholder="답글을 입력하세요"
+                                  value={replyText}
+                                  onChange={(
+                                    e: React.ChangeEvent<HTMLTextAreaElement>
+                                  ) => setReplyText(e.target.value)}
+                                  disabled={submittingReply}
+                                  rows={3}
+                                />
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    justifyContent: "flex-end",
+                                  }}
+                                >
+                                  <CommentSubmitButton
+                                    onClick={handleReplySubmit}
+                                    disabled={
+                                      !replyText.trim() || submittingReply
+                                    }
+                                  >
+                                    {submittingReply
+                                      ? "등록 중..."
+                                      : "답글 등록"}
+                                  </CommentSubmitButton>
+                                </div>
+                              </ReplyInputContainer>
+                            )}
+                          </CommentItem>
+                        )),
+                      ];
+                    })
                 ) : (
                   <p>아직 댓글이 없습니다.</p>
                 )}
