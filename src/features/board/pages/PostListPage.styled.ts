@@ -75,6 +75,7 @@ export const SearchInput = styled.input`
   font-size: 0.875rem;
   width: 280px;
   background-color: white;
+  color: #000000;
   transition: all 0.2s ease;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 
@@ -160,7 +161,7 @@ export const TableCell = styled.td<{ $align?: "left" | "center" | "right" }>`
 `;
 
 export const PostTitle = styled.span`
-  color: #3b82f6;
+  color: #000000;
   font-weight: 500;
   cursor: pointer;
 

@@ -5,7 +5,6 @@ import {
   AiOutlineFileText,
   AiOutlineTag,
   AiOutlineFile,
-  AiOutlineRight,
 } from "react-icons/ai";
 import {
   PageContainer,
@@ -36,7 +35,10 @@ import {
   ToolbarRight,
 } from "./PostListPage.styled";
 import PostDetailModal from "../components/PostDetailModal/ProjectPostDetailModal";
-import { getPosts, searchPosts } from "@/features/project/services/postService";
+import {
+  searchPosts,
+  getPostsWithComments,
+} from "@/features/project/services/postService";
 import type { Post, PostStatus, PostType } from "@/features/project/types/post";
 import { useLocation } from "react-router-dom";
 
@@ -104,7 +106,7 @@ export default function PostListPage() {
       if (searchTerm.trim()) {
         response = await searchPosts(searchTerm, currentPage, itemsPerPage);
       } else {
-        response = await getPosts(
+        response = await getPostsWithComments(
           1, // 임시로 프로젝트 ID 1 사용
           currentPage,
           itemsPerPage,
@@ -426,13 +428,75 @@ export default function PostListPage() {
                     new Date(b.createdAt).getTime()
                 );
 
+                // 검색어가 있을 때 댓글 내용도 검색
+                const hasMatchingComment =
+                  searchTerm.trim() &&
+                  rootPost.comments &&
+                  rootPost.comments.some((comment) =>
+                    comment.content
+                      .toLowerCase()
+                      .includes(searchTerm.toLowerCase())
+                  );
+
                 return [
                   <TableRow
                     key={rootPost.postId}
                     onClick={() => handlePostClick(rootPost.postId)}
+                    style={hasMatchingComment ? { background: "#fef3c7" } : {}}
                   >
                     <TableCell>
-                      <PostTitle>{rootPost.title}</PostTitle>
+                      <PostTitle style={{ color: "#000000" }}>
+                        {rootPost.title}
+                        {rootPost.comments && rootPost.comments.length > 0 && (
+                          <span
+                            style={{
+                              display: "inline-block",
+                              background: "#60a5fa",
+                              color: "white",
+                              borderRadius: "12px",
+                              fontSize: "0.75rem",
+                              padding: "2px 8px",
+                              marginLeft: "8px",
+                              fontWeight: "500",
+                            }}
+                          >
+                            댓글 {rootPost.comments.length}
+                          </span>
+                        )}
+                        {rootPost.questionCount &&
+                          rootPost.questionCount > 0 && (
+                            <span
+                              style={{
+                                display: "inline-block",
+                                background: "#34d399",
+                                color: "white",
+                                borderRadius: "12px",
+                                fontSize: "0.75rem",
+                                padding: "2px 8px",
+                                marginLeft: "8px",
+                                fontWeight: "500",
+                              }}
+                            >
+                              질문 {rootPost.questionCount}
+                            </span>
+                          )}
+                        {hasMatchingComment && (
+                          <span
+                            style={{
+                              display: "inline-block",
+                              background: "#f59e0b",
+                              color: "white",
+                              borderRadius: "12px",
+                              fontSize: "0.75rem",
+                              padding: "2px 8px",
+                              marginLeft: "8px",
+                              fontWeight: "500",
+                            }}
+                          >
+                            댓글에서 검색됨
+                          </span>
+                        )}
+                      </PostTitle>
                     </TableCell>
                     <TableCell>{rootPost.author.name}</TableCell>
                     <TableCell $align="center">
@@ -508,7 +572,41 @@ export default function PostListPage() {
                                 : topParent.title}
                             </span>
                           )}
-                          <PostTitle>{reply.title}</PostTitle>
+                          <PostTitle style={{ color: "#000000" }}>
+                            {reply.title}
+                            {reply.comments && reply.comments.length > 0 && (
+                              <span
+                                style={{
+                                  display: "inline-block",
+                                  background: "#60a5fa",
+                                  color: "white",
+                                  borderRadius: "12px",
+                                  fontSize: "0.75rem",
+                                  padding: "2px 8px",
+                                  marginLeft: "8px",
+                                  fontWeight: "500",
+                                }}
+                              >
+                                댓글 {reply.comments.length}
+                              </span>
+                            )}
+                            {reply.questionCount && reply.questionCount > 0 && (
+                              <span
+                                style={{
+                                  display: "inline-block",
+                                  background: "#34d399",
+                                  color: "white",
+                                  borderRadius: "12px",
+                                  fontSize: "0.75rem",
+                                  padding: "2px 8px",
+                                  marginLeft: "8px",
+                                  fontWeight: "500",
+                                }}
+                              >
+                                질문 {reply.questionCount}
+                              </span>
+                            )}
+                          </PostTitle>
                         </TableCell>
                         <TableCell>{reply.author.name}</TableCell>
                         <TableCell $align="center">

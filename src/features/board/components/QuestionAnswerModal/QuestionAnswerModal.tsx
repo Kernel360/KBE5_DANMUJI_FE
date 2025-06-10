@@ -34,10 +34,7 @@ import {
   AnswerForm,
   AnswerTextArea,
   AnswerSubmitButton,
-  QuestionStats,
-  QuestionStatus,
   VoteButton,
-  VoteCount,
   BestAnswerBadge,
   LoadingSpinner,
   ErrorMessage,
@@ -47,13 +44,12 @@ import {
   createQuestion,
   getQuestionsByPost,
   createAnswer,
-  getAnswersByQuestion,
   updateQuestion,
   deleteQuestion,
   resolveQuestion,
 } from "@/features/project/services/questionService";
 import type { Post } from "@/features/project/types/post";
-import type { Question, Answer } from "@/features/project/types/question";
+import type { Question } from "@/features/project/types/question";
 import { useAuth } from "@/contexts/AuthContexts";
 
 interface QuestionAnswerModalProps {

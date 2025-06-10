@@ -80,6 +80,7 @@ export type Post = {
   completedAt: string | null;
   approvedAt: string | null;
   comments?: Comment[];
+  questionCount?: number;
   isDeleted: boolean;
 };
 

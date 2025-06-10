@@ -13,6 +13,7 @@ import type {
   PostPriority,
   PostUpdateRequest,
 } from "../types/post";
+import { getQuestionsByPost } from "./questionService";
 import { AxiosError } from "axios";
 import type { AxiosResponse } from "axios";
 
@@ -123,6 +124,76 @@ export const getPosts = async (
       }
     );
     return handleApiResponse<PostListResponse["data"]>(response);
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
+    if (error instanceof AxiosError) {
+      throw new ApiError(
+        error.response?.data?.message ||
+          "게시글 목록 조회 중 오류가 발생했습니다.",
+        error.response?.status
+      );
+    }
+    throw new ApiError("게시글 목록 조회 중 알 수 없는 오류가 발생했습니다.");
+  }
+};
+
+// 게시글 목록 조회 (댓글 포함)
+export const getPostsWithComments = async (
+  projectId: number,
+  page: number = 0,
+  size: number = 10,
+  status?: PostStatus,
+  type?: PostType,
+  priority?: PostPriority,
+  searchTerm?: string
+): Promise<PostListResponse> => {
+  try {
+    // 먼저 게시글 목록을 가져옴
+    const postsResponse = await getPosts(
+      projectId,
+      page,
+      size,
+      status,
+      type,
+      priority,
+      searchTerm
+    );
+
+    if (postsResponse.data) {
+      // 각 게시글의 댓글과 질문을 병렬로 가져옴
+      const postsWithComments = await Promise.all(
+        postsResponse.data.content.map(async (post) => {
+          try {
+            const [commentsResponse, questionsResponse] = await Promise.all([
+              getComments(post.postId),
+              getQuestionsByPost(post.postId, 0, 1000), // 질문 개수만 필요하므로 큰 사이즈로 가져옴
+            ]);
+            return {
+              ...post,
+              comments: commentsResponse.data || [],
+              questionCount: questionsResponse.data?.content?.length || 0,
+            };
+          } catch (error) {
+            console.error(`게시글 ${post.postId} 댓글/질문 로드 실패:`, error);
+            return {
+              ...post,
+              comments: [],
+              questionCount: 0,
+            };
+          }
+        })
+      );
+
+      return {
+        ...postsResponse,
+        data: {
+          ...postsResponse.data,
+          content: postsWithComments,
+        },
+      };
+    }
+
+    return postsResponse;
   } catch (error) {
     if (error instanceof ApiError) throw error;
     if (error instanceof AxiosError) {
