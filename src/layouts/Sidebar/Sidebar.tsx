@@ -24,8 +24,6 @@ import { FaArchive } from "react-icons/fa";
 
 import { useAuth } from "@/contexts/AuthContexts";
 
-import danmujiLogo from "/assets/danmuji_logo.png";
-
 const LogoImage = styled.img`
   height: 48px;
   width: auto;
@@ -46,7 +44,7 @@ export const Sidebar: React.FC = () => {
   return (
     <SidebarContainer>
       <LogoArea onClick={() => handleMenuItemClick("홈", "/dashboard")}>
-        <LogoImage src={danmujiLogo} alt="Danmuji Logo" />
+        <LogoImage src="/src/assets/danmuji_logo.png" alt="Danmuji Logo" />
       </LogoArea>
       <Divider />
       <ProfileArea><UserProfile /></ProfileArea>
