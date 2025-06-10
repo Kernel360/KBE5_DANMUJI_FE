@@ -1,8 +1,8 @@
-import axios from 'axios';
+import api from "@/api/axios";
 import { useState, useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
 import MemberRegisterModal from '../components/MemberRegisterModal/MemberRegisterModal';
 import MemberEditModal from '../components/MemberEditModal/MemberEditModal';
-import MemberDetailModal from '../components/MemberDetailModal/MemberDetailModal';
 import styled from 'styled-components';
 
 export interface Member {
@@ -10,18 +10,26 @@ export interface Member {
   username: string;
   name: string;
   role: string;
-  company: string;
+  companyId: number;
   position: string;
   phone: string;
+  email: string;
+  createdAt: string;
 }
 
 export interface MemberFormData {
   username: string;
   name: string;
   role: string;
-  company: string;
+  companyId: number;
   position: string;
   phone: string;
+  email: string;
+}
+
+interface Company {
+  id: number;
+  name: string;
 }
 
 // styled-components
@@ -157,15 +165,17 @@ export default function MemberPage() {
   const [editData, setEditData] = useState<Member | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isMemberDetailModalOpen, setIsMemberDetailModalOpen] = useState(false);
-  const [selectedMemberForDetail, setSelectedMemberForDetail] = useState<Member | null>(null);
+  const [companies, setCompanies] = useState<Company[]>([]);
+
+  const navigate = useNavigate();
 
   const fetchMembers = async () => {
     try {
       setLoading(true);
       // TODO: Replace with actual API call to fetch members
-      const response = await axios.get(`/api/admin/allUsers`);
+      const response = await api.get(`/api/admin/allUsers`);
       setMembers(response.data.data.content);
+      console.log("Current members:", response.data.data.content);
     } catch (err: unknown) {
       let errorMessage = "An unknown error occurred";
       if (err instanceof Error) {
@@ -178,8 +188,21 @@ export default function MemberPage() {
     }
   };
 
+  const fetchCompanies = async () => {
+    try {
+      const response = await api.get('/api/companies/all'); // 충분한 크기로 모든 회사 데이터를 가져옴
+      console.log("API Response for companies:", response.data);
+      console.log("Companies content:", response.data.data);
+      setCompanies(response.data.data);
+      console.log("Current companies:", response.data.data);
+    } catch (err: unknown) {
+      console.error("Failed to fetch companies:", err);
+    }
+  };
+
   useEffect(() => {
     fetchMembers();
+    fetchCompanies();
   }, []);
 
   const filtered = members.filter(m => m.name.toLowerCase().includes(search.toLowerCase()));
@@ -194,12 +217,13 @@ export default function MemberPage() {
         id: editData?.id,
         username: data.username,
         name: data.name,
-        company: data.company,
+        companyId: data.companyId,
         position: data.position,
-        tel: data.phone,
+        phone: data.phone,
+        email: data.email,
       };
       // TODO: Replace with actual API call to update member
-      await axios.put(`/api/members/${editData?.id}`, memberToUpdate);
+      await api.put(`/api/admin/${editData?.id}`, memberToUpdate);
       fetchMembers();
       alert("회원 정보가 성공적으로 수정되었습니다!");
       setEditModalOpen(false);
@@ -215,7 +239,7 @@ export default function MemberPage() {
         ...data,
       };
       // TODO: Replace with actual API call to register member
-      await axios.post('/api/members', newMember);
+      await api.post('/api/admin', newMember);
       fetchMembers();
       alert("회원 등록이 완료되었습니다!");
       setModalOpen(false);
@@ -229,7 +253,7 @@ export default function MemberPage() {
     if (window.confirm('정말로 이 회원을 삭제하시겠습니까?')) {
       try {
         // TODO: Replace with actual API call to delete member
-        await axios.delete(`/api/admin/${memberId}`);
+        await api.delete(`/api/admin/${memberId}`);
         fetchMembers();
         alert("회원 삭제가 완료되었습니다!");
       } catch (error: unknown) {
@@ -240,8 +264,7 @@ export default function MemberPage() {
   };
 
   const handleMemberClick = (member: Member) => {
-    setSelectedMemberForDetail(member);
-    setIsMemberDetailModalOpen(true);
+    navigate(`/member/${member.id}`);
   };
 
   if (loading) return <div>로딩 중...</div>;
@@ -273,10 +296,9 @@ export default function MemberPage() {
         <Table>
           <TableHead>
             <TableRow>
-              <TableHeader>아이디</TableHeader>
               <TableHeader>이름</TableHeader>
+              <TableHeader>아이디</TableHeader>
               <TableHeader>회사</TableHeader>
-              <TableHeader>권한</TableHeader>
               <TableHeader>직책</TableHeader>
               <TableHeader>전화번호</TableHeader>
               <TableHeader>관리</TableHeader>
@@ -292,8 +314,7 @@ export default function MemberPage() {
                   {member.name}
                 </TableCell>
                 <TableCell>{member.username}</TableCell>
-                <TableCell>{member.company}</TableCell>
-                <TableCell>{member.role}</TableCell>
+                <TableCell>{companies && companies.find(c => c.id === member.companyId)?.name || 'N/A'}</TableCell>
                 <TableCell>{member.position}</TableCell>
                 <TableCell>{formatTelNo(member.phone)}</TableCell>
                 <TableCell>
@@ -327,13 +348,6 @@ export default function MemberPage() {
           onClose={() => setEditModalOpen(false)}
           onEdit={handleEdit}
           initialData={editData}
-        />
-      )}
-
-      {isMemberDetailModalOpen && selectedMemberForDetail && (
-        <MemberDetailModal
-          onClose={() => setIsMemberDetailModalOpen(false)}
-          member={selectedMemberForDetail}
         />
       )}
     </Container>

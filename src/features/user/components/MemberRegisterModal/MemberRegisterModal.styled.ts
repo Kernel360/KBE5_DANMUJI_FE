@@ -78,4 +78,38 @@ export const Select = styled.select`
     border-color: #fdb924;
     box-shadow: 0 0 0 2px rgba(253, 185, 36, 0.1);
   }
+`;
+
+export const ButtonGroup = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+`;
+
+export const Button = styled.button<{ $variant?: "primary" | "secondary" }>`
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  ${(props) =>
+    props.$variant === "primary"
+      ? `
+    background-color: #3b82f6;
+    color: white;
+
+    &:hover {
+      background-color: #2563eb;
+    }
+  `
+      : `
+    background-color: #f3f4f6;
+    color: #4b5563;
+
+    &:hover {
+      background-color: #e5e7eb;
+    }
+  `}
 `; 

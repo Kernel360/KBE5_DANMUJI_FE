@@ -23,6 +23,7 @@ import AdminDashboardPage from "./features/admin/pages/DashboardPage";
 import CompanyPage from "./features/company/pages/CompanyPage";
 import MemberPage from "./features/user/pages/MemberPage";
 import AdminMainPage from "./features/project/pages/AdminMainPage";
+import MemberDetailPage from "./features/user/pages/MemberDetailPage";
 
 // user pages
 import UserDashboardPage from "./features/board/pages/DashboardPage";
@@ -93,6 +94,7 @@ const AppRoutes = () => {
         <>
           <Route path="/company" element={<CompanyPage />} />
           <Route path="/members" element={<MemberPage />} />
+          <Route path="/member/:id" element={<MemberDetailPage />} />
           <Route path="/projects" element={<AdminMainPage />} />
         </>
       )}
