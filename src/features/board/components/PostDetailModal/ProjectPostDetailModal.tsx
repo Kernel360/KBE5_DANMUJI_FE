@@ -23,13 +23,11 @@ import {
   CommentActions,
   CommentActionButton,
   CommentText,
-  CommentInputContainer,
   CommentTextArea,
   CommentSubmitButton,
   LoadingSpinner,
   ErrorMessage,
   ReplyInputContainer,
-  ReplyItem,
 } from "./ProjectPostDetailModal.styled.ts";
 import {
   getPostDetail,
@@ -62,7 +60,6 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
   const [post, setPost] = useState<Post | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [submittingComment, setSubmittingComment] = useState(false);
   const [showQuestionAnswer, setShowQuestionAnswer] = useState(false);
 
@@ -70,7 +67,6 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
   const [replyText, setReplyText] = useState("");
   const [submittingReply, setSubmittingReply] = useState(false);
-  const [replyPrefix, setReplyPrefix] = useState("");
 
   // 댓글 수정 상태 추가
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
@@ -81,7 +77,6 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
       if (open && postId !== null) {
         try {
           setLoading(true);
-          setError(null);
 
           // 게시글 상세 정보 가져오기
           const postResponse = await getPostDetail(postId);
@@ -100,7 +95,6 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
             setComments([]);
           }
         } catch (err) {
-          setError("게시글을 불러오는 중 오류가 발생했습니다.");
           console.error("게시글 로드 중 오류:", err);
         } finally {
           setLoading(false);
@@ -109,7 +103,6 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
         setPost(null);
         setComments([]);
         setLoading(false);
-        setError(null);
       }
     };
 
@@ -142,7 +135,6 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
   // 대댓글 생성 함수
   const handleReplyClick = (comment: Comment) => {
     setReplyingTo(comment.id);
-    setReplyPrefix(`@${comment.author?.name || "알 수 없는 사용자"} `);
     setReplyText(`@${comment.author?.name || "알 수 없는 사용자"} `);
   };
 
@@ -157,8 +149,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
       setComments(commentsResponse.data || []);
       setReplyText("");
       setReplyingTo(null);
-      setReplyPrefix("");
-    } catch (error) {
+    } catch {
       alert("답글 작성 중 오류가 발생했습니다.");
     } finally {
       setSubmittingReply(false);
@@ -205,7 +196,6 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
           : "게시글 삭제 중 오류가 발생했습니다.";
       console.error("게시글 삭제 중 오류:", err);
       alert(errorMessage);
-      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -272,7 +262,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
         const commentsResponse = await getComments(postId);
         setComments(commentsResponse.data || []);
       }
-    } catch (error) {
+    } catch {
       alert("댓글 수정 중 오류가 발생했습니다.");
     }
   };
@@ -286,7 +276,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
         const commentsResponse = await getComments(postId);
         setComments(commentsResponse.data || []);
       }
-    } catch (error) {
+    } catch {
       alert("댓글 삭제 중 오류가 발생했습니다.");
     }
   };
@@ -298,16 +288,6 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
       <ModalOverlay onClick={onClose}>
         <ModalPanel>
           <LoadingSpinner>로딩 중...</LoadingSpinner>
-        </ModalPanel>
-      </ModalOverlay>
-    );
-  }
-
-  if (error) {
-    return (
-      <ModalOverlay onClick={onClose}>
-        <ModalPanel>
-          <ErrorMessage>{error}</ErrorMessage>
         </ModalPanel>
       </ModalOverlay>
     );
@@ -385,6 +365,62 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                 </ModalHeaderActionButton>
               </div>
               <SectionTitle>댓글 ({comments.length})</SectionTitle>
+
+              {/* 댓글 입력창을 위로 이동 */}
+              <div
+                style={{
+                  marginBottom: "1.5rem",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "0.5rem",
+                    alignItems: "flex-end",
+                  }}
+                >
+                  <CommentTextArea
+                    placeholder="댓글을 입력하세요"
+                    value={commentText}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                      setCommentText(e.target.value)
+                    }
+                    disabled={submittingComment}
+                    style={{
+                      flex: 1,
+                      border: "1px solid #e2e8f0",
+                      borderRadius: "0.5rem",
+                      padding: "0.75rem",
+                      fontSize: "0.875rem",
+                      resize: "vertical",
+                      minHeight: "60px",
+                      background: "white",
+                      color: "#374151",
+                      transition: "border-color 0.2s ease",
+                    }}
+                  />
+                  <CommentSubmitButton
+                    onClick={handleCommentSubmit}
+                    disabled={!commentText.trim() || submittingComment}
+                    style={{
+                      background: "#fdb924",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "0.5rem",
+                      padding: "0.75rem 1.25rem",
+                      fontSize: "0.875rem",
+                      fontWeight: "500",
+                      cursor: "pointer",
+                      transition: "background-color 0.2s ease",
+                      height: "fit-content",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {submittingComment ? "등록 중..." : "등록"}
+                  </CommentSubmitButton>
+                </div>
+              </div>
+
               <CommentsList>
                 {comments.length > 0 ? (
                   comments
@@ -730,22 +766,6 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                   <p>아직 댓글이 없습니다.</p>
                 )}
               </CommentsList>
-              <CommentInputContainer>
-                <CommentTextArea
-                  placeholder="댓글을 입력하세요"
-                  value={commentText}
-                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                    setCommentText(e.target.value)
-                  }
-                  disabled={submittingComment}
-                />
-                <CommentSubmitButton
-                  onClick={handleCommentSubmit}
-                  disabled={!commentText.trim() || submittingComment}
-                >
-                  {submittingComment ? "등록 중..." : "등록"}
-                </CommentSubmitButton>
-              </CommentInputContainer>
             </CommentsSection>
           </ModalBody>
         </ModalPanel>
