@@ -27,6 +27,7 @@ import ProjectPage from "./features/project/pages/ProjectPage";
 // user pages
 import UserDashboardPage from "./features/board/pages/DashboardPage";
 import ProjectPostPage from "./features/project/pages/ProjectPostPage";
+import PostEditPage from "./features/project/pages/PostEditPage";
 
 // project pages
 import CreateProjectPage from "./features/project/pages/CreateProjectPage";
@@ -98,8 +99,8 @@ const AppRoutes = () => {
 
       {/* 공용 */}
       <Route path="/projects" element={<ProjectPage />} />
-      <Route path="/projects/create" element={<CreateProjectPage />} />
-      <Route path="/projects/posts" element={<ProjectPostPage />} />
+      <Route path="/projects/:projectId/posts" element={<ProjectPostPage />} />
+      <Route path="/posts/:postId/edit" element={<PostEditPage />} />
     </Routes>
   );
 };
