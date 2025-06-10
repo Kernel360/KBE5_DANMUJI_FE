@@ -186,3 +186,21 @@ export const PaginationBtn = styled.button<{active?: boolean}>`
   font-weight: ${({active}) => active ? 700 : 500};
   cursor: pointer;
 `;
+
+export const Table = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+`;
+
+export const TableHead = styled.thead`
+  background: #f2f2f2;
+`;
+
+export const TableRow = styled.tr``;
+
+export const TableCell = styled.td`
+  padding: 12px 8px;
+  border-bottom: 1px solid #eee;
+`;
+
+export const TableBody = styled.tbody``;
