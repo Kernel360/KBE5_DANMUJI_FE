@@ -366,19 +366,11 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
               </InfoRow>
               <InfoRow>
                 <InfoKey>담당자</InfoKey>
-                <InfoValue>
-                  {("damdangjaName" in post
-                    ? (post as { damdangjaName?: string }).damdangjaName
-                    : "-") || "-"}
-                </InfoValue>
+                <InfoValue>{post.project?.clientCompany || "-"}</InfoValue>
               </InfoRow>
               <InfoRow>
-                <InfoKey>고객사</InfoKey>
-                <InfoValue>
-                  {("clientName" in post
-                    ? (post as { clientName?: string }).clientName
-                    : "-") || "-"}
-                </InfoValue>
+                <InfoKey>개발사</InfoKey>
+                <InfoValue>{post.project?.developerCompany || "-"}</InfoValue>
               </InfoRow>
               <InfoRow>
                 <InfoKey>요청 상태</InfoKey>
@@ -401,6 +393,22 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
               <InfoRow>
                 <InfoKey>작성일</InfoKey>
                 <InfoValue>{formatDate(post.createdAt)}</InfoValue>
+              </InfoRow>
+              <InfoRow>
+                <InfoKey>작성자</InfoKey>
+                <InfoValue>
+                  {post.author?.name}
+                  <span
+                    style={{
+                      fontSize: 12,
+                      color: "#b0b0b0",
+                      marginLeft: 8,
+                      fontWeight: 400,
+                    }}
+                  >
+                    {post.authorIp}
+                  </span>
+                </InfoValue>
               </InfoRow>
             </InfoGrid>
 
@@ -598,6 +606,16 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                           <CommentMeta>
                             <CommentAuthor>
                               {rootComment.author?.name || "알 수 없는 사용자"}
+                              <span
+                                style={{
+                                  fontSize: 11,
+                                  color: "#b0b0b0",
+                                  marginLeft: 6,
+                                  fontWeight: 400,
+                                }}
+                              >
+                                {rootComment.authorIp}
+                              </span>
                             </CommentAuthor>
                             <CommentActions>
                               <span>{formatDate(rootComment.createdAt)}</span>
@@ -748,6 +766,16 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                             <CommentMeta>
                               <CommentAuthor>
                                 {reply.author?.name || "알 수 없는 사용자"}
+                                <span
+                                  style={{
+                                    fontSize: 11,
+                                    color: "#b0b0b0",
+                                    marginLeft: 6,
+                                    fontWeight: 400,
+                                  }}
+                                >
+                                  {reply.authorIp}
+                                </span>
                               </CommentAuthor>
                               <CommentActions>
                                 <span>{formatDate(reply.createdAt)}</span>

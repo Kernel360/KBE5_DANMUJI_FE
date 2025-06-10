@@ -493,7 +493,17 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
                     <QuestionHeader>
                       <div>
                         <QuestionAuthor>
-                          {question.author?.name || "알 수 없는 사용자"}
+                          {question.author?.name}
+                          <span
+                            style={{
+                              fontSize: 11,
+                              color: "#b0b0b0",
+                              marginLeft: 6,
+                              fontWeight: 400,
+                            }}
+                          >
+                            {question.authorIp}
+                          </span>
                         </QuestionAuthor>
                         <QuestionDate>
                           {formatDate(question.createdAt)}
@@ -603,7 +613,17 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
                               <AnswerHeader>
                                 <div>
                                   <AnswerAuthor>
-                                    {answer.author?.name || "알 수 없는 사용자"}
+                                    {answer.author?.name}
+                                    <span
+                                      style={{
+                                        fontSize: 11,
+                                        color: "#b0b0b0",
+                                        marginLeft: 6,
+                                        fontWeight: 400,
+                                      }}
+                                    >
+                                      {answer.authorIp}
+                                    </span>
                                   </AnswerAuthor>
                                   <AnswerDate>
                                     {formatDate(answer.createdAt)}
