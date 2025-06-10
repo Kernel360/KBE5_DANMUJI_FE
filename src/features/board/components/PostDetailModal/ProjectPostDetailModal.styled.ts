@@ -227,6 +227,10 @@ export const CommentAuthor = styled.span`
 
 export const CommentActions = styled.div`
   font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
   a {
     color: #6b7280;
     margin-left: 0.5rem;
@@ -235,6 +239,22 @@ export const CommentActions = styled.div`
     &:hover {
       text-decoration: underline;
     }
+  }
+`;
+
+export const CommentActionButton = styled.button`
+  background: none;
+  border: none;
+  color: #6b7280;
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  transition: all 0.2s;
+
+  &:hover {
+    background-color: #f3f4f6;
+    color: #374151;
   }
 `;
 
@@ -304,4 +324,22 @@ export const ErrorMessage = styled.div`
   color: #ef4444;
   text-align: center;
   padding: 2rem;
+`;
+
+export const ModalHeaderActionButton = styled.button`
+  background-color: #f3f4f6;
+  color: #374151;
+  border: none;
+  border-radius: 0.375rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  margin-left: 0.5rem;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #fdb924;
+    color: white;
+  }
 `;

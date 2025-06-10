@@ -235,3 +235,39 @@ export const ErrorMessage = styled.div`
   text-align: center;
   padding: 2rem;
 `;
+
+export const CreateButton = styled.button`
+  padding: 0.75rem 1.5rem;
+  background-color: #fdb924;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  &:hover {
+    background-color: #e6a720;
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(253, 185, 36, 0.2);
+  }
+`;
+
+export const ToolbarLeft = styled.div`
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+`;
+
+export const ToolbarRight = styled.div`
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+`;

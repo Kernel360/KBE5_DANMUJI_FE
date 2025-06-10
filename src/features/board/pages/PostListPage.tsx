@@ -24,6 +24,9 @@ import {
   PostTitle,
   LoadingSpinner,
   ErrorMessage,
+  CreateButton,
+  ToolbarLeft,
+  ToolbarRight,
 } from "./PostListPage.styled";
 import PostDetailModal from "../components/PostDetailModal/ProjectPostDetailModal";
 import { getPosts } from "@/features/project/services/postService";
@@ -179,7 +182,7 @@ export default function PostListPage() {
       </Header>
 
       <Toolbar>
-        <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+        <ToolbarLeft>
           <FilterSelect
             onChange={handleStatusFilterChange}
             value={statusFilter}
@@ -206,17 +209,19 @@ export default function PostListPage() {
             <option value={20}>20개씩 보기</option>
             <option value={50}>50개씩 보기</option>
           </FilterSelect>
-        </div>
-
-        <SearchContainer>
-          <SearchInput
-            type="text"
-            placeholder="게시글 제목, 작성자, 내용 검색"
-            value={searchTerm}
-            onChange={handleSearchChange}
-          />
-          <SearchIcon />
-        </SearchContainer>
+        </ToolbarLeft>
+        <ToolbarRight>
+          <CreateButton>+ 게시글 작성</CreateButton>
+          <SearchContainer>
+            <SearchInput
+              type="text"
+              placeholder="게시글 제목, 작성자, 내용 검색"
+              value={searchTerm}
+              onChange={handleSearchChange}
+            />
+            <SearchIcon />
+          </SearchContainer>
+        </ToolbarRight>
       </Toolbar>
 
       <TableContainer>

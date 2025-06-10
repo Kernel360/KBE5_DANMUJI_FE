@@ -8,6 +8,7 @@ import {
   ModalTitle,
   HeaderRight,
   CloseButton,
+  ModalHeaderActionButton,
   ModalBody,
   Section,
   SectionTitle,
@@ -19,21 +20,22 @@ import {
   CommentMeta,
   CommentAuthor,
   CommentActions,
+  CommentActionButton,
   CommentText,
   CommentInputContainer,
   CommentTextArea,
   CommentSubmitButton,
-  QuestionAnswerButton,
   LoadingSpinner,
   ErrorMessage,
 } from "./ProjectPostDetailModal.styled.ts";
-import QuestionAnswerModal from "../QuestionAnswerModal/QuestionAnswerModal";
 import {
   getPostDetail,
   getComments,
   createComment,
 } from "@/features/project/services/postService";
 import type { Post, Comment } from "@/features/project/types/post";
+import QuestionAnswerModal from "../QuestionAnswerModal/QuestionAnswerModal";
+import { useAuth } from "@/contexts/AuthContexts";
 
 interface PostDetailModalProps {
   open: boolean;
@@ -46,13 +48,14 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
   onClose,
   postId,
 }) => {
+  const { user } = useAuth();
   const [commentText, setCommentText] = useState("");
   const [post, setPost] = useState<Post | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showQuestionAnswer, setShowQuestionAnswer] = useState(false);
   const [submittingComment, setSubmittingComment] = useState(false);
+  const [showQuestionAnswer, setShowQuestionAnswer] = useState(false);
 
   useEffect(() => {
     const loadPostData = async () => {
@@ -93,14 +96,6 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
 
     loadPostData();
   }, [open, postId]);
-
-  const handleQuestionAnswerClick = () => {
-    setShowQuestionAnswer(true);
-  };
-
-  const handleQuestionAnswerClose = () => {
-    setShowQuestionAnswer(false);
-  };
 
   const handleCommentSubmit = async () => {
     if (!commentText.trim() || !postId) return;
@@ -160,6 +155,18 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
     });
   };
 
+  // 작성자 본인 여부 확인 함수
+  const isAuthor = (authorId: number) => {
+    console.log("현재 사용자:", user);
+    console.log("게시글 작성자 ID:", authorId);
+    console.log("사용자 ID 비교:", user?.id, authorId);
+
+    const isAuthorResult = user?.id === authorId;
+
+    console.log("작성자 본인 여부:", isAuthorResult);
+    return isAuthorResult;
+  };
+
   if (!open) return null;
 
   if (loading) {
@@ -204,10 +211,14 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
               <ModalTitle>{post.title}</ModalTitle>
             </HeaderLeft>
             <HeaderRight>
-              <QuestionAnswerButton onClick={handleQuestionAnswerClick}>
-                질문 & 답변
-              </QuestionAnswerButton>
-              <CloseButton onClick={onClose}>&times;</CloseButton>
+              {/* 작성자 본인일 때만 수정/삭제 버튼 표시 */}
+              {isAuthor(post.author.id) && (
+                <>
+                  <ModalHeaderActionButton>수정</ModalHeaderActionButton>
+                  <ModalHeaderActionButton>삭제</ModalHeaderActionButton>
+                </>
+              )}
+              <CloseButton onClick={onClose}>×</CloseButton>
             </HeaderRight>
           </ModalHeader>
           <ModalBody>
@@ -225,6 +236,19 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
             </Section>
 
             <CommentsSection>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  marginBottom: "0.5rem",
+                }}
+              >
+                <ModalHeaderActionButton
+                  onClick={() => setShowQuestionAnswer(true)}
+                >
+                  질문 & 답변
+                </ModalHeaderActionButton>
+              </div>
               <SectionTitle>댓글 ({comments.length})</SectionTitle>
               <CommentsList>
                 {comments.length > 0 ? (
@@ -234,6 +258,13 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                         <CommentAuthor>{comment.author.name}</CommentAuthor>
                         <CommentActions>
                           <span>{formatDate(comment.createdAt)}</span>
+                          {/* 댓글 작성자 본인일 때만 수정/삭제 버튼 표시 */}
+                          {isAuthor(comment.author.id) && (
+                            <>
+                              <CommentActionButton>수정</CommentActionButton>
+                              <CommentActionButton>삭제</CommentActionButton>
+                            </>
+                          )}
                         </CommentActions>
                       </CommentMeta>
                       <CommentText>{comment.content}</CommentText>
@@ -263,10 +294,9 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
           </ModalBody>
         </ModalPanel>
       </ModalOverlay>
-
       <QuestionAnswerModal
         open={showQuestionAnswer}
-        onClose={handleQuestionAnswerClose}
+        onClose={() => setShowQuestionAnswer(false)}
         postId={postId}
       />
     </>

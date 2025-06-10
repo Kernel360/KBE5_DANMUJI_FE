@@ -22,10 +22,10 @@ export enum PostPriority {
 
 // 작성자 타입
 export type Author = {
-  userId: number;
+  id: number;
   name: string;
-  email: string;
-  role: string;
+  email?: string;
+  role?: string;
 };
 
 // 프로젝트 타입
