@@ -22,6 +22,7 @@ import ForgotPasswordPage from "./features/auth/pages/ForgotPasswordPage";
 import AdminDashboardPage from "./features/admin/pages/DashboardPage";
 import CompanyPage from "./features/company/pages/CompanyPage";
 import MemberPage from "./features/user/pages/MemberPage";
+import AdminMainPage from "./features/project/pages/AdminMainPage";
 
 
 // user pages
@@ -100,6 +101,7 @@ const AppRoutes = () => {
           <Route path="/company" element={<CompanyPage />} />
           <Route path="/members" element={<MemberPage />} />
           <Route path="/projects/create" element={<CreateProjectPage />} />
+          <Route path="/projects" element={<AdminMainPage />} />
         </>
       )}
 
