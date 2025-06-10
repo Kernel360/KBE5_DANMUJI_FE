@@ -33,7 +33,7 @@ import ProjectPostPage from "./features/project/pages/ProjectPostPage";
 
 // project pages
 import CreateProjectPage from "./features/project/pages/CreateProjectPage";
-import ProjectEditPage from "./features/project/pages/EditProejctPage";
+import EditProjectPage from "./features/project/pages/EditProjectPage";
 
 // etc
 import { AppContainer, MainContent, PageContent } from "./App.styled";
@@ -111,7 +111,7 @@ const AppRoutes = () => {
 
 
       <Route path="/projects/posts" element={<ProjectPostPage />} />
-      <Route path="/projects/:projectId/edit" element={<ProjectEditPage />} />
+      <Route path="/projects/:projectId/edit" element={<EditProjectPage />} />
 
     </Routes>
   );
