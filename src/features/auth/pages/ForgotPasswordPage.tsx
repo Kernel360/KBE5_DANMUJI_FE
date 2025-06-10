@@ -15,6 +15,7 @@ import {
 } from "../components/UserPage.styled";
 import { useNavigate } from "react-router-dom";
 import api from "@/api/axios";
+import { AxiosError } from "axios";
 
 export default function ForgotPasswordPage() {
   const [username, setUsername] = useState("");
@@ -31,8 +32,9 @@ export default function ForgotPasswordPage() {
       });
 
       setSubmitted(true); // 2xx 응답이면 성공 처리
-    } catch (error: any) {
-      const code = error?.response?.data?.code;
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ code: string }>;
+      const code = axiosError.response?.data?.code;
       if (code === "U001") {
         alert(
           "입력하신 아이디로 등록된 사용자를 찾을 수 없습니다.\n아이디를 다시 확인해주세요."
@@ -53,7 +55,7 @@ export default function ForgotPasswordPage() {
             {submitted ? (
               <div>
                 <MailIconImage
-                  src="/src/assets/Success-icon.png"
+                  src="/assets/Success-icon.png"
                   alt="Check Icon"
                 />
                 <Title>이메일 전송 완료</Title>

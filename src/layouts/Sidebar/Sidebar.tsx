@@ -24,8 +24,6 @@ import { FaArchive } from "react-icons/fa";
 
 import { useAuth } from "@/contexts/AuthContexts";
 
-import danmujiLogo from "../../assets/danmuji_logo.png";
-
 const LogoImage = styled.img`
   height: 48px;
   width: auto;
@@ -46,7 +44,7 @@ export const Sidebar: React.FC = () => {
   return (
     <SidebarContainer>
       <LogoArea onClick={() => handleMenuItemClick("홈", "/dashboard")}>
-        <LogoImage src={danmujiLogo} alt="Danmuji Logo" />
+        <LogoImage src="/src/assets/danmuji_logo.png" alt="Danmuji Logo" />
       </LogoArea>
       <Divider />
       <ProfileArea><UserProfile /></ProfileArea>
@@ -64,10 +62,12 @@ export const Sidebar: React.FC = () => {
             text="프로젝트 관리"
             isActive={location.pathname.startsWith("/projects")}
             onClick={() => {
-              role === "ROLE_USER" &&
+              if (role === "ROLE_USER") {
                 handleMenuItemClick("프로젝트 관리", "/projects/active");
-              role === "ROLE_ADMIN" &&
+              }
+              if (role === "ROLE_ADMIN") {
                 handleMenuItemClick("프로젝트 관리", "/projects");
+              }
             }}
           />
           {role === "ROLE_USER" && (

@@ -12,7 +12,6 @@ interface AuthContextProps {
 
 interface JwtPayload {
   role?: string;
-  [key: string]: any;
 }
 
 interface UserData {
