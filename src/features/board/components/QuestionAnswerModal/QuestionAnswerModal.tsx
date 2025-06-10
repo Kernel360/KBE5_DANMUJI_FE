@@ -104,6 +104,16 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
           try {
             const questionsResponse = await getQuestionsByPost(postId);
             if (questionsResponse.data) {
+              console.log("=== 질문 목록 로드 ===");
+              console.log("질문 목록:", questionsResponse.data.content);
+              questionsResponse.data.content.forEach((question, index) => {
+                console.log(`질문 ${index + 1}:`, {
+                  id: question.id,
+                  author: question.author,
+                  content: question.content.substring(0, 50) + "...",
+                });
+              });
+              console.log("======================");
               setQuestions(questionsResponse.data.content);
             }
           } catch (questionError) {
@@ -247,7 +257,20 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
 
   // 작성자 본인 여부 확인
   const isQuestionAuthor = (authorId: number) => {
-    return user?.id === authorId;
+    console.log("=== 질문 작성자 확인 ===");
+    console.log("현재 사용자:", user);
+    console.log("질문 작성자 ID:", authorId);
+    console.log("사용자 ID:", user?.id);
+    console.log("작성자 본인 여부:", user?.id === authorId);
+    console.log("========================");
+
+    // 사용자 정보가 없거나 질문 작성자 ID가 없으면 false
+    if (!user || !user.id || !authorId) {
+      console.log("사용자 정보 또는 작성자 ID가 없음");
+      return false;
+    }
+
+    return user.id === authorId;
   };
 
   const getStatusText = (status: string) => {
@@ -367,7 +390,9 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
                   <QuestionItem key={question.id}>
                     <QuestionHeader>
                       <div>
-                        <QuestionAuthor>{question.author.name}</QuestionAuthor>
+                        <QuestionAuthor>
+                          {question.author?.name || "알 수 없는 사용자"}
+                        </QuestionAuthor>
                         <QuestionDate>
                           {formatDate(question.createdAt)}
                         </QuestionDate>
@@ -387,84 +412,86 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
                         </div>
                       </div>
                       <QuestionActions>
-                        {isQuestionAuthor(question.author.id) && (
-                          <div style={{ display: "flex", gap: "8px" }}>
-                            {editingQuestionId === question.id ? (
-                              <>
-                                <button
-                                  onClick={handleUpdateQuestion}
-                                  disabled={
-                                    updatingQuestion || !editQuestionText.trim()
-                                  }
-                                  style={{
-                                    background: "#10b981",
-                                    color: "white",
-                                    border: "none",
-                                    borderRadius: "4px",
-                                    padding: "4px 8px",
-                                    cursor: "pointer",
-                                    fontSize: "0.75rem",
-                                    fontWeight: "500",
-                                  }}
-                                >
-                                  {updatingQuestion ? "저장 중..." : "저장"}
-                                </button>
-                                <button
-                                  onClick={handleCancelEdit}
-                                  disabled={updatingQuestion}
-                                  style={{
-                                    background: "#6b7280",
-                                    color: "white",
-                                    border: "none",
-                                    borderRadius: "4px",
-                                    padding: "4px 8px",
-                                    cursor: "pointer",
-                                    fontSize: "0.75rem",
-                                    fontWeight: "500",
-                                  }}
-                                >
-                                  취소
-                                </button>
-                              </>
-                            ) : (
-                              <>
-                                <button
-                                  onClick={() => handleEditQuestion(question)}
-                                  style={{
-                                    background: "#3b82f6",
-                                    color: "white",
-                                    border: "none",
-                                    borderRadius: "4px",
-                                    padding: "4px 8px",
-                                    cursor: "pointer",
-                                    fontSize: "0.75rem",
-                                    fontWeight: "500",
-                                  }}
-                                >
-                                  수정
-                                </button>
-                                <button
-                                  onClick={() =>
-                                    handleDeleteQuestion(question.id)
-                                  }
-                                  disabled={deletingQuestion}
-                                  style={{
-                                    background: "#ef4444",
-                                    color: "white",
-                                    border: "none",
-                                    borderRadius: "4px",
-                                    padding: "4px 8px",
-                                    cursor: "pointer",
-                                    fontSize: "0.75rem",
-                                    fontWeight: "500",
-                                  }}
-                                >
-                                  {deletingQuestion ? "삭제 중..." : "삭제"}
-                                </button>
-                              </>
-                            )}
-                          </div>
-                        )}
+                        {question.author?.id &&
+                          isQuestionAuthor(question.author.id) && (
+                            <div style={{ display: "flex", gap: "8px" }}>
+                              {editingQuestionId === question.id ? (
+                                <>
+                                  <button
+                                    onClick={handleUpdateQuestion}
+                                    disabled={
+                                      updatingQuestion ||
+                                      !editQuestionText.trim()
+                                    }
+                                    style={{
+                                      background: "#10b981",
+                                      color: "white",
+                                      border: "none",
+                                      borderRadius: "4px",
+                                      padding: "4px 8px",
+                                      cursor: "pointer",
+                                      fontSize: "0.75rem",
+                                      fontWeight: "500",
+                                    }}
+                                  >
+                                    {updatingQuestion ? "저장 중..." : "저장"}
+                                  </button>
+                                  <button
+                                    onClick={handleCancelEdit}
+                                    disabled={updatingQuestion}
+                                    style={{
+                                      background: "#6b7280",
+                                      color: "white",
+                                      border: "none",
+                                      borderRadius: "4px",
+                                      padding: "4px 8px",
+                                      cursor: "pointer",
+                                      fontSize: "0.75rem",
+                                      fontWeight: "500",
+                                    }}
+                                  >
+                                    취소
+                                  </button>
+                                </>
+                              ) : (
+                                <>
+                                  <button
+                                    onClick={() => handleEditQuestion(question)}
+                                    style={{
+                                      background: "#3b82f6",
+                                      color: "white",
+                                      border: "none",
+                                      borderRadius: "4px",
+                                      padding: "4px 8px",
+                                      cursor: "pointer",
+                                      fontSize: "0.75rem",
+                                      fontWeight: "500",
+                                    }}
+                                  >
+                                    수정
+                                  </button>
+                                  <button
+                                    onClick={() =>
+                                      handleDeleteQuestion(question.id)
+                                    }
+                                    disabled={deletingQuestion}
+                                    style={{
+                                      background: "#ef4444",
+                                      color: "white",
+                                      border: "none",
+                                      borderRadius: "4px",
+                                      padding: "4px 8px",
+                                      cursor: "pointer",
+                                      fontSize: "0.75rem",
+                                      fontWeight: "500",
+                                    }}
+                                  >
+                                    {deletingQuestion ? "삭제 중..." : "삭제"}
+                                  </button>
+                                </>
+                              )}
+                            </div>
+                          )}
                         <VoteButton>👍 0</VoteButton>
                       </QuestionActions>
                     </QuestionHeader>
@@ -499,7 +526,7 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
                             <AnswerHeader>
                               <div>
                                 <AnswerAuthor>
-                                  {answer.author.name}
+                                  {answer.author?.name || "알 수 없는 사용자"}
                                 </AnswerAuthor>
                                 <AnswerDate>
                                   {formatDate(answer.createdAt)}
