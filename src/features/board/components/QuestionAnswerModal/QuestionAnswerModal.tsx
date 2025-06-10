@@ -572,42 +572,34 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
                     )}
 
                     <AnswerList>
-                      {question.answers && question.answers.length > 0 ? (
-                        question.answers.map((answer) => (
-                          <AnswerItem
-                            key={answer.id}
-                            $isBestAnswer={answer.isBestAnswer}
-                          >
-                            <AnswerHeader>
-                              <div>
-                                <AnswerAuthor>
-                                  {answer.author?.name || "알 수 없는 사용자"}
-                                </AnswerAuthor>
-                                <AnswerDate>
-                                  {formatDate(answer.createdAt)}
-                                </AnswerDate>
-                                {answer.isBestAnswer && (
-                                  <BestAnswerBadge>베스트 답변</BestAnswerBadge>
-                                )}
-                              </div>
-                              <AnswerActions>
-                                <VoteButton>👍 0</VoteButton>
-                              </AnswerActions>
-                            </AnswerHeader>
-                            <AnswerText>{answer.content}</AnswerText>
-                          </AnswerItem>
-                        ))
-                      ) : (
-                        <p
-                          style={{
-                            color: "#6b7280",
-                            fontStyle: "italic",
-                            margin: "1rem 0",
-                          }}
-                        >
-                          아직 답변이 없습니다.
-                        </p>
-                      )}
+                      {question.answers && question.answers.length > 0
+                        ? question.answers.map((answer) => (
+                            <AnswerItem
+                              key={answer.id}
+                              $isBestAnswer={answer.isBestAnswer}
+                            >
+                              <AnswerHeader>
+                                <div>
+                                  <AnswerAuthor>
+                                    {answer.author?.name || "알 수 없는 사용자"}
+                                  </AnswerAuthor>
+                                  <AnswerDate>
+                                    {formatDate(answer.createdAt)}
+                                  </AnswerDate>
+                                  {answer.isBestAnswer && (
+                                    <BestAnswerBadge>
+                                      베스트 답변
+                                    </BestAnswerBadge>
+                                  )}
+                                </div>
+                                <AnswerActions>
+                                  <VoteButton>👍 0</VoteButton>
+                                </AnswerActions>
+                              </AnswerHeader>
+                              <AnswerText>{answer.content}</AnswerText>
+                            </AnswerItem>
+                          ))
+                        : null}
                     </AnswerList>
 
                     {selectedQuestionId === question.id ? (
@@ -635,11 +627,11 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
                           color: "white",
                           border: "none",
                           borderRadius: "4px",
-                          padding: "8px 16px",
+                          padding: "4px 8px",
                           cursor: "pointer",
-                          fontSize: "0.875rem",
+                          fontSize: "0.75rem",
                           fontWeight: "500",
-                          marginTop: "1rem",
+                          marginTop: "0.5rem",
                         }}
                       >
                         답변 작성
