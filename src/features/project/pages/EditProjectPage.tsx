@@ -1,52 +1,74 @@
-import React, { useState, useEffect } from "react";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import * as S from "./CreateProjectpage.styled";
-import AsyncSelect from "react-select/async";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import AsyncSelect from 'react-select/async';
+import * as S from './CreateProjectpage.styled';
 
-interface Company {
+interface Company { id: number; name: string; }
+interface User { id: number; name: string; }
+interface ProjectData {
   id: number;
   name: string;
-}
-interface User {
-  id: number;
-  name: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  developCompanyId: number;
+  clientCompanyId: number;
+  developerId: number;
+  clientId: number;
 }
 
-export default function ProjectCreatePage() {
-  // Form state
-  const [name, setName] = useState<string>("");
-  const [overview, setOverview] = useState<string>("");
+export default function ProjectEditPage() {
+  const { projectId } = useParams<{ projectId: string }>();
+  const navigate = useNavigate();
+
+  // 폼 상태
+  const [name, setName] = useState<string>('');
+  const [overview, setOverview] = useState<string>('');
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
 
-    // 회사 옵션을 react-select 형식으로 변환
-const companyToOption = (company: Company) => ({
-  value: company.id,
-  label: company.name,
-});
-
-  // Company & user lists
-  const [companies, setCompanies] = useState<Company[]>([]);
-  const [devCompanyId, setDevCompanyId] = useState<number | "">("");
-  const [clientCompanyId, setClientCompanyId] = useState<number | "">("");
+  const [devCompanyId, setDevCompanyId] = useState<number | ''>('');
+  const [clientCompanyId, setClientCompanyId] = useState<number | ''>('');
   const [devUsers, setDevUsers] = useState<User[]>([]);
   const [clientUsers, setClientUsers] = useState<User[]>([]);
-  const [developerId, setDeveloperId] = useState<number | "">("");
-  const [clientId, setClientId] = useState<number | "">("");
+  const [developerId, setDeveloperId] = useState<number | ''>('');
+  const [clientId, setClientId] = useState<number | ''>('');
 
+  const [companies, setCompanies] = useState<Company[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const navigate = useNavigate();
+  // options 변환 헬퍼
+  const companyToOption = (c: Company) => ({ value: c.id, label: c.name });
 
-  // Load companies on mount
+  // AsyncSelect 옵션 로더
+  const loadCompanyOptions = async (inputValue: string) => {
+    const url = inputValue
+      ? `http://localhost:8080/api/companies/search?name=${encodeURIComponent(inputValue)}`
+      : 'http://localhost:8080/api/companies';
+    try {
+      const res = await fetch(url);
+      const json = await res.json();
+      const payload = json.data ?? json;
+      const list: Company[] = Array.isArray(payload)
+        ? payload
+        : Array.isArray(payload.content)
+          ? payload.content
+          : [];
+      return list.map(companyToOption);
+    } catch {
+      return [];
+    }
+  };
+
+  // // 회사 목록 로드
   // useEffect(() => {
-  //   fetch("http://localhost:8080/api/companies")
+  //   fetch('http://localhost:8080/api/companies')
   //     .then(res => res.json())
-  //     .then((response: any) => {
-  //       const payload = response.data ?? response;
+  //     .then((json: any) => {
+  //       const payload = json.data ?? json;
   //       const list: Company[] = Array.isArray(payload)
   //         ? payload
   //         : Array.isArray(payload.content)
@@ -54,73 +76,69 @@ const companyToOption = (company: Company) => ({
   //           : [];
   //       setCompanies(list);
   //     })
-  //     .catch(err => console.error("Failed to load companies", err));
+  //     .catch(console.error);
   // }, []);
 
-  // AsyncSelect에서 사용할 옵션 로더
-  const loadCompanyOptions = async (inputValue: string) => {
-    try {
-      const url =
-        inputValue && inputValue.trim() !== ""
-          ? `http://localhost:8080/api/companies/search?name=${encodeURIComponent(inputValue)}`
-          : "http://localhost:8080/api/companies";
-      const res = await fetch(url);
-      const response = await res.json();
-      const payload = response.data ?? response;
-      const list: Company[] = Array.isArray(payload)
-        ? payload
-        : Array.isArray(payload.content)
-          ? payload.content
-          : [];
-      return list.map(companyToOption);
-    } catch (err) {
-      return [];
-    }
-  };
-
-  // Load developers when devCompanyId changes
+  // 기존 프로젝트 데이터 로드
   useEffect(() => {
-    if (devCompanyId !== "") {
-      fetch(`http://localhost:8080/api/companies/${devCompanyId}/users`)
-        .then(res => res.json())
-        .then((response: any) => {
-          const payload = response.data ?? response;
-          const list: User[] = Array.isArray(payload)
-            ? payload
-            : Array.isArray(payload.content)
-              ? payload.content
-              : [];
-          setDevUsers(list);
-        })
-        .catch(err => console.error("Failed to load developers", err));
-    } else {
+    fetch(`http://localhost:8080/api/projects/${projectId}`)
+      .then(res => res.json())
+      .then((proj: ProjectData) => {
+        setName(proj.name);
+        setOverview(proj.description);
+        setStartDate(proj.startDate ? new Date(proj.startDate) : null);
+        setEndDate(proj.endDate ? new Date(proj.endDate) : null);
+        setDevCompanyId(proj.developCompanyId);
+        setClientCompanyId(proj.clientCompanyId);
+        setDeveloperId(proj.developerId);
+        setClientId(proj.clientId);
+      })
+      .catch(console.error);
+  }, []);
+
+  // 개발사 담당자 로드
+  useEffect(() => {
+    if (!devCompanyId) {
       setDevUsers([]);
-      setDeveloperId("");
+      setDeveloperId('');
+      return;
     }
+    fetch(`http://localhost:8080/api/companies/${devCompanyId}/users`)
+      .then(res => res.json())
+      .then((json: any) => {
+        const payload = json.data ?? json;
+        const list: User[] = Array.isArray(payload)
+          ? payload
+          : Array.isArray(payload.content)
+            ? payload.content
+            : [];
+        setDevUsers(list);
+      })
+      .catch(console.error);
   }, [devCompanyId]);
 
-  // Load clients when clientCompanyId changes
+  // 고객사 담당자 로드
   useEffect(() => {
-    if (clientCompanyId !== "") {
-      fetch(`http://localhost:8080/api/companies/${clientCompanyId}/users`)
-        .then(res => res.json())
-        .then((response: any) => {
-          const payload = response.data ?? response;
-          const list: User[] = Array.isArray(payload)
-            ? payload
-            : Array.isArray(payload.content)
-              ? payload.content
-              : [];
-          setClientUsers(list);
-        })
-        .catch(err => console.error("Failed to load client users", err));
-    } else {
+    if (!clientCompanyId) {
       setClientUsers([]);
-      setClientId("");
+      setClientId('');
+      return;
     }
+    fetch(`http://localhost:8080/api/companies/${clientCompanyId}/users`)
+      .then(res => res.json())
+      .then((json: any) => {
+        const payload = json.data ?? json;
+        const list: User[] = Array.isArray(payload)
+          ? payload
+          : Array.isArray(payload.content)
+            ? payload.content
+            : [];
+        setClientUsers(list);
+      })
+      .catch(console.error);
   }, [clientCompanyId]);
 
-  // Submit handler
+  // 수정 제출 핸들러
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -129,28 +147,26 @@ const companyToOption = (company: Company) => ({
     const payload = {
       name,
       description: overview,
-      startDate: startDate ? startDate.toISOString().substring(0, 10) : null,
-      endDate: endDate ? endDate.toISOString().substring(0, 10) : null,
-      developerId: Number(developerId),
-      clientId: Number(clientId),
+      startDate: startDate ? startDate.toISOString().slice(0, 10) : null,
+      endDate: endDate ? endDate.toISOString().slice(0, 10) : null,
       developCompanyId: Number(devCompanyId),
       clientCompanyId: Number(clientCompanyId),
+      developerId: Number(developerId),
+      clientId: Number(clientId),
     };
 
     try {
-      const res = await fetch("http://localhost:8080/api/projects", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch(`http://localhost:8080/api/projects/${projectId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.message || "프로젝트 생성에 실패했습니다");
+        const errJson = await res.json();
+        throw new Error(errJson.message || '프로젝트 수정에 실패했습니다');
       }
-      // 프로젝트 생성 성공 시 /projects로 이동
-      navigate("/projects");
+      navigate('/projects');
     } catch (err: any) {
-      console.error(err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -160,8 +176,8 @@ const companyToOption = (company: Company) => ({
   return (
     <S.Container>
       <S.Header>
-        <S.Title>프로젝트 생성</S.Title>
-        <S.Subtitle>새로운 프로젝트의 정보를 입력해주세요.</S.Subtitle>
+        <S.Title>프로젝트 수정</S.Title>
+        <S.Subtitle>기존 프로젝트 정보를 수정하세요.</S.Subtitle>
       </S.Header>
 
       <S.Form onSubmit={handleSubmit}>
@@ -233,23 +249,18 @@ const companyToOption = (company: Company) => ({
             loadOptions={loadCompanyOptions}
             value={
               devCompanyId
-                ? companies
-                    .filter(c => c.id === devCompanyId)
-                    .map(companyToOption)[0]
+                ? companyToOption(
+                    companies.find(c => c.id === devCompanyId) as Company
+                  )
                 : null
             }
-            onChange={option => {
-              setDevCompanyId(option ? option.value : "");
-            }}
+            onChange={opt => setDevCompanyId(opt ? opt.value : '')}
             placeholder="회사 검색/선택"
             isClearable
             inputId="dev-company"
-            styles={{
-              container: base => ({ ...base, width: "100%" }),
-            }}
+            styles={{ container: base => ({ ...base, width: '100%' }) }}
           />
         </S.Section>
-
 
         {/* 개발사 담당자 */}
         <S.Section>
@@ -277,20 +288,16 @@ const companyToOption = (company: Company) => ({
             loadOptions={loadCompanyOptions}
             value={
               clientCompanyId
-                ? companies
-                    .filter(c => c.id === clientCompanyId)
-                    .map(companyToOption)[0]
+                ? companyToOption(
+                    companies.find(c => c.id === clientCompanyId) as Company
+                  )
                 : null
             }
-            onChange={option => {
-              setClientCompanyId(option ? option.value : "");
-            }}
+            onChange={opt => setClientCompanyId(opt ? opt.value : '')}
             placeholder="회사 검색/선택"
             isClearable
             inputId="client-company"
-            styles={{
-              container: base => ({ ...base, width: "100%" }),
-            }}
+            styles={{ container: base => ({ ...base, width: '100%' }) }}
           />
         </S.Section>
 
@@ -311,13 +318,13 @@ const companyToOption = (company: Company) => ({
           </S.Select>
         </S.Section>
 
-        {/* 버튼 */}
+        {/* 액션 버튼 */}
         <S.Actions>
-          <S.CancelButton type="button" onClick={() => window.history.back()} disabled={loading}>
+          <S.CancelButton type="button" onClick={() => navigate(-1)} disabled={loading}>
             취소
           </S.CancelButton>
           <S.CreateButton type="submit" disabled={loading}>
-            {loading ? '생성 중...' : '생성하기'}
+            {loading ? '수정 중...' : '수정하기'}
           </S.CreateButton>
         </S.Actions>
       </S.Form>
