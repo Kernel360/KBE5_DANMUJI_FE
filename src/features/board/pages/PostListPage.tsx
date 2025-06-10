@@ -5,7 +5,7 @@ import {
   AiOutlineFileText,
   AiOutlineTag,
   AiOutlineFile,
-  AiOutlineArrowRight,
+  AiOutlineRight,
 } from "react-icons/ai";
 import {
   PageContainer,
@@ -467,7 +467,7 @@ export default function PostListPage() {
                     );
 
                     // 들여쓰기 계산 (2-depth까지만, 그 이후는 동일)
-                    const paddingLeft = Math.min(depth, 2) * 36 + 36;
+                    const paddingLeft = Math.min(depth, 2) * 20 + 20;
 
                     // 뱃지 색상 (1-depth는 노란색, 2-depth 이상은 회색)
                     const badgeColor = depth === 1 ? "#fdb924" : "#6b7280";
@@ -499,12 +499,10 @@ export default function PostListPage() {
                                 color: "#888",
                                 fontSize: "0.92em",
                                 marginRight: 8,
-                                display: "flex",
+                                display: "inline-flex",
                                 alignItems: "center",
-                                gap: "0.25rem",
                               }}
                             >
-                              <AiOutlineArrowRight size={12} />
                               {topParent.title.length > 15
                                 ? topParent.title.slice(0, 15) + "..."
                                 : topParent.title}
