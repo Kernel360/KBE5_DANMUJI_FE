@@ -55,7 +55,7 @@ export default function ForgotPasswordPage() {
             {submitted ? (
               <div>
                 <MailIconImage
-                  src="/assets/Success-icon.png"
+                  src="/Success-icon.png"
                   alt="Check Icon"
                 />
                 <Title>이메일 전송 완료</Title>
