@@ -47,12 +47,14 @@ interface PostDetailModalProps {
   open: boolean;
   onClose: () => void;
   postId: number | null;
+  onPostDelete?: (deletedPostId: number) => void;
 }
 
 const PostDetailModal: React.FC<PostDetailModalProps> = ({
   open,
   onClose,
   postId,
+  onPostDelete,
 }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -191,7 +193,9 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
         alert("게시글이 성공적으로 삭제되었습니다.");
         onClose();
         // 페이지 새로고침을 위해 window.location.reload() 사용
-        window.location.reload();
+        if (onPostDelete && postId) {
+          onPostDelete(postId);
+        }
       } else {
         throw new Error(response.message || "게시글 삭제에 실패했습니다.");
       }

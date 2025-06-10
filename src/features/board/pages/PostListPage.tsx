@@ -169,6 +169,12 @@ export default function PostListPage() {
     navigate("/posts/create");
   };
 
+  const handlePostDelete = (deletedPostId: number) => {
+    // 게시글 삭제 후 목록 새로고침 (백엔드에서 삭제된 게시글 제외하고 반환)
+    console.log(`게시글 ${deletedPostId} 삭제 후 목록 새로고침`);
+    fetchPosts();
+  };
+
   if (loading && posts.length === 0) {
     return (
       <PageContainer>
@@ -416,6 +422,7 @@ export default function PostListPage() {
         open={isModalOpen}
         onClose={handleModalClose}
         postId={selectedPostId}
+        onPostDelete={handlePostDelete}
       />
     </PageContainer>
   );
