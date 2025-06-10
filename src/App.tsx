@@ -22,18 +22,23 @@ import ForgotPasswordPage from "./features/auth/pages/ForgotPasswordPage";
 import AdminDashboardPage from "./features/admin/pages/DashboardPage";
 import CompanyPage from "./features/company/pages/CompanyPage";
 import MemberPage from "./features/user/pages/MemberPage";
-import ProjectPage from "./features/project/pages/ProjectPage";
+
 
 // user pages
 import UserDashboardPage from "./features/board/pages/DashboardPage";
 import ProjectPostPage from "./features/project/pages/ProjectPostPage";
-import PostEditPage from "./features/project/pages/PostEditPage";
+
+
+
 
 // project pages
 import CreateProjectPage from "./features/project/pages/CreateProjectPage";
+import EditProjectPage from "./features/project/pages/EditProjectPage";
 
 // etc
 import { AppContainer, MainContent, PageContent } from "./App.styled";
+
+
 
 const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
@@ -99,9 +104,15 @@ const AppRoutes = () => {
       )}
 
       {/* 공용 */}
-      <Route path="/projects" element={<ProjectPage />} />
+
+
       <Route path="/projects/:projectId/posts" element={<ProjectPostPage />} />
-      <Route path="/posts/:postId/edit" element={<PostEditPage />} />
+
+
+
+      <Route path="/projects/posts" element={<ProjectPostPage />} />
+      <Route path="/projects/:projectId/edit" element={<EditProjectPage />} />
+
     </Routes>
   );
 };
