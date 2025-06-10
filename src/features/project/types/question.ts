@@ -35,6 +35,7 @@ export type Question = {
 export type Answer = {
   id: number;
   questionId: number;
+  authorIp: string;
   author: Author;
   content: string;
   status: AnswerStatus;
