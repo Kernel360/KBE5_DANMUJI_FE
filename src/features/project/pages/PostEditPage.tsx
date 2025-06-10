@@ -106,37 +106,12 @@ export default function PostEditPage() {
     try {
       setLoading(true);
 
-      // type과 status를 숫자로 변환
-      const typeToNumber = (type: string) => {
-        switch (type) {
-          case "GENERAL":
-            return 0;
-          case "NOTICE":
-            return 1;
-          default:
-            return 0;
-        }
-      };
-
-      const statusToNumber = (status: string) => {
-        switch (status) {
-          case "PENDING":
-            return 1;
-          case "APPROVED":
-            return 2;
-          case "REJECTED":
-            return 3;
-          default:
-            return 1;
-        }
-      };
-
-      // 전송할 데이터 준비 (타입 변환)
+      // 전송할 데이터 준비 (문자열 enum 사용)
       const requestData = {
         title: formData.title,
         content: formData.content,
-        type: typeToNumber(formData.type),
-        status: statusToNumber(formData.status),
+        type: formData.type,
+        status: formData.status,
         priority: formData.priority,
       };
 
@@ -221,6 +196,7 @@ export default function PostEditPage() {
             >
               <option value="GENERAL">일반</option>
               <option value="NOTICE">공지</option>
+              <option value="REPORT">보고</option>
             </Select>
           </FormGroup>
 

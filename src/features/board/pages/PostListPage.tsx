@@ -69,6 +69,8 @@ const getTypeText = (type: PostType) => {
       return "공지";
     case "GENERAL":
       return "일반";
+    case "REPORT":
+      return "보고";
     default:
       return type;
   }
@@ -307,6 +309,7 @@ export default function PostListPage() {
               <option value="ALL">전체 유형</option>
               <option value="GENERAL">일반</option>
               <option value="NOTICE">공지</option>
+              <option value="REPORT">보고</option>
             </FilterSelect>
           </div>
 

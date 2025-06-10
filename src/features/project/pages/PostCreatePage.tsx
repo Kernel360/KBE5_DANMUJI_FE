@@ -91,9 +91,9 @@ export default function PostCreatePage() {
       // 백엔드 API에 맞는 데이터 형식으로 변환
       const requestData = {
         ...formData,
-        // enum 값을 string으로 변환
-        type: formData.type.toString(),
-        status: formData.status.toString(),
+        // enum 값을 그대로 사용 (백엔드에서 문자열로 처리)
+        type: formData.type,
+        status: formData.status,
         priority: formData.priority,
         projectId: formData.projectId,
         // 답글인 경우 parentId 추가

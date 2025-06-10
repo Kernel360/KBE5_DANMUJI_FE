@@ -9,6 +9,7 @@ export enum PostStatus {
 export enum PostType {
   GENERAL = "GENERAL",
   NOTICE = "NOTICE",
+  REPORT = "REPORT",
 }
 
 // 우선순위 enum
@@ -125,7 +126,7 @@ export type CommentResponse = ApiResponse<Comment>;
 export type PostUpdateRequest = {
   title?: string;
   content?: string;
-  type?: number;
-  status?: number;
+  type?: PostType;
+  status?: PostStatus;
   priority?: PostPriority;
 };
