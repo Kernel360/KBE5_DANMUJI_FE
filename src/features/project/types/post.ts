@@ -8,8 +8,6 @@ export enum PostStatus {
 // 게시글 유형 enum
 export enum PostType {
   GENERAL = "GENERAL",
-  QUESTION = "QUESTION",
-  REPORT = "REPORT",
   NOTICE = "NOTICE",
 }
 
@@ -126,7 +124,7 @@ export type CommentResponse = ApiResponse<Comment>;
 export type PostUpdateRequest = {
   title?: string;
   content?: string;
-  type?: PostType;
-  status?: PostStatus;
+  type?: number;
+  status?: number;
   priority?: PostPriority;
 };

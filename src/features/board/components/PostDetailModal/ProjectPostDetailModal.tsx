@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   ModalOverlay,
   ModalPanel,
@@ -32,6 +33,7 @@ import {
   getPostDetail,
   getComments,
   createComment,
+  deletePost,
 } from "@/features/project/services/postService";
 import type { Post, Comment } from "@/features/project/types/post";
 import QuestionAnswerModal from "../QuestionAnswerModal/QuestionAnswerModal";
@@ -48,6 +50,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
   onClose,
   postId,
 }) => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [commentText, setCommentText] = useState("");
   const [post, setPost] = useState<Post | null>(null);
@@ -114,6 +117,51 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
       alert("댓글 작성 중 오류가 발생했습니다.");
     } finally {
       setSubmittingComment(false);
+    }
+  };
+
+  const handleEditPost = () => {
+    if (!postId) return;
+    console.log("게시글 수정 버튼 클릭 - postId:", postId);
+    navigate(`/posts/${postId}/edit`);
+    onClose();
+  };
+
+  const handleDeletePost = async () => {
+    if (!postId) {
+      alert("게시글 정보가 올바르지 않습니다.");
+      return;
+    }
+
+    if (!window.confirm("정말로 이 게시글을 삭제하시겠습니까?")) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      console.log("게시글 삭제 시작 - postId:", postId);
+      const response = await deletePost(postId);
+      console.log("게시글 삭제 응답:", response);
+
+      // 백엔드 응답 형식에 맞춰 성공 여부 확인
+      if (response.status === "OK" || response.message?.includes("완료")) {
+        alert("게시글이 성공적으로 삭제되었습니다.");
+        onClose();
+        // 페이지 새로고침을 위해 window.location.reload() 사용
+        window.location.reload();
+      } else {
+        throw new Error(response.message || "게시글 삭제에 실패했습니다.");
+      }
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "게시글 삭제 중 오류가 발생했습니다.";
+      console.error("게시글 삭제 중 오류:", err);
+      alert(errorMessage);
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -214,8 +262,12 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
               {/* 작성자 본인일 때만 수정/삭제 버튼 표시 */}
               {isAuthor(post.author.id) && (
                 <>
-                  <ModalHeaderActionButton>수정</ModalHeaderActionButton>
-                  <ModalHeaderActionButton>삭제</ModalHeaderActionButton>
+                  <ModalHeaderActionButton onClick={handleEditPost}>
+                    수정
+                  </ModalHeaderActionButton>
+                  <ModalHeaderActionButton onClick={handleDeletePost}>
+                    삭제
+                  </ModalHeaderActionButton>
                 </>
               )}
               <CloseButton onClick={onClose}>×</CloseButton>
