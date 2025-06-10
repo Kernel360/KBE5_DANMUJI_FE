@@ -42,7 +42,7 @@ export const ModalPanel = styled.div`
 `;
 
 export const ModalHeader = styled.div`
-  padding: 1.5rem;
+  padding: 1rem;
   border-bottom: 1px solid #e5e7eb;
   display: flex;
   justify-content: space-between;
@@ -133,7 +133,7 @@ export const CloseButton = styled(ActionButton)``;
 
 export const ModalBody = styled.div`
   flex: 1;
-  padding: 1.5rem;
+  padding: 1rem;
   overflow-y: auto;
 `;
 
@@ -336,23 +336,52 @@ export const ErrorMessage = styled.div`
 export const ModalHeaderActionButton = styled.button`
   display: flex;
   align-items: center;
-  gap: 0.35rem;
-  background-color: #f3f4f6;
-  color: #374151;
+  justify-content: center;
+  background: none;
+  color: #6366f1;
   border: none;
-  border-radius: 1.5rem;
-  padding: 0.32rem 0.85rem;
-  font-size: 0.85rem;
-  font-weight: 500;
+  border-radius: 5px;
+  padding: 0 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
   cursor: pointer;
-  margin-left: 0.25rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
-  transition: background-color 0.18s, color 0.18s, box-shadow 0.18s;
+  height: 28px;
+  min-width: 0;
+  box-shadow: none;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
 
   &:hover {
-    background-color: #fdb924;
-    color: white;
-    box-shadow: 0 2px 8px 0 rgba(253, 185, 36, 0.1);
+    background: #f3f4f6;
+  }
+
+  &.delete {
+    color: #ef4444;
+  }
+`;
+
+export const ModalHeaderButtonGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+`;
+
+export const ModalHeaderCloseButton = styled.button`
+  background: none;
+  border: none;
+  color: #b0b0b0;
+  font-size: 20px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-left: 2px;
+  transition: background 0.15s;
+  &:hover {
+    background: #f3f4f6;
   }
 `;
 

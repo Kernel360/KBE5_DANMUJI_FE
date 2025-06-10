@@ -317,10 +317,7 @@ const ProjectPostDetailModal: React.FC<ProjectPostDetailModalProps> = ({
         <ModalHeader>
           <HeaderTop>
             <HeaderLeft>
-              <StatusBadge status={post?.status || ""}>
-                {getStatusText(post?.status || "")}
-              </StatusBadge>
-              <ModalTitle>{post?.title || ""}</ModalTitle>
+              <ModalTitle>게시글 상세</ModalTitle>
             </HeaderLeft>
             <HeaderRight>
               {isAuthor && (
@@ -350,6 +347,48 @@ const ProjectPostDetailModal: React.FC<ProjectPostDetailModalProps> = ({
         </ModalHeader>
 
         <ModalBody>
+          {/* 게시글 제목과 상태 */}
+          <Section>
+            <div style={{ marginBottom: 16 }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  marginBottom: 8,
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    flex: 1,
+                    minWidth: 0,
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: 18,
+                      fontWeight: 700,
+                      color: "#222",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      flex: 1,
+                      minWidth: 0,
+                    }}
+                  >
+                    {post?.title || ""}
+                  </span>
+                  <StatusBadge status={post?.status || ""}>
+                    {getStatusText(post?.status || "")}
+                  </StatusBadge>
+                </div>
+              </div>
+            </div>
+          </Section>
+
           <Section>
             <SectionTitle>작업 설명</SectionTitle>
             <PostContent>{post.content}</PostContent>

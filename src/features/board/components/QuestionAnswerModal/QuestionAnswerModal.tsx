@@ -371,16 +371,55 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
       <ModalPanel onClick={(e: React.MouseEvent) => e.stopPropagation()}>
         <ModalHeader>
           <HeaderLeft>
-            <StatusBadge $status={getStatusText(post.status)}>
-              {getStatusText(post.status)}
-            </StatusBadge>
-            <ModalTitle>{post.title} - 질문 & 답변</ModalTitle>
+            <ModalTitle>질문 & 답변</ModalTitle>
           </HeaderLeft>
           <HeaderRight>
             <CloseButton onClick={onClose}>&times;</CloseButton>
           </HeaderRight>
         </ModalHeader>
         <ModalBody>
+          {/* 게시글 제목과 상태 */}
+          <Section>
+            <div style={{ marginBottom: 16 }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  marginBottom: 8,
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    flex: 1,
+                    minWidth: 0,
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: 18,
+                      fontWeight: 700,
+                      color: "#222",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      flex: 1,
+                      minWidth: 0,
+                    }}
+                  >
+                    {post.title}
+                  </span>
+                  <StatusBadge $status={getStatusText(post.status)}>
+                    {getStatusText(post.status)}
+                  </StatusBadge>
+                </div>
+              </div>
+            </div>
+          </Section>
+
           <Section>
             <PostMeta>
               <div>작성자: {post.author.name}</div>
@@ -453,10 +492,17 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
                                       color: "white",
                                       border: "none",
                                       borderRadius: "4px",
-                                      padding: "4px 8px",
+                                      padding: "6px 12px",
                                       cursor: "pointer",
                                       fontSize: "0.75rem",
                                       fontWeight: "500",
+                                      width: "60px",
+                                      height: "28px",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      whiteSpace: "nowrap",
+                                      overflow: "hidden",
                                     }}
                                   >
                                     {updatingQuestion ? "저장 중..." : "저장"}
@@ -469,10 +515,17 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
                                       color: "white",
                                       border: "none",
                                       borderRadius: "4px",
-                                      padding: "4px 8px",
+                                      padding: "6px 12px",
                                       cursor: "pointer",
                                       fontSize: "0.75rem",
                                       fontWeight: "500",
+                                      width: "60px",
+                                      height: "28px",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      whiteSpace: "nowrap",
+                                      overflow: "hidden",
                                     }}
                                   >
                                     취소
@@ -487,10 +540,17 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
                                       color: "white",
                                       border: "none",
                                       borderRadius: "4px",
-                                      padding: "4px 8px",
+                                      padding: "6px 12px",
                                       cursor: "pointer",
                                       fontSize: "0.75rem",
                                       fontWeight: "500",
+                                      width: "60px",
+                                      height: "28px",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      whiteSpace: "nowrap",
+                                      overflow: "hidden",
                                     }}
                                   >
                                     수정
@@ -505,10 +565,17 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
                                       color: "white",
                                       border: "none",
                                       borderRadius: "4px",
-                                      padding: "4px 8px",
+                                      padding: "6px 12px",
                                       cursor: "pointer",
                                       fontSize: "0.75rem",
                                       fontWeight: "500",
+                                      width: "60px",
+                                      height: "28px",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      whiteSpace: "nowrap",
+                                      overflow: "hidden",
                                     }}
                                   >
                                     {deletingQuestion ? "삭제 중..." : "삭제"}
@@ -529,10 +596,17 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
                                         color: "white",
                                         border: "none",
                                         borderRadius: "4px",
-                                        padding: "4px 8px",
+                                        padding: "6px 12px",
                                         cursor: "pointer",
                                         fontSize: "0.75rem",
                                         fontWeight: "500",
+                                        width: "100px",
+                                        height: "28px",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        whiteSpace: "nowrap",
+                                        overflow: "hidden",
                                       }}
                                     >
                                       {resolvingQuestion
@@ -627,11 +701,18 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
                           color: "white",
                           border: "none",
                           borderRadius: "4px",
-                          padding: "4px 8px",
+                          padding: "6px 12px",
                           cursor: "pointer",
                           fontSize: "0.75rem",
                           fontWeight: "500",
                           marginTop: "0.5rem",
+                          width: "80px",
+                          height: "28px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
                         }}
                       >
                         답변 작성

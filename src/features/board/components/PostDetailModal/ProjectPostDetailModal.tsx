@@ -4,10 +4,6 @@ import {
   ModalOverlay,
   ModalPanel,
   ModalHeader,
-  HeaderLeft,
-  StatusBadge,
-  ModalTitle,
-  HeaderRight,
   CloseButton,
   ModalHeaderActionButton,
   ModalBody,
@@ -25,6 +21,8 @@ import {
   LoadingSpinner,
   ErrorMessage,
   ReplyInputContainer,
+  ModalHeaderButtonGroup,
+  ModalHeaderCloseButton,
 } from "./ProjectPostDetailModal.styled.ts";
 import {
   getPostDetail,
@@ -291,43 +289,46 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
       <ModalOverlay onClick={onClose}>
         <ModalPanel onClick={(e: React.MouseEvent) => e.stopPropagation()}>
           <ModalHeader>
-            <HeaderLeft>
-              <StatusBadge $status={getStatusText(post.status)}>
-                {getStatusText(post.status)}
-              </StatusBadge>
-              <ModalTitle>{post.title}</ModalTitle>
-            </HeaderLeft>
-            <HeaderRight>
+            {/* 상단 고정 제목/버튼 */}
+            <span
+              style={{
+                fontSize: 18,
+                fontWeight: 700,
+                color: "#222",
+              }}
+            >
+              게시글 상세
+            </span>
+            <ModalHeaderButtonGroup>
               <ModalHeaderActionButton
                 onClick={() =>
                   navigate(`/posts/create?parentId=${post.postId}`)
                 }
                 title="답글달기"
               >
-                <FaReply size={14} /> 답글달기
+                <FaReply size={14} style={{ marginRight: 4 }} /> 답글
               </ModalHeaderActionButton>
-              {isAuthor(post.author.id) && (
+              {post.author?.id && isAuthor(post.author.id) && (
                 <>
-                  <ModalHeaderActionButton
-                    onClick={handleEditPost}
-                    title="수정"
-                  >
-                    <FaReply size={14} /> 수정
+                  <ModalHeaderActionButton onClick={handleEditPost}>
+                    수정
                   </ModalHeaderActionButton>
                   <ModalHeaderActionButton
+                    className="delete"
                     onClick={handleDeletePost}
-                    title="삭제"
                   >
-                    <FaReply size={14} /> 삭제
+                    삭제
                   </ModalHeaderActionButton>
                 </>
               )}
-              <CloseButton onClick={onClose}>×</CloseButton>
-            </HeaderRight>
+              <ModalHeaderCloseButton onClick={onClose}>
+                ×
+              </ModalHeaderCloseButton>
+            </ModalHeaderButtonGroup>
           </ModalHeader>
           <ModalBody>
-            {/* 상단 제목/상태/날짜 - 이미지와 동일하게 구조 및 스타일 개선 */}
-            <div style={{ marginBottom: 24 }}>
+            {/* 게시글 제목/상태/날짜 */}
+            <div style={{ marginBottom: 20 }}>
               <div
                 style={{
                   display: "flex",
@@ -336,9 +337,26 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                   marginBottom: 8,
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    flex: 1,
+                    minWidth: 0,
+                  }}
+                >
                   <span
-                    style={{ fontSize: 18, fontWeight: 700, color: "#222" }}
+                    style={{
+                      fontSize: 18,
+                      fontWeight: 700,
+                      color: "#222",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      flex: 1,
+                      minWidth: 0,
+                    }}
                   >
                     {post.title}
                   </span>
@@ -351,12 +369,13 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                       borderRadius: 8,
                       padding: "2px 12px",
                       marginLeft: 6,
+                      flexShrink: 0,
                     }}
                   >
                     {getStatusText(post.status)}
                   </span>
                 </div>
-                <span style={{ color: "#b0b0b0", fontSize: 13 }}>
+                <span style={{ color: "#b0b0b0", fontSize: 13, flexShrink: 0 }}>
                   {formatDate(post.createdAt)}
                 </span>
               </div>
@@ -364,7 +383,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                 style={{
                   fontSize: 15,
                   color: "#222",
-                  lineHeight: 1.8,
+                  lineHeight: 1.6,
                   marginBottom: 8,
                 }}
               >
