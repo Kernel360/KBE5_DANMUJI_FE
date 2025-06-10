@@ -5,6 +5,7 @@ import path from "path";
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  base: "/", // 루트 경로 설정
   build: {
     outDir: "dist", // 빌드 출력 디렉토리
     rollupOptions: {
@@ -38,6 +39,12 @@ export default defineConfig({
     fs: {
       // 정적 파일 서빙 허용
       allow: [".."],
+    },
+  },
+  // Vercel에서 SPA 라우팅 문제 해결을 위한 설정
+  preview: {
+    headers: {
+      "Cache-Control": "public, max-age=600", // 캐싱 설정
     },
   },
 });
