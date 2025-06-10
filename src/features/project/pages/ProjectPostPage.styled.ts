@@ -1,383 +1,692 @@
 import styled from "styled-components";
-import { AiOutlineSearch } from "react-icons/ai";
+import { darken } from "polished";
 
 export const PageContainer = styled.div`
-  padding: 32px; /* 이미지 기준 패딩 */
-  background-color: #f9fafb;
-  flex-grow: 1;
+  display: flex;
+  /* height: 100vh; */ /* Set full viewport height */
+  /* overflow: hidden; */ /* Prevent scrolling on the page container itself */
+  background-color: #f0f2f5; /* Light grey background */
+`;
+
+export const MainContentWrapper = styled.div`
+  flex: 1; /* Take up remaining space */
+  display: flex;
+  padding: 20px; /* Add padding here for the main content area */
+  gap: 20px; /* Space between ProjectDetailSection and SidebarWrapper */
+  /* overflow-y: auto; */ /* Enable scrolling for main content if needed */
+  background-color: #ffffff; /* White background for content */
+  border-radius: 8px;
+  /* margin-right: 20px; */ /* Adjust margin to allow space for the new sidebar */
+  flex-direction: column;
+`;
+
+export const SidebarWrapper = styled.div`
+  width: 280px; /* Fixed width for the sidebar as per the image */
+  background-color: #ffffff; /* White background */
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  overflow-y: auto; /* Enable scrolling for sidebar if content is long */
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: sticky; /* Make sidebar sticky */
+  top: 0; /* Stick to the top */
+  height: fit-content; /* Adjust height to content */
 `;
 
 export const ProjectDetailSection = styled.div`
-  background-color: white;
-  padding: 24px; /* 이미지 기준 패딩 */
+  flex: 1; /* Allows it to take up available space */
+  padding: 20px;
+  background-color: #ffffff;
   border-radius: 8px;
-  margin-bottom: 24px; /* 이미지 기준 하단 마진 */
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* Spacing between elements */
 `;
 
-export const ProjectTitle = styled.h2`
-  font-size: 20px; /* 이미지 기준 폰트 크기 */
-  font-weight: 700; /* 이미지 기준 폰트 두께 */
-  color: #1f2937;
-  margin-bottom: 4px;
+export const ProjectTitle = styled.h1`
+  font-size: 24px;
+  color: #333333;
+  margin-bottom: 5px;
+  font-weight: bold;
 `;
 
 export const ProjectDescription = styled.p`
-  font-size: 14px; /* 이미지 기준 폰트 크기 */
-  color: #6b7280;
-  margin-bottom: 16px; /* 이미지 기준 하단 마진 */
+  font-size: 16px;
+  color: #666666;
+  margin-bottom: 10px;
 `;
 
 export const ProjectPeriod = styled.p`
-  font-size: 14px; /* 이미지 기준 폰트 크기 */
-  color: #4b5563;
-  margin-bottom: 16px; /* 이미지 기준 하단 마진 */
+  font-size: 14px;
+  color: #999999;
+  margin-bottom: 20px;
 `;
 
 export const ProjectInfoGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 12px 24px; /* 행 및 열 간격 조정 */
-  margin-bottom: 24px; /* 이미지 기준 하단 마진 */
-  font-size: 14px; /* 이미지 기준 폰트 크기 */
-  /* Ensure left alignment */
-  justify-items: start; /* Align grid items to the start of their cells */
-  text-align: left; /* Ensure text within is left-aligned as a fallback */
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
 `;
 
 export const ProjectInfoItem = styled.div`
   display: flex;
+  flex-direction: row;
+  align-items: baseline;
   gap: 8px;
-  color: #374151;
-  align-items: baseline; /* Align text baselines */
 `;
 
 export const InfoLabel = styled.span`
-  font-weight: 600; /* 이미지 기준 폰트 두께 */
+  font-size: 14px;
   color: #4b5563;
-  min-width: 60px; /* 라벨 최소 너비 설정 */
-  text-align: left; /* Explicitly left align as requested by user */
-  /* Adjust margin-right if needed for space between label and value */
+  margin-bottom: 0;
+  font-weight: 600;
+  min-width: 60px;
 `;
 
 export const InfoValue = styled.span<{ $bold?: boolean }>`
+  font-size: 14px;
   color: #374151;
-  flex-grow: 1;
-  text-align: left; /* Explicitly left align */
-  font-weight: ${(props) =>
-    props.$bold ? "700" : "400"}; /* Apply bold based on prop and image */
+  font-weight: ${(props) => (props.$bold ? "700" : "400")};
 `;
 
 export const ProgressBarContainer = styled.div`
-  margin-top: 16px; /* 이미지 기준 상단 마진 */
-  /* Ensure left alignment */
-  width: 100%; /* Take full width to allow progress bar to span */
-`;
-
-export const ProgressLabel = styled.p`
-  font-size: 14px; /* 이미지 기준 폰트 크기 */
-  color: #4b5563;
-  margin-bottom: 8px; /* 이미지 기준 하단 마진 */
-  text-align: left; /* Explicitly left align */
+  width: 100%;
+  background-color: #e0e0e0;
+  border-radius: 5px;
+  height: 10px;
+  overflow: hidden;
+  margin-top: 10px;
 `;
 
 export const ProgressBar = styled.div`
-  height: 8px;
-  background-color: #e5e7eb;
-  border-radius: 4px;
-  overflow: hidden;
-`;
-
-export const ProgressFill = styled.div<{ $percentage: number }>`
   height: 100%;
-  width: ${(props) => props.$percentage}%;
-  background-color: #4f46e5; /* Indigo color */
-  border-radius: 4px;
+  background-color: #4f46e5; /* Purple progress bar */
+  width: 75%; /* Example width, adjust as needed */
+  border-radius: 5px;
 `;
 
-// Styled components for the step indicators (Re-added and styled based on image)
+export const ProgressFill = styled.div<{ $progress: number }>`
+  height: 100%;
+  background-color: #4f46e5; /* Purple progress bar */
+  width: ${(props) => props.$progress}%;
+  border-radius: 5px;
+  transition: width 0.5s ease-in-out;
+`;
+
+export const ProgressLabel = styled.span`
+  font-size: 14px;
+  color: #333333;
+  margin-top: 5px;
+  text-align: right;
+  display: block;
+`;
+
 export const StepsContainer = styled.div`
   display: flex;
-  justify-content: space-between; /* Distribute steps evenly */
-  align-items: flex-start; /* Align items to the start */
-  margin: 24px 0; /* Adjust margin for left alignment */
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
   position: relative;
-  width: 100%; /* Allow container to take full width */
-  max-width: 600px; /* Max width for larger screens */
+  padding: 0;
 
   &::before {
     content: "";
     position: absolute;
-    top: 9px; /* Adjust to align with circle center */
+    top: 9px;
     left: 0;
     right: 0;
     height: 2px;
-    background-color: #e5e7eb; /* Line color */
+    background-color: #e5e7eb;
     z-index: 0;
+    transform: translateY(-50%);
   }
 `;
 
 export const Step = styled.div`
   display: flex;
-  flex-direction: column; /* Arrange items vertically */
-  align-items: center; /* Center circle and text horizontally within the step */
-  z-index: 1; /* Ensure steps are above the line */
-  position: relative; /* Needed for positioning */
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+  flex: 1;
 `;
 
 export const StepCircle = styled.div<{ $active: boolean }>`
-  width: 18px; /* Adjust size to better match image */
-  height: 18px; /* Adjust size to better match image */
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  background-color: ${(props) =>
-    props.$active ? "#4f46e5" : "#e5e7eb"}; /* Indigo or Gray */
-  margin-bottom: 8px; /* Space between circle and label */
+  background-color: ${(props) => (props.$active ? "#4f46e5" : "#e5e7eb")};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-weight: bold;
+  margin-bottom: 8px;
+  border: none;
+  box-shadow: none;
 `;
 
 export const StepLabel = styled.span`
-  font-size: 12px; /* 이미지 기준 폰트 크기 */
+  font-size: 12px;
   color: #4b5563;
-  white-space: nowrap; /* Prevent wrapping */
-  text-align: center; /* Center text label */
+  text-align: center;
+  white-space: nowrap;
 `;
 
 export const TabsContainer = styled.div`
   display: flex;
-  border-bottom: 1px solid #e5e7eb;
-  margin-bottom: 24px; /* 이미지 기준 하단 마진 */
+  border-bottom: 2px solid #e0e0e0;
+  margin-bottom: 20px;
 `;
 
-export const TabButton = styled.button<{ $active?: boolean }>`
-  padding: 12px 24px;
-  font-size: 16px; /* 이미지 기준 폰트 크기 */
-  font-weight: 600; /* 이미지 기준 폰트 두께 */
-  background-color: transparent;
+export const TabButton = styled.button<{ $active: boolean }>`
+  padding: 10px 20px;
   border: none;
-  border-bottom: 2px solid transparent;
+  background-color: transparent;
+  font-size: 16px;
+  font-weight: ${(props) => (props.$active ? "bold" : "normal")};
+  color: ${(props) => (props.$active ? "#333333" : "#7f8c8d")};
   cursor: pointer;
-  color: ${(props) => (props.$active ? "#4f46e5" : "#6b7280")};
-  border-color: ${(props) => (props.$active ? "#4f46e5" : "transparent")};
-  transition: color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+  border-bottom: ${(props) => (props.$active ? "3px solid #4f46e5" : "none")};
+  margin-bottom: -2px; /* Adjust to align with border */
+  transition: all 0.3s ease;
 
   &:hover {
-    color: #4f46e5;
-    border-color: #4f46e5;
+    color: #333333;
   }
 `;
 
 export const TabContent = styled.div`
-  /* Tab content padding if needed */
+  padding: 20px 0;
 `;
 
 export const Toolbar = styled.div`
   display: flex;
-  align-items: center;
-  margin-bottom: 20px; /* 이미지 기준 하단 마진 */
-  gap: 12px;
   justify-content: space-between;
-  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 15px;
+  gap: 10px; /* Space between left and right toolbar sections */
+  flex-wrap: wrap; /* Allow wrapping on smaller screens */
 `;
 
 export const LeftToolbar = styled.div`
   display: flex;
   align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
+  gap: 10px;
 `;
 
 export const RightToolbar = styled.div`
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 `;
 
 export const FilterSelect = styled.select`
-  border: 1px solid #d1d5db;
-  border-radius: 4px;
   padding: 8px 12px;
-  font-size: 14px; /* 이미지 기준 폰트 크기 */
+  border: 1px solid #cccccc;
+  border-radius: 5px;
+  font-size: 14px;
+  color: #333333;
   background-color: white;
-  color: #374151;
-  appearance: none;
-  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20fill%3D%22none%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E");
+  cursor: pointer;
+  appearance: none; /* Remove default arrow */
+  background-image: url('data:image/svg+xml;utf8,<svg fill="#333333" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
   background-repeat: no-repeat;
   background-position: right 8px center;
-  padding-right: 24px;
-  cursor: pointer;
+  background-size: 12px;
 
   &:focus {
+    border-color: #66afe9;
     outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 1px #3b82f6;
   }
+`;
+
+export const TotalCountText = styled.span`
+  font-weight: bold;
+  color: #333333;
+  font-size: 14px;
 `;
 
 export const SearchContainer = styled.div`
   display: flex;
-  align-items: center;
-  border: 1px solid #d1d5db;
-  border-radius: 4px;
-  padding: 8px 12px;
-  width: 256px; /* 이미지 기준 너비 */
-  background-color: white; /* 이미지 기준 배경색 */
+  border: 1px solid #cccccc;
+  border-radius: 5px;
+  overflow: hidden;
+  background-color: white;
+  width: 250px;
+  position: relative; /* For positioning the icon */
 `;
 
 export const SearchInput = styled.input`
-  flex-grow: 1;
+  flex: 1;
+  padding: 8px 12px;
   border: none;
-  outline: none;
-  font-size: 14px; /* 이미지 기준 폰트 크기 */
-  color: #374151;
-  background-color: transparent;
-  padding: 0;
+  font-size: 14px;
+  color: #333333;
+  padding-right: 35px; /* Make space for the icon */
+  background-color: white;
 
-  &::placeholder {
-    color: #9ca3af; /* 이미지 기준 플레이스홀더 색상 */
+  &:focus {
+    outline: none;
   }
 `;
 
-export const SearchIcon = styled(AiOutlineSearch)`
-  color: #9ca3af;
+export const SearchIcon = styled.div`
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #999999;
   font-size: 18px;
-  margin-right: 8px; /* 이미지 기준 간격 */
+`;
+
+export const StatusBadge = styled.span<{ $status: string }>`
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  width: fit-content;
+
+  ${(props) => {
+    if (props.$status === "승인")
+      return `
+        background-color: #d1fae5;
+        color: #059669;
+      `;
+    if (props.$status === "대기")
+      return `
+        background-color: #fef9c3;
+        color: #a16207;
+      `;
+    if (props.$status === "반려")
+      return `
+        background-color: #fee2e2;
+        color: #dc2626;
+      `;
+    return `
+      background-color: #e5e7eb;
+      color: #4b5563;
+    `;
+  }}
 `;
 
 export const CreateButton = styled.button`
-  background-color: #4f46e5; /* Indigo */
+  background-color: #6b6b6b; /* 어두운 회색 */
   color: white;
-  padding: 8px 16px;
-  border-radius: 4px;
+  padding: 10px 15px;
   border: none;
-  font-size: 14px; /* 이미지 기준 폰트 크기 */
-  font-weight: 500;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s ease-in-out;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap; /* 줄바꿈 방지 */
 
   &:hover {
-    background-color: #4338ca; /* Darker Indigo */
+    background-color: ${darken(0.05, "#6B6B6B")};
   }
 `;
 
 export const TableContainer = styled.div`
+  width: 100%;
   overflow-x: auto;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 `;
 
 export const Table = styled.table`
-  min-width: 100%;
+  width: 100%;
   border-collapse: collapse;
 `;
 
 export const TableHead = styled.thead`
-  background-color: #f9fafb;
-  border-bottom: 1px solid #e5e7eb;
+  background-color: #f2f2f2; /* Light grey background for header */
 `;
 
-export const TableHeader = styled.th.withConfig({
-  shouldForwardProp: (prop) => !["$align"].includes(prop),
-})<{ $align?: "left" | "center" | "right" }>`
-  padding: 12px 16px;
+export const TableHeader = styled.th`
+  padding: 12px 15px;
   text-align: left;
-  font-size: 12px; /* 이미지 기준 폰트 크기 */
-  font-weight: 600; /* 이미지 기준 폰트 두께 */
-  color: #4b5563;
-  text-transform: uppercase; /* 이미지 기준 대문자 */
-  letter-spacing: 0.05em; /* 이미지 기준 자간 */
+  font-size: 13px;
+  color: #999999;
+  font-weight: 500; /* Make header text bold */
+  border-bottom: 1px solid #e0e0e0;
 `;
 
 export const TableBody = styled.tbody``;
 
 export const TableRow = styled.tr`
-  border-bottom: 1px solid #e5e7eb;
+  &:nth-child(even) {
+    background-color: #f9f9f9; /* Zebra striping */
+  }
+  &:hover {
+    background-color: #f0f0f0; /* Highlight on hover */
+  }
+  border-bottom: 1px solid #e0e0e0; /* Add border bottom to rows */
+`;
 
-  &:last-child {
-    border-bottom: none;
+export const TableCell = styled.td`
+  padding: 10px 15px;
+  font-size: 14px;
+  color: #333333;
+  vertical-align: middle; /* Center content vertically */
+
+  &.status-cell {
+    text-align: center; /* Center status badge */
   }
 `;
 
-export const TableCell = styled.td.withConfig({
-  shouldForwardProp: (prop) => !["$align"].includes(prop),
-})<{ $align?: "left" | "center" | "right" }>`
-  padding: 12px 16px;
-  font-size: 14px; /* 이미지 기준 폰트 크기 */
-  color: #374151;
-  vertical-align: middle; /* 이미지 기준 세로 정렬 */
-`;
-
-export const TableLink = styled.button`
-  color: #4f46e5;
-  cursor: pointer;
+export const TableLink = styled.a`
+  color: #2c3e50;
   text-decoration: none;
-  background: none;
-  border: none;
-  padding: 0;
-  font: inherit;
+  font-weight: 500;
 
   &:hover {
     text-decoration: underline;
   }
 `;
 
-export const StatusBadge = styled.span<{ $status: string }>`
-  display: inline-block;
-  padding: 4px 8px; /* 이미지 기준 패딩 */
-  border-radius: 9999px; /* 이미지 기준 완전 둥근 모서리 */
-  font-size: 12px; /* 이미지 기준 폰트 크기 */
-  font-weight: 600; /* 이미지 기준 폰트 두께 */
-  text-align: center;
-  ${(props) => {
-    switch (props.$status) {
-      case "승인":
-        return "background-color: #dcfce7; color: #14532d;"; // Green
-      case "반려":
-        return "background-color: #fee2e2; color: #991b1b;"; // Red
-      case "대기":
-        return "background-color: #fef9c3; color: #854d0e;"; // Yellow
-      default:
-        return "background-color: #e5e7eb; color: #374151;"; // Gray
-    }
-  }}
-`;
-
 export const PaginationContainer = styled.div`
   display: flex;
-  justify-content: center; /* 이미지 기준 중앙 정렬 */
-  margin-top: 24px; /* 이미지 기준 상단 마진 */
+  justify-content: center; /* 페이지네이션을 가운데로 정렬 */
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px;
 `;
 
-export const PaginationNav = styled.nav`
-  display: inline-flex;
-  border-radius: 4px; /* 이미지 기준 모서리 둥글게 */
-  overflow: hidden;
+export const PaginationNav = styled.nav``;
+
+export const PaginationList = styled.ul`
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 `;
 
-export const PaginationButton = styled.button<{ $active?: boolean }>`
-  padding: 8px 12px; /* 이미지 기준 패딩 */
-  border: 1px solid #d1d5db;
-  border-right: none; /* 버튼 사이 border 제거 */
-  background-color: white;
-  color: ${(props) => (props.$active ? "#ffffff" : "#6b7280")};
-  background-color: ${(props) => (props.$active ? "#4f46e5" : "white")};
-  border-color: ${(props) => (props.$active ? "#4f46e5" : "#d1d5db")};
-  font-weight: ${(props) => (props.$active ? "600" : "400")};
+export const PaginationItem = styled.li`
+  margin: 0 5px;
+`;
+
+export const PaginationButton = styled.button<{
+  $active?: boolean;
+  $isArrow?: boolean;
+}>`
+  background-color: ${(props) => (props.$active ? "#2c3e50" : "#f5f5f5")};
+  color: ${(props) => (props.$active ? "white" : "#333333")};
+  border: 1px solid ${(props) => (props.$active ? "#2c3e50" : "#dddddd")};
+  padding: 8px 12px;
+  border-radius: 5px; /* Slightly rounded corners */
   cursor: pointer;
-  transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out,
-    color 0.2s ease-in-out;
+  font-size: 14px;
+  min-width: 36px; /* Ensure consistent width for buttons */
+  text-align: center;
+  transition: all 0.3s ease;
 
-  &:last-child {
-    border-right: 1px solid #d1d5db; /* 마지막 버튼 border 유지 */
-  }
-
-  &:not(:disabled):hover {
-    background-color: ${(props) => (props.$active ? "#4338ca" : "#f9fafb")};
-    border-color: ${(props) => (props.$active ? "#4338ca" : "#d1d5db")};
-    color: ${(props) => (props.$active ? "#ffffff" : "#374151")};
+  &:hover {
+    background-color: ${(props) =>
+      props.$active ? darken(0.1, "#2c3e50") : "#e0e0e0"};
   }
 
   &:disabled {
-    opacity: 0.5;
     cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  ${(props) =>
+    props.$isArrow &&
+    `
+    background-color: transparent;
+    border: 1px solid #dddddd;
+    color: #555555;
+    &:hover {
+      background-color: #f0f0f0;
+    }
+  `}
+`;
+
+export const ProjectPostPageWrapper = styled.div`
+  display: flex;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+`;
+
+/* New Styled Components for Detail Sidebar */
+export const DetailSidebarContainer = styled.div`
+  width: 320px; /* Adjust width as per image */
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+  flex-shrink: 0;
+  height: fit-content; /* Adjust height to content */
+`;
+
+export const DetailHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e0e0e0;
+`;
+
+export const DetailTitle = styled.h3`
+  font-size: 18px;
+  font-weight: bold;
+  color: #333333;
+`;
+
+export const CloseButton = styled.button`
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #999999;
+  cursor: pointer;
+  &:hover {
+    color: #333333;
+  }
+`;
+
+export const DetailSectionWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+`;
+
+export const DetailSectionTitle = styled.h4`
+  font-size: 15px;
+  font-weight: bold;
+  color: #555555;
+  margin-bottom: 5px;
+`;
+
+export const DetailSectionContent = styled.p`
+  font-size: 14px;
+  color: #666666;
+  line-height: 1.6;
+`;
+
+export const DetailInfoGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Two columns for label and value */
+  gap: 10px 15px;
+  margin-bottom: 15px;
+`;
+
+export const DetailInfoItem = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+export const DetailInfoLabel = styled.span`
+  font-size: 13px;
+  color: #777777;
+  margin-bottom: 2px;
+`;
+
+export const DetailInfoValue = styled.span<{ $status?: string }>`
+  font-size: 14px;
+  color: #333333;
+  font-weight: ${(props) => (props.$status ? "bold" : "normal")};
+  ${(props) => {
+    if (props.$status === "승인") return "color: #28a745;";
+    if (props.$status === "대기") return "color: #ffc107;";
+    if (props.$status === "반려") return "color: #dc3545;";
+    return "";
+  }}
+`;
+
+export const AttachmentList = styled.ul`
+  list-style: none;
+  padding: 0;
+  margin: 0;
+`;
+
+export const AttachmentItem = styled.li`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+  &:last-child {
+    border-bottom: none;
+  }
+`;
+
+export const AttachmentLink = styled.a`
+  color: #2c3e50;
+  text-decoration: none;
+  font-size: 14px;
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+export const AttachmentSize = styled.span`
+  font-size: 12px;
+  color: #999999;
+`;
+
+export const CommentWrapper = styled.div`
+  margin-top: 20px;
+  border-top: 1px solid #e0e0e0;
+  padding-top: 20px;
+`;
+
+export const CommentHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+`;
+
+export const CommentCount = styled.span`
+  font-size: 14px;
+  font-weight: bold;
+  color: #333333;
+`;
+
+export const CommentInputContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+`;
+
+export const CommentInput = styled.textarea`
+  width: 100%;
+  min-height: 80px;
+  padding: 10px;
+  border: 1px solid #dddddd;
+  border-radius: 5px;
+  font-size: 14px;
+  resize: vertical;
+  &:focus {
+    outline: none;
+    border-color: #2c3e50;
+  }
+`;
+
+export const CommentButton = styled.button`
+  align-self: flex-end;
+  background-color: #2c3e50;
+  color: white;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  &:hover {
+    background-color: ${darken(0.1, "#2c3e50")};
+  }
+`;
+
+export const CommentList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+`;
+
+export const CommentItem = styled.div`
+  background-color: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #eee;
+`;
+
+export const CommentMeta = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+`;
+
+export const CommentAuthor = styled.span`
+  font-weight: bold;
+  color: #333333;
+  font-size: 14px;
+`;
+
+export const CommentDate = styled.span`
+  font-size: 12px;
+  color: #999999;
+`;
+
+export const CommentText = styled.p`
+  font-size: 14px;
+  color: #555555;
+  line-height: 1.5;
+  margin-bottom: 10px;
+`;
+
+export const CommentActions = styled.div`
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+`;
+
+export const CommentActionButton = styled.button`
+  background: none;
+  border: none;
+  color: #777777;
+  font-size: 12px;
+  cursor: pointer;
+  &:hover {
+    color: #2c3e50;
+    text-decoration: underline;
   }
 `;
