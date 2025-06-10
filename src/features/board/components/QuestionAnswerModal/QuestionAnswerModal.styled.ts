@@ -374,3 +374,36 @@ export const ErrorMessage = styled.div`
   text-align: center;
   padding: 2rem;
 `;
+
+export const ModalHeaderActionButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  color: #6366f1;
+  border: none;
+  border-radius: 5px;
+  padding: 0 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  height: 28px;
+  min-width: 0;
+  box-shadow: none;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+
+  &:hover {
+    background: #f3f4f6;
+  }
+
+  &.delete {
+    color: #ef4444;
+  }
+`;
+
+export const ModalHeaderButtonGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+`;

@@ -38,6 +38,8 @@ import {
   BestAnswerBadge,
   LoadingSpinner,
   ErrorMessage,
+  ModalHeaderActionButton,
+  ModalHeaderButtonGroup,
 } from "./QuestionAnswerModal.styled";
 import { getPostDetail } from "@/features/project/services/postService";
 import {
@@ -334,6 +336,32 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
     });
   };
 
+  // 게시글 상태 한글 변환 및 색상 함수 추가
+  const getPostStatusText = (status: string) => {
+    switch (status) {
+      case "APPROVED":
+        return "승인";
+      case "PENDING":
+        return "대기";
+      case "REJECTED":
+        return "반려";
+      default:
+        return status;
+    }
+  };
+  const getPostStatusColor = (status: string) => {
+    switch (status) {
+      case "APPROVED":
+        return "#10b981"; // 초록
+      case "PENDING":
+        return "#f59e0b"; // 주황
+      case "REJECTED":
+        return "#ef4444"; // 빨강
+      default:
+        return "#6b7280"; // 회색
+    }
+  };
+
   if (!open) return null;
 
   if (loading) {
@@ -378,54 +406,64 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
           </HeaderRight>
         </ModalHeader>
         <ModalBody>
-          {/* 게시글 제목과 상태 */}
-          <Section>
-            <div style={{ marginBottom: 16 }}>
-              <div
+          {/* 게시글 정보 */}
+          <Section style={{ marginBottom: 24 }}>
+            <span
+              style={{ fontWeight: 600, color: "#6b7280", marginBottom: 4 }}
+            >
+              제목
+            </span>
+            <span
+              style={{
+                fontSize: 16,
+                color: "#222",
+                marginBottom: 8,
+                marginLeft: 14,
+              }}
+            >
+              {post.title}
+            </span>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                marginBottom: 8,
+              }}
+            >
+              <span style={{ fontWeight: 600, color: "#6b7280" }}>상태</span>
+              <span
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  marginBottom: 8,
+                  background: getPostStatusColor(post.status),
+                  color: "white",
+                  borderRadius: 8,
+                  fontWeight: 600,
+                  fontSize: 13,
+                  padding: "2px 12px",
+                  marginLeft: 0,
                 }}
               >
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 10,
-                    flex: 1,
-                    minWidth: 0,
-                  }}
-                >
-                  <span
-                    style={{
-                      fontSize: 18,
-                      fontWeight: 700,
-                      color: "#222",
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      flex: 1,
-                      minWidth: 0,
-                    }}
-                  >
-                    {post.title}
-                  </span>
-                  <StatusBadge $status={getStatusText(post.status)}>
-                    {getStatusText(post.status)}
-                  </StatusBadge>
-                </div>
-              </div>
+                {getPostStatusText(post.status)}
+              </span>
+              <span style={{ color: "#b0b0b0", fontSize: 13, marginLeft: 10 }}>
+                {formatDate(post.createdAt)}
+              </span>
             </div>
-          </Section>
-
-          <Section>
-            <PostMeta>
-              <div>작성자: {post.author.name}</div>
-              <div>작성일: {formatDate(post.createdAt)}</div>
-            </PostMeta>
-            <PostContent>{post.content}</PostContent>
+            <div style={{ fontWeight: 600, color: "#6b7280", marginBottom: 4 }}>
+              내용
+            </div>
+            <div
+              style={{
+                fontSize: 15,
+                color: "#444",
+                lineHeight: 1.7,
+                background: "#f8f9fa",
+                borderRadius: 8,
+                padding: 16,
+              }}
+            >
+              {post.content}
+            </div>
           </Section>
 
           <QuestionSection>
@@ -478,149 +516,59 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
                       <QuestionActions>
                         {question.author?.id &&
                           isQuestionAuthor(question.author.id) && (
-                            <div style={{ display: "flex", gap: "8px" }}>
+                            <ModalHeaderButtonGroup>
                               {editingQuestionId === question.id ? (
                                 <>
-                                  <button
+                                  <ModalHeaderActionButton
                                     onClick={handleUpdateQuestion}
                                     disabled={
                                       updatingQuestion ||
                                       !editQuestionText.trim()
                                     }
-                                    style={{
-                                      background: "#10b981",
-                                      color: "white",
-                                      border: "none",
-                                      borderRadius: "4px",
-                                      padding: "6px 12px",
-                                      cursor: "pointer",
-                                      fontSize: "0.75rem",
-                                      fontWeight: "500",
-                                      width: "60px",
-                                      height: "28px",
-                                      display: "flex",
-                                      alignItems: "center",
-                                      justifyContent: "center",
-                                      whiteSpace: "nowrap",
-                                      overflow: "hidden",
-                                    }}
                                   >
                                     {updatingQuestion ? "저장 중..." : "저장"}
-                                  </button>
-                                  <button
+                                  </ModalHeaderActionButton>
+                                  <ModalHeaderActionButton
                                     onClick={handleCancelEdit}
                                     disabled={updatingQuestion}
-                                    style={{
-                                      background: "#6b7280",
-                                      color: "white",
-                                      border: "none",
-                                      borderRadius: "4px",
-                                      padding: "6px 12px",
-                                      cursor: "pointer",
-                                      fontSize: "0.75rem",
-                                      fontWeight: "500",
-                                      width: "60px",
-                                      height: "28px",
-                                      display: "flex",
-                                      alignItems: "center",
-                                      justifyContent: "center",
-                                      whiteSpace: "nowrap",
-                                      overflow: "hidden",
-                                    }}
                                   >
                                     취소
-                                  </button>
+                                  </ModalHeaderActionButton>
                                 </>
                               ) : (
                                 <>
-                                  <button
+                                  <ModalHeaderActionButton
                                     onClick={() => handleEditQuestion(question)}
-                                    style={{
-                                      background: "#3b82f6",
-                                      color: "white",
-                                      border: "none",
-                                      borderRadius: "4px",
-                                      padding: "6px 12px",
-                                      cursor: "pointer",
-                                      fontSize: "0.75rem",
-                                      fontWeight: "500",
-                                      width: "60px",
-                                      height: "28px",
-                                      display: "flex",
-                                      alignItems: "center",
-                                      justifyContent: "center",
-                                      whiteSpace: "nowrap",
-                                      overflow: "hidden",
-                                    }}
                                   >
                                     수정
-                                  </button>
-                                  <button
+                                  </ModalHeaderActionButton>
+                                  <ModalHeaderActionButton
+                                    onClick={() =>
+                                      handleResolveQuestion(question.id)
+                                    }
+                                    disabled={
+                                      resolvingQuestion ||
+                                      question.status === "RESOLVED"
+                                    }
+                                  >
+                                    {resolvingQuestion
+                                      ? "처리 중..."
+                                      : question.status === "RESOLVED"
+                                      ? "해결됨"
+                                      : "해결됨으로 표시"}
+                                  </ModalHeaderActionButton>
+                                  <ModalHeaderActionButton
+                                    className="delete"
                                     onClick={() =>
                                       handleDeleteQuestion(question.id)
                                     }
                                     disabled={deletingQuestion}
-                                    style={{
-                                      background: "#ef4444",
-                                      color: "white",
-                                      border: "none",
-                                      borderRadius: "4px",
-                                      padding: "6px 12px",
-                                      cursor: "pointer",
-                                      fontSize: "0.75rem",
-                                      fontWeight: "500",
-                                      width: "60px",
-                                      height: "28px",
-                                      display: "flex",
-                                      alignItems: "center",
-                                      justifyContent: "center",
-                                      whiteSpace: "nowrap",
-                                      overflow: "hidden",
-                                    }}
                                   >
-                                    {deletingQuestion ? "삭제 중..." : "삭제"}
-                                  </button>
-                                  {/* 질문 작성자만 해결됨 버튼 표시 */}
-                                  {question.author?.id &&
-                                  isQuestionAuthor(question.author.id) ? (
-                                    <button
-                                      onClick={() =>
-                                        handleResolveQuestion(question.id)
-                                      }
-                                      disabled={resolvingQuestion}
-                                      style={{
-                                        background:
-                                          question.status === "RESOLVED"
-                                            ? "#10b981"
-                                            : "#8b5cf6",
-                                        color: "white",
-                                        border: "none",
-                                        borderRadius: "4px",
-                                        padding: "6px 12px",
-                                        cursor: "pointer",
-                                        fontSize: "0.75rem",
-                                        fontWeight: "500",
-                                        width: "100px",
-                                        height: "28px",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        whiteSpace: "nowrap",
-                                        overflow: "hidden",
-                                      }}
-                                    >
-                                      {resolvingQuestion
-                                        ? "처리 중..."
-                                        : question.status === "RESOLVED"
-                                        ? "해결됨"
-                                        : "해결됨으로 표시"}
-                                    </button>
-                                  ) : (
-                                    <VoteButton>👍 0</VoteButton>
-                                  )}
+                                    삭제
+                                  </ModalHeaderActionButton>
                                 </>
                               )}
-                            </div>
+                            </ModalHeaderButtonGroup>
                           )}
                       </QuestionActions>
                     </QuestionHeader>

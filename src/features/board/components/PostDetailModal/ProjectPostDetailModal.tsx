@@ -27,6 +27,7 @@ import {
   InfoRow,
   InfoKey,
   InfoValue,
+  QuestionAnswerStyledButton,
 } from "./ProjectPostDetailModal.styled.ts";
 import {
   getPostDetail,
@@ -331,8 +332,15 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
             </ModalHeaderButtonGroup>
           </ModalHeader>
           <ModalBody>
-            {/* 게시글 제목 */}
-            <div style={{ marginBottom: 28 }}>
+            {/* 게시글 제목 + 질문&답변 버튼 */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: 28,
+              }}
+            >
               <span
                 style={{
                   fontSize: 20,
@@ -343,6 +351,11 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
               >
                 {post.title}
               </span>
+              <QuestionAnswerStyledButton
+                onClick={() => setShowQuestionAnswer(true)}
+              >
+                질문 & 답변
+              </QuestionAnswerStyledButton>
             </div>
 
             {/* 상세 정보 */}
@@ -353,7 +366,11 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
               </InfoRow>
               <InfoRow>
                 <InfoKey>담당자</InfoKey>
-                <InfoValue>{post.author?.name || "-"}</InfoValue>
+                <InfoValue>
+                  {("damdangjaName" in post
+                    ? (post as { damdangjaName?: string }).damdangjaName
+                    : "-") || "-"}
+                </InfoValue>
               </InfoRow>
               <InfoRow>
                 <InfoKey>고객사</InfoKey>
@@ -496,19 +513,6 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
             </div>
 
             <CommentsSection>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "flex-end",
-                  marginBottom: "0.5rem",
-                }}
-              >
-                <ModalHeaderActionButton
-                  onClick={() => setShowQuestionAnswer(true)}
-                >
-                  질문 & 답변
-                </ModalHeaderActionButton>
-              </div>
               <SectionTitle>댓글 ({comments.length})</SectionTitle>
 
               {/* 댓글 입력창을 위로 이동 */}
