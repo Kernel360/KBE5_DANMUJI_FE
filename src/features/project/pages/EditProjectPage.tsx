@@ -82,19 +82,23 @@ export default function ProjectEditPage() {
   // 기존 프로젝트 데이터 로드
   useEffect(() => {
     fetch(`http://localhost:8080/api/projects/${projectId}`)
-      .then(res => res.json())
-      .then((proj: ProjectData) => {
+     .then(res => res.json())
+    .then((json: any) => {
+       // ApiResponse<ProjectDetailResponse> 형태에서 실제 페이로드를 꺼낸다
+       const proj = json.data ?? json;
         setName(proj.name);
         setOverview(proj.description);
         setStartDate(proj.startDate ? new Date(proj.startDate) : null);
         setEndDate(proj.endDate ? new Date(proj.endDate) : null);
-        setDevCompanyId(proj.developCompanyId);
-        setClientCompanyId(proj.clientCompanyId);
-        setDeveloperId(proj.developerId);
-        setClientId(proj.clientId);
+      setDevCompanyId(proj.developCompanyId);
+       setClientCompanyId(proj.clientCompanyId);
+       setDeveloperId(proj.developerId);
+       setClientId(proj.clientId);
+       // (개발사/고객사 필드도 추후 API 구조에 맞춰 꺼내거나, 
+       //  ProjectDetailResponse.developers/clients에서 꺼내도록 추가 구현)
       })
       .catch(console.error);
-  }, []);
+ }, []);
 
   // 개발사 담당자 로드
   useEffect(() => {
