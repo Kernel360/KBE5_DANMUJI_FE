@@ -512,3 +512,37 @@ export const DateRangeLabel = styled.span`
   color: #6b7280;
   margin-bottom: 0.25rem;
 `;
+
+// DatePicker 스타일
+export const StyledDatePicker = styled.div`
+  .react-datepicker-wrapper {
+    width: 100%;
+  }
+
+  .react-datepicker__input-container input {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    background-color: white;
+    color: #374151;
+    transition: all 0.2s ease;
+    width: 100%;
+    cursor: pointer;
+
+    &:hover {
+      border-color: #9ca3af;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: #fdb924;
+      box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.1);
+    }
+
+    &::placeholder {
+      color: #9ca3af;
+      font-size: 0.875rem;
+    }
+  }
+`;

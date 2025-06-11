@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import {
   AiOutlineBarChart,
   AiOutlineFileText,
@@ -48,6 +50,7 @@ import {
   ResetButton,
   DateRangeGroup,
   DateRangeLabel,
+  StyledDatePicker,
 } from "./PostListPage.styled";
 import PostDetailModal from "../components/PostDetailModal/ProjectPostDetailModal";
 import {
@@ -114,8 +117,8 @@ export default function PostListPage() {
   const [statusFilter, setStatusFilter] = useState<PostStatus | "ALL">("ALL");
   const [typeFilter, setTypeFilter] = useState<PostType | "ALL">("ALL");
   const [priorityFilter, setPriorityFilter] = useState<number | "ALL">("ALL");
-  const [assigneeFilter, setAssigneeFilter] = useState<string>("ALL");
-  const [clientFilter, setClientFilter] = useState<string>("ALL");
+  const [assigneeFilter, setAssigneeFilter] = useState<string>("");
+  const [clientFilter, setClientFilter] = useState<string>("");
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
   const [isFilterExpanded, setIsFilterExpanded] = useState(true);
@@ -139,8 +142,8 @@ export default function PostListPage() {
         statusFilter !== "ALL" ||
         typeFilter !== "ALL" ||
         priorityFilter !== "ALL" ||
-        assigneeFilter !== "ALL" ||
-        clientFilter !== "ALL" ||
+        assigneeFilter !== "" ||
+        clientFilter !== "" ||
         startDate ||
         endDate;
 
@@ -154,8 +157,8 @@ export default function PostListPage() {
           status: statusFilter === "ALL" ? undefined : statusFilter,
           type: typeFilter === "ALL" ? undefined : typeFilter,
           priority: priorityFilter === "ALL" ? undefined : priorityFilter,
-          assignee: assigneeFilter === "ALL" ? undefined : assigneeFilter,
-          client: clientFilter === "ALL" ? undefined : clientFilter,
+          assignee: assigneeFilter === "" ? undefined : assigneeFilter,
+          client: clientFilter === "" ? undefined : clientFilter,
           startDate: startDate || undefined,
           endDate: endDate || undefined,
         };
@@ -304,26 +307,14 @@ export default function PostListPage() {
   };
 
   const handleAssigneeFilterChange = (
-    e: React.ChangeEvent<HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement>
   ) => {
     setAssigneeFilter(e.target.value);
     setIsFilterChanged(true);
   };
 
-  const handleClientFilterChange = (
-    e: React.ChangeEvent<HTMLSelectElement>
-  ) => {
+  const handleClientFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setClientFilter(e.target.value);
-    setIsFilterChanged(true);
-  };
-
-  const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setStartDate(e.target.value);
-    setIsFilterChanged(true);
-  };
-
-  const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEndDate(e.target.value);
     setIsFilterChanged(true);
   };
 
@@ -339,8 +330,8 @@ export default function PostListPage() {
     setStatusFilter("ALL");
     setTypeFilter("ALL");
     setPriorityFilter("ALL");
-    setAssigneeFilter("ALL");
-    setClientFilter("ALL");
+    setAssigneeFilter("");
+    setClientFilter("");
     setStartDate("");
     setEndDate("");
     setCurrentPage(0);
@@ -455,48 +446,66 @@ export default function PostListPage() {
           {/* 담당자 필터 */}
           <FilterGroup>
             <FilterLabel>담당자</FilterLabel>
-            <FilterSelect
-              onChange={handleAssigneeFilterChange}
+            <FilterInput
+              type="text"
               value={assigneeFilter}
-            >
-              <option value="ALL">전체 담당자</option>
-              <option value="user1">사용자1</option>
-              <option value="user2">사용자2</option>
-              <option value="user3">사용자3</option>
-            </FilterSelect>
+              onChange={handleAssigneeFilterChange}
+              placeholder="담당자명을 입력하세요"
+            />
           </FilterGroup>
 
           {/* 고객사 필터 */}
           <FilterGroup>
             <FilterLabel>고객사</FilterLabel>
-            <FilterSelect
-              onChange={handleClientFilterChange}
+            <FilterInput
+              type="text"
               value={clientFilter}
-            >
-              <option value="ALL">전체 고객사</option>
-              <option value="client1">고객사1</option>
-              <option value="client2">고객사2</option>
-              <option value="client3">고객사3</option>
-            </FilterSelect>
+              onChange={handleClientFilterChange}
+              placeholder="고객사명을 입력하세요"
+            />
           </FilterGroup>
 
           {/* 날짜 범위 */}
           <FilterGroup>
             <FilterLabel>시작일</FilterLabel>
-            <FilterInput
-              type="date"
-              value={startDate}
-              onChange={handleStartDateChange}
-            />
+            <StyledDatePicker>
+              <DatePicker
+                selected={startDate ? new Date(startDate) : null}
+                onChange={(date) => {
+                  if (date) {
+                    setStartDate(date.toISOString().split("T")[0]);
+                    setIsFilterChanged(true);
+                  }
+                }}
+                dateFormat="yyyy-MM-dd"
+                placeholderText="시작일을 선택하세요"
+                isClearable
+                showYearDropdown
+                scrollableYearDropdown
+                yearDropdownItemNumber={15}
+              />
+            </StyledDatePicker>
           </FilterGroup>
 
           <FilterGroup>
             <FilterLabel>종료일</FilterLabel>
-            <FilterInput
-              type="date"
-              value={endDate}
-              onChange={handleEndDateChange}
-            />
+            <StyledDatePicker>
+              <DatePicker
+                selected={endDate ? new Date(endDate) : null}
+                onChange={(date) => {
+                  if (date) {
+                    setEndDate(date.toISOString().split("T")[0]);
+                    setIsFilterChanged(true);
+                  }
+                }}
+                dateFormat="yyyy-MM-dd"
+                placeholderText="종료일을 선택하세요"
+                isClearable
+                showYearDropdown
+                scrollableYearDropdown
+                yearDropdownItemNumber={15}
+              />
+            </StyledDatePicker>
           </FilterGroup>
         </FilterGrid>
 
