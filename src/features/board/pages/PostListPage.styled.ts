@@ -69,45 +69,43 @@ export const FilterSelect = styled.select`
 `;
 
 export const SearchInput = styled.input`
-  padding: 0.625rem 2.5rem 0.625rem 1rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  width: 280px;
-  background-color: white;
-  color: #000000;
-  transition: all 0.2s ease;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-
-  &:hover {
-    border-color: #9ca3af;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
-  }
-
+  min-width: 120px;
+  max-width: 180px;
+  height: 44px;
+  padding: 0 20px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 24px;
+  background: #fff;
+  font-size: 1.08rem;
+  color: #444;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  transition: border 0.2s;
+  appearance: none;
+  position: relative;
+  margin-right: 18px;
   &:focus {
+    border: 1.5px solid #fdb924;
     outline: none;
-    border-color: #fdb924;
-    box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.1);
   }
-
   &::placeholder {
     color: #9ca3af;
-    font-size: 0.875rem;
+    font-size: 1.08rem;
   }
 `;
 
 export const SearchIcon = styled(AiOutlineSearch)`
   position: absolute;
-  right: 0.75rem;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
   color: #9ca3af;
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   cursor: pointer;
   transition: all 0.2s ease;
-
   &:hover {
     color: #fdb924;
-    transform: scale(1.1);
+    transform: scale(1.1) translateY(-50%);
   }
 `;
 
@@ -272,29 +270,24 @@ export const ErrorMessage = styled.div`
 `;
 
 export const CreateButton = styled.button`
-  padding: 0.625rem 1.25rem;
-  background: linear-gradient(135deg, #fdb924 0%, #e6a720 100%);
-  color: white;
+  background: #fdb924;
+  color: #fff;
   border: none;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
+  border-radius: 20px;
+  font-size: 0.92rem;
   font-weight: 600;
+  padding: 0.38rem 0.9rem;
+  min-width: 90px;
+  margin-top: 0;
+  margin-left: 12px;
+  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.07);
+  transition: background 0.2s, box-shadow 0.2s;
   cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  box-shadow: 0 2px 4px 0 rgba(253, 185, 36, 0.3);
-
+  display: inline-block;
+  vertical-align: middle;
   &:hover {
-    background: linear-gradient(135deg, #e6a720 0%, #d4941c 100%);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px 0 rgba(253, 185, 36, 0.4);
-  }
-
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.2);
+    background: #fbbf24;
+    box-shadow: 0 2px 8px 0 rgba(253, 185, 36, 0.12);
   }
 `;
 

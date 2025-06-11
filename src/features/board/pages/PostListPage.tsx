@@ -134,6 +134,8 @@ const getPriorityStyle = (priority: number) => {
   }
 };
 
+const stepName = "설계"; // TODO: 실제 단계명 연동 시 교체
+
 export default function PostListPage() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -430,26 +432,41 @@ export default function PostListPage() {
   return (
     <PageContainer>
       <Header>
-        <Title>게시글 목록</Title>
-        <Description>프로젝트 관련 게시글을 확인하고 질문하세요.</Description>
+        <Title>{stepName}</Title>
+        <Description>
+          프로젝트 단계에 해당하는 게시글을 확인하고 소통하세요!
+        </Description>
       </Header>
 
       {/* 필터링 검색 영역 */}
       <FilterSection>
         <FilterHeader>
           <FilterTitle>검색 및 필터</FilterTitle>
-          <FilterToggleButton onClick={handleFilterToggle}>
-            {isFilterExpanded ? "필터 접기" : "필터 펼치기"}
-            <AiOutlineReload size={16} />
-          </FilterToggleButton>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <FilterToggleButton onClick={handleFilterToggle}>
+              {isFilterExpanded ? "필터 접기" : "필터 펼치기"}
+              <AiOutlineReload size={16} />
+            </FilterToggleButton>
+            <CreateButton
+              style={{
+                fontSize: "0.92rem",
+                padding: "0.38rem 0.9rem",
+                minWidth: 90,
+              }}
+              onClick={handleCreatePost}
+            >
+              <AiOutlineFileText size={15} style={{ marginBottom: 1 }} /> 게시글
+              작성
+            </CreateButton>
+          </div>
         </FilterHeader>
 
         <FilterGrid $isExpanded={isFilterExpanded}>
           {/* 검색어 입력 */}
           <FilterGroup>
             <FilterLabel>검색어</FilterLabel>
-            <div style={{ position: "relative" }}>
-              <FilterInput
+            <div style={{ position: "relative", width: "100%" }}>
+              <SearchInput
                 type="text"
                 value={searchTerm}
                 onChange={handleSearchChange}
@@ -462,7 +479,6 @@ export default function PostListPage() {
                     : "작성자명을 입력하세요"
                 }
               />
-              <SearchIcon onClick={handleSearchClick} />
             </div>
           </FilterGroup>
 
@@ -514,71 +530,6 @@ export default function PostListPage() {
               <option value={3}>높음 (3)</option>
             </FilterSelect>
           </FilterGroup>
-
-          {/* 담당자 필터 */}
-          <FilterGroup>
-            <FilterLabel>담당자</FilterLabel>
-            <FilterInput
-              type="text"
-              value={assigneeFilter}
-              onChange={handleAssigneeFilterChange}
-              placeholder="담당자명을 입력하세요"
-            />
-          </FilterGroup>
-
-          {/* 고객사 필터 */}
-          <FilterGroup>
-            <FilterLabel>고객사</FilterLabel>
-            <FilterInput
-              type="text"
-              value={clientFilter}
-              onChange={handleClientFilterChange}
-              placeholder="고객사명을 입력하세요"
-            />
-          </FilterGroup>
-
-          {/* 날짜 범위 */}
-          <FilterGroup>
-            <FilterLabel>시작일</FilterLabel>
-            <StyledDatePicker>
-              <DatePicker
-                selected={startDate ? new Date(startDate) : null}
-                onChange={(date) => {
-                  if (date) {
-                    setStartDate(date.toISOString().split("T")[0]);
-                    setIsFilterChanged(true);
-                  }
-                }}
-                dateFormat="yyyy-MM-dd"
-                placeholderText="시작일을 선택하세요"
-                isClearable
-                showYearDropdown
-                scrollableYearDropdown
-                yearDropdownItemNumber={15}
-              />
-            </StyledDatePicker>
-          </FilterGroup>
-
-          <FilterGroup>
-            <FilterLabel>종료일</FilterLabel>
-            <StyledDatePicker>
-              <DatePicker
-                selected={endDate ? new Date(endDate) : null}
-                onChange={(date) => {
-                  if (date) {
-                    setEndDate(date.toISOString().split("T")[0]);
-                    setIsFilterChanged(true);
-                  }
-                }}
-                dateFormat="yyyy-MM-dd"
-                placeholderText="종료일을 선택하세요"
-                isClearable
-                showYearDropdown
-                scrollableYearDropdown
-                yearDropdownItemNumber={15}
-              />
-            </StyledDatePicker>
-          </FilterGroup>
         </FilterGrid>
 
         <FilterButtonGroup>
@@ -592,41 +543,6 @@ export default function PostListPage() {
           </ResetButton>
         </FilterButtonGroup>
       </FilterSection>
-
-      {/* 게시글 작성 버튼 */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "flex-end",
-          marginBottom: "1.5rem",
-        }}
-      >
-        <CreateButton
-          style={{
-            background: "#FFE066",
-            color: "#222",
-            fontWeight: 600,
-            fontSize: "15px",
-            borderRadius: "10px",
-            height: "42px",
-            minWidth: "120px",
-            border: "none",
-            boxShadow: "none",
-            transition: "background 0.2s",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "6px",
-            padding: "0 18px",
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = "#FFD43B")}
-          onMouseLeave={(e) => (e.currentTarget.style.background = "#FFE066")}
-          onClick={handleCreatePost}
-        >
-          <AiOutlineFileText size={16} style={{ marginBottom: 1 }} />
-          게시글 작성
-        </CreateButton>
-      </div>
 
       <TableContainer>
         <Table>
