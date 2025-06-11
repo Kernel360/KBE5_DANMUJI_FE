@@ -149,8 +149,8 @@ export default function ProjectCreatePage() {
       clientId: Number(clientId),
       developCompanyId: Number(devCompanyId),
       clientCompanyId: Number(clientCompanyId),
-      devMemberIds: selectedDevMembers.map(member => member.value), // 개발사 멤버 ID 추가
-      clientMemberIds: selectedClientMembers.map(member => member.value), // 고객사 멤버 ID 추가
+      developMemberId: selectedDevMembers.map(member => member.value), // 개발사 멤버 ID 추가
+      clientMemberId: selectedClientMembers.map(member => member.value), // 고객사 멤버 ID 추가
     };
 
     try {
@@ -220,8 +220,9 @@ export default function ProjectCreatePage() {
                 onChange={date => setStartDate(date)}
                 dateFormat="yyyy-MM-dd"
                 placeholderText="시작일 선택"
-                className="date-input"
+                className="date-input white-bg"
                 required
+                onKeyDown={e => e.preventDefault()}
               />
             </div>
             <div>
@@ -232,8 +233,9 @@ export default function ProjectCreatePage() {
                 onChange={date => setEndDate(date)}
                 dateFormat="yyyy-MM-dd"
                 placeholderText="마감일 선택"
-                className="date-input"
+                className="date-input white-bg"
                 required
+                onKeyDown={e => e.preventDefault()}
               />
             </div>
           </S.DateRow>
@@ -268,18 +270,32 @@ export default function ProjectCreatePage() {
         {/* 개발사 담당자 */}
         <S.Section>
           <S.Label htmlFor="dev-manager">개발사 담당자 *</S.Label>
-          <S.Select
-            id="dev-manager"
-            value={developerId}
-            onChange={handleDevManagerChange}
-            required
-            disabled={!devUsers.length}
-          >
-            <option value="">담당자 선택</option>
-            {devUsers.map(u => (
-              <option key={u.id} value={u.id}>{u.name}</option>
-            ))}
-          </S.Select>
+          <Select
+            value={developerId ? { value: developerId, label: devUsers.find(u => u.id === developerId)?.name || '' } : null}
+            onChange={(option) => {
+              setDeveloperId(option ? option.value : '');
+              // 담당자 선택 시 자동으로 멤버에 추가
+              if (option) {
+                const newMember = { value: option.value, label: option.label };
+                setSelectedDevMembers(prev => {
+                  // 이미 멤버에 있는지 확인
+                  if (!prev.some(member => member.value === option.value)) {
+                    return [...prev, newMember];
+                  }
+                  return prev;
+                });
+              }
+            }}
+            options={devUsers.map(user => ({
+              value: user.id,
+              label: user.name
+            }))}
+            placeholder="담당자 선택"
+            isDisabled={!devUsers.length}
+            styles={{
+              container: base => ({ ...base, width: "100%" }),
+            }}
+          />
         </S.Section>
 
         {/* 개발사 멤버 */}
@@ -291,12 +307,12 @@ export default function ProjectCreatePage() {
             onChange={(newValue) =>
               setSelectedDevMembers(newValue as { value: number; label: string }[])
             }
-            options={availableDevMembers.map(user => ({
+            options={devUsers.map(user => ({
               value: user.id,
               label: user.name
             }))}
             placeholder="개발사 멤버 선택"
-            isDisabled={!developerId || !availableDevMembers.length}
+            isDisabled={!developerId}
             styles={{
               container: base => ({ ...base, width: "100%" }),
             }}
@@ -332,18 +348,32 @@ export default function ProjectCreatePage() {
         {/* 고객사 담당자 */}
         <S.Section>
           <S.Label htmlFor="client-manager">고객사 담당자 *</S.Label>
-          <S.Select
-            id="client-manager"
-            value={clientId}
-            onChange={handleClientManagerChange}
-            required
-            disabled={!clientUsers.length}
-          >
-            <option value="">담당자 선택</option>
-            {clientUsers.map(u => (
-              <option key={u.id} value={u.id}>{u.name}</option>
-            ))}
-          </S.Select>
+          <Select
+            value={clientId ? { value: clientId, label: clientUsers.find(u => u.id === clientId)?.name || '' } : null}
+            onChange={(option) => {
+              setClientId(option ? option.value : '');
+              // 담당자 선택 시 자동으로 멤버에 추가
+              if (option) {
+                const newMember = { value: option.value, label: option.label };
+                setSelectedClientMembers(prev => {
+                  // 이미 멤버에 있는지 확인
+                  if (!prev.some(member => member.value === option.value)) {
+                    return [...prev, newMember];
+                  }
+                  return prev;
+                });
+              }
+            }}
+            options={clientUsers.map(user => ({
+              value: user.id,
+              label: user.name
+            }))}
+            placeholder="담당자 선택"
+            isDisabled={!clientUsers.length}
+            styles={{
+              container: base => ({ ...base, width: "100%" }),
+            }}
+          />
         </S.Section>
 
         {/* 고객사 멤버 */}
@@ -355,12 +385,12 @@ export default function ProjectCreatePage() {
             onChange={(newValue) =>
               setSelectedClientMembers(newValue as { value: number; label: string }[])
             }
-            options={availableClientMembers.map(user => ({
+            options={clientUsers.map(user => ({
               value: user.id,
               label: user.name
             }))}
             placeholder="고객사 멤버 선택"
-            isDisabled={!clientId || !availableClientMembers.length}
+            isDisabled={!clientId}
             styles={{
               container: base => ({ ...base, width: "100%" }),
             }}
