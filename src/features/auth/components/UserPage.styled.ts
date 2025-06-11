@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import isPropValid from "@emotion/is-prop-valid";
 
 export const ComponentContainer = styled.div`
   min-height: 100vh;
@@ -87,8 +88,8 @@ export const DescIconContainer = styled.div`
 export const DescIconImage = styled.img`
   width: 2rem;
   height: 2rem;
-  verticalalign: "middle";
-  margin-right: 4;
+  vertical-align: middle;
+  margin-right: 4px;
   margin-top: 0.2rem;
 `;
 
@@ -119,8 +120,8 @@ export const LockContainer = styled.div`
 export const LockIconImage = styled.img`
   width: 1.2rem;
   height: 1.2rem;
-  verticalalign: "middle";
-  marginright: 4;
+  vertical-align: middle;
+  margin-right: 4px;
 `;
 
 export const LockTitle = styled.p`
@@ -166,7 +167,9 @@ export const Form = styled.form`
   gap: 1rem;
 `;
 
-export const Input = styled.input<{ hasError?: boolean }>`
+export const Input = styled.input.withConfig({
+  shouldForwardProp: (prop) => isPropValid(prop) && prop !== "hasError",
+})<{ hasError?: boolean }>`
   width: 100%;
   padding: 0.75rem 1rem;
   border: 1px solid ${({ hasError }) => (hasError ? "red" : "#d1d5db")};
