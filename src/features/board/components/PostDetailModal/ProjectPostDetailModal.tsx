@@ -47,6 +47,8 @@ interface PostDetailModalProps {
   onClose: () => void;
   postId: number | null;
   onPostDelete?: (deletedPostId: number) => void;
+  onEditPost?: (postId: number) => void;
+  onReplyPost?: (parentId: number) => void;
 }
 
 const PostDetailModal: React.FC<PostDetailModalProps> = ({
@@ -54,6 +56,8 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
   onClose,
   postId,
   onPostDelete,
+  onEditPost,
+  onReplyPost,
 }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -83,6 +87,11 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
           const postResponse = await getPostDetail(postId);
           if (postResponse.data) {
             setPost(postResponse.data);
+            // 프로젝트 정보 디버깅
+            console.log("게시글 상세 정보:", postResponse.data);
+            console.log("프로젝트 정보:", postResponse.data.project);
+            console.log("고객사:", postResponse.data.project?.clientCompany);
+            console.log("개발사:", postResponse.data.project?.developerCompany);
           }
 
           // 댓글 목록 가져오기
@@ -160,7 +169,14 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
   const handleEditPost = () => {
     if (!postId) return;
     console.log("게시글 수정 버튼 클릭 - postId:", postId);
-    navigate(`/posts/${postId}/edit`);
+    onEditPost?.(postId);
+    onClose();
+  };
+
+  const handleReplyPost = () => {
+    if (!postId) return;
+    console.log("답글 작성 버튼 클릭 - parentId:", postId);
+    onReplyPost?.(postId);
     onClose();
   };
 
@@ -212,6 +228,32 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
         return "거부";
       default:
         return status;
+    }
+  };
+
+  // 상태별 스타일 반환 함수
+  const getStatusStyle = (status: string) => {
+    switch (status) {
+      case "PENDING":
+        return {
+          background: "#fef3c7",
+          color: "#d97706",
+        };
+      case "APPROVED":
+        return {
+          background: "#d1fae5",
+          color: "#059669",
+        };
+      case "REJECTED":
+        return {
+          background: "#fee2e2",
+          color: "#dc2626",
+        };
+      default:
+        return {
+          background: "#f3f4f6",
+          color: "#6b7280",
+        };
     }
   };
 
@@ -306,9 +348,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
             </span>
             <ModalHeaderButtonGroup>
               <ModalHeaderActionButton
-                onClick={() =>
-                  navigate(`/posts/create?parentId=${post.postId}`)
-                }
+                onClick={handleReplyPost}
                 title="답글달기"
               >
                 <FaReply size={14} style={{ marginRight: 4 }} /> 답글
@@ -361,24 +401,11 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
             {/* 상세 정보 */}
             <InfoGrid>
               <InfoRow>
-                <InfoKey>프로젝트</InfoKey>
-                <InfoValue>{post.project?.name || "-"}</InfoValue>
-              </InfoRow>
-              <InfoRow>
-                <InfoKey>담당자</InfoKey>
-                <InfoValue>{post.project?.clientCompany || "-"}</InfoValue>
-              </InfoRow>
-              <InfoRow>
-                <InfoKey>개발사</InfoKey>
-                <InfoValue>{post.project?.developerCompany || "-"}</InfoValue>
-              </InfoRow>
-              <InfoRow>
                 <InfoKey>요청 상태</InfoKey>
                 <InfoValue>
                   <span
                     style={{
-                      background: "#e6f9ed",
-                      color: "#1db46a",
+                      ...getStatusStyle(post.status),
                       fontWeight: 600,
                       fontSize: 13,
                       borderRadius: 8,
@@ -393,6 +420,10 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
               <InfoRow>
                 <InfoKey>작성일</InfoKey>
                 <InfoValue>{formatDate(post.createdAt)}</InfoValue>
+              </InfoRow>
+              <InfoRow>
+                <InfoKey>수정일</InfoKey>
+                <InfoValue>{formatDate(post.updatedAt)}</InfoValue>
               </InfoRow>
               <InfoRow>
                 <InfoKey>작성자</InfoKey>

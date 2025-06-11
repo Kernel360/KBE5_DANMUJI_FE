@@ -27,8 +27,8 @@ import AdminProjectPage from "./features/project/pages/AdminProjectPage";
 // user pages
 import UserDashboardPage from "./features/board/pages/DashboardPage";
 import PostListPage from "./features/board/pages/PostListPage";
-import PostEditPage from "./features/project/pages/PostEditPage";
-import PostCreatePage from "./features/project/pages/PostCreatePage";
+// import PostEditPage from "./features/project/pages/PostEditPage";
+// import PostCreatePage from "./features/project/pages/PostCreatePage";
 import CreateProjectPage from "./features/project/pages/CreateProjectPage";
 import UserProjectPage from "./features/project/pages/UserProjectPage";
 import ProjectDetailPage from "./features/project/pages/ProjectDetailPage";
@@ -104,11 +104,14 @@ const AppRoutes = () => {
 
       {/* 공용 */}
       <Route path="/posts" element={<PostListPage />} />
-      <Route path="/posts/create" element={<PostCreatePage />} />
-      <Route path="/posts/:postId/edit" element={<PostEditPage />} />
+      {/* <Route path="/posts/create" element={<PostCreatePage />} /> */}
+      {/* <Route path="/posts/:postId/edit" element={<PostEditPage />} /> */}
       <Route path="/projects/:userId" element={<UserProjectPage />} />
-      <Route path="/projects/:projectId/detail" element={<ProjectDetailPage />} />
-      <Route path="/projects/completed" element={<CompletedProject />} /> 
+      <Route
+        path="/projects/:projectId/detail"
+        element={<ProjectDetailPage />}
+      />
+      <Route path="/projects/completed" element={<CompletedProject />} />
       <Route path="/projects/inprogress" element={<InProgressProject />} />
     </Routes>
   );
