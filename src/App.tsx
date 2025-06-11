@@ -24,7 +24,6 @@ import CompanyPage from "./features/company/pages/CompanyPage";
 import MemberPage from "./features/user/pages/MemberPage";
 import AdminProjectPage from "./features/project/pages/AdminProjectPage";
 
-
 // user pages
 import UserDashboardPage from "./features/board/pages/DashboardPage";
 import PostListPage from "./features/board/pages/PostListPage";
@@ -38,8 +37,6 @@ import InProgressProject from "./features/project/pages/InProgressProject";
 
 // etc
 import { AppContainer, MainContent, PageContent } from "./App.styled";
-
-
 
 const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();

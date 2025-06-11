@@ -110,19 +110,19 @@ export const getPosts = async (
   searchTerm?: string
 ): Promise<PostListResponse> => {
   try {
-    const response = await api.get<PostListResponse>(
-      `/api/posts/projects/${projectId}`,
-      {
-        params: {
-          page,
-          size,
-          status,
-          type,
-          priority,
-          searchTerm,
-        },
-      }
-    );
+    // projectId가 없으면 전체 게시글 목록 요청
+    const url = projectId ? `/api/posts/projects/${projectId}` : `/api/posts`;
+
+    const response = await api.get<PostListResponse>(url, {
+      params: {
+        page,
+        size,
+        status,
+        type,
+        priority,
+        searchTerm,
+      },
+    });
     return handleApiResponse<PostListResponse["data"]>(response);
   } catch (error) {
     if (error instanceof ApiError) throw error;
@@ -139,7 +139,7 @@ export const getPosts = async (
 
 // 게시글 목록 조회 (댓글 포함)
 export const getPostsWithComments = async (
-  projectId: number,
+  projectId?: number,
   page: number = 0,
   size: number = 10,
   status?: PostStatus,
