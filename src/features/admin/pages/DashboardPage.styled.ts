@@ -1,6 +1,7 @@
 import styled from "styled-components";
 
 export const DashboardContainer = styled.div`
+  flex: 1;
   padding: 32px;
   background-color: #f9fafb;
   min-height: 100vh; 
