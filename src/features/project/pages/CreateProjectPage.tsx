@@ -220,8 +220,9 @@ export default function ProjectCreatePage() {
                 onChange={date => setStartDate(date)}
                 dateFormat="yyyy-MM-dd"
                 placeholderText="시작일 선택"
-                className="date-input"
+                className="date-input white-bg"
                 required
+                onKeyDown={e => e.preventDefault()}
               />
             </div>
             <div>
@@ -232,8 +233,9 @@ export default function ProjectCreatePage() {
                 onChange={date => setEndDate(date)}
                 dateFormat="yyyy-MM-dd"
                 placeholderText="마감일 선택"
-                className="date-input"
+                className="date-input white-bg"
                 required
+                onKeyDown={e => e.preventDefault()}
               />
             </div>
           </S.DateRow>
@@ -268,18 +270,19 @@ export default function ProjectCreatePage() {
         {/* 개발사 담당자 */}
         <S.Section>
           <S.Label htmlFor="dev-manager">개발사 담당자 *</S.Label>
-          <S.Select
-            id="dev-manager"
-            value={developerId}
-            onChange={handleDevManagerChange}
-            required
-            disabled={!devUsers.length}
-          >
-            <option value="">담당자 선택</option>
-            {devUsers.map(u => (
-              <option key={u.id} value={u.id}>{u.name}</option>
-            ))}
-          </S.Select>
+          <Select
+            value={developerId ? { value: developerId, label: devUsers.find(u => u.id === developerId)?.name || '' } : null}
+            onChange={(option) => setDeveloperId(option ? option.value : '')}
+            options={devUsers.map(user => ({
+              value: user.id,
+              label: user.name
+            }))}
+            placeholder="담당자 선택"
+            isDisabled={!devUsers.length}
+            styles={{
+              container: base => ({ ...base, width: "100%" }),
+            }}
+          />
         </S.Section>
 
         {/* 개발사 멤버 */}
@@ -332,18 +335,19 @@ export default function ProjectCreatePage() {
         {/* 고객사 담당자 */}
         <S.Section>
           <S.Label htmlFor="client-manager">고객사 담당자 *</S.Label>
-          <S.Select
-            id="client-manager"
-            value={clientId}
-            onChange={handleClientManagerChange}
-            required
-            disabled={!clientUsers.length}
-          >
-            <option value="">담당자 선택</option>
-            {clientUsers.map(u => (
-              <option key={u.id} value={u.id}>{u.name}</option>
-            ))}
-          </S.Select>
+          <Select
+            value={clientId ? { value: clientId, label: clientUsers.find(u => u.id === clientId)?.name || '' } : null}
+            onChange={(option) => setClientId(option ? option.value : '')}
+            options={clientUsers.map(user => ({
+              value: user.id,
+              label: user.name
+            }))}
+            placeholder="담당자 선택"
+            isDisabled={!clientUsers.length}
+            styles={{
+              container: base => ({ ...base, width: "100%" }),
+            }}
+          />
         </S.Section>
 
         {/* 고객사 멤버 */}

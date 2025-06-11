@@ -86,7 +86,7 @@ export default function ProjectDetailPage() {
     if (!confirm("정말로 이 단계를 삭제하시겠습니까?")) return;
     
     try {
-      await api.delete(`/api/projects/steps/${stepId}`);
+      await api.delete(`http://localhost:8080/api/projects/steps/${stepId}`);
       // 프로젝트 정보 다시 불러오기
       const response = await api.get(`/api/projects/${projectId}`);
       setProject(response.data.data);
@@ -156,9 +156,6 @@ export default function ProjectDetailPage() {
           <S.ProjectStepsContainer>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <S.InfoLabel>프로젝트 단계</S.InfoLabel>
-              <S.ActionButton variant="add" onClick={() => setIsAddStepModalOpen(true)}>
-                단계 추가
-              </S.ActionButton>
             </div>
             <S.StepsList>
               {sortedSteps.map((step, index) => (

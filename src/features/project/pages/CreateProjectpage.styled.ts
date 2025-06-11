@@ -27,12 +27,6 @@ export const Form = styled.form`
   flex-direction: column;
 `;
 
-export const ErrorMessage = styled.div`
-  color: #e53e3e;
-  font-size: 0.875rem;
-  margin-bottom: 1rem;
-`;
-
 export const Section = styled.div`
   margin-bottom: 1.5rem;
   display: flex;
@@ -45,6 +39,8 @@ export const Label = styled.label`
 `;
 
 export const Input = styled.input`
+  background-color: #fff;
+  color: #333;
   padding: 0.5rem;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -54,6 +50,22 @@ export const Input = styled.input`
 export const DateRow = styled.div`
   display: flex;
   gap: 1rem;
+  margin-top: 0.5rem;
+
+  .white-bg {
+    background-color: white !important;
+    color: #333 !important;
+    border: 1px solid #ddd !important;
+    border-radius: 4px !important;
+    padding: 8px 12px !important;
+    width: 100% !important;
+    font-size: 14px !important;
+    
+    &:focus {
+      outline: none;
+      border-color: #216ba5 !important;
+    }
+  }
 `;
 
 export const Select = styled.select`
@@ -95,4 +107,10 @@ export const CreateButton = styled.button`
   ${buttonStyles}
   background: #4f46e5;
   color: #fff;
+`;
+
+export const ErrorMessage = styled.div`
+  color: #e53e3e;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
 `;
