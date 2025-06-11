@@ -114,39 +114,45 @@ export default function AdminProjectPage() {
           <Button onClick={() => navigate('/projects/create')}>프로젝트 등록</Button>
         </SearchBar>
 
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>번호</TableCell>
-              <TableCell>프로젝트명</TableCell>
-              <TableCell>상태</TableCell>
-              <TableCell>고객사</TableCell>
-              <TableCell>개발사</TableCell>
-              <TableCell>시작일</TableCell>
-              <TableCell>종료예정일</TableCell>
-              <TableCell>액션</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {projects.map((p, index) => (
-              <TableRow key={p.id}>
-                <TableCell>{index + 1}</TableCell>
-                <TableCell>{p.name}</TableCell>
-                <TableCell>
-                  <StatusBadge color={p.statusColor}>{p.status}</StatusBadge>
-                </TableCell>
-                <TableCell>{p.clientCompany || "미지정"}</TableCell>
-                <TableCell>{p.developerCompany || "미지정"}</TableCell>
-                <TableCell>{p.startDate}</TableCell>
-                <TableCell>{p.endDate}</TableCell>
-                <TableCell>
-                  <Button onClick={() => navigate(`/projects/${p.id}/detail`)}>상세 보기</Button>
-                  <Button primary onClick={() => navigate(`/projects/${p.id}/edit`)}>수정</Button>
-                </TableCell>
+        {projects.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '2rem', fontSize: '1.2rem' }}>
+            프로젝트가 없습니다.
+          </div>
+        ) : (
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>번호</TableCell>
+                <TableCell>프로젝트명</TableCell>
+                <TableCell>상태</TableCell>
+                <TableCell>고객사</TableCell>
+                <TableCell>개발사</TableCell>
+                <TableCell>시작일</TableCell>
+                <TableCell>종료예정일</TableCell>
+                <TableCell>액션</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHead>
+            <TableBody>
+              {projects.map((p, index) => (
+                <TableRow key={p.id}>
+                  <TableCell>{index + 1}</TableCell>
+                  <TableCell>{p.name}</TableCell>
+                  <TableCell>
+                    <StatusBadge color={p.statusColor}>{p.status}</StatusBadge>
+                  </TableCell>
+                  <TableCell>{p.clientCompany || "미지정"}</TableCell>
+                  <TableCell>{p.developerCompany || "미지정"}</TableCell>
+                  <TableCell>{p.startDate}</TableCell>
+                  <TableCell>{p.endDate}</TableCell>
+                  <TableCell>
+                    <Button onClick={() => navigate(`/projects/${p.id}/detail`)}>상세 보기</Button>
+                    <Button primary onClick={() => navigate(`/projects/${p.id}/edit`)}>수정</Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
 
         <PaginationContainer>
         <PaginationNav>
