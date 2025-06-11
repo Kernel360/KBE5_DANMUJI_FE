@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import api from "@/api/axios";
 import {
   Container,
   Header,
@@ -26,23 +27,54 @@ import {
 } from "react-icons/fi";
 import { HiOfficeBuilding } from "react-icons/hi";
 import { FiClock } from "react-icons/fi";
-const user = {
-  name: "김철수",
-  company: "테크 컴퍼니",
-  position: "프론트엔드 개발자",
-  email: "kim.chulsu@techcompany.com",
-  phone: "010-1234-5678",
-  createdAt: "2024-03-15",
-  lastLogin: "2024-12-19T14:30:00",
-  online: true,
-};
-
-const formatDate = (date: string) => {
-  const d = new Date(date);
-  return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`;
+type UserInfo = {
+  id: number;
+  username: string;
+  name: string;
+  email: string;
+  phone: string;
+  position: string;
+  lastLoginAt: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  companyId: number;
+  companyName: string;
 };
 
 export default function UserProfilePage() {
+  const [user, setUser] = useState<UserInfo | null>(null);
+  const [error, setError] = useState("");
+
+  const fetchUser = async () => {
+    try {
+      const response = await api.get("/api/users/me");
+      setUser(response.data.data);
+      console.log(response)
+    } catch (err) {
+      setError("사용자 정보를 불러오는 데 실패했습니다.");
+      console.error("유저 정보 요청 실패", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
+  const formatDate = (date: string) => {
+    const d = new Date(date);
+    return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`;
+  };
+
+  const formatDateTime = (date: string) => {
+    const d = new Date(date);
+    return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일 
+    ${d.getHours()} : ${d.getSeconds()}`;
+  };
+
+  if (error) return <Container>{error}</Container>;
+  if (!user) return <Container>불러오는 중...</Container>;
+
   return (
     <Container>
       {/* <Header>
@@ -77,7 +109,7 @@ export default function UserProfilePage() {
             <Label>
               <HiOfficeBuilding /> 회사
             </Label>
-            <Value>{user.company}</Value>
+            <Value>{user.companyName}</Value>
           </InfoItem>
           <InfoItem>
             <Label>
@@ -122,7 +154,7 @@ export default function UserProfilePage() {
           </Label>
           <Value>
             {/* {user.online && <OnlineBadge>온라인</OnlineBadge>} */}
-            {formatDate(user.lastLogin)} 14:30
+            {formatDateTime(user.lastLoginAt)}
           </Value>
         </ActivityRow>
       </ActivityCard>
