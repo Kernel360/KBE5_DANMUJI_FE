@@ -464,7 +464,16 @@ export default function PostListPage() {
         <FilterGrid $isExpanded={isFilterExpanded}>
           {/* 검색어 입력 */}
           <FilterGroup>
-            <FilterLabel>검색어</FilterLabel>
+            <FilterLabel htmlFor="searchTypeSelect">검색 기준</FilterLabel>
+            <FilterSelect
+              id="searchTypeSelect"
+              value={searchType}
+              onChange={handleSearchTypeChange}
+              style={{ marginBottom: 0, marginRight: 0 }}
+            >
+              <option value="title">제목</option>
+              <option value="author">작성자</option>
+            </FilterSelect>
             <div style={{ position: "relative", width: "100%" }}>
               <SearchInput
                 type="text"
@@ -474,22 +483,10 @@ export default function PostListPage() {
                 placeholder={
                   searchType === "title"
                     ? "게시글 제목을 입력하세요"
-                    : searchType === "content"
-                    ? "게시글 내용을 입력하세요"
                     : "작성자명을 입력하세요"
                 }
               />
             </div>
-          </FilterGroup>
-
-          {/* 검색 타입 선택 */}
-          <FilterGroup>
-            <FilterLabel>검색 타입</FilterLabel>
-            <FilterSelect value={searchType} onChange={handleSearchTypeChange}>
-              <option value="title">제목으로 검색</option>
-              <option value="content">내용으로 검색</option>
-              <option value="author">작성자로 검색</option>
-            </FilterSelect>
           </FilterGroup>
 
           {/* 상태 필터 */}

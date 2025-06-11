@@ -71,10 +71,10 @@ export const FilterSelect = styled.select`
 export const SearchInput = styled.input`
   min-width: 120px;
   max-width: 180px;
-  height: 44px;
+  height: 32px;
   padding: 0 20px;
   border: 1.5px solid #e5e7eb;
-  border-radius: 24px;
+  border-radius: 8px;
   background: #fff;
   font-size: 1.08rem;
   color: #444;
@@ -90,7 +90,7 @@ export const SearchInput = styled.input`
   }
   &::placeholder {
     color: #9ca3af;
-    font-size: 1.08rem;
+    font-size: 0.8rem;
   }
 `;
 
