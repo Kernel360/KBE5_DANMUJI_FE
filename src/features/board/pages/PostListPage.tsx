@@ -53,6 +53,7 @@ import {
   StyledDatePicker,
 } from "./PostListPage.styled";
 import PostDetailModal from "../components/PostDetailModal/ProjectPostDetailModal";
+import PostFormModal from "../components/PostFormModal/PostFormModal";
 import {
   searchPosts,
   getPostsWithComments,
@@ -128,6 +129,16 @@ export default function PostListPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // PostFormModal 관련 상태
+  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
+  const [formModalMode, setFormModalMode] = useState<"create" | "edit">(
+    "create"
+  );
+  const [formModalPostId, setFormModalPostId] = useState<number | null>(null);
+  const [formModalParentId, setFormModalParentId] = useState<number | null>(
+    null
+  );
 
   // 모든 프로젝트의 게시글을 가져오는 함수 (임시로 프로젝트 ID 1 사용)
   const fetchPosts = async () => {
@@ -287,7 +298,28 @@ export default function PostListPage() {
   };
 
   const handleCreatePost = () => {
-    navigate("/posts/create");
+    setFormModalMode("create");
+    setFormModalPostId(null);
+    setFormModalParentId(null);
+    setIsFormModalOpen(true);
+  };
+
+  const handleEditPost = (postId: number) => {
+    setFormModalMode("edit");
+    setFormModalPostId(postId);
+    setFormModalParentId(null);
+    setIsFormModalOpen(true);
+  };
+
+  const handleFormModalClose = () => {
+    setIsFormModalOpen(false);
+    setFormModalPostId(null);
+    setFormModalParentId(null);
+  };
+
+  const handleFormModalSuccess = () => {
+    // 게시글 목록 새로고침
+    fetchPosts();
   };
 
   const handlePostDelete = (deletedPostId: number) => {
@@ -865,6 +897,16 @@ export default function PostListPage() {
         onClose={handleModalClose}
         postId={selectedPostId}
         onPostDelete={handlePostDelete}
+        onEditPost={handleEditPost}
+      />
+
+      <PostFormModal
+        open={isFormModalOpen}
+        onClose={handleFormModalClose}
+        onSuccess={handleFormModalSuccess}
+        mode={formModalMode}
+        postId={formModalPostId}
+        parentId={formModalParentId}
       />
     </PageContainer>
   );

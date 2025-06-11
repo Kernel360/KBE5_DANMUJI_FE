@@ -47,6 +47,7 @@ interface PostDetailModalProps {
   onClose: () => void;
   postId: number | null;
   onPostDelete?: (deletedPostId: number) => void;
+  onEditPost?: (postId: number) => void;
 }
 
 const PostDetailModal: React.FC<PostDetailModalProps> = ({
@@ -54,6 +55,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
   onClose,
   postId,
   onPostDelete,
+  onEditPost,
 }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -165,7 +167,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
   const handleEditPost = () => {
     if (!postId) return;
     console.log("게시글 수정 버튼 클릭 - postId:", postId);
-    navigate(`/posts/${postId}/edit`);
+    onEditPost?.(postId);
     onClose();
   };
 
