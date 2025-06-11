@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import * as S from "./CreateProjectpage.styled";
 import AsyncSelect from "react-select/async";
+import Select from "react-select";
 import { useNavigate } from "react-router-dom";
 
 interface Company {
@@ -21,11 +22,11 @@ export default function ProjectCreatePage() {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
 
-    // 회사 옵션을 react-select 형식으로 변환
-const companyToOption = (company: Company) => ({
-  value: company.id,
-  label: company.name,
-});
+  // 회사 옵션을 react-select 형식으로 변환
+  const companyToOption = (company: Company) => ({
+    value: company.id,
+    label: company.name,
+  });
 
   // Company & user lists
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -35,27 +36,14 @@ const companyToOption = (company: Company) => ({
   const [clientUsers, setClientUsers] = useState<User[]>([]);
   const [developerId, setDeveloperId] = useState<number | "">("");
   const [clientId, setClientId] = useState<number | "">("");
-
+  
+  // 멤버 선택을 위한 상태 추가
+  const [selectedDevMembers, setSelectedDevMembers] = useState<{ value: number; label: string }[]>([]);
+  const [selectedClientMembers, setSelectedClientMembers] = useState<{ value: number; label: string }[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
   const navigate = useNavigate();
-
-  // Load companies on mount
-  // useEffect(() => {
-  //   fetch("http://localhost:8080/api/companies")
-  //     .then(res => res.json())
-  //     .then((response: any) => {
-  //       const payload = response.data ?? response;
-  //       const list: Company[] = Array.isArray(payload)
-  //         ? payload
-  //         : Array.isArray(payload.content)
-  //           ? payload.content
-  //           : [];
-  //       setCompanies(list);
-  //     })
-  //     .catch(err => console.error("Failed to load companies", err));
-  // }, []);
 
   // AsyncSelect에서 사용할 옵션 로더
   const loadCompanyOptions = async (inputValue: string) => {
@@ -78,7 +66,7 @@ const companyToOption = (company: Company) => ({
     }
   };
 
-  // Load developers when devCompanyId changes
+  // 개발사 회원 목록
   useEffect(() => {
     if (devCompanyId !== "") {
       fetch(`http://localhost:8080/api/companies/${devCompanyId}/users`)
@@ -96,10 +84,11 @@ const companyToOption = (company: Company) => ({
     } else {
       setDevUsers([]);
       setDeveloperId("");
+      setSelectedDevMembers([]);
     }
   }, [devCompanyId]);
 
-  // Load clients when clientCompanyId changes
+  // 고객사 회원 목록
   useEffect(() => {
     if (clientCompanyId !== "") {
       fetch(`http://localhost:8080/api/companies/${clientCompanyId}/users`)
@@ -117,8 +106,33 @@ const companyToOption = (company: Company) => ({
     } else {
       setClientUsers([]);
       setClientId("");
+      setSelectedClientMembers([]);
     }
   }, [clientCompanyId]);
+
+  // 개발사 담당자 변경 시
+  const handleDevManagerChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newId = Number(e.target.value);
+     setDeveloperId(newId);
+  };
+
+  // 고객사 담당자 변경 시
+  const handleClientManagerChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newId = Number(e.target.value);
+    setClientId(newId);
+  };
+
+  // 개발사 멤버 목록 업데이트
+  const availableDevMembers = useMemo(
+    () => devUsers.filter(u => u.id !== developerId),
+    [devUsers, developerId]
+  );
+
+  // 고객사 멤버 목록 업데이트
+  const availableClientMembers = useMemo(
+    () => clientUsers.filter(u => u.id !== clientId),
+    [clientUsers, clientId]
+  );
 
   // Submit handler
   const handleSubmit = async (e: React.FormEvent) => {
@@ -135,6 +149,8 @@ const companyToOption = (company: Company) => ({
       clientId: Number(clientId),
       developCompanyId: Number(devCompanyId),
       clientCompanyId: Number(clientCompanyId),
+      devMemberIds: selectedDevMembers.map(member => member.value), // 개발사 멤버 ID 추가
+      clientMemberIds: selectedClientMembers.map(member => member.value), // 고객사 멤버 ID 추가
     };
 
     try {
@@ -147,7 +163,6 @@ const companyToOption = (company: Company) => ({
         const data = await res.json();
         throw new Error(data.message || "프로젝트 생성에 실패했습니다");
       }
-      // 프로젝트 생성 성공 시 /projects로 이동
       navigate("/projects");
     } catch (err: any) {
       console.error(err);
@@ -250,14 +265,13 @@ const companyToOption = (company: Company) => ({
           />
         </S.Section>
 
-
         {/* 개발사 담당자 */}
         <S.Section>
           <S.Label htmlFor="dev-manager">개발사 담당자 *</S.Label>
           <S.Select
             id="dev-manager"
             value={developerId}
-            onChange={e => setDeveloperId(Number(e.target.value))}
+            onChange={handleDevManagerChange}
             required
             disabled={!devUsers.length}
           >
@@ -266,6 +280,27 @@ const companyToOption = (company: Company) => ({
               <option key={u.id} value={u.id}>{u.name}</option>
             ))}
           </S.Select>
+        </S.Section>
+
+        {/* 개발사 멤버 */}
+        <S.Section>
+          <S.Label htmlFor="dev-members">개발사 멤버</S.Label>
+          <Select
+            isMulti
+            value={selectedDevMembers}
+            onChange={(newValue) =>
+              setSelectedDevMembers(newValue as { value: number; label: string }[])
+            }
+            options={availableDevMembers.map(user => ({
+              value: user.id,
+              label: user.name
+            }))}
+            placeholder="개발사 멤버 선택"
+            isDisabled={!developerId || !availableDevMembers.length}
+            styles={{
+              container: base => ({ ...base, width: "100%" }),
+            }}
+          />
         </S.Section>
 
         {/* 고객사 */}
@@ -300,7 +335,7 @@ const companyToOption = (company: Company) => ({
           <S.Select
             id="client-manager"
             value={clientId}
-            onChange={e => setClientId(Number(e.target.value))}
+            onChange={handleClientManagerChange}
             required
             disabled={!clientUsers.length}
           >
@@ -309,6 +344,27 @@ const companyToOption = (company: Company) => ({
               <option key={u.id} value={u.id}>{u.name}</option>
             ))}
           </S.Select>
+        </S.Section>
+
+        {/* 고객사 멤버 */}
+        <S.Section>
+          <S.Label htmlFor="client-members">고객사 멤버</S.Label>
+          <Select
+            isMulti
+            value={selectedClientMembers}
+            onChange={(newValue) =>
+              setSelectedClientMembers(newValue as { value: number; label: string }[])
+            }
+            options={availableClientMembers.map(user => ({
+              value: user.id,
+              label: user.name
+            }))}
+            placeholder="고객사 멤버 선택"
+            isDisabled={!clientId || !availableClientMembers.length}
+            styles={{
+              container: base => ({ ...base, width: "100%" }),
+            }}
+          />
         </S.Section>
 
         {/* 버튼 */}
