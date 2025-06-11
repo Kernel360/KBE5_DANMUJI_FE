@@ -166,17 +166,19 @@ export const Form = styled.form`
   gap: 1rem;
 `;
 
-export const Input = styled.input`
+export const Input = styled.input<{ hasError?: boolean }>`
   width: 100%;
   padding: 0.75rem 1rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid ${({ hasError }) => (hasError ? "red" : "#d1d5db")};
   border-radius: 0.5rem;
   font-size: 0.875rem;
 
   &:focus {
     outline: none;
-    border-color: #fdb924;
-    box-shadow: 0 0 0 2px rgba(253, 185, 36, 0.1);
+    border-color: ${({ hasError }) => (hasError ? "red" : "#fdb924")};
+    box-shadow: 0 0 0 2px
+      ${({ hasError }) =>
+        hasError ? "rgba(255, 0, 0, 0.2)" : "rgba(253, 185, 36, 0.1)"};
   }
 `;
 
