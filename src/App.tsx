@@ -41,7 +41,11 @@ import { AppContainer, MainContent, PageContent } from "./App.styled";
 
 const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
-  if (["/", "/login", "/forgot-password", "/reset-password"].includes(location.pathname)) {
+  if (
+    ["/", "/login", "/forgot-password", "/reset-password"].includes(
+      location.pathname
+    )
+  ) {
     return <>{children}</>;
   }
 
@@ -125,8 +129,8 @@ function App() {
       <Router>
         <LayoutWrapper>
           <AppRoutes />
+          <Footer />
         </LayoutWrapper>
-        <Footer />
       </Router>
     </AuthProvider>
   );
