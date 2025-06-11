@@ -90,7 +90,6 @@ export const DescIconImage = styled.img`
   height: 2rem;
   vertical-align: middle;
   margin-right: 4px;
-  margin-top: 0.2rem;
 `;
 
 export const DescIconText = styled.p`
@@ -98,7 +97,6 @@ export const DescIconText = styled.p`
   font-weight: 700;
   margin-left: 0.5rem;
   display: block;
-  margin-top: 0.2rem;
 `;
 
 export const DescIconDesc = styled.p`
@@ -122,6 +120,7 @@ export const LockIconImage = styled.img`
   height: 1.2rem;
   vertical-align: middle;
   margin-right: 4px;
+  margin-bottom: -0.7rem;
 `;
 
 export const LockTitle = styled.p`
