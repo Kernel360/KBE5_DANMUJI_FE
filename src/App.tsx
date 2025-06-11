@@ -35,6 +35,7 @@ import UserProjectPage from "./features/project/pages/UserProjectPage";
 import ProjectDetailPage from "./features/project/pages/ProjectDetailPage";
 import CompletedProject from "./features/project/pages/CompletedProject";
 import InProgressProject from "./features/project/pages/InProgressProject";
+import UserProfilePage from "./features/user/pages/UserProfilePage";
 
 // etc
 import { AppContainer, MainContent, PageContent } from "./App.styled";
@@ -108,6 +109,7 @@ const AppRoutes = () => {
         </>
       )}
 
+      {/* TODO: 권한 설정 */}
       {/* 공용 */}
       <Route path="/posts" element={<PostListPage />} />
       {/* <Route path="/posts/create" element={<PostCreatePage />} /> */}
@@ -119,6 +121,7 @@ const AppRoutes = () => {
       />
       <Route path="/projects/completed" element={<CompletedProject />} />
       <Route path="/projects/inprogress" element={<InProgressProject />} />
+      <Route path="/my" element={<UserProfilePage />} />
     </Routes>
   );
 };
