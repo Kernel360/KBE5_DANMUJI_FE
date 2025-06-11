@@ -36,35 +36,35 @@ export const Toolbar = styled.div`
 `;
 
 export const FilterSelect = styled.select`
-  padding: 0.5rem 0.75rem;
+  padding: 0.375rem 0.5rem;
   border: 1px solid #d1d5db;
-  border-radius: 0.5rem;
+  border-radius: 0.375rem;
   background-color: white;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   cursor: pointer;
-  min-width: 120px;
+  min-width: 100px;
   font-weight: 500;
   color: #374151;
   transition: all 0.2s ease;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  height: 32px;
 
   &:hover {
     border-color: #9ca3af;
     background-color: #f9fafb;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
   }
 
   &:focus {
     outline: none;
     border-color: #fdb924;
-    box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.1);
+    box-shadow: 0 0 0 2px rgba(253, 185, 36, 0.1);
     background-color: white;
   }
 
   option {
-    padding: 0.5rem;
+    padding: 0.25rem;
     font-weight: 500;
+    font-size: 0.75rem;
   }
 `;
 
@@ -362,7 +362,7 @@ export const DeleteButton = styled.button`
 // 필터 영역 스타일 컴포넌트들
 export const FilterSection = styled.div`
   margin-bottom: 1.5rem;
-  padding: 1.5rem;
+  padding: 1rem;
   background: white;
   border-radius: 0.75rem;
   border: 1px solid #e2e8f0;
@@ -373,13 +373,13 @@ export const FilterHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
-  padding-bottom: 0.75rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
   border-bottom: 1px solid #e5e7eb;
 `;
 
 export const FilterTitle = styled.h3`
-  font-size: 1.125rem;
+  font-size: 1rem;
   font-weight: 600;
   color: #111827;
   margin: 0;
@@ -388,12 +388,12 @@ export const FilterTitle = styled.h3`
 export const FilterToggleButton = styled.button`
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
   background: #f3f4f6;
   border: 1px solid #d1d5db;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
   font-weight: 500;
   color: #374151;
   cursor: pointer;
@@ -407,9 +407,9 @@ export const FilterToggleButton = styled.button`
 
 export const FilterGrid = styled.div<{ $isExpanded: boolean }>`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  max-height: ${({ $isExpanded }) => ($isExpanded ? "500px" : "0")};
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+  max-height: ${({ $isExpanded }) => ($isExpanded ? "300px" : "0")};
   overflow: hidden;
   transition: max-height 0.3s ease;
   opacity: ${({ $isExpanded }) => ($isExpanded ? "1" : "0")};
@@ -419,23 +419,25 @@ export const FilterGrid = styled.div<{ $isExpanded: boolean }>`
 export const FilterGroup = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.25rem;
 `;
 
 export const FilterLabel = styled.label`
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   font-weight: 500;
   color: #374151;
+  margin-bottom: 0.125rem;
 `;
 
 export const FilterInput = styled.input`
-  padding: 0.5rem 0.75rem;
+  padding: 0.375rem 0.5rem;
   border: 1px solid #d1d5db;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
   background-color: white;
   color: #374151;
   transition: all 0.2s ease;
+  height: 32px;
 
   &:hover {
     border-color: #9ca3af;
@@ -444,36 +446,37 @@ export const FilterInput = styled.input`
   &:focus {
     outline: none;
     border-color: #fdb924;
-    box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.1);
+    box-shadow: 0 0 0 2px rgba(253, 185, 36, 0.1);
   }
 `;
 
 export const FilterButtonGroup = styled.div`
   display: flex;
-  gap: 0.75rem;
-  margin-top: 1rem;
-  padding-top: 1rem;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
   border-top: 1px solid #e5e7eb;
 `;
 
 export const SearchButton = styled.button`
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
+  gap: 0.375rem;
+  padding: 0.5rem 1rem;
   background: #fdb924;
   border: none;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
   font-weight: 600;
   color: white;
   cursor: pointer;
   transition: all 0.2s ease;
+  height: 32px;
 
   &:hover {
     background: #f59e0b;
     transform: translateY(-1px);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1);
   }
 
   &:active {
@@ -484,16 +487,17 @@ export const SearchButton = styled.button`
 export const ResetButton = styled.button`
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
+  gap: 0.375rem;
+  padding: 0.5rem 1rem;
   background: #f3f4f6;
   border: 1px solid #d1d5db;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
   font-weight: 500;
   color: #374151;
   cursor: pointer;
   transition: all 0.2s ease;
+  height: 32px;
 
   &:hover {
     background: #e5e7eb;
@@ -520,15 +524,16 @@ export const StyledDatePicker = styled.div`
   }
 
   .react-datepicker__input-container input {
-    padding: 0.5rem 0.75rem;
+    padding: 0.375rem 0.5rem;
     border: 1px solid #d1d5db;
-    border-radius: 0.5rem;
-    font-size: 0.875rem;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
     background-color: white;
     color: #374151;
     transition: all 0.2s ease;
     width: 100%;
     cursor: pointer;
+    height: 32px;
 
     &:hover {
       border-color: #9ca3af;
@@ -537,12 +542,12 @@ export const StyledDatePicker = styled.div`
     &:focus {
       outline: none;
       border-color: #fdb924;
-      box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.1);
+      box-shadow: 0 0 0 2px rgba(253, 185, 36, 0.1);
     }
 
     &::placeholder {
       color: #9ca3af;
-      font-size: 0.875rem;
+      font-size: 0.75rem;
     }
   }
 `;

@@ -192,11 +192,6 @@ export default function PostListPage() {
         endDate;
 
       if (searchTerm.trim() || hasFilters) {
-        console.log("=== 검색 API 호출 ===");
-        console.log("검색어:", searchTerm);
-        console.log("검색 타입:", searchType);
-        console.log("필터 적용 여부:", hasFilters);
-
         const searchParams = {
           status: statusFilter === "ALL" ? undefined : statusFilter,
           type: typeFilter === "ALL" ? undefined : typeFilter,
@@ -233,7 +228,7 @@ export default function PostListPage() {
         console.log("======================");
       } else {
         // 검색어도 없고 필터도 없는 경우에만 일반 목록 API 사용
-        console.log("=== 일반 목록 API 호출 ===");
+
         response = await getPostsWithComments(
           1, // 임시로 단계 ID 1 사용
           currentPage,
@@ -250,12 +245,12 @@ export default function PostListPage() {
         if (
           response.data.content.length === 0 &&
           response.data.page.totalPages > 1 &&
-          currentPage > 0
+          response.data.page.number > 0
         ) {
           console.log(
-            `현재 페이지(${currentPage})에 게시글이 없어서 이전 페이지로 이동합니다.`
+            `현재 페이지(${response.data.page.number})에 게시글이 없어서 이전 페이지로 이동합니다.`
           );
-          setCurrentPage(currentPage - 1);
+          setCurrentPage(response.data.page.number - 1);
         }
       }
     } catch (err) {
@@ -290,7 +285,7 @@ export default function PostListPage() {
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
-    setIsFilterChanged(true);
+    // setIsFilterChanged(true); // 실시간 검색 제거
   };
 
   const handleSearchKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -311,12 +306,12 @@ export default function PostListPage() {
     e: React.ChangeEvent<HTMLSelectElement>
   ) => {
     setStatusFilter(e.target.value as PostStatus | "ALL");
-    setIsFilterChanged(true);
+    // setIsFilterChanged(true); // 실시간 필터링 제거
   };
 
   const handleTypeFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setTypeFilter(e.target.value as PostType | "ALL");
-    setIsFilterChanged(true);
+    // setIsFilterChanged(true); // 실시간 필터링 제거
   };
 
   const handlePriorityFilterChange = (
@@ -325,7 +320,7 @@ export default function PostListPage() {
     setPriorityFilter(
       e.target.value === "ALL" ? "ALL" : Number(e.target.value)
     );
-    setIsFilterChanged(true);
+    // setIsFilterChanged(true); // 실시간 필터링 제거
   };
 
   const handleItemsPerPageChange = (
@@ -380,19 +375,19 @@ export default function PostListPage() {
 
   const handleSearchTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSearchType(e.target.value as "title" | "content" | "author");
-    setIsFilterChanged(true);
+    // setIsFilterChanged(true); // 실시간 필터링 제거
   };
 
   const handleAssigneeFilterChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     setAssigneeFilter(e.target.value);
-    setIsFilterChanged(true);
+    // setIsFilterChanged(true); // 실시간 필터링 제거
   };
 
   const handleClientFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setClientFilter(e.target.value);
-    setIsFilterChanged(true);
+    // setIsFilterChanged(true); // 실시간 필터링 제거
   };
 
   const handleSearch = () => {
@@ -587,54 +582,51 @@ export default function PostListPage() {
         </FilterGrid>
 
         <FilterButtonGroup>
-          <SearchButton
-            onClick={handleSearch}
-            style={{
-              background: isFilterChanged ? "#f59e0b" : "#fdb924",
-              transform: isFilterChanged ? "scale(1.05)" : "scale(1)",
-            }}
-          >
-            <AiOutlineSearch size={16} />
-            {isFilterChanged ? "검색 실행" : "검색"}
+          <SearchButton onClick={handleSearch}>
+            <AiOutlineSearch size={14} />
+            검색
           </SearchButton>
           <ResetButton onClick={handleResetFilters}>
-            <AiOutlineReload size={16} />
+            <AiOutlineReload size={14} />
             초기화
           </ResetButton>
         </FilterButtonGroup>
       </FilterSection>
 
       {/* 게시글 작성 버튼 */}
-      <Toolbar>
-        <ToolbarLeft>{/* 빈 공간 */}</ToolbarLeft>
-        <ToolbarRight>
-          <CreateButton
-            style={{
-              background: "#FFE066",
-              color: "#222",
-              fontWeight: 600,
-              fontSize: "15px",
-              borderRadius: "10px",
-              height: "42px",
-              minWidth: "120px",
-              border: "none",
-              boxShadow: "none",
-              transition: "background 0.2s",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "6px",
-              padding: "0 18px",
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "#FFD43B")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "#FFE066")}
-            onClick={handleCreatePost}
-          >
-            <AiOutlineFileText size={16} style={{ marginBottom: 1 }} />
-            게시글 작성
-          </CreateButton>
-        </ToolbarRight>
-      </Toolbar>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          marginBottom: "1.5rem",
+        }}
+      >
+        <CreateButton
+          style={{
+            background: "#FFE066",
+            color: "#222",
+            fontWeight: 600,
+            fontSize: "15px",
+            borderRadius: "10px",
+            height: "42px",
+            minWidth: "120px",
+            border: "none",
+            boxShadow: "none",
+            transition: "background 0.2s",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "6px",
+            padding: "0 18px",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.background = "#FFD43B")}
+          onMouseLeave={(e) => (e.currentTarget.style.background = "#FFE066")}
+          onClick={handleCreatePost}
+        >
+          <AiOutlineFileText size={16} style={{ marginBottom: 1 }} />
+          게시글 작성
+        </CreateButton>
+      </div>
 
       <TableContainer>
         <Table>
@@ -1116,8 +1108,9 @@ export default function PostListPage() {
       {totalPages > 1 && (
         <PaginationContainer>
           <PaginationInfo>
-            총 {totalElements}개의 게시글 중 {currentPage * itemsPerPage + 1}-
-            {Math.min((currentPage + 1) * itemsPerPage, totalElements)}개 표시
+            총 {totalElements}개의 게시글 중{" "}
+            {totalElements > 0 ? currentPage * 10 + 1 : 0}-
+            {Math.min((currentPage + 1) * 10, totalElements)}개 표시
             {searchTerm.trim() && ` (검색어: "${searchTerm}")`}
           </PaginationInfo>
           <PaginationNav>
@@ -1143,6 +1136,15 @@ export default function PostListPage() {
               다음
             </PaginationButton>
           </PaginationNav>
+        </PaginationContainer>
+      )}
+
+      {totalPages <= 1 && totalElements > 0 && (
+        <PaginationContainer>
+          <PaginationInfo>
+            총 {totalElements}개의 게시글
+            {searchTerm.trim() && ` (검색어: "${searchTerm}")`}
+          </PaginationInfo>
         </PaginationContainer>
       )}
 
