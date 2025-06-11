@@ -58,12 +58,7 @@ import {
   searchPosts,
   getPostsWithComments,
 } from "@/features/project/services/postService";
-import type {
-  Post,
-  PostStatus,
-  PostType,
-  PostSearchRequest,
-} from "@/features/project/types/post";
+import type { Post, PostStatus, PostType } from "@/features/project/types/post";
 import { useLocation } from "react-router-dom";
 
 const formatDate = (dateString: string) => {
@@ -101,6 +96,44 @@ const getTypeText = (type: PostType) => {
   }
 };
 
+const getPriorityText = (priority: number) => {
+  switch (priority) {
+    case 1:
+      return "낮음";
+    case 2:
+      return "보통";
+    case 3:
+      return "높음";
+    default:
+      return priority.toString();
+  }
+};
+
+const getPriorityStyle = (priority: number) => {
+  switch (priority) {
+    case 1:
+      return {
+        background: "#d1fae5",
+        color: "#059669",
+      };
+    case 2:
+      return {
+        background: "#fef3c7",
+        color: "#d97706",
+      };
+    case 3:
+      return {
+        background: "#fee2e2",
+        color: "#dc2626",
+      };
+    default:
+      return {
+        background: "#f3f4f6",
+        color: "#6b7280",
+      };
+  }
+};
+
 export default function PostListPage() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -108,7 +141,7 @@ export default function PostListPage() {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [itemsPerPage] = useState(10); // 고정값으로 설정
 
   // 필터링 검색 관련 상태
   const [searchTerm, setSearchTerm] = useState("");
@@ -164,32 +197,37 @@ export default function PostListPage() {
         console.log("검색 타입:", searchType);
         console.log("필터 적용 여부:", hasFilters);
 
-        const searchRequest: PostSearchRequest = {
+        const searchParams = {
           status: statusFilter === "ALL" ? undefined : statusFilter,
           type: typeFilter === "ALL" ? undefined : typeFilter,
           priority: priorityFilter === "ALL" ? undefined : priorityFilter,
-          assignee: assigneeFilter === "" ? undefined : assigneeFilter,
-          client: clientFilter === "" ? undefined : clientFilter,
-          startDate: startDate || undefined,
-          endDate: endDate || undefined,
+          author: assigneeFilter === "" ? undefined : assigneeFilter,
+          clientCompany: clientFilter === "" ? undefined : clientFilter,
         };
 
         // 검색 타입에 따라 다른 필드 설정
         if (searchType === "title") {
-          searchRequest.title = searchTerm;
+          searchParams.title = searchTerm;
         } else if (searchType === "content") {
-          searchRequest.content = searchTerm;
+          // content 검색은 새로운 API에서 지원하지 않으므로 title로 대체
+          searchParams.title = searchTerm;
         } else if (searchType === "author") {
-          searchRequest.author = searchTerm;
+          searchParams.author = searchTerm;
         }
 
-        console.log("검색 요청 객체:", searchRequest);
+        console.log("검색 파라미터:", searchParams);
         console.log("실제 전송될 파라미터:", {
-          ...searchRequest,
+          stepId: 1, // 임시로 단계 ID 1 사용
+          ...searchParams,
           page: currentPage,
           size: itemsPerPage,
         });
-        response = await searchPosts(searchRequest, currentPage, itemsPerPage);
+        response = await searchPosts(
+          1,
+          searchParams,
+          currentPage,
+          itemsPerPage
+        );
         console.log("검색 API 응답:", response);
         console.log("검색 결과 데이터:", response.data);
         console.log("======================");
@@ -197,7 +235,7 @@ export default function PostListPage() {
         // 검색어도 없고 필터도 없는 경우에만 일반 목록 API 사용
         console.log("=== 일반 목록 API 호출 ===");
         response = await getPostsWithComments(
-          1, // 임시로 프로젝트 ID 1 사용
+          1, // 임시로 단계 ID 1 사용
           currentPage,
           itemsPerPage
         );
@@ -307,7 +345,14 @@ export default function PostListPage() {
   const handleEditPost = (postId: number) => {
     setFormModalMode("edit");
     setFormModalPostId(postId);
-    setFormModalParentId(null);
+    setFormModalParentId(undefined);
+    setIsFormModalOpen(true);
+  };
+
+  const handleReplyPost = (parentId: number) => {
+    setFormModalMode("create");
+    setFormModalPostId(undefined);
+    setFormModalParentId(parentId);
     setIsFormModalOpen(true);
   };
 
@@ -559,55 +604,34 @@ export default function PostListPage() {
         </FilterButtonGroup>
       </FilterSection>
 
-      {/* 게시글 작성 버튼과 표시 개수 선택 */}
+      {/* 게시글 작성 버튼 */}
       <Toolbar>
-        <ToolbarLeft>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "0.375rem",
-              minWidth: "120px",
-            }}
-          >
-            <label
-              style={{
-                fontSize: "0.75rem",
-                fontWeight: "600",
-                color: "#374151",
-                marginBottom: "0.125rem",
-                display: "flex",
-                alignItems: "center",
-                gap: "0.25rem",
-              }}
-            >
-              <AiOutlineFile size={14} />
-              표시 개수
-            </label>
-            <FilterSelect
-              onChange={handleItemsPerPageChange}
-              value={itemsPerPage}
-            >
-              <option value={10}>10개씩 보기</option>
-              <option value={20}>20개씩 보기</option>
-              <option value={50}>50개씩 보기</option>
-            </FilterSelect>
-          </div>
-        </ToolbarLeft>
+        <ToolbarLeft>{/* 빈 공간 */}</ToolbarLeft>
         <ToolbarRight>
           <CreateButton
             style={{
-              background: "#fbbf24",
+              background: "#FFE066",
               color: "#222",
-              fontWeight: 700,
-              fontSize: "16px",
-              borderRadius: "8px",
-              height: "44px",
-              minWidth: "140px",
+              fontWeight: 600,
+              fontSize: "15px",
+              borderRadius: "10px",
+              height: "42px",
+              minWidth: "120px",
+              border: "none",
+              boxShadow: "none",
+              transition: "background 0.2s",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "6px",
+              padding: "0 18px",
             }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "#FFD43B")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "#FFE066")}
             onClick={handleCreatePost}
           >
-            + 게시글 작성
+            <AiOutlineFileText size={16} style={{ marginBottom: 1 }} />
+            게시글 작성
           </CreateButton>
         </ToolbarRight>
       </Toolbar>
@@ -646,21 +670,10 @@ export default function PostListPage() {
                     new Date(b.createdAt).getTime()
                 );
 
-                // 검색어가 있을 때 댓글 내용도 검색
-                const hasMatchingComment =
-                  searchTerm.trim() &&
-                  rootPost.comments &&
-                  rootPost.comments.some((comment) =>
-                    comment.content
-                      .toLowerCase()
-                      .includes(searchTerm.toLowerCase())
-                  );
-
                 return [
                   <TableRow
                     key={rootPost.postId}
                     onClick={() => handlePostClick(rootPost.postId)}
-                    style={hasMatchingComment ? { background: "#fef3c7" } : {}}
                   >
                     <TableCell>
                       <PostTitle style={{ color: "#000000" }}>
@@ -698,22 +711,6 @@ export default function PostListPage() {
                               질문 {rootPost.questionCount}
                             </span>
                           )}
-                        {hasMatchingComment && (
-                          <span
-                            style={{
-                              display: "inline-block",
-                              background: "#f59e0b",
-                              color: "white",
-                              borderRadius: "12px",
-                              fontSize: "0.75rem",
-                              padding: "2px 8px",
-                              marginLeft: "8px",
-                              fontWeight: "500",
-                            }}
-                          >
-                            댓글에서 검색됨
-                          </span>
-                        )}
                       </PostTitle>
                     </TableCell>
                     <TableCell>{rootPost.author.name}</TableCell>
@@ -725,7 +722,20 @@ export default function PostListPage() {
                     <TableCell $align="center">
                       {getTypeText(rootPost.type)}
                     </TableCell>
-                    <TableCell $align="center">{rootPost.priority}</TableCell>
+                    <TableCell $align="center">
+                      <span
+                        style={{
+                          ...getPriorityStyle(rootPost.priority),
+                          fontWeight: 600,
+                          fontSize: 13,
+                          borderRadius: 8,
+                          padding: "2px 12px",
+                          display: "inline-block",
+                        }}
+                      >
+                        {getPriorityText(rootPost.priority)}
+                      </span>
+                    </TableCell>
                     <TableCell $align="center">
                       {formatDate(rootPost.createdAt)}
                     </TableCell>
@@ -836,7 +846,20 @@ export default function PostListPage() {
                         <TableCell $align="center">
                           {getTypeText(reply.type)}
                         </TableCell>
-                        <TableCell $align="center">{reply.priority}</TableCell>
+                        <TableCell $align="center">
+                          <span
+                            style={{
+                              ...getPriorityStyle(reply.priority),
+                              fontWeight: 600,
+                              fontSize: 13,
+                              borderRadius: 8,
+                              padding: "2px 12px",
+                              display: "inline-block",
+                            }}
+                          >
+                            {getPriorityText(reply.priority)}
+                          </span>
+                        </TableCell>
                         <TableCell $align="center">
                           {formatDate(reply.createdAt)}
                         </TableCell>
@@ -898,6 +921,7 @@ export default function PostListPage() {
         postId={selectedPostId}
         onPostDelete={handlePostDelete}
         onEditPost={handleEditPost}
+        onReplyPost={handleReplyPost}
       />
 
       <PostFormModal
@@ -907,6 +931,7 @@ export default function PostListPage() {
         mode={formModalMode}
         postId={formModalPostId}
         parentId={formModalParentId}
+        stepId={1}
       />
     </PageContainer>
   );

@@ -36,7 +36,7 @@ const ProjectPostCreateModal: React.FC<ProjectPostCreateModalProps> = ({
     type: PostType.GENERAL,
     status: PostStatus.PENDING,
     priority: 1,
-    projectId: 1, // TODO: 실제 프로젝트 ID로 변경
+    stepId: 1, // TODO: 실제 단계 ID로 변경
   });
 
   const handleSubmit = (e: React.FormEvent) => {

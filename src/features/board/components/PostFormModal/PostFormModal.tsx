@@ -34,6 +34,7 @@ interface PostFormModalProps {
   mode: "create" | "edit";
   postId?: number;
   parentId?: number;
+  stepId?: number;
   onSuccess?: () => void;
 }
 
@@ -43,6 +44,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
   mode,
   postId,
   parentId,
+  stepId = 1, // 기본값 1
   onSuccess,
 }) => {
   const [formData, setFormData] = useState<PostCreateData & PostUpdateRequest>({
@@ -51,7 +53,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
     type: "GENERAL",
     priority: 1,
     status: "PENDING",
-    projectId: 1, // 임시로 프로젝트 ID 1 사용
+    stepId: stepId,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -71,7 +73,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
             type: post.type,
             priority: post.priority,
             status: post.status,
-            projectId: 1, // 임시로 프로젝트 ID 1 사용
+            stepId: stepId,
           });
         } catch (err) {
           setError("게시글을 불러오는 데 실패했습니다.");
@@ -83,18 +85,53 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
       fetchPost();
     } else if (open && mode === "create") {
       // 생성 모드일 때 폼 초기화
-      setFormData({
-        title: "",
-        content: "",
-        type: "GENERAL",
-        priority: 1,
-        status: "PENDING",
-        projectId: 1,
-      });
+      if (parentId) {
+        // 답글 작성 모드일 때 부모 게시글 정보 가져오기
+        const fetchParentPost = async () => {
+          try {
+            setLoading(true);
+            const response = await getPostDetail(parentId);
+            const parentPost = response.data;
+            setFormData({
+              title: "",
+              content: "",
+              type: "GENERAL",
+              priority: 1,
+              status: "PENDING",
+              stepId: stepId,
+            });
+          } catch (err) {
+            setError("부모 게시글을 불러오는 데 실패했습니다.");
+            console.error("부모 게시글 로드 중 오류:", err);
+            // 에러가 발생해도 기본 폼은 설정
+            setFormData({
+              title: "",
+              content: "",
+              type: "GENERAL",
+              priority: 1,
+              status: "PENDING",
+              stepId: stepId,
+            });
+          } finally {
+            setLoading(false);
+          }
+        };
+        fetchParentPost();
+      } else {
+        // 일반 게시글 작성 모드
+        setFormData({
+          title: "",
+          content: "",
+          type: "GENERAL",
+          priority: 1,
+          status: "PENDING",
+          stepId: stepId,
+        });
+      }
       setError(null);
       setFormErrors({});
     }
-  }, [open, mode, postId]);
+  }, [open, mode, postId, parentId, stepId]);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -197,7 +234,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
         </ModalHeader>
 
         <ModalBody>
-          {loading && mode === "edit" ? (
+          {loading ? (
             <LoadingSpinner>로딩 중...</LoadingSpinner>
           ) : (
             <form onSubmit={handleSubmit}>
@@ -209,7 +246,11 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
                   type="text"
                   value={formData.title}
                   onChange={handleChange}
-                  placeholder="게시글 제목을 입력하세요"
+                  placeholder={
+                    parentId
+                      ? "답글 제목을 입력하세요"
+                      : "게시글 제목을 입력하세요"
+                  }
                   required
                 />
                 {formErrors.title && (
@@ -224,6 +265,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
                   name="type"
                   value={formData.type}
                   onChange={handleChange}
+                  disabled={parentId !== undefined}
                 >
                   <option value="GENERAL">일반</option>
                   <option value="NOTICE">공지</option>
@@ -238,6 +280,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
                   name="priority"
                   value={formData.priority.toString()}
                   onChange={handleChange}
+                  disabled={parentId !== undefined}
                 >
                   <option value="1">낮음</option>
                   <option value="2">보통</option>

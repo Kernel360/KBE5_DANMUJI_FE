@@ -12,7 +12,6 @@ import type {
   PostType,
   PostPriority,
   PostUpdateRequest,
-  PostSearchRequest,
 } from "../types/post";
 import { getQuestionsByPost } from "./questionService";
 import { AxiosError } from "axios";
@@ -102,7 +101,7 @@ export const getPostDetail = async (
 
 // 게시글 목록 조회
 export const getPosts = async (
-  projectId: number,
+  stepId: number,
   page: number = 0,
   size: number = 10,
   status?: PostStatus,
@@ -111,19 +110,19 @@ export const getPosts = async (
   searchTerm?: string
 ): Promise<PostListResponse> => {
   try {
-    // projectId가 없으면 전체 게시글 목록 요청
-    const url = projectId ? `/api/posts/projects/${projectId}` : `/api/posts`;
-
-    const response = await api.get<PostListResponse>(url, {
-      params: {
-        page,
-        size,
-        status,
-        type,
-        priority,
-        searchTerm,
-      },
-    });
+    const response = await api.get<PostListResponse>(
+      `/api/posts/all/${stepId}`,
+      {
+        params: {
+          page,
+          size,
+          status,
+          type,
+          priority,
+          searchTerm,
+        },
+      }
+    );
     return handleApiResponse<PostListResponse["data"]>(response);
   } catch (error) {
     if (error instanceof ApiError) throw error;
@@ -140,7 +139,7 @@ export const getPosts = async (
 
 // 게시글 목록 조회 (댓글 포함)
 export const getPostsWithComments = async (
-  projectId?: number,
+  stepId: number,
   page: number = 0,
   size: number = 10,
   status?: PostStatus,
@@ -151,7 +150,7 @@ export const getPostsWithComments = async (
   try {
     // 먼저 게시글 목록을 가져옴
     const postsResponse = await getPosts(
-      projectId,
+      stepId,
       page,
       size,
       status,
@@ -377,18 +376,29 @@ export const deleteComment = async (
 
 // 게시글 검색
 export const searchPosts = async (
-  searchRequest: PostSearchRequest,
+  stepId: number,
+  searchParams: {
+    title?: string;
+    author?: string;
+    clientCompany?: string;
+    developerCompany?: string;
+    priority?: number;
+    status?: PostStatus;
+    type?: PostType;
+  },
   page: number = 0,
   size: number = 10
 ): Promise<PostListResponse> => {
   try {
     console.log("=== searchPosts 함수 호출 ===");
-    console.log("검색 요청:", searchRequest);
+    console.log("stepId:", stepId);
+    console.log("검색 파라미터:", searchParams);
     console.log("페이지:", page, "크기:", size);
 
-    const response = await api.get<PostListResponse>(`/api/posts/search`, {
+    const response = await api.get<PostListResponse>(`/api/posts/all/search`, {
       params: {
-        ...searchRequest,
+        stepId,
+        ...searchParams,
         page,
         size,
       },

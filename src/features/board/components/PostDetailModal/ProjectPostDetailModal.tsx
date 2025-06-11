@@ -48,6 +48,7 @@ interface PostDetailModalProps {
   postId: number | null;
   onPostDelete?: (deletedPostId: number) => void;
   onEditPost?: (postId: number) => void;
+  onReplyPost?: (parentId: number) => void;
 }
 
 const PostDetailModal: React.FC<PostDetailModalProps> = ({
@@ -56,6 +57,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
   postId,
   onPostDelete,
   onEditPost,
+  onReplyPost,
 }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -168,6 +170,13 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
     if (!postId) return;
     console.log("게시글 수정 버튼 클릭 - postId:", postId);
     onEditPost?.(postId);
+    onClose();
+  };
+
+  const handleReplyPost = () => {
+    if (!postId) return;
+    console.log("답글 작성 버튼 클릭 - parentId:", postId);
+    onReplyPost?.(postId);
     onClose();
   };
 
@@ -339,9 +348,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
             </span>
             <ModalHeaderButtonGroup>
               <ModalHeaderActionButton
-                onClick={() =>
-                  navigate(`/posts/create?parentId=${post.postId}`)
-                }
+                onClick={handleReplyPost}
                 title="답글달기"
               >
                 <FaReply size={14} style={{ marginRight: 4 }} /> 답글
@@ -393,40 +400,6 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
 
             {/* 상세 정보 */}
             <InfoGrid>
-              <InfoRow>
-                <InfoKey>프로젝트</InfoKey>
-                <InfoValue>
-                  {post.project?.name || "프로젝트 정보 없음"}
-                </InfoValue>
-              </InfoRow>
-              <InfoRow>
-                <InfoKey>시작일</InfoKey>
-                <InfoValue>
-                  {post.project?.startDate
-                    ? formatDate(post.project.startDate)
-                    : "정보 없음"}
-                </InfoValue>
-              </InfoRow>
-              <InfoRow>
-                <InfoKey>마감일</InfoKey>
-                <InfoValue>
-                  {post.project?.endDate
-                    ? formatDate(post.project.endDate)
-                    : "정보 없음"}
-                </InfoValue>
-              </InfoRow>
-              <InfoRow>
-                <InfoKey>담당자</InfoKey>
-                <InfoValue>{post.author?.name || "-"}</InfoValue>
-              </InfoRow>
-              <InfoRow>
-                <InfoKey>고객사</InfoKey>
-                <InfoValue>{post.project?.clientCompany || "-"}</InfoValue>
-              </InfoRow>
-              <InfoRow>
-                <InfoKey>개발사</InfoKey>
-                <InfoValue>{post.project?.developerCompany || "-"}</InfoValue>
-              </InfoRow>
               <InfoRow>
                 <InfoKey>요청 상태</InfoKey>
                 <InfoValue>
