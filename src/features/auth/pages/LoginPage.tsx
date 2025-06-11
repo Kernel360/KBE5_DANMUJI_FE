@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import api from "@/api/axios";
 import { LeftPanel } from "@/features/auth/components/LeftPanel";
 import { DanmujiLogo } from "@/features/auth/components/DanmujiLogo";
+import { useAuth } from "@/contexts/AuthContexts";
 
 import {
   ComponentContainer,
@@ -18,6 +19,7 @@ import {
 export default function LoginPage() {
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
+  const { setUser } = useAuth();
 
   const handleForgotPassword = () => {
     window.location.href = "/forgot-password";
@@ -40,6 +42,13 @@ export default function LoginPage() {
         const accessToken = res.headers["authorization"].replace("Bearer ", "");
         if (accessToken) {
           localStorage.setItem("accessToken", accessToken);
+          
+          // 사용자 정보 가져오기
+          const userRes = await api.get("/api/users/me");
+          if (userRes.data.data) {
+            setUser(userRes.data.data);
+          }
+          
           alert("로그인 되었습니다.");
           window.location.href = "/dashboard";
         } else {

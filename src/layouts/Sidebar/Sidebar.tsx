@@ -111,9 +111,9 @@ export const Sidebar: React.FC = () => {
                 <MenuItemSide
                   icon={FaAlignLeft}
                   text="모든 프로젝트"
-                  isActive={location.pathname === "/projects/all"}
+                  isActive={location.pathname === "/projects/:userId"}
                   onClick={() =>
-                    handleMenuItemClick("모든 프로젝트", "/projects/all")
+                    handleMenuItemClick("모든 프로젝트", "/projects/:userId")
                   }
                 />
               </li>

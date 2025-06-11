@@ -22,13 +22,18 @@ import ForgotPasswordPage from "./features/auth/pages/ForgotPasswordPage";
 import AdminDashboardPage from "./features/admin/pages/DashboardPage";
 import CompanyPage from "./features/company/pages/CompanyPage";
 import MemberPage from "./features/user/pages/MemberPage";
-import AdminMainPage from "./features/project/pages/AdminMainPage";
+import AdminProjectPage from "./features/project/pages/AdminProjectPage";
 
 // user pages
 import UserDashboardPage from "./features/board/pages/DashboardPage";
 import PostListPage from "./features/board/pages/PostListPage";
 import PostEditPage from "./features/project/pages/PostEditPage";
 import PostCreatePage from "./features/project/pages/PostCreatePage";
+import CreateProjectPage from "./features/project/pages/CreateProjectPage";
+import UserProjectPage from "./features/project/pages/UserProjectPage";
+import ProjectDetailPage from "./features/project/pages/ProjectDetailPage";
+import CompletedProject from "./features/project/pages/CompletedProject";
+import InProgressProject from "./features/project/pages/InProgressProject";
 
 // etc
 import { AppContainer, MainContent, PageContent } from "./App.styled";
@@ -92,7 +97,8 @@ const AppRoutes = () => {
         <>
           <Route path="/company" element={<CompanyPage />} />
           <Route path="/members" element={<MemberPage />} />
-          <Route path="/projects" element={<AdminMainPage />} />
+          <Route path="/projects/create" element={<CreateProjectPage />} />
+          <Route path="/projects" element={<AdminProjectPage />} />
         </>
       )}
 
@@ -100,6 +106,10 @@ const AppRoutes = () => {
       <Route path="/posts" element={<PostListPage />} />
       <Route path="/posts/create" element={<PostCreatePage />} />
       <Route path="/posts/:postId/edit" element={<PostEditPage />} />
+      <Route path="/projects/:userId" element={<UserProjectPage />} />
+      <Route path="/projects/:projectId/detail" element={<ProjectDetailPage />} />
+      <Route path="/projects/completed" element={<CompletedProject />} /> 
+      <Route path="/projects/inprogress" element={<InProgressProject />} />
     </Routes>
   );
 };

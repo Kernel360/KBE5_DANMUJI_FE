@@ -89,6 +89,8 @@ export const SearchBar = styled.div`
 `;
 
 export const SearchInput = styled.input`
+  background-color: #fff;
+  color: #000;
   border: 1px solid #cbd5e1;
   border-radius: 4px;
   padding: 0.5rem 1rem;
@@ -170,21 +172,45 @@ export const CardButton = styled.button<{primary?: boolean}>`
   cursor: pointer;
 `;
 
-export const Pagination = styled.div`
+export const PaginationContainer = styled.div`
   display: flex;
   justify-content: center;
-  gap: 0.5rem;
-  margin: 2rem 0;
+  margin-top: 2rem;
 `;
 
-export const PaginationBtn = styled.button<{active?: boolean}>`
-  padding: 0.4rem 1rem;
-  border-radius: 4px;
+export const PaginationNav = styled.nav`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
+export const PaginationButton = styled.button`
+  padding: 0.5rem 1rem;
   border: 1px solid #d1d5db;
-  background: ${({active}) => active ? '#3b82f6' : '#fff'};
-  color: ${({active}) => active ? '#fff' : '#64748b'};
-  font-weight: ${({active}) => active ? 700 : 500};
+  background: #fff;
+  color: #374151;
   cursor: pointer;
+  border-radius: 0.375rem;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &:hover:not(:disabled) {
+    background: #f3f4f6;
+  }
+`;
+
+export const CurrentPageButton = styled(PaginationButton)`
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+  cursor: default;
+
+  &:hover {
+    background: #3b82f6;
+  }
 `;
 
 export const Table = styled.table`
