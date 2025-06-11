@@ -83,6 +83,11 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
           const postResponse = await getPostDetail(postId);
           if (postResponse.data) {
             setPost(postResponse.data);
+            // 프로젝트 정보 디버깅
+            console.log("게시글 상세 정보:", postResponse.data);
+            console.log("프로젝트 정보:", postResponse.data.project);
+            console.log("고객사:", postResponse.data.project?.clientCompany);
+            console.log("개발사:", postResponse.data.project?.developerCompany);
           }
 
           // 댓글 목록 가져오기
@@ -212,6 +217,32 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
         return "거부";
       default:
         return status;
+    }
+  };
+
+  // 상태별 스타일 반환 함수
+  const getStatusStyle = (status: string) => {
+    switch (status) {
+      case "PENDING":
+        return {
+          background: "#fef3c7",
+          color: "#d97706",
+        };
+      case "APPROVED":
+        return {
+          background: "#d1fae5",
+          color: "#059669",
+        };
+      case "REJECTED":
+        return {
+          background: "#fee2e2",
+          color: "#dc2626",
+        };
+      default:
+        return {
+          background: "#f3f4f6",
+          color: "#6b7280",
+        };
     }
   };
 
@@ -362,23 +393,32 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
             <InfoGrid>
               <InfoRow>
                 <InfoKey>프로젝트</InfoKey>
-                <InfoValue>{post.project?.name || "-"}</InfoValue>
+                <InfoValue>
+                  {post.project?.name || "프로젝트 정보 없음"}
+                </InfoValue>
               </InfoRow>
               <InfoRow>
                 <InfoKey>담당자</InfoKey>
-                <InfoValue>{post.project?.clientCompany || "-"}</InfoValue>
+                <InfoValue>{post.author?.name || "-"}</InfoValue>
+              </InfoRow>
+              <InfoRow>
+                <InfoKey>고객사</InfoKey>
+                <InfoValue>
+                  {post.project?.clientCompany || "고객사 정보 없음"}
+                </InfoValue>
               </InfoRow>
               <InfoRow>
                 <InfoKey>개발사</InfoKey>
-                <InfoValue>{post.project?.developerCompany || "-"}</InfoValue>
+                <InfoValue>
+                  {post.project?.developerCompany || "개발사 정보 없음"}
+                </InfoValue>
               </InfoRow>
               <InfoRow>
                 <InfoKey>요청 상태</InfoKey>
                 <InfoValue>
                   <span
                     style={{
-                      background: "#e6f9ed",
-                      color: "#1db46a",
+                      ...getStatusStyle(post.status),
                       fontWeight: 600,
                       fontSize: 13,
                       borderRadius: 8,
@@ -393,6 +433,10 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
               <InfoRow>
                 <InfoKey>작성일</InfoKey>
                 <InfoValue>{formatDate(post.createdAt)}</InfoValue>
+              </InfoRow>
+              <InfoRow>
+                <InfoKey>수정일</InfoKey>
+                <InfoValue>{formatDate(post.updatedAt)}</InfoValue>
               </InfoRow>
               <InfoRow>
                 <InfoKey>작성자</InfoKey>

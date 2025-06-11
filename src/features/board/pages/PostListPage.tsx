@@ -119,6 +119,7 @@ export default function PostListPage() {
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
   const [isFilterExpanded, setIsFilterExpanded] = useState(true);
+  const [isFilterChanged, setIsFilterChanged] = useState(false);
 
   const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -133,11 +134,21 @@ export default function PostListPage() {
 
       let response;
 
-      // 검색어가 있으면 검색 API 사용, 없으면 일반 목록 API 사용
-      if (searchTerm.trim()) {
+      // 검색어가 있거나 필터가 적용된 경우 검색 API 사용
+      const hasFilters =
+        statusFilter !== "ALL" ||
+        typeFilter !== "ALL" ||
+        priorityFilter !== "ALL" ||
+        assigneeFilter !== "ALL" ||
+        clientFilter !== "ALL" ||
+        startDate ||
+        endDate;
+
+      if (searchTerm.trim() || hasFilters) {
         console.log("=== 검색 API 호출 ===");
         console.log("검색어:", searchTerm);
         console.log("검색 타입:", searchType);
+        console.log("필터 적용 여부:", hasFilters);
 
         const searchRequest: PostSearchRequest = {
           status: statusFilter === "ALL" ? undefined : statusFilter,
@@ -169,13 +180,12 @@ export default function PostListPage() {
         console.log("검색 결과 데이터:", response.data);
         console.log("======================");
       } else {
+        // 검색어도 없고 필터도 없는 경우에만 일반 목록 API 사용
+        console.log("=== 일반 목록 API 호출 ===");
         response = await getPostsWithComments(
           1, // 임시로 프로젝트 ID 1 사용
           currentPage,
-          itemsPerPage,
-          statusFilter === "ALL" ? undefined : statusFilter,
-          typeFilter === "ALL" ? undefined : typeFilter,
-          priorityFilter === "ALL" ? undefined : priorityFilter
+          itemsPerPage
         );
       }
 
@@ -210,18 +220,7 @@ export default function PostListPage() {
 
   useEffect(() => {
     fetchPosts();
-  }, [
-    currentPage,
-    itemsPerPage,
-    statusFilter,
-    typeFilter,
-    priorityFilter,
-    assigneeFilter,
-    clientFilter,
-    startDate,
-    endDate,
-    location.pathname,
-  ]);
+  }, [currentPage, itemsPerPage, location.pathname]);
 
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
@@ -239,16 +238,20 @@ export default function PostListPage() {
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
-    setCurrentPage(0); // 검색 시 첫 페이지로 이동
+    setIsFilterChanged(true);
   };
 
   const handleSearchKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
+      setCurrentPage(0);
+      setIsFilterChanged(false);
       fetchPosts();
     }
   };
 
   const handleSearchClick = () => {
+    setCurrentPage(0);
+    setIsFilterChanged(false);
     fetchPosts();
   };
 
@@ -256,12 +259,12 @@ export default function PostListPage() {
     e: React.ChangeEvent<HTMLSelectElement>
   ) => {
     setStatusFilter(e.target.value as PostStatus | "ALL");
-    setCurrentPage(0);
+    setIsFilterChanged(true);
   };
 
   const handleTypeFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setTypeFilter(e.target.value as PostType | "ALL");
-    setCurrentPage(0);
+    setIsFilterChanged(true);
   };
 
   const handlePriorityFilterChange = (
@@ -270,7 +273,7 @@ export default function PostListPage() {
     setPriorityFilter(
       e.target.value === "ALL" ? "ALL" : Number(e.target.value)
     );
-    setCurrentPage(0);
+    setIsFilterChanged(true);
   };
 
   const handleItemsPerPageChange = (
@@ -297,30 +300,36 @@ export default function PostListPage() {
 
   const handleSearchTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSearchType(e.target.value as "title" | "content" | "author");
+    setIsFilterChanged(true);
   };
 
   const handleAssigneeFilterChange = (
     e: React.ChangeEvent<HTMLSelectElement>
   ) => {
     setAssigneeFilter(e.target.value);
+    setIsFilterChanged(true);
   };
 
   const handleClientFilterChange = (
     e: React.ChangeEvent<HTMLSelectElement>
   ) => {
     setClientFilter(e.target.value);
+    setIsFilterChanged(true);
   };
 
   const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setStartDate(e.target.value);
+    setIsFilterChanged(true);
   };
 
   const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEndDate(e.target.value);
+    setIsFilterChanged(true);
   };
 
   const handleSearch = () => {
     setCurrentPage(0);
+    setIsFilterChanged(false);
     fetchPosts();
   };
 
@@ -335,6 +344,8 @@ export default function PostListPage() {
     setStartDate("");
     setEndDate("");
     setCurrentPage(0);
+    setIsFilterChanged(false);
+    fetchPosts(); // 초기화 후에는 즉시 검색 실행
   };
 
   if (loading && posts.length === 0) {
@@ -490,9 +501,15 @@ export default function PostListPage() {
         </FilterGrid>
 
         <FilterButtonGroup>
-          <SearchButton onClick={handleSearch}>
+          <SearchButton
+            onClick={handleSearch}
+            style={{
+              background: isFilterChanged ? "#f59e0b" : "#fdb924",
+              transform: isFilterChanged ? "scale(1.05)" : "scale(1)",
+            }}
+          >
             <AiOutlineSearch size={16} />
-            검색
+            {isFilterChanged ? "검색 실행" : "검색"}
           </SearchButton>
           <ResetButton onClick={handleResetFilters}>
             <AiOutlineReload size={16} />
@@ -623,7 +640,7 @@ export default function PostListPage() {
                             댓글 {rootPost.comments.length}
                           </span>
                         )}
-                        {rootPost.questionCount &&
+                        {rootPost.questionCount !== undefined &&
                           rootPost.questionCount > 0 && (
                             <span
                               style={{
@@ -750,22 +767,23 @@ export default function PostListPage() {
                                 댓글 {reply.comments.length}
                               </span>
                             )}
-                            {reply.questionCount && reply.questionCount > 0 && (
-                              <span
-                                style={{
-                                  display: "inline-block",
-                                  background: "#34d399",
-                                  color: "white",
-                                  borderRadius: "12px",
-                                  fontSize: "0.75rem",
-                                  padding: "2px 8px",
-                                  marginLeft: "8px",
-                                  fontWeight: "500",
-                                }}
-                              >
-                                질문 {reply.questionCount}
-                              </span>
-                            )}
+                            {reply.questionCount !== undefined &&
+                              reply.questionCount > 0 && (
+                                <span
+                                  style={{
+                                    display: "inline-block",
+                                    background: "#34d399",
+                                    color: "white",
+                                    borderRadius: "12px",
+                                    fontSize: "0.75rem",
+                                    padding: "2px 8px",
+                                    marginLeft: "8px",
+                                    fontWeight: "500",
+                                  }}
+                                >
+                                  질문 {reply.questionCount}
+                                </span>
+                              )}
                           </PostTitle>
                         </TableCell>
                         <TableCell>{reply.author.name}</TableCell>
