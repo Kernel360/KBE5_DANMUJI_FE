@@ -17,6 +17,7 @@ import Footer from "./layouts/Footer/Footer";
 // un authorization pages
 import LoginPage from "./features/auth/pages/LoginPage";
 import ForgotPasswordPage from "./features/auth/pages/ForgotPasswordPage";
+import ResetPasswordPage from "./features/auth/pages/ResetPasswordPage";
 
 // admin pages
 import AdminDashboardPage from "./features/admin/pages/DashboardPage";
@@ -40,7 +41,7 @@ import { AppContainer, MainContent, PageContent } from "./App.styled";
 
 const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
-  if (["/", "/login", "/forgot-password"].includes(location.pathname)) {
+  if (["/", "/login", "/forgot-password", "/reset-password"].includes(location.pathname)) {
     return <>{children}</>;
   }
 
@@ -77,6 +78,7 @@ const AppRoutes = () => {
 
       <Route path="/login" element={<LoginPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
 
       {/* 로그인 후 대시보드 라우팅 */}
       <Route
