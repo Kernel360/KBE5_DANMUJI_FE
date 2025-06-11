@@ -5,6 +5,8 @@ import {
   AiOutlineFileText,
   AiOutlineTag,
   AiOutlineFile,
+  AiOutlineSearch,
+  AiOutlineReload,
 } from "react-icons/ai";
 import {
   PageContainer,
@@ -33,13 +35,31 @@ import {
   CreateButton,
   ToolbarLeft,
   ToolbarRight,
+  FilterSection,
+  FilterHeader,
+  FilterTitle,
+  FilterToggleButton,
+  FilterGrid,
+  FilterGroup,
+  FilterLabel,
+  FilterInput,
+  FilterButtonGroup,
+  SearchButton,
+  ResetButton,
+  DateRangeGroup,
+  DateRangeLabel,
 } from "./PostListPage.styled";
 import PostDetailModal from "../components/PostDetailModal/ProjectPostDetailModal";
 import {
   searchPosts,
   getPostsWithComments,
 } from "@/features/project/services/postService";
-import type { Post, PostStatus, PostType } from "@/features/project/types/post";
+import type {
+  Post,
+  PostStatus,
+  PostType,
+  PostSearchRequest,
+} from "@/features/project/types/post";
 import { useLocation } from "react-router-dom";
 
 const formatDate = (dateString: string) => {
@@ -85,10 +105,21 @@ export default function PostListPage() {
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  // 필터링 검색 관련 상태
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchType, setSearchType] = useState<"title" | "content" | "author">(
+    "title"
+  );
   const [statusFilter, setStatusFilter] = useState<PostStatus | "ALL">("ALL");
   const [typeFilter, setTypeFilter] = useState<PostType | "ALL">("ALL");
   const [priorityFilter, setPriorityFilter] = useState<number | "ALL">("ALL");
+  const [assigneeFilter, setAssigneeFilter] = useState<string>("ALL");
+  const [clientFilter, setClientFilter] = useState<string>("ALL");
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
+  const [isFilterExpanded, setIsFilterExpanded] = useState(true);
+
   const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -104,7 +135,39 @@ export default function PostListPage() {
 
       // 검색어가 있으면 검색 API 사용, 없으면 일반 목록 API 사용
       if (searchTerm.trim()) {
-        response = await searchPosts(searchTerm, currentPage, itemsPerPage);
+        console.log("=== 검색 API 호출 ===");
+        console.log("검색어:", searchTerm);
+        console.log("검색 타입:", searchType);
+
+        const searchRequest: PostSearchRequest = {
+          status: statusFilter === "ALL" ? undefined : statusFilter,
+          type: typeFilter === "ALL" ? undefined : typeFilter,
+          priority: priorityFilter === "ALL" ? undefined : priorityFilter,
+          assignee: assigneeFilter === "ALL" ? undefined : assigneeFilter,
+          client: clientFilter === "ALL" ? undefined : clientFilter,
+          startDate: startDate || undefined,
+          endDate: endDate || undefined,
+        };
+
+        // 검색 타입에 따라 다른 필드 설정
+        if (searchType === "title") {
+          searchRequest.title = searchTerm;
+        } else if (searchType === "content") {
+          searchRequest.content = searchTerm;
+        } else if (searchType === "author") {
+          searchRequest.author = searchTerm;
+        }
+
+        console.log("검색 요청 객체:", searchRequest);
+        console.log("실제 전송될 파라미터:", {
+          ...searchRequest,
+          page: currentPage,
+          size: itemsPerPage,
+        });
+        response = await searchPosts(searchRequest, currentPage, itemsPerPage);
+        console.log("검색 API 응답:", response);
+        console.log("검색 결과 데이터:", response.data);
+        console.log("======================");
       } else {
         response = await getPostsWithComments(
           1, // 임시로 프로젝트 ID 1 사용
@@ -153,6 +216,10 @@ export default function PostListPage() {
     statusFilter,
     typeFilter,
     priorityFilter,
+    assigneeFilter,
+    clientFilter,
+    startDate,
+    endDate,
     location.pathname,
   ]);
 
@@ -223,6 +290,53 @@ export default function PostListPage() {
     fetchPosts();
   };
 
+  // 필터 관련 핸들러 함수들
+  const handleFilterToggle = () => {
+    setIsFilterExpanded(!isFilterExpanded);
+  };
+
+  const handleSearchTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSearchType(e.target.value as "title" | "content" | "author");
+  };
+
+  const handleAssigneeFilterChange = (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    setAssigneeFilter(e.target.value);
+  };
+
+  const handleClientFilterChange = (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    setClientFilter(e.target.value);
+  };
+
+  const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setStartDate(e.target.value);
+  };
+
+  const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEndDate(e.target.value);
+  };
+
+  const handleSearch = () => {
+    setCurrentPage(0);
+    fetchPosts();
+  };
+
+  const handleResetFilters = () => {
+    setSearchTerm("");
+    setSearchType("title");
+    setStatusFilter("ALL");
+    setTypeFilter("ALL");
+    setPriorityFilter("ALL");
+    setAssigneeFilter("ALL");
+    setClientFilter("ALL");
+    setStartDate("");
+    setEndDate("");
+    setCurrentPage(0);
+  };
+
   if (loading && posts.length === 0) {
     return (
       <PageContainer>
@@ -246,30 +360,51 @@ export default function PostListPage() {
         <Description>프로젝트 관련 게시글을 확인하고 질문하세요.</Description>
       </Header>
 
-      <Toolbar>
-        <ToolbarLeft>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "0.375rem",
-              minWidth: "120px",
-            }}
-          >
-            <label
-              style={{
-                fontSize: "0.75rem",
-                fontWeight: "600",
-                color: "#374151",
-                marginBottom: "0.125rem",
-                display: "flex",
-                alignItems: "center",
-                gap: "0.25rem",
-              }}
-            >
-              <AiOutlineBarChart size={14} />
-              상태
-            </label>
+      {/* 필터링 검색 영역 */}
+      <FilterSection>
+        <FilterHeader>
+          <FilterTitle>검색 및 필터</FilterTitle>
+          <FilterToggleButton onClick={handleFilterToggle}>
+            {isFilterExpanded ? "필터 접기" : "필터 펼치기"}
+            <AiOutlineReload size={16} />
+          </FilterToggleButton>
+        </FilterHeader>
+
+        <FilterGrid $isExpanded={isFilterExpanded}>
+          {/* 검색어 입력 */}
+          <FilterGroup>
+            <FilterLabel>검색어</FilterLabel>
+            <div style={{ position: "relative" }}>
+              <FilterInput
+                type="text"
+                value={searchTerm}
+                onChange={handleSearchChange}
+                onKeyPress={handleSearchKeyPress}
+                placeholder={
+                  searchType === "title"
+                    ? "게시글 제목을 입력하세요"
+                    : searchType === "content"
+                    ? "게시글 내용을 입력하세요"
+                    : "작성자명을 입력하세요"
+                }
+              />
+              <SearchIcon onClick={handleSearchClick} />
+            </div>
+          </FilterGroup>
+
+          {/* 검색 타입 선택 */}
+          <FilterGroup>
+            <FilterLabel>검색 타입</FilterLabel>
+            <FilterSelect value={searchType} onChange={handleSearchTypeChange}>
+              <option value="title">제목으로 검색</option>
+              <option value="content">내용으로 검색</option>
+              <option value="author">작성자로 검색</option>
+            </FilterSelect>
+          </FilterGroup>
+
+          {/* 상태 필터 */}
+          <FilterGroup>
+            <FilterLabel>상태</FilterLabel>
             <FilterSelect
               onChange={handleStatusFilterChange}
               value={statusFilter}
@@ -279,60 +414,22 @@ export default function PostListPage() {
               <option value="APPROVED">승인</option>
               <option value="REJECTED">거부</option>
             </FilterSelect>
-          </div>
+          </FilterGroup>
 
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "0.375rem",
-              minWidth: "120px",
-            }}
-          >
-            <label
-              style={{
-                fontSize: "0.75rem",
-                fontWeight: "600",
-                color: "#374151",
-                marginBottom: "0.125rem",
-                display: "flex",
-                alignItems: "center",
-                gap: "0.25rem",
-              }}
-            >
-              <AiOutlineFileText size={14} />
-              유형
-            </label>
+          {/* 유형 필터 */}
+          <FilterGroup>
+            <FilterLabel>유형</FilterLabel>
             <FilterSelect onChange={handleTypeFilterChange} value={typeFilter}>
               <option value="ALL">전체 유형</option>
               <option value="GENERAL">일반</option>
               <option value="NOTICE">공지</option>
               <option value="REPORT">보고</option>
             </FilterSelect>
-          </div>
+          </FilterGroup>
 
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "0.375rem",
-              minWidth: "120px",
-            }}
-          >
-            <label
-              style={{
-                fontSize: "0.75rem",
-                fontWeight: "600",
-                color: "#374151",
-                marginBottom: "0.125rem",
-                display: "flex",
-                alignItems: "center",
-                gap: "0.25rem",
-              }}
-            >
-              <AiOutlineTag size={14} />
-              우선순위
-            </label>
+          {/* 우선순위 필터 */}
+          <FilterGroup>
+            <FilterLabel>우선순위</FilterLabel>
             <FilterSelect
               onChange={handlePriorityFilterChange}
               value={priorityFilter}
@@ -342,8 +439,71 @@ export default function PostListPage() {
               <option value={2}>보통 (2)</option>
               <option value={3}>높음 (3)</option>
             </FilterSelect>
-          </div>
+          </FilterGroup>
 
+          {/* 담당자 필터 */}
+          <FilterGroup>
+            <FilterLabel>담당자</FilterLabel>
+            <FilterSelect
+              onChange={handleAssigneeFilterChange}
+              value={assigneeFilter}
+            >
+              <option value="ALL">전체 담당자</option>
+              <option value="user1">사용자1</option>
+              <option value="user2">사용자2</option>
+              <option value="user3">사용자3</option>
+            </FilterSelect>
+          </FilterGroup>
+
+          {/* 고객사 필터 */}
+          <FilterGroup>
+            <FilterLabel>고객사</FilterLabel>
+            <FilterSelect
+              onChange={handleClientFilterChange}
+              value={clientFilter}
+            >
+              <option value="ALL">전체 고객사</option>
+              <option value="client1">고객사1</option>
+              <option value="client2">고객사2</option>
+              <option value="client3">고객사3</option>
+            </FilterSelect>
+          </FilterGroup>
+
+          {/* 날짜 범위 */}
+          <FilterGroup>
+            <FilterLabel>시작일</FilterLabel>
+            <FilterInput
+              type="date"
+              value={startDate}
+              onChange={handleStartDateChange}
+            />
+          </FilterGroup>
+
+          <FilterGroup>
+            <FilterLabel>종료일</FilterLabel>
+            <FilterInput
+              type="date"
+              value={endDate}
+              onChange={handleEndDateChange}
+            />
+          </FilterGroup>
+        </FilterGrid>
+
+        <FilterButtonGroup>
+          <SearchButton onClick={handleSearch}>
+            <AiOutlineSearch size={16} />
+            검색
+          </SearchButton>
+          <ResetButton onClick={handleResetFilters}>
+            <AiOutlineReload size={16} />
+            초기화
+          </ResetButton>
+        </FilterButtonGroup>
+      </FilterSection>
+
+      {/* 게시글 작성 버튼과 표시 개수 선택 */}
+      <Toolbar>
+        <ToolbarLeft>
           <div
             style={{
               display: "flex",
@@ -377,20 +537,20 @@ export default function PostListPage() {
           </div>
         </ToolbarLeft>
         <ToolbarRight>
-          <CreateButton onClick={handleCreatePost}>
-            <span style={{ fontSize: "1.125rem" }}>+</span>
-            게시글 작성
+          <CreateButton
+            style={{
+              background: "#fbbf24",
+              color: "#222",
+              fontWeight: 700,
+              fontSize: "16px",
+              borderRadius: "8px",
+              height: "44px",
+              minWidth: "140px",
+            }}
+            onClick={handleCreatePost}
+          >
+            + 게시글 작성
           </CreateButton>
-          <div style={{ position: "relative" }}>
-            <SearchInput
-              type="text"
-              placeholder="게시글 제목, 작성자, 내용 검색"
-              value={searchTerm}
-              onChange={handleSearchChange}
-              onKeyDown={handleSearchKeyPress}
-            />
-            <SearchIcon onClick={handleSearchClick} />
-          </div>
         </ToolbarRight>
       </Toolbar>
 

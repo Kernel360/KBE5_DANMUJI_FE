@@ -12,6 +12,7 @@ import type {
   PostType,
   PostPriority,
   PostUpdateRequest,
+  PostSearchRequest,
 } from "../types/post";
 import { getQuestionsByPost } from "./questionService";
 import { AxiosError } from "axios";
@@ -376,22 +377,39 @@ export const deleteComment = async (
 
 // 게시글 검색
 export const searchPosts = async (
-  keyword: string,
+  searchRequest: PostSearchRequest,
   page: number = 0,
   size: number = 10
 ): Promise<PostListResponse> => {
   try {
+    console.log("=== searchPosts 함수 호출 ===");
+    console.log("검색 요청:", searchRequest);
+    console.log("페이지:", page, "크기:", size);
+
     const response = await api.get<PostListResponse>(`/api/posts/search`, {
       params: {
-        keyword,
+        ...searchRequest,
         page,
         size,
       },
     });
+
+    console.log("API 응답:", response);
+    console.log("응답 데이터:", response.data);
+    console.log("======================");
+
     return handleApiResponse<PostListResponse["data"]>(response);
   } catch (error) {
+    console.error("=== searchPosts 에러 ===");
+    console.error("에러:", error);
+
     if (error instanceof ApiError) throw error;
     if (error instanceof AxiosError) {
+      console.error(
+        "AxiosError:",
+        error.response?.data,
+        error.response?.status
+      );
       throw new ApiError(
         error.response?.data?.message || "게시글 검색 중 오류가 발생했습니다.",
         error.response?.status

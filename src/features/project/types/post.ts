@@ -133,3 +133,17 @@ export type PostUpdateRequest = {
   status?: PostStatus;
   priority?: PostPriority;
 };
+
+// 게시글 검색 요청 데이터 타입
+export type PostSearchRequest = {
+  title?: string;
+  content?: string;
+  author?: string;
+  status?: PostStatus;
+  type?: PostType;
+  priority?: PostPriority;
+  assignee?: string;
+  client?: string;
+  startDate?: string;
+  endDate?: string;
+};
