@@ -398,20 +398,32 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                 </InfoValue>
               </InfoRow>
               <InfoRow>
+                <InfoKey>시작일</InfoKey>
+                <InfoValue>
+                  {post.project?.startDate
+                    ? formatDate(post.project.startDate)
+                    : "정보 없음"}
+                </InfoValue>
+              </InfoRow>
+              <InfoRow>
+                <InfoKey>마감일</InfoKey>
+                <InfoValue>
+                  {post.project?.endDate
+                    ? formatDate(post.project.endDate)
+                    : "정보 없음"}
+                </InfoValue>
+              </InfoRow>
+              <InfoRow>
                 <InfoKey>담당자</InfoKey>
                 <InfoValue>{post.author?.name || "-"}</InfoValue>
               </InfoRow>
               <InfoRow>
                 <InfoKey>고객사</InfoKey>
-                <InfoValue>
-                  {post.project?.clientCompany || "고객사 정보 없음"}
-                </InfoValue>
+                <InfoValue>{post.project?.clientCompany || "-"}</InfoValue>
               </InfoRow>
               <InfoRow>
                 <InfoKey>개발사</InfoKey>
-                <InfoValue>
-                  {post.project?.developerCompany || "개발사 정보 없음"}
-                </InfoValue>
+                <InfoValue>{post.project?.developerCompany || "-"}</InfoValue>
               </InfoRow>
               <InfoRow>
                 <InfoKey>요청 상태</InfoKey>
