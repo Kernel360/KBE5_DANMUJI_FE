@@ -2,7 +2,7 @@ import React, { useState, useMemo } from "react";
 import type { Comment } from "../../types/post";
 import { updateComment, deleteComment } from "../../services/postService";
 import { ApiError } from "../../services/postService";
-import { useAuth } from "@/contexts/AuthContexts";
+import { useAuth } from "@/hooks/useAuth";
 import {
   CommentContainer,
   CommentItem,

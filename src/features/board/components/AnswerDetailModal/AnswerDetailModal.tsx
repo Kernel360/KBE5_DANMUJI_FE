@@ -25,7 +25,7 @@ import {
   markQuestionAsAnswered,
 } from "@/features/project/services/questionService";
 import type { Answer } from "@/features/project/types/question";
-import { useAuth } from "@/contexts/AuthContexts";
+import { useAuth } from "@/hooks/useAuth";
 
 interface AnswerDetailModalProps {
   open: boolean;
