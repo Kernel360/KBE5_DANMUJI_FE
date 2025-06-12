@@ -157,6 +157,8 @@ export const AnswerTextArea = styled.textarea`
   font-family: inherit;
   resize: vertical;
   transition: border-color 0.2s;
+  background-color: #ffffff;
+  color: #333333;
 
   &:focus {
     outline: none;
@@ -167,6 +169,10 @@ export const AnswerTextArea = styled.textarea`
   &:disabled {
     background-color: #f9fafb;
     cursor: not-allowed;
+  }
+
+  &::placeholder {
+    color: #9ca3af;
   }
 `;
 

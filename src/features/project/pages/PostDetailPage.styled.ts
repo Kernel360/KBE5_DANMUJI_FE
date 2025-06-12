@@ -193,10 +193,16 @@ export const CommentTextArea = styled.textarea`
   font-size: 14px;
   line-height: 1.5;
   margin-bottom: 10px;
+  background-color: #ffffff;
+  color: #333333;
 
   &:focus {
     outline: none;
     border-color: #4f46e5;
+  }
+
+  &::placeholder {
+    color: #9ca3af;
   }
 `;
 

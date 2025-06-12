@@ -81,11 +81,17 @@ export const ReplyInput = styled.textarea`
   resize: vertical;
   font-size: 14px;
   line-height: 1.5;
+  background-color: #ffffff;
+  color: #333333;
 
   &:focus {
     outline: none;
     border-color: #4f46e5;
     box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+  }
+
+  &::placeholder {
+    color: #9ca3af;
   }
 `;
 

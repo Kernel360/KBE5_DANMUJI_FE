@@ -86,6 +86,17 @@ export const TextArea = styled.textarea`
   font-size: 14px;
   min-height: 100px;
   resize: vertical;
+  background-color: #ffffff;
+  color: #333333;
+
+  &:focus {
+    outline: none;
+    border-color: #4f46e5;
+  }
+
+  &::placeholder {
+    color: #9ca3af;
+  }
 `;
 
 export const ButtonGroup = styled.div`

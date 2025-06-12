@@ -250,30 +250,37 @@ export const QuestionTextArea = styled.textarea`
   font-size: 0.875rem;
   resize: vertical;
   margin-bottom: 1rem;
+  background-color: #ffffff;
+  color: #333333;
 
   &:focus {
     outline: none;
     border-color: #fdb924;
     box-shadow: 0 0 0 2px rgba(253, 185, 36, 0.1);
   }
+
+  &::placeholder {
+    color: #9ca3af;
+  }
 `;
 
 export const QuestionSubmitButton = styled.button`
-  padding: 0.5rem 1rem;
-  background-color: #fdb924;
+  background: #fdb924;
   color: white;
   border: none;
   border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s;
 
   &:hover:not(:disabled) {
-    background-color: #e6a720;
+    background: #f59e0b;
   }
 
   &:disabled {
-    background-color: #d1d5db;
+    background: #d1d5db;
     cursor: not-allowed;
   }
 `;
@@ -281,9 +288,9 @@ export const QuestionSubmitButton = styled.button`
 export const AnswerForm = styled.div`
   margin-top: 1rem;
   padding: 1rem;
-  background-color: #f9fafb;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  background: #f8f9fa;
+  border-radius: 0.5rem;
+  border-left: 3px solid #fdb924;
 `;
 
 export const AnswerTextArea = styled.textarea`
@@ -295,11 +302,17 @@ export const AnswerTextArea = styled.textarea`
   font-size: 0.875rem;
   resize: vertical;
   margin-bottom: 1rem;
+  background-color: #ffffff;
+  color: #333333;
 
   &:focus {
     outline: none;
     border-color: #fdb924;
     box-shadow: 0 0 0 2px rgba(253, 185, 36, 0.1);
+  }
+
+  &::placeholder {
+    color: #9ca3af;
   }
 `;
 

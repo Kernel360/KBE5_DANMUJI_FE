@@ -595,6 +595,8 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
                             borderRadius: "4px",
                             fontSize: "0.875rem",
                             resize: "vertical",
+                            backgroundColor: "#ffffff",
+                            color: "#333333",
                           }}
                           placeholder="질문 내용을 수정하세요"
                         />
@@ -654,12 +656,40 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
                           ) => setAnswerText(e.target.value)}
                           disabled={submittingAnswer}
                         />
-                        <AnswerSubmitButton
-                          onClick={handleAnswerSubmit}
-                          disabled={!answerText.trim() || submittingAnswer}
-                        >
-                          {submittingAnswer ? "답변 등록 중..." : "답변 등록"}
-                        </AnswerSubmitButton>
+                        <div style={{ display: "flex", gap: "0.5rem" }}>
+                          <AnswerSubmitButton
+                            onClick={handleAnswerSubmit}
+                            disabled={!answerText.trim() || submittingAnswer}
+                          >
+                            {submittingAnswer ? "답변 등록 중..." : "답변 등록"}
+                          </AnswerSubmitButton>
+                          <button
+                            onClick={() => {
+                              setSelectedQuestionId(null);
+                              setAnswerText("");
+                            }}
+                            style={{
+                              background: "#6b7280",
+                              color: "white",
+                              border: "none",
+                              borderRadius: "0.5rem",
+                              padding: "0.5rem 1rem",
+                              fontSize: "0.875rem",
+                              fontWeight: "500",
+                              cursor: "pointer",
+                              transition: "background-color 0.2s",
+                            }}
+                            onMouseOver={(e) => {
+                              e.currentTarget.style.background = "#4b5563";
+                            }}
+                            onMouseOut={(e) => {
+                              e.currentTarget.style.background = "#6b7280";
+                            }}
+                            disabled={submittingAnswer}
+                          >
+                            취소
+                          </button>
+                        </div>
                       </AnswerForm>
                     ) : (
                       <button

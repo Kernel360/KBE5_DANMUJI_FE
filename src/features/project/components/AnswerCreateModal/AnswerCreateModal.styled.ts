@@ -101,6 +101,8 @@ export const TextArea = styled.textarea`
   resize: vertical;
   min-height: 120px;
   transition: border-color 0.2s ease;
+  background-color: #ffffff;
+  color: #333333;
 
   &:focus {
     outline: none;
