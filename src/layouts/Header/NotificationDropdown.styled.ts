@@ -48,6 +48,36 @@ export const DropdownMenu = styled.div`
   z-index: 50;
 `;
 
+export const NotificationHeader = styled.div`
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+export const NotificationTitle = styled.h3`
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+`;
+
+export const MarkAllAsReadButton = styled.button`
+  background: none;
+  border: none;
+  padding: 4px 8px;
+  font-size: 12px;
+  color: #6b7280;
+  cursor: pointer;
+  border-radius: 4px;
+
+  &:hover {
+    background-color: #f3f4f6;
+    color: #111827;
+  }
+`;
+
 export const NotificationList = styled.div`
   padding: 8px 0;
 `;
@@ -78,4 +108,12 @@ export const EmptyState = styled.div`
   text-align: center;
   color: #6b7280;
   font-size: 14px;
+`;
+
+export const LoadingState = styled(EmptyState)`
+  color: #4b5563;
+`;
+
+export const ErrorState = styled(EmptyState)`
+  color: #ef4444;
 `;
