@@ -42,6 +42,7 @@ export const Card = styled.div<{ $bgcolor: string }>`
   border-radius: 0.75rem;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   background-color: ${(props) => props.$bgcolor};
+  border: 1px solid #e5e7eb;
 `;
 
 export const IconContainer = styled.div<{ $iconbgcolor: string }>`
@@ -120,4 +121,15 @@ export const RecentActivityItem = styled.li`
 
 export const RecentActivityDate = styled.span`
   color: #9ca3af;
+`;
+
+export const TwoColumnSection = styled.div`
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
 `;

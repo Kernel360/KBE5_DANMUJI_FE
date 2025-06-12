@@ -1,3 +1,4 @@
+import api from "@/api/axios";
 import React, { useRef } from "react";
 import styled from "styled-components";
 
@@ -116,7 +117,7 @@ export default function CompanyRegisterModal({
   const handleRegInput = (
     e: React.ChangeEvent<HTMLInputElement>,
     len: number,
-    nextRef?: React.RefObject<HTMLInputElement>
+    nextRef?: React.RefObject<HTMLInputElement | null>
   ) => {
     const target = e.target as HTMLInputElement;
     let value = target.value.replace(/[^0-9]/g, "");
@@ -153,17 +154,7 @@ export default function CompanyRegisterModal({
               };
 
               try {
-                const response = await fetch("/api/companies", {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify(requestBody),
-                });
-
-                if (!response.ok) {
-                  throw new Error("등록 실패");
-                }
+                await api.post("/api/companies", requestBody);
 
                 // 성공 시 후처리 (예: 알림, 모달 닫기 등)
                 alert("회사 등록이 완료되었습니다!");
@@ -188,7 +179,7 @@ export default function CompanyRegisterModal({
                 ref={reg1}
                 maxLength={3}
                 placeholder="000"
-                onInput={(e) => handleRegInput(e as any, 3, reg2)}
+                onChange={(e) => handleRegInput(e, 3, reg2)}
                 inputMode="numeric"
                 pattern="[0-9]*"
               />
@@ -199,7 +190,7 @@ export default function CompanyRegisterModal({
                 ref={reg2}
                 maxLength={2}
                 placeholder="00"
-                onInput={(e) => handleRegInput(e as any, 2, reg3)}
+                onChange={(e) => handleRegInput(e, 2, reg3)}
                 inputMode="numeric"
                 pattern="[0-9]*"
               />
@@ -210,7 +201,7 @@ export default function CompanyRegisterModal({
                 ref={reg3}
                 maxLength={5}
                 placeholder="00000"
-                onInput={(e) => handleRegInput(e as any, 5)}
+                onChange={(e) => handleRegInput(e, 5)}
                 inputMode="numeric"
                 pattern="[0-9]*"
               />
