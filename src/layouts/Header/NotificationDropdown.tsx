@@ -14,7 +14,6 @@ import {
   NotificationHeader,
   NotificationTitle,
   MarkAllAsReadButton,
-  LoadingState,
   ErrorState,
 } from "./NotificationDropdown.styled";
 import type { Notification } from "@/layouts/Topbar/Topbar.types";
