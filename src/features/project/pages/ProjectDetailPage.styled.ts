@@ -126,11 +126,11 @@ export const StepsList = styled.div`
   gap: 8px;
 `;
 
-export const StepItem = styled.span<{ status: string }>`
+export const StepItem = styled.span<{ projectStepStatus: string }>`
   font-size: 1.1rem;
   font-weight: 600;
   color: ${props => {
-    switch (props.status) {
+    switch (props.projectStepStatus) {
       case 'PENDING':
         return '#22223b';
       case 'IN_PROGRESS':
@@ -139,7 +139,7 @@ export const StepItem = styled.span<{ status: string }>`
         return '#3b82f6';
       default:
         return '#22223b';
-    }
+    }       
   }};
 `;
 
@@ -239,7 +239,7 @@ export const StepActions = styled.div`
   gap: 8px;
 `;
 
-export const ActionButton = styled.button<{ variant?: 'edit' | 'delete' | 'add' }>`
+export const ActionButton = styled.button<{ variant?: 'edit' | 'delete' | 'add' | 'approve' | 'reject' }>`
   padding: 6px 12px;
   border-radius: 4px;
   border: none;
@@ -271,6 +271,22 @@ export const ActionButton = styled.button<{ variant?: 'edit' | 'delete' | 'add' 
           color: white;
           &:hover {
             background: #4338ca;
+          }
+        `;
+      case 'approve':
+        return `
+          background: #dcfce7;
+          color: #22c55e;
+          &:hover {
+            background: #bbf7d0;
+          }
+        `;
+      case 'reject':
+        return `
+          background: #fee2e2;
+          color: #ef4444;
+          &:hover {
+            background: #fecaca;
           }
         `;
       default:
@@ -357,6 +373,19 @@ export const FormInput = styled.input`
   }
 `;
 
+export const FormSelect = styled.select`
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 1rem;
+  
+  &:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
+  }
+`;
+
 export const ModalStepItem = styled.div`
   display: flex;
   justify-content: space-between;
@@ -364,4 +393,10 @@ export const ModalStepItem = styled.div`
   padding: 12px;
   background: #f9fafb;
   border-radius: 8px;
+`;
+
+export const CurrentApprover = styled.div`
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin-bottom: 8px;
 `; 

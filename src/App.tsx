@@ -24,6 +24,7 @@ import AdminDashboardPage from "./features/admin/pages/DashboardPage";
 import CompanyPage from "./features/company/pages/CompanyPage";
 import MemberPage from "./features/user/pages/MemberPage";
 import AdminProjectPage from "./features/project/pages/AdminProjectPage";
+import EditProjectPage from "./features/project/pages/EditProjectPage";
 
 // user pages
 import UserDashboardPage from "./features/board/pages/DashboardPage";
@@ -106,6 +107,7 @@ const AppRoutes = () => {
           <Route path="/members" element={<MemberPage />} />
           <Route path="/projects/create" element={<CreateProjectPage />} />
           <Route path="/projects" element={<AdminProjectPage />} />
+          <Route path="/projects/:projectId/edit" element={<EditProjectPage />} />
         </>
       )}
 
@@ -114,7 +116,7 @@ const AppRoutes = () => {
       <Route path="/posts" element={<PostListPage />} />
       {/* <Route path="/posts/create" element={<PostCreatePage />} /> */}
       {/* <Route path="/posts/:postId/edit" element={<PostEditPage />} /> */}
-      <Route path="/projects/:userId" element={<UserProjectPage />} />
+      <Route path="/projects/all" element={<UserProjectPage />} />
       <Route
         path="/projects/:projectId/detail"
         element={<ProjectDetailPage />}
@@ -122,6 +124,7 @@ const AppRoutes = () => {
       <Route path="/projects/completed" element={<CompletedProject />} />
       <Route path="/projects/inprogress" element={<InProgressProject />} />
       <Route path="/my" element={<UserProfilePage />} />
+      <Route path="/projects/active" element={<InProgressProject />} />
     </Routes>
   );
 };

@@ -5,6 +5,7 @@ import * as S from "./CreateProjectpage.styled";
 import AsyncSelect from "react-select/async";
 import Select from "react-select";
 import { useNavigate } from "react-router-dom";
+import api from "@/api/axios";
 
 interface Company {
   id: number;
@@ -48,13 +49,11 @@ export default function ProjectCreatePage() {
   // AsyncSelect에서 사용할 옵션 로더
   const loadCompanyOptions = async (inputValue: string) => {
     try {
-      const url =
-        inputValue && inputValue.trim() !== ""
-          ? `http://localhost:8080/api/companies/search?name=${encodeURIComponent(inputValue)}`
-          : "http://localhost:8080/api/companies";
-      const res = await fetch(url);
-      const response = await res.json();
-      const payload = response.data ?? response;
+      const url = inputValue && inputValue.trim() !== ""
+        ? `/api/companies/search?name=${encodeURIComponent(inputValue)}`
+        : "/api/companies";
+      const response = await api.get(url);
+      const payload = response.data.data ?? response.data;
       const list: Company[] = Array.isArray(payload)
         ? payload
         : Array.isArray(payload.content)
@@ -69,10 +68,9 @@ export default function ProjectCreatePage() {
   // 개발사 회원 목록
   useEffect(() => {
     if (devCompanyId !== "") {
-      fetch(`http://localhost:8080/api/companies/${devCompanyId}/users`)
-        .then(res => res.json())
-        .then((response: any) => {
-          const payload = response.data ?? response;
+      api.get(`/api/companies/${devCompanyId}/users`)
+        .then(response => {
+          const payload = response.data.data ?? response.data;
           const list: User[] = Array.isArray(payload)
             ? payload
             : Array.isArray(payload.content)
@@ -91,10 +89,9 @@ export default function ProjectCreatePage() {
   // 고객사 회원 목록
   useEffect(() => {
     if (clientCompanyId !== "") {
-      fetch(`http://localhost:8080/api/companies/${clientCompanyId}/users`)
-        .then(res => res.json())
-        .then((response: any) => {
-          const payload = response.data ?? response;
+      api.get(`/api/companies/${clientCompanyId}/users`)
+        .then(response => {
+          const payload = response.data.data ?? response.data;
           const list: User[] = Array.isArray(payload)
             ? payload
             : Array.isArray(payload.content)
@@ -149,24 +146,16 @@ export default function ProjectCreatePage() {
       clientId: Number(clientId),
       developCompanyId: Number(devCompanyId),
       clientCompanyId: Number(clientCompanyId),
-      developMemberId: selectedDevMembers.map(member => member.value), // 개발사 멤버 ID 추가
-      clientMemberId: selectedClientMembers.map(member => member.value), // 고객사 멤버 ID 추가
+      developMemberId: selectedDevMembers.map(member => member.value),
+      clientMemberId: selectedClientMembers.map(member => member.value),
     };
 
     try {
-      const res = await fetch("http://localhost:8080/api/projects", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.message || "프로젝트 생성에 실패했습니다");
-      }
+      await api.post("/api/projects", payload);
       navigate("/projects");
     } catch (err: any) {
       console.error(err);
-      setError(err.message);
+      setError(err.response?.data?.message || "프로젝트 생성에 실패했습니다");
     } finally {
       setLoading(false);
     }
