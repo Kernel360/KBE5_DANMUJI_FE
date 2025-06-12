@@ -75,18 +75,18 @@ export default function DashboardPage() {
 
         // Fetch Recent Posts
         // Assuming /api/boards/recent returns { data: { content: [{ id, title, createdAt }] } }
-        const postsResponse = await api.get('/api/boards/recent'); 
-        setRecentPosts(postsResponse.data.data.content);
+        // const postsResponse = await api.get('/api/boards/recent'); 
+        // setRecentPosts(postsResponse.data.data.content);
 
         // Fetch Recent Companies
         // Assuming /api/companies/recent returns { data: { content: [{ id, name, createdAt }] } }
-        const recentCompaniesResponse = await api.get('/api/companies/recent'); 
-        setRecentCompanies(recentCompaniesResponse.data.data.content);
+        const recentCompaniesResponse = await api.get('/api/companies/recent-companies'); 
+        setRecentCompanies(recentCompaniesResponse.data.data);
 
         // Fetch Recent Projects
         // Assuming /api/projects/recent returns { data: { content: [{ id, name, createdAt }] } }
-        const recentProjectsResponse = await api.get('/api/projects/recent'); 
-        setRecentProjects(recentProjectsResponse.data.data.content);
+        // const recentProjectsResponse = await api.get('/api/projects/recent'); 
+        // setRecentProjects(recentProjectsResponse.data.data.content);
 
       } catch (error) {
         console.error('Failed to fetch dashboard data:', error);
@@ -157,7 +157,7 @@ export default function DashboardPage() {
           <RecentActivityTitle>최근 등록된 게시물</RecentActivityTitle>
           <RecentActivityList>
             {recentPosts.length > 0 ? (
-              recentPosts.slice(0, 5).map((post) => (
+              recentPosts.map((post) => (
                 <RecentActivityItem key={post.id}>
                   <span>{post.title}</span>
                   <RecentActivityDate>{new Date(post.createdAt).toLocaleDateString()}</RecentActivityDate>
