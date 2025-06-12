@@ -410,7 +410,6 @@ export default function PostListPage() {
     setEndDate("");
     setCurrentPage(0);
     setIsFilterChanged(false);
-    fetchPosts(); // 초기화 후에는 즉시 검색 실행
   };
 
   if (loading && posts.length === 0) {
