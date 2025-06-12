@@ -1,4 +1,5 @@
-import axios from 'axios';
+import axios from "axios";
+import api from "@/api/axios";
 import { useState, useEffect } from 'react';
 import CompanyRegisterModal from '../components/CompanyRegisterModal';
 import CompanyEditModal from '../components/CompanyEditModal';
@@ -211,16 +212,15 @@ export default function CompanyPage() {
   const fetchCompanies = async (pageNumber: number = 0) => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/companies?page=${pageNumber}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      setCompanies(data.data.content);
-      setPage(data.data.page);
+      const response = await api.get(`/api/companies?page=${pageNumber}`);
+      const responseData = response.data;
+      setCompanies(responseData.data.content);  // 여기서 한 번만 data 접근
+      setPage(responseData.data.page);
     } catch (err: unknown) {
       let errorMessage = "An unknown error occurred";
-      if (err instanceof Error) {
+      if (axios.isAxiosError(err)) {
+        errorMessage = err.response?.data?.message || err.message;
+      } else if (err instanceof Error) {
         errorMessage = err.message;
       }
       setError(errorMessage);
@@ -238,7 +238,7 @@ export default function CompanyPage() {
 
   const handleSearch = () => {
     // 예시: axios 또는 fetch로 API 호출
-    axios.get(`/api/company/search?name=${encodeURIComponent(search)}`)
+    api.get(`/api/company/search?name=${encodeURIComponent(search)}`)
       .then(res => {
         setCompanies(res.data.data);
       })
@@ -265,7 +265,7 @@ export default function CompanyPage() {
       };
 
       // PUT 요청 보내기
-      await axios.put(`/api/companies/${editData.id}`, companyUpdateData);
+      await api.put(`/api/companies/${editData.id}`, companyUpdateData);
 
       // 성공 시 상태 업데이트
       setCompanies(prev => prev.map(c =>
@@ -297,7 +297,7 @@ export default function CompanyPage() {
     if (!window.confirm("정말 삭제하시겠습니까?")) return;
 
     try {
-      await axios.delete(`/api/companies/${companyId}`);
+      await api.delete(`/api/companies/${companyId}`);
       alert("삭제되었습니다.");
       // 회사 목록을 다시 불러오거나, 상태에서 제거
       fetchCompanies();

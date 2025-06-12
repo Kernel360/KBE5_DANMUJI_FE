@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContexts";
+import { useAuth } from "@/hooks/useAuth";
 import api from "@/api/axios";
 import {
     Layout,
@@ -62,25 +62,25 @@ export default function UserProjectPage() {
   }, []);
 
   // 통합 페칭 함수 (페이지네이션 포함)
-  const fetchProjects = (keyword: string = "", pageNum: number = 0) => {
+  const fetchProjects = async (keyword: string = "", pageNum: number = 0) => {
     if (!userId) return; // userId가 없으면 API 호출하지 않음
 
-    const trimmed = keyword.trim();
-    const url = trimmed
-      ? `http://localhost:8080/api/projects/search?keyword=${encodeURIComponent(trimmed)}&page=${pageNum}`
-      : `http://localhost:8080/api/projects/${userId}/user?page=${pageNum}`;
+    try {
+      const trimmed = keyword.trim();
+      const url = trimmed
+        ? `/api/projects/search?keyword=${encodeURIComponent(trimmed)}&page=${pageNum}`
+        : `/api/projects/${userId}/user?page=${pageNum}`;
 
-    fetch(url)
-      .then(res => res.json())
-      .then((response: any) => {
-        const payload = response.data ?? response;
-        const list: Project[] = Array.isArray(payload.content)
-          ? payload.content.filter((project: Project) => project.status === 'COMPLETED')
-          : [];
-        setProjects(list);
-        setPage({ number: payload.number, totalPages: payload.totalPages || 1 });
-      })
-      .catch(err => console.error("Failed to load projects", err));
+      const response = await api.get(url);
+      const payload = response.data.data ?? response.data;
+      const list: Project[] = Array.isArray(payload.content)
+        ? payload.content.filter((project: Project) => project.status === 'COMPLETED')
+        : [];
+      setProjects(list);
+      setPage({ number: payload.number, totalPages: payload.totalPages || 1 });
+    } catch (err) {
+      console.error("Failed to load projects", err);
+    }
   };
 
   // userId가 설정되면 프로젝트 목록 가져오기

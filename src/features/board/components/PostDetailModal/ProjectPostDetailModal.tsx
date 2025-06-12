@@ -39,8 +39,9 @@ import {
 } from "@/features/project/services/postService";
 import type { Post, Comment } from "@/features/project/types/post";
 import QuestionAnswerModal from "../QuestionAnswerModal/QuestionAnswerModal";
-import { useAuth } from "@/contexts/AuthContexts";
+
 import { FaReply, FaEdit, FaTrash } from "react-icons/fa";
+import { useAuth } from "@/hooks/useAuth";
 
 interface PostDetailModalProps {
   open: boolean;

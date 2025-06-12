@@ -23,7 +23,7 @@ import { FaAlignLeft } from "react-icons/fa";
 import { FaArchive } from "react-icons/fa";
 import { FaComments } from "react-icons/fa";
 
-import { useAuth } from "@/contexts/AuthContexts";
+import { useAuth } from "@/hooks/useAuth";
 
 const LogoImage = styled.img`
   height: 48px;
@@ -111,9 +111,9 @@ export const Sidebar: React.FC = () => {
                 <MenuItemSide
                   icon={FaAlignLeft}
                   text="모든 프로젝트"
-                  isActive={location.pathname === "/projects/:userId"}
+                  isActive={location.pathname === "/projects/all"}
                   onClick={() =>
-                    handleMenuItemClick("모든 프로젝트", "/projects/:userId")
+                    handleMenuItemClick("모든 프로젝트", "/projects/all")
                   }
                 />
               </li>
@@ -132,7 +132,7 @@ export const Sidebar: React.FC = () => {
             <MenuItem
               icon={HiUsers}
               text="멤버 관리"
-              isActive={location.pathname === "/members"}
+              isActive={location.pathname.startsWith("/member")}
               onClick={() => handleMenuItemClick("멤버 관리", "/members")}
             />
           </>

@@ -46,8 +46,9 @@ import {
 } from "@/features/project/services/questionService";
 import type { Post } from "@/features/project/types/post";
 import type { Question } from "@/features/project/types/question";
-import { useAuth } from "@/contexts/AuthContexts";
+
 import AnswerDetailModal from "../AnswerDetailModal/AnswerDetailModal";
+import { useAuth } from "@/hooks/useAuth";
 
 interface QuestionAnswerModalProps {
   open: boolean;
