@@ -29,6 +29,7 @@ export interface UserData {
   lastLoginAt?: string;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext<AuthContextProps>({
   role: null,
   setRole: () => {},
