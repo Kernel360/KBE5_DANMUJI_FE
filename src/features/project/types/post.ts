@@ -93,6 +93,7 @@ export type Post = {
 
 // API 응답 타입
 export type ApiResponse<T> = {
+  success: boolean;
   status: "OK" | "ERROR";
   code: string;
   message: string;

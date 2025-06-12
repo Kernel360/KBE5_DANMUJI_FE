@@ -66,7 +66,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
         try {
           setLoading(true);
           const response = await getPostDetail(postId);
-          const post = response.data;
+          const post: Post = response.data;
           setFormData({
             title: post.title,
             content: post.content,

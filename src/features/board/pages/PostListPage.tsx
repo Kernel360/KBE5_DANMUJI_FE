@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback, type JSX } from "react";
-import { useLocation } from "react-router-dom";
 import {
   AiOutlineFileText,
   AiOutlineSearch,
@@ -122,7 +121,6 @@ const getPriorityStyle = (priority: number) => {
 const stepName = "설계"; // TODO: 실제 단계명 연동 시 교체
 
 export default function PostListPage() {
-  const location = useLocation();
   const stepId = 1; // 임시로 단계 ID 1 사용
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
@@ -130,7 +128,7 @@ export default function PostListPage() {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [itemsPerPage] = useState(10);
 
   // 검색 및 필터 상태
   const [searchTerm, setSearchTerm] = useState("");
@@ -171,9 +169,6 @@ export default function PostListPage() {
   const [formModalParentId, setFormModalParentId] = useState<number | null>(
     null
   );
-
-  // PostFormModal 관련 상태
-  const [isFilterChanged, setIsFilterChanged] = useState(false);
 
   // 모든 프로젝트의 게시글을 가져오는 함수 (임시로 프로젝트 ID 1 사용)
   const fetchPosts = useCallback(async () => {
@@ -352,13 +347,13 @@ export default function PostListPage() {
   const handleEditPost = (postId: number) => {
     setFormModalMode("edit");
     setFormModalPostId(postId);
-    setFormModalParentId(undefined);
+    setFormModalParentId(null);
     setIsFormModalOpen(true);
   };
 
   const handleReplyPost = (parentId: number) => {
     setFormModalMode("create");
-    setFormModalPostId(undefined);
+    setFormModalPostId(null);
     setFormModalParentId(parentId);
     setIsFormModalOpen(true);
   };
@@ -945,8 +940,8 @@ export default function PostListPage() {
         onClose={handleFormModalClose}
         onSuccess={handleFormModalSuccess}
         mode={formModalMode}
-        postId={formModalPostId}
-        parentId={formModalParentId}
+        postId={formModalPostId || undefined}
+        parentId={formModalParentId || undefined}
         stepId={1}
       />
     </PageContainer>
