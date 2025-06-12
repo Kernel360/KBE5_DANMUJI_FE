@@ -14,6 +14,7 @@ interface UserCompanyResponse {
   name: string;
   userType: string;
   companyId: number;
+  userId: number;
 }
 
 interface ProjectStepSimpleResponse {
@@ -129,10 +130,10 @@ export default function ProjectEditPage() {
         
         // 담당자 설정
         if (devManager) {
-          setDeveloperId(devManager.id);
+          setDeveloperId(devManager.userId);
         }
         if (clientManager) {
-          setClientId(clientManager.id);
+          setClientId(clientManager.userId);
         }
 
         // 멤버 설정
@@ -239,6 +240,43 @@ export default function ProjectEditPage() {
     setLoading(true);
     setError(null);
 
+    // 필수 필드 검증
+    if (!name.trim()) {
+      alert('프로젝트명을 입력해주세요.');
+      setLoading(false);
+      return;
+    }
+    if (!overview.trim()) {
+      alert('개요를 입력해주세요.');
+      setLoading(false);
+      return;
+    }
+    if (!startDate) {
+      alert('시작일을 선택해주세요.');
+      setLoading(false);
+      return;
+    }
+    if (!developCompanyId) {
+      alert('개발사를 선택해주세요.');
+      setLoading(false);
+      return;
+    }
+    if (!clientCompanyId) {
+      alert('고객사를 선택해주세요.');
+      setLoading(false);
+      return;
+    }
+    if (!developerId) {
+      alert('개발사 담당자를 선택해주세요.');
+      setLoading(false);
+      return;
+    }
+    if (!clientId) {
+      alert('고객사 담당자를 선택해주세요.');
+      setLoading(false);
+      return;
+    }
+
     const payload = {
       name,
       description: overview,
@@ -307,7 +345,13 @@ export default function ProjectEditPage() {
               <DatePicker
                 id="start-date"
                 selected={startDate}
-                onChange={date => setStartDate(date)}
+                onChange={date => {
+                  setStartDate(date);
+                  // 시작일이 변경되면 마감일이 시작일보다 이전이면 초기화
+                  if (endDate && date && endDate < date) {
+                    setEndDate(null);
+                  }
+                }}
                 dateFormat="yyyy-MM-dd"
                 placeholderText="시작일 선택"
                 className="date-input white-bg"
@@ -326,6 +370,8 @@ export default function ProjectEditPage() {
                 className="date-input white-bg"
                 required
                 onKeyDown={e => e.preventDefault()}
+                disabled={!startDate} // 시작일이 선택되지 않으면 비활성화
+                minDate={startDate || undefined} // 시작일 이후의 날짜만 선택 가능
               />
             </div>
           </S.DateRow>
@@ -345,6 +391,8 @@ export default function ProjectEditPage() {
             }
             onChange={option => {
               setDevelopCompanyId(option ? option.value : '');
+              setSelectedDevMembers([]); // 개발사 변경 시 멤버 초기화
+              setDeveloperId(''); // 담당자도 초기화
             }}
             placeholder="회사 검색/선택"
             isClearable
@@ -413,6 +461,8 @@ export default function ProjectEditPage() {
             }
             onChange={option => {
               setClientCompanyId(option ? option.value : '');
+              setSelectedClientMembers([]); // 고객사 변경 시 멤버 초기화
+              setClientId(''); // 담당자도 초기화
             }}
             placeholder="회사 검색/선택"
             isClearable
