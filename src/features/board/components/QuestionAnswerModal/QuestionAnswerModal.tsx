@@ -255,11 +255,18 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
     }
   };
 
-  // 질문 해결됨으로 변경
+  // 질문 해결됨으로 변경 (토글 방식)
   const handleResolveQuestion = async (questionId: number) => {
-    if (
-      !window.confirm("이 질문이 해결되었습니까? 해결됨으로 표시하시겠습니까?")
-    ) {
+    // 현재 질문의 상태를 확인
+    const currentQuestion = questions.find((q) => q.id === questionId);
+    if (!currentQuestion) return;
+
+    const isCurrentlyResolved = currentQuestion.status === "RESOLVED";
+    const actionText = isCurrentlyResolved
+      ? "해결됨 상태를 해제"
+      : "해결됨으로 표시";
+
+    if (!window.confirm(`이 질문을 ${actionText}하시겠습니까?`)) {
       return;
     }
 
@@ -556,15 +563,12 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
                                     onClick={() =>
                                       handleResolveQuestion(question.id)
                                     }
-                                    disabled={
-                                      resolvingQuestion ||
-                                      question.status === "RESOLVED"
-                                    }
+                                    disabled={resolvingQuestion}
                                   >
                                     {resolvingQuestion
                                       ? "처리 중..."
                                       : question.status === "RESOLVED"
-                                      ? "해결됨"
+                                      ? "해결안됨"
                                       : "해결됨으로 표시"}
                                   </ModalHeaderActionButton>
                                   <ModalHeaderActionButton
@@ -700,7 +704,7 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
                           취소
                         </button>
                       </AnswerForm>
-                    ) : (
+                    ) : editingQuestionId !== question.id ? (
                       <button
                         onClick={() => setSelectedQuestionId(question.id)}
                         style={{
@@ -738,7 +742,7 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
                       >
                         답변 작성
                       </button>
-                    )}
+                    ) : null}
                   </QuestionItem>
                 ))
               ) : (
