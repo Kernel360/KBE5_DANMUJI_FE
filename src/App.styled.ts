@@ -14,5 +14,6 @@ export const MainContent = styled.div`
 
 export const PageContent = styled.div`
   flex: 1;
+  overflow-y: auto;
   /* Removed padding as individual pages should control their own spacing */
 `;

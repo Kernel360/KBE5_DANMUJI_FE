@@ -13,17 +13,18 @@ export const Topbar: React.FC = () => {
   const location = useLocation();
 
   const getPageTitle = () => {
-    switch (location.pathname) {
-      case "/dashboard":
-        return "대시보드";
-      case "/projects":
-        return "프로젝트 관리";
-      case "/company":
-        return "회사 관리";
-      case "/members":
-        return "멤버 관리";
-      default:
-        return "대시보드";
+    if (location.pathname === "/members") {
+      return "멤버 관리";
+    } else if (location.pathname.startsWith("/member/")) {
+      return "회원 정보";
+    } else if (location.pathname === "/dashboard") {
+      return "대시보드";
+    } else if (location.pathname === "/projects") {
+      return "프로젝트 관리";
+    } else if (location.pathname === "/company") {
+      return "회사 관리";
+    } else {
+      return "대시보드";
     }
   };
 
