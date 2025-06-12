@@ -131,6 +131,7 @@ export const QuestionItem = styled.div`
   padding: 1.5rem;
   margin-bottom: 1.5rem;
   background-color: #fafafa;
+  position: relative;
 `;
 
 export const QuestionHeader = styled.div`
@@ -291,6 +292,7 @@ export const AnswerForm = styled.div`
   background: #f8f9fa;
   border-radius: 0.5rem;
   border-left: 3px solid #fdb924;
+  position: relative;
 `;
 
 export const AnswerTextArea = styled.textarea`
@@ -317,22 +319,31 @@ export const AnswerTextArea = styled.textarea`
 `;
 
 export const AnswerSubmitButton = styled.button`
-  padding: 0.5rem 1rem;
+  position: absolute;
+  bottom: 0.75rem;
+  right: 0.75rem;
+  padding: 0.375rem 0.75rem;
   background-color: #10b981;
   color: white;
   border: none;
-  border-radius: 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
 
   &:hover:not(:disabled) {
     background-color: #059669;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
   }
 
   &:disabled {
     background-color: #d1d5db;
     cursor: not-allowed;
+    transform: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
 `;
 

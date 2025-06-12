@@ -656,61 +656,84 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
                           ) => setAnswerText(e.target.value)}
                           disabled={submittingAnswer}
                         />
-                        <div style={{ display: "flex", gap: "0.5rem" }}>
-                          <AnswerSubmitButton
-                            onClick={handleAnswerSubmit}
-                            disabled={!answerText.trim() || submittingAnswer}
-                          >
-                            {submittingAnswer ? "답변 등록 중..." : "답변 등록"}
-                          </AnswerSubmitButton>
-                          <button
-                            onClick={() => {
-                              setSelectedQuestionId(null);
-                              setAnswerText("");
-                            }}
-                            style={{
-                              background: "#6b7280",
-                              color: "white",
-                              border: "none",
-                              borderRadius: "0.5rem",
-                              padding: "0.5rem 1rem",
-                              fontSize: "0.875rem",
-                              fontWeight: "500",
-                              cursor: "pointer",
-                              transition: "background-color 0.2s",
-                            }}
-                            onMouseOver={(e) => {
-                              e.currentTarget.style.background = "#4b5563";
-                            }}
-                            onMouseOut={(e) => {
-                              e.currentTarget.style.background = "#6b7280";
-                            }}
-                            disabled={submittingAnswer}
-                          >
-                            취소
-                          </button>
-                        </div>
+                        <AnswerSubmitButton
+                          onClick={handleAnswerSubmit}
+                          disabled={!answerText.trim() || submittingAnswer}
+                        >
+                          {submittingAnswer ? "답변 등록 중..." : "답변 등록"}
+                        </AnswerSubmitButton>
+                        <button
+                          onClick={() => {
+                            setSelectedQuestionId(null);
+                            setAnswerText("");
+                          }}
+                          style={{
+                            position: "absolute",
+                            bottom: "0.75rem",
+                            right: "5.5rem",
+                            background: "#6b7280",
+                            color: "white",
+                            border: "none",
+                            borderRadius: "0.375rem",
+                            padding: "0.375rem 0.75rem",
+                            fontSize: "0.75rem",
+                            fontWeight: "500",
+                            cursor: "pointer",
+                            transition: "all 0.2s ease",
+                            boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+                          }}
+                          onMouseOver={(e) => {
+                            e.currentTarget.style.background = "#4b5563";
+                            e.currentTarget.style.transform =
+                              "translateY(-1px)";
+                            e.currentTarget.style.boxShadow =
+                              "0 2px 6px rgba(0, 0, 0, 0.15)";
+                          }}
+                          onMouseOut={(e) => {
+                            e.currentTarget.style.background = "#6b7280";
+                            e.currentTarget.style.transform = "translateY(0)";
+                            e.currentTarget.style.boxShadow =
+                              "0 1px 3px rgba(0, 0, 0, 0.1)";
+                          }}
+                          disabled={submittingAnswer}
+                        >
+                          취소
+                        </button>
                       </AnswerForm>
                     ) : (
                       <button
                         onClick={() => setSelectedQuestionId(question.id)}
                         style={{
+                          position: "absolute",
+                          bottom: "1rem",
+                          right: "1rem",
                           background: "#fdb924",
                           color: "white",
                           border: "none",
-                          borderRadius: "4px",
-                          padding: "6px 12px",
+                          borderRadius: "0.5rem",
+                          padding: "0.5rem 1rem",
                           cursor: "pointer",
                           fontSize: "0.75rem",
                           fontWeight: "500",
-                          marginTop: "0.5rem",
-                          width: "80px",
-                          height: "28px",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
                           whiteSpace: "nowrap",
                           overflow: "hidden",
+                          transition: "all 0.2s ease",
+                          boxShadow: "0 2px 4px rgba(253, 185, 36, 0.2)",
+                        }}
+                        onMouseOver={(e) => {
+                          e.currentTarget.style.background = "#f59e0b";
+                          e.currentTarget.style.transform = "translateY(-1px)";
+                          e.currentTarget.style.boxShadow =
+                            "0 4px 8px rgba(253, 185, 36, 0.3)";
+                        }}
+                        onMouseOut={(e) => {
+                          e.currentTarget.style.background = "#fdb924";
+                          e.currentTarget.style.transform = "translateY(0)";
+                          e.currentTarget.style.boxShadow =
+                            "0 2px 4px rgba(253, 185, 36, 0.2)";
                         }}
                       >
                         답변 작성
