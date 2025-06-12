@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "@/api/axios";
 import {
     Layout,
     Main,
@@ -39,37 +40,51 @@ export default function AdminProjectPage() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [projects, setProjects] = useState<Project[]>([]);
-  const [page, setPage] = useState<{ number: number; totalPages: number }>({ number: 0, totalPages: 1 });
+  // 초기 page 상태에 size, number, totalElements, totalPages 모두 정의
+  const [page, setPage] = useState<{
+    size: number;
+    number: number;
+    totalElements: number;
+    totalPages: number;
+  }>({ size: 10, number: 0, totalElements: 0, totalPages: 1 });
 
   // 통합 페칭 함수 (페이지네이션 포함)
-  const fetchProjects = (keyword: string = "", pageNum: number = 0) => {
+  const fetchProjects = async(keyword: string = "", pageNum: number = 0) => {
     const trimmed = keyword.trim();
     const url = trimmed
-      ? `http://localhost:8080/api/projects/search?keyword=${encodeURIComponent(trimmed)}&page=${pageNum}`
-      : `http://localhost:8080/api/projects?page=${pageNum}`;
+      ? `/api/projects/search?keyword=${encodeURIComponent(trimmed)}&page=${pageNum}`
+      : `/api/projects?page=${pageNum}`;
 
-    fetch(url)
-      .then(res => res.json())
-      .then((response: any) => {
-        const payload = response.data ?? response;
-        const list: Project[] = Array.isArray(payload.content)
-          ? payload.content
-          : [];
-        setProjects(list);
-        setPage({ number: payload.number, totalPages: payload.totalPages || 1 });
-      })
-      .catch(err => console.error("Failed to load projects", err));
+    try {
+      const response = await api.get(url);
+      // ApiResponse.data 아래에 { content: Project[], page: PageMeta }
+      const payload = response.data.data;
+      // 실제 리스트
+      const list: Project[] = Array.isArray(payload.content)
+        ? payload.content
+        : [];
+      setProjects(list);
+      // 페이징 메타 전체를 반영
+      setPage({
+        size: payload.page.size,
+        number: payload.page.number,
+        totalElements: payload.page.totalElements,
+        totalPages: payload.page.totalPages
+      });
+    } catch (err) {
+      console.error("Failed to load projects", err);
+    }
   };
 
   // 마운트 시 전체 로드
   useEffect(() => {
     fetchProjects(search, page.number);
-    // eslint-disable-next-line
-  }, [page.number]);
+  }, [page.number]); // page.number가 바뀔 때마다 호출
 
   // 검색 버튼 클릭 시
   const handleSearch = () => {
-    setPage({ ...page, number: 0 }); // 검색 시 1페이지로 이동
+    // 검색 시 페이지 번호를 0으로 초기화
+    setPage(prev => ({ ...prev, number: 0 }));
     fetchProjects(search, 0);
   };
 
@@ -79,7 +94,6 @@ export default function AdminProjectPage() {
       setPage({ ...page, number: 0 });
       fetchProjects("", 0);
     }
-    // eslint-disable-next-line
   }, [search]);
 
   // 페이지 변경 핸들러
@@ -135,13 +149,13 @@ export default function AdminProjectPage() {
             <TableBody>
               {projects.map((p, index) => (
                 <TableRow key={p.id}>
-                  <TableCell>{index + 1}</TableCell>
+                  <TableCell>{index + 1 + page.number * page.size}</TableCell>
                   <TableCell>{p.name}</TableCell>
                   <TableCell>
                     <StatusBadge color={p.statusColor}>{p.status}</StatusBadge>
                   </TableCell>
-                  <TableCell>{p.clientCompany || "미지정"}</TableCell>
-                  <TableCell>{p.developerCompany || "미지정"}</TableCell>
+                  <TableCell>{p.clientCompany || "-"}</TableCell>
+                  <TableCell>{p.developerCompany || "-"}</TableCell>
                   <TableCell>{p.startDate}</TableCell>
                   <TableCell>{p.endDate}</TableCell>
                   <TableCell>
@@ -154,34 +168,34 @@ export default function AdminProjectPage() {
           </Table>
         )}
 
+        {/* 페이지네이션 */}
         <PaginationContainer>
-        <PaginationNav>
-          <PaginationButton
-            disabled={!page || page.number === 0}
-            onClick={() => page && handlePageChange(page.number - 1)}
-          >
-            {'<'}
-          </PaginationButton>
+          <PaginationNav>
+            <PaginationButton
+              disabled={page.number === 0}
+              onClick={() => handlePageChange(page.number - 1)}
+            >
+              {'<'}
+            </PaginationButton>
 
-          {/* 페이지 번호 버튼들을 동적으로 생성 */}
-          {Array.from({ length: page?.totalPages ?? 0 }, (_, idx) => (
-            idx === (page?.number ?? 0) ? (
-              <CurrentPageButton key={idx}>{idx + 1}</CurrentPageButton>
-            ) : (
-              <PaginationButton key={idx} onClick={() => handlePageChange(idx)}>
-                {idx + 1}
-              </PaginationButton>
-            )
-          ))}
+            {Array.from({ length: page.totalPages }, (_, idx) => (
+              idx === page.number ? (
+                <CurrentPageButton key={idx}>{idx + 1}</CurrentPageButton>
+              ) : (
+                <PaginationButton key={idx} onClick={() => handlePageChange(idx)}>
+                  {idx + 1}
+                </PaginationButton>
+              )
+            ))}
 
-          <PaginationButton
-            disabled={!page || page.number + 1 >= (page?.totalPages ?? 0)}
-            onClick={() => page && handlePageChange(page.number + 1)}
-          >
-            {'>'}
-          </PaginationButton>
-        </PaginationNav>
-      </PaginationContainer>
+            <PaginationButton
+              disabled={page.number + 1 >= page.totalPages}
+              onClick={() => handlePageChange(page.number + 1)}
+            >
+              {'>'}
+            </PaginationButton>
+          </PaginationNav>
+        </PaginationContainer>
       </Main>
     </Layout>
   );

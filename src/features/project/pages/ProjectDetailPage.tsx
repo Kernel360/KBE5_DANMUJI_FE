@@ -40,6 +40,7 @@ interface ProjectDetail {
 interface AddStepForm {
   name: string;
   userId: number;
+  projectFeedbackStepStatus: string | null;
 }
 
 export default function ProjectDetailPage() {
@@ -55,7 +56,8 @@ export default function ProjectDetailPage() {
   const [loggedInUserId, setLoggedInUserId] = useState<number | null>(null);
   const [addStepForm, setAddStepForm] = useState<AddStepForm>({
     name: "",
-    userId: 0
+    userId: 0,
+    projectFeedbackStepStatus: null
   });
 
   useEffect(() => {
@@ -122,7 +124,8 @@ export default function ProjectDetailPage() {
   const handleEditStep = (step: ProjectStepSimpleResponse) => {
     setAddStepForm({
       name: step.name,
-      userId: step.user ? step.user.id : 0
+      userId: step.user ? step.user.id : 0,
+      projectFeedbackStepStatus: step.projectFeedbackStepStatus
     });
     setIsEditMode(true);
     setIsAddStepModalOpen(true);
@@ -146,7 +149,8 @@ export default function ProjectDetailPage() {
   const handleAddStepClick = () => {
     setAddStepForm({
       name: "",
-      userId: 0
+      userId: 0,
+      projectFeedbackStepStatus: null
     });
     setIsEditMode(false);
     setIsAddStepModalOpen(true);
@@ -163,7 +167,8 @@ export default function ProjectDetailPage() {
         // 수정 모드
         const editData = {
           name: addStepForm.name,
-          userId: addStepForm.userId
+          userId: addStepForm.userId,
+          projectFeedbackStepStatus: addStepForm.projectFeedbackStepStatus
         };
         console.log('수정 요청 데이터:', editData);
         await api.put(`/api/step/${editingStepId}`, editData);
@@ -182,7 +187,7 @@ export default function ProjectDetailPage() {
       // 프로젝트 정보 다시 불러오기
       const response = await api.get(`/api/projects/${projectId}`);
       setProject(response.data.data);
-      setAddStepForm({ name: "", userId: 0 });
+      setAddStepForm({ name: "", userId: 0, projectFeedbackStepStatus: null });
       setIsAddStepModalOpen(false);
       setIsEditMode(false);
     } catch (err) {

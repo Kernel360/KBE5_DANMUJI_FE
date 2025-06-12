@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import api from "@/api/axios";
 import {
@@ -39,10 +39,14 @@ interface Project {
 
 export default function UserProjectPage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const [search, setSearch] = useState("");
   const [projects, setProjects] = useState<Project[]>([]);
-  const [page, setPage] = useState<{ number: number; totalPages: number }>({ number: 0, totalPages: 1 });
+  const [page, setPage] = useState<{
+    size: number;
+    number: number;
+    totalElements: number;
+    totalPages: number;
+  }>({ size: 10, number: 0, totalElements: 0, totalPages: 1 });
   const [userId, setUserId] = useState<number | null>(null);
 
   // 사용자 정보 가져오기
@@ -72,12 +76,17 @@ export default function UserProjectPage() {
         : `/api/projects/${userId}/user?page=${pageNum}`;
 
       const response = await api.get(url);
-      const payload = response.data.data ?? response.data;
+      const payload = response.data.data;
       const list: Project[] = Array.isArray(payload.content)
         ? payload.content.filter((project: Project) => project.status === 'IN_PROGRESS')
         : [];
       setProjects(list);
-      setPage({ number: payload.number, totalPages: payload.totalPages || 1 });
+      setPage({
+        size: payload.page.size,
+        number: payload.page.number,
+        totalElements: payload.page.totalElements,
+        totalPages: payload.page.totalPages
+      });
     } catch (err) {
       console.error("Failed to load projects", err);
     }
@@ -151,13 +160,13 @@ export default function UserProjectPage() {
           <TableBody>
             {projects.map((p, index) => (
               <TableRow key={p.id}>
-                <TableCell>{index + 1}</TableCell>
+                <TableCell>{index + 1 + page.number * page.size}</TableCell>
                 <TableCell>{p.name}</TableCell>
                 <TableCell>
                   <StatusBadge color={p.statusColor}>{p.status}</StatusBadge>
                 </TableCell>
-                <TableCell>{p.clientCompany || "미지정"}</TableCell>
-                <TableCell>{p.developerCompany || "미지정"}</TableCell>
+                <TableCell>{p.clientCompany || "-"}</TableCell>
+                <TableCell>{p.developerCompany || "-"}</TableCell>
                 <TableCell>{p.startDate}</TableCell>
                 <TableCell>{p.endDate}</TableCell>
                 <TableCell>
@@ -169,34 +178,34 @@ export default function UserProjectPage() {
           </TableBody>
         </Table>
 
+        {/* 페이지네이션 */}
         <PaginationContainer>
-        <PaginationNav>
-          <PaginationButton
-            disabled={!page || page.number === 0}
-            onClick={() => page && handlePageChange(page.number - 1)}
-          >
-            {'<'}
-          </PaginationButton>
+          <PaginationNav>
+            <PaginationButton
+              disabled={page.number === 0}
+              onClick={() => handlePageChange(page.number - 1)}
+            >
+              {'<'}
+            </PaginationButton>
 
-          {/* 페이지 번호 버튼들을 동적으로 생성 */}
-          {Array.from({ length: page?.totalPages ?? 0 }, (_, idx) => (
-            idx === (page?.number ?? 0) ? (
-              <CurrentPageButton key={idx}>{idx + 1}</CurrentPageButton>
-            ) : (
-              <PaginationButton key={idx} onClick={() => handlePageChange(idx)}>
-                {idx + 1}
-              </PaginationButton>
-            )
-          ))}
+            {Array.from({ length: page.totalPages }, (_, idx) => (
+              idx === page.number ? (
+                <CurrentPageButton key={idx}>{idx + 1}</CurrentPageButton>
+              ) : (
+                <PaginationButton key={idx} onClick={() => handlePageChange(idx)}>
+                  {idx + 1}
+                </PaginationButton>
+              )
+            ))}
 
-          <PaginationButton
-            disabled={!page || page.number + 1 >= (page?.totalPages ?? 0)}
-            onClick={() => page && handlePageChange(page.number + 1)}
-          >
-            {'>'}
-          </PaginationButton>
-        </PaginationNav>
-      </PaginationContainer>
+            <PaginationButton
+              disabled={page.number + 1 >= page.totalPages}
+              onClick={() => handlePageChange(page.number + 1)}
+            >
+              {'>'}
+            </PaginationButton>
+          </PaginationNav>
+        </PaginationContainer>
       </Main>
     </Layout>
   );
