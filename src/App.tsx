@@ -37,6 +37,7 @@ import ProjectDetailPage from "./features/project/pages/ProjectDetailPage";
 import CompletedProject from "./features/project/pages/CompletedProject";
 import InProgressProject from "./features/project/pages/InProgressProject";
 import UserProfilePage from "./features/user/pages/UserProfilePage";
+import MemberDetailPage from "./features/user/pages/MemberDetailPage";
 
 // etc
 import { AppContainer, MainContent, PageContent } from "./App.styled";
@@ -106,6 +107,7 @@ const AppRoutes = () => {
         <>
           <Route path="/company" element={<CompanyPage />} />
           <Route path="/members" element={<MemberPage />} />
+          <Route path="/member/:id" element={<MemberDetailPage />} />
           <Route path="/projects/create" element={<CreateProjectPage />} />
           <Route path="/projects" element={<AdminProjectPage />} />
           <Route path="/projects/:projectId/edit" element={<EditProjectPage />} />
