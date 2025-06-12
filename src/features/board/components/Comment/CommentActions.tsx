@@ -6,7 +6,6 @@ import {
 } from "./CommentActions.styled";
 
 interface CommentActionsProps {
-  commentId: number;
   isAuthor: boolean;
   isEditing: boolean;
   onEdit: () => void;
@@ -18,7 +17,6 @@ interface CommentActionsProps {
 }
 
 const CommentActions: React.FC<CommentActionsProps> = ({
-  commentId,
   isAuthor,
   isEditing,
   onEdit,
@@ -28,6 +26,28 @@ const CommentActions: React.FC<CommentActionsProps> = ({
   onSaveEdit,
   isSubmitting = false,
 }) => {
+  const handleMouseOver = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const target = e.currentTarget;
+    if (target.style.background === "#fdb924") {
+      target.style.background = "#f59e0b";
+    } else if (target.style.background === "#6b7280") {
+      target.style.background = "#4b5563";
+    } else {
+      target.style.background = "#f3f4f6";
+    }
+  };
+
+  const handleMouseOut = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const target = e.currentTarget;
+    if (target.style.background === "#f59e0b") {
+      target.style.background = "#fdb924";
+    } else if (target.style.background === "#4b5563") {
+      target.style.background = "#6b7280";
+    } else {
+      target.style.background = "none";
+    }
+  };
+
   if (isEditing) {
     return (
       <CommentActionButtonGroup>
@@ -45,12 +65,8 @@ const CommentActions: React.FC<CommentActionsProps> = ({
             cursor: "pointer",
             transition: "background-color 0.2s ease",
           }}
-          onMouseOver={(e) => {
-            e.currentTarget.style.background = "#f59e0b";
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.background = "#fdb924";
-          }}
+          onMouseOver={handleMouseOver}
+          onMouseOut={handleMouseOut}
         >
           {isSubmitting ? "수정 중..." : "수정 완료"}
         </CommentActionButton>
@@ -68,12 +84,8 @@ const CommentActions: React.FC<CommentActionsProps> = ({
             cursor: "pointer",
             transition: "background-color 0.2s ease",
           }}
-          onMouseOver={(e) => {
-            e.currentTarget.style.background = "#4b5563";
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.background = "#6b7280";
-          }}
+          onMouseOver={handleMouseOver}
+          onMouseOut={handleMouseOut}
         >
           취소
         </CommentActionButton>
@@ -105,12 +117,8 @@ const CommentActions: React.FC<CommentActionsProps> = ({
               alignItems: "center",
               justifyContent: "center",
             }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.background = "#f3f4f6";
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.background = "none";
-            }}
+            onMouseOver={handleMouseOver}
+            onMouseOut={handleMouseOut}
           >
             <FaEdit style={{ marginRight: "0.25rem" }} />
             수정
@@ -135,12 +143,8 @@ const CommentActions: React.FC<CommentActionsProps> = ({
               alignItems: "center",
               justifyContent: "center",
             }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.background = "#f3f4f6";
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.background = "none";
-            }}
+            onMouseOver={handleMouseOver}
+            onMouseOut={handleMouseOut}
           >
             <FaTrash style={{ marginRight: "0.25rem" }} />
             삭제
@@ -167,12 +171,8 @@ const CommentActions: React.FC<CommentActionsProps> = ({
           alignItems: "center",
           justifyContent: "center",
         }}
-        onMouseOver={(e) => {
-          e.currentTarget.style.background = "#f3f4f6";
-        }}
-        onMouseOut={(e) => {
-          e.currentTarget.style.background = "none";
-        }}
+        onMouseOver={handleMouseOver}
+        onMouseOut={handleMouseOut}
       >
         <FaReply style={{ marginRight: "0.25rem" }} />
         답글

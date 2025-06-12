@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import { FaCommentDots, FaEdit, FaTrash, FaReply } from "react-icons/fa";
 
 export const ModalOverlay = styled.div`
   position: fixed;

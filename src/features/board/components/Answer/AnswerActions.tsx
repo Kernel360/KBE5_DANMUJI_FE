@@ -18,7 +18,6 @@ interface AnswerActionsProps {
 }
 
 const AnswerActions: React.FC<AnswerActionsProps> = ({
-  answerId,
   isAuthor,
   isEditing,
   onEdit,

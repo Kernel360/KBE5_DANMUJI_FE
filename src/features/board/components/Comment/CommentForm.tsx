@@ -31,12 +31,16 @@ const CommentForm: React.FC<CommentFormProps> = ({
 }) => {
   const [content, setContent] = useState(initialValue);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (content.trim() && !isSubmitting) {
       onSubmit(content.trim());
       setContent("");
     }
+  };
+
+  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setContent(e.target.value);
   };
 
   const handleCancel = () => {
@@ -50,7 +54,7 @@ const CommentForm: React.FC<CommentFormProps> = ({
       <form onSubmit={handleSubmit}>
         <CommentTextArea
           value={content}
-          onChange={(e) => setContent(e.target.value)}
+          onChange={handleContentChange}
           placeholder={placeholder}
           disabled={isSubmitting}
           rows={3}

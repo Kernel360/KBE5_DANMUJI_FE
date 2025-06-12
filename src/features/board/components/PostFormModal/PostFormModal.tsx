@@ -7,7 +7,6 @@ import {
 import {
   type PostCreateData,
   type PostUpdateRequest,
-  type Post,
   PostType,
   PostStatus,
 } from "@/features/project/types/post";
@@ -68,15 +67,17 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
         try {
           setLoading(true);
           const response = await getPostDetail(postId);
-          const post: Post = response.data;
-          setFormData({
-            title: post.title,
-            content: post.content,
-            type: post.type,
-            priority: post.priority,
-            status: post.status,
-            stepId: stepId,
-          });
+          const post = response.data;
+          if (post) {
+            setFormData({
+              title: post.title,
+              content: post.content,
+              type: post.type,
+              priority: post.priority,
+              status: post.status,
+              stepId: stepId,
+            });
+          }
         } catch (err) {
           setError("게시글을 불러오는 데 실패했습니다.");
           console.error("게시글 로드 중 오류:", err);

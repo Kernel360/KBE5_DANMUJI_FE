@@ -1,6 +1,10 @@
 import React, { useState, useMemo } from "react";
 import type { Comment } from "@/features/project/types/post";
-import { organizeComments, getRenderedCommentCount } from "./CommentUtils";
+import {
+  organizeComments,
+  getRenderedCommentCount,
+  type CommentWithReplies,
+} from "./CommentUtils";
 import CommentItem from "./CommentItem";
 import CommentForm from "./CommentForm";
 import {
@@ -41,7 +45,10 @@ const CommentList: React.FC<CommentListProps> = ({
   }, [comments]);
 
   // 댓글 렌더링 함수 (재귀적)
-  const renderComment = (comment: any, depth: number = 0): React.ReactNode => {
+  const renderComment = (
+    comment: CommentWithReplies,
+    depth: number = 0
+  ): React.ReactNode => {
     return (
       <div key={comment.id}>
         <CommentItem
@@ -55,9 +62,7 @@ const CommentList: React.FC<CommentListProps> = ({
         />
         {comment.replies && comment.replies.length > 0 && (
           <div>
-            {comment.replies.map((reply: any) =>
-              renderComment(reply, depth + 1)
-            )}
+            {comment.replies.map((reply) => renderComment(reply, depth + 1))}
           </div>
         )}
       </div>

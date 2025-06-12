@@ -1,3 +1,4 @@
+import React from "react";
 import type { Comment } from "@/features/project/types/post";
 
 // 날짜 포맷팅 함수
@@ -13,7 +14,7 @@ export const formatCommentDate = (dateString: string) => {
 };
 
 // 댓글 내용에서 @태그와 "답글" 텍스트에 색상을 적용하는 함수
-export const formatCommentContent = (content: string) => {
+export const formatCommentContent = (content: string): React.ReactNode[] => {
   const parts = content.split(/(@\w+|답글)/);
   return parts.map((part, index) => {
     if (part.startsWith("@")) {
@@ -34,7 +35,7 @@ export const formatCommentContent = (content: string) => {
 };
 
 // 댓글을 부모-자식 관계로 구성하는 함수
-export const organizeComments = (comments: Comment[]) => {
+export const organizeComments = (comments: Comment[]): CommentWithReplies[] => {
   const commentMap = new Map<number, CommentWithReplies>();
   const rootComments: CommentWithReplies[] = [];
 
@@ -45,14 +46,16 @@ export const organizeComments = (comments: Comment[]) => {
 
   // 부모-자식 관계 구성
   comments.forEach((comment) => {
-    const commentWithReplies = commentMap.get(comment.id)!;
-    if (comment.parentCommentId) {
-      const parent = commentMap.get(comment.parentCommentId);
-      if (parent) {
-        parent.replies.push(commentWithReplies);
+    const commentWithReplies = commentMap.get(comment.id);
+    if (commentWithReplies) {
+      if (comment.parentCommentId) {
+        const parent = commentMap.get(comment.parentCommentId);
+        if (parent) {
+          parent.replies.push(commentWithReplies);
+        }
+      } else {
+        rootComments.push(commentWithReplies);
       }
-    } else {
-      rootComments.push(commentWithReplies);
     }
   });
 
@@ -63,12 +66,12 @@ export const organizeComments = (comments: Comment[]) => {
 export const isCommentAuthor = (
   commentAuthorId: number,
   currentUserId?: number
-) => {
+): boolean => {
   return currentUserId === commentAuthorId;
 };
 
 // 렌더링되는 댓글 개수 계산 함수
-export const getRenderedCommentCount = (comments: Comment[]) => {
+export const getRenderedCommentCount = (comments: Comment[]): number => {
   const visibleComments = comments.filter(
     (comment) => !comment.deletedAt && comment.status !== "DELETED"
   );

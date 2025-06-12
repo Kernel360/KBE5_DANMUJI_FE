@@ -10,7 +10,6 @@ import CommentActions from "./CommentActions";
 import CommentForm from "./CommentForm";
 import {
   CommentItemContainer,
-  CommentHeader,
   CommentAuthor,
   CommentAuthorName,
   CommentAuthorIp,
@@ -44,7 +43,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
   const [isReplying, setIsReplying] = useState(false);
   const [editContent, setEditContent] = useState(comment.content);
 
-  const isAuthor = isCommentAuthor(comment.author.id, currentUserId);
+  const isAuthor = isCommentAuthor(comment.author?.id || 0, currentUserId);
   const isDeleted = comment.deletedAt || comment.status === "DELETED";
 
   const handleEdit = () => {
@@ -131,7 +130,6 @@ const CommentItem: React.FC<CommentItemProps> = ({
               placeholder="댓글 내용을 수정하세요"
             />
             <CommentActions
-              commentId={comment.id}
               isAuthor={isAuthor}
               isEditing={true}
               onEdit={handleEdit}
@@ -146,7 +144,6 @@ const CommentItem: React.FC<CommentItemProps> = ({
           <>
             <CommentText>{formatCommentContent(comment.content)}</CommentText>
             <CommentActions
-              commentId={comment.id}
               isAuthor={isAuthor}
               isEditing={false}
               onEdit={handleEdit}
