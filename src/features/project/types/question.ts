@@ -35,6 +35,7 @@ export type Question = {
 export type Answer = {
   id: number;
   questionId: number;
+  parentId?: number | null; // 부모 답변 ID (댓글 기능을 위해 추가)
   authorIp: string;
   author: Author;
   content: string;

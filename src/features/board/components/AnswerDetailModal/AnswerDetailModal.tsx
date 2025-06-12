@@ -132,10 +132,26 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
 
     try {
       setSubmittingReply(true);
+
+      // 부모 답변 찾기
+      const parentAnswer = answers.find(
+        (answer) => answer.id === parentAnswerId
+      );
+      const parentAuthorName =
+        parentAnswer?.author?.name || "알 수 없는 사용자";
+
+      // 답변에 대한 댓글인지 확인 (parentId가 있는 답변에 대한 댓글인지)
+      const isReplyToReply = parentAnswer?.parentId;
+
+      // @태그를 포함한 댓글 내용 생성
+      const contentWithTag = isReplyToReply
+        ? `답글 @${parentAuthorName} ${replyText.trim()}`
+        : `@${parentAuthorName} ${replyText.trim()}`;
+
       const response = await createAnswer({
         questionId,
         parentId: parentAnswerId,
-        content: replyText.trim(),
+        content: contentWithTag,
       });
 
       if (response.status === "CREATED" || response.message?.includes("성공")) {
@@ -239,6 +255,454 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
     return new Date(dateString).toLocaleDateString("ko-KR", options);
   };
 
+  // 댓글 내용에서 @태그와 "답글" 텍스트에 색상을 적용하는 함수
+  const formatAnswerContent = (content: string) => {
+    // @태그와 답글 텍스트를 파싱하여 색상을 적용
+    const parts = content.split(/(@\w+|답글)/);
+    return parts.map((part, index) => {
+      if (part.startsWith("@")) {
+        return (
+          <span key={index} style={{ color: "#fdb924", fontWeight: "600" }}>
+            {part}
+          </span>
+        );
+      } else if (part === "답글") {
+        return (
+          <span key={index} style={{ color: "#9ca3af", fontSize: "0.75rem" }}>
+            {part}
+          </span>
+        );
+      }
+      return part;
+    });
+  };
+
+  // 답변의 depth를 계산하는 함수
+  const getAnswerDepth = (answer: Answer): number => {
+    let depth = 0;
+    let currentAnswer = answer;
+
+    while (currentAnswer.parentId) {
+      const parent = answers.find((a) => a.id === currentAnswer.parentId);
+      if (!parent) break;
+      depth++;
+      currentAnswer = parent;
+    }
+
+    return depth;
+  };
+
+  // 모든 답변을 flat하게 렌더링하는 함수
+  const renderAllAnswers = () => {
+    // 루트 답변들만 먼저 렌더링
+    const rootAnswers = answers.filter((answer) => !answer.parentId);
+
+    return rootAnswers
+      .map((rootAnswer) => {
+        // 현재 루트 답변과 그 하위의 모든 답변들을 시간순으로 정렬
+        const allRelatedAnswers = [rootAnswer];
+
+        // 재귀적으로 모든 하위 답변들을 찾아서 추가
+        const findChildAnswers = (parentId: number) => {
+          const children = answers.filter(
+            (answer) => answer.parentId === parentId
+          );
+          children.forEach((child) => {
+            allRelatedAnswers.push(child);
+            findChildAnswers(child.id);
+          });
+        };
+
+        findChildAnswers(rootAnswer.id);
+
+        // 시간순으로 정렬
+        allRelatedAnswers.sort(
+          (a, b) =>
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        );
+
+        return allRelatedAnswers.map((answer) => {
+          const depth = getAnswerDepth(answer);
+
+          return (
+            <AnswerItem
+              key={answer.id}
+              $isBestAnswer={answer.isBestAnswer}
+              style={{
+                marginTop: depth > 0 ? "0.75rem" : "0",
+                marginLeft: `${depth * 20}px`, // depth에 따라 들여쓰기
+                borderRadius: "0.375rem",
+                padding: "0.75rem",
+              }}
+            >
+              <AnswerHeader>
+                <div>
+                  <AnswerAuthor
+                    style={{
+                      color: "#374151",
+                      fontWeight: "600",
+                      fontSize: "0.875rem",
+                    }}
+                  >
+                    <FaUser style={{ marginRight: "0.5rem" }} />
+                    {answer.author?.name || "알 수 없는 사용자"}
+                    <span
+                      style={{
+                        fontSize: "0.75rem",
+                        color: "#6b7280",
+                        marginLeft: "0.5rem",
+                        fontWeight: "400",
+                      }}
+                    >
+                      {answer.authorIp}
+                    </span>
+                    {depth > 0 && (
+                      <span
+                        style={{
+                          fontSize: "0.75rem",
+                          color: "#9ca3af",
+                          marginLeft: "0.5rem",
+                          fontWeight: "400",
+                        }}
+                      >
+                        답글
+                      </span>
+                    )}
+                  </AnswerAuthor>
+                  <AnswerDate style={{ color: "#6b7280" }}>
+                    {formatDate(answer.createdAt)}
+                  </AnswerDate>
+                  {answer.isBestAnswer && (
+                    <BestAnswerBadge>베스트 답변</BestAnswerBadge>
+                  )}
+                </div>
+                {/* 답변 작성자만 수정/삭제 버튼 표시 */}
+                {isAnswerAuthor(answer.author?.id || 0) && (
+                  <div style={{ display: "flex", gap: "0.5rem" }}>
+                    <button
+                      onClick={() => handleEditAnswer(answer)}
+                      style={{
+                        background: "none",
+                        color: "#6366f1",
+                        border: "none",
+                        borderRadius: "5px",
+                        padding: "0 10px",
+                        fontSize: "0.95rem",
+                        fontWeight: "600",
+                        cursor: "pointer",
+                        height: "28px",
+                        minWidth: "0",
+                        boxShadow: "none",
+                        whiteSpace: "nowrap",
+                        transition: "background 0.15s, color 0.15s",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                      onMouseOver={(e) => {
+                        e.currentTarget.style.background = "#f3f4f6";
+                      }}
+                      onMouseOut={(e) => {
+                        e.currentTarget.style.background = "none";
+                      }}
+                    >
+                      <FaEdit style={{ marginRight: "0.25rem" }} />
+                      수정
+                    </button>
+                    <button
+                      onClick={() => handleDeleteAnswer(answer.id)}
+                      disabled={deletingAnswer}
+                      style={{
+                        background: "none",
+                        color: "#ef4444",
+                        border: "none",
+                        borderRadius: "5px",
+                        padding: "0 10px",
+                        fontSize: "0.95rem",
+                        fontWeight: "600",
+                        cursor: "pointer",
+                        height: "28px",
+                        minWidth: "0",
+                        boxShadow: "none",
+                        whiteSpace: "nowrap",
+                        transition: "background 0.15s, color 0.15s",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                      onMouseOver={(e) => {
+                        e.currentTarget.style.background = "#f3f4f6";
+                      }}
+                      onMouseOut={(e) => {
+                        e.currentTarget.style.background = "none";
+                      }}
+                    >
+                      <FaTrash style={{ marginRight: "0.25rem" }} />
+                      {deletingAnswer ? "삭제 중..." : "삭제"}
+                    </button>
+                    <button
+                      onClick={() =>
+                        setReplyingToAnswerId(
+                          replyingToAnswerId === answer.id ? null : answer.id
+                        )
+                      }
+                      style={{
+                        background: "none",
+                        color: "#6366f1",
+                        border: "none",
+                        borderRadius: "5px",
+                        padding: "0 10px",
+                        fontSize: "0.95rem",
+                        fontWeight: "600",
+                        cursor: "pointer",
+                        height: "28px",
+                        minWidth: "0",
+                        boxShadow: "none",
+                        whiteSpace: "nowrap",
+                        transition: "background 0.15s, color 0.15s",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                      onMouseOver={(e) => {
+                        e.currentTarget.style.background = "#f3f4f6";
+                      }}
+                      onMouseOut={(e) => {
+                        e.currentTarget.style.background = "none";
+                      }}
+                    >
+                      {replyingToAnswerId === answer.id ? "취소" : "답글"}
+                    </button>
+                  </div>
+                )}
+                {/* 댓글 버튼 - 작성자가 아닌 경우 */}
+                {!isAnswerAuthor(answer.author?.id || 0) && (
+                  <div style={{ display: "flex", gap: "0.5rem" }}>
+                    <button
+                      onClick={() =>
+                        setReplyingToAnswerId(
+                          replyingToAnswerId === answer.id ? null : answer.id
+                        )
+                      }
+                      style={{
+                        background: "none",
+                        color: "#6366f1",
+                        border: "none",
+                        borderRadius: "5px",
+                        padding: "0 10px",
+                        fontSize: "0.95rem",
+                        fontWeight: "600",
+                        cursor: "pointer",
+                        height: "28px",
+                        minWidth: "0",
+                        boxShadow: "none",
+                        whiteSpace: "nowrap",
+                        transition: "background 0.15s, color 0.15s",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                      onMouseOver={(e) => {
+                        e.currentTarget.style.background = "#f3f4f6";
+                      }}
+                      onMouseOut={(e) => {
+                        e.currentTarget.style.background = "none";
+                      }}
+                    >
+                      {replyingToAnswerId === answer.id ? "취소" : "답글"}
+                    </button>
+                  </div>
+                )}
+              </AnswerHeader>
+              <AnswerText
+                style={{
+                  color: "#374151",
+                  lineHeight: "1.5",
+                  fontSize: "0.875rem",
+                }}
+              >
+                {editingAnswerId === answer.id ? (
+                  <div style={{ marginTop: "0.75rem" }}>
+                    <textarea
+                      value={editAnswerText}
+                      onChange={(e) => setEditAnswerText(e.target.value)}
+                      style={{
+                        width: "100%",
+                        minHeight: "60px",
+                        padding: "0.5rem",
+                        border: "1px solid #d1d5db",
+                        borderRadius: "0.375rem",
+                        fontSize: "0.875rem",
+                        resize: "vertical",
+                        backgroundColor: "#ffffff",
+                        color: "#374151",
+                      }}
+                      placeholder="댓글 내용을 수정하세요"
+                    />
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "0.5rem",
+                        marginTop: "0.5rem",
+                      }}
+                    >
+                      <button
+                        onClick={() => handleUpdateAnswer(answer.id)}
+                        disabled={!editAnswerText.trim() || updatingAnswer}
+                        style={{
+                          background: "#fdb924",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "0.375rem",
+                          padding: "0.375rem 0.75rem",
+                          fontSize: "0.75rem",
+                          fontWeight: "500",
+                          cursor: "pointer",
+                          transition: "background-color 0.2s ease",
+                        }}
+                        onMouseOver={(e) => {
+                          e.currentTarget.style.background = "#f59e0b";
+                        }}
+                        onMouseOut={(e) => {
+                          e.currentTarget.style.background = "#fdb924";
+                        }}
+                      >
+                        {updatingAnswer ? "수정 중..." : "수정 완료"}
+                      </button>
+                      <button
+                        onClick={handleCancelEditAnswer}
+                        disabled={updatingAnswer}
+                        style={{
+                          background: "#6b7280",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "0.375rem",
+                          padding: "0.375rem 0.75rem",
+                          fontSize: "0.75rem",
+                          fontWeight: "500",
+                          cursor: "pointer",
+                          transition: "background-color 0.2s ease",
+                        }}
+                        onMouseOver={(e) => {
+                          e.currentTarget.style.background = "#4b5563";
+                        }}
+                        onMouseOut={(e) => {
+                          e.currentTarget.style.background = "#6b7280";
+                        }}
+                      >
+                        취소
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  formatAnswerContent(answer.content)
+                )}
+              </AnswerText>
+
+              {/* 댓글 작성 폼 */}
+              {replyingToAnswerId === answer.id && (
+                <div
+                  style={{
+                    marginTop: "0.75rem",
+                    padding: "1rem",
+                    background: "#f9fafb",
+                    borderRadius: "0.5rem",
+                    border: "1px solid #e5e7eb",
+                  }}
+                >
+                  <div
+                    style={{
+                      marginBottom: "0.75rem",
+                      fontSize: "0.875rem",
+                      fontWeight: "600",
+                      color: "#374151",
+                    }}
+                  >
+                    댓글 작성
+                  </div>
+                  <AnswerForm>
+                    <AnswerTextArea
+                      placeholder="댓글을 입력하세요..."
+                      value={replyText}
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                        setReplyText(e.target.value)
+                      }
+                      disabled={submittingReply}
+                      style={{
+                        minHeight: "80px",
+                        border: "1px solid #d1d5db",
+                        borderRadius: "0.375rem",
+                        backgroundColor: "#ffffff",
+                      }}
+                    />
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "0.5rem",
+                        marginTop: "0.75rem",
+                      }}
+                    >
+                      <AnswerSubmitButton
+                        onClick={() => handleReplySubmit(answer.id)}
+                        disabled={!replyText.trim() || submittingReply}
+                        style={{
+                          flex: 1,
+                          background: "#fdb924",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "0.375rem",
+                          padding: "0.75rem 1rem",
+                          fontSize: "0.875rem",
+                          fontWeight: "500",
+                          cursor: "pointer",
+                          transition: "background-color 0.2s ease",
+                        }}
+                        onMouseOver={(e) => {
+                          e.currentTarget.style.background = "#f59e0b";
+                        }}
+                        onMouseOut={(e) => {
+                          e.currentTarget.style.background = "#fdb924";
+                        }}
+                      >
+                        {submittingReply ? "댓글 등록 중..." : "댓글 등록"}
+                      </AnswerSubmitButton>
+                      <button
+                        onClick={() => {
+                          setReplyingToAnswerId(null);
+                          setReplyText("");
+                        }}
+                        style={{
+                          background: "#6b7280",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "0.375rem",
+                          padding: "0.75rem 1rem",
+                          fontSize: "0.875rem",
+                          fontWeight: "500",
+                          cursor: "pointer",
+                          transition: "background-color 0.2s ease",
+                        }}
+                        onMouseOver={(e) => {
+                          e.currentTarget.style.background = "#4b5563";
+                        }}
+                        onMouseOut={(e) => {
+                          e.currentTarget.style.background = "#6b7280";
+                        }}
+                        disabled={submittingReply}
+                      >
+                        취소
+                      </button>
+                    </div>
+                  </AnswerForm>
+                </div>
+              )}
+            </AnswerItem>
+          );
+        });
+      })
+      .flat();
+  };
+
   if (!open) return null;
 
   return (
@@ -282,565 +746,7 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
               {error}
             </div>
           ) : answers.length > 0 ? (
-            <AnswerList>
-              {answers
-                .filter((answer) => !answer.parentId) // 부모 답변만 필터링
-                .map((parentAnswer) => (
-                  <div key={parentAnswer.id}>
-                    <AnswerItem
-                      $isBestAnswer={parentAnswer.isBestAnswer}
-                      style={{
-                        background: "#ffffff",
-                        borderRadius: "0.5rem",
-                        padding: "1rem",
-                        border: "1px solid #e5e7eb",
-                        marginBottom: "1rem",
-                      }}
-                    >
-                      <AnswerHeader>
-                        <div>
-                          <AnswerAuthor
-                            style={{
-                              color: "#374151",
-                              fontWeight: "600",
-                              fontSize: "0.875rem",
-                            }}
-                          >
-                            <FaUser style={{ marginRight: "0.5rem" }} />
-                            {parentAnswer.author?.name || "알 수 없는 사용자"}
-                          </AnswerAuthor>
-                          <AnswerDate style={{ color: "#6b7280" }}>
-                            {formatDate(parentAnswer.createdAt)}
-                          </AnswerDate>
-                          {parentAnswer.isBestAnswer && (
-                            <BestAnswerBadge>베스트 답변</BestAnswerBadge>
-                          )}
-                        </div>
-                        {/* 답변 작성자만 수정/삭제 버튼 표시 */}
-                        {isAnswerAuthor(parentAnswer.author?.id || 0) && (
-                          <div style={{ display: "flex", gap: "0.5rem" }}>
-                            <button
-                              onClick={() => handleEditAnswer(parentAnswer)}
-                              style={{
-                                background: "none",
-                                color: "#6366f1",
-                                border: "none",
-                                borderRadius: "5px",
-                                padding: "0 10px",
-                                fontSize: "0.95rem",
-                                fontWeight: "600",
-                                cursor: "pointer",
-                                height: "28px",
-                                minWidth: "0",
-                                boxShadow: "none",
-                                whiteSpace: "nowrap",
-                                transition: "background 0.15s, color 0.15s",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                              }}
-                              onMouseOver={(e) => {
-                                e.currentTarget.style.background = "#f3f4f6";
-                              }}
-                              onMouseOut={(e) => {
-                                e.currentTarget.style.background = "none";
-                              }}
-                            >
-                              <FaEdit style={{ marginRight: "0.25rem" }} />
-                              수정
-                            </button>
-                            <button
-                              onClick={() =>
-                                handleDeleteAnswer(parentAnswer.id)
-                              }
-                              disabled={deletingAnswer}
-                              style={{
-                                background: "none",
-                                color: "#ef4444",
-                                border: "none",
-                                borderRadius: "5px",
-                                padding: "0 10px",
-                                fontSize: "0.95rem",
-                                fontWeight: "600",
-                                cursor: "pointer",
-                                height: "28px",
-                                minWidth: "0",
-                                boxShadow: "none",
-                                whiteSpace: "nowrap",
-                                transition: "background 0.15s, color 0.15s",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                              }}
-                              onMouseOver={(e) => {
-                                e.currentTarget.style.background = "#f3f4f6";
-                              }}
-                              onMouseOut={(e) => {
-                                e.currentTarget.style.background = "none";
-                              }}
-                            >
-                              <FaTrash style={{ marginRight: "0.25rem" }} />
-                              {deletingAnswer ? "삭제 중..." : "삭제"}
-                            </button>
-                          </div>
-                        )}
-                      </AnswerHeader>
-                      <AnswerText
-                        style={{
-                          color: "#374151",
-                          lineHeight: "1.6",
-                          fontSize: "0.875rem",
-                          marginTop: "0.75rem",
-                        }}
-                      >
-                        {editingAnswerId === parentAnswer.id ? (
-                          <div style={{ marginTop: "0.75rem" }}>
-                            <textarea
-                              value={editAnswerText}
-                              onChange={(e) =>
-                                setEditAnswerText(e.target.value)
-                              }
-                              style={{
-                                width: "100%",
-                                minHeight: "80px",
-                                padding: "0.75rem",
-                                border: "1px solid #d1d5db",
-                                borderRadius: "0.375rem",
-                                fontSize: "0.875rem",
-                                resize: "vertical",
-                                backgroundColor: "#ffffff",
-                                color: "#374151",
-                              }}
-                              placeholder="답변 내용을 수정하세요"
-                            />
-                            <div
-                              style={{
-                                display: "flex",
-                                gap: "0.5rem",
-                                marginTop: "0.75rem",
-                              }}
-                            >
-                              <button
-                                onClick={() =>
-                                  handleUpdateAnswer(parentAnswer.id)
-                                }
-                                disabled={
-                                  !editAnswerText.trim() || updatingAnswer
-                                }
-                                style={{
-                                  background: "#fdb924",
-                                  color: "white",
-                                  border: "none",
-                                  borderRadius: "0.375rem",
-                                  padding: "0.5rem 1rem",
-                                  fontSize: "0.875rem",
-                                  fontWeight: "500",
-                                  cursor: "pointer",
-                                  transition: "background-color 0.2s ease",
-                                }}
-                                onMouseOver={(e) => {
-                                  e.currentTarget.style.background = "#f59e0b";
-                                }}
-                                onMouseOut={(e) => {
-                                  e.currentTarget.style.background = "#fdb924";
-                                }}
-                              >
-                                {updatingAnswer ? "수정 중..." : "수정 완료"}
-                              </button>
-                              <button
-                                onClick={handleCancelEditAnswer}
-                                disabled={updatingAnswer}
-                                style={{
-                                  background: "#6b7280",
-                                  color: "white",
-                                  border: "none",
-                                  borderRadius: "0.375rem",
-                                  padding: "0.5rem 1rem",
-                                  fontSize: "0.875rem",
-                                  fontWeight: "500",
-                                  cursor: "pointer",
-                                  transition: "background-color 0.2s ease",
-                                }}
-                                onMouseOver={(e) => {
-                                  e.currentTarget.style.background = "#4b5563";
-                                }}
-                                onMouseOut={(e) => {
-                                  e.currentTarget.style.background = "#6b7280";
-                                }}
-                              >
-                                취소
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          parentAnswer.content
-                        )}
-                      </AnswerText>
-
-                      {/* 답변에 대한 답변 작성 버튼 */}
-                      <div
-                        style={{
-                          marginTop: "0.75rem",
-                          display: "flex",
-                          gap: "0.5rem",
-                        }}
-                      >
-                        <button
-                          onClick={() =>
-                            setReplyingToAnswerId(
-                              replyingToAnswerId === parentAnswer.id
-                                ? null
-                                : parentAnswer.id
-                            )
-                          }
-                          style={{
-                            background:
-                              replyingToAnswerId === parentAnswer.id
-                                ? "#f3f4f6"
-                                : "none",
-                            color: "#6366f1",
-                            border: "1px solid #d1d5db",
-                            borderRadius: "0.375rem",
-                            padding: "0.5rem 1rem",
-                            fontSize: "0.875rem",
-                            fontWeight: "500",
-                            cursor: "pointer",
-                            transition: "all 0.2s ease",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                          onMouseOver={(e) => {
-                            e.currentTarget.style.background = "#f3f4f6";
-                          }}
-                          onMouseOut={(e) => {
-                            e.currentTarget.style.background =
-                              replyingToAnswerId === parentAnswer.id
-                                ? "#f3f4f6"
-                                : "none";
-                          }}
-                        >
-                          {replyingToAnswerId === parentAnswer.id
-                            ? "취소"
-                            : "댓글"}
-                        </button>
-                      </div>
-
-                      {/* 답변에 대한 답변 작성 폼 */}
-                      {replyingToAnswerId === parentAnswer.id && (
-                        <div
-                          style={{
-                            marginTop: "0.75rem",
-                            padding: "1rem",
-                            background: "#f9fafb",
-                            borderRadius: "0.5rem",
-                            border: "1px solid #e5e7eb",
-                          }}
-                        >
-                          <div
-                            style={{
-                              marginBottom: "0.75rem",
-                              fontSize: "0.875rem",
-                              fontWeight: "600",
-                              color: "#374151",
-                            }}
-                          >
-                            댓글 작성
-                          </div>
-                          <AnswerForm>
-                            <AnswerTextArea
-                              placeholder="댓글을 입력하세요..."
-                              value={replyText}
-                              onChange={(
-                                e: React.ChangeEvent<HTMLTextAreaElement>
-                              ) => setReplyText(e.target.value)}
-                              disabled={submittingReply}
-                              style={{
-                                minHeight: "80px",
-                                border: "1px solid #d1d5db",
-                                borderRadius: "0.375rem",
-                                backgroundColor: "#ffffff",
-                              }}
-                            />
-                            <div
-                              style={{
-                                display: "flex",
-                                gap: "0.5rem",
-                                marginTop: "0.75rem",
-                              }}
-                            >
-                              <AnswerSubmitButton
-                                onClick={() =>
-                                  handleReplySubmit(parentAnswer.id)
-                                }
-                                disabled={!replyText.trim() || submittingReply}
-                                style={{
-                                  flex: 1,
-                                  background: "#fdb924",
-                                  color: "white",
-                                  border: "none",
-                                  borderRadius: "0.375rem",
-                                  padding: "0.75rem 1rem",
-                                  fontSize: "0.875rem",
-                                  fontWeight: "500",
-                                  cursor: "pointer",
-                                  transition: "background-color 0.2s ease",
-                                }}
-                                onMouseOver={(e) => {
-                                  e.currentTarget.style.background = "#f59e0b";
-                                }}
-                                onMouseOut={(e) => {
-                                  e.currentTarget.style.background = "#fdb924";
-                                }}
-                              >
-                                {submittingReply
-                                  ? "댓글 등록 중..."
-                                  : "댓글 등록"}
-                              </AnswerSubmitButton>
-                              <button
-                                onClick={() => {
-                                  setReplyingToAnswerId(null);
-                                  setReplyText("");
-                                }}
-                                style={{
-                                  background: "#6b7280",
-                                  color: "white",
-                                  border: "none",
-                                  borderRadius: "0.375rem",
-                                  padding: "0.75rem 1rem",
-                                  fontSize: "0.875rem",
-                                  fontWeight: "500",
-                                  cursor: "pointer",
-                                  transition: "background-color 0.2s ease",
-                                }}
-                                onMouseOver={(e) => {
-                                  e.currentTarget.style.background = "#4b5563";
-                                }}
-                                onMouseOut={(e) => {
-                                  e.currentTarget.style.background = "#6b7280";
-                                }}
-                                disabled={submittingReply}
-                              >
-                                취소
-                              </button>
-                            </div>
-                          </AnswerForm>
-                        </div>
-                      )}
-                    </AnswerItem>
-
-                    {/* 자식 답변들 표시 */}
-                    {answers
-                      .filter(
-                        (childAnswer) =>
-                          childAnswer.parentId === parentAnswer.id
-                      )
-                      .map((childAnswer) => (
-                        <AnswerItem
-                          key={childAnswer.id}
-                          $isBestAnswer={childAnswer.isBestAnswer}
-                          style={{
-                            marginLeft: "2rem",
-                            marginTop: "0.75rem",
-                            borderLeft: "3px solid #e5e7eb",
-                            paddingLeft: "1rem",
-                            background: "#f9fafb",
-                            borderRadius: "0.375rem",
-                            padding: "0.75rem",
-                          }}
-                        >
-                          <AnswerHeader>
-                            <div>
-                              <AnswerAuthor
-                                style={{
-                                  color: "#374151",
-                                  fontWeight: "600",
-                                  fontSize: "0.875rem",
-                                }}
-                              >
-                                <FaUser style={{ marginRight: "0.5rem" }} />
-                                {childAnswer.author?.name ||
-                                  "알 수 없는 사용자"}
-                              </AnswerAuthor>
-                              <AnswerDate style={{ color: "#6b7280" }}>
-                                {formatDate(childAnswer.createdAt)}
-                              </AnswerDate>
-                              {childAnswer.isBestAnswer && (
-                                <BestAnswerBadge>베스트 답변</BestAnswerBadge>
-                              )}
-                            </div>
-                            {/* 댓글 작성자만 수정/삭제 버튼 표시 */}
-                            {isAnswerAuthor(childAnswer.author?.id || 0) && (
-                              <div style={{ display: "flex", gap: "0.5rem" }}>
-                                <button
-                                  onClick={() => handleEditAnswer(childAnswer)}
-                                  style={{
-                                    background: "none",
-                                    color: "#6366f1",
-                                    border: "none",
-                                    borderRadius: "5px",
-                                    padding: "0 10px",
-                                    fontSize: "0.95rem",
-                                    fontWeight: "600",
-                                    cursor: "pointer",
-                                    height: "28px",
-                                    minWidth: "0",
-                                    boxShadow: "none",
-                                    whiteSpace: "nowrap",
-                                    transition: "background 0.15s, color 0.15s",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                  }}
-                                  onMouseOver={(e) => {
-                                    e.currentTarget.style.background =
-                                      "#f3f4f6";
-                                  }}
-                                  onMouseOut={(e) => {
-                                    e.currentTarget.style.background = "none";
-                                  }}
-                                >
-                                  <FaEdit style={{ marginRight: "0.25rem" }} />
-                                  수정
-                                </button>
-                                <button
-                                  onClick={() =>
-                                    handleDeleteAnswer(childAnswer.id)
-                                  }
-                                  disabled={deletingAnswer}
-                                  style={{
-                                    background: "none",
-                                    color: "#ef4444",
-                                    border: "none",
-                                    borderRadius: "5px",
-                                    padding: "0 10px",
-                                    fontSize: "0.95rem",
-                                    fontWeight: "600",
-                                    cursor: "pointer",
-                                    height: "28px",
-                                    minWidth: "0",
-                                    boxShadow: "none",
-                                    whiteSpace: "nowrap",
-                                    transition: "background 0.15s, color 0.15s",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                  }}
-                                  onMouseOver={(e) => {
-                                    e.currentTarget.style.background =
-                                      "#f3f4f6";
-                                  }}
-                                  onMouseOut={(e) => {
-                                    e.currentTarget.style.background = "none";
-                                  }}
-                                >
-                                  <FaTrash style={{ marginRight: "0.25rem" }} />
-                                  {deletingAnswer ? "삭제 중..." : "삭제"}
-                                </button>
-                              </div>
-                            )}
-                          </AnswerHeader>
-                          <AnswerText
-                            style={{
-                              color: "#374151",
-                              lineHeight: "1.5",
-                              fontSize: "0.875rem",
-                            }}
-                          >
-                            {editingAnswerId === childAnswer.id ? (
-                              <div style={{ marginTop: "0.75rem" }}>
-                                <textarea
-                                  value={editAnswerText}
-                                  onChange={(e) =>
-                                    setEditAnswerText(e.target.value)
-                                  }
-                                  style={{
-                                    width: "100%",
-                                    minHeight: "60px",
-                                    padding: "0.5rem",
-                                    border: "1px solid #d1d5db",
-                                    borderRadius: "0.375rem",
-                                    fontSize: "0.875rem",
-                                    resize: "vertical",
-                                    backgroundColor: "#ffffff",
-                                    color: "#374151",
-                                  }}
-                                  placeholder="댓글 내용을 수정하세요"
-                                />
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    gap: "0.5rem",
-                                    marginTop: "0.5rem",
-                                  }}
-                                >
-                                  <button
-                                    onClick={() =>
-                                      handleUpdateAnswer(childAnswer.id)
-                                    }
-                                    disabled={
-                                      !editAnswerText.trim() || updatingAnswer
-                                    }
-                                    style={{
-                                      background: "#fdb924",
-                                      color: "white",
-                                      border: "none",
-                                      borderRadius: "0.375rem",
-                                      padding: "0.375rem 0.75rem",
-                                      fontSize: "0.75rem",
-                                      fontWeight: "500",
-                                      cursor: "pointer",
-                                      transition: "background-color 0.2s ease",
-                                    }}
-                                    onMouseOver={(e) => {
-                                      e.currentTarget.style.background =
-                                        "#f59e0b";
-                                    }}
-                                    onMouseOut={(e) => {
-                                      e.currentTarget.style.background =
-                                        "#fdb924";
-                                    }}
-                                  >
-                                    {updatingAnswer
-                                      ? "수정 중..."
-                                      : "수정 완료"}
-                                  </button>
-                                  <button
-                                    onClick={handleCancelEditAnswer}
-                                    disabled={updatingAnswer}
-                                    style={{
-                                      background: "#6b7280",
-                                      color: "white",
-                                      border: "none",
-                                      borderRadius: "0.375rem",
-                                      padding: "0.375rem 0.75rem",
-                                      fontSize: "0.75rem",
-                                      fontWeight: "500",
-                                      cursor: "pointer",
-                                      transition: "background-color 0.2s ease",
-                                    }}
-                                    onMouseOver={(e) => {
-                                      e.currentTarget.style.background =
-                                        "#4b5563";
-                                    }}
-                                    onMouseOut={(e) => {
-                                      e.currentTarget.style.background =
-                                        "#6b7280";
-                                    }}
-                                  >
-                                    취소
-                                  </button>
-                                </div>
-                              </div>
-                            ) : (
-                              childAnswer.content
-                            )}
-                          </AnswerText>
-                        </AnswerItem>
-                      ))}
-                  </div>
-                ))}
-            </AnswerList>
+            <AnswerList>{renderAllAnswers()}</AnswerList>
           ) : (
             <div
               style={{ textAlign: "center", padding: "2rem", color: "#6b7280" }}
