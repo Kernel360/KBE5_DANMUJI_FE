@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { FaUser, FaEdit, FaTrash } from "react-icons/fa";
 import {
   ModalOverlay,
@@ -60,7 +60,7 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
   const [deletingAnswer, setDeletingAnswer] = useState(false);
 
   // 답변 목록 조회
-  const fetchAnswers = async () => {
+  const fetchAnswers = useCallback(async () => {
     if (!questionId) return;
 
     try {
@@ -76,7 +76,7 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [questionId]);
 
   useEffect(() => {
     if (open && questionId) {
@@ -86,7 +86,7 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
       setError(null);
       setAnswerText("");
     }
-  }, [open, questionId]);
+  }, [open, questionId, fetchAnswers]);
 
   // 답변 작성 핸들러
   const handleAnswerSubmit = async () => {
