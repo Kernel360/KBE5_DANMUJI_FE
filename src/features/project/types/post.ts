@@ -41,6 +41,8 @@ export type Project = {
 
 // 댓글 타입
 export type Comment = {
+  status: string;
+  deletedAt: any;
   id: number;
   postId: number;
   parentCommentId: number | null;
@@ -65,6 +67,8 @@ export type PostCreateData = {
 
 // 게시글 타입 (기존 Post와 PostDetail 통합)
 export type Post = {
+  attachments: any;
+  attachments(attachments: any): unknown;
   postId: number;
   parentId: number | null;
   projectStepId: number;

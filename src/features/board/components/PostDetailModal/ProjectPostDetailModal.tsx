@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   ModalOverlay,
   ModalPanel,
   ModalHeader,
-  CloseButton,
   ModalHeaderActionButton,
   ModalBody,
   SectionTitle,
@@ -60,7 +58,6 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
   onEditPost,
   onReplyPost,
 }) => {
-  const navigate = useNavigate();
   const { user } = useAuth();
   const [commentText, setCommentText] = useState("");
   const [post, setPost] = useState<Post | null>(null);
@@ -289,7 +286,8 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
       while (parent) {
         if (parent === comment.id) return true;
         const parentComment = comments.find((cc) => cc.id === parent);
-        parent = parentComment?.parentCommentId;
+        parent = parentComment?.parentCommentId ?? null;
+        if (!parent) return false;
       }
       return false;
     });
@@ -314,7 +312,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
         while (parent) {
           if (parent === rootComment.id) return true;
           const parentComment = visibleComments.find((cc) => cc.id === parent);
-          parent = parentComment?.parentCommentId;
+          parent = parentComment?.parentCommentId ?? null;
         }
         return false;
       });
@@ -573,86 +571,94 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                 첨부 파일
               </div>
               <div>
-                {("attachments" in post &&
-                (post as { attachments?: { name: string; size: string }[] })
-                  .attachments &&
-                (post as { attachments?: { name: string; size: string }[] })
-                  .attachments.length > 0
-                  ? (post as { attachments: { name: string; size: string }[] })
-                      .attachments
-                  : [
-                      { name: "ERP_DB_ERD_v1.2.pdf", size: "2.4MB" },
-                      { name: "ERP_DB_SQL_Scripts.zip", size: "1.8MB" },
-                    ]
-                ).map((file: { name: string; size: string }, idx: number) => {
-                  const ext = file.name.split(".").pop();
-                  let icon = null;
-                  if (ext === "pdf")
-                    icon = (
-                      <span
-                        style={{
-                          display: "inline-block",
-                          width: 18,
-                          height: 18,
-                          background: "#e74c3c",
-                          borderRadius: 4,
-                          marginRight: 8,
-                        }}
-                      />
-                    );
-                  else if (ext === "zip")
-                    icon = (
-                      <span
-                        style={{
-                          display: "inline-block",
-                          width: 18,
-                          height: 18,
-                          background: "#f1c40f",
-                          borderRadius: 4,
-                          marginRight: 8,
-                        }}
-                      />
-                    );
-                  else
-                    icon = (
-                      <span
-                        style={{
-                          display: "inline-block",
-                          width: 18,
-                          height: 18,
-                          background: "#bdbdbd",
-                          borderRadius: 4,
-                          marginRight: 8,
-                        }}
-                      />
-                    );
-                  return (
-                    <div
-                      key={idx}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        background: "#f7f7f8",
-                        borderRadius: 8,
-                        padding: "10px 14px",
-                        marginBottom: 8,
-                        fontSize: 14,
-                      }}
-                    >
-                      {icon}
-                      <span style={{ flex: 1 }}>{file.name}</span>
-                      <span
-                        style={{
-                          color: "#b0b0b0",
-                          fontSize: 12,
-                          marginLeft: 8,
-                        }}
-                      >
-                        {file.size}
-                      </span>
-                    </div>
-                  );
-                })}
+                {"attachments" in post && post.attachments?.length > 0 ? (
+                  post.attachments.map(
+                    (file: { name: string; size: string }, idx: number) => {
+                      const ext = file.name.split(".").pop();
+                      let icon = null;
+                      if (ext === "pdf")
+                        icon = (
+                          <span
+                            style={{
+                              display: "inline-block",
+                              width: 18,
+                              height: 18,
+                              background: "#e74c3c",
+                              borderRadius: 4,
+                              marginRight: 8,
+                            }}
+                          />
+                        );
+                      else if (ext === "zip")
+                        icon = (
+                          <span
+                            style={{
+                              display: "inline-block",
+                              width: 18,
+                              height: 18,
+                              background: "#f1c40f",
+                              borderRadius: 4,
+                              marginRight: 8,
+                            }}
+                          />
+                        );
+                      else
+                        icon = (
+                          <span
+                            style={{
+                              display: "inline-block",
+                              width: 18,
+                              height: 18,
+                              background: "#bdbdbd",
+                              borderRadius: 4,
+                              marginRight: 8,
+                            }}
+                          />
+                        );
+                      return (
+                        <div
+                          key={idx}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            background: "#f7f7f8",
+                            borderRadius: 8,
+                            padding: "10px 14px",
+                            marginBottom: 8,
+                            fontSize: 14,
+                          }}
+                        >
+                          {icon}
+                          <span style={{ flex: 1 }}>{file.name}</span>
+                          <span
+                            style={{
+                              color: "#b0b0b0",
+                              fontSize: 12,
+                              marginLeft: 8,
+                            }}
+                          >
+                            {file.size}
+                          </span>
+                        </div>
+                      );
+                    }
+                  )
+                ) : (
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      background: "#f7f7f8",
+                      borderRadius: 8,
+                      padding: "10px 14px",
+                      fontSize: 14,
+                      color: "#9ca3af",
+                      fontStyle: "italic",
+                    }}
+                  >
+                    첨부된 파일이 없습니다.
+                  </div>
+                )}
               </div>
             </div>
 
@@ -728,7 +734,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                             const parentComment = commentsToRender.find(
                               (cc) => cc.id === parent
                             );
-                            parent = parentComment?.parentCommentId;
+                            parent = parentComment?.parentCommentId ?? null;
                           }
                           return false;
                         });
@@ -965,7 +971,8 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                         commentsToRender.find(
                                           (cc) => cc.id === parent
                                         );
-                                      parent = parentComment?.parentCommentId;
+                                      parent =
+                                        parentComment?.parentCommentId ?? null;
                                     }
                                     return false;
                                   }

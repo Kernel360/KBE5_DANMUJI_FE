@@ -1,24 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import { useLocation } from "react-router-dom";
 import {
-  AiOutlineBarChart,
   AiOutlineFileText,
-  AiOutlineTag,
-  AiOutlineFile,
   AiOutlineSearch,
   AiOutlineReload,
 } from "react-icons/ai";
+import {
+  getPostsWithComments,
+  searchPosts,
+} from "@/features/project/services/postService";
+import type { Post } from "@/features/project/types/post";
 import {
   PageContainer,
   Header,
   Title,
   Description,
-  Toolbar,
   FilterSelect,
   SearchInput,
-  SearchIcon,
   TableContainer,
   Table,
   TableHead,
@@ -26,40 +24,30 @@ import {
   TableBody,
   TableRow,
   TableCell,
+  PostTitle,
   StatusBadge,
   PaginationContainer,
   PaginationInfo,
   PaginationNav,
   PaginationButton,
-  PostTitle,
   LoadingSpinner,
   ErrorMessage,
   CreateButton,
-  ToolbarLeft,
-  ToolbarRight,
   FilterSection,
   FilterHeader,
-  FilterTitle,
   FilterToggleButton,
   FilterGrid,
   FilterGroup,
   FilterLabel,
-  FilterInput,
   FilterButtonGroup,
   SearchButton,
   ResetButton,
-  DateRangeGroup,
-  DateRangeLabel,
-  StyledDatePicker,
 } from "./PostListPage.styled";
 import PostDetailModal from "../components/PostDetailModal/ProjectPostDetailModal";
 import PostFormModal from "../components/PostFormModal/PostFormModal";
-import {
-  searchPosts,
-  getPostsWithComments,
-} from "@/features/project/services/postService";
-import type { Post, PostStatus, PostType } from "@/features/project/types/post";
-import { useLocation } from "react-router-dom";
+
+type PostStatus = "PENDING" | "APPROVED" | "REJECTED";
+type PostType = "GENERAL" | "NOTICE" | "REPORT";
 
 const formatDate = (dateString: string) => {
   const options: Intl.DateTimeFormatOptions = {
@@ -137,15 +125,16 @@ const getPriorityStyle = (priority: number) => {
 const stepName = "설계"; // TODO: 실제 단계명 연동 시 교체
 
 export default function PostListPage() {
-  const navigate = useNavigate();
   const location = useLocation();
   const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
-  const [itemsPerPage] = useState(10); // 고정값으로 설정
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
-  // 필터링 검색 관련 상태
+  // 검색 및 필터 상태
   const [searchTerm, setSearchTerm] = useState("");
   const [searchType, setSearchType] = useState<"title" | "content" | "author">(
     "title"
@@ -153,19 +142,12 @@ export default function PostListPage() {
   const [statusFilter, setStatusFilter] = useState<PostStatus | "ALL">("ALL");
   const [typeFilter, setTypeFilter] = useState<PostType | "ALL">("ALL");
   const [priorityFilter, setPriorityFilter] = useState<number | "ALL">("ALL");
-  const [assigneeFilter, setAssigneeFilter] = useState<string>("");
-  const [clientFilter, setClientFilter] = useState<string>("");
-  const [startDate, setStartDate] = useState<string>("");
-  const [endDate, setEndDate] = useState<string>("");
+  const [assigneeFilter, setAssigneeFilter] = useState("");
+  const [clientFilter, setClientFilter] = useState("");
   const [isFilterExpanded, setIsFilterExpanded] = useState(true);
-  const [isFilterChanged, setIsFilterChanged] = useState(false);
 
   const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  // PostFormModal 관련 상태
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [formModalMode, setFormModalMode] = useState<"create" | "edit">(
     "create"
@@ -175,25 +157,27 @@ export default function PostListPage() {
     null
   );
 
+  // PostFormModal 관련 상태
+  const [isFilterChanged, setIsFilterChanged] = useState(false);
+
   // 모든 프로젝트의 게시글을 가져오는 함수 (임시로 프로젝트 ID 1 사용)
   const fetchPosts = async () => {
-    try {
-      setLoading(true);
-      setError(null);
+    setLoading(true);
+    setError(null);
 
+    try {
       let response;
 
-      // 검색어가 있거나 필터가 적용된 경우 검색 API 사용
+      // 검색어나 필터가 있는 경우 검색 API 사용
       const hasFilters =
+        searchTerm.trim() ||
         statusFilter !== "ALL" ||
         typeFilter !== "ALL" ||
         priorityFilter !== "ALL" ||
         assigneeFilter !== "" ||
-        clientFilter !== "" ||
-        startDate ||
-        endDate;
+        clientFilter !== "";
 
-      if (searchTerm.trim() || hasFilters) {
+      if (hasFilters) {
         const searchParams = {
           status: statusFilter === "ALL" ? undefined : statusFilter,
           type: typeFilter === "ALL" ? undefined : typeFilter,
@@ -212,25 +196,14 @@ export default function PostListPage() {
           searchParams.author = searchTerm;
         }
 
-        console.log("검색 파라미터:", searchParams);
-        console.log("실제 전송될 파라미터:", {
-          stepId: 1, // 임시로 단계 ID 1 사용
-          ...searchParams,
-          page: currentPage,
-          size: itemsPerPage,
-        });
         response = await searchPosts(
           1,
           searchParams,
           currentPage,
           itemsPerPage
         );
-        console.log("검색 API 응답:", response);
-        console.log("검색 결과 데이터:", response.data);
-        console.log("======================");
       } else {
         // 검색어도 없고 필터도 없는 경우에만 일반 목록 API 사용
-
         response = await getPostsWithComments(
           1, // 임시로 단계 ID 1 사용
           currentPage,
@@ -249,15 +222,12 @@ export default function PostListPage() {
           response.data.page.totalPages > 1 &&
           response.data.page.number > 0
         ) {
-          console.log(
-            `현재 페이지(${response.data.page.number})에 게시글이 없어서 이전 페이지로 이동합니다.`
-          );
           setCurrentPage(response.data.page.number - 1);
         }
       }
     } catch (err) {
       if (err instanceof Error && err.message.includes("완료")) {
-        console.log(err.message);
+        // 완료 메시지는 무시
       } else {
         setError("게시글을 불러오는 중 오류가 발생했습니다.");
         console.error("게시글 목록 조회 중 오류:", err);
@@ -287,7 +257,6 @@ export default function PostListPage() {
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
-    // setIsFilterChanged(true); // 실시간 검색 제거
   };
 
   const handleSearchKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -308,12 +277,10 @@ export default function PostListPage() {
     e: React.ChangeEvent<HTMLSelectElement>
   ) => {
     setStatusFilter(e.target.value as PostStatus | "ALL");
-    // setIsFilterChanged(true); // 실시간 필터링 제거
   };
 
   const handleTypeFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setTypeFilter(e.target.value as PostType | "ALL");
-    // setIsFilterChanged(true); // 실시간 필터링 제거
   };
 
   const handlePriorityFilterChange = (
@@ -322,7 +289,6 @@ export default function PostListPage() {
     setPriorityFilter(
       e.target.value === "ALL" ? "ALL" : Number(e.target.value)
     );
-    // setIsFilterChanged(true); // 실시간 필터링 제거
   };
 
   const handleItemsPerPageChange = (
@@ -364,9 +330,8 @@ export default function PostListPage() {
     fetchPosts();
   };
 
-  const handlePostDelete = (deletedPostId: number) => {
+  const handlePostDelete = () => {
     // 게시글 삭제 후 목록 새로고침 (백엔드에서 삭제된 게시글 제외하고 반환)
-    console.log(`게시글 ${deletedPostId} 삭제 후 목록 새로고침`);
     fetchPosts();
   };
 
@@ -377,19 +342,16 @@ export default function PostListPage() {
 
   const handleSearchTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSearchType(e.target.value as "title" | "content" | "author");
-    // setIsFilterChanged(true); // 실시간 필터링 제거
   };
 
   const handleAssigneeFilterChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     setAssigneeFilter(e.target.value);
-    // setIsFilterChanged(true); // 실시간 필터링 제거
   };
 
   const handleClientFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setClientFilter(e.target.value);
-    // setIsFilterChanged(true); // 실시간 필터링 제거
   };
 
   const handleSearch = () => {
@@ -406,8 +368,6 @@ export default function PostListPage() {
     setPriorityFilter("ALL");
     setAssigneeFilter("");
     setClientFilter("");
-    setStartDate("");
-    setEndDate("");
     setCurrentPage(0);
     setIsFilterChanged(false);
   };
@@ -440,7 +400,9 @@ export default function PostListPage() {
       {/* 필터링 검색 영역 */}
       <FilterSection>
         <FilterHeader>
-          <FilterTitle>검색 및 필터</FilterTitle>
+          <div style={{ fontSize: "1.1rem", fontWeight: "600", color: "#333" }}>
+            검색 및 필터
+          </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <FilterToggleButton onClick={handleFilterToggle}>
               {isFilterExpanded ? "필터 접기" : "필터 펼치기"}

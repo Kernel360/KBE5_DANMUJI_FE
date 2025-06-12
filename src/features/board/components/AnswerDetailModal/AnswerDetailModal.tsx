@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaUser, FaComment, FaEdit, FaTrash, FaReply } from "react-icons/fa";
+import { FaUser, FaEdit, FaTrash } from "react-icons/fa";
 import {
   ModalOverlay,
   ModalPanel,
@@ -101,22 +101,11 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
       });
 
       if (response.status === "CREATED" || response.message?.includes("성공")) {
-        // 답변 생성 성공
-        console.log("답변 생성 성공:", response);
-
         // 답변 입력 초기화
         setAnswerText("");
-
-        // 답변 목록 새로고침
         await fetchAnswers();
-
-        // 질문 상태를 "답변 완료"로 변경
         await markQuestionAsAnswered(questionId);
-
-        // 부모 컴포넌트에 답변 생성 알림
-        if (onAnswerCreated) {
-          onAnswerCreated();
-        }
+        if (onAnswerCreated) onAnswerCreated();
       }
     } catch (err) {
       console.error("답변 작성 중 오류:", err);
@@ -132,43 +121,25 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
 
     try {
       setSubmittingReply(true);
-
-      // 부모 답변 찾기
       const parentAnswer = answers.find(
         (answer) => answer.id === parentAnswerId
       );
       const parentAuthorName =
         parentAnswer?.author?.name || "알 수 없는 사용자";
-
-      // 답변에 대한 댓글인지 확인 (parentId가 있는 답변에 대한 댓글인지)
       const isReplyToReply = parentAnswer?.parentId;
-
-      // @태그를 포함한 댓글 내용 생성
       const contentWithTag = isReplyToReply
         ? `답글 @${parentAuthorName} ${replyText.trim()}`
         : `@${parentAuthorName} ${replyText.trim()}`;
-
       const response = await createAnswer({
         questionId,
         parentId: parentAnswerId,
         content: contentWithTag,
       });
-
       if (response.status === "CREATED" || response.message?.includes("성공")) {
-        // 답변 생성 성공
-        console.log("답변에 대한 답변 생성 성공:", response);
-
-        // 답변 입력 초기화
         setReplyText("");
         setReplyingToAnswerId(null);
-
-        // 답변 목록 새로고침
         await fetchAnswers();
-
-        // 부모 컴포넌트에 답변 생성 알림
-        if (onAnswerCreated) {
-          onAnswerCreated();
-        }
+        if (onAnswerCreated) onAnswerCreated();
       }
     } catch (err) {
       console.error("답변에 대한 답변 작성 중 오류:", err);
@@ -216,20 +187,13 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
 
   // 답변 삭제
   const handleDeleteAnswer = async (answerId: number) => {
-    if (!confirm("정말로 이 답변을 삭제하시겠습니까?")) return;
-
+    if (!window.confirm("정말로 이 답변을 삭제하시겠습니까?")) return;
     try {
       setDeletingAnswer(true);
       const response = await deleteAnswer(answerId);
-
       if (response.status === "OK" || response.message?.includes("완료")) {
-        // 답변 목록 새로고침
         await fetchAnswers();
-
-        // 부모 컴포넌트에 답변 삭제 알림
-        if (onAnswerCreated) {
-          onAnswerCreated();
-        }
+        if (onAnswerCreated) onAnswerCreated();
       }
     } catch (err) {
       console.error("답변 삭제 중 오류:", err);
@@ -244,7 +208,8 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
     return user?.id === authorId;
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return "";
     const options: Intl.DateTimeFormatOptions = {
       year: "numeric",
       month: "long",
@@ -277,41 +242,34 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
     });
   };
 
-  // 답변의 depth를 계산하는 함수
-  const getAnswerDepth = (answer: Answer): number => {
-    let depth = 0;
-    let currentAnswer = answer;
-
-    while (currentAnswer.parentId) {
-      const parent = answers.find((a) => a.id === currentAnswer.parentId);
-      if (!parent) break;
-      depth++;
-      currentAnswer = parent;
-    }
-
-    return depth;
-  };
-
   // soft delete 제외한 답변만 필터링
-  const visibleAnswers = answers.filter(a => !a.deletedAt && a.status !== "DELETED");
-  
-  // 삭제된 루트 답변 중 댓글이 있는 것들만 필터링
-  const deletedRootAnswersWithComments = answers.filter(a => 
-    a.deletedAt && 
-    !a.parentId && 
-    answers.some(comment => comment.parentId === a.id && !comment.deletedAt && comment.status !== "DELETED")
+  const visibleAnswers = answers.filter(
+    (a) => !a.deletedAt && a.status !== "DELETED"
   );
-  
+
+  // 삭제된 루트 답변 중 댓글이 있는 것들만 필터링
+  const deletedRootAnswersWithComments = answers.filter(
+    (a) =>
+      a.deletedAt &&
+      !a.parentId &&
+      answers.some(
+        (comment) =>
+          comment.parentId === a.id &&
+          !comment.deletedAt &&
+          comment.status !== "DELETED"
+      )
+  );
+
   // 루트 답변(답변) - 삭제되지 않은 것들
-  const visibleRootAnswers = visibleAnswers.filter(a => !a.parentId);
+  const visibleRootAnswers = visibleAnswers.filter((a) => !a.parentId);
   // 답변에 대한 댓글(1depth)
-  const visibleComments = visibleAnswers.filter(a => !!a.parentId);
-  
+  const visibleComments = visibleAnswers.filter((a) => !!a.parentId);
+
   // 답변+댓글 flat하게 한 줄로 (삭제된 루트 답변 포함)
   const flatAnswers = [
-    ...visibleRootAnswers, 
+    ...visibleRootAnswers,
     ...visibleComments,
-    ...deletedRootAnswersWithComments
+    ...deletedRootAnswersWithComments,
   ];
 
   // 답변/댓글 개수 (삭제된 것 제외)
@@ -319,10 +277,10 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
   const visibleCommentCount = visibleComments.length;
 
   // flat하게 렌더링
-  const renderFlatAnswers = () => (
-    flatAnswers.map(answer => {
+  const renderFlatAnswers = () =>
+    flatAnswers.map((answer) => {
       const isDeleted = answer.deletedAt || answer.status === "DELETED";
-      
+
       return (
         <AnswerItem
           key={answer.id}
@@ -336,12 +294,14 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
         >
           {isDeleted ? (
             // 삭제된 답변 표시
-            <div style={{ 
-              textAlign: "center", 
-              color: "#9ca3af", 
-              fontStyle: "italic",
-              padding: "1rem"
-            }}>
+            <div
+              style={{
+                textAlign: "center",
+                color: "#9ca3af",
+                fontStyle: "italic",
+                padding: "1rem",
+              }}
+            >
               삭제된 답변입니다.
             </div>
           ) : (
@@ -712,8 +672,7 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
           )}
         </AnswerItem>
       );
-    })
-  );
+    });
 
   if (!open) return null;
 
