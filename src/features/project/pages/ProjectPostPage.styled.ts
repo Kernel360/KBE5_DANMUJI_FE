@@ -614,9 +614,16 @@ export const CommentInput = styled.textarea`
   border-radius: 5px;
   font-size: 14px;
   resize: vertical;
+  background-color: #ffffff;
+  color: #333333;
+
   &:focus {
     outline: none;
     border-color: #2c3e50;
+  }
+
+  &::placeholder {
+    color: #9ca3af;
   }
 `;
 
