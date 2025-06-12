@@ -61,11 +61,14 @@ export default function DashboardPage() {
 
         // Fetch Project Counts
         // Assuming /api/projects/counts returns { total: number, inProgress: number, completed: number }
-        const projectCountsResponse = await api.get('/api/projects'); 
+        const projectCountsResponse = await api.get('/api/projects/all'); 
 
-        const content = projectCountsResponse.data.data.content;
-        const total = projectCountsResponse.data.data.page.totalElements;
+        type Item = {
+          status: 'IN_PROGRESS' | 'COMPLETED';
+        };
+        const content = projectCountsResponse.data.data as Item[];
 
+        const total = content.length;
         const inProgressCount = content.filter(p => p.status === 'IN_PROGRESS').length;
         const completedCount = content.filter(p => p.status === 'COMPLETED').length;
 
@@ -75,8 +78,8 @@ export default function DashboardPage() {
 
         // Fetch Recent Posts
         // Assuming /api/boards/recent returns { data: { content: [{ id, title, createdAt }] } }
-        // const postsResponse = await api.get('/api/boards/recent'); 
-        // setRecentPosts(postsResponse.data.data.content);
+        const postsResponse = await api.get('/api/posts/recent-posts'); 
+        setRecentPosts(postsResponse.data.data);
 
         // Fetch Recent Companies
         // Assuming /api/companies/recent returns { data: { content: [{ id, name, createdAt }] } }
@@ -85,8 +88,8 @@ export default function DashboardPage() {
 
         // Fetch Recent Projects
         // Assuming /api/projects/recent returns { data: { content: [{ id, name, createdAt }] } }
-        // const recentProjectsResponse = await api.get('/api/projects/recent'); 
-        // setRecentProjects(recentProjectsResponse.data.data.content);
+        const recentProjectsResponse = await api.get('/api/projects/recent-projects'); 
+        setRecentProjects(recentProjectsResponse.data.data);
 
       } catch (error) {
         console.error('Failed to fetch dashboard data:', error);
@@ -176,7 +179,7 @@ export default function DashboardPage() {
           <RecentActivityTitle>최근 등록된 회사</RecentActivityTitle>
           <RecentActivityList>
             {recentCompanies.length > 0 ? (
-              recentCompanies.slice(0, 5).map((company) => (
+              recentCompanies.map((company) => (
                 <RecentActivityItem key={company.id}>
                   <span>{company.name}</span>
                   <RecentActivityDate>{new Date(company.createdAt).toLocaleDateString()}</RecentActivityDate>
@@ -195,7 +198,7 @@ export default function DashboardPage() {
           <RecentActivityTitle>최근 등록된 프로젝트</RecentActivityTitle>
           <RecentActivityList>
             {recentProjects.length > 0 ? (
-              recentProjects.slice(0, 5).map((project) => (
+              recentProjects.map((project) => (
                 <RecentActivityItem key={project.id}>
                   <span>{project.name}</span>
                   <RecentActivityDate>{new Date(project.createdAt).toLocaleDateString()}</RecentActivityDate>
