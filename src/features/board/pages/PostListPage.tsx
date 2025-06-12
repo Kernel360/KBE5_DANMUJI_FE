@@ -307,7 +307,10 @@ export default function PostListPage() {
   };
 
   const handleSearchKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    // Enter 키 이벤트 제거 - 검색 버튼을 통해서만 검색 실행
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSearch(); // 검색 함수 호출
+    }
   };
 
   const handleSearch = () => {
@@ -337,13 +340,6 @@ export default function PostListPage() {
     setPriorityFilter(
       e.target.value === "ALL" ? "ALL" : Number(e.target.value)
     );
-  };
-
-  const handleItemsPerPageChange = (
-    e: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    setItemsPerPage(Number(e.target.value));
-    setCurrentPage(0);
   };
 
   const handleCreatePost = () => {
@@ -390,16 +386,6 @@ export default function PostListPage() {
 
   const handleSearchTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSearchType(e.target.value as "title" | "content" | "author");
-  };
-
-  const handleAssigneeFilterChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setAssigneeFilter(e.target.value);
-  };
-
-  const handleClientFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setClientFilter(e.target.value);
   };
 
   const handleResetFilters = () => {
