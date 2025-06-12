@@ -54,6 +54,7 @@ export type QuestionCreateData = {
 // 답변 생성 요청 데이터 타입
 export type AnswerCreateData = {
   questionId: number;
+  parentId?: number | null; // 부모 답변 ID (댓글 기능을 위해 추가)
   content: string;
 };
 
