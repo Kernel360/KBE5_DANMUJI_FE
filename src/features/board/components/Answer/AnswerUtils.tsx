@@ -1,7 +1,8 @@
+import React from "react";
 import type { Answer } from "@/features/project/types/question";
 
 // 답변 내용에서 @태그와 "답글" 텍스트에 색상을 적용하는 함수
-export const formatAnswerContent = (content: string) => {
+export const formatAnswerContent = (content: string): React.ReactNode[] => {
   const parts = content.split(/(@\w+|답글)/);
   return parts.map((part, index) => {
     if (part.startsWith("@")) {
@@ -22,7 +23,7 @@ export const formatAnswerContent = (content: string) => {
 };
 
 // 답변을 부모-자식 관계로 구성하는 함수
-export const organizeAnswers = (answers: Answer[]) => {
+export const organizeAnswers = (answers: Answer[]): AnswerWithReplies[] => {
   const answerMap = new Map<number, AnswerWithReplies>();
   const rootAnswers: AnswerWithReplies[] = [];
 
@@ -33,14 +34,16 @@ export const organizeAnswers = (answers: Answer[]) => {
 
   // 부모-자식 관계 구성
   answers.forEach((answer) => {
-    const answerWithReplies = answerMap.get(answer.id)!;
-    if (answer.parentId) {
-      const parent = answerMap.get(answer.parentId);
-      if (parent) {
-        parent.replies.push(answerWithReplies);
+    const answerWithReplies = answerMap.get(answer.id);
+    if (answerWithReplies) {
+      if (answer.parentId) {
+        const parent = answerMap.get(answer.parentId);
+        if (parent) {
+          parent.replies.push(answerWithReplies);
+        }
+      } else {
+        rootAnswers.push(answerWithReplies);
       }
-    } else {
-      rootAnswers.push(answerWithReplies);
     }
   });
 
@@ -51,12 +54,12 @@ export const organizeAnswers = (answers: Answer[]) => {
 export const isAnswerAuthor = (
   answerAuthorId: number,
   currentUserId?: number
-) => {
+): boolean => {
   return currentUserId === answerAuthorId;
 };
 
 // 렌더링되는 답변 개수 계산 함수
-export const getRenderedAnswerCount = (answers: Answer[]) => {
+export const getRenderedAnswerCount = (answers: Answer[]): number => {
   const visibleAnswers = answers.filter(
     (answer) => !answer.deletedAt && answer.status !== "DELETED"
   );
