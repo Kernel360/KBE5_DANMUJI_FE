@@ -44,6 +44,7 @@ import {
 } from "./PostListPage.styled";
 import PostDetailModal from "../components/Post/components/DetailModal/ProjectPostDetailModal";
 import PostFormModal from "../components/Post/components/FormModal/PostFormModal";
+import { useParams } from "react-router-dom";
 
 const formatDate = (dateString: string) => {
   const options: Intl.DateTimeFormatOptions = {
@@ -121,7 +122,7 @@ const getPriorityStyle = (priority: number) => {
 const stepName = "설계"; // TODO: 실제 단계명 연동 시 교체
 
 export default function PostListPage() {
-  const stepId = 1; // 임시로 단계 ID 1 사용
+  const { stepId } = useParams();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -170,7 +171,6 @@ export default function PostListPage() {
     null
   );
 
-  // 모든 프로젝트의 게시글을 가져오는 함수 (임시로 프로젝트 ID 1 사용)
   const fetchPosts = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -187,6 +187,11 @@ export default function PostListPage() {
         activeAssigneeFilter !== "" ||
         activeClientFilter !== "";
 
+      if (!stepId) {
+        setError("단계 정보가 없습니다.");
+        setLoading(false);
+        return;
+      }
       if (hasFilters) {
         const searchParams: {
           status?: PostStatus;
@@ -216,19 +221,8 @@ export default function PostListPage() {
           searchParams.author = activeSearchTerm;
         }
 
-        console.log("검색 파라미터:", searchParams);
-        console.log("활성 검색 상태:", {
-          activeSearchTerm,
-          activeSearchType,
-          activeStatusFilter,
-          activeTypeFilter,
-          activePriorityFilter,
-          activeAssigneeFilter,
-          activeClientFilter,
-        });
-
         response = await searchPosts(
-          stepId,
+          Number(stepId),
           searchParams,
           currentPage,
           itemsPerPage
@@ -236,7 +230,7 @@ export default function PostListPage() {
       } else {
         // 검색어도 없고 필터도 없는 경우에만 일반 목록 API 사용
         response = await getPostsWithComments(
-          stepId,
+          Number(stepId),
           currentPage,
           itemsPerPage
         );
@@ -422,7 +416,7 @@ export default function PostListPage() {
   return (
     <PageContainer>
       <Header>
-        <Title>{stepName}</Title>
+        <Title>{stepId}</Title>
         <Description>
           프로젝트 단계에 해당하는 게시글을 확인하고 소통하세요!
         </Description>
@@ -942,7 +936,7 @@ export default function PostListPage() {
         mode={formModalMode}
         postId={formModalPostId || undefined}
         parentId={formModalParentId || undefined}
-        stepId={1}
+        stepId={stepId ? Number(stepId) : undefined}
       />
     </PageContainer>
   );

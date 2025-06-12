@@ -22,9 +22,12 @@ const LayoutWrapper = ({
   error: string | null;
 }) => {
   const location = useLocation();
-  const isAuthPage = ["/", "/login", "/forgot-password", "/reset-password"].includes(
-    location.pathname
-  );
+  const isAuthPage = [
+    "/",
+    "/login",
+    "/forgot-password",
+    "/reset-password",
+  ].includes(location.pathname);
 
   if (isAuthPage) return <>{children}</>;
 
@@ -32,8 +35,8 @@ const LayoutWrapper = ({
     <AppContainer>
       <Sidebar />
       <MainContent>
-        <Topbar 
-          notifications={notifications} 
+        <Topbar
+          notifications={notifications}
           markAsRead={markAsRead}
           error={error}
         />
@@ -56,7 +59,7 @@ function AppContent() {
       };
       setNotifications((prev) => {
         // 중복 알림 방지
-        const isDuplicate = prev.some(n => n.id === newNotification.id);
+        const isDuplicate = prev.some((n) => n.id === newNotification.id);
         if (isDuplicate) return prev;
         return [newNotification, ...prev];
       });
@@ -68,7 +71,7 @@ function AppContent() {
 
   const markAsRead = async (id: string) => {
     try {
-      const notification = notifications.find(n => n.id === id);
+      const notification = notifications.find((n) => n.id === id);
       if (!notification) return;
 
       // 상태 먼저 업데이트
@@ -87,7 +90,7 @@ function AppContent() {
         setNotifications((prev) =>
           prev.map((n) => (n.id === id ? { ...n, isRead: false } : n))
         );
-        setError('알림 상태를 업데이트하는 중 오류가 발생했습니다.');
+        setError("알림 상태를 업데이트하는 중 오류가 발생했습니다.");
         eventSource.close();
       };
 
@@ -102,14 +105,14 @@ function AppContent() {
         }
       };
     } catch (error) {
-      console.error('Failed to mark notification as read:', error);
-      setError('알림 상태를 업데이트하는 중 오류가 발생했습니다.');
+      console.error("Failed to mark notification as read:", error);
+      setError("알림 상태를 업데이트하는 중 오류가 발생했습니다.");
     }
   };
 
   return (
-    <LayoutWrapper 
-      notifications={notifications} 
+    <LayoutWrapper
+      notifications={notifications}
       markAsRead={markAsRead}
       error={error}
     >
