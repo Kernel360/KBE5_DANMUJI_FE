@@ -105,14 +105,9 @@ const AppRoutes = () => {
         <>
           <Route path="/company" element={<CompanyPage />} />
           <Route path="/members" element={<MemberPage />} />
-<<<<<<< HEAD
-          <Route path="/member/:id" element={<MemberDetailPage />} />
-          <Route path="/projects" element={<AdminMainPage />} />
-=======
           <Route path="/projects/create" element={<CreateProjectPage />} />
           <Route path="/projects" element={<AdminProjectPage />} />
           <Route path="/projects/:projectId/edit" element={<EditProjectPage />} />
->>>>>>> a4206340e5e71c05655378bb5e266a64110be2b5
         </>
       )}
 
