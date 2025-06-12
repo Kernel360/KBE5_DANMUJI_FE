@@ -110,13 +110,17 @@ const AppRoutes = () => {
           <Route path="/member/:id" element={<MemberDetailPage />} />
           <Route path="/projects/create" element={<CreateProjectPage />} />
           <Route path="/projects" element={<AdminProjectPage />} />
-          <Route path="/projects/:projectId/edit" element={<EditProjectPage />} />
+          <Route
+            path="/projects/:projectId/edit"
+            element={<EditProjectPage />}
+          />
         </>
       )}
 
       {/* TODO: 권한 설정 */}
       {/* 공용 */}
       <Route path="/posts" element={<PostListPage />} />
+      <Route path="/posts/:stepId" element={<PostListPage />} />
       {/* <Route path="/posts/create" element={<PostCreatePage />} /> */}
       {/* <Route path="/posts/:postId/edit" element={<PostEditPage />} /> */}
       <Route path="/projects/all" element={<UserProjectPage />} />
