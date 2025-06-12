@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { UserProfile } from "./UserProfile";
 import {
   DropdownContainer,
@@ -10,53 +11,61 @@ import {
   MenuItem,
   Divider,
 } from "./ProfileDropdown.styled";
-import { useAuth } from "@/contexts/AuthContexts";
+import { useAuth } from "@/hooks/useAuth";
 import api from "@/api/axios";
 
 export const ProfileDropdown: React.FC = () => {
   const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate(); 
 
   const toggleDropdown = () => {
-    setIsOpen(!isOpen);
+    setIsOpen((prev) => !prev);
   };
 
-const handleLogout = async (e: React.FormEvent) => {
-  e.preventDefault();
-  try {
-    await api.post("/api/auth/logout", null, {
-      withCredentials: true, // 쿠키 포함
-    });
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
-    setIsOpen(false);
-    localStorage.removeItem("accessToken");
-    window.location.href = "/";
-  } catch (error: any) {
-    console.error("로그아웃 실패:", error?.response?.data?.message || error);
-    localStorage.removeItem("accessToken");
-    window.location.href = "/";
-  }
-};
+  const logout = async () => {
+    try {
+      await api.post("/api/auth/logout", null, {
+      });
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } finally {
+      localStorage.removeItem("accessToken");
+      window.location.href = "/";
+    }
+  };
 
   return (
-    <DropdownContainer>
-      <ProfileButton onClick={toggleDropdown}>
+    <DropdownContainer ref={dropdownRef}>
+      <ProfileButton onClick={toggleDropdown} aria-haspopup="true" aria-expanded={isOpen}>
         <UserName>{user?.name ?? ""}</UserName>
         <DropdownIcon>▼</DropdownIcon>
       </ProfileButton>
+
       {isOpen && (
         <DropdownMenu>
           <UserProfile />
           <Divider />
           <MenuList>
-            <MenuItem onClick={() => console.log("Profile clicked")}>
-              프로필 설정
-            </MenuItem>
-            <MenuItem onClick={() => console.log("Settings clicked")}>
-              계정 설정
+            <MenuItem onClick={ () => navigate("/my")}>
+              프로필
             </MenuItem>
             <Divider />
-            <MenuItem onClick={handleLogout}>로그아웃</MenuItem>
+            <MenuItem onClick={logout}>로그아웃</MenuItem>
           </MenuList>
         </DropdownMenu>
       )}

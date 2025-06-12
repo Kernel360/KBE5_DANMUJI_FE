@@ -7,8 +7,8 @@ import {
 } from "react-router-dom";
 
 // contexts
-import { AuthProvider, useAuth } from "@/contexts/AuthContexts";
-
+import { AuthProvider } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 // layout
 import { Sidebar } from "./layouts/Sidebar";
 import { Topbar } from "./layouts/Topbar";
@@ -36,6 +36,8 @@ import UserProjectPage from "./features/project/pages/UserProjectPage";
 import ProjectDetailPage from "./features/project/pages/ProjectDetailPage";
 import CompletedProject from "./features/project/pages/CompletedProject";
 import InProgressProject from "./features/project/pages/InProgressProject";
+import UserProfilePage from "./features/user/pages/UserProfilePage";
+import MemberDetailPage from "./features/user/pages/MemberDetailPage";
 
 // etc
 import { AppContainer, MainContent, PageContent } from "./App.styled";
@@ -105,12 +107,14 @@ const AppRoutes = () => {
         <>
           <Route path="/company" element={<CompanyPage />} />
           <Route path="/members" element={<MemberPage />} />
+          <Route path="/member/:id" element={<MemberDetailPage />} />
           <Route path="/projects/create" element={<CreateProjectPage />} />
           <Route path="/projects" element={<AdminProjectPage />} />
           <Route path="/projects/:projectId/edit" element={<EditProjectPage />} />
         </>
       )}
 
+      {/* TODO: 권한 설정 */}
       {/* 공용 */}
       <Route path="/posts" element={<PostListPage />} />
       {/* <Route path="/posts/create" element={<PostCreatePage />} /> */}
@@ -121,6 +125,8 @@ const AppRoutes = () => {
         element={<ProjectDetailPage />}
       />
       <Route path="/projects/completed" element={<CompletedProject />} />
+      <Route path="/projects/inprogress" element={<InProgressProject />} />
+      <Route path="/my" element={<UserProfilePage />} />
       <Route path="/projects/active" element={<InProgressProject />} />
     </Routes>
   );

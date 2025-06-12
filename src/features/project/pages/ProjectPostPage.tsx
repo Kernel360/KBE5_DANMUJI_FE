@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { getPosts, createPost, deletePost } from "../services/postService";
 import { PostStatus } from "../types/post";
 import type { Post, PostCreateData } from "../types/post";
-import { useAuth } from "@/contexts/AuthContexts";
+import { useAuth } from "@/hooks/useAuth";
 import ProjectPostDetailModal from "../components/ProjectPostDetailModal/ProjectPostDetailModal";
 import ProjectPostCreateModal from "../components/ProjectPostCreateModal/ProjectPostCreateModal";
 import {
