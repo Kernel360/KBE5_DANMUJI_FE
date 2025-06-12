@@ -1,5 +1,14 @@
-export { default as CommentList } from "./CommentList";
-export { default as CommentItem } from "./CommentItem";
-export { default as CommentForm } from "./CommentForm";
-export { default as CommentActions } from "./CommentActions";
-export * from "./CommentUtils.tsx";
+// Components
+export { default as CommentList } from "./components/CommentList";
+export { default as CommentItem } from "./components/CommentItem";
+export { default as CommentForm } from "./components/CommentForm";
+export { default as CommentActions } from "./components/CommentActions";
+
+// Hooks
+export * from "./hooks/useCommentUtils";
+
+// Styles
+export * from "./styles/CommentList.styled";
+export * from "./styles/CommentItem.styled";
+export * from "./styles/CommentForm.styled";
+export * from "./styles/CommentActions.styled";

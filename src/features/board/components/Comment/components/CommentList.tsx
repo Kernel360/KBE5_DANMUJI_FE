@@ -4,7 +4,7 @@ import {
   organizeComments,
   getRenderedCommentCount,
   type CommentWithReplies,
-} from "./CommentUtils.tsx";
+} from "../hooks/useCommentUtils";
 import CommentItem from "./CommentItem";
 import CommentForm from "./CommentForm";
 import {
@@ -13,7 +13,7 @@ import {
   CommentCount,
   CommentListContent,
   EmptyCommentMessage,
-} from "./CommentList.styled";
+} from "../styles/CommentList.styled";
 
 interface CommentListProps {
   comments: Comment[];

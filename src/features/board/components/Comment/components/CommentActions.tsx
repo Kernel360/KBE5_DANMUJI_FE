@@ -3,7 +3,7 @@ import { FaEdit, FaTrash, FaReply } from "react-icons/fa";
 import {
   CommentActionButton,
   CommentActionButtonGroup,
-} from "./CommentActions.styled";
+} from "../styles/CommentActions.styled";
 
 interface CommentActionsProps {
   isAuthor: boolean;

@@ -5,7 +5,7 @@ import {
   formatCommentDate,
   formatCommentContent,
   isCommentAuthor,
-} from "./CommentUtils.tsx";
+} from "../hooks/useCommentUtils";
 import CommentActions from "./CommentActions";
 import CommentForm from "./CommentForm";
 import {
@@ -18,7 +18,7 @@ import {
   CommentContent,
   CommentMeta,
   ReplyBadge,
-} from "./CommentItem.styled";
+} from "../styles/CommentItem.styled";
 
 interface CommentItemProps {
   comment: Comment;

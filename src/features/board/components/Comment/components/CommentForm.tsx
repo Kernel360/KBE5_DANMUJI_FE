@@ -6,7 +6,7 @@ import {
   CommentFormActions,
   CommentSubmitButton,
   CommentCancelButton,
-} from "./CommentForm.styled";
+} from "../styles/CommentForm.styled";
 
 interface CommentFormProps {
   placeholder?: string;
