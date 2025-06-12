@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+// src/components/NotificationDropdown.tsx
+import React from "react";
+import { FaBell } from "react-icons/fa";
 import {
   DropdownContainer,
   NotificationButton,
@@ -10,46 +12,33 @@ import {
   NotificationTime,
   EmptyState,
 } from "./NotificationDropdown.styled";
-import type { Notification } from "./Header.types";
-import { FaBell } from "react-icons/fa";
-export const NotificationDropdown: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+import type { Notification } from "@/layouts/Topbar/Topbar.types";
 
-  const toggleDropdown = () => {
-    setIsOpen(!isOpen);
-  };
+interface Props {
+  notifications: Notification[];
+  markAsRead: (id: string) => void;
+}
 
-  const markAsRead = (id: number) => {
-    setNotifications(
-      notifications.map((notification) =>
-        notification.id === id
-          ? { ...notification, isRead: true }
-          : notification
-      )
-    );
-  };
+const NotificationDropdown: React.FC<Props> = ({ notifications, markAsRead }) => {
+  const [isOpen, setIsOpen] = React.useState(false);
+  const toggleDropdown = () => setIsOpen(!isOpen);
+
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   return (
     <DropdownContainer>
       <NotificationButton onClick={toggleDropdown}>
         <FaBell />
-        {notifications.some((n) => !n.isRead) && <NotificationBadge />}
+        {unreadCount > 0 && <NotificationBadge>{unreadCount}</NotificationBadge>}
       </NotificationButton>
       {isOpen && (
         <DropdownMenu>
           <NotificationList>
             {notifications.length > 0 ? (
-              notifications.map((notification) => (
-                <NotificationItem
-                  key={notification.id}
-                  isRead={notification.isRead}
-                  onClick={() => markAsRead(notification.id)}
-                >
-                  <NotificationMessage>
-                    {notification.message}
-                  </NotificationMessage>
-                  <NotificationTime>{notification.time}</NotificationTime>
+              notifications.map((n) => (
+                <NotificationItem key={n.id} isRead={n.isRead} onClick={() => markAsRead(n.id)}>
+                  <NotificationMessage>{n.message}</NotificationMessage>
+                  <NotificationTime>{n.time}</NotificationTime>
                 </NotificationItem>
               ))
             ) : (
@@ -61,3 +50,5 @@ export const NotificationDropdown: React.FC = () => {
     </DropdownContainer>
   );
 };
+
+export default NotificationDropdown;

@@ -1,7 +1,8 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
-import { NotificationDropdown } from "../Header/NotificationDropdown";
+import NotificationDropdown from "../Header/NotificationDropdown";
 import { ProfileDropdown } from "../Header/ProfileDropdown";
+
 import {
   TopbarContainer,
   PageTitle,
@@ -9,7 +10,14 @@ import {
   UserDropdown,
 } from "./Topbar.styles";
 
-export const Topbar: React.FC = () => {
+import type { Notification } from "@/layouts/Topbar/Topbar.types";
+
+interface TopbarProps {
+  notifications: Notification[];
+  markAsRead: (id: string) => void;
+}
+
+export const Topbar: React.FC<TopbarProps> = ({ notifications, markAsRead }) => {
   const location = useLocation();
 
   const getPageTitle = () => {
@@ -35,7 +43,9 @@ export const Topbar: React.FC = () => {
         <UserDropdown>
           <ProfileDropdown />
         </UserDropdown>
-        <NotificationDropdown />
+        <NotificationDropdown 
+          notifications={notifications}
+          markAsRead={markAsRead} />
       </UserInfo>
     </TopbarContainer>
   );
