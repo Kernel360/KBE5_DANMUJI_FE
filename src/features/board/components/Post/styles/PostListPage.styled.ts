@@ -275,7 +275,7 @@ export const CreateButton = styled.button`
   background: #fdb924;
   color: #fff;
   border: none;
-  border-radius: 20px;
+  border-radius: 8px;
   font-size: 0.92rem;
   font-weight: 600;
   padding: 0.38rem 0.9rem;

@@ -12,9 +12,11 @@ export const CommentActionButton = styled.button`
   gap: 0.25rem;
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
+  color: #6b7280;
 
   &:hover {
     background-color: #f3f4f6;
+    color: #fdb924;
   }
 
   &:disabled {

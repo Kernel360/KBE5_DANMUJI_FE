@@ -416,7 +416,7 @@ export default function PostListPage() {
   return (
     <PageContainer>
       <Header>
-        <Title>{stepId}</Title>
+        <Title>{stepName}</Title>
         <Description>
           프로젝트 단계에 해당하는 게시글을 확인하고 소통하세요!
         </Description>

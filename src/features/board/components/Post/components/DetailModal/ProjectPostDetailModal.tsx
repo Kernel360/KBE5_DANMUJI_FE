@@ -38,15 +38,9 @@ import {
 import type { Post, Comment } from "@/features/project/types/post";
 import QuestionAnswerModal from "@/features/board/components/Question/components/QuestionAnswerModal/QuestionAnswerModal";
 
-import { FaReply, FaEdit, FaTrash } from "react-icons/fa";
+import { FaReply, FaEdit, FaTrash, FaComments } from "react-icons/fa";
 import { useAuth } from "@/hooks/useAuth";
-import {
-  FiUser,
-  FiCalendar,
-  FiEdit2,
-  FiCheckCircle,
-  FiAlertCircle,
-} from "react-icons/fi";
+import { FiUser, FiCalendar, FiCheckCircle } from "react-icons/fi";
 
 interface PostDetailModalProps {
   open: boolean;
@@ -539,19 +533,37 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
               >
                 {post.title}
               </span>
-              <div style={{ marginTop: 24, marginBottom: 16, marginLeft: -12 }}>
+              <div style={{ marginTop: 12, marginBottom: 8, marginLeft: -12 }}>
                 <QuestionAnswerStyledButton
                   onClick={() => setShowQuestionAnswer(true)}
                   style={{
                     flexShrink: 0,
                     marginRight: 10,
-                    background: "#f3f4f6",
-                    color: "#6b7280",
+                    background: "none",
+                    color: "#888",
                     border: "1px solid #e5e7eb",
-                    fontSize: 13,
+                    fontSize: 12,
                     fontWeight: 500,
+                    padding: "8px 12px",
+                    borderRadius: 4,
+                    cursor: "pointer",
+                    transition: "all 0.2s ease",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "4px",
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.background = "#fdb924";
+                    e.currentTarget.style.color = "white";
+                    e.currentTarget.style.borderColor = "#fdb924";
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.background = "none";
+                    e.currentTarget.style.color = "#888";
+                    e.currentTarget.style.borderColor = "#e5e7eb";
                   }}
                 >
+                  <FaComments size={12} />
                   질문 & 답변
                 </QuestionAnswerStyledButton>
               </div>
@@ -691,6 +703,9 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                   background: "#f8f9fa",
                   borderRadius: 8,
                   padding: 16,
+                  whiteSpace: "pre-wrap",
+                  wordWrap: "break-word",
+                  wordBreak: "break-word",
                 }}
               >
                 {post.content}
@@ -698,7 +713,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
             </div>
 
             {/* 첨부 파일 */}
-            <div style={{ margin: "32px 16px 0 16px" }}>
+            <div style={{ margin: "20px 16px 0 16px" }}>
               <div style={{ fontWeight: 600, marginBottom: 10, fontSize: 15 }}>
                 첨부 파일
               </div>
