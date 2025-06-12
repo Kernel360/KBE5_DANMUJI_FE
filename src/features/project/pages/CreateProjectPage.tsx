@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import * as S from "./CreateProjectpage.styled";
@@ -14,6 +14,14 @@ interface Company {
 interface User {
   id: number;
   name: string;
+}
+
+// --- 변경된 부분: 로컬 날짜를 문자열로 포맷하는 유틸 함수 추가 ---
+function formatLocalDate(date: Date): string {
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
 }
 
 export default function ProjectCreatePage() {
@@ -107,47 +115,60 @@ export default function ProjectCreatePage() {
     }
   }, [clientCompanyId]);
 
-  // 개발사 담당자 변경 시
-  const handleDevManagerChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newId = Number(e.target.value);
-     setDeveloperId(newId);
-  };
-
-  // 고객사 담당자 변경 시
-  const handleClientManagerChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newId = Number(e.target.value);
-    setClientId(newId);
-  };
-
-  // 개발사 멤버 목록 업데이트
-  const availableDevMembers = useMemo(
-    () => devUsers.filter(u => u.id !== developerId),
-    [devUsers, developerId]
-  );
-
-  // 고객사 멤버 목록 업데이트
-  const availableClientMembers = useMemo(
-    () => clientUsers.filter(u => u.id !== clientId),
-    [clientUsers, clientId]
-  );
-
   // Submit handler
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
+    // 필수 필드 검증
+    if (!name.trim()) {
+      alert('프로젝트명을 입력해주세요.');
+      setLoading(false);
+      return;
+    }
+    if (!overview.trim()) {
+      alert('개요를 입력해주세요.');
+      setLoading(false);
+      return;
+    }
+    if (!startDate) {
+      alert('시작일을 선택해주세요.');
+      setLoading(false);
+      return;
+    }
+    if (!devCompanyId) {
+      alert('개발사를 선택해주세요.');
+      setLoading(false);
+      return;
+    }
+    if (!clientCompanyId) {
+      alert('고객사를 선택해주세요.');
+      setLoading(false);
+      return;
+    }
+    if (!developerId) {
+      alert('개발사 담당자를 선택해주세요.');
+      setLoading(false);
+      return;
+    }
+    if (!clientId) {
+      alert('고객사 담당자를 선택해주세요.');
+      setLoading(false);
+      return;
+    }
+
     const payload = {
       name,
       description: overview,
-      startDate: startDate ? startDate.toISOString().substring(0, 10) : null,
-      endDate: endDate ? endDate.toISOString().substring(0, 10) : null,
+      startDate: startDate ? formatLocalDate(startDate) : null,
+      endDate: endDate ? formatLocalDate(endDate) : null,
       developerId: Number(developerId),
       clientId: Number(clientId),
       developCompanyId: Number(devCompanyId),
       clientCompanyId: Number(clientCompanyId),
-      developMemberId: selectedDevMembers.map(member => member.value),
-      clientMemberId: selectedClientMembers.map(member => member.value),
+      developMemberId: selectedDevMembers.map((member) => member.value),
+      clientMemberId: selectedClientMembers.map((member) => member.value),
     };
 
     try {
@@ -206,7 +227,14 @@ export default function ProjectCreatePage() {
               <DatePicker
                 id="start-date"
                 selected={startDate}
-                onChange={date => setStartDate(date)}
+                onChange={date => {
+                  console.log('Selected start date:', date);
+                  setStartDate(date);
+                  // 시작일이 변경되면 마감일이 시작일보다 이전이면 초기화
+                  if (endDate && date && endDate < date) {
+                    setEndDate(null);
+                  }
+                }}
                 dateFormat="yyyy-MM-dd"
                 placeholderText="시작일 선택"
                 className="date-input white-bg"
@@ -219,12 +247,17 @@ export default function ProjectCreatePage() {
               <DatePicker
                 id="end-date"
                 selected={endDate}
-                onChange={date => setEndDate(date)}
+                onChange={date => {
+                  console.log('Selected end date:', date);
+                  setEndDate(date);
+                }}
                 dateFormat="yyyy-MM-dd"
                 placeholderText="마감일 선택"
                 className="date-input white-bg"
                 required
                 onKeyDown={e => e.preventDefault()}
+                disabled={!startDate} // 시작일이 선택되지 않으면 비활성화
+                minDate={startDate || undefined} // 시작일 이후의 날짜만 선택 가능
               />
             </div>
           </S.DateRow>
@@ -246,6 +279,8 @@ export default function ProjectCreatePage() {
             }
             onChange={option => {
               setDevCompanyId(option ? option.value : "");
+              setSelectedDevMembers([]);
+              setDeveloperId("");
             }}
             placeholder="회사 검색/선택"
             isClearable
@@ -324,6 +359,8 @@ export default function ProjectCreatePage() {
             }
             onChange={option => {
               setClientCompanyId(option ? option.value : "");
+              setSelectedClientMembers([]);
+              setClientId("");
             }}
             placeholder="회사 검색/선택"
             isClearable
