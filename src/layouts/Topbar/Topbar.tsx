@@ -15,9 +15,10 @@ import type { Notification } from "@/layouts/Topbar/Topbar.types";
 interface TopbarProps {
   notifications: Notification[];
   markAsRead: (id: string) => void;
+  error: string | null;
 }
 
-export const Topbar: React.FC<TopbarProps> = ({ notifications, markAsRead }) => {
+export const Topbar: React.FC<TopbarProps> = ({ notifications, markAsRead, error }) => {
   const location = useLocation();
 
   const getPageTitle = () => {
@@ -45,7 +46,9 @@ export const Topbar: React.FC<TopbarProps> = ({ notifications, markAsRead }) => 
         </UserDropdown>
         <NotificationDropdown 
           notifications={notifications}
-          markAsRead={markAsRead} />
+          markAsRead={markAsRead}
+          error={error}
+        />
       </UserInfo>
     </TopbarContainer>
   );
