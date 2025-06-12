@@ -4,10 +4,12 @@ import {
   updatePost,
   getPostDetail,
 } from "@/features/project/services/postService";
-import type {
-  PostCreateData,
-  PostUpdateRequest,
-  Post,
+import {
+  type PostCreateData,
+  type PostUpdateRequest,
+  type Post,
+  PostType,
+  PostStatus,
 } from "@/features/project/types/post";
 import {
   ModalOverlay,
@@ -50,9 +52,9 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
   const [formData, setFormData] = useState<PostCreateData & PostUpdateRequest>({
     title: "",
     content: "",
-    type: "GENERAL",
+    type: PostType.GENERAL,
     priority: 1,
-    status: "PENDING",
+    status: PostStatus.PENDING,
     stepId: stepId,
   });
   const [loading, setLoading] = useState(false);
@@ -90,14 +92,14 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
         const fetchParentPost = async () => {
           try {
             setLoading(true);
-            const response = await getPostDetail(parentId);
-            const parentPost = response.data;
+            // const response = await getPostDetail(parentId);
+            // const parentPost = response.data;
             setFormData({
               title: "",
               content: "",
-              type: "GENERAL",
+              type: PostType.GENERAL,
               priority: 1,
-              status: "PENDING",
+              status: PostStatus.PENDING,
               stepId: stepId,
             });
           } catch (err) {
@@ -107,9 +109,9 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
             setFormData({
               title: "",
               content: "",
-              type: "GENERAL",
+              type: PostType.GENERAL,
               priority: 1,
-              status: "PENDING",
+              status: PostStatus.PENDING,
               stepId: stepId,
             });
           } finally {
@@ -122,9 +124,9 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
         setFormData({
           title: "",
           content: "",
-          type: "GENERAL",
+          type: PostType.GENERAL,
           priority: 1,
-          status: "PENDING",
+          status: PostStatus.PENDING,
           stepId: stepId,
         });
       }
