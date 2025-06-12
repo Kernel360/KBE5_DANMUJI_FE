@@ -1,1 +1,1 @@
-export { default } from "./QuestionDetailModal";
+// export { default } from "./QuestionDetailModal";
