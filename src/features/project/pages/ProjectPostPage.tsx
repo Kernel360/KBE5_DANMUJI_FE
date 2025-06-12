@@ -4,7 +4,7 @@ import { getPosts, createPost, deletePost } from "../services/postService";
 import { PostStatus } from "../types/post";
 import type { Post, PostCreateData } from "../types/post";
 import { useAuth } from "@/hooks/useAuth";
-import ProjectPostDetailModal from "../components/ProjectPostDetailModal/ProjectPostDetailModal";
+import ProjectPostDetailModal from "../components/Post/DetailModal/ProjectPostDetailModal";
 import ProjectPostCreateModal from "../components/ProjectPostCreateModal/ProjectPostCreateModal";
 import {
   PageContainer,
