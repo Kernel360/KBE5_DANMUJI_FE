@@ -293,33 +293,25 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
   };
 
   // soft delete 제외한 답변만 필터링
-  const visibleAnswers = answers.filter(
-    (a) => !a.deletedAt && a.status !== "DELETED"
-  );
-
+  const visibleAnswers = answers.filter(a => !a.deletedAt && a.status !== "DELETED");
+  
   // 삭제된 루트 답변 중 댓글이 있는 것들만 필터링
-  const deletedRootAnswersWithComments = answers.filter(
-    (a) =>
-      a.deletedAt &&
-      !a.parentId &&
-      answers.some(
-        (comment) =>
-          comment.parentId === a.id &&
-          !comment.deletedAt &&
-          comment.status !== "DELETED"
-      )
+  const deletedRootAnswersWithComments = answers.filter(a => 
+    a.deletedAt && 
+    !a.parentId && 
+    answers.some(comment => comment.parentId === a.id && !comment.deletedAt && comment.status !== "DELETED")
   );
-
+  
   // 루트 답변(답변) - 삭제되지 않은 것들
-  const visibleRootAnswers = visibleAnswers.filter((a) => !a.parentId);
+  const visibleRootAnswers = visibleAnswers.filter(a => !a.parentId);
   // 답변에 대한 댓글(1depth)
-  const visibleComments = visibleAnswers.filter((a) => !!a.parentId);
-
+  const visibleComments = visibleAnswers.filter(a => !!a.parentId);
+  
   // 답변+댓글 flat하게 한 줄로 (삭제된 루트 답변 포함)
   const flatAnswers = [
-    ...visibleRootAnswers,
+    ...visibleRootAnswers, 
     ...visibleComments,
-    ...deletedRootAnswersWithComments,
+    ...deletedRootAnswersWithComments
   ];
 
   // 답변/댓글 개수 (삭제된 것 제외)
@@ -327,10 +319,10 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
   const visibleCommentCount = visibleComments.length;
 
   // flat하게 렌더링
-  const renderFlatAnswers = () =>
-    flatAnswers.map((answer) => {
+  const renderFlatAnswers = () => (
+    flatAnswers.map(answer => {
       const isDeleted = answer.deletedAt || answer.status === "DELETED";
-
+      
       return (
         <AnswerItem
           key={answer.id}
@@ -344,14 +336,12 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
         >
           {isDeleted ? (
             // 삭제된 답변 표시
-            <div
-              style={{
-                textAlign: "center",
-                color: "#9ca3af",
-                fontStyle: "italic",
-                padding: "1rem",
-              }}
-            >
+            <div style={{ 
+              textAlign: "center", 
+              color: "#9ca3af", 
+              fontStyle: "italic",
+              padding: "1rem"
+            }}>
               삭제된 답변입니다.
             </div>
           ) : (
@@ -722,7 +712,8 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
           )}
         </AnswerItem>
       );
-    });
+    })
+  );
 
   if (!open) return null;
 

@@ -570,10 +570,14 @@ export default function PostListPage() {
                           style={{
                             display: "flex",
                             alignItems: "center",
-                            gap: "0.5rem",
+                            justifyContent: "space-between",
                           }}
                         >
-                          <PostTitle>{post.title}</PostTitle>
+                          <PostTitle>
+                            {post.title.length > 30
+                              ? post.title.slice(0, 30) + "..."
+                              : post.title}
+                          </PostTitle>
                           {(post.comments && post.comments.length > 0) ||
                           (post.questionCount !== undefined &&
                             post.questionCount > 0) ? (
@@ -673,8 +677,8 @@ export default function PostListPage() {
                                     alignItems: "center",
                                   }}
                                 >
-                                  {post.title.length > 15
-                                    ? post.title.slice(0, 15) + "..."
+                                  {post.title.length > 10
+                                    ? post.title.slice(0, 10) + "..."
                                     : post.title}
                                 </span>
                               </div>
@@ -682,10 +686,15 @@ export default function PostListPage() {
                                 style={{
                                   display: "flex",
                                   alignItems: "center",
-                                  gap: "0.5rem",
+                                  justifyContent: "space-between",
+                                  flex: 1,
                                 }}
                               >
-                                <PostTitle>{reply.title}</PostTitle>
+                                <PostTitle>
+                                  {reply.title.length > 20
+                                    ? reply.title.slice(0, 20) + "..."
+                                    : reply.title}
+                                </PostTitle>
                                 {(reply.comments &&
                                   reply.comments.length > 0) ||
                                 (reply.questionCount !== undefined &&
@@ -792,8 +801,8 @@ export default function PostListPage() {
                                   alignItems: "center",
                                 }}
                               >
-                                {topParent.title.length > 15
-                                  ? topParent.title.slice(0, 15) + "..."
+                                {topParent.title.length > 10
+                                  ? topParent.title.slice(0, 10) + "..."
                                   : topParent.title}
                               </span>
                             )}
@@ -802,10 +811,15 @@ export default function PostListPage() {
                             style={{
                               display: "flex",
                               alignItems: "center",
-                              gap: "0.5rem",
+                              justifyContent: "space-between",
+                              flex: 1,
                             }}
                           >
-                            <PostTitle>{post.title}</PostTitle>
+                            <PostTitle>
+                              {post.title.length > 20
+                                ? post.title.slice(0, 20) + "..."
+                                : post.title}
+                            </PostTitle>
                             {(post.comments && post.comments.length > 0) ||
                             (post.questionCount !== undefined &&
                               post.questionCount > 0) ? (
