@@ -5,15 +5,12 @@ import {
   ModalPanel,
   ModalHeader,
   HeaderLeft,
-  StatusBadge,
   ModalTitle,
   HeaderRight,
   CloseButton,
   ModalBody,
   Section,
   SectionTitle,
-  PostMeta,
-  PostContent,
   QuestionSection,
   QuestionList,
   QuestionItem,
@@ -41,8 +38,6 @@ import {
   updateQuestion,
   deleteQuestion,
   resolveQuestion,
-  getAnswersByQuestion,
-  markQuestionAsAnswered,
 } from "@/features/project/services/questionService";
 import type { Post } from "@/features/project/types/post";
 import type { Question } from "@/features/project/types/question";
