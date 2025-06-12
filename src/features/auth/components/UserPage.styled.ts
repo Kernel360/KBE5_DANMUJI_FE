@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import isPropValid from "@emotion/is-prop-valid";
 
 export const ComponentContainer = styled.div`
   min-height: 100vh;
@@ -87,9 +88,8 @@ export const DescIconContainer = styled.div`
 export const DescIconImage = styled.img`
   width: 2rem;
   height: 2rem;
-  verticalalign: "middle";
-  margin-right: 4;
-  margin-top: 0.2rem;
+  vertical-align: middle;
+  margin-right: 4px;
 `;
 
 export const DescIconText = styled.p`
@@ -97,7 +97,6 @@ export const DescIconText = styled.p`
   font-weight: 700;
   margin-left: 0.5rem;
   display: block;
-  margin-top: 0.2rem;
 `;
 
 export const DescIconDesc = styled.p`
@@ -119,8 +118,9 @@ export const LockContainer = styled.div`
 export const LockIconImage = styled.img`
   width: 1.2rem;
   height: 1.2rem;
-  verticalalign: "middle";
-  marginright: 4;
+  vertical-align: middle;
+  margin-right: 4px;
+  margin-bottom: -0.7rem;
 `;
 
 export const LockTitle = styled.p`
@@ -166,17 +166,21 @@ export const Form = styled.form`
   gap: 1rem;
 `;
 
-export const Input = styled.input`
+export const Input = styled.input.withConfig({
+  shouldForwardProp: (prop) => isPropValid(prop) && prop !== "hasError",
+})<{ hasError?: boolean }>`
   width: 100%;
   padding: 0.75rem 1rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid ${({ hasError }) => (hasError ? "red" : "#d1d5db")};
   border-radius: 0.5rem;
   font-size: 0.875rem;
 
   &:focus {
     outline: none;
-    border-color: #fdb924;
-    box-shadow: 0 0 0 2px rgba(253, 185, 36, 0.1);
+    border-color: ${({ hasError }) => (hasError ? "red" : "#fdb924")};
+    box-shadow: 0 0 0 2px
+      ${({ hasError }) =>
+        hasError ? "rgba(255, 0, 0, 0.2)" : "rgba(253, 185, 36, 0.1)"};
   }
 `;
 

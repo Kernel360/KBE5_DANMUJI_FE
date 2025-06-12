@@ -2,8 +2,7 @@ import styled from "styled-components";
 
 export const AppContainer = styled.div`
   display: flex;
-  flex-direction: row;
-  min-height: 100vh;
+  min-height: 100vh; 
   background-color: #f9fafb;
 `;
 

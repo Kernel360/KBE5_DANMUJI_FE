@@ -22,10 +22,12 @@ export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      setIsLoading(true); // 로딩 시작
       await api.post("/api/users/password/reset-mail/request", {
         username,
         email,
@@ -42,6 +44,8 @@ export default function ForgotPasswordPage() {
       } else {
         alert("비밀번호 재설정 메일 전송에 실패했습니다. 다시 시도해주세요.");
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -54,22 +58,22 @@ export default function ForgotPasswordPage() {
           <ComponentCard>
             {submitted ? (
               <div>
-                <MailIconImage src="/Success-icon.png" alt="Check Icon" />
+                <MailIconImage src="/Success-Icon.png" alt="Check Icon" />
                 <Title>이메일 전송 완료</Title>
                 <Subtitle>
                   비밀번호 재설정 링크가 전송되었습니다.
                   <br /> 이메일을 확인해주세요.
-                  <div
-                    style={{
-                      padding: "0.75rem",
-                      fontSize: "0.75rem",
-                      textAlign: "center",
-                    }}
-                  >
-                    입력하신 이메일:
-                    <strong> {email}</strong>
-                  </div>
                 </Subtitle>
+                <div
+                  style={{
+                    padding: "0.75rem",
+                    fontSize: "0.75rem",
+                    textAlign: "center",
+                  }}
+                >
+                  입력하신 이메일:
+                  <strong> {email}</strong>
+                </div>
 
                 <div
                   style={{
@@ -125,7 +129,9 @@ export default function ForgotPasswordPage() {
                     required
                   />
                 </div>
-                <Button type="submit">재설정 링크 보내기</Button>
+                <Button type="submit" disabled={isLoading}>
+                  {isLoading ? "메일 전송 중..." : "재설정 링크 보내기"}
+                </Button>
               </Form>
             )}
             <div
