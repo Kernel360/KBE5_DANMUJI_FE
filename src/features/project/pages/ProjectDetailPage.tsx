@@ -5,17 +5,25 @@ import api from "@/api/axios";
 
 interface UserCompanyResponse {
   id: number;
+  companyId: number;
   name: string;
   companyName: string;
   position: string;
+}
+
+interface User {
+  id: number;
+  name: string;
 }
 
 interface ProjectStepSimpleResponse {
   id: number;
   stepOrder: number;
   name: string;
-  status: string;
-  approver?: string;
+  projectStepStatus: string;
+  projectFeedbackStepStatus: string;
+  user: User | null;
+  isDeleted: boolean;
 }
 
 interface ProjectDetail {
@@ -31,7 +39,7 @@ interface ProjectDetail {
 
 interface AddStepForm {
   name: string;
-  approver: string;
+  userId: number;
 }
 
 export default function ProjectDetailPage() {
@@ -41,10 +49,26 @@ export default function ProjectDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isAddStepModalOpen, setIsAddStepModalOpen] = useState(false);
+  const [clientUsers, setClientUsers] = useState<User[]>([]);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editingStepId, setEditingStepId] = useState<number | null>(null);
+  const [loggedInUserId, setLoggedInUserId] = useState<number | null>(null);
   const [addStepForm, setAddStepForm] = useState<AddStepForm>({
     name: "",
-    approver: ""
+    userId: 0
   });
+
+  useEffect(() => {
+    const fetchLoggedInUser = async () => {
+      try {
+        const response = await api.get('/api/users/me');
+        setLoggedInUserId(response.data.data.id);
+      } catch (err) {
+        console.error("Failed to fetch logged in user:", err);
+      }
+    };
+    fetchLoggedInUser();
+  }, []);
 
   useEffect(() => {
     const fetchProjectDetail = async () => {
@@ -65,28 +89,51 @@ export default function ProjectDetailPage() {
     }
   }, [projectId]);
 
+  useEffect(() => {
+    const fetchClientUsers = async () => {
+      if (project?.clients[0]?.id) {
+        try {
+          const response = await api.get(`/api/companies/${project.clients[0].companyId}/users`);
+          setClientUsers(response.data.data);
+        } catch (err) {
+          console.error("Failed to fetch client users:", err);
+        }
+      }
+    };
+    fetchClientUsers();
+  }, [project?.clients]);
+
+  useEffect(() => {
+    if (project) {
+      console.log('Project data:', project);
+      console.log('Step projectStepStatus:', project.steps.map(step => step.projectStepStatus));
+    }
+  }, [project]);
+
   if (loading) return <div>로딩 중...</div>;
   if (error) return <div>{error}</div>;
   if (!project) return <div>프로젝트를 찾을 수 없습니다.</div>;
 
-  // 단계들을 stepOrder 순서대로 정렬하고 COMPLETED 상태만 필터링
+  // 단계들을 stepOrder 순서대로 정렬
   const sortedSteps = [...project.steps]
-    .sort((a, b) => a.stepOrder - b.stepOrder)
-    .filter(step => step.status === 'COMPLETED');
+    .sort((a, b) => a.stepOrder - b.stepOrder)    
+    .filter((step: ProjectStepSimpleResponse) => step.isDeleted === false);
 
   const handleEditStep = (step: ProjectStepSimpleResponse) => {
     setAddStepForm({
       name: step.name,
-      approver: step.approver || ""
+      userId: step.user ? step.user.id : 0
     });
+    setIsEditMode(true);
     setIsAddStepModalOpen(true);
+    setEditingStepId(step.id);
   };
 
   const handleDeleteStep = async (stepId: number) => {
     if (!confirm("정말로 이 단계를 삭제하시겠습니까?")) return;
     
     try {
-      await api.delete(`http://localhost:8080/api/projects/steps/${stepId}`);
+      await api.delete(`/api/step/${stepId}`);
       // 프로젝트 정보 다시 불러오기
       const response = await api.get(`/api/projects/${projectId}`);
       setProject(response.data.data);
@@ -96,29 +143,62 @@ export default function ProjectDetailPage() {
     }
   };
 
+  const handleAddStepClick = () => {
+    setAddStepForm({
+      name: "",
+      userId: 0
+    });
+    setIsEditMode(false);
+    setIsAddStepModalOpen(true);
+  };
+
   const handleAddStep = async () => {
-    if (!addStepForm.name.trim() || !addStepForm.approver.trim()) {
+    if (!addStepForm.name.trim() || !addStepForm.userId) {
       alert("모든 필드를 입력해주세요.");
       return;
     }
 
     try {
-      const newStepOrder = project?.steps.length ? Math.max(...project.steps.map(s => s.stepOrder)) + 1 : 1;
-      await api.post(`/api/projects/${projectId}/steps`, {
-        name: addStepForm.name,
-        stepOrder: newStepOrder,
-        status: "PENDING",
-        approver: addStepForm.approver
-      });
+      if (isEditMode) {
+        // 수정 모드
+        const editData = {
+          name: addStepForm.name,
+          userId: addStepForm.userId
+        };
+        console.log('수정 요청 데이터:', editData);
+        await api.put(`/api/step/${editingStepId}`, editData);
+      } else {
+        // 추가 모드
+        const newStepOrder = project?.steps.length ? Math.max(...project.steps.map(s => s.stepOrder)) + 1 : 1;
+        const addData = {
+          name: addStepForm.name,
+          stepOrder: newStepOrder,
+          userId: addStepForm.userId
+        };
+        console.log('추가 요청 데이터:', addData);
+        await api.post(`/api/step?projectId=${projectId}`, addData);
+      }
       
       // 프로젝트 정보 다시 불러오기
       const response = await api.get(`/api/projects/${projectId}`);
       setProject(response.data.data);
-      setAddStepForm({ name: "", approver: "" });
+      setAddStepForm({ name: "", userId: 0 });
       setIsAddStepModalOpen(false);
+      setIsEditMode(false);
     } catch (err) {
-      console.error("Failed to add step:", err);
-      alert("단계 추가에 실패했습니다.");
+      console.error("Failed to add/edit step:", err);
+      alert(isEditMode ? "단계 수정에 실패했습니다." : "단계 추가에 실패했습니다.");
+    }
+  };
+
+  const handleApprovalStatus = async (stepId: number, status: 'APPROVED' | 'REJECTED') => {
+    try {
+      await api.put(`/api/step/${stepId}/approval?projectFeedbackStepStatus=${status}`);
+      const response = await api.get(`/api/projects/${projectId}`);
+      setProject(response.data.data);
+    } catch (err) {
+      console.error(`Failed to ${status === 'APPROVED' ? 'approve' : 'reject'} step:`, err);
+      alert(`단계 ${status === 'APPROVED' ? '승인' : '거절'}에 실패했습니다.`);
     }
   };
 
@@ -161,7 +241,7 @@ export default function ProjectDetailPage() {
               {sortedSteps.map((step, index) => (
                 <React.Fragment key={step.id}>
                   {index > 0 && <S.StepDivider> → </S.StepDivider>}
-                  <S.StepItem status={step.status}>{step.name}</S.StepItem>
+                  <S.StepItem projectStepStatus={step.projectStepStatus}>{step.name}</S.StepItem>
                 </React.Fragment>
               ))}
             </S.StepsList>
@@ -180,18 +260,32 @@ export default function ProjectDetailPage() {
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                 <h3 style={{ margin: 0 }}>프로젝트 단계</h3>
-                <S.ActionButton variant="add" onClick={() => setIsAddStepModalOpen(true)}>
+                <S.ActionButton variant="add" onClick={handleAddStepClick}>
                   단계 추가
                 </S.ActionButton>
               </div>
               <S.HistoryStepList>
-                {project?.steps.sort((a, b) => a.stepOrder - b.stepOrder).map(step => (
+                {project?.steps
+                  .filter(step => !step.isDeleted)
+                  .sort((a, b) => a.stepOrder - b.stepOrder)
+                  .map(step => (
                   <S.HistoryStepItem key={step.id}>
                     <S.HistoryStepHeader>
                       <S.HistoryStepName>{step.name}</S.HistoryStepName>
                     </S.HistoryStepHeader>
-                    <S.HistoryStepApprover>승인자: {step.approver || "미지정"}</S.HistoryStepApprover>
+                    <S.HistoryStepApprover>승인자: {step.user ? step.user.name : "-"}</S.HistoryStepApprover>
+                    <S.HistoryStepApprover>승인상태: {step.projectFeedbackStepStatus ? step.projectFeedbackStepStatus : "-"}</S.HistoryStepApprover>
                     <S.HistoryStepActions>
+                      {loggedInUserId === step.user?.id && step.projectFeedbackStepStatus === 'REQUESTED' && (
+                        <>
+                          <S.ActionButton variant="approve" onClick={() => handleApprovalStatus(step.id, 'APPROVED')}>
+                            승인
+                          </S.ActionButton>
+                          <S.ActionButton variant="reject" onClick={() => handleApprovalStatus(step.id, 'REJECTED')}>
+                            거절
+                          </S.ActionButton>
+                        </>
+                      )}
                       <S.ActionButton variant="edit" onClick={() => handleEditStep(step)}>수정</S.ActionButton>
                       <S.ActionButton variant="delete" onClick={() => handleDeleteStep(step.id)}>삭제</S.ActionButton>
                     </S.HistoryStepActions>
@@ -206,7 +300,7 @@ export default function ProjectDetailPage() {
           <S.ModalOverlay onClick={() => setIsAddStepModalOpen(false)}>
             <S.ModalContent onClick={e => e.stopPropagation()}>
               <S.ModalHeader>
-                <S.ModalTitle>새 단계 추가</S.ModalTitle>
+                <S.ModalTitle>{isEditMode ? '단계 수정' : '새 단계 추가'}</S.ModalTitle>
                 <S.CloseButton onClick={() => setIsAddStepModalOpen(false)}>&times;</S.CloseButton>
               </S.ModalHeader>
               
@@ -223,16 +317,26 @@ export default function ProjectDetailPage() {
                 
                 <S.FormGroup>
                   <S.FormLabel>승인자</S.FormLabel>
-                  <S.FormInput
-                    type="text"
-                    value={addStepForm.approver}
-                    onChange={e => setAddStepForm(prev => ({ ...prev, approver: e.target.value }))}
-                    placeholder="승인자 이름을 입력하세요"
-                  />
+                  {isEditMode && addStepForm.userId > 0 && (
+                    <S.CurrentApprover>
+                      현재 승인자: {clientUsers.find(user => user.id === addStepForm.userId)?.name || "-"}
+                    </S.CurrentApprover>
+                  )}
+                  <S.FormSelect
+                    value={addStepForm.userId}
+                    onChange={e => setAddStepForm(prev => ({ ...prev, userId: parseInt(e.target.value) }))}
+                  >
+                    <option value={0}>승인자를 선택하세요</option>
+                    {Array.isArray(clientUsers) && clientUsers.map(clientUser => (
+                      <option key={clientUser.id} value={clientUser.id}>
+                        {clientUser.name}
+                      </option>
+                    ))}
+                  </S.FormSelect>
                 </S.FormGroup>
 
                 <S.ActionButton variant="add" onClick={handleAddStep}>
-                  단계 추가
+                  {isEditMode ? '수정하기' : '단계 추가'}
                 </S.ActionButton>
               </S.AddStepModalContent>
             </S.ModalContent>
