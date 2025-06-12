@@ -59,7 +59,7 @@ export type PostCreateData = {
   type: PostType;
   status: PostStatus;
   priority: PostPriority;
-  projectId: number;
+  stepId: number;
   parentId?: number | null;
 };
 
@@ -67,10 +67,11 @@ export type PostCreateData = {
 export type Post = {
   postId: number;
   parentId: number | null;
+  projectStepId: number;
   authorIp: string;
   author: Author;
   approver?: Author;
-  project: Project;
+  project?: Project;
   title: string;
   content: string;
   type: PostType;
@@ -80,10 +81,11 @@ export type Post = {
   updatedAt: string;
   deletedAt: string | null;
   completedAt: string | null;
-  approvedAt: string | null;
+  approvedAt?: string | null;
   comments?: Comment[];
   questionCount?: number;
-  isDeleted: boolean;
+  isDeleted?: boolean;
+  delete?: boolean;
 };
 
 // API 응답 타입
@@ -132,4 +134,18 @@ export type PostUpdateRequest = {
   type?: PostType;
   status?: PostStatus;
   priority?: PostPriority;
+};
+
+// 게시글 검색 요청 데이터 타입
+export type PostSearchRequest = {
+  title?: string;
+  content?: string;
+  author?: string;
+  status?: PostStatus;
+  type?: PostType;
+  priority?: PostPriority;
+  assignee?: string;
+  client?: string;
+  startDate?: string;
+  endDate?: string;
 };

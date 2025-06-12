@@ -63,14 +63,14 @@ export default function ProjectPostPage() {
   const [projectInfo, setProjectInfo] = useState<Post["project"] | null>(null);
 
   const fetchPosts = async () => {
-    const currentProjectId = parseInt(projectId || "1");
-    if (isNaN(currentProjectId)) return;
+    const currentStepId = 1; // 임시로 단계 ID 1 사용
+    if (isNaN(currentStepId)) return;
 
     try {
       setLoading(true);
       setError(null);
       const response = await getPosts(
-        currentProjectId,
+        currentStepId,
         currentPage,
         10,
         statusFilter === "ALL" ? undefined : statusFilter,
@@ -97,7 +97,7 @@ export default function ProjectPostPage() {
 
   useEffect(() => {
     fetchPosts();
-  }, [projectId, currentPage, statusFilter, searchTerm]);
+  }, [currentPage, statusFilter, searchTerm]);
 
   const handlePostClick = (postId: number) => {
     setSelectedPostId(postId);
@@ -122,23 +122,15 @@ export default function ProjectPostPage() {
       setLoading(true);
       setError(null);
 
-      // 현재 프로젝트 ID 설정
-      const currentProjectId = parseInt(projectId || "1");
-      if (isNaN(currentProjectId)) {
-        throw new Error("유효하지 않은 프로젝트 ID입니다.");
-      }
-
-      // 게시글 생성 API 호출
-      const response = await createPost({
-        ...data,
-        projectId: currentProjectId,
-      });
+      // 게시글 생성 API 호출 (stepId는 이미 data에 포함되어 있음)
+      const response = await createPost(data);
 
       // 성공 메시지가 포함된 경우도 성공으로 처리
       if (response.success || response.message?.includes("완료")) {
         // 게시글 목록 새로고침
+        const currentStepId = 1; // 임시로 단계 ID 1 사용
         const updatedPosts = await getPosts(
-          currentProjectId,
+          currentStepId,
           currentPage,
           10,
           statusFilter === "ALL" ? undefined : statusFilter
@@ -156,17 +148,15 @@ export default function ProjectPostPage() {
       if (err instanceof Error && err.message.includes("완료")) {
         console.log(err.message);
         // 게시글 목록 새로고침
-        const currentProjectId = parseInt(projectId || "1");
-        if (!isNaN(currentProjectId)) {
-          const updatedPosts = await getPosts(
-            currentProjectId,
-            currentPage,
-            10,
-            statusFilter === "ALL" ? undefined : statusFilter
-          );
-          setPosts(updatedPosts.data.content);
-          setTotalPages(updatedPosts.data.page.totalPages);
-        }
+        const currentStepId = 1; // 임시로 단계 ID 1 사용
+        const updatedPosts = await getPosts(
+          currentStepId,
+          currentPage,
+          10,
+          statusFilter === "ALL" ? undefined : statusFilter
+        );
+        setPosts(updatedPosts.data.content);
+        setTotalPages(updatedPosts.data.page.totalPages);
         // 모달 닫기
         handleCreateModalClose();
       } else {

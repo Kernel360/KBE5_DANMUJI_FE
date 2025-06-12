@@ -36,7 +36,7 @@ export const LeftPanel: React.FC<Props> = ({ showLockInfo = false }) => (
     {showLockInfo && (
       <>
         <LockContainer>
-          <LockIconImage src="/Chart-Icon.png" alt="Lock Icon" />
+          <LockIconImage src="/Lock-Icon.png" alt="Lock Icon" />
           <LockTitle>보안 정보</LockTitle>
         </LockContainer>
         <LockText>

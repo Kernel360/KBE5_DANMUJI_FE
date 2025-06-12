@@ -1,8 +1,10 @@
 import styled from "styled-components";
 
 export const DashboardContainer = styled.div`
+  flex: 1;
   padding: 32px;
   background-color: #f9fafb;
+  min-height: 100vh; 
 `;
 
 export const Header = styled.div`
@@ -57,7 +59,9 @@ export const Icon = styled.img`
   width: 1.75rem;
 `;
 
-export const CardContent = styled.div``;
+export const CardContent = styled.div`
+
+  `;
 
 export const CardValue = styled.div`
   font-size: 1.5rem;
