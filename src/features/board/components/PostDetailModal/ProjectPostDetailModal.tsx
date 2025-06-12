@@ -269,15 +269,42 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
 
   // 작성자 본인 여부 확인 함수
   const isAuthor = (authorId: number) => {
-    console.log("현재 사용자:", user);
-    console.log("게시글 작성자 ID:", authorId);
-    console.log("사용자 ID 비교:", user?.id, authorId);
-
-    const isAuthorResult = user?.id === authorId;
-
-    console.log("작성자 본인 여부:", isAuthorResult);
-    return isAuthorResult;
+    return user?.id === authorId;
   };
+
+  // soft delete 제외한 댓글만 필터링
+  const visibleComments = comments.filter(
+    (comment) => !comment.deletedAt && comment.status !== "DELETED"
+  );
+
+  // 렌더링되는 댓글 개수 계산
+  const getRenderedCommentCount = () => {
+    const rootComments = visibleComments.filter(
+      (comment) => !comment.parentCommentId
+    );
+    let totalCount = 0;
+
+    rootComments.forEach((rootComment) => {
+      totalCount++; // 루트 댓글 카운트
+
+      // 이 댓글을 부모로 하는 모든 답글(1,2,3...depth) 카운트
+      const replies = visibleComments.filter((c) => {
+        let parent = c.parentCommentId;
+        while (parent) {
+          if (parent === rootComment.id) return true;
+          const parentComment = visibleComments.find((cc) => cc.id === parent);
+          parent = parentComment?.parentCommentId;
+        }
+        return false;
+      });
+
+      totalCount += replies.length; // 답글들 카운트
+    });
+
+    return totalCount;
+  };
+
+  const renderedCommentCount = getRenderedCommentCount();
 
   // 댓글 저장
   const handleSaveEdit = async (commentId: number) => {
@@ -603,7 +630,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
             </div>
 
             <CommentsSection>
-              <SectionTitle>댓글 ({comments.length})</SectionTitle>
+              <SectionTitle>댓글 ({renderedCommentCount})</SectionTitle>
 
               {/* 댓글 입력창을 위로 이동 */}
               <div
@@ -661,16 +688,16 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
               </div>
 
               <CommentsList>
-                {comments.length > 0 ? (
-                  comments
+                {visibleComments.length > 0 ? (
+                  visibleComments
                     .filter((comment) => !comment.parentCommentId)
                     .map((rootComment) => {
                       // 이 댓글을 부모로 하는 모든 답글(1,2,3...depth) 평면적으로 시간순 정렬
-                      const replies = comments.filter((c) => {
+                      const replies = visibleComments.filter((c) => {
                         let parent = c.parentCommentId;
                         while (parent) {
                           if (parent === rootComment.id) return true;
-                          const parentComment = comments.find(
+                          const parentComment = visibleComments.find(
                             (cc) => cc.id === parent
                           );
                           parent = parentComment?.parentCommentId;
