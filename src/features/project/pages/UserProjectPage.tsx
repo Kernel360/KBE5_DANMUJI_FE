@@ -39,10 +39,14 @@ interface Project {
 
 export default function UserProjectPage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const [search, setSearch] = useState("");
   const [projects, setProjects] = useState<Project[]>([]);
-  const [page, setPage] = useState<{ number: number; totalPages: number }>({ number: 0, totalPages: 1 });
+  const [page, setPage] = useState<{
+    size: number;
+    number: number;
+    totalElements: number;
+    totalPages: number;
+  }>({ size: 10, number: 0, totalElements: 0, totalPages: 1 });
   const [userId, setUserId] = useState<number | null>(null);
 
   // 사용자 정보 가져오기
@@ -62,24 +66,29 @@ export default function UserProjectPage() {
   }, []);
 
   // 통합 페칭 함수 (페이지네이션 포함)
-  const fetchProjects = async (keyword: string = "", pageNum: number = 0) => {
-    if (!userId) return; // userId가 없으면 API 호출하지 않음
+  const fetchProjects = async (keyword = "", pageNum = 0) => {
+    if (userId === null) return;
+    const trimmed = keyword.trim();
+    const url = trimmed
+      ? `/api/projects/search?keyword=${encodeURIComponent(trimmed)}&page=${pageNum}`
+      : `/api/projects/${userId}/user?page=${pageNum}`;
 
     try {
-      const trimmed = keyword.trim();
-      const url = trimmed
-        ? `/api/projects/search?keyword=${encodeURIComponent(trimmed)}&page=${pageNum}`
-        : `/api/projects/${userId}/user?page=${pageNum}`;
-
       const response = await api.get(url);
-      const payload = response.data.data ?? response.data;
-      const list: Project[] = Array.isArray(payload.content)
-        ? payload.content
-        : [];
-      setProjects(list);
-      setPage({ number: payload.number, totalPages: payload.totalPages || 1 });
+      const payload = response.data.data;
+
+      // 프로젝트 리스트 설정
+      setProjects(Array.isArray(payload.content) ? payload.content : []);
+
+      // 페이지 메타 전체 설정
+      setPage({
+        size: payload.page.size,
+        number: payload.page.number,
+        totalElements: payload.page.totalElements,
+        totalPages: payload.page.totalPages,
+      });
     } catch (err) {
-      console.error("Failed to load projects", err);
+      console.error("Failed to load user projects", err);
     }
   };
 
@@ -169,34 +178,34 @@ export default function UserProjectPage() {
           </TableBody>
         </Table>
 
+        {/* 페이지네이션 */}
         <PaginationContainer>
-        <PaginationNav>
-          <PaginationButton
-            disabled={!page || page.number === 0}
-            onClick={() => page && handlePageChange(page.number - 1)}
-          >
-            {'<'}
-          </PaginationButton>
+          <PaginationNav>
+            <PaginationButton
+              disabled={page.number === 0}
+              onClick={() => handlePageChange(page.number - 1)}
+            >
+              {'<'}
+            </PaginationButton>
 
-          {/* 페이지 번호 버튼들을 동적으로 생성 */}
-          {Array.from({ length: page?.totalPages ?? 0 }, (_, idx) => (
-            idx === (page?.number ?? 0) ? (
-              <CurrentPageButton key={idx}>{idx + 1}</CurrentPageButton>
-            ) : (
-              <PaginationButton key={idx} onClick={() => handlePageChange(idx)}>
-                {idx + 1}
-              </PaginationButton>
-            )
-          ))}
+            {Array.from({ length: page.totalPages }, (_, i) => (
+              i === page.number ? (
+                <CurrentPageButton key={i}>{i + 1}</CurrentPageButton>
+              ) : (
+                <PaginationButton key={i} onClick={() => handlePageChange(i)}>
+                  {i + 1}
+                </PaginationButton>
+              )
+            ))}
 
-          <PaginationButton
-            disabled={!page || page.number + 1 >= (page?.totalPages ?? 0)}
-            onClick={() => page && handlePageChange(page.number + 1)}
-          >
-            {'>'}
-          </PaginationButton>
-        </PaginationNav>
-      </PaginationContainer>
+            <PaginationButton
+              disabled={page.number + 1 >= page.totalPages}
+              onClick={() => handlePageChange(page.number + 1)}
+            >
+              {'>'}
+            </PaginationButton>
+          </PaginationNav>
+        </PaginationContainer>
       </Main>
     </Layout>
   );
