@@ -21,21 +21,12 @@ import {
   QuestionDate,
   QuestionText,
   QuestionActions,
-  AnswerList,
-  AnswerItem,
-  AnswerHeader,
-  AnswerAuthor,
-  AnswerDate,
-  AnswerText,
-  AnswerActions,
   QuestionForm,
   QuestionTextArea,
   QuestionSubmitButton,
   AnswerForm,
   AnswerTextArea,
   AnswerSubmitButton,
-  VoteButton,
-  BestAnswerBadge,
   LoadingSpinner,
   ErrorMessage,
   ModalHeaderActionButton,
@@ -49,10 +40,13 @@ import {
   updateQuestion,
   deleteQuestion,
   resolveQuestion,
+  getAnswersByQuestion,
+  markQuestionAsAnswered,
 } from "@/features/project/services/questionService";
 import type { Post } from "@/features/project/types/post";
 import type { Question } from "@/features/project/types/question";
 import { useAuth } from "@/contexts/AuthContexts";
+import AnswerDetailModal from "../AnswerDetailModal/AnswerDetailModal";
 
 interface QuestionAnswerModalProps {
   open: boolean;
@@ -86,6 +80,11 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
   const [updatingQuestion, setUpdatingQuestion] = useState(false);
   const [deletingQuestion, setDeletingQuestion] = useState(false);
   const [resolvingQuestion, setResolvingQuestion] = useState(false);
+
+  // 답변 보기 모달 관련 상태
+  const [showAnswerModal, setShowAnswerModal] = useState(false);
+  const [selectedQuestionForAnswer, setSelectedQuestionForAnswer] =
+    useState<Question | null>(null);
 
   useEffect(() => {
     const loadPostData = async () => {
@@ -174,13 +173,12 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
       });
 
       if (response.data) {
-        // 질문 목록을 다시 불러와서 답변 정보 업데이트
-        const questionsResponse = await getQuestionsByPost(postId!);
-        if (questionsResponse.data) {
-          setQuestions(questionsResponse.data.content);
-        }
+        // 답변 등록 성공 시 현재 질문에는 표시하지 않고 답변 보기 모달에서만 확인
         setAnswerText("");
         setSelectedQuestionId(null);
+
+        // 답변 등록 성공 메시지
+        alert("답변이 성공적으로 등록되었습니다! 답변 보기에서 확인하세요.");
       }
     } catch (err) {
       console.error("답변 작성 중 오류:", err);
@@ -369,6 +367,18 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
     }
   };
 
+  // 답변 보기 모달 열기
+  const handleOpenAnswerModal = (question: Question) => {
+    setSelectedQuestionForAnswer(question);
+    setShowAnswerModal(true);
+  };
+
+  // 답변 보기 모달 닫기
+  const handleCloseAnswerModal = () => {
+    setShowAnswerModal(false);
+    setSelectedQuestionForAnswer(null);
+  };
+
   if (!open) return null;
 
   if (loading) {
@@ -402,365 +412,363 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
   }
 
   return (
-    <ModalOverlay onClick={onClose}>
-      <ModalPanel onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-        <ModalHeader>
-          <HeaderLeft>
-            <ModalTitle>질문 & 답변</ModalTitle>
-          </HeaderLeft>
-          <HeaderRight>
-            <CloseButton onClick={onClose}>&times;</CloseButton>
-          </HeaderRight>
-        </ModalHeader>
-        <ModalBody>
-          {/* 게시글 정보 */}
-          <Section style={{ marginBottom: 24 }}>
-            <span
-              style={{ fontWeight: 600, color: "#6b7280", marginBottom: 4 }}
-            >
-              제목
-            </span>
-            <span
-              style={{
-                fontSize: 16,
-                color: "#222",
-                marginBottom: 8,
-                marginLeft: 14,
-              }}
-            >
-              {post.title}
-            </span>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-                marginBottom: 8,
-              }}
-            >
-              <span style={{ fontWeight: 600, color: "#6b7280" }}>상태</span>
+    <>
+      <ModalOverlay onClick={onClose}>
+        <ModalPanel onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+          <ModalHeader>
+            <HeaderLeft>
+              <ModalTitle>질문 & 답변</ModalTitle>
+            </HeaderLeft>
+            <HeaderRight>
+              <CloseButton onClick={onClose}>&times;</CloseButton>
+            </HeaderRight>
+          </ModalHeader>
+          <ModalBody>
+            {/* 게시글 정보 */}
+            <Section style={{ marginBottom: 24 }}>
+              <span
+                style={{ fontWeight: 600, color: "#6b7280", marginBottom: 4 }}
+              >
+                제목
+              </span>
               <span
                 style={{
-                  background: getPostStatusColor(post.status),
-                  color: "white",
-                  borderRadius: 8,
-                  fontWeight: 600,
-                  fontSize: 13,
-                  padding: "2px 12px",
-                  marginLeft: 0,
+                  fontSize: 16,
+                  color: "#222",
+                  marginBottom: 8,
+                  marginLeft: 14,
                 }}
               >
-                {getPostStatusText(post.status)}
+                {post.title}
               </span>
-              <span style={{ color: "#b0b0b0", fontSize: 13, marginLeft: 10 }}>
-                {formatDate(post.createdAt)}
-              </span>
-            </div>
-            <div style={{ fontWeight: 600, color: "#6b7280", marginBottom: 4 }}>
-              내용
-            </div>
-            <div
-              style={{
-                fontSize: 15,
-                color: "#444",
-                lineHeight: 1.7,
-                background: "#f8f9fa",
-                borderRadius: 8,
-                padding: 16,
-              }}
-            >
-              {post.content}
-            </div>
-          </Section>
-
-          <QuestionSection>
-            <SectionTitle>질문 & 답변 ({questions.length})</SectionTitle>
-
-            <QuestionForm>
-              <QuestionTextArea
-                placeholder="이 게시글에 대해 질문이 있으신가요?"
-                value={questionText}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                  setQuestionText(e.target.value)
-                }
-                disabled={submittingQuestion}
-              />
-              <QuestionSubmitButton
-                onClick={handleQuestionSubmit}
-                disabled={!questionText.trim() || submittingQuestion}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                  marginBottom: 8,
+                }}
               >
-                {submittingQuestion ? "질문 등록 중..." : "질문 등록"}
-              </QuestionSubmitButton>
-            </QuestionForm>
-
-            <QuestionList>
-              {questions.length > 0 ? (
-                questions.map((question) => (
-                  <QuestionItem key={question.id}>
-                    <QuestionHeader>
-                      <div>
-                        <QuestionAuthor>
-                          {question.author?.name}
-                          <span
-                            style={{
-                              fontSize: 11,
-                              color: "#b0b0b0",
-                              marginLeft: 6,
-                              fontWeight: 400,
-                            }}
-                          >
-                            {question.authorIp}
-                          </span>
-                        </QuestionAuthor>
-                        <QuestionDate>
-                          {formatDate(question.createdAt)}
-                        </QuestionDate>
-                        <div
-                          style={{
-                            display: "inline-block",
-                            background: getStatusColor(question.status),
-                            color: "white",
-                            borderRadius: "4px",
-                            fontSize: "0.75em",
-                            padding: "2px 8px",
-                            marginLeft: "8px",
-                            fontWeight: "500",
-                          }}
-                        >
-                          {getStatusText(question.status)}
-                        </div>
-                      </div>
-                      <QuestionActions>
-                        {question.author?.id &&
-                          isQuestionAuthor(question.author.id) && (
-                            <ModalHeaderButtonGroup>
-                              {editingQuestionId === question.id ? (
-                                <>
-                                  <ModalHeaderActionButton
-                                    onClick={handleUpdateQuestion}
-                                    disabled={
-                                      updatingQuestion ||
-                                      !editQuestionText.trim()
-                                    }
-                                  >
-                                    {updatingQuestion ? "저장 중..." : "저장"}
-                                  </ModalHeaderActionButton>
-                                  <ModalHeaderActionButton
-                                    onClick={handleCancelEdit}
-                                    disabled={updatingQuestion}
-                                  >
-                                    취소
-                                  </ModalHeaderActionButton>
-                                </>
-                              ) : (
-                                <>
-                                  <ModalHeaderActionButton
-                                    onClick={() => handleEditQuestion(question)}
-                                  >
-                                    수정
-                                  </ModalHeaderActionButton>
-                                  <ModalHeaderActionButton
-                                    onClick={() =>
-                                      handleResolveQuestion(question.id)
-                                    }
-                                    disabled={resolvingQuestion}
-                                  >
-                                    {resolvingQuestion
-                                      ? "처리 중..."
-                                      : question.status === "RESOLVED"
-                                      ? "해결안됨"
-                                      : "해결됨으로 표시"}
-                                  </ModalHeaderActionButton>
-                                  <ModalHeaderActionButton
-                                    className="delete"
-                                    onClick={() =>
-                                      handleDeleteQuestion(question.id)
-                                    }
-                                    disabled={deletingQuestion}
-                                  >
-                                    삭제
-                                  </ModalHeaderActionButton>
-                                </>
-                              )}
-                            </ModalHeaderButtonGroup>
-                          )}
-                      </QuestionActions>
-                    </QuestionHeader>
-                    {editingQuestionId === question.id ? (
-                      <div style={{ marginTop: "1rem" }}>
-                        <textarea
-                          value={editQuestionText}
-                          onChange={(e) => setEditQuestionText(e.target.value)}
-                          style={{
-                            width: "100%",
-                            minHeight: "80px",
-                            padding: "12px",
-                            border: "1px solid #d1d5db",
-                            borderRadius: "4px",
-                            fontSize: "0.875rem",
-                            resize: "vertical",
-                            backgroundColor: "#ffffff",
-                            color: "#333333",
-                          }}
-                          placeholder="질문 내용을 수정하세요"
-                        />
-                      </div>
-                    ) : (
-                      <QuestionText>{question.content}</QuestionText>
-                    )}
-
-                    <AnswerList>
-                      {question.answers && question.answers.length > 0
-                        ? question.answers.map((answer) => (
-                            <AnswerItem
-                              key={answer.id}
-                              $isBestAnswer={answer.isBestAnswer}
-                            >
-                              <AnswerHeader>
-                                <div>
-                                  <AnswerAuthor>
-                                    {answer.author?.name}
-                                    <span
-                                      style={{
-                                        fontSize: 11,
-                                        color: "#b0b0b0",
-                                        marginLeft: 6,
-                                        fontWeight: 400,
-                                      }}
-                                    >
-                                      {answer.authorIp}
-                                    </span>
-                                  </AnswerAuthor>
-                                  <AnswerDate>
-                                    {formatDate(answer.createdAt)}
-                                  </AnswerDate>
-                                  {answer.isBestAnswer && (
-                                    <BestAnswerBadge>
-                                      베스트 답변
-                                    </BestAnswerBadge>
-                                  )}
-                                </div>
-                                <AnswerActions>
-                                  <VoteButton>👍 0</VoteButton>
-                                </AnswerActions>
-                              </AnswerHeader>
-                              <AnswerText>{answer.content}</AnswerText>
-                            </AnswerItem>
-                          ))
-                        : null}
-                    </AnswerList>
-
-                    {selectedQuestionId === question.id ? (
-                      <AnswerForm>
-                        <AnswerTextArea
-                          placeholder="답변을 입력하세요"
-                          value={answerText}
-                          onChange={(
-                            e: React.ChangeEvent<HTMLTextAreaElement>
-                          ) => setAnswerText(e.target.value)}
-                          disabled={submittingAnswer}
-                        />
-                        <AnswerSubmitButton
-                          onClick={handleAnswerSubmit}
-                          disabled={!answerText.trim() || submittingAnswer}
-                        >
-                          {submittingAnswer ? "답변 등록 중..." : "답변 등록"}
-                        </AnswerSubmitButton>
-                        <button
-                          onClick={() => {
-                            setSelectedQuestionId(null);
-                            setAnswerText("");
-                          }}
-                          style={{
-                            position: "absolute",
-                            bottom: "0.75rem",
-                            right: "5.5rem",
-                            background: "#6b7280",
-                            color: "white",
-                            border: "none",
-                            borderRadius: "0.375rem",
-                            padding: "0.375rem 0.75rem",
-                            fontSize: "0.75rem",
-                            fontWeight: "500",
-                            cursor: "pointer",
-                            transition: "all 0.2s ease",
-                            boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-                          }}
-                          onMouseOver={(e) => {
-                            e.currentTarget.style.background = "#4b5563";
-                            e.currentTarget.style.transform =
-                              "translateY(-1px)";
-                            e.currentTarget.style.boxShadow =
-                              "0 2px 6px rgba(0, 0, 0, 0.15)";
-                          }}
-                          onMouseOut={(e) => {
-                            e.currentTarget.style.background = "#6b7280";
-                            e.currentTarget.style.transform = "translateY(0)";
-                            e.currentTarget.style.boxShadow =
-                              "0 1px 3px rgba(0, 0, 0, 0.1)";
-                          }}
-                          disabled={submittingAnswer}
-                        >
-                          취소
-                        </button>
-                      </AnswerForm>
-                    ) : editingQuestionId !== question.id ? (
-                      <button
-                        onClick={() => setSelectedQuestionId(question.id)}
-                        style={{
-                          position: "absolute",
-                          bottom: "1rem",
-                          right: "1rem",
-                          background: "#fdb924",
-                          color: "white",
-                          border: "none",
-                          borderRadius: "0.5rem",
-                          padding: "0.5rem 1rem",
-                          cursor: "pointer",
-                          fontSize: "0.75rem",
-                          fontWeight: "500",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          transition: "all 0.2s ease",
-                          boxShadow: "0 2px 4px rgba(253, 185, 36, 0.2)",
-                        }}
-                        onMouseOver={(e) => {
-                          e.currentTarget.style.background = "#f59e0b";
-                          e.currentTarget.style.transform = "translateY(-1px)";
-                          e.currentTarget.style.boxShadow =
-                            "0 4px 8px rgba(253, 185, 36, 0.3)";
-                        }}
-                        onMouseOut={(e) => {
-                          e.currentTarget.style.background = "#fdb924";
-                          e.currentTarget.style.transform = "translateY(0)";
-                          e.currentTarget.style.boxShadow =
-                            "0 2px 4px rgba(253, 185, 36, 0.2)";
-                        }}
-                      >
-                        답변 작성
-                      </button>
-                    ) : null}
-                  </QuestionItem>
-                ))
-              ) : (
-                <p
+                <span style={{ fontWeight: 600, color: "#6b7280" }}>상태</span>
+                <span
                   style={{
-                    textAlign: "center",
-                    color: "#6b7280",
-                    padding: "2rem",
+                    background: getPostStatusColor(post.status),
+                    color: "white",
+                    borderRadius: 8,
+                    fontWeight: 600,
+                    fontSize: 13,
+                    padding: "2px 12px",
+                    marginLeft: 0,
                   }}
                 >
-                  아직 질문이 없습니다. 첫 번째 질문을 작성해보세요!
-                </p>
-              )}
-            </QuestionList>
-          </QuestionSection>
-        </ModalBody>
-      </ModalPanel>
-    </ModalOverlay>
+                  {getPostStatusText(post.status)}
+                </span>
+                <span
+                  style={{ color: "#b0b0b0", fontSize: 13, marginLeft: 10 }}
+                >
+                  {formatDate(post.createdAt)}
+                </span>
+              </div>
+              <div
+                style={{ fontWeight: 600, color: "#6b7280", marginBottom: 4 }}
+              >
+                내용
+              </div>
+              <div
+                style={{
+                  fontSize: 15,
+                  color: "#444",
+                  lineHeight: 1.7,
+                  background: "#f8f9fa",
+                  borderRadius: 8,
+                  padding: 16,
+                }}
+              >
+                {post.content}
+              </div>
+            </Section>
+
+            <QuestionSection>
+              <SectionTitle>질문 & 답변 ({questions.length})</SectionTitle>
+
+              <QuestionForm>
+                <QuestionTextArea
+                  placeholder="이 게시글에 대해 질문이 있으신가요?"
+                  value={questionText}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                    setQuestionText(e.target.value)
+                  }
+                  disabled={submittingQuestion}
+                />
+                <QuestionSubmitButton
+                  onClick={handleQuestionSubmit}
+                  disabled={!questionText.trim() || submittingQuestion}
+                >
+                  {submittingQuestion ? "질문 등록 중..." : "질문 등록"}
+                </QuestionSubmitButton>
+              </QuestionForm>
+
+              <QuestionList>
+                {questions.length > 0 ? (
+                  questions.map((question) => (
+                    <QuestionItem key={question.id}>
+                      <QuestionHeader>
+                        <div>
+                          <QuestionAuthor>
+                            {question.author?.name}
+                            <span
+                              style={{
+                                fontSize: 11,
+                                color: "#b0b0b0",
+                                marginLeft: 6,
+                                fontWeight: 400,
+                              }}
+                            >
+                              {question.authorIp}
+                            </span>
+                          </QuestionAuthor>
+                          <QuestionDate>
+                            {formatDate(question.createdAt)}
+                          </QuestionDate>
+                          <div
+                            style={{
+                              display: "inline-block",
+                              background: getStatusColor(question.status),
+                              color: "white",
+                              borderRadius: "4px",
+                              fontSize: "0.75em",
+                              padding: "2px 8px",
+                              marginLeft: "8px",
+                              fontWeight: "500",
+                            }}
+                          >
+                            {getStatusText(question.status)}
+                          </div>
+                        </div>
+                        <QuestionActions>
+                          {question.author?.id &&
+                            isQuestionAuthor(question.author.id) && (
+                              <ModalHeaderButtonGroup>
+                                {editingQuestionId === question.id ? (
+                                  <>
+                                    <ModalHeaderActionButton
+                                      onClick={handleUpdateQuestion}
+                                      disabled={
+                                        updatingQuestion ||
+                                        !editQuestionText.trim()
+                                      }
+                                    >
+                                      {updatingQuestion ? "저장 중..." : "저장"}
+                                    </ModalHeaderActionButton>
+                                    <ModalHeaderActionButton
+                                      onClick={handleCancelEdit}
+                                      disabled={updatingQuestion}
+                                    >
+                                      취소
+                                    </ModalHeaderActionButton>
+                                  </>
+                                ) : (
+                                  <>
+                                    <ModalHeaderActionButton
+                                      onClick={() =>
+                                        handleEditQuestion(question)
+                                      }
+                                    >
+                                      수정
+                                    </ModalHeaderActionButton>
+                                    <ModalHeaderActionButton
+                                      onClick={() =>
+                                        handleResolveQuestion(question.id)
+                                      }
+                                      disabled={resolvingQuestion}
+                                    >
+                                      {resolvingQuestion
+                                        ? "처리 중..."
+                                        : question.status === "RESOLVED"
+                                        ? "해결안됨"
+                                        : "해결됨으로 표시"}
+                                    </ModalHeaderActionButton>
+                                    <ModalHeaderActionButton
+                                      className="delete"
+                                      onClick={() =>
+                                        handleDeleteQuestion(question.id)
+                                      }
+                                      disabled={deletingQuestion}
+                                    >
+                                      삭제
+                                    </ModalHeaderActionButton>
+                                  </>
+                                )}
+                              </ModalHeaderButtonGroup>
+                            )}
+                        </QuestionActions>
+                      </QuestionHeader>
+                      {editingQuestionId === question.id ? (
+                        <div style={{ marginTop: "1rem" }}>
+                          <textarea
+                            value={editQuestionText}
+                            onChange={(e) =>
+                              setEditQuestionText(e.target.value)
+                            }
+                            style={{
+                              width: "100%",
+                              minHeight: "80px",
+                              padding: "12px",
+                              border: "1px solid #d1d5db",
+                              borderRadius: "4px",
+                              fontSize: "0.875rem",
+                              resize: "vertical",
+                              backgroundColor: "#ffffff",
+                              color: "#333333",
+                            }}
+                            placeholder="질문 내용을 수정하세요"
+                          />
+                        </div>
+                      ) : (
+                        <QuestionText>{question.content}</QuestionText>
+                      )}
+
+                      {selectedQuestionId === question.id ? (
+                        <AnswerForm>
+                          <AnswerTextArea
+                            placeholder="답변을 입력하세요"
+                            value={answerText}
+                            onChange={(
+                              e: React.ChangeEvent<HTMLTextAreaElement>
+                            ) => setAnswerText(e.target.value)}
+                            disabled={submittingAnswer}
+                          />
+                          <AnswerSubmitButton
+                            onClick={handleAnswerSubmit}
+                            disabled={!answerText.trim() || submittingAnswer}
+                          >
+                            {submittingAnswer ? "답변 등록 중..." : "답변 등록"}
+                          </AnswerSubmitButton>
+                          <button
+                            onClick={() => {
+                              setSelectedQuestionId(null);
+                              setAnswerText("");
+                            }}
+                            style={{
+                              position: "absolute",
+                              bottom: "0.75rem",
+                              right: "5.5rem",
+                              background: "#6b7280",
+                              color: "white",
+                              border: "none",
+                              borderRadius: "0.375rem",
+                              padding: "0.375rem 0.75rem",
+                              fontSize: "0.75rem",
+                              fontWeight: "500",
+                              cursor: "pointer",
+                              transition: "all 0.2s ease",
+                              boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+                            }}
+                            onMouseOver={(e) => {
+                              e.currentTarget.style.background = "#4b5563";
+                              e.currentTarget.style.transform =
+                                "translateY(-1px)";
+                              e.currentTarget.style.boxShadow =
+                                "0 2px 6px rgba(0, 0, 0, 0.15)";
+                            }}
+                            onMouseOut={(e) => {
+                              e.currentTarget.style.background = "#6b7280";
+                              e.currentTarget.style.transform = "translateY(0)";
+                              e.currentTarget.style.boxShadow =
+                                "0 1px 3px rgba(0, 0, 0, 0.1)";
+                            }}
+                            disabled={submittingAnswer}
+                          >
+                            취소
+                          </button>
+                        </AnswerForm>
+                      ) : editingQuestionId !== question.id ? (
+                        <div
+                          style={{
+                            position: "absolute",
+                            bottom: "1rem",
+                            right: "1rem",
+                          }}
+                        >
+                          <button
+                            onClick={() => handleOpenAnswerModal(question)}
+                            style={{
+                              background: "#fdb924",
+                              color: "white",
+                              border: "none",
+                              borderRadius: "0.5rem",
+                              padding: "0.5rem 1rem",
+                              cursor: "pointer",
+                              fontSize: "0.75rem",
+                              fontWeight: "500",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              transition: "all 0.2s ease",
+                              boxShadow: "0 2px 4px rgba(253, 185, 36, 0.2)",
+                            }}
+                            onMouseOver={(e) => {
+                              e.currentTarget.style.background = "#f59e0b";
+                              e.currentTarget.style.transform =
+                                "translateY(-1px)";
+                              e.currentTarget.style.boxShadow =
+                                "0 4px 8px rgba(253, 185, 36, 0.3)";
+                            }}
+                            onMouseOut={(e) => {
+                              e.currentTarget.style.background = "#fdb924";
+                              e.currentTarget.style.transform = "translateY(0)";
+                              e.currentTarget.style.boxShadow =
+                                "0 2px 4px rgba(253, 185, 36, 0.2)";
+                            }}
+                          >
+                            답변 보기
+                          </button>
+                        </div>
+                      ) : null}
+                    </QuestionItem>
+                  ))
+                ) : (
+                  <p
+                    style={{
+                      textAlign: "center",
+                      color: "#6b7280",
+                      padding: "2rem",
+                    }}
+                  >
+                    아직 질문이 없습니다. 첫 번째 질문을 작성해보세요!
+                  </p>
+                )}
+              </QuestionList>
+            </QuestionSection>
+          </ModalBody>
+        </ModalPanel>
+      </ModalOverlay>
+
+      {/* 답변 보기 모달 */}
+      {showAnswerModal && selectedQuestionForAnswer && (
+        <AnswerDetailModal
+          open={showAnswerModal}
+          onClose={handleCloseAnswerModal}
+          questionId={selectedQuestionForAnswer.id}
+          questionTitle={selectedQuestionForAnswer.content}
+          onAnswerCreated={async () => {
+            // 답변 생성 후 질문 목록을 새로고침하여 상태와 답변 수 업데이트
+            if (postId) {
+              try {
+                const questionsResponse = await getQuestionsByPost(postId);
+                if (questionsResponse.data) {
+                  setQuestions(questionsResponse.data.content);
+                }
+              } catch (err) {
+                console.error("질문 목록 새로고침 중 오류:", err);
+              }
+            }
+          }}
+        />
+      )}
+    </>
   );
 };
 
