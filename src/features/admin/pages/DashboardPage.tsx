@@ -7,8 +7,6 @@ import {
   Description,
   CardGrid,
   Card,
-  IconContainer,
-  Icon,
   CardContent,
   CardValue,
   CardLabel,
@@ -18,59 +16,84 @@ import {
   RecentActivityList,
   RecentActivityItem,
   RecentActivityDate,
+  TwoColumnSection,
 } from "./DashboardPage.styled";
+
+// Define interfaces for new data types
+interface RecentPost {
+  id: number;
+  title: string;
+  createdAt: string;
+}
+
+interface RecentCompany {
+  id: number;
+  name: string;
+  createdAt: string;
+}
+
+interface RecentProject {
+  id: number;
+  name: string;
+  createdAt: string;
+}
 
 export default function DashboardPage() {
   const [companyCount, setCompanyCount] = useState(0);
+  const [memberCount, setMemberCount] = useState(0); // New state for member count
+  const [totalProjectCount, setTotalProjectCount] = useState(0); // New state for total projects
+  const [inProgressProjectCount, setInProgressProjectCount] = useState(0); // New state for in-progress projects
+  const [completedProjectCount, setCompletedProjectCount] = useState(0); // New state for completed projects
+  const [recentPosts, setRecentPosts] = useState<RecentPost[]>([]); // New state for recent posts
+  const [recentCompanies, setRecentCompanies] = useState<RecentCompany[]>([]); // Make dynamic
+  const [recentProjects, setRecentProjects] = useState<RecentProject[]>([]); // Make dynamic
 
   useEffect(() => {
-    const fetchCompanyCount = async () => {
+    const fetchData = async () => {
       try {
-        const response = await api.get('/api/companies/all');
-        setCompanyCount(response.data.data.content.length);
+        // Fetch Company Count
+        const companyResponse = await api.get('/api/companies/all');
+        setCompanyCount(companyResponse.data.data.length);
+
+        // Fetch Member Count
+        const memberResponse = await api.get('/api/admin/allUsers'); // Assuming this returns all users, similar to MemberPage.tsx
+        setMemberCount(memberResponse.data.data.page.totalElements);
+
+        // Fetch Project Counts
+        // Assuming /api/projects/counts returns { total: number, inProgress: number, completed: number }
+        const projectCountsResponse = await api.get('/api/projects'); 
+
+        const content = projectCountsResponse.data.data.content;
+        const total = projectCountsResponse.data.data.page.totalElements;
+
+        const inProgressCount = content.filter(p => p.status === 'IN_PROGRESS').length;
+        const completedCount = content.filter(p => p.status === 'COMPLETED').length;
+
+        setTotalProjectCount(total);
+        setInProgressProjectCount(inProgressCount);
+        setCompletedProjectCount(completedCount);
+
+        // Fetch Recent Posts
+        // Assuming /api/boards/recent returns { data: { content: [{ id, title, createdAt }] } }
+        const postsResponse = await api.get('/api/boards/recent'); 
+        setRecentPosts(postsResponse.data.data.content);
+
+        // Fetch Recent Companies
+        // Assuming /api/companies/recent returns { data: { content: [{ id, name, createdAt }] } }
+        const recentCompaniesResponse = await api.get('/api/companies/recent'); 
+        setRecentCompanies(recentCompaniesResponse.data.data.content);
+
+        // Fetch Recent Projects
+        // Assuming /api/projects/recent returns { data: { content: [{ id, name, createdAt }] } }
+        const recentProjectsResponse = await api.get('/api/projects/recent'); 
+        setRecentProjects(recentProjectsResponse.data.data.content);
+
       } catch (error) {
-        console.error('Failed to fetch company count:', error);
+        console.error('Failed to fetch dashboard data:', error);
       }
     };
-    fetchCompanyCount();
+    fetchData();
   }, []);
-
-  const summary = [
-    {
-      label: "전체 회사",
-      value: companyCount,
-      icon: "/src/assets/company.svg",
-      color: "#fef3c7",
-      iconColor: "#f59e0b",
-    },
-    {
-      label: "전체 회원",
-      value: 34,
-      icon: "/src/assets/member.svg",
-      color: "#dbeafe",
-      iconColor: "#3b82f6",
-    },
-    {
-      label: "전체 프로젝트",
-      value: 7,
-      icon: "/src/assets/project.svg",
-      color: "#dcfce7",
-      iconColor: "#22c55e",
-    },
-  ];
-
-  const recentCompanies = [
-    { name: "ABC 주식회사", date: "2024-06-01" },
-    { name: "DEF 테크놀로지", date: "2024-05-28" },
-  ];
-  const recentMembers = [
-    { name: "홍길동", date: "2024-06-02" },
-    { name: "김철수", date: "2024-05-30" },
-  ];
-  const recentProjects = [
-    { name: "신규 웹사이트 구축", date: "2024-06-03" },
-    { name: "모바일 앱 개발", date: "2024-05-29" },
-  ];
 
   return (
     <DashboardContainer>
@@ -80,51 +103,109 @@ export default function DashboardPage() {
           관리자용 프로젝트 관리 시스템 현황을 한눈에 확인하세요
         </Description>
       </Header>
-      <CardGrid>
-        {summary.map((card) => (
-          <Card key={card.label} $bgcolor={card.color}>
-            <IconContainer $iconbgcolor={card.iconColor}>
-              <Icon src={card.icon} alt="" />
-            </IconContainer>
-            <CardContent>
-              <CardValue>{card.value}</CardValue>
-              <CardLabel>{card.label}</CardLabel>
-            </CardContent>
-          </Card>
-        ))}
-      </CardGrid>
+
+      {/* 관리 현황 섹션 */}
+      <TwoColumnSection>
+        <RecentActivityCard>
+          <RecentActivityTitle style={{ marginBottom: '16px' }}>회원 및 회사 통계</RecentActivityTitle>
+          <CardGrid>
+            <Card $bgcolor={"white"}>
+              <CardContent>
+                <CardValue>{companyCount}</CardValue>
+                <CardLabel>전체 회사</CardLabel>
+              </CardContent>
+            </Card>
+            <Card $bgcolor={"white"}>
+              <CardContent>
+                <CardValue>{memberCount}</CardValue>
+                <CardLabel>전체 회원</CardLabel>
+              </CardContent>
+            </Card>
+          </CardGrid>
+        </RecentActivityCard>
+
+        {/* 프로젝트 현황 섹션 */}
+        <RecentActivityCard>
+          <RecentActivityTitle style={{ marginBottom: '16px' }}>프로젝트 통계</RecentActivityTitle>
+          <CardGrid>
+            <Card $bgcolor={"white"}>
+              <CardContent>
+                <CardValue>{totalProjectCount}</CardValue>
+                <CardLabel>전체 프로젝트</CardLabel>
+              </CardContent>
+            </Card>
+            <Card $bgcolor={"white"}>
+              <CardContent>
+                <CardValue>{inProgressProjectCount}</CardValue>
+                <CardLabel>진행 중 프로젝트</CardLabel>
+              </CardContent>
+            </Card>
+            <Card $bgcolor={"white"}>
+              <CardContent>
+                <CardValue>{completedProjectCount}</CardValue>
+                <CardLabel>완료 프로젝트</CardLabel>
+              </CardContent>
+            </Card>
+          </CardGrid>
+        </RecentActivityCard>
+      </TwoColumnSection>
+
+      {/* 최근 활동 섹션 (RecentActivityContainer) */}
       <RecentActivityContainer>
+        {/* 최근 등록된 게시물 */}
+        <RecentActivityCard>
+          <RecentActivityTitle>최근 등록된 게시물</RecentActivityTitle>
+          <RecentActivityList>
+            {recentPosts.length > 0 ? (
+              recentPosts.slice(0, 5).map((post) => (
+                <RecentActivityItem key={post.id}>
+                  <span>{post.title}</span>
+                  <RecentActivityDate>{new Date(post.createdAt).toLocaleDateString()}</RecentActivityDate>
+                </RecentActivityItem>
+              ))
+            ) : (
+              <RecentActivityItem>
+                <span>게시물이 없습니다.</span>
+              </RecentActivityItem>
+            )}
+          </RecentActivityList>
+        </RecentActivityCard>
+
+        {/* 최근 등록된 회사 */}
         <RecentActivityCard>
           <RecentActivityTitle>최근 등록된 회사</RecentActivityTitle>
           <RecentActivityList>
-            {recentCompanies.map((c, i) => (
-              <RecentActivityItem key={i}>
-                <span>{c.name}</span>
-                <RecentActivityDate>{c.date}</RecentActivityDate>
+            {recentCompanies.length > 0 ? (
+              recentCompanies.slice(0, 5).map((company) => (
+                <RecentActivityItem key={company.id}>
+                  <span>{company.name}</span>
+                  <RecentActivityDate>{new Date(company.createdAt).toLocaleDateString()}</RecentActivityDate>
+                </RecentActivityItem>
+              ))
+            ) : (
+              <RecentActivityItem>
+                <span>회사가 없습니다.</span>
               </RecentActivityItem>
-            ))}
+            )}
           </RecentActivityList>
         </RecentActivityCard>
-        <RecentActivityCard>
-          <RecentActivityTitle>최근 등록된 회원</RecentActivityTitle>
-          <RecentActivityList>
-            {recentMembers.map((m, i) => (
-              <RecentActivityItem key={i}>
-                <span>{m.name}</span>
-                <RecentActivityDate>{m.date}</RecentActivityDate>
-              </RecentActivityItem>
-            ))}
-          </RecentActivityList>
-        </RecentActivityCard>
+
+        {/* 최근 등록된 프로젝트 */}
         <RecentActivityCard>
           <RecentActivityTitle>최근 등록된 프로젝트</RecentActivityTitle>
           <RecentActivityList>
-            {recentProjects.map((p, i) => (
-              <RecentActivityItem key={i}>
-                <span>{p.name}</span>
-                <RecentActivityDate>{p.date}</RecentActivityDate>
+            {recentProjects.length > 0 ? (
+              recentProjects.slice(0, 5).map((project) => (
+                <RecentActivityItem key={project.id}>
+                  <span>{project.name}</span>
+                  <RecentActivityDate>{new Date(project.createdAt).toLocaleDateString()}</RecentActivityDate>
+                </RecentActivityItem>
+              ))
+            ) : (
+              <RecentActivityItem>
+                <span>프로젝트가 없습니다.</span>
               </RecentActivityItem>
-            ))}
+            )}
           </RecentActivityList>
         </RecentActivityCard>
       </RecentActivityContainer>
