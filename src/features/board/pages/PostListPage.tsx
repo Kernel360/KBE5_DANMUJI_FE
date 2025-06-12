@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, type JSX } from "react";
 import { useLocation } from "react-router-dom";
 import {
   AiOutlineFileText,
@@ -9,7 +9,7 @@ import {
   getPostsWithComments,
   searchPosts,
 } from "@/features/project/services/postService";
-import type { Post } from "@/features/project/types/post";
+import type { Post, PostStatus, PostType } from "@/features/project/types/post";
 import {
   PageContainer,
   Header,
@@ -45,9 +45,6 @@ import {
 } from "./PostListPage.styled";
 import PostDetailModal from "../components/PostDetailModal/ProjectPostDetailModal";
 import PostFormModal from "../components/PostFormModal/PostFormModal";
-
-type PostStatus = "PENDING" | "APPROVED" | "REJECTED";
-type PostType = "GENERAL" | "NOTICE" | "REPORT";
 
 const formatDate = (dateString: string) => {
   const options: Intl.DateTimeFormatOptions = {
@@ -126,6 +123,7 @@ const stepName = "설계"; // TODO: 실제 단계명 연동 시 교체
 
 export default function PostListPage() {
   const location = useLocation();
+  const stepId = 1; // 임시로 단계 ID 1 사용
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -146,6 +144,23 @@ export default function PostListPage() {
   const [clientFilter, setClientFilter] = useState("");
   const [isFilterExpanded, setIsFilterExpanded] = useState(true);
 
+  // 실제 검색에 사용될 상태 (검색 버튼 클릭 시 업데이트)
+  const [activeSearchTerm, setActiveSearchTerm] = useState("");
+  const [activeSearchType, setActiveSearchType] = useState<
+    "title" | "content" | "author"
+  >("title");
+  const [activeStatusFilter, setActiveStatusFilter] = useState<
+    PostStatus | "ALL"
+  >("ALL");
+  const [activeTypeFilter, setActiveTypeFilter] = useState<PostType | "ALL">(
+    "ALL"
+  );
+  const [activePriorityFilter, setActivePriorityFilter] = useState<
+    number | "ALL"
+  >("ALL");
+  const [activeAssigneeFilter, setActiveAssigneeFilter] = useState("");
+  const [activeClientFilter, setActiveClientFilter] = useState("");
+
   const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
@@ -161,7 +176,7 @@ export default function PostListPage() {
   const [isFilterChanged, setIsFilterChanged] = useState(false);
 
   // 모든 프로젝트의 게시글을 가져오는 함수 (임시로 프로젝트 ID 1 사용)
-  const fetchPosts = async () => {
+  const fetchPosts = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -170,34 +185,55 @@ export default function PostListPage() {
 
       // 검색어나 필터가 있는 경우 검색 API 사용
       const hasFilters =
-        searchTerm.trim() ||
-        statusFilter !== "ALL" ||
-        typeFilter !== "ALL" ||
-        priorityFilter !== "ALL" ||
-        assigneeFilter !== "" ||
-        clientFilter !== "";
+        activeSearchTerm.trim() ||
+        activeStatusFilter !== "ALL" ||
+        activeTypeFilter !== "ALL" ||
+        activePriorityFilter !== "ALL" ||
+        activeAssigneeFilter !== "" ||
+        activeClientFilter !== "";
 
       if (hasFilters) {
-        const searchParams = {
-          status: statusFilter === "ALL" ? undefined : statusFilter,
-          type: typeFilter === "ALL" ? undefined : typeFilter,
-          priority: priorityFilter === "ALL" ? undefined : priorityFilter,
-          author: assigneeFilter === "" ? undefined : assigneeFilter,
-          clientCompany: clientFilter === "" ? undefined : clientFilter,
+        const searchParams: {
+          status?: PostStatus;
+          type?: PostType;
+          priority?: number;
+          author?: string;
+          clientCompany?: string;
+          title?: string;
+        } = {
+          status: activeStatusFilter === "ALL" ? undefined : activeStatusFilter,
+          type: activeTypeFilter === "ALL" ? undefined : activeTypeFilter,
+          priority:
+            activePriorityFilter === "ALL" ? undefined : activePriorityFilter,
+          author:
+            activeAssigneeFilter === "" ? undefined : activeAssigneeFilter,
+          clientCompany:
+            activeClientFilter === "" ? undefined : activeClientFilter,
         };
 
         // 검색 타입에 따라 다른 필드 설정
-        if (searchType === "title") {
-          searchParams.title = searchTerm;
-        } else if (searchType === "content") {
+        if (activeSearchType === "title") {
+          searchParams.title = activeSearchTerm;
+        } else if (activeSearchType === "content") {
           // content 검색은 새로운 API에서 지원하지 않으므로 title로 대체
-          searchParams.title = searchTerm;
-        } else if (searchType === "author") {
-          searchParams.author = searchTerm;
+          searchParams.title = activeSearchTerm;
+        } else if (activeSearchType === "author") {
+          searchParams.author = activeSearchTerm;
         }
 
+        console.log("검색 파라미터:", searchParams);
+        console.log("활성 검색 상태:", {
+          activeSearchTerm,
+          activeSearchType,
+          activeStatusFilter,
+          activeTypeFilter,
+          activePriorityFilter,
+          activeAssigneeFilter,
+          activeClientFilter,
+        });
+
         response = await searchPosts(
-          1,
+          stepId,
           searchParams,
           currentPage,
           itemsPerPage
@@ -205,7 +241,7 @@ export default function PostListPage() {
       } else {
         // 검색어도 없고 필터도 없는 경우에만 일반 목록 API 사용
         response = await getPostsWithComments(
-          1, // 임시로 단계 ID 1 사용
+          stepId,
           currentPage,
           itemsPerPage
         );
@@ -235,11 +271,22 @@ export default function PostListPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [
+    activeSearchTerm,
+    activeSearchType,
+    activeStatusFilter,
+    activeTypeFilter,
+    activePriorityFilter,
+    activeAssigneeFilter,
+    activeClientFilter,
+    currentPage,
+    itemsPerPage,
+    stepId,
+  ]);
 
   useEffect(() => {
     fetchPosts();
-  }, [currentPage, itemsPerPage, location.pathname]);
+  }, [fetchPosts]);
 
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
@@ -260,17 +307,18 @@ export default function PostListPage() {
   };
 
   const handleSearchKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      setCurrentPage(0);
-      setIsFilterChanged(false);
-      fetchPosts();
-    }
+    // Enter 키 이벤트 제거 - 검색 버튼을 통해서만 검색 실행
   };
 
-  const handleSearchClick = () => {
+  const handleSearch = () => {
     setCurrentPage(0);
-    setIsFilterChanged(false);
-    fetchPosts();
+    setActiveSearchTerm(searchTerm);
+    setActiveSearchType(searchType);
+    setActiveStatusFilter(statusFilter);
+    setActiveTypeFilter(typeFilter);
+    setActivePriorityFilter(priorityFilter);
+    setActiveAssigneeFilter(assigneeFilter);
+    setActiveClientFilter(clientFilter);
   };
 
   const handleStatusFilterChange = (
@@ -354,12 +402,6 @@ export default function PostListPage() {
     setClientFilter(e.target.value);
   };
 
-  const handleSearch = () => {
-    setCurrentPage(0);
-    setIsFilterChanged(false);
-    fetchPosts();
-  };
-
   const handleResetFilters = () => {
     setSearchTerm("");
     setSearchType("title");
@@ -369,7 +411,15 @@ export default function PostListPage() {
     setAssigneeFilter("");
     setClientFilter("");
     setCurrentPage(0);
-    setIsFilterChanged(false);
+
+    // 실제 검색 상태도 초기화
+    setActiveSearchTerm("");
+    setActiveSearchType("title");
+    setActiveStatusFilter("ALL");
+    setActiveTypeFilter("ALL");
+    setActivePriorityFilter("ALL");
+    setActiveAssigneeFilter("");
+    setActiveClientFilter("");
   };
 
   if (loading && posts.length === 0) {
@@ -516,7 +566,7 @@ export default function PostListPage() {
           </TableHead>
           <TableBody>
             {(() => {
-              const result = [];
+              const result: JSX.Element[] = [];
               const processedReplies = new Set();
 
               posts.forEach((post) => {

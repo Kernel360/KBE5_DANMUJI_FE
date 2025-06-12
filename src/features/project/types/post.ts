@@ -112,6 +112,7 @@ export type PostCreateResponse = {
 
 // 페이지네이션 메타데이터 타입
 export type PageMetadata = {
+  number: number;
   page: number;
   size: number;
   totalElements: number;
