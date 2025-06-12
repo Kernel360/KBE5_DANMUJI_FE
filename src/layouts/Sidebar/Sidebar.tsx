@@ -132,7 +132,7 @@ export const Sidebar: React.FC = () => {
             <MenuItem
               icon={HiUsers}
               text="멤버 관리"
-              isActive={location.pathname === "/members"}
+              isActive={location.pathname.startsWith("/member")}
               onClick={() => handleMenuItemClick("멤버 관리", "/members")}
             />
           </>

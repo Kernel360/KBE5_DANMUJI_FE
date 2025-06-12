@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import api from "@/api/axios";
 import {
   DashboardContainer,
   Header,
@@ -19,44 +20,58 @@ import {
   RecentActivityDate,
 } from "./DashboardPage.styled";
 
-const summary = [
-  {
-    label: "전체 회사",
-    value: 12,
-    icon: "/src/assets/company.svg",
-    color: "#fef3c7",
-    iconColor: "#f59e0b",
-  },
-  {
-    label: "전체 회원",
-    value: 34,
-    icon: "/src/assets/member.svg",
-    color: "#dbeafe",
-    iconColor: "#3b82f6",
-  },
-  {
-    label: "전체 프로젝트",
-    value: 7,
-    icon: "/src/assets/project.svg",
-    color: "#dcfce7",
-    iconColor: "#22c55e",
-  },
-];
-
-const recentCompanies = [
-  { name: "ABC 주식회사", date: "2024-06-01" },
-  { name: "DEF 테크놀로지", date: "2024-05-28" },
-];
-const recentMembers = [
-  { name: "홍길동", date: "2024-06-02" },
-  { name: "김철수", date: "2024-05-30" },
-];
-const recentProjects = [
-  { name: "신규 웹사이트 구축", date: "2024-06-03" },
-  { name: "모바일 앱 개발", date: "2024-05-29" },
-];
-
 export default function DashboardPage() {
+  const [companyCount, setCompanyCount] = useState(0);
+
+  useEffect(() => {
+    const fetchCompanyCount = async () => {
+      try {
+        const response = await api.get('/api/companies/all');
+        setCompanyCount(response.data.data.content.length);
+      } catch (error) {
+        console.error('Failed to fetch company count:', error);
+      }
+    };
+    fetchCompanyCount();
+  }, []);
+
+  const summary = [
+    {
+      label: "전체 회사",
+      value: companyCount,
+      icon: "/src/assets/company.svg",
+      color: "#fef3c7",
+      iconColor: "#f59e0b",
+    },
+    {
+      label: "전체 회원",
+      value: 34,
+      icon: "/src/assets/member.svg",
+      color: "#dbeafe",
+      iconColor: "#3b82f6",
+    },
+    {
+      label: "전체 프로젝트",
+      value: 7,
+      icon: "/src/assets/project.svg",
+      color: "#dcfce7",
+      iconColor: "#22c55e",
+    },
+  ];
+
+  const recentCompanies = [
+    { name: "ABC 주식회사", date: "2024-06-01" },
+    { name: "DEF 테크놀로지", date: "2024-05-28" },
+  ];
+  const recentMembers = [
+    { name: "홍길동", date: "2024-06-02" },
+    { name: "김철수", date: "2024-05-30" },
+  ];
+  const recentProjects = [
+    { name: "신규 웹사이트 구축", date: "2024-06-03" },
+    { name: "모바일 앱 개발", date: "2024-05-29" },
+  ];
+
   return (
     <DashboardContainer>
       <Header>

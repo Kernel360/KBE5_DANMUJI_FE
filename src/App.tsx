@@ -56,6 +56,7 @@ const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
       <MainContent>
         <Topbar />
         <PageContent>{children}</PageContent>
+        <Footer />
       </MainContent>
     </AppContainer>
   );
