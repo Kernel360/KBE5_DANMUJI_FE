@@ -277,6 +277,26 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
     (comment) => !comment.deletedAt && comment.status !== "DELETED"
   );
 
+  // 삭제된 댓글 중 대댓글이 있는 것들만 필터링
+  const deletedCommentsWithReplies = comments.filter((comment) => {
+    const isDeleted = comment.deletedAt || comment.status === "DELETED";
+    if (!isDeleted) return false;
+
+    // 이 댓글을 부모로 하는 대댓글이 있는지 확인
+    return comments.some((reply) => {
+      let parent = reply.parentCommentId;
+      while (parent) {
+        if (parent === comment.id) return true;
+        const parentComment = comments.find((cc) => cc.id === parent);
+        parent = parentComment?.parentCommentId;
+      }
+      return false;
+    });
+  });
+
+  // 렌더링할 댓글 목록 (정상 댓글 + 대댓글이 있는 삭제된 댓글)
+  const commentsToRender = [...visibleComments, ...deletedCommentsWithReplies];
+
   // 렌더링되는 댓글 개수 계산
   const getRenderedCommentCount = () => {
     const rootComments = visibleComments.filter(
@@ -688,16 +708,16 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
               </div>
 
               <CommentsList>
-                {visibleComments.length > 0 ? (
-                  visibleComments
+                {commentsToRender.length > 0 ? (
+                  commentsToRender
                     .filter((comment) => !comment.parentCommentId)
                     .map((rootComment) => {
                       // 이 댓글을 부모로 하는 모든 답글(1,2,3...depth) 평면적으로 시간순 정렬
-                      const replies = visibleComments.filter((c) => {
+                      const replies = commentsToRender.filter((c) => {
                         let parent = c.parentCommentId;
                         while (parent) {
                           if (parent === rootComment.id) return true;
-                          const parentComment = visibleComments.find(
+                          const parentComment = commentsToRender.find(
                             (cc) => cc.id === parent
                           );
                           parent = parentComment?.parentCommentId;
@@ -712,340 +732,440 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                       );
                       return [
                         <CommentItem key={rootComment.id}>
-                          <CommentMeta>
-                            <CommentAuthor>
-                              {rootComment.author?.name || "알 수 없는 사용자"}
-                              <span
-                                style={{
-                                  fontSize: 11,
-                                  color: "#b0b0b0",
-                                  marginLeft: 6,
-                                  fontWeight: 400,
-                                }}
-                              >
-                                {rootComment.authorIp}
-                              </span>
-                            </CommentAuthor>
-                            <CommentActions>
-                              <span>{formatDate(rootComment.createdAt)}</span>
-                              {rootComment.author &&
-                                isAuthor(rootComment.author.id) && (
-                                  <>
-                                    {editingCommentId === rootComment.id ? (
-                                      <>
-                                        <CommentActionButton
-                                          onClick={() => {
-                                            setEditingCommentId(rootComment.id);
-                                            setEditText(rootComment.content);
-                                          }}
-                                        >
-                                          수정
-                                        </CommentActionButton>
-                                        <CommentActionButton
-                                          onClick={() =>
-                                            handleDeleteComment(rootComment.id)
-                                          }
-                                        >
-                                          삭제
-                                        </CommentActionButton>
-                                      </>
-                                    ) : (
-                                      <>
-                                        <CommentActionButton
-                                          onClick={() => {
-                                            setEditingCommentId(rootComment.id);
-                                            setEditText(rootComment.content);
-                                          }}
-                                        >
-                                          수정
-                                        </CommentActionButton>
-                                        <CommentActionButton
-                                          onClick={() =>
-                                            handleDeleteComment(rootComment.id)
-                                          }
-                                        >
-                                          삭제
-                                        </CommentActionButton>
-                                      </>
-                                    )}
-                                  </>
-                                )}
-                              <CommentActionButton
-                                onClick={() => handleReplyClick(rootComment)}
-                              >
-                                답글
-                              </CommentActionButton>
-                            </CommentActions>
-                          </CommentMeta>
-                          <CommentText>
-                            {editingCommentId === rootComment.id ? (
-                              <div style={{ marginTop: 8 }}>
-                                <CommentTextArea
-                                  value={editText}
-                                  onChange={(e) => setEditText(e.target.value)}
-                                  autoFocus
-                                  rows={3}
-                                  style={{
-                                    width: "100%",
-                                    border: "1.5px solid #fdb924",
-                                    borderRadius: "0.375rem",
-                                    background: "#fffdfa",
-                                    color: "#222",
-                                    fontSize: "0.95em",
-                                    padding: "0.75rem",
-                                    resize: "vertical",
-                                  }}
-                                />
+                          {(() => {
+                            const isDeleted =
+                              rootComment.deletedAt ||
+                              rootComment.status === "DELETED";
+
+                            if (isDeleted) {
+                              // 삭제된 댓글 표시
+                              return (
                                 <div
                                   style={{
-                                    display: "flex",
-                                    justifyContent: "flex-end",
-                                    gap: 8,
-                                    marginTop: 6,
+                                    textAlign: "center",
+                                    color: "#9ca3af",
+                                    fontStyle: "italic",
+                                    padding: "1rem",
+                                    opacity: 0.6,
                                   }}
                                 >
-                                  <CommentSubmitButton
-                                    onClick={() =>
-                                      handleSaveEdit(rootComment.id)
-                                    }
-                                  >
-                                    저장
-                                  </CommentSubmitButton>
-                                  <CommentActionButton
-                                    onClick={() => {
-                                      setEditingCommentId(null);
-                                      setEditText("");
-                                    }}
-                                  >
-                                    취소
-                                  </CommentActionButton>
+                                  삭제된 댓글입니다.
                                 </div>
-                              </div>
-                            ) : (
-                              rootComment.content
-                                .split(/(@\S+)/g)
-                                .map((part, idx) =>
-                                  part.startsWith("@") ? (
+                              );
+                            }
+
+                            // 정상 댓글 표시
+                            return (
+                              <>
+                                <CommentMeta>
+                                  <CommentAuthor>
+                                    {rootComment.author?.name ||
+                                      "알 수 없는 사용자"}
                                     <span
-                                      key={idx}
                                       style={{
-                                        color: "#fdb924",
-                                        fontWeight: 500,
+                                        fontSize: 11,
+                                        color: "#b0b0b0",
+                                        marginLeft: 6,
+                                        fontWeight: 400,
                                       }}
                                     >
-                                      {part}
+                                      {rootComment.authorIp}
                                     </span>
-                                  ) : (
-                                    <span key={idx}>{part}</span>
-                                  )
-                                )
-                            )}
-                          </CommentText>
-                          {(replyingTo as number | null) === rootComment.id && (
-                            <ReplyInputContainer>
-                              <CommentTextArea
-                                placeholder="답글을 입력하세요"
-                                value={replyText}
-                                onChange={(
-                                  e: React.ChangeEvent<HTMLTextAreaElement>
-                                ) => setReplyText(e.target.value)}
-                                disabled={submittingReply}
-                                rows={3}
-                              />
-                              <div
-                                style={{
-                                  display: "flex",
-                                  justifyContent: "flex-end",
-                                }}
-                              >
-                                <CommentSubmitButton
-                                  onClick={handleReplySubmit}
-                                  disabled={
-                                    !replyText.trim() || submittingReply
-                                  }
-                                >
-                                  {submittingReply ? "등록 중..." : "답글 등록"}
-                                </CommentSubmitButton>
-                              </div>
-                            </ReplyInputContainer>
-                          )}
-                        </CommentItem>,
-                        ...replies.map((reply) => (
-                          <CommentItem key={reply.id}>
-                            <CommentMeta>
-                              <CommentAuthor>
-                                {reply.author?.name || "알 수 없는 사용자"}
-                                <span
-                                  style={{
-                                    fontSize: 11,
-                                    color: "#b0b0b0",
-                                    marginLeft: 6,
-                                    fontWeight: 400,
-                                  }}
-                                >
-                                  {reply.authorIp}
-                                </span>
-                              </CommentAuthor>
-                              <CommentActions>
-                                <span>{formatDate(reply.createdAt)}</span>
-                                {reply.author && isAuthor(reply.author.id) && (
-                                  <>
-                                    {editingCommentId === reply.id ? (
-                                      <>
-                                        <CommentActionButton
-                                          onClick={() => {
-                                            setEditingCommentId(reply.id);
-                                            setEditText(reply.content);
-                                          }}
-                                        >
-                                          수정
-                                        </CommentActionButton>
-                                        <CommentActionButton
-                                          onClick={() =>
-                                            handleDeleteComment(reply.id)
-                                          }
-                                        >
-                                          삭제
-                                        </CommentActionButton>
-                                      </>
-                                    ) : (
-                                      <>
-                                        <CommentActionButton
-                                          onClick={() => {
-                                            setEditingCommentId(reply.id);
-                                            setEditText(reply.content);
-                                          }}
-                                        >
-                                          수정
-                                        </CommentActionButton>
-                                        <CommentActionButton
-                                          onClick={() =>
-                                            handleDeleteComment(reply.id)
-                                          }
-                                        >
-                                          삭제
-                                        </CommentActionButton>
-                                      </>
-                                    )}
-                                  </>
-                                )}
-                                <CommentActionButton
-                                  onClick={() => handleReplyClick(reply)}
-                                >
-                                  답글
-                                </CommentActionButton>
-                              </CommentActions>
-                            </CommentMeta>
-                            <CommentText>
-                              <span
-                                style={{
-                                  display: "inline-block",
-                                  background: "#f3f4f6",
-                                  color: "#888",
-                                  fontSize: "0.75em",
-                                  borderRadius: 4,
-                                  padding: "2px 6px",
-                                  marginRight: 6,
-                                  verticalAlign: "middle",
-                                }}
-                              >
-                                답글
-                              </span>
-                              {editingCommentId === reply.id ? (
-                                <div style={{ marginTop: 8 }}>
-                                  <CommentTextArea
-                                    value={editText}
-                                    onChange={(e) =>
-                                      setEditText(e.target.value)
-                                    }
-                                    autoFocus
-                                    rows={3}
-                                    style={{
-                                      width: "100%",
-                                      border: "1.5px solid #fdb924",
-                                      borderRadius: "0.375rem",
-                                      background: "#fffdfa",
-                                      color: "#222",
-                                      fontSize: "0.95em",
-                                      padding: "0.75rem",
-                                      resize: "vertical",
-                                    }}
-                                  />
-                                  <div
-                                    style={{
-                                      display: "flex",
-                                      justifyContent: "flex-end",
-                                      gap: 8,
-                                      marginTop: 6,
-                                    }}
-                                  >
-                                    <CommentSubmitButton
-                                      onClick={() => handleSaveEdit(reply.id)}
-                                    >
-                                      저장
-                                    </CommentSubmitButton>
+                                  </CommentAuthor>
+                                  <CommentActions>
+                                    <span>
+                                      {formatDate(rootComment.createdAt)}
+                                    </span>
+                                    {rootComment.author &&
+                                      isAuthor(rootComment.author.id) && (
+                                        <>
+                                          {editingCommentId ===
+                                          rootComment.id ? (
+                                            <>
+                                              <CommentActionButton
+                                                onClick={() => {
+                                                  setEditingCommentId(
+                                                    rootComment.id
+                                                  );
+                                                  setEditText(
+                                                    rootComment.content
+                                                  );
+                                                }}
+                                              >
+                                                수정
+                                              </CommentActionButton>
+                                              <CommentActionButton
+                                                onClick={() =>
+                                                  handleDeleteComment(
+                                                    rootComment.id
+                                                  )
+                                                }
+                                              >
+                                                삭제
+                                              </CommentActionButton>
+                                            </>
+                                          ) : (
+                                            <>
+                                              <CommentActionButton
+                                                onClick={() => {
+                                                  setEditingCommentId(
+                                                    rootComment.id
+                                                  );
+                                                  setEditText(
+                                                    rootComment.content
+                                                  );
+                                                }}
+                                              >
+                                                수정
+                                              </CommentActionButton>
+                                              <CommentActionButton
+                                                onClick={() =>
+                                                  handleDeleteComment(
+                                                    rootComment.id
+                                                  )
+                                                }
+                                              >
+                                                삭제
+                                              </CommentActionButton>
+                                            </>
+                                          )}
+                                        </>
+                                      )}
                                     <CommentActionButton
-                                      onClick={() => {
-                                        setEditingCommentId(null);
-                                        setEditText("");
-                                      }}
+                                      onClick={() =>
+                                        handleReplyClick(rootComment)
+                                      }
                                     >
-                                      취소
+                                      답글
                                     </CommentActionButton>
-                                  </div>
-                                </div>
-                              ) : (
-                                reply.content
-                                  .split(/(@\S+)/g)
-                                  .map((part, idx) =>
-                                    part.startsWith("@") ? (
-                                      <span
-                                        key={idx}
+                                  </CommentActions>
+                                </CommentMeta>
+                                <CommentText>
+                                  {editingCommentId === rootComment.id ? (
+                                    <div style={{ marginTop: 8 }}>
+                                      <CommentTextArea
+                                        value={editText}
+                                        onChange={(e) =>
+                                          setEditText(e.target.value)
+                                        }
+                                        autoFocus
+                                        rows={3}
                                         style={{
-                                          color: "#fdb924",
-                                          fontWeight: 500,
+                                          width: "100%",
+                                          border: "1.5px solid #fdb924",
+                                          borderRadius: "0.375rem",
+                                          background: "#fffdfa",
+                                          color: "#222",
+                                          fontSize: "0.95em",
+                                          padding: "0.75rem",
+                                          resize: "vertical",
+                                        }}
+                                      />
+                                      <div
+                                        style={{
+                                          display: "flex",
+                                          justifyContent: "flex-end",
+                                          gap: 8,
+                                          marginTop: 6,
                                         }}
                                       >
-                                        {part}
-                                      </span>
-                                    ) : (
-                                      <span key={idx}>{part}</span>
-                                    )
-                                  )
-                              )}
-                            </CommentText>
-                            {(replyingTo as number | null) === reply.id && (
-                              <ReplyInputContainer>
-                                <CommentTextArea
-                                  placeholder="답글을 입력하세요"
-                                  value={replyText}
-                                  onChange={(
-                                    e: React.ChangeEvent<HTMLTextAreaElement>
-                                  ) => setReplyText(e.target.value)}
-                                  disabled={submittingReply}
-                                  rows={3}
-                                />
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    justifyContent: "flex-end",
-                                  }}
-                                >
-                                  <CommentSubmitButton
-                                    onClick={handleReplySubmit}
-                                    disabled={
-                                      !replyText.trim() || submittingReply
-                                    }
+                                        <CommentSubmitButton
+                                          onClick={() =>
+                                            handleSaveEdit(rootComment.id)
+                                          }
+                                        >
+                                          저장
+                                        </CommentSubmitButton>
+                                        <CommentActionButton
+                                          onClick={() => {
+                                            setEditingCommentId(null);
+                                            setEditText("");
+                                          }}
+                                        >
+                                          취소
+                                        </CommentActionButton>
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    rootComment.content
+                                      .split(/(@\S+)/g)
+                                      .map((part, idx) =>
+                                        part.startsWith("@") ? (
+                                          <span
+                                            key={idx}
+                                            style={{
+                                              color: "#fdb924",
+                                              fontWeight: 500,
+                                            }}
+                                          >
+                                            {part}
+                                          </span>
+                                        ) : (
+                                          <span key={idx}>{part}</span>
+                                        )
+                                      )
+                                  )}
+                                </CommentText>
+                                {(replyingTo as number | null) ===
+                                  rootComment.id && (
+                                  <ReplyInputContainer>
+                                    <CommentTextArea
+                                      placeholder="답글을 입력하세요"
+                                      value={replyText}
+                                      onChange={(
+                                        e: React.ChangeEvent<HTMLTextAreaElement>
+                                      ) => setReplyText(e.target.value)}
+                                      disabled={submittingReply}
+                                      rows={3}
+                                    />
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        justifyContent: "flex-end",
+                                      }}
+                                    >
+                                      <CommentSubmitButton
+                                        onClick={handleReplySubmit}
+                                        disabled={
+                                          !replyText.trim() || submittingReply
+                                        }
+                                      >
+                                        {submittingReply
+                                          ? "등록 중..."
+                                          : "답글 등록"}
+                                      </CommentSubmitButton>
+                                    </div>
+                                  </ReplyInputContainer>
+                                )}
+                              </>
+                            );
+                          })()}
+                        </CommentItem>,
+                        ...replies
+                          .map((reply) => {
+                            const isDeleted =
+                              reply.deletedAt || reply.status === "DELETED";
+
+                            // 삭제된 답글 중 대댓글이 있는 것만 표시
+                            if (isDeleted) {
+                              const hasReplies = commentsToRender.some(
+                                (comment) => {
+                                  let parent = comment.parentCommentId;
+                                  while (parent) {
+                                    if (parent === reply.id) return true;
+                                    const parentComment = commentsToRender.find(
+                                      (cc) => cc.id === parent
+                                    );
+                                    parent = parentComment?.parentCommentId;
+                                  }
+                                  return false;
+                                }
+                              );
+
+                              if (!hasReplies) {
+                                return null; // 대댓글이 없는 삭제된 답글은 숨김
+                              }
+
+                              // 대댓글이 있는 삭제된 답글 표시
+                              return (
+                                <CommentItem key={reply.id}>
+                                  <div
+                                    style={{
+                                      textAlign: "center",
+                                      color: "#9ca3af",
+                                      fontStyle: "italic",
+                                      padding: "1rem",
+                                      opacity: 0.6,
+                                    }}
                                   >
-                                    {submittingReply
-                                      ? "등록 중..."
-                                      : "답글 등록"}
-                                  </CommentSubmitButton>
-                                </div>
-                              </ReplyInputContainer>
-                            )}
-                          </CommentItem>
-                        )),
+                                    삭제된 댓글입니다.
+                                  </div>
+                                </CommentItem>
+                              );
+                            }
+
+                            // 정상 답글 표시
+                            return (
+                              <CommentItem key={reply.id}>
+                                <CommentMeta>
+                                  <CommentAuthor>
+                                    {reply.author?.name || "알 수 없는 사용자"}
+                                    <span
+                                      style={{
+                                        fontSize: 11,
+                                        color: "#b0b0b0",
+                                        marginLeft: 6,
+                                        fontWeight: 400,
+                                      }}
+                                    >
+                                      {reply.authorIp}
+                                    </span>
+                                  </CommentAuthor>
+                                  <CommentActions>
+                                    <span>{formatDate(reply.createdAt)}</span>
+                                    {reply.author &&
+                                      isAuthor(reply.author.id) && (
+                                        <>
+                                          {editingCommentId === reply.id ? (
+                                            <>
+                                              <CommentActionButton
+                                                onClick={() => {
+                                                  setEditingCommentId(reply.id);
+                                                  setEditText(reply.content);
+                                                }}
+                                              >
+                                                수정
+                                              </CommentActionButton>
+                                              <CommentActionButton
+                                                onClick={() =>
+                                                  handleDeleteComment(reply.id)
+                                                }
+                                              >
+                                                삭제
+                                              </CommentActionButton>
+                                            </>
+                                          ) : (
+                                            <>
+                                              <CommentActionButton
+                                                onClick={() => {
+                                                  setEditingCommentId(reply.id);
+                                                  setEditText(reply.content);
+                                                }}
+                                              >
+                                                수정
+                                              </CommentActionButton>
+                                              <CommentActionButton
+                                                onClick={() =>
+                                                  handleDeleteComment(reply.id)
+                                                }
+                                              >
+                                                삭제
+                                              </CommentActionButton>
+                                            </>
+                                          )}
+                                        </>
+                                      )}
+                                    <CommentActionButton
+                                      onClick={() => handleReplyClick(reply)}
+                                    >
+                                      답글
+                                    </CommentActionButton>
+                                  </CommentActions>
+                                </CommentMeta>
+                                <CommentText>
+                                  <span
+                                    style={{
+                                      display: "inline-block",
+                                      background: "#f3f4f6",
+                                      color: "#888",
+                                      fontSize: "0.75em",
+                                      borderRadius: 4,
+                                      padding: "2px 6px",
+                                      marginRight: 6,
+                                      verticalAlign: "middle",
+                                    }}
+                                  >
+                                    답글
+                                  </span>
+                                  {editingCommentId === reply.id ? (
+                                    <div style={{ marginTop: 8 }}>
+                                      <CommentTextArea
+                                        value={editText}
+                                        onChange={(e) =>
+                                          setEditText(e.target.value)
+                                        }
+                                        autoFocus
+                                        rows={3}
+                                        style={{
+                                          width: "100%",
+                                          border: "1.5px solid #fdb924",
+                                          borderRadius: "0.375rem",
+                                          background: "#fffdfa",
+                                          color: "#222",
+                                          fontSize: "0.95em",
+                                          padding: "0.75rem",
+                                          resize: "vertical",
+                                        }}
+                                      />
+                                      <div
+                                        style={{
+                                          display: "flex",
+                                          justifyContent: "flex-end",
+                                          gap: 8,
+                                          marginTop: 6,
+                                        }}
+                                      >
+                                        <CommentSubmitButton
+                                          onClick={() =>
+                                            handleSaveEdit(reply.id)
+                                          }
+                                        >
+                                          저장
+                                        </CommentSubmitButton>
+                                        <CommentActionButton
+                                          onClick={() => {
+                                            setEditingCommentId(null);
+                                            setEditText("");
+                                          }}
+                                        >
+                                          취소
+                                        </CommentActionButton>
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    reply.content
+                                      .split(/(@\S+)/g)
+                                      .map((part, idx) =>
+                                        part.startsWith("@") ? (
+                                          <span
+                                            key={idx}
+                                            style={{
+                                              color: "#fdb924",
+                                              fontWeight: 500,
+                                            }}
+                                          >
+                                            {part}
+                                          </span>
+                                        ) : (
+                                          <span key={idx}>{part}</span>
+                                        )
+                                      )
+                                  )}
+                                </CommentText>
+                                {(replyingTo as number | null) === reply.id && (
+                                  <ReplyInputContainer>
+                                    <CommentTextArea
+                                      placeholder="답글을 입력하세요"
+                                      value={replyText}
+                                      onChange={(
+                                        e: React.ChangeEvent<HTMLTextAreaElement>
+                                      ) => setReplyText(e.target.value)}
+                                      disabled={submittingReply}
+                                      rows={3}
+                                    />
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        justifyContent: "flex-end",
+                                      }}
+                                    >
+                                      <CommentSubmitButton
+                                        onClick={handleReplySubmit}
+                                        disabled={
+                                          !replyText.trim() || submittingReply
+                                        }
+                                      >
+                                        {submittingReply
+                                          ? "등록 중..."
+                                          : "답글 등록"}
+                                      </CommentSubmitButton>
+                                    </div>
+                                  </ReplyInputContainer>
+                                )}
+                              </CommentItem>
+                            );
+                          })
+                          .filter(Boolean), // null 값 제거
                       ];
                     })
                 ) : (

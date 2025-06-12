@@ -566,42 +566,35 @@ export default function PostListPage() {
                       onClick={() => handlePostClick(post.postId)}
                     >
                       <TableCell>
-                        <PostTitle style={{ color: "#000000" }}>
-                          {post.title}
-                          {post.comments && post.comments.length > 0 && (
-                            <span
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.5rem",
+                          }}
+                        >
+                          <PostTitle>{post.title}</PostTitle>
+                          {(post.comments && post.comments.length > 0) ||
+                          (post.questionCount !== undefined &&
+                            post.questionCount > 0) ? (
+                            <div
                               style={{
-                                display: "inline-block",
-                                background: "#60a5fa",
-                                color: "white",
-                                borderRadius: "12px",
                                 fontSize: "0.75rem",
-                                padding: "2px 8px",
-                                marginLeft: "8px",
-                                fontWeight: "500",
+                                color: "#9ca3af",
+                                display: "flex",
+                                gap: "0.5rem",
                               }}
                             >
-                              댓글 {post.comments.length}
-                            </span>
-                          )}
-                          {post.questionCount !== undefined &&
-                            post.questionCount > 0 && (
-                              <span
-                                style={{
-                                  display: "inline-block",
-                                  background: "#34d399",
-                                  color: "white",
-                                  borderRadius: "12px",
-                                  fontSize: "0.75rem",
-                                  padding: "2px 8px",
-                                  marginLeft: "8px",
-                                  fontWeight: "500",
-                                }}
-                              >
-                                질문 {post.questionCount}
-                              </span>
-                            )}
-                        </PostTitle>
+                              {post.comments && post.comments.length > 0 && (
+                                <span>댓글 {post.comments.length}</span>
+                              )}
+                              {post.questionCount !== undefined &&
+                                post.questionCount > 0 && (
+                                  <span>질문 {post.questionCount}</span>
+                                )}
+                            </div>
+                          ) : null}
+                        </div>
                       </TableCell>
                       <TableCell>{post.author.name}</TableCell>
                       <TableCell $align="center">
@@ -645,69 +638,80 @@ export default function PostListPage() {
                           onClick={() => handlePostClick(reply.postId)}
                         >
                           <TableCell style={{ paddingLeft: 40 }}>
-                            <span
+                            <div
                               style={{
-                                display: "inline-block",
-                                background: "#fdb924",
-                                color: "white",
-                                borderRadius: 4,
-                                fontSize: "0.75em",
-                                padding: "2px 7px",
-                                marginRight: 8,
-                                verticalAlign: "middle",
-                              }}
-                            >
-                              [답글]
-                            </span>
-                            <span
-                              style={{
-                                color: "#888",
-                                fontSize: "0.92em",
-                                marginRight: 8,
-                                display: "inline-flex",
+                                display: "flex",
                                 alignItems: "center",
+                                gap: "1rem",
                               }}
                             >
-                              {post.title.length > 15
-                                ? post.title.slice(0, 15) + "..."
-                                : post.title}
-                            </span>
-                            <PostTitle style={{ color: "#000000" }}>
-                              {reply.title}
-                              {reply.comments && reply.comments.length > 0 && (
+                              <div
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
+                              >
                                 <span
                                   style={{
                                     display: "inline-block",
-                                    background: "#60a5fa",
+                                    background: "#fdb924",
                                     color: "white",
-                                    borderRadius: "12px",
-                                    fontSize: "0.75rem",
-                                    padding: "2px 8px",
-                                    marginLeft: "8px",
-                                    fontWeight: "500",
+                                    borderRadius: 4,
+                                    fontSize: "0.75em",
+                                    padding: "2px 7px",
+                                    marginRight: 8,
+                                    verticalAlign: "middle",
                                   }}
                                 >
-                                  댓글 {reply.comments.length}
+                                  [답글]
                                 </span>
-                              )}
-                              {reply.questionCount !== undefined &&
-                                reply.questionCount > 0 && (
-                                  <span
+                                <span
+                                  style={{
+                                    color: "#888",
+                                    fontSize: "0.92em",
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                  }}
+                                >
+                                  {post.title.length > 15
+                                    ? post.title.slice(0, 15) + "..."
+                                    : post.title}
+                                </span>
+                              </div>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "0.5rem",
+                                }}
+                              >
+                                <PostTitle>{reply.title}</PostTitle>
+                                {(reply.comments &&
+                                  reply.comments.length > 0) ||
+                                (reply.questionCount !== undefined &&
+                                  reply.questionCount > 0) ? (
+                                  <div
                                     style={{
-                                      display: "inline-block",
-                                      background: "#34d399",
-                                      color: "white",
-                                      borderRadius: "12px",
                                       fontSize: "0.75rem",
-                                      padding: "2px 8px",
-                                      marginLeft: "8px",
-                                      fontWeight: "500",
+                                      color: "#9ca3af",
+                                      display: "flex",
+                                      gap: "0.5rem",
                                     }}
                                   >
-                                    질문 {reply.questionCount}
-                                  </span>
-                                )}
-                            </PostTitle>
+                                    {reply.comments &&
+                                      reply.comments.length > 0 && (
+                                        <span>
+                                          댓글 {reply.comments.length}
+                                        </span>
+                                      )}
+                                    {reply.questionCount !== undefined &&
+                                      reply.questionCount > 0 && (
+                                        <span>질문 {reply.questionCount}</span>
+                                      )}
+                                  </div>
+                                ) : null}
+                              </div>
+                            </div>
                           </TableCell>
                           <TableCell>{reply.author.name}</TableCell>
                           <TableCell $align="center">
@@ -755,71 +759,75 @@ export default function PostListPage() {
                       onClick={() => handlePostClick(post.postId)}
                     >
                       <TableCell style={{ paddingLeft: 40 }}>
-                        <span
+                        <div
                           style={{
-                            display: "inline-block",
-                            background: "#fdb924",
-                            color: "white",
-                            borderRadius: 4,
-                            fontSize: "0.75em",
-                            padding: "2px 7px",
-                            marginRight: 8,
-                            verticalAlign: "middle",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "1rem",
                           }}
                         >
-                          [답글]
-                        </span>
-                        {topParent && (
-                          <span
-                            style={{
-                              color: "#888",
-                              fontSize: "0.92em",
-                              marginRight: 8,
-                              display: "inline-flex",
-                              alignItems: "center",
-                            }}
+                          <div
+                            style={{ display: "flex", alignItems: "center" }}
                           >
-                            {topParent.title.length > 15
-                              ? topParent.title.slice(0, 15) + "..."
-                              : topParent.title}
-                          </span>
-                        )}
-                        <PostTitle style={{ color: "#000000" }}>
-                          {post.title}
-                          {post.comments && post.comments.length > 0 && (
                             <span
                               style={{
                                 display: "inline-block",
-                                background: "#60a5fa",
+                                background: "#fdb924",
                                 color: "white",
-                                borderRadius: "12px",
-                                fontSize: "0.75rem",
-                                padding: "2px 8px",
-                                marginLeft: "8px",
-                                fontWeight: "500",
+                                borderRadius: 4,
+                                fontSize: "0.75em",
+                                padding: "2px 7px",
+                                marginRight: 8,
+                                verticalAlign: "middle",
                               }}
                             >
-                              댓글 {post.comments.length}
+                              [답글]
                             </span>
-                          )}
-                          {post.questionCount !== undefined &&
-                            post.questionCount > 0 && (
+                            {topParent && (
                               <span
                                 style={{
-                                  display: "inline-block",
-                                  background: "#34d399",
-                                  color: "white",
-                                  borderRadius: "12px",
-                                  fontSize: "0.75rem",
-                                  padding: "2px 8px",
-                                  marginLeft: "8px",
-                                  fontWeight: "500",
+                                  color: "#888",
+                                  fontSize: "0.92em",
+                                  display: "inline-flex",
+                                  alignItems: "center",
                                 }}
                               >
-                                질문 {post.questionCount}
+                                {topParent.title.length > 15
+                                  ? topParent.title.slice(0, 15) + "..."
+                                  : topParent.title}
                               </span>
                             )}
-                        </PostTitle>
+                          </div>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "0.5rem",
+                            }}
+                          >
+                            <PostTitle>{post.title}</PostTitle>
+                            {(post.comments && post.comments.length > 0) ||
+                            (post.questionCount !== undefined &&
+                              post.questionCount > 0) ? (
+                              <div
+                                style={{
+                                  fontSize: "0.75rem",
+                                  color: "#9ca3af",
+                                  display: "flex",
+                                  gap: "0.5rem",
+                                }}
+                              >
+                                {post.comments && post.comments.length > 0 && (
+                                  <span>댓글 {post.comments.length}</span>
+                                )}
+                                {post.questionCount !== undefined &&
+                                  post.questionCount > 0 && (
+                                    <span>질문 {post.questionCount}</span>
+                                  )}
+                              </div>
+                            ) : null}
+                          </div>
+                        </div>
                       </TableCell>
                       <TableCell>{post.author.name}</TableCell>
                       <TableCell $align="center">
