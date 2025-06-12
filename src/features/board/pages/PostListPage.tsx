@@ -644,10 +644,6 @@ export default function PostListPage() {
                         <TableRow
                           key={reply.postId}
                           onClick={() => handlePostClick(reply.postId)}
-                          style={{
-                            background: "#f8f9fa",
-                            borderLeft: "4px solid #fdb924",
-                          }}
                         >
                           <TableCell style={{ paddingLeft: 40 }}>
                             <span
@@ -758,10 +754,6 @@ export default function PostListPage() {
                     <TableRow
                       key={post.postId}
                       onClick={() => handlePostClick(post.postId)}
-                      style={{
-                        background: "#f8f9fa",
-                        borderLeft: "4px solid #fdb924",
-                      }}
                     >
                       <TableCell style={{ paddingLeft: 40 }}>
                         <span
