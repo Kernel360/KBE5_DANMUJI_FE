@@ -29,7 +29,7 @@ import {
   ErrorMessage,
   ModalHeaderActionButton,
   ModalHeaderButtonGroup,
-} from "./QuestionAnswerModal.styled";
+} from "@/features/board/components/Question/styles/QuestionAnswerModal.styled";
 import { getPostDetail } from "@/features/project/services/postService";
 import {
   createQuestion,
@@ -42,7 +42,7 @@ import {
 import type { Post } from "@/features/project/types/post";
 import type { Question } from "@/features/project/types/question";
 
-import { AnswerDetailModal } from "../Answer";
+import { AnswerDetailModal } from "@/features/board/components/Answer";
 import { useAuth } from "@/hooks/useAuth";
 
 interface QuestionAnswerModalProps {

@@ -36,7 +36,7 @@ import {
   deleteComment,
 } from "@/features/project/services/postService";
 import type { Post, Comment } from "@/features/project/types/post";
-import QuestionAnswerModal from "@/features/board/components/QuestionAnswerModal/QuestionAnswerModal";
+import QuestionAnswerModal from "@/features/board/components/Question/components/QuestionAnswerModal/QuestionAnswerModal";
 
 import { FaReply, FaEdit, FaTrash } from "react-icons/fa";
 import { useAuth } from "@/hooks/useAuth";
