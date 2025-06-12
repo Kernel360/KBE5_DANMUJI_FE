@@ -23,7 +23,7 @@ import { FaAlignLeft } from "react-icons/fa";
 import { FaArchive } from "react-icons/fa";
 import { FaComments } from "react-icons/fa";
 
-import { useAuth } from "@/contexts/AuthContexts";
+import { useAuth } from "@/hooks/useAuth";
 
 const LogoImage = styled.img`
   height: 48px;

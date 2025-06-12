@@ -1,10 +1,7 @@
-import React, { useEffect, useState } from "react";
-import api from "@/api/axios";
+import React, { useEffect } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import {
   Container,
-  Header,
-  Title,
-  Subtitle,
   Card,
   CardHeader,
   IconCircle,
@@ -12,10 +9,8 @@ import {
   InfoItem,
   Label,
   Value,
-  EditButton,
   ActivityCard,
   ActivityRow,
-  OnlineBadge,
 } from "./styles/UserProfilePage.styled";
 import {
   FiUser,
@@ -24,70 +19,31 @@ import {
   FiBriefcase,
   FiCalendar,
   FiLogIn,
+  FiClock,
 } from "react-icons/fi";
 import { HiOfficeBuilding } from "react-icons/hi";
-import { FiClock } from "react-icons/fi";
-type UserInfo = {
-  id: number;
-  username: string;
-  name: string;
-  email: string;
-  phone: string;
-  position: string;
-  lastLoginAt: string;
-  createdAt: string;
-  updatedAt: string;
-  deletedAt: string | null;
-  companyId: number;
-  companyName: string;
-};
 
 export default function UserProfilePage() {
-  const [user, setUser] = useState<UserInfo | null>(null);
-  const [error, setError] = useState("");
-
-  const fetchUser = async () => {
-    try {
-      const response = await api.get("/api/users/me");
-      setUser(response.data.data);
-      console.log(response)
-    } catch (err) {
-      setError("사용자 정보를 불러오는 데 실패했습니다.");
-      console.error("유저 정보 요청 실패", err);
-    }
-  };
+  const { user, refreshUser } = useAuth();
 
   useEffect(() => {
-    fetchUser();
-  }, []);
+    if (!user) refreshUser();
+  }, [user, refreshUser]);
 
-  const formatDate = (date: string) => {
-    const d = new Date(date);
-    return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`;
-  };
+  if (!user) return <Container>불러오는 중...</Container>;
+  const formatDate = (date: string) =>
+    new Intl.DateTimeFormat("ko-KR", { year: "numeric", month: "long", day: "numeric" }).format(new Date(date));
+
 
   const formatDateTime = (date: string) => {
     const d = new Date(date);
-    return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일 
-    ${d.getHours()} : ${d.getSeconds()}`;
+    const kstDate = new Date(d.getTime() + 9 * 60 * 60 * 1000); 
+    return `${kstDate.getFullYear()}년 ${kstDate.getMonth() + 1}월 ${kstDate.getDate()}일 `
+      + `${kstDate.getHours()}시 ${kstDate.getMinutes()}분`;
   };
-
-  if (error) return <Container>{error}</Container>;
-  if (!user) return <Container>불러오는 중...</Container>;
 
   return (
     <Container>
-      {/* <Header>
-        <div>
-          <Title>내 정보</Title>
-          <Subtitle>개인정보 및 계정 설정을 확인하세요</Subtitle>
-        </div>
-        <EditButton>
-          <FiEdit2 />
-          수정
-        </EditButton>
-      </Header> */}
-
       <Card>
         <CardHeader>
           <IconCircle>
@@ -152,10 +108,7 @@ export default function UserProfilePage() {
           <Label>
             <FiLogIn /> 마지막 로그인
           </Label>
-          <Value>
-            {/* {user.online && <OnlineBadge>온라인</OnlineBadge>} */}
-            {formatDateTime(user.lastLoginAt)}
-          </Value>
+          <Value>{user.lastLoginAt ? formatDateTime(user.lastLoginAt) : "정보 없음"}</Value>
         </ActivityRow>
       </ActivityCard>
     </Container>
