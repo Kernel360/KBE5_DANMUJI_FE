@@ -447,53 +447,6 @@ export default function ProjectDetailPage() {
         <S.TabContent>
           {tab === 0 && (
             <div>
-              {/* 실제 프로젝트 단계 기반 버튼 */}
-              <div style={{ display: "flex", gap: 8, marginBottom: 24 }}>
-                {sortedSteps.map((step) => (
-                  <button
-                    key={step.id}
-                    style={{
-                      padding: "10px 22px",
-                      borderRadius: 12,
-                      border:
-                        selectedStepId === step.id
-                          ? "2px solid #fdb924"
-                          : "1px solid #fdb924",
-                      background:
-                        selectedStepId === step.id ? "#fdb924" : "#fffdfa",
-                      color: selectedStepId === step.id ? "#fff" : "#fdb924",
-                      fontWeight: 700,
-                      cursor: "pointer",
-                      fontSize: 16,
-                      boxShadow:
-                        selectedStepId === step.id
-                          ? "0 4px 16px rgba(253,185,36,0.15)"
-                          : "0 2px 8px rgba(0,0,0,0.04)",
-                      transition: "all 0.2s",
-                      marginBottom: 8,
-                    }}
-                    onMouseOver={(e) => {
-                      e.currentTarget.style.background = "#fffbe8";
-                      e.currentTarget.style.color = "#fdb924";
-                    }}
-                    onMouseOut={(e) => {
-                      e.currentTarget.style.background =
-                        selectedStepId === step.id ? "#fdb924" : "#fffdfa";
-                      e.currentTarget.style.color =
-                        selectedStepId === step.id ? "#fff" : "#fdb924";
-                    }}
-                    onClick={() => {
-                      navigate(
-                        `/posts/${step.id}?stepName=${encodeURIComponent(
-                          step.name
-                        )}`
-                      );
-                    }}
-                  >
-                    {step.name}
-                  </button>
-                ))}
-              </div>
               {/* 게시글 목록 렌더링 */}
               {postsLoading ? (
                 <div>게시글 불러오는 중...</div>
