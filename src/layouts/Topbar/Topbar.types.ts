@@ -3,6 +3,7 @@ export interface Notification {
   message: string;
   time: string;
   isRead: boolean;
+  referenceId: number;
 }
 
 export interface UserProfile {

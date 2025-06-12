@@ -1,62 +1,42 @@
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  useLocation,
-  Navigate,
-} from "react-router-dom";
-
-// contexts
+// src/App.tsx
+import { BrowserRouter as Router, useLocation } from "react-router-dom";
+import React, { useState } from "react";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { useAuth } from "@/hooks/useAuth";
-// layout
-import { Sidebar } from "./layouts/Sidebar";
-import { Topbar } from "./layouts/Topbar";
-import Footer from "./layouts/Footer/Footer";
-
-// un authorization pages
-import LoginPage from "./features/auth/pages/LoginPage";
-import ForgotPasswordPage from "./features/auth/pages/ForgotPasswordPage";
-import ResetPasswordPage from "./features/auth/pages/ResetPasswordPage";
-
-// admin pages
-import AdminDashboardPage from "./features/admin/pages/DashboardPage";
-import CompanyPage from "./features/company/pages/CompanyPage";
-import MemberPage from "./features/user/pages/MemberPage";
-import AdminProjectPage from "./features/project/pages/AdminProjectPage";
-import EditProjectPage from "./features/project/pages/EditProjectPage";
-
-// user pages
-import UserDashboardPage from "./features/board/pages/DashboardPage";
-import PostListPage from "./features/board/pages/PostListPage";
-// import PostEditPage from "./features/project/pages/PostEditPage";
-// import PostCreatePage from "./features/project/pages/PostCreatePage";
-import CreateProjectPage from "./features/project/pages/CreateProjectPage";
-import UserProjectPage from "./features/project/pages/UserProjectPage";
-import ProjectDetailPage from "./features/project/pages/ProjectDetailPage";
-import CompletedProject from "./features/project/pages/CompletedProject";
-import InProgressProject from "./features/project/pages/InProgressProject";
-import UserProfilePage from "./features/user/pages/UserProfilePage";
-import MemberDetailPage from "./features/user/pages/MemberDetailPage";
-
-// etc
+import { useNotification } from "@/hooks/useNotification";
+import AppRoutes from "@/AppRoutes";
+import { Sidebar } from "@/layouts/Sidebar";
+import { Topbar } from "@/layouts/Topbar";
+import Footer from "@/layouts/Footer/Footer";
 import { AppContainer, MainContent, PageContent } from "./App.styled";
+import type { Notification } from "@/layouts/Topbar/Topbar.types";
 
-const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
+const LayoutWrapper = ({
+  children,
+  notifications,
+  markAsRead,
+  error,
+}: {
+  children: React.ReactNode;
+  notifications: Notification[];
+  markAsRead: (id: string) => void;
+  error: string | null;
+}) => {
   const location = useLocation();
-  if (
-    ["/", "/login", "/forgot-password", "/reset-password"].includes(
-      location.pathname
-    )
-  ) {
-    return <>{children}</>;
-  }
+  const isAuthPage = ["/", "/login", "/forgot-password", "/reset-password"].includes(
+    location.pathname
+  );
+
+  if (isAuthPage) return <>{children}</>;
 
   return (
     <AppContainer>
       <Sidebar />
       <MainContent>
-        <Topbar />
+        <Topbar 
+          notifications={notifications} 
+          markAsRead={markAsRead}
+          error={error}
+        />
         <PageContent>{children}</PageContent>
         <Footer />
       </MainContent>
@@ -64,85 +44,86 @@ const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-// 라우트 구성 컴포넌트
-const AppRoutes = () => {
-  const { role } = useAuth();
+function AppContent() {
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  useNotification(
+    (data) => {
+      const newNotification: Notification = {
+        ...data,
+        isRead: false,
+      };
+      setNotifications((prev) => {
+        // 중복 알림 방지
+        const isDuplicate = prev.some(n => n.id === newNotification.id);
+        if (isDuplicate) return prev;
+        return [newNotification, ...prev];
+      });
+    },
+    (error) => {
+      setError(error);
+    }
+  );
+
+  const markAsRead = async (id: string) => {
+    try {
+      const notification = notifications.find(n => n.id === id);
+      if (!notification) return;
+
+      // 상태 먼저 업데이트
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
+      );
+
+      // SSE를 통해 서버에 읽음 상태 전달
+      const eventSource = new EventSource(
+        `${import.meta.env.VITE_API_BASE_URL}/api/notifications/${id}/read`,
+        { withCredentials: true }
+      );
+
+      eventSource.onerror = () => {
+        // 에러 발생 시 상태 롤백
+        setNotifications((prev) =>
+          prev.map((n) => (n.id === id ? { ...n, isRead: false } : n))
+        );
+        setError('알림 상태를 업데이트하는 중 오류가 발생했습니다.');
+        eventSource.close();
+      };
+
+      eventSource.onmessage = () => {
+        // 성공적으로 처리됨
+        eventSource.close();
+
+        // 알림 클릭 시 해당 참조 페이지로 이동
+        if (notification.referenceId) {
+          // TODO: 알림 타입에 따른 라우팅 처리
+          // window.location.href = `/reference/${notification.referenceId}`;
+        }
+      };
+    } catch (error) {
+      console.error('Failed to mark notification as read:', error);
+      setError('알림 상태를 업데이트하는 중 오류가 발생했습니다.');
+    }
+  };
 
   return (
-    <Routes>
-      {/* 루트 경로 처리: 로그인 여부에 따라 리디렉션 */}
-      <Route
-        path="/"
-        element={
-          role === "ROLE_ADMIN" ? (
-            <Navigate to="/dashboard" replace />
-          ) : role === "ROLE_USER" ? (
-            <Navigate to="/dashboard" replace />
-          ) : (
-            <Navigate to="/login" replace />
-          )
-        }
-      />
-
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-      <Route path="/reset-password" element={<ResetPasswordPage />} />
-
-      {/* 로그인 후 대시보드 라우팅 */}
-      <Route
-        path="/dashboard"
-        element={
-          role === "ROLE_ADMIN" ? (
-            <AdminDashboardPage />
-          ) : role === "ROLE_USER" ? (
-            <UserDashboardPage />
-          ) : (
-            <Navigate to="/login" replace />
-          )
-        }
-      />
-
-      {/* admin 전용 */}
-      {role === "ROLE_ADMIN" && (
-        <>
-          <Route path="/company" element={<CompanyPage />} />
-          <Route path="/members" element={<MemberPage />} />
-          <Route path="/member/:id" element={<MemberDetailPage />} />
-          <Route path="/projects/create" element={<CreateProjectPage />} />
-          <Route path="/projects" element={<AdminProjectPage />} />
-          <Route path="/projects/:projectId/edit" element={<EditProjectPage />} />
-        </>
-      )}
-
-      {/* TODO: 권한 설정 */}
-      {/* 공용 */}
-      <Route path="/posts" element={<PostListPage />} />
-      {/* <Route path="/posts/create" element={<PostCreatePage />} /> */}
-      {/* <Route path="/posts/:postId/edit" element={<PostEditPage />} /> */}
-      <Route path="/projects/all" element={<UserProjectPage />} />
-      <Route
-        path="/projects/:projectId/detail"
-        element={<ProjectDetailPage />}
-      />
-      <Route path="/projects/completed" element={<CompletedProject />} />
-      <Route path="/projects/inprogress" element={<InProgressProject />} />
-      <Route path="/my" element={<UserProfilePage />} />
-      <Route path="/projects/active" element={<InProgressProject />} />
-    </Routes>
+    <LayoutWrapper 
+      notifications={notifications} 
+      markAsRead={markAsRead}
+      error={error}
+    >
+      <AppRoutes />
+    </LayoutWrapper>
   );
-};
+}
 
-function App() {
+export default function App() {
   return (
     <AuthProvider>
       <Router>
-        <LayoutWrapper>
-          <AppRoutes />
-          <Footer />
-        </LayoutWrapper>
+        <AppContent />
       </Router>
     </AuthProvider>
   );
 }
-
-export default App;

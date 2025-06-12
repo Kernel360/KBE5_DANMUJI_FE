@@ -87,61 +87,18 @@ export const TextArea = styled.textarea`
   font-size: 14px;
   min-height: 100px;
   resize: vertical;
+  background-color: #ffffff;
+  color: #333333;
 
   &:focus {
     outline: none;
     border-color: #fdb924;
     box-shadow: 0 0 0 2px rgba(253, 185, 36, 0.1);
+  }
+
+  &::placeholder {
+    color: #9ca3af;
   }
 `;
 
 export const Select = styled.select`
-  padding: 8px 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 14px;
-  background-color: white;
-
-  &:focus {
-    outline: none;
-    border-color: #fdb924;
-    box-shadow: 0 0 0 2px rgba(253, 185, 36, 0.1);
-  }
-`;
-
-export const ButtonGroup = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 24px;
-`;
-
-export const Button = styled.button<{ variant?: "primary" | "secondary" }>`
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  ${({ variant = "primary" }) =>
-    variant === "primary"
-      ? `
-        background-color: #fdb924;
-        color: white;
-        border: none;
-        
-        &:hover {
-          background-color: #e6a720;
-        }
-      `
-      : `
-        background-color: white;
-        color: #374151;
-        border: 1px solid #d1d5db;
-        
-        &:hover {
-          background-color: #f9fafb;
-        }
-      `}
-`;

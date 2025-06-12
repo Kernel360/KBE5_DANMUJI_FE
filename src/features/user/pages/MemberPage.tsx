@@ -238,8 +238,25 @@ export default function MemberPage() {
       const newMember = {
         ...data,
       };
-      // TODO: Replace with actual API call to register member
-      await api.post('/api/admin', newMember);
+    // API 호출
+    const response = await api.post('/api/admin', newMember);
+
+    // API 응답에서 username과 password 추출
+    const { username, password } = response.data.data;
+
+    // 텍스트 파일 생성 및 저장
+    const fileContent = `Username: ${username}\nPassword: ${password}`;
+    const blob = new Blob([fileContent], { type: 'text/plain' });
+    const fileUrl = URL.createObjectURL(blob);
+
+    // 파일 다운로드 트리거
+    const link = document.createElement('a');
+    link.href = fileUrl;
+    link.download = 'member_credentials.txt';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
       fetchMembers();
       alert("회원 등록이 완료되었습니다!");
       setModalOpen(false);

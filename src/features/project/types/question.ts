@@ -3,12 +3,14 @@ export enum QuestionStatus {
   WAITING = "WAITING",
   ANSWERED = "ANSWERED",
   RESOLVED = "RESOLVED",
+  DELETED = "DELETED",
 }
 
 // 답변 상태 enum
 export enum AnswerStatus {
   PENDING = "PENDING",
   ACCEPTED = "ACCEPTED",
+  DELETED = "DELETED",
 }
 
 // 작성자 타입
@@ -33,8 +35,11 @@ export type Question = {
 
 // 답변 타입
 export type Answer = {
+  deletedAt: any;
+  deletedAt: boolean;
   id: number;
   questionId: number;
+  parentId?: number | null; // 부모 답변 ID (댓글 기능을 위해 추가)
   authorIp: string;
   author: Author;
   content: string;
@@ -53,6 +58,7 @@ export type QuestionCreateData = {
 // 답변 생성 요청 데이터 타입
 export type AnswerCreateData = {
   questionId: number;
+  parentId?: number | null; // 부모 답변 ID (댓글 기능을 위해 추가)
   content: string;
 };
 
