@@ -287,14 +287,148 @@ export default function ProjectDetailPage() {
               <S.InfoLabel>프로젝트 단계</S.InfoLabel>
             </div>
             <S.StepsList>
-              {sortedSteps.map((step, index) => (
-                <React.Fragment key={step.id}>
-                  {index > 0 && <S.StepDivider> → </S.StepDivider>}
-                  <S.StepItem projectStepStatus={step.projectStepStatus}>
-                    {step.name}
-                  </S.StepItem>
-                </React.Fragment>
-              ))}
+              {sortedSteps.map((step, index) => {
+                const isDone = step.projectStepStatus === "DONE";
+                const isActive =
+                  selectedStepId === step.id ||
+                  step.projectStepStatus === "IN_PROGRESS";
+                const isWaiting = !isDone && !isActive;
+                return (
+                  <button
+                    key={step.id}
+                    type="button"
+                    aria-label={
+                      step.name +
+                      (isDone ? " 완료" : isActive ? " 진행중" : " 대기")
+                    }
+                    onClick={() => {
+                      navigate(
+                        `/posts/${step.id}?stepName=${encodeURIComponent(
+                          step.name
+                        )}`
+                      );
+                    }}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      flex: 1,
+                      minWidth: 70,
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      outline: "none",
+                      padding: 0,
+                      margin: 0,
+                    }}
+                    onMouseOver={(e) => {
+                      if (!isDone && !isActive) {
+                        e.currentTarget.children[0].style.background =
+                          "#f9fafb";
+                        e.currentTarget.children[0].style.border =
+                          "1.5px solid #fdb924";
+                        e.currentTarget.children[1].style.color = "#fdb924";
+                        e.currentTarget.children[2].style.color = "#fdb924";
+                      }
+                    }}
+                    onMouseOut={(e) => {
+                      if (!isDone && !isActive) {
+                        e.currentTarget.children[0].style.background =
+                          "#f5f5f5";
+                        e.currentTarget.children[0].style.border =
+                          "1.5px solid #e5e7eb";
+                        e.currentTarget.children[1].style.color = "#888";
+                        e.currentTarget.children[2].style.color = "#888";
+                      }
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: 44,
+                        height: 44,
+                        borderRadius: 16,
+                        background: isDone
+                          ? "#e6fbe6"
+                          : isActive
+                          ? "#fffbe8"
+                          : "#f5f5f5",
+                        border: isActive
+                          ? "2.5px solid #fdb924"
+                          : "1.5px solid #e5e7eb",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        marginBottom: 4,
+                        boxShadow: isActive
+                          ? "0 2px 8px 0 rgba(253,185,36,0.10)"
+                          : "none",
+                        transition: "all 0.2s",
+                      }}
+                    >
+                      {isDone ? (
+                        <span
+                          style={{
+                            color: "#22c55e",
+                            fontSize: 26,
+                            fontWeight: 700,
+                          }}
+                        >
+                          ✔
+                        </span>
+                      ) : isActive ? (
+                        <span
+                          style={{
+                            color: "#fdb924",
+                            fontSize: 26,
+                            fontWeight: 700,
+                          }}
+                        >
+                          ⏱
+                        </span>
+                      ) : (
+                        <span
+                          style={{
+                            color: "#888",
+                            fontSize: 22,
+                            fontWeight: 700,
+                          }}
+                        >
+                          {index + 1}
+                        </span>
+                      )}
+                    </div>
+                    <div
+                      style={{
+                        fontWeight: 700,
+                        fontSize: 15,
+                        color: isDone
+                          ? "#22c55e"
+                          : isActive
+                          ? "#fdb924"
+                          : "#888",
+                        marginBottom: 2,
+                        transition: "color 0.2s",
+                      }}
+                    >
+                      {step.name}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 13,
+                        color: isDone
+                          ? "#22c55e"
+                          : isActive
+                          ? "#fdb924"
+                          : "#888",
+                        fontWeight: 500,
+                        transition: "color 0.2s",
+                      }}
+                    >
+                      {isDone ? "완료" : isActive ? "진행중" : "대기"}
+                    </div>
+                  </button>
+                );
+              })}
             </S.StepsList>
           </S.ProjectStepsContainer>
         </S.ProjectDetailSection>

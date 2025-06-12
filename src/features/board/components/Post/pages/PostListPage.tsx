@@ -416,7 +416,19 @@ export default function PostListPage() {
   return (
     <PageContainer>
       <Header>
-        <Title>{stepName} 단계</Title>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div
+            style={{
+              width: 4,
+              marginTop: 11,
+              height: 34,
+              background: "#fdb924",
+              borderRadius: 2,
+              marginRight: 8,
+            }}
+          />
+          <Title>{stepName} 단계</Title>
+        </div>
         <Description>
           프로젝트 단계에 해당하는 게시글을 확인하고 소통하세요!
         </Description>
