@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { FaUser, FaComment, FaEdit, FaTrash, FaReply } from "react-icons/fa";
 import {
   ModalOverlay,
   ModalPanel,
@@ -253,21 +254,20 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
               style={{
                 fontSize: "1.125rem",
                 fontWeight: "600",
-                color: "#92400e",
+                color: "#374151",
                 marginBottom: "0.5rem",
               }}
             >
-              📝 질문: {questionTitle}
+              질문: {questionTitle}
             </h3>
             <p
               style={{
                 fontSize: "0.875rem",
-                color: "#b45309",
+                color: "#6b7280",
                 margin: 0,
-                fontWeight: "500",
               }}
             >
-              💬 총 {answers.length}개의 답변
+              총 {answers.length}개의 답변
             </p>
           </div>
 
@@ -290,27 +290,26 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
                     <AnswerItem
                       $isBestAnswer={parentAnswer.isBestAnswer}
                       style={{
-                        background:
-                          "linear-gradient(135deg, #ffffff 0%, #fef3c7 100%)",
-                        borderRadius: "0.75rem",
+                        background: "#ffffff",
+                        borderRadius: "0.5rem",
                         padding: "1rem",
-                        boxShadow: "0 4px 12px rgba(253, 185, 36, 0.1)",
-                        border: "1px solid #fde68a",
+                        border: "1px solid #e5e7eb",
+                        marginBottom: "1rem",
                       }}
                     >
                       <AnswerHeader>
                         <div>
                           <AnswerAuthor
                             style={{
-                              color: "#92400e",
+                              color: "#374151",
                               fontWeight: "600",
-                              fontSize: "1rem",
+                              fontSize: "0.875rem",
                             }}
                           >
-                            👤{" "}
+                            <FaUser style={{ marginRight: "0.5rem" }} />
                             {parentAnswer.author?.name || "알 수 없는 사용자"}
                           </AnswerAuthor>
-                          <AnswerDate style={{ color: "#b45309" }}>
+                          <AnswerDate style={{ color: "#6b7280" }}>
                             {formatDate(parentAnswer.createdAt)}
                           </AnswerDate>
                           {parentAnswer.isBestAnswer && (
@@ -323,27 +322,31 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
                             <button
                               onClick={() => handleEditAnswer(parentAnswer)}
                               style={{
-                                background: "#3b82f6",
-                                color: "white",
+                                background: "none",
+                                color: "#6366f1",
                                 border: "none",
-                                borderRadius: "0.375rem",
-                                padding: "0.375rem 0.75rem",
-                                fontSize: "0.75rem",
-                                fontWeight: "500",
+                                borderRadius: "5px",
+                                padding: "0 10px",
+                                fontSize: "0.95rem",
+                                fontWeight: "600",
                                 cursor: "pointer",
-                                transition: "all 0.2s ease",
+                                height: "28px",
+                                minWidth: "0",
+                                boxShadow: "none",
+                                whiteSpace: "nowrap",
+                                transition: "background 0.15s, color 0.15s",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
                               }}
                               onMouseOver={(e) => {
-                                e.currentTarget.style.background = "#2563eb";
-                                e.currentTarget.style.transform =
-                                  "translateY(-1px)";
+                                e.currentTarget.style.background = "#f3f4f6";
                               }}
                               onMouseOut={(e) => {
-                                e.currentTarget.style.background = "#3b82f6";
-                                e.currentTarget.style.transform =
-                                  "translateY(0)";
+                                e.currentTarget.style.background = "none";
                               }}
                             >
+                              <FaEdit style={{ marginRight: "0.25rem" }} />
                               수정
                             </button>
                             <button
@@ -352,27 +355,31 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
                               }
                               disabled={deletingAnswer}
                               style={{
-                                background: "#ef4444",
-                                color: "white",
+                                background: "none",
+                                color: "#ef4444",
                                 border: "none",
-                                borderRadius: "0.375rem",
-                                padding: "0.375rem 0.75rem",
-                                fontSize: "0.75rem",
-                                fontWeight: "500",
+                                borderRadius: "5px",
+                                padding: "0 10px",
+                                fontSize: "0.95rem",
+                                fontWeight: "600",
                                 cursor: "pointer",
-                                transition: "all 0.2s ease",
+                                height: "28px",
+                                minWidth: "0",
+                                boxShadow: "none",
+                                whiteSpace: "nowrap",
+                                transition: "background 0.15s, color 0.15s",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
                               }}
                               onMouseOver={(e) => {
-                                e.currentTarget.style.background = "#dc2626";
-                                e.currentTarget.style.transform =
-                                  "translateY(-1px)";
+                                e.currentTarget.style.background = "#f3f4f6";
                               }}
                               onMouseOut={(e) => {
-                                e.currentTarget.style.background = "#ef4444";
-                                e.currentTarget.style.transform =
-                                  "translateY(0)";
+                                e.currentTarget.style.background = "none";
                               }}
                             >
+                              <FaTrash style={{ marginRight: "0.25rem" }} />
                               {deletingAnswer ? "삭제 중..." : "삭제"}
                             </button>
                           </div>
@@ -380,9 +387,10 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
                       </AnswerHeader>
                       <AnswerText
                         style={{
-                          color: "#78350f",
+                          color: "#374151",
                           lineHeight: "1.6",
-                          fontSize: "0.95rem",
+                          fontSize: "0.875rem",
+                          marginTop: "0.75rem",
                         }}
                       >
                         {editingAnswerId === parentAnswer.id ? (
@@ -396,14 +404,12 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
                                 width: "100%",
                                 minHeight: "80px",
                                 padding: "0.75rem",
-                                border: "2px solid #fdb924",
-                                borderRadius: "0.5rem",
+                                border: "1px solid #d1d5db",
+                                borderRadius: "0.375rem",
                                 fontSize: "0.875rem",
                                 resize: "vertical",
                                 backgroundColor: "#ffffff",
-                                color: "#78350f",
-                                boxShadow:
-                                  "inset 0 2px 4px rgba(253, 185, 36, 0.1)",
+                                color: "#374151",
                               }}
                               placeholder="답변 내용을 수정하세요"
                             />
@@ -425,28 +431,18 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
                                   background: "#fdb924",
                                   color: "white",
                                   border: "none",
-                                  borderRadius: "0.5rem",
+                                  borderRadius: "0.375rem",
                                   padding: "0.5rem 1rem",
                                   fontSize: "0.875rem",
-                                  fontWeight: "600",
+                                  fontWeight: "500",
                                   cursor: "pointer",
-                                  transition: "all 0.2s ease",
-                                  boxShadow:
-                                    "0 2px 4px rgba(253, 185, 36, 0.2)",
+                                  transition: "background-color 0.2s ease",
                                 }}
                                 onMouseOver={(e) => {
                                   e.currentTarget.style.background = "#f59e0b";
-                                  e.currentTarget.style.transform =
-                                    "translateY(-1px)";
-                                  e.currentTarget.style.boxShadow =
-                                    "0 4px 8px rgba(253, 185, 36, 0.3)";
                                 }}
                                 onMouseOut={(e) => {
                                   e.currentTarget.style.background = "#fdb924";
-                                  e.currentTarget.style.transform =
-                                    "translateY(0)";
-                                  e.currentTarget.style.boxShadow =
-                                    "0 2px 4px rgba(253, 185, 36, 0.2)";
                                 }}
                               >
                                 {updatingAnswer ? "수정 중..." : "수정 완료"}
@@ -458,28 +454,18 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
                                   background: "#6b7280",
                                   color: "white",
                                   border: "none",
-                                  borderRadius: "0.5rem",
+                                  borderRadius: "0.375rem",
                                   padding: "0.5rem 1rem",
                                   fontSize: "0.875rem",
-                                  fontWeight: "600",
+                                  fontWeight: "500",
                                   cursor: "pointer",
-                                  transition: "all 0.2s ease",
-                                  boxShadow:
-                                    "0 2px 4px rgba(107, 114, 128, 0.2)",
+                                  transition: "background-color 0.2s ease",
                                 }}
                                 onMouseOver={(e) => {
                                   e.currentTarget.style.background = "#4b5563";
-                                  e.currentTarget.style.transform =
-                                    "translateY(-1px)";
-                                  e.currentTarget.style.boxShadow =
-                                    "0 4px 8px rgba(107, 114, 128, 0.3)";
                                 }}
                                 onMouseOut={(e) => {
                                   e.currentTarget.style.background = "#6b7280";
-                                  e.currentTarget.style.transform =
-                                    "translateY(0)";
-                                  e.currentTarget.style.boxShadow =
-                                    "0 2px 4px rgba(107, 114, 128, 0.2)";
                                 }}
                               >
                                 취소
@@ -510,35 +496,31 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
                           style={{
                             background:
                               replyingToAnswerId === parentAnswer.id
-                                ? "#f59e0b"
-                                : "#fdb924",
-                            color: "white",
-                            border: "none",
-                            borderRadius: "0.5rem",
+                                ? "#f3f4f6"
+                                : "none",
+                            color: "#6366f1",
+                            border: "1px solid #d1d5db",
+                            borderRadius: "0.375rem",
                             padding: "0.5rem 1rem",
-                            fontSize: "0.75rem",
-                            fontWeight: "600",
+                            fontSize: "0.875rem",
+                            fontWeight: "500",
                             cursor: "pointer",
                             transition: "all 0.2s ease",
-                            boxShadow: "0 2px 4px rgba(253, 185, 36, 0.2)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
                           }}
                           onMouseOver={(e) => {
-                            e.currentTarget.style.background = "#f59e0b";
-                            e.currentTarget.style.transform =
-                              "translateY(-1px)";
-                            e.currentTarget.style.boxShadow =
-                              "0 4px 8px rgba(253, 185, 36, 0.3)";
+                            e.currentTarget.style.background = "#f3f4f6";
                           }}
                           onMouseOut={(e) => {
                             e.currentTarget.style.background =
                               replyingToAnswerId === parentAnswer.id
-                                ? "#f59e0b"
-                                : "#fdb924";
-                            e.currentTarget.style.transform = "translateY(0)";
-                            e.currentTarget.style.boxShadow =
-                              "0 2px 4px rgba(253, 185, 36, 0.2)";
+                                ? "#f3f4f6"
+                                : "none";
                           }}
                         >
+                          <FaReply style={{ marginRight: "0.5rem" }} />
                           {replyingToAnswerId === parentAnswer.id
                             ? "취소"
                             : "댓글"}
@@ -551,11 +533,9 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
                           style={{
                             marginTop: "0.75rem",
                             padding: "1rem",
-                            background:
-                              "linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)",
-                            borderRadius: "0.75rem",
-                            border: "2px solid #fdb924",
-                            boxShadow: "0 4px 12px rgba(253, 185, 36, 0.15)",
+                            background: "#f9fafb",
+                            borderRadius: "0.5rem",
+                            border: "1px solid #e5e7eb",
                           }}
                         >
                           <div
@@ -563,10 +543,10 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
                               marginBottom: "0.75rem",
                               fontSize: "0.875rem",
                               fontWeight: "600",
-                              color: "#92400e",
+                              color: "#374151",
                             }}
                           >
-                            💬 댓글 작성
+                            댓글 작성
                           </div>
                           <AnswerForm>
                             <AnswerTextArea
@@ -578,11 +558,9 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
                               disabled={submittingReply}
                               style={{
                                 minHeight: "80px",
-                                border: "1px solid #fdb924",
-                                borderRadius: "0.5rem",
+                                border: "1px solid #d1d5db",
+                                borderRadius: "0.375rem",
                                 backgroundColor: "#ffffff",
-                                boxShadow:
-                                  "inset 0 2px 4px rgba(253, 185, 36, 0.1)",
                               }}
                             />
                             <div
@@ -602,28 +580,18 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
                                   background: "#fdb924",
                                   color: "white",
                                   border: "none",
-                                  borderRadius: "0.5rem",
+                                  borderRadius: "0.375rem",
                                   padding: "0.75rem 1rem",
                                   fontSize: "0.875rem",
-                                  fontWeight: "600",
+                                  fontWeight: "500",
                                   cursor: "pointer",
-                                  transition: "all 0.2s ease",
-                                  boxShadow:
-                                    "0 2px 4px rgba(253, 185, 36, 0.2)",
+                                  transition: "background-color 0.2s ease",
                                 }}
                                 onMouseOver={(e) => {
                                   e.currentTarget.style.background = "#f59e0b";
-                                  e.currentTarget.style.transform =
-                                    "translateY(-1px)";
-                                  e.currentTarget.style.boxShadow =
-                                    "0 4px 8px rgba(253, 185, 36, 0.3)";
                                 }}
                                 onMouseOut={(e) => {
                                   e.currentTarget.style.background = "#fdb924";
-                                  e.currentTarget.style.transform =
-                                    "translateY(0)";
-                                  e.currentTarget.style.boxShadow =
-                                    "0 2px 4px rgba(253, 185, 36, 0.2)";
                                 }}
                               >
                                 {submittingReply
@@ -639,28 +607,18 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
                                   background: "#6b7280",
                                   color: "white",
                                   border: "none",
-                                  borderRadius: "0.5rem",
+                                  borderRadius: "0.375rem",
                                   padding: "0.75rem 1rem",
                                   fontSize: "0.875rem",
-                                  fontWeight: "600",
+                                  fontWeight: "500",
                                   cursor: "pointer",
-                                  transition: "all 0.2s ease",
-                                  boxShadow:
-                                    "0 2px 4px rgba(107, 114, 128, 0.2)",
+                                  transition: "background-color 0.2s ease",
                                 }}
                                 onMouseOver={(e) => {
                                   e.currentTarget.style.background = "#4b5563";
-                                  e.currentTarget.style.transform =
-                                    "translateY(-1px)";
-                                  e.currentTarget.style.boxShadow =
-                                    "0 4px 8px rgba(107, 114, 128, 0.3)";
                                 }}
                                 onMouseOut={(e) => {
                                   e.currentTarget.style.background = "#6b7280";
-                                  e.currentTarget.style.transform =
-                                    "translateY(0)";
-                                  e.currentTarget.style.boxShadow =
-                                    "0 2px 4px rgba(107, 114, 128, 0.2)";
                                 }}
                                 disabled={submittingReply}
                               >
@@ -685,25 +643,27 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
                           style={{
                             marginLeft: "2rem",
                             marginTop: "0.75rem",
-                            borderLeft: "3px solid #fdb924",
+                            borderLeft: "3px solid #e5e7eb",
                             paddingLeft: "1rem",
-                            background:
-                              "linear-gradient(135deg, #fef3c7 0%, #fde68a 20%, #ffffff 100%)",
-                            borderRadius: "0.5rem",
+                            background: "#f9fafb",
+                            borderRadius: "0.375rem",
                             padding: "0.75rem",
-                            boxShadow: "0 2px 8px rgba(253, 185, 36, 0.1)",
                           }}
                         >
                           <AnswerHeader>
                             <div>
                               <AnswerAuthor
-                                style={{ color: "#92400e", fontWeight: "600" }}
+                                style={{
+                                  color: "#374151",
+                                  fontWeight: "600",
+                                  fontSize: "0.875rem",
+                                }}
                               >
-                                💬{" "}
+                                <FaComment style={{ marginRight: "0.5rem" }} />
                                 {childAnswer.author?.name ||
                                   "알 수 없는 사용자"}
                               </AnswerAuthor>
-                              <AnswerDate style={{ color: "#b45309" }}>
+                              <AnswerDate style={{ color: "#6b7280" }}>
                                 {formatDate(childAnswer.createdAt)}
                               </AnswerDate>
                               {childAnswer.isBestAnswer && (
@@ -716,29 +676,32 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
                                 <button
                                   onClick={() => handleEditAnswer(childAnswer)}
                                   style={{
-                                    background: "#3b82f6",
-                                    color: "white",
+                                    background: "none",
+                                    color: "#6366f1",
                                     border: "none",
-                                    borderRadius: "0.375rem",
-                                    padding: "0.375rem 0.75rem",
-                                    fontSize: "0.75rem",
-                                    fontWeight: "500",
+                                    borderRadius: "5px",
+                                    padding: "0 10px",
+                                    fontSize: "0.95rem",
+                                    fontWeight: "600",
                                     cursor: "pointer",
-                                    transition: "all 0.2s ease",
+                                    height: "28px",
+                                    minWidth: "0",
+                                    boxShadow: "none",
+                                    whiteSpace: "nowrap",
+                                    transition: "background 0.15s, color 0.15s",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
                                   }}
                                   onMouseOver={(e) => {
                                     e.currentTarget.style.background =
-                                      "#2563eb";
-                                    e.currentTarget.style.transform =
-                                      "translateY(-1px)";
+                                      "#f3f4f6";
                                   }}
                                   onMouseOut={(e) => {
-                                    e.currentTarget.style.background =
-                                      "#3b82f6";
-                                    e.currentTarget.style.transform =
-                                      "translateY(0)";
+                                    e.currentTarget.style.background = "none";
                                   }}
                                 >
+                                  <FaEdit style={{ marginRight: "0.25rem" }} />
                                   수정
                                 </button>
                                 <button
@@ -747,36 +710,43 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
                                   }
                                   disabled={deletingAnswer}
                                   style={{
-                                    background: "#ef4444",
-                                    color: "white",
+                                    background: "none",
+                                    color: "#ef4444",
                                     border: "none",
-                                    borderRadius: "0.375rem",
-                                    padding: "0.375rem 0.75rem",
-                                    fontSize: "0.75rem",
-                                    fontWeight: "500",
+                                    borderRadius: "5px",
+                                    padding: "0 10px",
+                                    fontSize: "0.95rem",
+                                    fontWeight: "600",
                                     cursor: "pointer",
-                                    transition: "all 0.2s ease",
+                                    height: "28px",
+                                    minWidth: "0",
+                                    boxShadow: "none",
+                                    whiteSpace: "nowrap",
+                                    transition: "background 0.15s, color 0.15s",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
                                   }}
                                   onMouseOver={(e) => {
                                     e.currentTarget.style.background =
-                                      "#dc2626";
-                                    e.currentTarget.style.transform =
-                                      "translateY(-1px)";
+                                      "#f3f4f6";
                                   }}
                                   onMouseOut={(e) => {
-                                    e.currentTarget.style.background =
-                                      "#ef4444";
-                                    e.currentTarget.style.transform =
-                                      "translateY(0)";
+                                    e.currentTarget.style.background = "none";
                                   }}
                                 >
+                                  <FaTrash style={{ marginRight: "0.25rem" }} />
                                   {deletingAnswer ? "삭제 중..." : "삭제"}
                                 </button>
                               </div>
                             )}
                           </AnswerHeader>
                           <AnswerText
-                            style={{ color: "#78350f", lineHeight: "1.5" }}
+                            style={{
+                              color: "#374151",
+                              lineHeight: "1.5",
+                              fontSize: "0.875rem",
+                            }}
                           >
                             {editingAnswerId === childAnswer.id ? (
                               <div style={{ marginTop: "0.75rem" }}>
@@ -789,14 +759,12 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
                                     width: "100%",
                                     minHeight: "60px",
                                     padding: "0.5rem",
-                                    border: "2px solid #fdb924",
+                                    border: "1px solid #d1d5db",
                                     borderRadius: "0.375rem",
                                     fontSize: "0.875rem",
                                     resize: "vertical",
                                     backgroundColor: "#ffffff",
-                                    color: "#78350f",
-                                    boxShadow:
-                                      "inset 0 2px 4px rgba(253, 185, 36, 0.1)",
+                                    color: "#374151",
                                   }}
                                   placeholder="댓글 내용을 수정하세요"
                                 />
@@ -821,27 +789,17 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
                                       borderRadius: "0.375rem",
                                       padding: "0.375rem 0.75rem",
                                       fontSize: "0.75rem",
-                                      fontWeight: "600",
+                                      fontWeight: "500",
                                       cursor: "pointer",
-                                      transition: "all 0.2s ease",
-                                      boxShadow:
-                                        "0 2px 4px rgba(253, 185, 36, 0.2)",
+                                      transition: "background-color 0.2s ease",
                                     }}
                                     onMouseOver={(e) => {
                                       e.currentTarget.style.background =
                                         "#f59e0b";
-                                      e.currentTarget.style.transform =
-                                        "translateY(-1px)";
-                                      e.currentTarget.style.boxShadow =
-                                        "0 4px 8px rgba(253, 185, 36, 0.3)";
                                     }}
                                     onMouseOut={(e) => {
                                       e.currentTarget.style.background =
                                         "#fdb924";
-                                      e.currentTarget.style.transform =
-                                        "translateY(0)";
-                                      e.currentTarget.style.boxShadow =
-                                        "0 2px 4px rgba(253, 185, 36, 0.2)";
                                     }}
                                   >
                                     {updatingAnswer
@@ -858,27 +816,17 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
                                       borderRadius: "0.375rem",
                                       padding: "0.375rem 0.75rem",
                                       fontSize: "0.75rem",
-                                      fontWeight: "600",
+                                      fontWeight: "500",
                                       cursor: "pointer",
-                                      transition: "all 0.2s ease",
-                                      boxShadow:
-                                        "0 2px 4px rgba(107, 114, 128, 0.2)",
+                                      transition: "background-color 0.2s ease",
                                     }}
                                     onMouseOver={(e) => {
                                       e.currentTarget.style.background =
                                         "#4b5563";
-                                      e.currentTarget.style.transform =
-                                        "translateY(-1px)";
-                                      e.currentTarget.style.boxShadow =
-                                        "0 4px 8px rgba(107, 114, 128, 0.3)";
                                     }}
                                     onMouseOut={(e) => {
                                       e.currentTarget.style.background =
                                         "#6b7280";
-                                      e.currentTarget.style.transform =
-                                        "translateY(0)";
-                                      e.currentTarget.style.boxShadow =
-                                        "0 2px 4px rgba(107, 114, 128, 0.2)";
                                     }}
                                   >
                                     취소
@@ -907,11 +855,10 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
             style={{
               marginTop: "2rem",
               paddingTop: "1.5rem",
-              borderTop: "2px solid #fdb924",
-              background: "linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)",
-              borderRadius: "0.75rem",
+              borderTop: "1px solid #e5e7eb",
+              background: "#f9fafb",
+              borderRadius: "0.5rem",
               padding: "1.5rem",
-              boxShadow: "0 4px 12px rgba(253, 185, 36, 0.15)",
             }}
           >
             <h4
@@ -919,10 +866,10 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
                 fontSize: "1rem",
                 fontWeight: "600",
                 marginBottom: "1rem",
-                color: "#92400e",
+                color: "#374151",
               }}
             >
-              ✍️ 답변 작성
+              답변 작성
             </h4>
             <AnswerForm>
               <AnswerTextArea
@@ -933,10 +880,9 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
                 }
                 disabled={submittingAnswer}
                 style={{
-                  border: "2px solid #fdb924",
-                  borderRadius: "0.5rem",
+                  border: "1px solid #d1d5db",
+                  borderRadius: "0.375rem",
                   backgroundColor: "#ffffff",
-                  boxShadow: "inset 0 2px 4px rgba(253, 185, 36, 0.1)",
                 }}
               />
               <AnswerSubmitButton
@@ -946,25 +892,20 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
                   background: "#fdb924",
                   color: "white",
                   border: "none",
-                  borderRadius: "0.5rem",
-                  padding: "0.75rem 1.5rem",
+                  borderRadius: "0.375rem",
+                  padding: "0.75rem 1.25rem",
                   fontSize: "0.875rem",
-                  fontWeight: "600",
+                  fontWeight: "500",
                   cursor: "pointer",
-                  transition: "all 0.2s ease",
-                  boxShadow: "0 2px 4px rgba(253, 185, 36, 0.2)",
+                  transition: "background-color 0.2s ease",
+                  height: "fit-content",
+                  whiteSpace: "nowrap",
                 }}
                 onMouseOver={(e) => {
                   e.currentTarget.style.background = "#f59e0b";
-                  e.currentTarget.style.transform = "translateY(-1px)";
-                  e.currentTarget.style.boxShadow =
-                    "0 4px 8px rgba(253, 185, 36, 0.3)";
                 }}
                 onMouseOut={(e) => {
                   e.currentTarget.style.background = "#fdb924";
-                  e.currentTarget.style.transform = "translateY(0)";
-                  e.currentTarget.style.boxShadow =
-                    "0 2px 4px rgba(253, 185, 36, 0.2)";
                 }}
               >
                 {submittingAnswer ? "답변 등록 중..." : "답변 등록"}
