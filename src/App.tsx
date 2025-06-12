@@ -7,8 +7,8 @@ import {
 } from "react-router-dom";
 
 // contexts
-import { AuthProvider, useAuth } from "@/contexts/AuthContexts";
-
+import { AuthProvider } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 // layout
 import { Sidebar } from "./layouts/Sidebar";
 import { Topbar } from "./layouts/Topbar";
