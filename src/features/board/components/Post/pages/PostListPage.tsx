@@ -44,7 +44,7 @@ import {
 } from "../styles/PostListPage.styled";
 import PostDetailModal from "../components/DetailModal/ProjectPostDetailModal";
 import PostFormModal from "../components/FormModal/PostFormModal";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 
 const formatDate = (dateString: string) => {
   const options: Intl.DateTimeFormatOptions = {
@@ -119,10 +119,10 @@ const getPriorityStyle = (priority: number) => {
   }
 };
 
-const stepName = "설계"; // TODO: 실제 단계명 연동 시 교체
-
 export default function PostListPage() {
   const { stepId } = useParams();
+  const [searchParams] = useSearchParams();
+  const stepName = searchParams.get("stepName") || "알 수 없는 단계";
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -416,7 +416,7 @@ export default function PostListPage() {
   return (
     <PageContainer>
       <Header>
-        <Title>{stepName}</Title>
+        <Title>{stepName} 단계</Title>
         <Description>
           프로젝트 단계에 해당하는 게시글을 확인하고 소통하세요!
         </Description>

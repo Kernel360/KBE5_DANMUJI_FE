@@ -349,8 +349,11 @@ export default function ProjectDetailPage() {
                         selectedStepId === step.id ? "#fff" : "#fdb924";
                     }}
                     onClick={() => {
-                      console.log("이동할 stepId:", step.id);
-                      navigate(`/posts/${step.id}`);
+                      navigate(
+                        `/posts/${step.id}?stepName=${encodeURIComponent(
+                          step.name
+                        )}`
+                      );
                     }}
                   >
                     {step.name}
