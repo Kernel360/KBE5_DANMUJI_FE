@@ -40,6 +40,13 @@ import QuestionAnswerModal from "@/features/board/components/Question/components
 
 import { FaReply, FaEdit, FaTrash } from "react-icons/fa";
 import { useAuth } from "@/hooks/useAuth";
+import {
+  FiUser,
+  FiCalendar,
+  FiEdit2,
+  FiCheckCircle,
+  FiAlertCircle,
+} from "react-icons/fi";
 
 interface PostDetailModalProps {
   open: boolean;
@@ -397,7 +404,14 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
         >
           <ModalHeader>
             {/* 상단 고정 제목/버튼 */}
-            <div style={{ display: "flex", alignItems: "center", gap: 0 }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 0,
+                marginLeft: 10,
+              }}
+            >
               <span
                 style={{
                   display: "inline-block",
@@ -405,14 +419,17 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                   width: 4,
                   borderRadius: 2,
                   background: "#fdb924",
-                  marginRight: 10,
+                  marginRight: 9,
                 }}
               />
               <span
                 style={{
-                  fontSize: 18,
+                  fontSize: "1.01rem",
                   fontWeight: 700,
-                  color: "#222",
+                  color: "#111827",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
                 }}
               >
                 게시글 상세
@@ -431,11 +448,11 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                     onClick={handleEditPost}
                     style={{
                       background: "none",
-                      color: "#6366f1",
+                      color: "#888",
                       border: "none",
                       borderRadius: "5px",
                       padding: "0 10px",
-                      fontSize: "0.95rem",
+                      fontSize: "0.85rem",
                       fontWeight: "600",
                       cursor: "pointer",
                       height: "28px",
@@ -449,9 +466,11 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                     }}
                     onMouseOver={(e) => {
                       e.currentTarget.style.background = "#f3f4f6";
+                      e.currentTarget.style.color = "#fdb924";
                     }}
                     onMouseOut={(e) => {
                       e.currentTarget.style.background = "none";
+                      e.currentTarget.style.color = "#888";
                     }}
                   >
                     <FaEdit style={{ marginRight: "0.25rem" }} />
@@ -461,11 +480,11 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                     onClick={handleDeletePost}
                     style={{
                       background: "none",
-                      color: "#ef4444",
+                      color: "#888",
                       border: "none",
                       borderRadius: "5px",
                       padding: "0 10px",
-                      fontSize: "0.95rem",
+                      fontSize: "0.85rem",
                       fontWeight: "600",
                       cursor: "pointer",
                       height: "28px",
@@ -479,9 +498,11 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                     }}
                     onMouseOver={(e) => {
                       e.currentTarget.style.background = "#f3f4f6";
+                      e.currentTarget.style.color = "#fdb924";
                     }}
                     onMouseOut={(e) => {
                       e.currentTarget.style.background = "none";
+                      e.currentTarget.style.color = "#888";
                     }}
                   >
                     <FaTrash style={{ marginRight: "0.25rem" }} />
@@ -513,33 +534,63 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                   wordBreak: "break-all",
                   flex: 1,
                   minWidth: 0,
+                  marginLeft: 18,
                 }}
               >
                 {post.title}
               </span>
-              <QuestionAnswerStyledButton
-                onClick={() => setShowQuestionAnswer(true)}
-                style={{
-                  flexShrink: 0,
-                }}
-              >
-                질문 & 답변
-              </QuestionAnswerStyledButton>
+              <div style={{ marginTop: 24, marginBottom: 16, marginLeft: -12 }}>
+                <QuestionAnswerStyledButton
+                  onClick={() => setShowQuestionAnswer(true)}
+                  style={{
+                    flexShrink: 0,
+                    marginRight: 10,
+                    background: "#f3f4f6",
+                    color: "#6b7280",
+                    border: "1px solid #e5e7eb",
+                    fontSize: 13,
+                    fontWeight: 500,
+                  }}
+                >
+                  질문 & 답변
+                </QuestionAnswerStyledButton>
+              </div>
             </div>
 
             {/* 상세 정보 */}
-            <InfoGrid>
+            <InfoGrid style={{ marginLeft: 18 }}>
               <InfoRow>
-                <InfoKey>요청 상태</InfoKey>
-                <InfoValue>
+                <InfoKey
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    color: "#6b7280",
+                    fontWeight: 500,
+                    fontSize: "0.95rem",
+                  }}
+                >
+                  <FiCheckCircle style={{ color: "#fdb924" }} /> 상태
+                </InfoKey>
+                <InfoValue
+                  style={{
+                    fontWeight: 600,
+                    fontSize: "0.95rem",
+                    color: "#111827",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                  }}
+                >
                   <span
                     style={{
                       ...getStatusStyle(post.status),
                       fontWeight: 600,
                       fontSize: 13,
-                      borderRadius: 8,
+                      borderRadius: 9999,
                       padding: "2px 12px",
                       marginLeft: 0,
+                      display: "inline-block",
                     }}
                   >
                     {getStatusText(post.status)}
@@ -547,16 +598,71 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                 </InfoValue>
               </InfoRow>
               <InfoRow>
-                <InfoKey>작성일</InfoKey>
-                <InfoValue>{formatDate(post.createdAt)}</InfoValue>
+                <InfoKey
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    color: "#6b7280",
+                    fontWeight: 500,
+                    fontSize: "0.95rem",
+                  }}
+                >
+                  <FiCalendar style={{ color: "#fdb924" }} /> 작성일
+                </InfoKey>
+                <InfoValue
+                  style={{
+                    fontWeight: 500,
+                    fontSize: "0.95rem",
+                    color: "#111827",
+                  }}
+                >
+                  {formatDate(post.createdAt)}
+                </InfoValue>
               </InfoRow>
               <InfoRow>
-                <InfoKey>수정일</InfoKey>
-                <InfoValue>{formatDate(post.updatedAt)}</InfoValue>
+                <InfoKey
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    color: "#6b7280",
+                    fontWeight: 500,
+                    fontSize: "0.95rem",
+                  }}
+                >
+                  <FiCalendar style={{ color: "#fdb924" }} /> 수정일
+                </InfoKey>
+                <InfoValue
+                  style={{
+                    fontWeight: 500,
+                    fontSize: "0.95rem",
+                    color: "#111827",
+                  }}
+                >
+                  {formatDate(post.updatedAt)}
+                </InfoValue>
               </InfoRow>
               <InfoRow>
-                <InfoKey>작성자</InfoKey>
-                <InfoValue>
+                <InfoKey
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    color: "#6b7280",
+                    fontWeight: 500,
+                    fontSize: "0.95rem",
+                  }}
+                >
+                  <FiUser style={{ color: "#fdb924" }} /> 작성자
+                </InfoKey>
+                <InfoValue
+                  style={{
+                    fontWeight: 500,
+                    fontSize: "0.95rem",
+                    color: "#111827",
+                  }}
+                >
                   {post.author?.name}
                   <span
                     style={{
@@ -575,7 +681,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
             {/* 작업 설명 */}
             <div style={{ margin: "32px 16px 0 16px" }}>
               <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 10 }}>
-                작업 설명
+                내용
               </div>
               <div
                 style={{
@@ -693,58 +799,54 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                 <SectionTitle>댓글 ({renderedCommentCount})</SectionTitle>
 
                 {/* 댓글 입력창을 위로 이동 */}
-                <div
-                  style={{
-                    marginBottom: "1.5rem",
-                  }}
-                >
-                  <div
+                <div style={{ marginBottom: "1.5rem", position: "relative" }}>
+                  <CommentTextArea
+                    placeholder="댓글을 입력하세요"
+                    value={commentText}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                      setCommentText(e.target.value)
+                    }
+                    disabled={submittingComment}
                     style={{
+                      width: "100%",
+                      border: "1px solid #e2e8f0",
+                      borderRadius: "0.5rem",
+                      padding: "0.75rem",
+                      fontSize: "0.875rem",
+                      resize: "vertical",
+                      minHeight: "60px",
+                      background: "white",
+                      color: "#374151",
+                      transition: "border-color 0.2s ease",
+                    }}
+                  />
+                  <CommentSubmitButton
+                    onClick={handleCommentSubmit}
+                    disabled={!commentText.trim() || submittingComment}
+                    style={{
+                      position: "absolute",
+                      right: 10,
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      height: 38,
+                      borderRadius: 8,
+                      background: "#fdb924",
+                      color: "white",
+                      border: "none",
                       display: "flex",
-                      gap: "0.5rem",
-                      alignItems: "flex-end",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 15,
+                      fontWeight: 700,
+                      padding: "0 18px",
+                      cursor: "pointer",
+                      transition: "background 0.18s, color 0.18s",
+                      boxShadow: "0 2px 8px 0 rgba(253,185,36,0.10)",
+                      zIndex: 2,
                     }}
                   >
-                    <CommentTextArea
-                      placeholder="댓글을 입력하세요"
-                      value={commentText}
-                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                        setCommentText(e.target.value)
-                      }
-                      disabled={submittingComment}
-                      style={{
-                        flex: 1,
-                        border: "1px solid #e2e8f0",
-                        borderRadius: "0.5rem",
-                        padding: "0.75rem",
-                        fontSize: "0.875rem",
-                        resize: "vertical",
-                        minHeight: "60px",
-                        background: "white",
-                        color: "#374151",
-                        transition: "border-color 0.2s ease",
-                      }}
-                    />
-                    <CommentSubmitButton
-                      onClick={handleCommentSubmit}
-                      disabled={!commentText.trim() || submittingComment}
-                      style={{
-                        background: "#fdb924",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "0.5rem",
-                        padding: "0.75rem 1.25rem",
-                        fontSize: "0.875rem",
-                        fontWeight: "500",
-                        cursor: "pointer",
-                        transition: "background-color 0.2s ease",
-                        height: "fit-content",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {submittingComment ? "등록 중..." : "등록"}
-                    </CommentSubmitButton>
-                  </div>
+                    {submittingComment ? "..." : "댓글"}
+                  </CommentSubmitButton>
                 </div>
 
                 <CommentsList>

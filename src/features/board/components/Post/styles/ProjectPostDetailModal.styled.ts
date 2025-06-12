@@ -354,11 +354,11 @@ export const ModalHeaderActionButton = styled.button`
   align-items: center;
   justify-content: center;
   background: none;
-  color: #6366f1;
+  color: #888;
   border: none;
   border-radius: 5px;
   padding: 0 10px;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
   height: 28px;
@@ -369,6 +369,7 @@ export const ModalHeaderActionButton = styled.button`
 
   &:hover {
     background: #f3f4f6;
+    color: #fdb924;
   }
 
   &.delete {
