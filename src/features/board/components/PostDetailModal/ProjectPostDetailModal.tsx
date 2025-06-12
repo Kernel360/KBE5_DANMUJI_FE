@@ -40,7 +40,7 @@ import {
 import type { Post, Comment } from "@/features/project/types/post";
 import QuestionAnswerModal from "../QuestionAnswerModal/QuestionAnswerModal";
 import { useAuth } from "@/contexts/AuthContexts";
-import { FaReply } from "react-icons/fa";
+import { FaReply, FaEdit, FaTrash } from "react-icons/fa";
 
 interface PostDetailModalProps {
   open: boolean;
@@ -355,15 +355,66 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
               </ModalHeaderActionButton>
               {post.author?.id && isAuthor(post.author.id) && (
                 <>
-                  <ModalHeaderActionButton onClick={handleEditPost}>
-                    수정
-                  </ModalHeaderActionButton>
-                  <ModalHeaderActionButton
-                    className="delete"
-                    onClick={handleDeletePost}
+                  <button
+                    onClick={handleEditPost}
+                    style={{
+                      background: "none",
+                      color: "#6366f1",
+                      border: "none",
+                      borderRadius: "5px",
+                      padding: "0 10px",
+                      fontSize: "0.95rem",
+                      fontWeight: "600",
+                      cursor: "pointer",
+                      height: "28px",
+                      minWidth: "0",
+                      boxShadow: "none",
+                      whiteSpace: "nowrap",
+                      transition: "background 0.15s, color 0.15s",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.background = "#f3f4f6";
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.background = "none";
+                    }}
                   >
+                    <FaEdit style={{ marginRight: "0.25rem" }} />
+                    수정
+                  </button>
+                  <button
+                    onClick={handleDeletePost}
+                    style={{
+                      background: "none",
+                      color: "#ef4444",
+                      border: "none",
+                      borderRadius: "5px",
+                      padding: "0 10px",
+                      fontSize: "0.95rem",
+                      fontWeight: "600",
+                      cursor: "pointer",
+                      height: "28px",
+                      minWidth: "0",
+                      boxShadow: "none",
+                      whiteSpace: "nowrap",
+                      transition: "background 0.15s, color 0.15s",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.background = "#f3f4f6";
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.background = "none";
+                    }}
+                  >
+                    <FaTrash style={{ marginRight: "0.25rem" }} />
                     삭제
-                  </ModalHeaderActionButton>
+                  </button>
                 </>
               )}
               <ModalHeaderCloseButton onClick={onClose}>
@@ -656,19 +707,19 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                     {editingCommentId === rootComment.id ? (
                                       <>
                                         <CommentActionButton
-                                          onClick={() =>
-                                            handleSaveEdit(rootComment.id)
-                                          }
-                                        >
-                                          저장
-                                        </CommentActionButton>
-                                        <CommentActionButton
                                           onClick={() => {
-                                            setEditingCommentId(null);
-                                            setEditText("");
+                                            setEditingCommentId(rootComment.id);
+                                            setEditText(rootComment.content);
                                           }}
                                         >
-                                          취소
+                                          수정
+                                        </CommentActionButton>
+                                        <CommentActionButton
+                                          onClick={() =>
+                                            handleDeleteComment(rootComment.id)
+                                          }
+                                        >
+                                          삭제
                                         </CommentActionButton>
                                       </>
                                     ) : (
@@ -815,19 +866,19 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                     {editingCommentId === reply.id ? (
                                       <>
                                         <CommentActionButton
-                                          onClick={() =>
-                                            handleSaveEdit(reply.id)
-                                          }
-                                        >
-                                          저장
-                                        </CommentActionButton>
-                                        <CommentActionButton
                                           onClick={() => {
-                                            setEditingCommentId(null);
-                                            setEditText("");
+                                            setEditingCommentId(reply.id);
+                                            setEditText(reply.content);
                                           }}
                                         >
-                                          취소
+                                          수정
+                                        </CommentActionButton>
+                                        <CommentActionButton
+                                          onClick={() =>
+                                            handleDeleteComment(reply.id)
+                                          }
+                                        >
+                                          삭제
                                         </CommentActionButton>
                                       </>
                                     ) : (

@@ -520,7 +520,6 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
                                 : "none";
                           }}
                         >
-                          <FaReply style={{ marginRight: "0.5rem" }} />
                           {replyingToAnswerId === parentAnswer.id
                             ? "취소"
                             : "댓글"}
@@ -659,7 +658,7 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
                                   fontSize: "0.875rem",
                                 }}
                               >
-                                <FaComment style={{ marginRight: "0.5rem" }} />
+                                <FaUser style={{ marginRight: "0.5rem" }} />
                                 {childAnswer.author?.name ||
                                   "알 수 없는 사용자"}
                               </AnswerAuthor>

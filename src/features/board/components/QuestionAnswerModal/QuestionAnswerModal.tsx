@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { FaEdit, FaTrash, FaCheck, FaTimes } from "react-icons/fa";
 import {
   ModalOverlay,
   ModalPanel,
@@ -569,34 +570,135 @@ const QuestionAnswerModal: React.FC<QuestionAnswerModalProps> = ({
                                   </>
                                 ) : (
                                   <>
-                                    <ModalHeaderActionButton
+                                    <button
                                       onClick={() =>
                                         handleEditQuestion(question)
                                       }
+                                      style={{
+                                        background: "none",
+                                        color: "#6366f1",
+                                        border: "none",
+                                        borderRadius: "5px",
+                                        padding: "0 10px",
+                                        fontSize: "0.95rem",
+                                        fontWeight: "600",
+                                        cursor: "pointer",
+                                        height: "28px",
+                                        minWidth: "0",
+                                        boxShadow: "none",
+                                        whiteSpace: "nowrap",
+                                        transition:
+                                          "background 0.15s, color 0.15s",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                      }}
+                                      onMouseOver={(e) => {
+                                        e.currentTarget.style.background =
+                                          "#f3f4f6";
+                                      }}
+                                      onMouseOut={(e) => {
+                                        e.currentTarget.style.background =
+                                          "none";
+                                      }}
                                     >
+                                      <FaEdit
+                                        style={{ marginRight: "0.25rem" }}
+                                      />
                                       수정
-                                    </ModalHeaderActionButton>
-                                    <ModalHeaderActionButton
+                                    </button>
+                                    <button
                                       onClick={() =>
                                         handleResolveQuestion(question.id)
                                       }
                                       disabled={resolvingQuestion}
+                                      style={{
+                                        background: "none",
+                                        color:
+                                          question.status === "RESOLVED"
+                                            ? "#6366f1"
+                                            : "#6366f1",
+                                        border: "none",
+                                        borderRadius: "5px",
+                                        padding: "0 10px",
+                                        fontSize: "0.95rem",
+                                        fontWeight: "600",
+                                        cursor: "pointer",
+                                        height: "28px",
+                                        minWidth: "0",
+                                        boxShadow: "none",
+                                        whiteSpace: "nowrap",
+                                        transition:
+                                          "background 0.15s, color 0.15s",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                      }}
+                                      onMouseOver={(e) => {
+                                        e.currentTarget.style.background =
+                                          "#f3f4f6";
+                                      }}
+                                      onMouseOut={(e) => {
+                                        e.currentTarget.style.background =
+                                          "none";
+                                      }}
                                     >
-                                      {resolvingQuestion
-                                        ? "처리 중..."
-                                        : question.status === "RESOLVED"
-                                        ? "해결안됨"
-                                        : "해결됨으로 표시"}
-                                    </ModalHeaderActionButton>
-                                    <ModalHeaderActionButton
-                                      className="delete"
+                                      {resolvingQuestion ? (
+                                        "처리 중..."
+                                      ) : question.status === "RESOLVED" ? (
+                                        <>
+                                          <FaTimes
+                                            style={{ marginRight: "0.25rem" }}
+                                          />
+                                          해결
+                                        </>
+                                      ) : (
+                                        <>
+                                          <FaCheck
+                                            style={{ marginRight: "0.25rem" }}
+                                          />
+                                          해결
+                                        </>
+                                      )}
+                                    </button>
+                                    <button
                                       onClick={() =>
                                         handleDeleteQuestion(question.id)
                                       }
                                       disabled={deletingQuestion}
+                                      style={{
+                                        background: "none",
+                                        color: "#ef4444",
+                                        border: "none",
+                                        borderRadius: "5px",
+                                        padding: "0 10px",
+                                        fontSize: "0.95rem",
+                                        fontWeight: "600",
+                                        cursor: "pointer",
+                                        height: "28px",
+                                        minWidth: "0",
+                                        boxShadow: "none",
+                                        whiteSpace: "nowrap",
+                                        transition:
+                                          "background 0.15s, color 0.15s",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                      }}
+                                      onMouseOver={(e) => {
+                                        e.currentTarget.style.background =
+                                          "#f3f4f6";
+                                      }}
+                                      onMouseOut={(e) => {
+                                        e.currentTarget.style.background =
+                                          "none";
+                                      }}
                                     >
-                                      삭제
-                                    </ModalHeaderActionButton>
+                                      <FaTrash
+                                        style={{ marginRight: "0.25rem" }}
+                                      />
+                                      {deletingQuestion ? "삭제 중..." : "삭제"}
+                                    </button>
                                   </>
                                 )}
                               </ModalHeaderButtonGroup>
