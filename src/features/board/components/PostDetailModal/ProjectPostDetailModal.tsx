@@ -571,7 +571,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                 첨부 파일
               </div>
               <div>
-                {"attachments" in post && post.attachments?.length > 0 ? (
+                {post.attachments && post.attachments.length > 0 ? (
                   post.attachments.map(
                     (file: { name: string; size: string }, idx: number) => {
                       const ext = file.name.split(".").pop();

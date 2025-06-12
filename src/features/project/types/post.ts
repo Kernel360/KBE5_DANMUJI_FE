@@ -67,7 +67,7 @@ export type PostCreateData = {
 
 // 게시글 타입 (기존 Post와 PostDetail 통합)
 export type Post = {
-  attachments: Array<{ id: number; url: string }>;
+  attachments?: { name: string; size: string }[];
   postId: number;
   parentId: number | null;
   projectStepId: number;
