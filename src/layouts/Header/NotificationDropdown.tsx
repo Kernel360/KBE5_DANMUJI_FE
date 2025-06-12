@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+// src/components/NotificationDropdown.tsx
+import React, { useRef, useEffect } from "react";
+import { FaBell } from "react-icons/fa";
 import {
   DropdownContainer,
   NotificationButton,
@@ -9,55 +11,105 @@ import {
   NotificationMessage,
   NotificationTime,
   EmptyState,
+  NotificationHeader,
+  NotificationTitle,
+  MarkAllAsReadButton,
+  LoadingState,
+  ErrorState,
 } from "./NotificationDropdown.styled";
-import type { Notification } from "./Header.types";
-import { FaBell } from "react-icons/fa";
-export const NotificationDropdown: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+import type { Notification } from "@/layouts/Topbar/Topbar.types";
+import api from "@/api/axios";
 
-  const toggleDropdown = () => {
-    setIsOpen(!isOpen);
+interface Props {
+  notifications: Notification[];
+  markAsRead: (id: string) => void;
+  error: string | null;
+}
+
+const NotificationDropdown: React.FC<Props> = ({ notifications, markAsRead, error }) => {
+  const [isOpen, setIsOpen] = React.useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const toggleDropdown = () => setIsOpen(!isOpen);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
+
+  const handleMarkAllAsRead = async () => {
+    try {
+      await api.put('/api/notifications/mark-all-read');
+      notifications.forEach(n => {
+        if (!n.isRead) {
+          markAsRead(n.id);
+        }
+      });
+    } catch (error) {
+      console.error('Failed to mark all notifications as read:', error);
+    }
   };
 
-  const markAsRead = (id: number) => {
-    setNotifications(
-      notifications.map((notification) =>
-        notification.id === id
-          ? { ...notification, isRead: true }
-          : notification
-      )
-    );
+  const handleNotificationClick = (notification: Notification) => {
+    if (!notification.isRead) {
+      markAsRead(notification.id);
+    }
+  };
+
+  const renderContent = () => {
+    if (error) {
+      return <ErrorState>{error}</ErrorState>;
+    }
+
+    if (notifications.length === 0) {
+      return <EmptyState>알림이 없습니다</EmptyState>;
+    }
+
+    return notifications.map((n) => (
+      <NotificationItem 
+        key={n.id} 
+        isRead={n.isRead} 
+        onClick={() => handleNotificationClick(n)}
+      >
+        <NotificationMessage>{n.message}</NotificationMessage>
+        <NotificationTime>{n.time}</NotificationTime>
+      </NotificationItem>
+    ));
   };
 
   return (
-    <DropdownContainer>
+    <DropdownContainer ref={dropdownRef}>
       <NotificationButton onClick={toggleDropdown}>
         <FaBell />
-        {notifications.some((n) => !n.isRead) && <NotificationBadge />}
+        {!error && unreadCount > 0 && (
+          <NotificationBadge>{unreadCount}</NotificationBadge>
+        )}
       </NotificationButton>
       {isOpen && (
         <DropdownMenu>
-          <NotificationList>
-            {notifications.length > 0 ? (
-              notifications.map((notification) => (
-                <NotificationItem
-                  key={notification.id}
-                  isRead={notification.isRead}
-                  onClick={() => markAsRead(notification.id)}
-                >
-                  <NotificationMessage>
-                    {notification.message}
-                  </NotificationMessage>
-                  <NotificationTime>{notification.time}</NotificationTime>
-                </NotificationItem>
-              ))
-            ) : (
-              <EmptyState>알림이 없습니다</EmptyState>
+          <NotificationHeader>
+            <NotificationTitle>알림</NotificationTitle>
+            {unreadCount > 0 && (
+              <MarkAllAsReadButton onClick={handleMarkAllAsRead}>
+                모두 읽음 처리
+              </MarkAllAsReadButton>
             )}
+          </NotificationHeader>
+          <NotificationList>
+            {renderContent()}
           </NotificationList>
         </DropdownMenu>
       )}
     </DropdownContainer>
   );
 };
+
+export default NotificationDropdown;
