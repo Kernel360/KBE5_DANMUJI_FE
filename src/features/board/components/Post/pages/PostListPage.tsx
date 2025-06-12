@@ -41,10 +41,10 @@ import {
   FilterButtonGroup,
   SearchButton,
   ResetButton,
-} from "./PostListPage.styled";
-import PostDetailModal from "../components/Post/components/DetailModal/ProjectPostDetailModal";
-import PostFormModal from "../components/Post/components/FormModal/PostFormModal";
-import { useParams } from "react-router-dom";
+} from "../styles/PostListPage.styled";
+import PostDetailModal from "../components/DetailModal/ProjectPostDetailModal";
+import PostFormModal from "../components/FormModal/PostFormModal";
+import { useParams, useSearchParams } from "react-router-dom";
 
 const formatDate = (dateString: string) => {
   const options: Intl.DateTimeFormatOptions = {
@@ -119,10 +119,10 @@ const getPriorityStyle = (priority: number) => {
   }
 };
 
-const stepName = "설계"; // TODO: 실제 단계명 연동 시 교체
-
 export default function PostListPage() {
   const { stepId } = useParams();
+  const [searchParams] = useSearchParams();
+  const stepName = searchParams.get("stepName") || "알 수 없는 단계";
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -416,7 +416,19 @@ export default function PostListPage() {
   return (
     <PageContainer>
       <Header>
-        <Title>{stepId}</Title>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div
+            style={{
+              width: 4,
+              marginTop: 11,
+              height: 34,
+              background: "#fdb924",
+              borderRadius: 2,
+              marginRight: 8,
+            }}
+          />
+          <Title>{stepName} 단계</Title>
+        </div>
         <Description>
           프로젝트 단계에 해당하는 게시글을 확인하고 소통하세요!
         </Description>
@@ -654,7 +666,7 @@ export default function PostListPage() {
                                     verticalAlign: "middle",
                                   }}
                                 >
-                                  [답글]
+                                  답글
                                 </span>
                                 <span
                                   style={{
@@ -777,7 +789,7 @@ export default function PostListPage() {
                                 verticalAlign: "middle",
                               }}
                             >
-                              [답글]
+                              답글
                             </span>
                             {topParent && (
                               <span
@@ -879,12 +891,6 @@ export default function PostListPage() {
 
       {totalPages > 1 && (
         <PaginationContainer>
-          <PaginationInfo>
-            총 {totalElements}개의 게시글 중{" "}
-            {totalElements > 0 ? currentPage * 10 + 1 : 0}-
-            {Math.min((currentPage + 1) * 10, totalElements)}개 표시
-            {searchTerm.trim() && ` (검색어: "${searchTerm}")`}
-          </PaginationInfo>
           <PaginationNav>
             <PaginationButton
               onClick={() => handlePageChange(currentPage - 1)}
@@ -908,6 +914,12 @@ export default function PostListPage() {
               다음
             </PaginationButton>
           </PaginationNav>
+          <PaginationInfo>
+            총 {totalElements}개의 게시글 중{" "}
+            {totalElements > 0 ? currentPage * 10 + 1 : 0}-
+            {Math.min((currentPage + 1) * 10, totalElements)}개 표시
+            {searchTerm.trim() && ` (검색어: "${searchTerm}")`}
+          </PaginationInfo>
         </PaginationContainer>
       )}
 

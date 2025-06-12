@@ -12,30 +12,42 @@ export const ModalOverlay = styled.div`
   justify-content: flex-end;
 `;
 
-export const ModalPanel = styled.div`
+export const ModalPanel = styled.div<{
+  $closing?: boolean;
+}>`
   background-color: white;
   width: 100%;
-  max-width: 600px; /* Set a max-width for larger screens */
+  max-width: 600px;
   height: 100%;
   box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
+  border-radius: 12px 0 0 12px;
   transform: translateX(100%);
-  animation: slideIn 0.3s forwards;
+  animation: ${({ $closing }) => ($closing ? "slideOut" : "slideIn")} 0.32s
+    cubic-bezier(0.4, 0, 0.2, 1) forwards;
 
   @keyframes slideIn {
     to {
       transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  @keyframes slideOut {
+    from {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateX(100%);
+      opacity: 0;
     }
   }
 
   @media (min-width: 768px) {
-    /* Adjust width for medium screens and up */
     width: 60%;
   }
-
   @media (min-width: 1024px) {
-    /* Adjust width for large screens and up */
     width: 40%;
   }
 `;
@@ -342,11 +354,11 @@ export const ModalHeaderActionButton = styled.button`
   align-items: center;
   justify-content: center;
   background: none;
-  color: #6366f1;
+  color: #888;
   border: none;
   border-radius: 5px;
   padding: 0 10px;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
   height: 28px;
@@ -357,6 +369,7 @@ export const ModalHeaderActionButton = styled.button`
 
   &:hover {
     background: #f3f4f6;
+    color: #fdb924;
   }
 
   &.delete {
