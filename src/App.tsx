@@ -134,10 +134,6 @@ function App() {
           <AppRoutes />
           <Footer />
         </LayoutWrapper>
-<<<<<<< HEAD
-        {/* <Footer /> */}
-=======
->>>>>>> a4206340e5e71c05655378bb5e266a64110be2b5
       </Router>
     </AuthProvider>
   );
