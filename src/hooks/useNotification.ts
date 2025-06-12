@@ -38,8 +38,8 @@ export const useNotification = (
       cleanup();
 
       try {
-        //const baseUrl = import.meta.env.VITE_API_BASE_URL.replace(/\/$/, '');
-        const url = `http://localhost:8080/api/notifications/subscribe`;
+        const baseUrl = import.meta.env.VITE_API_BASE_URL.replace(/\/$/, '');
+        const url = `${baseUrl}/api/notifications/subscribe`;
         console.log('Attempting to connect to SSE at:', url);
         
         eventSourceRef.current = new EventSource(url, { withCredentials: true });
