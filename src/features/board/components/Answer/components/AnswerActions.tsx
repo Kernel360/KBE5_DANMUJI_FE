@@ -3,7 +3,7 @@ import { FaEdit, FaTrash, FaReply } from "react-icons/fa";
 import {
   AnswerActionButton,
   AnswerActionButtonGroup,
-} from "./AnswerActions.styled";
+} from "../styles/AnswerActions.styled";
 
 interface AnswerActionsProps {
   answerId: number;

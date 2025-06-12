@@ -17,7 +17,7 @@ import {
   AnswerForm,
   AnswerTextArea,
   AnswerSubmitButton,
-} from "./AnswerDetailModal.styled";
+} from "../styles/AnswerDetailModal.styled";
 import {
   getAnswersByQuestion,
   createAnswer,

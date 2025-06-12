@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FaUser } from "react-icons/fa";
 import type { Answer } from "@/features/project/types/question";
-import { formatAnswerContent } from "./AnswerUtils.tsx";
+import { formatAnswerContent } from "../hooks/useAnswerUtils";
 import AnswerActions from "./AnswerActions";
 import AnswerForm from "./AnswerForm";
 import {
@@ -15,7 +15,7 @@ import {
   AnswerText,
   ReplyBadge,
   BestAnswerBadge,
-} from "./AnswerItem.styled";
+} from "../styles/AnswerItem.styled";
 
 interface AnswerItemProps {
   answer: Answer;

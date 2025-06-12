@@ -6,7 +6,7 @@ import {
   AnswerFormActions,
   AnswerSubmitButton,
   AnswerCancelButton,
-} from "./AnswerForm.styled";
+} from "../styles/AnswerForm.styled";
 
 interface AnswerFormProps {
   placeholder?: string;
