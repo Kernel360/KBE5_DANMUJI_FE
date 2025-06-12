@@ -41,6 +41,8 @@ export type Project = {
 
 // 댓글 타입
 export type Comment = {
+  status: string;
+  deletedAt: unknown;
   id: number;
   postId: number;
   parentCommentId: number | null;
@@ -65,6 +67,7 @@ export type PostCreateData = {
 
 // 게시글 타입 (기존 Post와 PostDetail 통합)
 export type Post = {
+  attachments?: { name: string; size: string }[];
   postId: number;
   parentId: number | null;
   projectStepId: number;
@@ -90,6 +93,7 @@ export type Post = {
 
 // API 응답 타입
 export type ApiResponse<T> = {
+  success: boolean;
   status: "OK" | "ERROR";
   code: string;
   message: string;
@@ -109,6 +113,7 @@ export type PostCreateResponse = {
 
 // 페이지네이션 메타데이터 타입
 export type PageMetadata = {
+  number: number;
   page: number;
   size: number;
   totalElements: number;
