@@ -29,9 +29,11 @@ const AppRoutes = () => {
       <Route
         path="/"
         element={
-          role === null
-            ? <Navigate to="/dashboard" replace />
-            : <Navigate to="/login" replace />
+          role === null ? (
+            <Navigate to="/dashboard" replace />
+          ) : (
+            <Navigate to="/login" replace />
+          )
         }
       />
       <Route path="/login" element={<LoginPage />} />
@@ -40,9 +42,13 @@ const AppRoutes = () => {
       <Route
         path="/dashboard"
         element={
-          role === "ROLE_ADMIN" ? <AdminDashboardPage />
-          : role === "ROLE_USER" ? <UserDashboardPage />
-          : <Navigate to="/login" replace />
+          role === "ROLE_ADMIN" ? (
+            <AdminDashboardPage />
+          ) : role === "ROLE_USER" ? (
+            <UserDashboardPage />
+          ) : (
+            <Navigate to="/login" replace />
+          )
         }
       />
 
@@ -53,15 +59,21 @@ const AppRoutes = () => {
           <Route path="/members" element={<MemberPage />} />
           <Route path="/member/:id" element={<MemberDetailPage />} />
           <Route path="/projects/create" element={<CreateProjectPage />} />
-          <Route path="/projects/:projectId/edit" element={<EditProjectPage />} />
+          <Route
+            path="/projects/:projectId/edit"
+            element={<EditProjectPage />}
+          />
           <Route path="/projects" element={<AdminProjectPage />} />
         </>
       )}
 
       {/* 공용 페이지 */}
-      <Route path="/posts" element={<PostListPage />} />
+      <Route path="/posts/:stepId" element={<PostListPage />} />
       <Route path="/projects/all" element={<UserProjectPage />} />
-      <Route path="/projects/:projectId/detail" element={<ProjectDetailPage />} />
+      <Route
+        path="/projects/:projectId/detail"
+        element={<ProjectDetailPage />}
+      />
       <Route path="/projects/completed" element={<CompletedProject />} />
       <Route path="/projects/inprogress" element={<InProgressProject />} />
       <Route path="/projects/active" element={<InProgressProject />} />
