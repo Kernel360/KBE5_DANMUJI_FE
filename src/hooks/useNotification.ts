@@ -38,8 +38,8 @@ export const useNotification = (
       cleanup();
 
       try {
-        const baseUrl = import.meta.env.VITE_API_BASE_URL.replace(/\/$/, '');
-        const url = `${baseUrl}/api/notifications/subscribe`;
+        const baseUrl = import.meta.env.VITE_API_BASE_URL;
+        const url = `${baseUrl}api/notifications/subscribe`;
         console.log('Attempting to connect to SSE at:', url);
         
         eventSourceRef.current = new EventSource(url, { withCredentials: true });
@@ -69,7 +69,7 @@ export const useNotification = (
               retryTimeoutRef.current = setTimeout(connectEventSource, retryDelay);
             } else {
               console.error('Max retries reached, giving up SSE connection');
-              onError?.('실시간 알림 연결에 실패했습니다. 페이지를 새로고침 해주세요.');
+              onError?.('실시간 알림 연결에 실패했습니다. \n페이지를 새로고침 해주세요.');
             }
           }
         };
