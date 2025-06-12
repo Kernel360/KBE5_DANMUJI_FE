@@ -554,39 +554,26 @@ export default function PostListPage() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {posts.map((post) => {
-              if (!post.parentId) {
-                // 일반 게시글 UI
-                return (
-                  <TableRow
-                    key={post.postId}
-                    onClick={() => handlePostClick(post.postId)}
-                  >
-                    <TableCell>
-                      <PostTitle style={{ color: "#000000" }}>
-                        {post.title}
-                        {post.comments && post.comments.length > 0 && (
-                          <span
-                            style={{
-                              display: "inline-block",
-                              background: "#60a5fa",
-                              color: "white",
-                              borderRadius: "12px",
-                              fontSize: "0.75rem",
-                              padding: "2px 8px",
-                              marginLeft: "8px",
-                              fontWeight: "500",
-                            }}
-                          >
-                            댓글 {post.comments.length}
-                          </span>
-                        )}
-                        {post.questionCount !== undefined &&
-                          post.questionCount > 0 && (
+            {(() => {
+              const result = [];
+              const processedReplies = new Set();
+
+              posts.forEach((post) => {
+                if (!post.parentId) {
+                  // 부모 게시글 렌더링
+                  result.push(
+                    <TableRow
+                      key={post.postId}
+                      onClick={() => handlePostClick(post.postId)}
+                    >
+                      <TableCell>
+                        <PostTitle style={{ color: "#000000" }}>
+                          {post.title}
+                          {post.comments && post.comments.length > 0 && (
                             <span
                               style={{
                                 display: "inline-block",
-                                background: "#34d399",
+                                background: "#60a5fa",
                                 color: "white",
                                 borderRadius: "12px",
                                 fontSize: "0.75rem",
@@ -595,113 +582,224 @@ export default function PostListPage() {
                                 fontWeight: "500",
                               }}
                             >
-                              질문 {post.questionCount}
+                              댓글 {post.comments.length}
                             </span>
                           )}
-                      </PostTitle>
-                    </TableCell>
-                    <TableCell>{post.author.name}</TableCell>
-                    <TableCell $align="center">
-                      <StatusBadge $status={getStatusText(post.status)}>
-                        {getStatusText(post.status)}
-                      </StatusBadge>
-                    </TableCell>
-                    <TableCell $align="center">
-                      {getTypeText(post.type)}
-                    </TableCell>
-                    <TableCell $align="center">
-                      <span
-                        style={{
-                          ...getPriorityStyle(post.priority),
-                          fontWeight: 600,
-                          fontSize: 13,
-                          borderRadius: 8,
-                          padding: "2px 12px",
-                          display: "inline-block",
-                        }}
-                      >
-                        {getPriorityText(post.priority)}
-                      </span>
-                    </TableCell>
-                    <TableCell $align="center">
-                      {formatDate(post.createdAt)}
-                    </TableCell>
-                  </TableRow>
-                );
-              } else {
-                // 답글 UI
-                let depth = 0;
-                let currentParentId = post.parentId;
-                while (currentParentId) {
-                  depth++;
-                  const parentPost = posts.find(
-                    (p) => p.postId === currentParentId
-                  );
-                  currentParentId = parentPost ? parentPost.parentId : null;
-                }
-                const topParent = posts.find((p) => p.postId === post.parentId);
-                const paddingLeft = Math.min(depth, 2) * 20 + 20;
-                const badgeColor = depth === 1 ? "#fdb924" : "#6b7280";
-                return (
-                  <TableRow
-                    key={post.postId}
-                    onClick={() => handlePostClick(post.postId)}
-                    style={{ background: "#f8f9fa" }}
-                  >
-                    <TableCell style={{ paddingLeft }}>
-                      <span
-                        style={{
-                          display: "inline-block",
-                          background: badgeColor,
-                          color: "white",
-                          borderRadius: 4,
-                          fontSize: "0.75em",
-                          padding: "2px 7px",
-                          marginRight: 8,
-                          verticalAlign: "middle",
-                        }}
-                      >
-                        [답글]
-                      </span>
-                      {topParent && (
+                          {post.questionCount !== undefined &&
+                            post.questionCount > 0 && (
+                              <span
+                                style={{
+                                  display: "inline-block",
+                                  background: "#34d399",
+                                  color: "white",
+                                  borderRadius: "12px",
+                                  fontSize: "0.75rem",
+                                  padding: "2px 8px",
+                                  marginLeft: "8px",
+                                  fontWeight: "500",
+                                }}
+                              >
+                                질문 {post.questionCount}
+                              </span>
+                            )}
+                        </PostTitle>
+                      </TableCell>
+                      <TableCell>{post.author.name}</TableCell>
+                      <TableCell $align="center">
+                        <StatusBadge $status={getStatusText(post.status)}>
+                          {getStatusText(post.status)}
+                        </StatusBadge>
+                      </TableCell>
+                      <TableCell $align="center">
+                        {getTypeText(post.type)}
+                      </TableCell>
+                      <TableCell $align="center">
                         <span
                           style={{
-                            color: "#888",
-                            fontSize: "0.92em",
-                            marginRight: 8,
-                            display: "inline-flex",
-                            alignItems: "center",
+                            ...getPriorityStyle(post.priority),
+                            fontWeight: 600,
+                            fontSize: 13,
+                            borderRadius: 8,
+                            padding: "2px 12px",
+                            display: "inline-block",
                           }}
                         >
-                          {topParent.title.length > 15
-                            ? topParent.title.slice(0, 15) + "..."
-                            : topParent.title}
+                          {getPriorityText(post.priority)}
                         </span>
-                      )}
-                      <PostTitle style={{ color: "#000000" }}>
-                        {post.title}
-                        {post.comments && post.comments.length > 0 && (
-                          <span
-                            style={{
-                              display: "inline-block",
-                              background: "#60a5fa",
-                              color: "white",
-                              borderRadius: "12px",
-                              fontSize: "0.75rem",
-                              padding: "2px 8px",
-                              marginLeft: "8px",
-                              fontWeight: "500",
-                            }}
-                          >
-                            댓글 {post.comments.length}
-                          </span>
-                        )}
-                        {post.questionCount !== undefined &&
-                          post.questionCount > 0 && (
+                      </TableCell>
+                      <TableCell $align="center">
+                        {formatDate(post.createdAt)}
+                      </TableCell>
+                    </TableRow>
+                  );
+
+                  // 이 부모의 답글들을 바로 다음에 렌더링
+                  const replies = posts.filter(
+                    (p) => p.parentId === post.postId
+                  );
+                  replies.forEach((reply) => {
+                    if (!processedReplies.has(reply.postId)) {
+                      processedReplies.add(reply.postId);
+                      result.push(
+                        <TableRow
+                          key={reply.postId}
+                          onClick={() => handlePostClick(reply.postId)}
+                          style={{
+                            background: "#f8f9fa",
+                            borderLeft: "4px solid #fdb924",
+                          }}
+                        >
+                          <TableCell style={{ paddingLeft: 40 }}>
                             <span
                               style={{
                                 display: "inline-block",
-                                background: "#34d399",
+                                background: "#fdb924",
+                                color: "white",
+                                borderRadius: 4,
+                                fontSize: "0.75em",
+                                padding: "2px 7px",
+                                marginRight: 8,
+                                verticalAlign: "middle",
+                              }}
+                            >
+                              [답글]
+                            </span>
+                            <span
+                              style={{
+                                color: "#888",
+                                fontSize: "0.92em",
+                                marginRight: 8,
+                                display: "inline-flex",
+                                alignItems: "center",
+                              }}
+                            >
+                              {post.title.length > 15
+                                ? post.title.slice(0, 15) + "..."
+                                : post.title}
+                            </span>
+                            <PostTitle style={{ color: "#000000" }}>
+                              {reply.title}
+                              {reply.comments && reply.comments.length > 0 && (
+                                <span
+                                  style={{
+                                    display: "inline-block",
+                                    background: "#60a5fa",
+                                    color: "white",
+                                    borderRadius: "12px",
+                                    fontSize: "0.75rem",
+                                    padding: "2px 8px",
+                                    marginLeft: "8px",
+                                    fontWeight: "500",
+                                  }}
+                                >
+                                  댓글 {reply.comments.length}
+                                </span>
+                              )}
+                              {reply.questionCount !== undefined &&
+                                reply.questionCount > 0 && (
+                                  <span
+                                    style={{
+                                      display: "inline-block",
+                                      background: "#34d399",
+                                      color: "white",
+                                      borderRadius: "12px",
+                                      fontSize: "0.75rem",
+                                      padding: "2px 8px",
+                                      marginLeft: "8px",
+                                      fontWeight: "500",
+                                    }}
+                                  >
+                                    질문 {reply.questionCount}
+                                  </span>
+                                )}
+                            </PostTitle>
+                          </TableCell>
+                          <TableCell>{reply.author.name}</TableCell>
+                          <TableCell $align="center">
+                            <StatusBadge $status={getStatusText(reply.status)}>
+                              {getStatusText(reply.status)}
+                            </StatusBadge>
+                          </TableCell>
+                          <TableCell $align="center">
+                            {getTypeText(reply.type)}
+                          </TableCell>
+                          <TableCell $align="center">
+                            <span
+                              style={{
+                                ...getPriorityStyle(reply.priority),
+                                fontWeight: 600,
+                                fontSize: 13,
+                                borderRadius: 8,
+                                padding: "2px 12px",
+                                display: "inline-block",
+                              }}
+                            >
+                              {getPriorityText(reply.priority)}
+                            </span>
+                          </TableCell>
+                          <TableCell $align="center">
+                            {formatDate(reply.createdAt)}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    }
+                  });
+                }
+              });
+
+              // 처리되지 않은 답글들 (부모가 없는 경우) 렌더링
+              posts.forEach((post) => {
+                if (post.parentId && !processedReplies.has(post.postId)) {
+                  processedReplies.add(post.postId);
+                  const topParent = posts.find(
+                    (p) => p.postId === post.parentId
+                  );
+                  result.push(
+                    <TableRow
+                      key={post.postId}
+                      onClick={() => handlePostClick(post.postId)}
+                      style={{
+                        background: "#f8f9fa",
+                        borderLeft: "4px solid #fdb924",
+                      }}
+                    >
+                      <TableCell style={{ paddingLeft: 40 }}>
+                        <span
+                          style={{
+                            display: "inline-block",
+                            background: "#fdb924",
+                            color: "white",
+                            borderRadius: 4,
+                            fontSize: "0.75em",
+                            padding: "2px 7px",
+                            marginRight: 8,
+                            verticalAlign: "middle",
+                          }}
+                        >
+                          [답글]
+                        </span>
+                        {topParent && (
+                          <span
+                            style={{
+                              color: "#888",
+                              fontSize: "0.92em",
+                              marginRight: 8,
+                              display: "inline-flex",
+                              alignItems: "center",
+                            }}
+                          >
+                            {topParent.title.length > 15
+                              ? topParent.title.slice(0, 15) + "..."
+                              : topParent.title}
+                          </span>
+                        )}
+                        <PostTitle style={{ color: "#000000" }}>
+                          {post.title}
+                          {post.comments && post.comments.length > 0 && (
+                            <span
+                              style={{
+                                display: "inline-block",
+                                background: "#60a5fa",
                                 color: "white",
                                 borderRadius: "12px",
                                 fontSize: "0.75rem",
@@ -710,41 +808,61 @@ export default function PostListPage() {
                                 fontWeight: "500",
                               }}
                             >
-                              질문 {post.questionCount}
+                              댓글 {post.comments.length}
                             </span>
                           )}
-                      </PostTitle>
-                    </TableCell>
-                    <TableCell>{post.author.name}</TableCell>
-                    <TableCell $align="center">
-                      <StatusBadge $status={getStatusText(post.status)}>
-                        {getStatusText(post.status)}
-                      </StatusBadge>
-                    </TableCell>
-                    <TableCell $align="center">
-                      {getTypeText(post.type)}
-                    </TableCell>
-                    <TableCell $align="center">
-                      <span
-                        style={{
-                          ...getPriorityStyle(post.priority),
-                          fontWeight: 600,
-                          fontSize: 13,
-                          borderRadius: 8,
-                          padding: "2px 12px",
-                          display: "inline-block",
-                        }}
-                      >
-                        {getPriorityText(post.priority)}
-                      </span>
-                    </TableCell>
-                    <TableCell $align="center">
-                      {formatDate(post.createdAt)}
-                    </TableCell>
-                  </TableRow>
-                );
-              }
-            })}
+                          {post.questionCount !== undefined &&
+                            post.questionCount > 0 && (
+                              <span
+                                style={{
+                                  display: "inline-block",
+                                  background: "#34d399",
+                                  color: "white",
+                                  borderRadius: "12px",
+                                  fontSize: "0.75rem",
+                                  padding: "2px 8px",
+                                  marginLeft: "8px",
+                                  fontWeight: "500",
+                                }}
+                              >
+                                질문 {post.questionCount}
+                              </span>
+                            )}
+                        </PostTitle>
+                      </TableCell>
+                      <TableCell>{post.author.name}</TableCell>
+                      <TableCell $align="center">
+                        <StatusBadge $status={getStatusText(post.status)}>
+                          {getStatusText(post.status)}
+                        </StatusBadge>
+                      </TableCell>
+                      <TableCell $align="center">
+                        {getTypeText(post.type)}
+                      </TableCell>
+                      <TableCell $align="center">
+                        <span
+                          style={{
+                            ...getPriorityStyle(post.priority),
+                            fontWeight: 600,
+                            fontSize: 13,
+                            borderRadius: 8,
+                            padding: "2px 12px",
+                            display: "inline-block",
+                          }}
+                        >
+                          {getPriorityText(post.priority)}
+                        </span>
+                      </TableCell>
+                      <TableCell $align="center">
+                        {formatDate(post.createdAt)}
+                      </TableCell>
+                    </TableRow>
+                  );
+                }
+              });
+
+              return result;
+            })()}
           </TableBody>
         </Table>
 
