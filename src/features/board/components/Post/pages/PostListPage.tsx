@@ -41,9 +41,9 @@ import {
   FilterButtonGroup,
   SearchButton,
   ResetButton,
-} from "./PostListPage.styled";
-import PostDetailModal from "../components/Post/components/DetailModal/ProjectPostDetailModal";
-import PostFormModal from "../components/Post/components/FormModal/PostFormModal";
+} from "../styles/PostListPage.styled";
+import PostDetailModal from "../components/DetailModal/ProjectPostDetailModal";
+import PostFormModal from "../components/FormModal/PostFormModal";
 import { useParams } from "react-router-dom";
 
 const formatDate = (dateString: string) => {
@@ -654,7 +654,7 @@ export default function PostListPage() {
                                     verticalAlign: "middle",
                                   }}
                                 >
-                                  [답글]
+                                  답글
                                 </span>
                                 <span
                                   style={{
@@ -777,7 +777,7 @@ export default function PostListPage() {
                                 verticalAlign: "middle",
                               }}
                             >
-                              [답글]
+                              답글
                             </span>
                             {topParent && (
                               <span
@@ -879,12 +879,6 @@ export default function PostListPage() {
 
       {totalPages > 1 && (
         <PaginationContainer>
-          <PaginationInfo>
-            총 {totalElements}개의 게시글 중{" "}
-            {totalElements > 0 ? currentPage * 10 + 1 : 0}-
-            {Math.min((currentPage + 1) * 10, totalElements)}개 표시
-            {searchTerm.trim() && ` (검색어: "${searchTerm}")`}
-          </PaginationInfo>
           <PaginationNav>
             <PaginationButton
               onClick={() => handlePageChange(currentPage - 1)}
@@ -908,6 +902,12 @@ export default function PostListPage() {
               다음
             </PaginationButton>
           </PaginationNav>
+          <PaginationInfo>
+            총 {totalElements}개의 게시글 중{" "}
+            {totalElements > 0 ? currentPage * 10 + 1 : 0}-
+            {Math.min((currentPage + 1) * 10, totalElements)}개 표시
+            {searchTerm.trim() && ` (검색어: "${searchTerm}")`}
+          </PaginationInfo>
         </PaginationContainer>
       )}
 

@@ -75,6 +75,17 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   const [editText, setEditText] = useState("");
 
+  const [closing, setClosing] = useState(false);
+
+  // 모달 닫기 애니메이션 적용
+  const handleCloseWithAnimation = () => {
+    setClosing(true);
+    setTimeout(() => {
+      setClosing(false);
+      onClose();
+    }, 320); // 애니메이션 시간과 맞춤
+  };
+
   useEffect(() => {
     const loadPostData = async () => {
       if (open && postId !== null) {
@@ -355,11 +366,11 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
     }
   };
 
-  if (!open) return null;
+  if (!open && !closing) return null;
 
   if (loading) {
     return (
-      <ModalOverlay onClick={onClose}>
+      <ModalOverlay onClick={handleCloseWithAnimation}>
         <ModalPanel>
           <LoadingSpinner>로딩 중...</LoadingSpinner>
         </ModalPanel>
@@ -369,7 +380,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
 
   if (!post) {
     return (
-      <ModalOverlay onClick={onClose}>
+      <ModalOverlay onClick={handleCloseWithAnimation}>
         <ModalPanel>
           <ErrorMessage>게시글을 찾을 수 없습니다.</ErrorMessage>
         </ModalPanel>
@@ -379,19 +390,34 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
 
   return (
     <>
-      <ModalOverlay onClick={onClose}>
-        <ModalPanel onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+      <ModalOverlay onClick={handleCloseWithAnimation}>
+        <ModalPanel
+          $closing={closing}
+          onClick={(e: React.MouseEvent) => e.stopPropagation()}
+        >
           <ModalHeader>
             {/* 상단 고정 제목/버튼 */}
-            <span
-              style={{
-                fontSize: 18,
-                fontWeight: 700,
-                color: "#222",
-              }}
-            >
-              게시글 상세
-            </span>
+            <div style={{ display: "flex", alignItems: "center", gap: 0 }}>
+              <span
+                style={{
+                  display: "inline-block",
+                  height: 22,
+                  width: 4,
+                  borderRadius: 2,
+                  background: "#fdb924",
+                  marginRight: 10,
+                }}
+              />
+              <span
+                style={{
+                  fontSize: 18,
+                  fontWeight: 700,
+                  color: "#222",
+                }}
+              >
+                게시글 상세
+              </span>
+            </div>
             <ModalHeaderButtonGroup>
               <ModalHeaderActionButton
                 onClick={handleReplyPost}
@@ -463,7 +489,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                   </button>
                 </>
               )}
-              <ModalHeaderCloseButton onClick={onClose}>
+              <ModalHeaderCloseButton onClick={handleCloseWithAnimation}>
                 ×
               </ModalHeaderCloseButton>
             </ModalHeaderButtonGroup>

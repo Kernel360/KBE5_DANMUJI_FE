@@ -13,7 +13,7 @@ import EditProjectPage from "@/features/project/pages/EditProjectPage";
 import AdminProjectPage from "@/features/project/pages/AdminProjectPage";
 import CreateProjectPage from "@/features/project/pages/CreateProjectPage";
 import UserDashboardPage from "@/features/board/pages/DashboardPage";
-import PostListPage from "@/features/board/pages/PostListPage";
+import PostListPage from "@/features/board/components/Post/pages/PostListPage";
 import UserProjectPage from "@/features/project/pages/UserProjectPage";
 import ProjectDetailPage from "@/features/project/pages/ProjectDetailPage";
 import CompletedProject from "@/features/project/pages/CompletedProject";

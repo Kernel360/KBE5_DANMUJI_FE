@@ -128,27 +128,6 @@ export default function ProjectDetailPage() {
     .sort((a, b) => a.stepOrder - b.stepOrder)
     .filter((step: ProjectStepSimpleResponse) => step.isDeleted === false);
 
-  // 게시글 목록 불러오기
-  const fetchPosts = async (stepId: number) => {
-    setPostsLoading(true);
-    setPostsError(null);
-    try {
-      const response = await getPosts(stepId, 0, 10);
-      setPosts(response.data.content);
-    } catch (err) {
-      setPostsError("게시글을 불러오는 중 오류가 발생했습니다.");
-    } finally {
-      setPostsLoading(false);
-    }
-  };
-
-  // stepId가 바뀔 때마다 게시글 목록 조회
-  useEffect(() => {
-    if (selectedStepId) {
-      fetchPosts(selectedStepId);
-    }
-  }, [selectedStepId]);
-
   // 첫 마운트 시 첫 번째 step 자동 선택
   useEffect(() => {
     if (sortedSteps.length > 0 && selectedStepId === null) {
@@ -340,8 +319,8 @@ export default function ProjectDetailPage() {
                   <button
                     key={step.id}
                     style={{
-                      padding: "6px 16px",
-                      borderRadius: 6,
+                      padding: "10px 22px",
+                      borderRadius: 12,
                       border:
                         selectedStepId === step.id
                           ? "2px solid #fdb924"
@@ -349,10 +328,25 @@ export default function ProjectDetailPage() {
                       background:
                         selectedStepId === step.id ? "#fdb924" : "#fffdfa",
                       color: selectedStepId === step.id ? "#fff" : "#fdb924",
-                      fontWeight: 600,
+                      fontWeight: 700,
                       cursor: "pointer",
-                      fontSize: 14,
-                      transition: "background 0.15s, color 0.15s",
+                      fontSize: 16,
+                      boxShadow:
+                        selectedStepId === step.id
+                          ? "0 4px 16px rgba(253,185,36,0.15)"
+                          : "0 2px 8px rgba(0,0,0,0.04)",
+                      transition: "all 0.2s",
+                      marginBottom: 8,
+                    }}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.background = "#fffbe8";
+                      e.currentTarget.style.color = "#fdb924";
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.background =
+                        selectedStepId === step.id ? "#fdb924" : "#fffdfa";
+                      e.currentTarget.style.color =
+                        selectedStepId === step.id ? "#fff" : "#fdb924";
                     }}
                     onClick={() => {
                       console.log("이동할 stepId:", step.id);
