@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { UserProfile } from "./UserProfile";
 import {
   DropdownContainer,
@@ -17,6 +18,7 @@ export const ProfileDropdown: React.FC = () => {
   const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate(); 
 
   const toggleDropdown = () => {
     setIsOpen((prev) => !prev);
@@ -59,11 +61,8 @@ export const ProfileDropdown: React.FC = () => {
           <UserProfile />
           <Divider />
           <MenuList>
-            <MenuItem onClick={() => console.log("Profile clicked")}>
-              프로필 설정
-            </MenuItem>
-            <MenuItem onClick={() => console.log("Settings clicked")}>
-              계정 설정
+            <MenuItem onClick={ () => navigate("/my")}>
+              프로필
             </MenuItem>
             <Divider />
             <MenuItem onClick={logout}>로그아웃</MenuItem>
