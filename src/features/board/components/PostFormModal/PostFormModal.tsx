@@ -265,7 +265,6 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
                   name="type"
                   value={formData.type}
                   onChange={handleChange}
-                  disabled={parentId !== undefined}
                 >
                   <option value="GENERAL">일반</option>
                   <option value="NOTICE">공지</option>
@@ -280,7 +279,6 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
                   name="priority"
                   value={formData.priority.toString()}
                   onChange={handleChange}
-                  disabled={parentId !== undefined}
                 >
                   <option value="1">낮음</option>
                   <option value="2">보통</option>
