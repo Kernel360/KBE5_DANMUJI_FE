@@ -6,9 +6,3 @@ export { default as CommentActions } from "./components/CommentActions";
 
 // Hooks
 export * from "./hooks/useCommentUtils";
-
-// Styles
-export * from "./styles/CommentList.styled";
-export * from "./styles/CommentItem.styled";
-export * from "./styles/CommentForm.styled";
-export * from "./styles/CommentActions.styled";
