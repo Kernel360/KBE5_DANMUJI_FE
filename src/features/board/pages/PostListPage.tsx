@@ -42,8 +42,8 @@ import {
   SearchButton,
   ResetButton,
 } from "./PostListPage.styled";
-import PostDetailModal from "../components/Post/DetailModal/ProjectPostDetailModal";
-import PostFormModal from "../components/Post/FormModal/PostFormModal";
+import PostDetailModal from "../components/Post/components/DetailModal/ProjectPostDetailModal";
+import PostFormModal from "../components/Post/components/FormModal/PostFormModal";
 
 const formatDate = (dateString: string) => {
   const options: Intl.DateTimeFormatOptions = {

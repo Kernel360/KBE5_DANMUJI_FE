@@ -4,7 +4,7 @@ import {
   SubmitButton,
   CancelButton,
   ErrorMessage,
-} from "../PostFormModal.styled";
+} from "@/features/board/components/Post/styles/PostFormModal.styled";
 
 interface PostFormActionsProps {
   mode: "create" | "edit";

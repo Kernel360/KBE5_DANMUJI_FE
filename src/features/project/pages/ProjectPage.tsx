@@ -1,7 +1,7 @@
 import { useState } from "react";
 import ProjectRegisterModal from "../components/ProjectRegisterModal";
 import ProjectEditModal from "../components/ProjectEditModal";
-import ProjectPostDetailModal from "../components/Post/DetailModal/ProjectPostDetailModal";
+import ProjectPostDetailModal from "../components/Post/components/DetailModal/ProjectPostDetailModal";
 import {
   PageContainer,
   Header,

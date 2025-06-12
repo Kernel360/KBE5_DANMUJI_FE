@@ -6,7 +6,7 @@ import {
   TextArea,
   Select,
   ErrorMessage,
-} from "../PostFormModal.styled";
+} from "@/features/board/components/Post/styles/PostFormModal.styled";
 import { PostType, PostStatus } from "@/features/project/types/post";
 
 interface PostFormFieldsProps {

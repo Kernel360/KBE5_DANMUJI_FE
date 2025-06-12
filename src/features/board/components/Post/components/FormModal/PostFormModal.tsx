@@ -27,7 +27,7 @@ import {
   CancelButton,
   ErrorMessage,
   LoadingSpinner,
-} from "./PostFormModal.styled";
+} from "@/features/board/components/Post/styles/PostFormModal.styled";
 
 interface PostFormModalProps {
   open: boolean;

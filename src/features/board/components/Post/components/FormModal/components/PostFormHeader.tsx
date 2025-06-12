@@ -3,7 +3,7 @@ import {
   ModalHeader,
   ModalTitle,
   ModalCloseButton,
-} from "../PostFormModal.styled";
+} from "@/features/board/components/Post/styles/PostFormModal.styled";
 
 interface PostFormHeaderProps {
   mode: "create" | "edit";
