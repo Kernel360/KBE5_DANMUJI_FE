@@ -4,7 +4,7 @@ import {
   organizeComments,
   getRenderedCommentCount,
   type CommentWithReplies,
-} from "./CommentUtils";
+} from "./CommentUtils.tsx";
 import CommentItem from "./CommentItem";
 import CommentForm from "./CommentForm";
 import {

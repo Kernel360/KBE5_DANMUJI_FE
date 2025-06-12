@@ -5,7 +5,7 @@ import {
   formatCommentDate,
   formatCommentContent,
   isCommentAuthor,
-} from "./CommentUtils";
+} from "./CommentUtils.tsx";
 import CommentActions from "./CommentActions";
 import CommentForm from "./CommentForm";
 import {
