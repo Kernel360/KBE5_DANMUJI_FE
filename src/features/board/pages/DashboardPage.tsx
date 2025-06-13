@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   PageContainer,
   Header,
@@ -22,91 +22,178 @@ import {
   PaginationContainer,
   PaginationNav,
   PaginationButton,
+  LoadingContainer,
+  ErrorContainer,
 } from "./DashboardPage.styled";
 import { AiOutlineSearch } from "react-icons/ai";
-import { useState } from "react";
+import api from "@/api/axios";
+import { useAuth } from "@/hooks/useAuth";
 
 interface Project {
   id: number;
   name: string;
-  company: string;
-  status: string;
-  stage: string;
+  description: string;
   startDate: string;
   endDate: string;
-  progress: number;
+  status: string;
+  clientCompany: string;
+  developerCompany: string;
+  steps: {
+    id: number;
+    name: string;
+    stepOrder: number;
+    projectStepStatus: string;
+  }[];
 }
 
-// Mock Data (추후 API 연동 필요)
-const mockProjects: Project[] = [
-  {
-    id: 1,
-    name: "프로젝트 1",
-    company: "고객사 A",
-    status: "진행 중",
-    stage: "설계",
-    startDate: "2023-01-01",
-    endDate: "2023-12-31",
-    progress: 60,
-  },
-  {
-    id: 2,
-    name: "프로젝트 2",
-    company: "개발사 B",
-    status: "완료",
-    stage: "완료",
-    startDate: "2022-05-15",
-    endDate: "2022-11-30",
-    progress: 100,
-  },
-  // ... more mock data
-];
-
-const formatDate = (dateString: string) => {
-  const options: Intl.DateTimeFormatOptions = {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  };
-  return new Date(dateString).toLocaleDateString("ko-KR", options);
-};
+interface ProjectResponse {
+  content: Project[];
+  totalPages: number;
+  totalElements: number;
+  size: number;
+  number: number;
+  first: boolean;
+  last: boolean;
+  empty: boolean;
+}
 
 export default function DashboardPage() {
+  const { user } = useAuth();
   const [filter, setFilter] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [currentPage, setCurrentPage] = useState<number>(0);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [totalPages, setTotalPages] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const filteredProjects = mockProjects.filter((project) => {
-    const matchesFilter = filter === "all" || project.stage === filter;
-    const matchesSearch =
-      project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.company.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesFilter && matchesSearch;
-  });
+  useEffect(() => {
+    let isMounted = true;
 
-  // Pagination logic (simple example)
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredProjects.slice(
-    indexOfFirstItem,
-    indexOfLastItem
-  );
-  const totalPages = Math.ceil(filteredProjects.length / itemsPerPage);
+    const fetchProjects = async () => {
+      if (!user?.id) {
+        setError('사용자 정보를 찾을 수 없습니다.');
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const response = await api.get<ProjectResponse>(`/api/projects/${user.id}/user`, {
+          params: {
+            page: currentPage,
+            size: itemsPerPage,
+            sort: 'createdAt,desc'
+          }
+        });
+        
+        if (isMounted) {
+          if (response.data && Array.isArray(response.data.content)) {
+            setProjects(response.data.content);
+            setTotalPages(response.data.totalPages);
+          } else {
+            setError('데이터 형식이 올바르지 않습니다.');
+          }
+        }
+      } catch (err) {
+        console.error('프로젝트 데이터를 불러오는데 실패했습니다:', err);
+        if (isMounted) {
+          setError('프로젝트 데이터를 불러오는데 실패했습니다. 잠시 후 다시 시도해주세요.');
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchProjects();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user?.id, currentPage, itemsPerPage]);
+
+  const filteredProjects = React.useMemo(() => {
+    if (!projects) return [];
+    return projects.filter((project) => {
+      if (!project) return false;
+      const matchesFilter = filter === "all" || project.status === filter;
+      const matchesSearch =
+        project.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        project.clientCompany?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        project.developerCompany?.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesFilter && matchesSearch;
+    });
+  }, [projects, filter, searchTerm]);
 
   const handlePageChange = (pageNumber: number) => {
-    setCurrentPage(pageNumber);
+    if (pageNumber >= 0 && pageNumber < totalPages) {
+      setCurrentPage(pageNumber);
+    }
   };
 
-  const handleEdit = (post: any) => {
-    // TODO: Implement edit functionality
-    console.log("Edit:", post);
+  const formatDate = (dateString: string) => {
+    if (!dateString) return '-';
+    try {
+      const options: Intl.DateTimeFormatOptions = {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      };
+      return new Date(dateString).toLocaleDateString("ko-KR", options);
+    } catch (err) {
+      console.error('날짜 형식 변환 실패:', err);
+      return '-';
+    }
   };
 
-  const handleDelete = (post: any) => {
-    // TODO: Implement delete functionality
-    console.log("Delete:", post);
+  const getStatusBadge = (status: string) => {
+    if (!status) return <StageBadge $stage="#6b7280">-</StageBadge>;
+    
+    const statusMap: Record<string, { label: string; color: string }> = {
+      'IN_PROGRESS': { label: '진행중', color: '#3b82f6' },
+      'COMPLETED': { label: '완료', color: '#10b981' },
+      'PENDING': { label: '대기중', color: '#f59e0b' },
+    };
+    
+    const { label, color } = statusMap[status] || { label: status, color: '#6b7280' };
+    return <StageBadge $stage={color}>{label}</StageBadge>;
   };
+
+  if (loading) {
+    return (
+      <LoadingContainer>
+        <div>데이터를 불러오는 중입니다...</div>
+      </LoadingContainer>
+    );
+  }
+
+  if (error) {
+    return (
+      <ErrorContainer>
+        <div>{error}</div>
+        <button onClick={() => window.location.reload()}>새로고침</button>
+      </ErrorContainer>
+    );
+  }
+
+  if (!filteredProjects.length) {
+    return (
+      <PageContainer>
+        <Header>
+          <Title>대시보드</Title>
+          <Description>프로젝트 현황을 한 눈에 확인하세요.</Description>
+        </Header>
+        <div style={{ textAlign: 'center', padding: '2rem' }}>
+          표시할 프로젝트가 없습니다.
+        </div>
+      </PageContainer>
+    );
+  }
 
   return (
     <PageContainer>
@@ -123,28 +210,22 @@ export default function DashboardPage() {
           전체
         </TopFilterOption>
         <TopFilterOption
-          $active={filter === "요구분석"}
-          onClick={() => setFilter("요구분석")}
+          $active={filter === "IN_PROGRESS"}
+          onClick={() => setFilter("IN_PROGRESS")}
         >
-          요구분석
+          진행중
         </TopFilterOption>
         <TopFilterOption
-          $active={filter === "설계"}
-          onClick={() => setFilter("설계")}
-        >
-          설계
-        </TopFilterOption>
-        <TopFilterOption
-          $active={filter === "진행"}
-          onClick={() => setFilter("진행")}
-        >
-          진행
-        </TopFilterOption>
-        <TopFilterOption
-          $active={filter === "완료"}
-          onClick={() => setFilter("완료")}
+          $active={filter === "COMPLETED"}
+          onClick={() => setFilter("COMPLETED")}
         >
           완료
+        </TopFilterOption>
+        <TopFilterOption
+          $active={filter === "PENDING"}
+          onClick={() => setFilter("PENDING")}
+        >
+          대기중
         </TopFilterOption>
       </TopFilters>
       <Toolbar>
@@ -162,7 +243,6 @@ export default function DashboardPage() {
           />
           <SearchIcon />
         </SearchContainer>
-        {/* TODO: 프로젝트 추가 버튼 */}
       </Toolbar>
       <TableContainer>
         <Table>
@@ -174,25 +254,22 @@ export default function DashboardPage() {
               <TableHeader $align="center">단계</TableHeader>
               <TableHeader $align="center">시작일</TableHeader>
               <TableHeader $align="center">종료일</TableHeader>
-              <TableHeader $align="center">진행률</TableHeader>
-              {/* TODO: 작업 항목 추가 */}
             </TableRow>
           </TableHead>
           <TableBody>
-            {currentItems.map((project) => (
+            {filteredProjects.map((project) => (
               <TableRow key={project.id}>
                 <TableCell>
                   <span>{project.name}</span>
-                  {/* TODO: Link to project detail page */}
                 </TableCell>
                 <TableCell>
-                  <span>{project.company}</span>
+                  <span>{project.clientCompany} / {project.developerCompany}</span>
                 </TableCell>
-                <TableCell $align="center">{project.status}</TableCell>
                 <TableCell $align="center">
-                  <StageBadge $stage={project.stage}>
-                    {project.stage}
-                  </StageBadge>
+                  {getStatusBadge(project.status)}
+                </TableCell>
+                <TableCell $align="center">
+                  {project.steps[0]?.name || '-'}
                 </TableCell>
                 <TableCell $align="center">
                   {formatDate(project.startDate)}
@@ -200,7 +277,6 @@ export default function DashboardPage() {
                 <TableCell $align="center">
                   {formatDate(project.endDate)}
                 </TableCell>
-                <TableCell $align="center">{project.progress}%</TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -210,10 +286,10 @@ export default function DashboardPage() {
         <PaginationNav>
           {Array.from({ length: totalPages }, (_, index) => (
             <PaginationButton
-              key={index + 1}
-              $active={currentPage === index + 1}
-              onClick={() => handlePageChange(index + 1)}
-              disabled={currentPage === index + 1}
+              key={index}
+              $active={currentPage === index}
+              onClick={() => handlePageChange(index)}
+              disabled={currentPage === index}
             >
               {index + 1}
             </PaginationButton>
