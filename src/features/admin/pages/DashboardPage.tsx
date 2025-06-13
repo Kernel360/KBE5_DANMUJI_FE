@@ -40,61 +40,54 @@ interface RecentProject {
 
 export default function DashboardPage() {
   const [companyCount, setCompanyCount] = useState(0);
-  const [memberCount, setMemberCount] = useState(0); // New state for member count
-  const [totalProjectCount, setTotalProjectCount] = useState(0); // New state for total projects
-  const [inProgressProjectCount, setInProgressProjectCount] = useState(0); // New state for in-progress projects
-  const [completedProjectCount, setCompletedProjectCount] = useState(0); // New state for completed projects
-  const [recentPosts, setRecentPosts] = useState<RecentPost[]>([]); // New state for recent posts
-  const [recentCompanies, setRecentCompanies] = useState<RecentCompany[]>([]); // Make dynamic
-  const [recentProjects, setRecentProjects] = useState<RecentProject[]>([]); // Make dynamic
+  const [memberCount, setMemberCount] = useState(0);
+  const [totalProjectCount, setTotalProjectCount] = useState(0);
+  const [inProgressProjectCount, setInProgressProjectCount] = useState(0);
+  const [completedProjectCount, setCompletedProjectCount] = useState(0);
+  const [recentPosts, setRecentPosts] = useState<RecentPost[]>([]);
+  const [recentCompanies, setRecentCompanies] = useState<RecentCompany[]>([]);
+  const [recentProjects, setRecentProjects] = useState<RecentProject[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         // Fetch Company Count
         const companyResponse = await api.get('/api/companies/all');
-        setCompanyCount(companyResponse.data.data.length);
-
+        const companies = companyResponse.data?.data || [];
+        setCompanyCount(companies.length);
+  
         // Fetch Member Count
-        const memberResponse = await api.get('/api/admin/allUsers'); // Assuming this returns all users, similar to MemberPage.tsx
-        setMemberCount(memberResponse.data.data.page.totalElements);
-
+        const memberResponse = await api.get('/api/admin/allUsers');
+        const members = memberResponse.data?.data?.page?.totalElements || 0;
+        setMemberCount(members);
+  
         // Fetch Project Counts
-        // Assuming /api/projects/counts returns { total: number, inProgress: number, completed: number }
-        const projectCountsResponse = await api.get('/api/projects/all'); 
-
-        type Item = {
-          status: 'IN_PROGRESS' | 'COMPLETED';
-        };
-        const content = projectCountsResponse.data.data as Item[];
-
+        const projectCountsResponse = await api.get('/api/projects/all');
+        const content = projectCountsResponse.data?.data || [];
         const total = content.length;
-        const inProgressCount = content.filter(p => p.status === 'IN_PROGRESS').length;
-        const completedCount = content.filter(p => p.status === 'COMPLETED').length;
-
+        const inProgressCount = content.filter((p: { status: string; }) => p.status === 'IN_PROGRESS').length;
+        const completedCount = content.filter((p: { status: string; }) => p.status === 'COMPLETED').length;
+  
         setTotalProjectCount(total);
         setInProgressProjectCount(inProgressCount);
         setCompletedProjectCount(completedCount);
-
+  
         // Fetch Recent Posts
-        // Assuming /api/boards/recent returns { data: { content: [{ id, title, createdAt }] } }
-        const postsResponse = await api.get('/api/posts/recent-posts'); 
-        setRecentPosts(postsResponse.data.data);
-
+        const postsResponse = await api.get('/api/posts/recent-posts');
+        setRecentPosts(postsResponse.data?.data || []);
+  
         // Fetch Recent Companies
-        // Assuming /api/companies/recent returns { data: { content: [{ id, name, createdAt }] } }
-        const recentCompaniesResponse = await api.get('/api/companies/recent-companies'); 
-        setRecentCompanies(recentCompaniesResponse.data.data);
-
+        const recentCompaniesResponse = await api.get('/api/companies/recent-companies');
+        setRecentCompanies(recentCompaniesResponse.data?.data || []);
+  
         // Fetch Recent Projects
-        // Assuming /api/projects/recent returns { data: { content: [{ id, name, createdAt }] } }
-        const recentProjectsResponse = await api.get('/api/projects/recent-projects'); 
-        setRecentProjects(recentProjectsResponse.data.data);
-
+        const recentProjectsResponse = await api.get('/api/projects/recent-projects');
+        setRecentProjects(recentProjectsResponse.data?.data || []);
       } catch (error) {
         console.error('Failed to fetch dashboard data:', error);
       }
     };
+  
     fetchData();
   }, []);
 
