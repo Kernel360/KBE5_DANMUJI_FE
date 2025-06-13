@@ -32,6 +32,7 @@ interface ProjectDetail {
   description: string;
   startDate: string;
   endDate: string;
+  projectStatus: string;
   clients: UserCompanyResponse[];
   developers: UserCompanyResponse[];
   steps: ProjectStepSimpleResponse[];
@@ -207,11 +208,32 @@ export default function ProjectDetailPage() {
     }
   };
 
+  const handleProjectStatusChange = async () => {
+    try {
+      await api.put(`/api/projects/${projectId}/status`);
+      const response = await api.get(`/api/projects/${projectId}`);
+      setProject(response.data.data);
+    } catch (err) {
+      console.error("Failed to change project status:", err);
+      alert("프로젝트 상태 변경에 실패했습니다.");
+    }
+  };
+
   return (
     <S.PageContainer>
       <S.MainContentWrapper>
         <S.ProjectDetailSection>
-          <S.ProjectTitle>{project.name}</S.ProjectTitle>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <S.ProjectTitle>{project.name}</S.ProjectTitle>
+              <S.StatusBadge color={project.projectStatus === 'COMPLETED' ? 'red' : 'green'}>
+                {project.projectStatus}
+              </S.StatusBadge>
+            </div>
+            <S.ActionButton variant="edit" onClick={handleProjectStatusChange}>
+              프로젝트 상태 변경
+            </S.ActionButton>
+          </div>
           <S.ProjectDescription>{project.description}</S.ProjectDescription>
           <S.ProjectPeriod>
             프로젝트 기간 : {project.startDate} ~ {project.endDate}

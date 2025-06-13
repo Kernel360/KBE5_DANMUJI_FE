@@ -228,7 +228,6 @@ export default function ProjectCreatePage() {
                 id="start-date"
                 selected={startDate}
                 onChange={date => {
-                  console.log('Selected start date:', date);
                   setStartDate(date);
                   // 시작일이 변경되면 마감일이 시작일보다 이전이면 초기화
                   if (endDate && date && endDate < date) {

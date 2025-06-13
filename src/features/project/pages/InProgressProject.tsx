@@ -27,14 +27,13 @@ import {
 interface Project {
   id: number;
   name: string;
-  status: string;
-  statusColor: string;
+  description: string;
   clientCompany: string;
-  developerCompany: string;
-  companyType: string;
-  devManager: string;
+  developCompany: string;
   startDate: string;
   endDate: string;
+  projectStatus: string;
+  statusColor: string;
 }
 
 export default function UserProjectPage() {
@@ -73,12 +72,12 @@ export default function UserProjectPage() {
       const trimmed = keyword.trim();
       const url = trimmed
         ? `/api/projects/search?keyword=${encodeURIComponent(trimmed)}&page=${pageNum}`
-        : `/api/projects/${userId}/user?page=${pageNum}`;
+        : `/api/projects/${userId}/twowaytest?page=${pageNum}`;
 
       const response = await api.get(url);
       const payload = response.data.data;
       const list: Project[] = Array.isArray(payload.content)
-        ? payload.content.filter((project: Project) => project.status === 'IN_PROGRESS')
+        ? payload.content.filter((project: Project) => project.projectStatus === 'IN_PROGRESS')
         : [];
       setProjects(list);
       setPage({
@@ -87,6 +86,8 @@ export default function UserProjectPage() {
         totalElements: payload.page.totalElements,
         totalPages: payload.page.totalPages
       });
+      console.log("userId", userId);
+      console.log("pagenumber", page.number);
     } catch (err) {
       console.error("Failed to load projects", err);
     }
@@ -96,6 +97,7 @@ export default function UserProjectPage() {
   useEffect(() => {
     if (userId) {
       fetchProjects(search, page.number);
+    
     }
   }, [userId, page.number]);
 
@@ -141,7 +143,7 @@ export default function UserProjectPage() {
               }
             }}
           />
-          <Button primary onClick={handleSearch}>검색</Button>
+          <Button onClick={handleSearch}>검색</Button>
         </SearchBar>
 
         <Table>
@@ -149,11 +151,11 @@ export default function UserProjectPage() {
             <TableRow>
               <TableCell>번호</TableCell>
               <TableCell>프로젝트명</TableCell>
-              <TableCell>상태</TableCell>
               <TableCell>고객사</TableCell>
               <TableCell>개발사</TableCell>
               <TableCell>시작일</TableCell>
               <TableCell>종료예정일</TableCell>
+              <TableCell>상태</TableCell>
               <TableCell>액션</TableCell>
             </TableRow>
           </TableHead>
@@ -162,16 +164,15 @@ export default function UserProjectPage() {
               <TableRow key={p.id}>
                 <TableCell>{index + 1 + page.number * page.size}</TableCell>
                 <TableCell>{p.name}</TableCell>
-                <TableCell>
-                  <StatusBadge color={p.statusColor}>{p.status}</StatusBadge>
-                </TableCell>
                 <TableCell>{p.clientCompany || "-"}</TableCell>
-                <TableCell>{p.developerCompany || "-"}</TableCell>
+                <TableCell>{p.developCompany || "-"}</TableCell>
                 <TableCell>{p.startDate}</TableCell>
                 <TableCell>{p.endDate}</TableCell>
                 <TableCell>
+                  <StatusBadge color={p.statusColor}>{p.projectStatus}</StatusBadge>
+                </TableCell>
+                <TableCell>
                   <Button onClick={() => navigate(`/projects/${p.id}/detail`)}>상세 보기</Button>
-                  <Button primary onClick={() => navigate(`/projects/${p.id}/edit`)}>수정</Button>
                 </TableCell>
               </TableRow>
             ))}

@@ -22,25 +22,23 @@ import {
     CurrentPageButton
   } from './AdminProjectPage.styled';
 
-// API로부터 가져올 Project 타입 (필요 시 추가 필드 정의)
+// API로부터 가져올 Project 타입
 interface Project {
   id: number;
   name: string;
-  status: string;
-  statusColor: string;
+  description: string;
   clientCompany: string;
-  developerCompany: string;
-  companyType: string;
-  devManager: string;
+  developCompany: string;
   startDate: string;
   endDate: string;
+  projectStatus: string;
 }
 
-export default function AdminProjectPage() {
+export default function MemberProjectPage() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [projects, setProjects] = useState<Project[]>([]);
-  // 초기 page 상태에 size, number, totalElements, totalPages 모두 정의
+  const [userId, setUserId] = useState<number | null>(null);
   const [page, setPage] = useState<{
     size: number;
     number: number;
@@ -48,24 +46,30 @@ export default function AdminProjectPage() {
     totalPages: number;
   }>({ size: 10, number: 0, totalElements: 0, totalPages: 1 });
 
-  // 통합 페칭 함수 (페이지네이션 포함)
+  // 사용자 ID 가져오기
+  const fetchUserId = async () => {
+    try {
+      const response = await api.get('/api/users/me');
+      setUserId(response.data.data.id);
+    } catch (err) {
+      console.error("Failed to load user ID", err);
+    }
+  };
+
+  // 프로젝트 목록 가져오기
   const fetchProjects = async(keyword: string = "", pageNum: number = 0) => {
+    if (!userId) return;
+
     const trimmed = keyword.trim();
-    const url = trimmed
-      ? `/api/projects/search?keyword=${encodeURIComponent(trimmed)}&page=${pageNum}`
-      : `/api/projects?page=${pageNum}`;
+    const url = `/api/projects/${userId}/twowaytest?page=${pageNum}`;
 
     try {
       const response = await api.get(url);
-      // ApiResponse.data 아래에 { content: Project[], page: PageMeta }
       const payload = response.data.data;
-      // 실제 리스트
       const list: Project[] = Array.isArray(payload.content)
         ? payload.content
         : [];
       setProjects(list);
-      console.log(list);
-      // 페이징 메타 전체를 반영
       setPage({
         size: payload.page.size,
         number: payload.page.number,
@@ -77,25 +81,42 @@ export default function AdminProjectPage() {
     }
   };
 
-  // 마운트 시 전체 로드
+  // 프로젝트 상태 변경
+  const handleStatusChange = async (projectId: number) => {
+    try {
+      await api.put(`/api/projects/${projectId}/status`);
+      // 상태 변경 후 프로젝트 목록 새로고침
+      fetchProjects(search, page.number);
+    } catch (err) {
+      console.error("Failed to change project status:", err);
+      alert("프로젝트 상태 변경에 실패했습니다.");
+    }
+  };
+
+  // 마운트 시 사용자 ID와 프로젝트 로드
   useEffect(() => {
-    fetchProjects(search, page.number);
-  }, [page.number]); // page.number가 바뀔 때마다 호출
+    fetchUserId();
+  }, []);
+
+  useEffect(() => {
+    if (userId) {
+      fetchProjects(search, page.number);
+    }
+  }, [userId, page.number]);
 
   // 검색 버튼 클릭 시
   const handleSearch = () => {
-    // 검색 시 페이지 번호를 0으로 초기화
     setPage(prev => ({ ...prev, number: 0 }));
     fetchProjects(search, 0);
   };
 
   // search가 빈 문자열로 바뀌면 자동으로 전체 로드
   useEffect(() => {
-    if (search.trim() === "") {
+    if (search.trim() === "" && userId) {
       setPage({ ...page, number: 0 });
       fetchProjects("", 0);
     }
-  }, [search]);
+  }, [search, userId]);
 
   // 페이지 변경 핸들러
   const handlePageChange = (newPage: number) => {
@@ -108,8 +129,8 @@ export default function AdminProjectPage() {
       <Main>
         <Header>
           <div>
-            <PageTitle>프로젝트 관리</PageTitle>
-            <PageDesc>프로젝트 관리 시스템의 주요 정보를 한눈에 확인하세요</PageDesc>
+            <PageTitle>내 프로젝트</PageTitle>
+            <PageDesc>내가 참여한 프로젝트 목록을 확인하세요</PageDesc>
           </div>
         </Header>
 
@@ -126,7 +147,6 @@ export default function AdminProjectPage() {
             }}
           />
           <Button onClick={handleSearch}>검색</Button>
-          <Button onClick={() => navigate('/projects/create')}>프로젝트 등록</Button>
         </SearchBar>
 
         {projects.length === 0 ? (
@@ -139,11 +159,12 @@ export default function AdminProjectPage() {
               <TableRow>
                 <TableCell>번호</TableCell>
                 <TableCell>프로젝트명</TableCell>
-                <TableCell>상태</TableCell>
+                <TableCell>설명</TableCell>
                 <TableCell>고객사</TableCell>
                 <TableCell>개발사</TableCell>
                 <TableCell>시작일</TableCell>
                 <TableCell>종료예정일</TableCell>
+                <TableCell>상태</TableCell>
                 <TableCell>액션</TableCell>
               </TableRow>
             </TableHead>
@@ -152,16 +173,24 @@ export default function AdminProjectPage() {
                 <TableRow key={p.id}>
                   <TableCell>{index + 1 + page.number * page.size}</TableCell>
                   <TableCell>{p.name}</TableCell>
-                  <TableCell>
-                    <StatusBadge color={p.statusColor}>{p.status}</StatusBadge>
-                  </TableCell>
+                  <TableCell>{p.description}</TableCell>
                   <TableCell>{p.clientCompany || "-"}</TableCell>
-                  <TableCell>{p.developerCompany || "-"}</TableCell>
+                  <TableCell>{p.developCompany || "-"}</TableCell>
                   <TableCell>{p.startDate}</TableCell>
                   <TableCell>{p.endDate}</TableCell>
                   <TableCell>
+                    <StatusBadge color={p.projectStatus === 'ACTIVE' ? 'green' : 'gray'}>
+                      {p.projectStatus}
+                    </StatusBadge>
+                  </TableCell>
+                  <TableCell>
                     <Button onClick={() => navigate(`/projects/${p.id}/detail`)}>상세 보기</Button>
-                    <Button onClick={() => navigate(`/projects/${p.id}/edit`)}>수정</Button>
+                    <Button 
+                      onClick={() => handleStatusChange(p.id)}
+                      style={{ marginLeft: '8px' }}
+                    >
+                      상태 변경
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
@@ -169,7 +198,6 @@ export default function AdminProjectPage() {
           </Table>
         )}
 
-        {/* 페이지네이션 */}
         <PaginationContainer>
           <PaginationNav>
             <PaginationButton
@@ -200,4 +228,4 @@ export default function AdminProjectPage() {
       </Main>
     </Layout>
   );
-}
+} 
