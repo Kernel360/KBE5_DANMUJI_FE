@@ -64,6 +64,7 @@ export default function AdminProjectPage() {
         ? payload.content
         : [];
       setProjects(list);
+      console.log(list);
       // 페이징 메타 전체를 반영
       setPage({
         size: payload.page.size,
@@ -124,7 +125,7 @@ export default function AdminProjectPage() {
               }
             }}
           />
-          <Button primary onClick={handleSearch}>검색</Button>
+          <Button onClick={handleSearch}>검색</Button>
           <Button onClick={() => navigate('/projects/create')}>프로젝트 등록</Button>
         </SearchBar>
 
@@ -160,7 +161,7 @@ export default function AdminProjectPage() {
                   <TableCell>{p.endDate}</TableCell>
                   <TableCell>
                     <Button onClick={() => navigate(`/projects/${p.id}/detail`)}>상세 보기</Button>
-                    <Button primary onClick={() => navigate(`/projects/${p.id}/edit`)}>수정</Button>
+                    <Button onClick={() => navigate(`/projects/${p.id}/edit`)}>수정</Button>
                   </TableCell>
                 </TableRow>
               ))}

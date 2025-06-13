@@ -37,6 +37,8 @@ interface Project {
   endDate: string;
 }
 
+
+// memberProjectPage로 대체 할 듯.
 export default function UserProjectPage() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");

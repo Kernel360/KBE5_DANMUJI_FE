@@ -14,12 +14,12 @@ import AdminProjectPage from "@/features/project/pages/AdminProjectPage";
 import CreateProjectPage from "@/features/project/pages/CreateProjectPage";
 import UserDashboardPage from "@/features/board/pages/DashboardPage";
 import PostListPage from "@/features/board/components/Post/pages/PostListPage";
-import UserProjectPage from "@/features/project/pages/UserProjectPage";
 import ProjectDetailPage from "@/features/project/pages/ProjectDetailPage";
 import CompletedProject from "@/features/project/pages/CompletedProject";
 import InProgressProject from "@/features/project/pages/InProgressProject";
 import UserProfilePage from "@/features/user/pages/UserProfilePage";
 import MemberDetailPage from "@/features/user/pages/MemberDetailPage";
+import MemberProjectPage from "@/features/project/pages/MemberProjectPage";
 
 const AppRoutes = () => {
   const { role } = useAuth();
@@ -69,7 +69,7 @@ const AppRoutes = () => {
 
       {/* 공용 페이지 */}
       <Route path="/posts/:stepId" element={<PostListPage />} />
-      <Route path="/projects/all" element={<UserProjectPage />} />
+      <Route path="/projects/all" element={<MemberProjectPage />} />
       <Route
         path="/projects/:projectId/detail"
         element={<ProjectDetailPage />}

@@ -399,4 +399,13 @@ export const CurrentApprover = styled.div`
   font-size: 0.9rem;
   color: #6b7280;
   margin-bottom: 8px;
+`;
+
+export const StatusBadge = styled.div<{ color: string }>`
+  padding: 4px 12px;
+  border-radius: 16px;
+  background-color: ${props => props.color === 'green' ? '#e6f4ea' : '#f5f5f5'};
+  color: ${props => props.color === 'green' ? '#1e7e34' : '#666'};
+  font-size: 14px;
+  font-weight: 500;
 `; 
