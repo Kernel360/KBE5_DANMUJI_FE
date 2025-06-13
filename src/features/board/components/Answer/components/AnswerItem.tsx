@@ -77,6 +77,8 @@ const AnswerItem: React.FC<AnswerItemProps> = ({
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return "";
+    const date = new Date(dateString);
+    const kstDate = new Date(date.getTime() + 9 * 60 * 60 * 1000);
     const options: Intl.DateTimeFormatOptions = {
       year: "numeric",
       month: "long",
@@ -84,7 +86,7 @@ const AnswerItem: React.FC<AnswerItemProps> = ({
       hour: "2-digit",
       minute: "2-digit",
     };
-    return new Date(dateString).toLocaleDateString("ko-KR", options);
+    return kstDate.toLocaleDateString("ko-KR", options);
   };
 
   if (isDeleted) {

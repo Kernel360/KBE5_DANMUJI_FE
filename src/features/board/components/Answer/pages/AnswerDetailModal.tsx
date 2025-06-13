@@ -210,6 +210,8 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return "";
+    const date = new Date(dateString);
+    const kstDate = new Date(date.getTime() + 9 * 60 * 60 * 1000);
     const options: Intl.DateTimeFormatOptions = {
       year: "numeric",
       month: "long",
@@ -217,7 +219,7 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
       hour: "2-digit",
       minute: "2-digit",
     };
-    return new Date(dateString).toLocaleDateString("ko-KR", options);
+    return kstDate.toLocaleDateString("ko-KR", options);
   };
 
   // 댓글 내용에서 @태그와 "답글" 텍스트에 색상을 적용하는 함수

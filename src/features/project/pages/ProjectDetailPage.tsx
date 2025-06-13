@@ -253,10 +253,18 @@ export default function ProjectDetailPage() {
     <S.PageContainer>
       <S.MainContentWrapper>
         <S.ProjectDetailSection>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
               <S.ProjectTitle>{project.name}</S.ProjectTitle>
-              <S.StatusBadge color={project.projectStatus === 'COMPLETED' ? 'red' : 'green'}>
+              <S.StatusBadge
+                color={project.projectStatus === "COMPLETED" ? "red" : "green"}
+              >
                 {project.projectStatus}
               </S.StatusBadge>
             </div>
