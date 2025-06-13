@@ -1,7 +1,7 @@
 import { useState } from "react";
 import ProjectRegisterModal from "../components/ProjectRegisterModal";
 import ProjectEditModal from "../components/ProjectEditModal";
-import ProjectPostDetailModal from "../components/ProjectPostDetailModal/ProjectPostDetailModal";
+import ProjectPostDetailModal from "../components/Post/components/DetailModal/ProjectPostDetailModal";
 import {
   PageContainer,
   Header,
@@ -244,11 +244,11 @@ export default function ProjectPage() {
       </TableContainer>
       <PaginationContainer>
         <PaginationNav>
-          <PaginationButton disabled>{'<'}</PaginationButton>
+          <PaginationButton disabled>{"<"}</PaginationButton>
           <PaginationButton $active>1</PaginationButton>
-          <PaginationButton>{'2'}</PaginationButton>
-          <PaginationButton>{'3'}</PaginationButton>
-          <PaginationButton>{'>'}</PaginationButton>
+          <PaginationButton>{"2"}</PaginationButton>
+          <PaginationButton>{"3"}</PaginationButton>
+          <PaginationButton>{">"}</PaginationButton>
         </PaginationNav>
       </PaginationContainer>
       {isRegisterModalOpen && (

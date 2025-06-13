@@ -37,13 +37,15 @@ const handleApiResponse = async <T>(
     "질문 삭제 완료",
     "답변 생성 성공",
     "답변 목록 조회 완료",
+    "답변 조회 완료",
     "답변 수정 완료",
     "답변 삭제 완료",
   ];
 
-  // status가 "CREATED"이거나 성공 메시지가 포함된 경우 성공으로 처리
+  // status가 "CREATED"이거나 "OK"이거나 성공 메시지가 포함된 경우 성공으로 처리
   if (
     data.status === "CREATED" ||
+    data.status === "OK" ||
     successMessages.includes(data.message || "")
   ) {
     return data;
@@ -201,7 +203,7 @@ export const getAnswersByQuestion = async (
 ): Promise<AnswerListResponse> => {
   try {
     const response = await api.get<AnswerListResponse>(
-      `/api/answers/questions/${questionId}`
+      `/api/answers/${questionId}`
     );
     return handleApiResponse<Answer[]>(response);
   } catch (error) {
@@ -312,6 +314,28 @@ export const unresolveQuestion = async (
   try {
     const response = await api.put<ApiResponse<void>>(
       `/api/questions/${questionId}/unresolved`
+    );
+    return handleApiResponse<void>(response);
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
+    if (error instanceof AxiosError) {
+      throw new ApiError(
+        error.response?.data?.message ||
+          "질문 상태 변경 중 오류가 발생했습니다.",
+        error.response?.status
+      );
+    }
+    throw new ApiError("질문 상태 변경 중 알 수 없는 오류가 발생했습니다.");
+  }
+};
+
+// 질문 상태를 답변 완료로 변경
+export const markQuestionAsAnswered = async (
+  questionId: number
+): Promise<ApiResponse<void>> => {
+  try {
+    const response = await api.put<ApiResponse<void>>(
+      `/api/questions/${questionId}/answered`
     );
     return handleApiResponse<void>(response);
   } catch (error) {
