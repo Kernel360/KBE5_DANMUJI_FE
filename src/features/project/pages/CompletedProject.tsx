@@ -3,25 +3,25 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import api from "@/api/axios";
 import {
-    Layout,
-    Main,
-    Header,
-    PageTitle,
-    PageDesc,
-    SearchBar,
-    SearchInput,
-    Button,
-    Table,
-    TableHead,
-    TableRow,
-    TableCell,
-    TableBody,
-    StatusBadge,
-    PaginationContainer,
-    PaginationNav,
-    PaginationButton,
-    CurrentPageButton
-  } from './AdminProjectPage.styled';
+  Layout,
+  Main,
+  Header,
+  PageTitle,
+  PageDesc,
+  SearchBar,
+  SearchInput,
+  Button,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  StatusBadge,
+  PaginationContainer,
+  PaginationNav,
+  PaginationButton,
+  CurrentPageButton
+} from './AdminProjectPage.styled';
 
 // API로부터 가져올 Project 타입 (필요 시 추가 필드 정의)
 interface Project {
@@ -97,7 +97,7 @@ export default function UserProjectPage() {
   useEffect(() => {
     if (userId) {
       fetchProjects(search, page.number);
-    
+
     }
   }, [userId, page.number]);
 
@@ -124,13 +124,16 @@ export default function UserProjectPage() {
   return (
     <Layout>
       <Main>
-        <Header>
+        {/* <Header>
           <div>
             <PageTitle>프로젝트 관리</PageTitle>
             <PageDesc>프로젝트 관리 시스템의 주요 정보를 한눈에 확인하세요</PageDesc>
           </div>
-        </Header>
+        </Header> */}
 
+        <div style={{ display: 'flex', alignItems: 'center', marginTop: '20px', marginBottom: '20px' }}>
+          <PageDesc>프로젝트 관리 시스템의 주요 정보를 한눈에 확인하세요</PageDesc>
+        </div>
         <SearchBar>
           <SearchInput
             placeholder="프로젝트명, 고객사 또는 담당자로 검색"

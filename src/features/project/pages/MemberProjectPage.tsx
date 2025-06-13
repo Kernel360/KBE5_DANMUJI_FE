@@ -2,25 +2,25 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "@/api/axios";
 import {
-    Layout,
-    Main,
-    Header,
-    PageTitle,
-    PageDesc,
-    SearchBar,
-    SearchInput,
-    Button,
-    Table,
-    TableHead,
-    TableRow,
-    TableCell,
-    TableBody,
-    StatusBadge,
-    PaginationContainer,
-    PaginationNav,
-    PaginationButton,
-    CurrentPageButton
-  } from './AdminProjectPage.styled';
+  Layout,
+  Main,
+  Header,
+  PageTitle,
+  PageDesc,
+  SearchBar,
+  SearchInput,
+  Button,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  StatusBadge,
+  PaginationContainer,
+  PaginationNav,
+  PaginationButton,
+  CurrentPageButton
+} from './AdminProjectPage.styled';
 
 // API로부터 가져올 Project 타입
 interface Project {
@@ -57,7 +57,7 @@ export default function MemberProjectPage() {
   };
 
   // 프로젝트 목록 가져오기
-  const fetchProjects = async(keyword: string = "", pageNum: number = 0) => {
+  const fetchProjects = async (keyword: string = "", pageNum: number = 0) => {
     if (!userId) return;
 
     const trimmed = keyword.trim();
@@ -127,13 +127,17 @@ export default function MemberProjectPage() {
   return (
     <Layout>
       <Main>
-        <Header>
+        {/* <Header>
           <div>
             <PageTitle>내 프로젝트</PageTitle>
             <PageDesc>내가 참여한 프로젝트 목록을 확인하세요</PageDesc>
           </div>
-        </Header>
+        </Header> */}
 
+        <div style={{ display: 'flex', alignItems: 'center', marginTop: '20px', marginBottom: '20px' }}>
+          <PageDesc>프로젝트 관리 시스템의 주요 정보를 한눈에 확인하세요</PageDesc>
+        </div>
+        
         <SearchBar>
           <SearchInput
             placeholder="프로젝트명으로 검색"
@@ -185,7 +189,7 @@ export default function MemberProjectPage() {
                   </TableCell>
                   <TableCell>
                     <Button onClick={() => navigate(`/projects/${p.id}/detail`)}>상세 보기</Button>
-                    <Button 
+                    <Button
                       onClick={() => handleStatusChange(p.id)}
                       style={{ marginLeft: '8px' }}
                     >
