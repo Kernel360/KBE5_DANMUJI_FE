@@ -163,7 +163,6 @@ export default function MemberProjectPage() {
               <TableRow>
                 <TableCell>번호</TableCell>
                 <TableCell>프로젝트명</TableCell>
-                <TableCell>설명</TableCell>
                 <TableCell>고객사</TableCell>
                 <TableCell>개발사</TableCell>
                 <TableCell>시작일</TableCell>
@@ -177,7 +176,6 @@ export default function MemberProjectPage() {
                 <TableRow key={p.id}>
                   <TableCell>{index + 1 + page.number * page.size}</TableCell>
                   <TableCell>{p.name}</TableCell>
-                  <TableCell>{p.description}</TableCell>
                   <TableCell>{p.clientCompany || "-"}</TableCell>
                   <TableCell>{p.developCompany || "-"}</TableCell>
                   <TableCell>{p.startDate}</TableCell>
