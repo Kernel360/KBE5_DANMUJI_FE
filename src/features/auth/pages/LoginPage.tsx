@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import api from "@/api/axios";
+import api from "@/lib/api/axios";
 import { LeftPanel } from "@/features/auth/components/LeftPanel";
 import { DanmujiLogo } from "@/features/auth/components/DanmujiLogo";
 import { useAuth } from "@/hooks/useAuth";

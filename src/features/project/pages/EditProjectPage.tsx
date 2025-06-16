@@ -5,7 +5,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import AsyncSelect from 'react-select/async';
 import Select from 'react-select';
 import * as S from './CreateProjectpage.styled';
-import api from '@/api/axios';
+import api from '@/lib/api/axios';
 
 interface Company { id: number; name: string; }
 interface User { id: number; name: string; }

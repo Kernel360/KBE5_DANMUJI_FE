@@ -1,7 +1,7 @@
 // src/contexts/AuthContext.tsx
 import React, { createContext, useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
-import api from "@/api/axios";
+import api from "@/lib/api/axios";
 
 export interface AuthContextProps {
   role: string | null;

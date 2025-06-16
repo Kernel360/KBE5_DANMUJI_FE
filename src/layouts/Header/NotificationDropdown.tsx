@@ -17,7 +17,7 @@ import {
   ErrorState,
 } from "@/layouts/Header/styles/NotificationDropdown.styled";
 import type { Notification } from "@/layouts/Topbar/Topbar.types";
-import api from "@/api/axios";
+import api from "@/lib/api/axios";
 
 interface Props {
   notifications: Notification[];

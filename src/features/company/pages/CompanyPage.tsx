@@ -1,5 +1,5 @@
 import axios from "axios";
-import api from "@/api/axios";
+import api from "@/lib/api/axios";
 import { useState, useEffect } from 'react';
 import CompanyRegisterModal from '../components/CompanyRegisterModal';
 import CompanyEditModal from '../components/CompanyEditModal';

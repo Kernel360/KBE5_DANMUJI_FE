@@ -1,4 +1,4 @@
-import api from "@/api/axios";
+import api from "@/lib/api/axios";
 import { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import MemberRegisterModal from '../components/MemberRegisterModal/MemberRegisterModal';

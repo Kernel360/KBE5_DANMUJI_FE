@@ -14,7 +14,7 @@ import {
   Subtitle,
 } from "../components/UserPage.styled";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import api from "@/api/axios";
+import api from "@/lib/api/axios";
 import { AxiosError } from "axios";
 import { CheckCircle, Circle } from "lucide-react";
 

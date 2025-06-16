@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useParams, useNavigate } from "react-router-dom";
-import api from "@/api/axios";
+import api from "@/lib/api/axios";
 import { type Member, formatTelNo } from "../pages/MemberPage";
 import MemberEditModal from '../components/MemberEditModal/MemberEditModal';
 import { type MemberFormData } from '../pages/MemberPage';

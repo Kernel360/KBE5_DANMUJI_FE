@@ -5,7 +5,7 @@ import * as S from "./CreateProjectpage.styled";
 import AsyncSelect from "react-select/async";
 import Select from "react-select";
 import { useNavigate } from "react-router-dom";
-import api from "@/api/axios";
+import api from "@/lib/api/axios";
 
 interface Company {
   id: number;

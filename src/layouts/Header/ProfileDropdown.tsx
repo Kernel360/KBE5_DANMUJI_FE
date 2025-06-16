@@ -12,7 +12,7 @@ import {
   Divider,
 } from "@/layouts/Header/styles/ProfileDropdown.styled";
 import { useAuth } from "@/hooks/useAuth";
-import api from "@/api/axios";
+import api from "@/lib/api/axios";
 
 export const ProfileDropdown: React.FC = () => {
   const { user, refreshUser } = useAuth();

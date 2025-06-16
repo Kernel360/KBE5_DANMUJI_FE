@@ -14,7 +14,7 @@ import {
   MailIconImage,
 } from "../components/UserPage.styled";
 import { useNavigate } from "react-router-dom";
-import api from "@/api/axios";
+import api from "@/lib/api/axios";
 import { AxiosError } from "axios";
 
 export default function ForgotPasswordPage() {

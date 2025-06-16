@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import api from "@/api/axios";
+import api from "@/lib/api/axios";
 import {
   Layout,
   Main,

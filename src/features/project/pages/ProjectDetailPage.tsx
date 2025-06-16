@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import * as S from "./ProjectDetailPage.styled";
-import api from "@/api/axios";
+import api from "@/lib/api/axios";
 import { getPosts } from "@/features/project/services/postService";
 
 interface UserCompanyResponse {
