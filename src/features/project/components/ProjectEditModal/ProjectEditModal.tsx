@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Select from "react-select";
 import styled from "styled-components";
 
@@ -197,7 +197,7 @@ export default function ProjectEditModal({
       setEnd(project.end || "");
       setStatus(
         statusOptions.find((opt) => opt.value === project.status) ||
-          statusOptions[0]
+        statusOptions[0]
       );
     }
   }, [project, open]);
