@@ -345,22 +345,18 @@ export default function ProjectDetailPage() {
                     }}
                     onMouseOver={(e) => {
                       if (!isDone && !isActive) {
-                        e.currentTarget.children[0].style.background =
-                          "#f9fafb";
-                        e.currentTarget.children[0].style.border =
-                          "1.5px solid #fdb924";
-                        e.currentTarget.children[1].style.color = "#fdb924";
-                        e.currentTarget.children[2].style.color = "#fdb924";
+                        (e.currentTarget.children[0] as HTMLElement).style.background = "#f9fafb";
+                        (e.currentTarget.children[0] as HTMLElement).style.border = "1.5px solid #fdb924";
+                        (e.currentTarget.children[1] as HTMLElement).style.color = "#fdb924";
+                        (e.currentTarget.children[2] as HTMLElement).style.color = "#fdb924";
                       }
                     }}
                     onMouseOut={(e) => {
                       if (!isDone && !isActive) {
-                        e.currentTarget.children[0].style.background =
-                          "#f5f5f5";
-                        e.currentTarget.children[0].style.border =
-                          "1.5px solid #e5e7eb";
-                        e.currentTarget.children[1].style.color = "#888";
-                        e.currentTarget.children[2].style.color = "#888";
+                        (e.currentTarget.children[0] as HTMLElement).style.background = "#f5f5f5";
+                        (e.currentTarget.children[0] as HTMLElement).style.border = "1.5px solid #e5e7eb";
+                        (e.currentTarget.children[1] as HTMLElement).style.color = "#888";
+                        (e.currentTarget.children[2] as HTMLElement).style.color = "#888";
                       }
                     }}
                   >
