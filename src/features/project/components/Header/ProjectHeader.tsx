@@ -19,7 +19,7 @@ const Subtitle = styled.p`
 
 const InfoList = styled.div`
   margin-top: 16px;
-  font-size: 14px;
+  font-size: 17px;
   line-height: 1.6;
 `;
 

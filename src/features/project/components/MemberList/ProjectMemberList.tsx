@@ -45,6 +45,7 @@ import {
                 <MemberRow><Name>박백엔드</Name> <Role>백엔드</Role></MemberRow>
               </MemberCard>
             </CompanyCard>
+
           </CompanyList>
         </CompanyGroup>
       </UnifiedCompanyRow>

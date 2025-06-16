@@ -6,6 +6,7 @@ import {
   NewButton,
   PostCard,
   SearchInput,
+  
 } from './ProjectBoard.styled';
 
 const ProjectBoard = () => {

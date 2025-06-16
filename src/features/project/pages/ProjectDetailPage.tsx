@@ -2,7 +2,7 @@ import ProjectHeader from '../components/Header/ProjectHeader';
 import ProjectProgress from '../components/Progress/ProjectProgress';
 import ProjectBoard from '../components/Board/ProjectBoard';
 import ProjectMemberList from '../components/MemberList/ProjectMemberList';
-import ProjectFileList from '../components/FileList/ProjectFileList';
+// import ProjectFileList from '../components/FileList/ProjectFileList';
 
 const ProjectDetailPage = () => {
     return (

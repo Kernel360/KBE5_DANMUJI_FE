@@ -1,42 +1,46 @@
-// components/Progress/ProjectProgress.tsx
-import styled from 'styled-components';
+import {
+  Wrapper,
+  StepContainer,
+  StepItem,
+  StepIcon,
+  StepLine
+} from './ProjectProgress.styled';
 
-const Wrapper = styled.div`
-  padding: 16px;
-  border-bottom: 1px solid #e5e7eb;
-`;
+import { FaCheckCircle, FaPaintBrush, FaCode, FaClipboardList, FaSearch, FaFlag } from 'react-icons/fa';
 
-const StepList = styled.div`
-  font-size: 14px;
-  margin-bottom: 8px;
-  color: #374151;
-`;
+const steps = [
+  { label: '기획', icon: <FaCheckCircle />, key: 'plan' },
+  { label: '디자인', icon: <FaPaintBrush />, key: 'design' },
+  { label: '개발', icon: <FaCode />, key: 'dev' },
+  { label: '테스트', icon: <FaClipboardList />, key: 'test' },
+  { label: '검수', icon: <FaSearch />, key: 'review' },
+  { label: '완료', icon: <FaFlag />, key: 'done' },
+];
 
-const ProgressBar = styled.div`
-  background: #e5e7eb;
-  border-radius: 4px;
-  height: 8px;
-  overflow: hidden;
-`;
-
-const ProgressValue = styled.div`
-  background: #3b82f6;
-  width: 65%;
-  height: 100%;
-`;
-
-const Percentage = styled.div`
-  margin-top: 4px;
-  font-size: 13px;
-  color: #6b7280;
-`;
+const currentStep = 'test';
 
 const ProjectProgress = () => {
+  let reached = true;
+
   return (
     <Wrapper>
-      <StepList>요구사항 분석 · <strong>설계</strong> · 개발 · 테스트</StepList>
-      <ProgressBar><ProgressValue /></ProgressBar>
-      <Percentage>프로젝트 진행률: 65%</Percentage>
+      <StepContainer>
+        {steps.map((step, index) => {
+          const active = step.key === currentStep;
+          const complete = reached && !active;
+          if (active) reached = false;
+
+          return (
+            <>
+              <StepItem key={step.key} active={active} complete={complete}>
+                <StepIcon active={active} complete={complete}>{step.icon}</StepIcon>
+                {step.label}
+              </StepItem>
+              {index !== steps.length - 1 && <StepLine complete={complete}/>}
+            </>
+          );
+        })}
+      </StepContainer>
     </Wrapper>
   );
 };
