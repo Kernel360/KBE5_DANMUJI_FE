@@ -24,15 +24,16 @@ import UserProfilePage from "@/features/user/pages/UserProfilePage"; // todo : �
 
 import PostListPage from "@/features/board/components/Post/pages/PostListPage";
 
+import ProjectDetailPage from "@/features/project/pages/ProjectDetailPage";
 
 // project-d
-import EditProjectPage from "@/features/project-d/pages/EditProjectPage";
-import AdminProjectPage from "@/features/project-d/pages/AdminProjectPage";
-import CreateProjectPage from "@/features/project-d/pages/CreateProjectPage";
-import ProjectDetailPage from "@/features/project-d/pages/ProjectDetailPage";
-import CompletedProject from "@/features/project-d/pages/CompletedProject";
-import InProgressProject from "@/features/project-d/pages/InProgressProject";
-import MemberProjectPage from "@/features/project-d/pages/MemberProjectPage";
+// import EditProjectPage from "@/features/project-d/pages/EditProjectPage";
+// import AdminProjectPage from "@/features/project-d/pages/AdminProjectPage";
+// import CreateProjectPage from "@/features/project-d/pages/CreateProjectPage";
+// import ProjectDetailPage from "@/features/project-d/pages/ProjectDetailPage";
+// import CompletedProject from "@/features/project-d/pages/CompletedProject";
+// import InProgressProject from "@/features/project-d/pages/InProgressProject";
+// import MemberProjectPage from "@/features/project-d/pages/MemberProjectPage";
 
 const AppRoutes = () => {
   const { role } = useAuth();
@@ -71,25 +72,25 @@ const AppRoutes = () => {
           <Route path="/company" element={<CompanyPage />} />
           <Route path="/members" element={<MemberPage />} />
           <Route path="/member/:id" element={<MemberDetailPage />} />
-          <Route path="/projects/create" element={<CreateProjectPage />} />
-          <Route
+          {/* <Route path="/projects/create" element={<CreateProjectPage />} /> */}
+          {/* <Route
             path="/projects/:projectId/edit"
             element={<EditProjectPage />}
           />
-          <Route path="/projects" element={<AdminProjectPage />} />
+          <Route path="/projects" element={<AdminProjectPage />} /> */}
         </>
       )}
 
       {/* 공용 페이지 */}
       <Route path="/posts/:stepId" element={<PostListPage />} />
-      <Route path="/projects/all" element={<MemberProjectPage />} />
+      {/* <Route path="/projects/all" element={<MemberProjectPage />} /> */}
       <Route
         path="/projects/:projectId/detail"
         element={<ProjectDetailPage />}
       />
-      <Route path="/projects/completed" element={<CompletedProject />} />
+      {/* <Route path="/projects/completed" element={<CompletedProject />} />
       <Route path="/projects/inprogress" element={<InProgressProject />} />
-      <Route path="/projects/active" element={<InProgressProject />} />
+      <Route path="/projects/active" element={<InProgressProject />} /> */}
       <Route path="/my" element={<UserProfilePage />} />
     </Routes>
   );
