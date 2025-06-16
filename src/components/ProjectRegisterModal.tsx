@@ -82,17 +82,16 @@ export default function ProjectEditModal({ open, onClose, onSave, project }: Pro
   if (!open) return null;
 
   const handleSave = () => {
-    onSave &&
-      onSave({
-        name,
-        client,
-        clientManagers,
-        dev,
-        devManagers,
-        start,
-        end,
-        status: status.value,
-      });
+    onSave({
+      name,
+      client,
+      clientManagers,
+      dev,
+      devManagers,
+      start,
+      end,
+      status: status.value,
+    });
   };
 
   return (

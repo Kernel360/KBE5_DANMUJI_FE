@@ -15,7 +15,12 @@ import { useAuth } from "@/hooks/useAuth";
 import api from "@/api/axios";
 
 export const ProfileDropdown: React.FC = () => {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
+
+  useEffect(() => {
+    if (!user) refreshUser();
+  }, [user, refreshUser]);
+  
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate(); 

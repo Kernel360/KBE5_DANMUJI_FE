@@ -53,10 +53,11 @@ export const useNotification = (
           const eventSource = eventSourceRef.current;
           console.error('SSE connection error details:', {
             readyState: eventSource?.readyState,
-            // @ts-ignore - Adding additional error properties for debugging
-            status: (error.target as any)?.status,
-            // @ts-ignore
-            statusText: (error.target as any)?.statusText,
+            // @ts-expect-error - Adding additional error properties for debugging
+            status: (error.target as unknown)?.status,
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
+            statusText: (error.target as unknown)?.statusText,
             error
           });
           

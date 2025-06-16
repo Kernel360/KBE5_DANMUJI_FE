@@ -1,4 +1,4 @@
-export { default as ProjectRegisterModal } from "./ProjectRegisterModal";
-export { default as ProjectEditModal } from "./ProjectEditModal";
+export { default as ProjectRegisterModal } from "@/components/ProjectRegisterModal";
+export { default as ProjectEditModal } from "@/components/ProjectEditModal";
 export * from "./ProjectModal.types";
 export * from "./ProjectModal.styles";

@@ -1,26 +1,45 @@
-import { useRef } from 'react';
+import { useRef } from "react";
 
 interface Props {
   open: boolean;
   onClose: () => void;
-  onSubmit: (data: any) => void;
+  onSubmit: (data: unknown) => void;
 }
 
 export default function CompanyRegisterModal({ open, onClose, onSubmit }: Props) {
-  const reg1 = useRef<HTMLInputElement>(null);
-  const reg2 = useRef<HTMLInputElement>(null);
-  const reg3 = useRef<HTMLInputElement>(null);
+  const reg1 = useRef<HTMLInputElement>(null!);
+  const reg2 = useRef<HTMLInputElement>(null!);
+  const reg3 = useRef<HTMLInputElement>(null!);
 
   if (!open) return null;
 
-  // 폼 상태는 간단히 useRef로 처리(실제 사용시 useState로 확장 가능)
-  let form: any = {};
-
-  const handleRegInput = (e: React.ChangeEvent<HTMLInputElement>, len: number, nextRef?: React.RefObject<HTMLInputElement>) => {
-    let value = e.target.value.replace(/[^0-9]/g, '');
-    if (value.length > len) value = value.slice(0, len);
+  const handleRegInput = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    len: number,
+    nextRef?: React.RefObject<HTMLInputElement>
+  ) => {
+    const value = e.target.value.replace(/[^0-9]/g, "").slice(0, len);
     e.target.value = value;
-    if (value.length === len && nextRef) nextRef.current?.focus();
+    if (value.length === len && nextRef?.current) nextRef.current.focus();
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+
+    const reg = `${formData.get("reg1")}-${formData.get("reg2")}-${formData.get("reg3")}`;
+
+    const data = {
+      name: formData.get("name"),
+      companyType: formData.get("companyType"),
+      reg,
+      addr: formData.get("addr"),
+      owner: formData.get("owner"),
+      email: formData.get("email"),
+      phone: formData.get("phone"),
+    };
+
+    onSubmit(data);
   };
 
   return (
@@ -28,14 +47,7 @@ export default function CompanyRegisterModal({ open, onClose, onSubmit }: Props)
       <div className="bg-white rounded-xl shadow-lg w-[420px] p-8 relative">
         <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl">×</button>
         <div className="text-2xl font-bold mb-6">회사 등록</div>
-        <form
-          onSubmit={e => {
-            e.preventDefault();
-            const data = Object.fromEntries(new FormData(e.currentTarget));
-            onSubmit(data);
-          }}
-          className="flex flex-col gap-4"
-        >
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
             <label className="block text-sm font-medium mb-1">회사명</label>
             <input name="name" required className="w-full border rounded px-3 py-2" placeholder="회사명을 입력하세요" />
@@ -54,22 +66,37 @@ export default function CompanyRegisterModal({ open, onClose, onSubmit }: Props)
           <div>
             <label className="block text-sm font-medium mb-1">사업자등록번호</label>
             <div className="flex gap-2">
-              <input name="reg1" required ref={reg1} maxLength={3} className="w-14 border rounded px-2 py-2 text-center" placeholder="000"
-                onInput={e => handleRegInput(e as any, 3, reg2)}
+              <input
+                name="reg1"
+                required
+                ref={reg1}
+                maxLength={3}
+                className="w-14 border rounded px-2 py-2 text-center"
+                placeholder="000"
                 inputMode="numeric"
-                pattern="[0-9]*"
+                onChange={(e) => handleRegInput(e, 3, reg2)}
               />
               <span className="self-center">-</span>
-              <input name="reg2" required ref={reg2} maxLength={2} className="w-10 border rounded px-2 py-2 text-center" placeholder="00"
-                onInput={e => handleRegInput(e as any, 2, reg3)}
+              <input
+                name="reg2"
+                required
+                ref={reg2}
+                maxLength={2}
+                className="w-10 border rounded px-2 py-2 text-center"
+                placeholder="00"
                 inputMode="numeric"
-                pattern="[0-9]*"
+                onChange={(e) => handleRegInput(e, 2, reg3)}
               />
               <span className="self-center">-</span>
-              <input name="reg3" required ref={reg3} maxLength={5} className="w-16 border rounded px-2 py-2 text-center" placeholder="00000"
-                onInput={e => handleRegInput(e as any, 5)}
+              <input
+                name="reg3"
+                required
+                ref={reg3}
+                maxLength={5}
+                className="w-16 border rounded px-2 py-2 text-center"
+                placeholder="00000"
                 inputMode="numeric"
-                pattern="[0-9]*"
+                onChange={(e) => handleRegInput(e, 5)}
               />
             </div>
           </div>
@@ -97,4 +124,4 @@ export default function CompanyRegisterModal({ open, onClose, onSubmit }: Props)
       </div>
     </div>
   );
-} 
+}

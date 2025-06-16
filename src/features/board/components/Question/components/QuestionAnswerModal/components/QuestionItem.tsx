@@ -19,7 +19,7 @@ import {
   deleteQuestion,
   resolveQuestion,
 } from "@/features/project/services/questionService";
-import type { Question } from "@/features/project/types/question";
+import { type Question } from "@/features/project/types/question";
 import { useAuth } from "@/hooks/useAuth";
 
 interface QuestionItemProps {
@@ -85,9 +85,7 @@ const QuestionItem: React.FC<QuestionItemProps> = ({
 
     try {
       setUpdatingQuestion(true);
-      const response = await updateQuestion(editingQuestionId, {
-        content: editQuestionText.trim(),
-      });
+      const response = await updateQuestion(editingQuestionId, editQuestionText.trim());
 
       if (response.data) {
         setEditingQuestionId(null);
@@ -298,6 +296,7 @@ const QuestionItem: React.FC<QuestionItemProps> = ({
               )}
             </ModalHeaderButtonGroup>
           )}
+          {/* todo : 수정 필요 */}
           {question.status === "PENDING" && (
             <button
               onClick={() => handleResolveQuestion(question.id)}
