@@ -1,5 +1,5 @@
 import React from "react";
-import { MenuItemContainer } from './Sidebar.styles';
+import { MenuItemContainer } from '@/layouts/Sidebar/styles/Sidebar.styles';
 // import { useNavigate } from "react-router-dom"; // Remove useNavigate import
 import type { IconType } from "react-icons";
 

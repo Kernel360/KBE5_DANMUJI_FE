@@ -10,7 +10,7 @@ import {
   Divider,
   MainMenu,
   ProfileArea,
-} from "./Sidebar.styles";
+} from "@/layouts/Sidebar/styles/Sidebar.styles";
 import styled from "styled-components";
 
 // Import necessary icons from react-icons

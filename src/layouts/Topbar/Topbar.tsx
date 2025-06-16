@@ -1,14 +1,14 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
-import NotificationDropdown from "../Header/NotificationDropdown";
-import { ProfileDropdown } from "../Header/ProfileDropdown";
+import NotificationDropdown from "@/layouts/Header/NotificationDropdown";
+import { ProfileDropdown } from "@/layouts/Header/ProfileDropdown";
 
 import {
   TopbarContainer,
   PageTitle,
   UserInfo,
   UserDropdown,
-} from "./Topbar.styles";
+} from "@/layouts/Topbar/styles/Topbar.styles";
 
 import type { Notification } from "@/layouts/Topbar/Topbar.types";
 

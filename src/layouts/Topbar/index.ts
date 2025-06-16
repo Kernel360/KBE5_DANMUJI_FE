@@ -1,3 +1,3 @@
-export { Topbar } from "./Topbar";
-export * from "./Topbar.types";
-export * from "./Topbar.styles";
+export { Topbar } from "@/layouts/Topbar/Topbar";
+export * from "@/layouts/Topbar/Topbar.types";
+export * from "@/layouts/Topbar/styles/Topbar.styles";

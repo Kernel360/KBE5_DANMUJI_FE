@@ -15,7 +15,7 @@ import {
   NotificationTitle,
   MarkAllAsReadButton,
   ErrorState,
-} from "./NotificationDropdown.styled";
+} from "@/layouts/Header/styles/NotificationDropdown.styled";
 import type { Notification } from "@/layouts/Topbar/Topbar.types";
 import api from "@/api/axios";
 

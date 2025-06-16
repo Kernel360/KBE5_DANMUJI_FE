@@ -101,4 +101,4 @@ export const TextArea = styled.textarea`
   }
 `;
 
-export const Select = styled.select`
+export const Select = styled.select``;

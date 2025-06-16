@@ -10,7 +10,7 @@ import {
   MenuList,
   MenuItem,
   Divider,
-} from "./ProfileDropdown.styled";
+} from "@/layouts/Header/styles/ProfileDropdown.styled";
 import { useAuth } from "@/hooks/useAuth";
 import api from "@/api/axios";
 

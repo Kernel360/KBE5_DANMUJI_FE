@@ -5,7 +5,7 @@ import {
   UserName,
   UserCompany,
   UserRole,
-} from "./UserProfile.styled";
+} from "@/layouts/Header/styles/UserProfile.styled";
 import { FaBuilding } from "react-icons/fa";
 import { useAuth } from "@/hooks/useAuth";
 import { IoPersonSharp } from "react-icons/io5";

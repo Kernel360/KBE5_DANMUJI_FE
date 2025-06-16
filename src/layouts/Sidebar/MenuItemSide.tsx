@@ -1,6 +1,6 @@
 // src/components/Sidebar/SideItem.tsx
 import React from "react";
-import { MenuItemSideContainer } from "./Sidebar.styles";
+import { MenuItemSideContainer } from "@/layouts/Sidebar/styles/Sidebar.styles";
 import type { IconType } from "react-icons";
 
 interface SideItemProps {
