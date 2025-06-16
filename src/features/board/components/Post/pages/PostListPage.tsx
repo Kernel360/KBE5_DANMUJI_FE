@@ -7,8 +7,8 @@ import {
 import {
   getPostsWithComments,
   searchPosts,
-} from "@/features/project/services/postService";
-import type { Post, PostStatus, PostType } from "@/features/project/types/post";
+} from "@/features/project-d/services/postService";
+import type { Post, PostStatus, PostType } from "@/features/project-d/types/post";
 import {
   PageContainer,
   Header,

@@ -13,10 +13,10 @@ import {
   LoadingSpinner,
   ErrorMessage,
 } from "@/features/board/components/Question/styles/QuestionAnswerModal.styled";
-import { getPostDetail } from "@/features/project/services/postService";
-import { getQuestionsByPost } from "@/features/project/services/questionService";
-import type { Post } from "@/features/project/types/post";
-import type { Question } from "@/features/project/types/question";
+import { getPostDetail } from "@/features/project-d/services/postService";
+import { getQuestionsByPost } from "@/features/project-d/services/questionService";
+import type { Post } from "@/features/project-d/types/post";
+import type { Question } from "@/features/project-d/types/question";
 import { AnswerDetailModal } from "@/features/board/components/Answer";
 
 // 분리된 컴포넌트들

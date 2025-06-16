@@ -3,13 +3,13 @@ import {
   createPost,
   updatePost,
   getPostDetail,
-} from "@/features/project/services/postService";
+} from "@/features/project-d/services/postService";
 import {
   type PostCreateData,
   type PostUpdateRequest,
   PostType,
   PostStatus,
-} from "@/features/project/types/post";
+} from "@/features/project-d/types/post";
 import {
   ModalOverlay,
   ModalPanel,

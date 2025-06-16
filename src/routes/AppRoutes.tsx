@@ -9,17 +9,19 @@ import ResetPasswordPage from "@/features/auth/pages/ResetPasswordPage";
 import AdminDashboardPage from "@/features/admin/pages/DashboardPage";
 import CompanyPage from "@/features/company/pages/CompanyPage";
 import MemberPage from "@/features/user/pages/MemberPage";
-import EditProjectPage from "@/features/project/pages/EditProjectPage";
-import AdminProjectPage from "@/features/project/pages/AdminProjectPage";
-import CreateProjectPage from "@/features/project/pages/CreateProjectPage";
 import UserDashboardPage from "@/features/board/pages/DashboardPage";
 import PostListPage from "@/features/board/components/Post/pages/PostListPage";
-import ProjectDetailPage from "@/features/project/pages/ProjectDetailPage";
-import CompletedProject from "@/features/project/pages/CompletedProject";
-import InProgressProject from "@/features/project/pages/InProgressProject";
 import UserProfilePage from "@/features/user/pages/UserProfilePage";
 import MemberDetailPage from "@/features/user/pages/MemberDetailPage";
-import MemberProjectPage from "@/features/project/pages/MemberProjectPage";
+
+// project-d
+import EditProjectPage from "@/features/project-d/pages/EditProjectPage";
+import AdminProjectPage from "@/features/project-d/pages/AdminProjectPage";
+import CreateProjectPage from "@/features/project-d/pages/CreateProjectPage";
+import ProjectDetailPage from "@/features/project-d/pages/ProjectDetailPage";
+import CompletedProject from "@/features/project-d/pages/CompletedProject";
+import InProgressProject from "@/features/project-d/pages/InProgressProject";
+import MemberProjectPage from "@/features/project-d/pages/MemberProjectPage";
 
 const AppRoutes = () => {
   const { role } = useAuth();

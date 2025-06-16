@@ -34,8 +34,8 @@ import {
   deletePost,
   updateComment,
   deleteComment,
-} from "@/features/project/services/postService";
-import type { Post, Comment } from "@/features/project/types/post";
+} from "@/features/project-d/services/postService";
+import type { Post, Comment } from "@/features/project-d/types/post";
 import QuestionAnswerModal from "@/features/board/components/Question/components/QuestionAnswerModal/QuestionAnswerModal";
 
 import { FaReply, FaEdit, FaTrash, FaComments } from "react-icons/fa";

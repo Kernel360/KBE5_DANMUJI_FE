@@ -1,6 +1,6 @@
 import React from "react";
 import { Section } from "@/features/board/components/Question/styles/QuestionAnswerModal.styled";
-import type { Post } from "@/features/project/types/post";
+import type { Post } from "@/features/project-d/types/post";
 
 interface PostInfoProps {
   post: Post;

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { FaUser } from "react-icons/fa";
-import type { Answer } from "@/features/project/types/question";
+import type { Answer } from "@/features/project-d/types/question";
 import { formatAnswerContent } from "../hooks/useAnswerUtils";
 import AnswerActions from "./AnswerActions";
 import AnswerForm from "./AnswerForm";

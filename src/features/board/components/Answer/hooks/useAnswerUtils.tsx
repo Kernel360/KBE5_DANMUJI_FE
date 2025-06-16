@@ -1,5 +1,5 @@
 import React from "react";
-import type { Answer } from "@/features/project/types/question";
+import type { Answer } from "@/features/project-d/types/question";
 
 // 답변 내용에서 @태그와 "답글" 텍스트에 색상을 적용하는 함수
 export const formatAnswerContent = (content: string): React.ReactNode[] => {
