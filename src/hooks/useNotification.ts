@@ -1,5 +1,4 @@
-import { useEffect, useRef } from "react";
-import { useContext } from "react";
+import { useEffect, useRef, useCallback, useContext } from "react";
 import { AuthContext } from "@/contexts/AuthContext";
 import type { Notification as RawNotification } from "@/layouts/Topbar/Topbar.types";
 
@@ -10,104 +9,95 @@ export const useNotification = (
   const { user } = useContext(AuthContext);
   const eventSourceRef = useRef<EventSource | null>(null);
   const retryCountRef = useRef(0);
-  const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const retryTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const cleanup = useCallback(() => {
+    if (eventSourceRef.current) {
+      console.log("SSE 연결 종료");
+      eventSourceRef.current.close();
+      eventSourceRef.current = null;
+    }
+    if (retryTimeoutRef.current) {
+      clearTimeout(retryTimeoutRef.current);
+      retryTimeoutRef.current = null;
+    }
+  }, []);
+
+  const connectEventSource = useCallback(() => {
+    cleanup();
+
+    try {
+      const baseUrl = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "");
+      const url = `${baseUrl}/api/notifications/subscribe`;
+      console.log("SSE 연결 시도:", url);
+
+      const eventSource = new EventSource(url, { withCredentials: true });
+      eventSourceRef.current = eventSource;
+
+      eventSource.onopen = () => {
+        console.log("SSE 연결 성공");
+        retryCountRef.current = 0;
+      };
+
+      eventSource.onerror = (errorEvent) => {
+        const source = eventSourceRef.current;
+
+        console.error("SSE 오류:", {
+          readyState: source?.readyState,
+          error: errorEvent,
+        });
+
+        if (source?.readyState === EventSource.CLOSED) {
+          cleanup();
+          if (retryCountRef.current < 3) {
+            retryCountRef.current += 1;
+            console.log(`SSE 재시도 중... (${retryCountRef.current}/3)`);
+            retryTimeoutRef.current = setTimeout(connectEventSource, 5000);
+          } else {
+            console.error("SSE 최대 재시도 횟수 도달");
+            onError?.("실시간 알림 연결 실패\n페이지를 새로고침 해주세요.");
+          }
+        }
+      };
+
+      eventSource.addEventListener("ALERT", (e) => {
+        try {
+          const raw = JSON.parse(e.data);
+          const formatted: RawNotification = {
+            id: raw.id,
+            message: raw.message,
+            isRead: raw.isRead,
+            referenceId: raw.referenceId,
+            time: new Date(raw.createdAt).toLocaleString("ko-KR", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false,
+            }),
+          };
+          onMessage(formatted);
+        } catch (err) {
+          console.error("알림 파싱 오류:", err);
+          onError?.("알림 데이터 처리 중 오류가 발생했습니다.");
+        }
+      });
+    } catch (err) {
+      console.error("SSE 생성 실패:", err);
+      onError?.("알림 서비스 연결 실패");
+    }
+  }, [cleanup, onError, onMessage]);
 
   useEffect(() => {
-    // 로그인된 상태가 아니면 SSE 연결하지 않음
-    if (!user) {
-      console.log('User not logged in, skipping SSE connection');
+    if (!user?.id) {
+      console.log("로그인 정보 없음, SSE 연결 생략");
       return;
     }
 
-    const maxRetries = 3;
-    const retryDelay = 5000; // 5초
-
-    const cleanup = () => {
-      if (eventSourceRef.current) {
-        console.log('Closing existing SSE connection --');
-        eventSourceRef.current.close();
-        eventSourceRef.current = null;
-      }
-      if (retryTimeoutRef.current) {
-        clearTimeout(retryTimeoutRef.current);
-        retryTimeoutRef.current = null;
-      }
-    };
-
-    const connectEventSource = () => {
-      cleanup();
-
-      try {
-        const baseUrl = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '');
-        const url = `${baseUrl}/api/notifications/subscribe`;
-        console.log('Attempting to connect to SSE at:', url);
-        
-        eventSourceRef.current = new EventSource(url, { withCredentials: true });
-
-        eventSourceRef.current.onopen = () => {
-          console.log('SSE connection established successfully');
-          retryCountRef.current = 0;
-        };
-
-        eventSourceRef.current.onerror = (error: Event) => {
-          const eventSource = eventSourceRef.current;
-          console.error('SSE connection error details:', {
-            readyState: eventSource?.readyState,
-            // @ts-expect-error - Adding additional error properties for debugging
-            status: (error.target as unknown)?.status,
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-expect-error
-            statusText: (error.target as unknown)?.statusText,
-            error
-          });
-          
-          if (eventSource?.readyState === EventSource.CLOSED) {
-            cleanup();
-            
-            if (retryCountRef.current < maxRetries) {
-              retryCountRef.current++;
-              console.log(`Retrying connection (${retryCountRef.current}/${maxRetries}) in ${retryDelay/1000}s...`);
-              retryTimeoutRef.current = setTimeout(connectEventSource, retryDelay);
-            } else {
-              console.error('Max retries reached, giving up SSE connection');
-              onError?.('실시간 알림 연결에 실패했습니다. \n페이지를 새로고침 해주세요.');
-            }
-          }
-        };
-
-        eventSourceRef.current.addEventListener("ALERT", (e) => {
-          try {
-            console.log('Received SSE alert:', e.data);
-            const raw = JSON.parse(e.data);
-            const formatted: RawNotification = {
-              id: raw.id,
-              message: raw.message,
-              isRead: raw.isRead,
-              referenceId: raw.referenceId,
-              time: new Date(raw.createdAt).toLocaleString("ko-KR", {
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit",
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: false,
-              }),
-            };
-            onMessage(formatted);
-          } catch (err) {
-            console.error("알림 파싱 오류:", err);
-            onError?.('알림 데이터 처리 중 오류가 발생했습니다.');
-          }
-        });
-      } catch (error) {
-        console.error('Failed to create EventSource:', error);
-        onError?.('알림 서비스 연결에 실패했습니다.');
-      }
-    };
-
-    console.log('Initializing SSE connection for user:', user.id);
+    console.log("SSE 초기화, 유저 ID:", user.id);
     connectEventSource();
 
     return cleanup;
-  }, [onMessage, onError, user]);
+  }, [user?.id, connectEventSource, cleanup]);
 };
