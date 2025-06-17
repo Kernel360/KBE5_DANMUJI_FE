@@ -29,12 +29,47 @@ export const FilterLabel = styled.label`
 `;
 
 export const Select = styled.select`
-  padding: 8px 12px;
-  font-size: 0.95rem;
-  border: 1px solid #d1d5db;
+  padding: 10px 14px;
+  font-size: 0.875rem;
+  border: 2px solid #e5e7eb;
   border-radius: 8px;
   background: #ffffff;
-  color: #111827;
+  color: #374151;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 12px center;
+  background-repeat: no-repeat;
+  background-size: 16px;
+  padding-right: 40px;
+  min-width: 140px;
+
+  &:hover {
+    border-color: #d1d5db;
+    background-color: #f9fafb;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    background-color: #ffffff;
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  option {
+    padding: 8px 12px;
+    font-size: 0.875rem;
+    background: #ffffff;
+    color: #374151;
+  }
 `;
 
 export const DateInput = styled.input`
@@ -282,5 +317,107 @@ export const DatePickerStyles = styled.div`
 
   .react-datepicker__navigation-icon::before {
     border-color: #6b7280;
+  }
+`;
+
+export const SelectButton = styled.button<{ $hasValue: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 14px;
+  background: ${({ $hasValue }) => ($hasValue ? "#f0f9ff" : "#ffffff")};
+  border: 2px solid ${({ $hasValue }) => ($hasValue ? "#3b82f6" : "#e5e7eb")};
+  border-radius: 8px;
+  color: ${({ $hasValue }) => ($hasValue ? "#1e40af" : "#374151")};
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  min-width: 140px;
+
+  svg {
+    flex-shrink: 0;
+    color: ${({ $hasValue }) => ($hasValue ? "#3b82f6" : "#6b7280")};
+    transition: transform 0.2s ease;
+  }
+
+  .select-value {
+    flex: 1;
+    font-weight: ${({ $hasValue }) => ($hasValue ? "600" : "500")};
+  }
+
+  &:hover {
+    background: ${({ $hasValue }) => ($hasValue ? "#dbeafe" : "#f9fafb")};
+    border-color: ${({ $hasValue }) => ($hasValue ? "#2563eb" : "#d1d5db")};
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &.open svg {
+    transform: rotate(180deg);
+  }
+`;
+
+export const SelectDropdown = styled.div<{ $isOpen: boolean }>`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  z-index: 1000;
+  margin-top: 4px;
+  opacity: ${({ $isOpen }) => ($isOpen ? "1" : "0")};
+  visibility: ${({ $isOpen }) => ($isOpen ? "visible" : "hidden")};
+  transform: ${({ $isOpen }) =>
+    $isOpen ? "translateY(0)" : "translateY(-8px)"};
+  transition: all 0.2s ease;
+  max-height: 200px;
+  overflow-y: auto;
+`;
+
+export const SelectOption = styled.button<{ $isSelected: boolean }>`
+  display: block;
+  width: 100%;
+  padding: 10px 14px;
+  background: ${({ $isSelected }) => ($isSelected ? "#f0f9ff" : "transparent")};
+  color: ${({ $isSelected }) => ($isSelected ? "#1e40af" : "#374151")};
+  border: none;
+  text-align: left;
+  font-size: 0.875rem;
+  font-weight: ${({ $isSelected }) => ($isSelected ? "600" : "500")};
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: ${({ $isSelected }) => ($isSelected ? "#dbeafe" : "#f9fafb")};
+  }
+
+  &:first-child {
+    border-radius: 6px 6px 0 0;
+  }
+
+  &:last-child {
+    border-radius: 0 0 6px 6px;
+  }
+
+  &:focus {
+    outline: none;
+    background: ${({ $isSelected }) => ($isSelected ? "#dbeafe" : "#f3f4f6")};
   }
 `;

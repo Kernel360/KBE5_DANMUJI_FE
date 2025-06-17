@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import {
@@ -7,6 +7,9 @@ import {
   FiCheckCircle,
   FiAlertTriangle,
   FiCalendar,
+  FiChevronDown,
+  FiHome,
+  FiArrowUp,
 } from "react-icons/fi";
 import {
   FilterBar,
@@ -25,6 +28,9 @@ import {
   DateButton,
   DatePickerWrapper,
   DatePickerStyles,
+  SelectButton,
+  SelectDropdown,
+  SelectOption,
 } from "./ProjectFilterBar.styled";
 
 const STATUS_MAP = {
@@ -33,6 +39,20 @@ const STATUS_MAP = {
   COMPLETED: { label: "완료", icon: FiCheckCircle, color: "#10b981" },
   DELAYED: { label: "지연", icon: FiAlertTriangle, color: "#ef4444" },
 } as const;
+
+const CLIENT_OPTIONS = [
+  { value: "", label: "전체 고객사" },
+  { value: "ABC 주식회사", label: "ABC 주식회사" },
+  { value: "XYZ 기업", label: "XYZ 기업" },
+  { value: "DEF 그룹", label: "DEF 그룹" },
+];
+
+const SORT_OPTIONS = [
+  { value: "latest", label: "최신순" },
+  { value: "name", label: "이름순" },
+  { value: "status", label: "상태순" },
+  { value: "client", label: "고객사순" },
+];
 
 interface ProjectFilterBarProps {
   filters: {
@@ -56,6 +76,34 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
 }) => {
   const [startDateOpen, setStartDateOpen] = useState(false);
   const [endDateOpen, setEndDateOpen] = useState(false);
+  const [clientDropdownOpen, setClientDropdownOpen] = useState(false);
+  const [sortDropdownOpen, setSortDropdownOpen] = useState(false);
+
+  const clientDropdownRef = useRef<HTMLDivElement>(null);
+  const sortDropdownRef = useRef<HTMLDivElement>(null);
+
+  // 드롭다운 외부 클릭 시 닫기
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        clientDropdownRef.current &&
+        !clientDropdownRef.current.contains(event.target as Node)
+      ) {
+        setClientDropdownOpen(false);
+      }
+      if (
+        sortDropdownRef.current &&
+        !sortDropdownRef.current.contains(event.target as Node)
+      ) {
+        setSortDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const formatDate = (dateString: string) => {
     if (!dateString) return "선택 안함";
@@ -91,6 +139,36 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
   const handleEndDateClick = () => {
     setStartDateOpen(false); // 시작일 달력 닫기
     setEndDateOpen(!endDateOpen);
+  };
+
+  const handleClientDropdownToggle = () => {
+    setSortDropdownOpen(false); // 정렬 드롭다운 닫기
+    setClientDropdownOpen(!clientDropdownOpen);
+  };
+
+  const handleSortDropdownToggle = () => {
+    setClientDropdownOpen(false); // 고객사 드롭다운 닫기
+    setSortDropdownOpen(!sortDropdownOpen);
+  };
+
+  const handleClientSelect = (value: string) => {
+    onInputChange("client", value);
+    setClientDropdownOpen(false);
+  };
+
+  const handleSortSelect = (value: string) => {
+    onInputChange("sort", value);
+    setSortDropdownOpen(false);
+  };
+
+  const getClientLabel = (value: string) => {
+    const option = CLIENT_OPTIONS.find((opt) => opt.value === value);
+    return option ? option.label : "전체 고객사";
+  };
+
+  const getSortLabel = (value: string) => {
+    const option = SORT_OPTIONS.find((opt) => opt.value === value);
+    return option ? option.label : "최신순";
   };
 
   return (
@@ -204,27 +282,57 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
         </FilterGroup>
         <FilterGroup>
           <FilterLabel>고객사</FilterLabel>
-          <Select
-            value={filters.client}
-            onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-              onInputChange("client", e.target.value)
-            }
-          >
-            <option value="">전체 고객사</option>
-            <option value="ABC 주식회사">ABC 주식회사</option>
-          </Select>
+          <div style={{ position: "relative" }} ref={clientDropdownRef}>
+            <SelectButton
+              type="button"
+              onClick={handleClientDropdownToggle}
+              $hasValue={!!filters.client}
+              className={clientDropdownOpen ? "open" : ""}
+            >
+              <FiHome size={16} />
+              <span className="select-value">
+                {getClientLabel(filters.client)}
+              </span>
+              <FiChevronDown size={16} />
+            </SelectButton>
+            <SelectDropdown $isOpen={clientDropdownOpen}>
+              {CLIENT_OPTIONS.map((option) => (
+                <SelectOption
+                  key={option.value}
+                  $isSelected={filters.client === option.value}
+                  onClick={() => handleClientSelect(option.value)}
+                >
+                  {option.label}
+                </SelectOption>
+              ))}
+            </SelectDropdown>
+          </div>
         </FilterGroup>
         <FilterGroup>
           <FilterLabel>정렬</FilterLabel>
-          <Select
-            value={filters.sort}
-            onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-              onInputChange("sort", e.target.value)
-            }
-          >
-            <option value="latest">최신순</option>
-            <option value="name">이름순</option>
-          </Select>
+          <div style={{ position: "relative" }} ref={sortDropdownRef}>
+            <SelectButton
+              type="button"
+              onClick={handleSortDropdownToggle}
+              $hasValue={!!filters.sort}
+              className={sortDropdownOpen ? "open" : ""}
+            >
+              <FiArrowUp size={16} />
+              <span className="select-value">{getSortLabel(filters.sort)}</span>
+              <FiChevronDown size={16} />
+            </SelectButton>
+            <SelectDropdown $isOpen={sortDropdownOpen}>
+              {SORT_OPTIONS.map((option) => (
+                <SelectOption
+                  key={option.value}
+                  $isSelected={filters.sort === option.value}
+                  onClick={() => handleSortSelect(option.value)}
+                >
+                  {option.label}
+                </SelectOption>
+              ))}
+            </SelectDropdown>
+          </div>
         </FilterGroup>
         <SearchRight>
           <SearchInput
