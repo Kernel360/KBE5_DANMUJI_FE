@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled from "styled-components";
 
 export const ProjectCard = styled.div`
   background: #fff;
@@ -25,7 +25,7 @@ export const CardHeader = styled.div`
 `;
 
 export const CardTitle = styled.div`
-  font-size: 1.25rem;
+  font-size: 1.17rem;
   font-weight: 700;
   color: #111827;
   line-height: 1.4;

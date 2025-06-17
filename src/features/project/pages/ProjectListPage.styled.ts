@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled from "styled-components";
 
 export const ProjectListContainer = styled.div`
   padding: 32px 24px;
@@ -10,14 +10,14 @@ export const Header = styled.div`
 `;
 
 export const Title = styled.h1`
-  font-size: 1.7rem;
+  font-size: 1.4rem;
   font-weight: 700;
   margin-bottom: 8px;
 `;
 
 export const Description = styled.div`
   color: #bdbdbd;
-  font-size: 1.08rem;
+  font-size: 0.9rem;
   margin-bottom: 18px;
 `;
 
