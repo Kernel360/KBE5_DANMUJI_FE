@@ -2,10 +2,10 @@ import styled from "styled-components";
 
 export const Wrapper = styled.div`
   padding: 32px 24px;
-  margin: 0 24px 24px 24px;
+  margin: 0 24px;
   background: #ffffff;
   border: 1px solid #e5e7eb;
-  border-radius: 12px;
+  border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   display: flex;
   justify-content: center;
@@ -95,6 +95,8 @@ export const StepLine = styled.div<{ active?: boolean; complete?: boolean }>`
   border-radius: 2px;
   position: relative;
   overflow: hidden;
+  align-self: flex-start;
+  margin-top: 24px;
 
   &::after {
     content: "";

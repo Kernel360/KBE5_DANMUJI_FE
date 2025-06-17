@@ -280,66 +280,6 @@ export default function ProjectDetailPage() {
             </S.ProjectHeaderContent>
           </S.ProjectHeader>
 
-          <S.ProjectInfoSection>
-            <S.InfoCard>
-              <S.InfoCardHeader>
-                <S.InfoCardIcon>
-                  <FiBuilding size={20} />
-                </S.InfoCardIcon>
-                <S.InfoCardTitle>고객사 정보</S.InfoCardTitle>
-              </S.InfoCardHeader>
-              <S.InfoCardContent>
-                <S.InfoItem>
-                  <S.InfoLabel>고객사</S.InfoLabel>
-                  <S.InfoValueHighlight>
-                    {project.clients[0]?.companyName || "미지정"}
-                  </S.InfoValueHighlight>
-                </S.InfoItem>
-                <S.InfoItem>
-                  <S.InfoLabel>고객 담당자</S.InfoLabel>
-                  <S.InfoValue>
-                    {project.clients[0]?.name || "미지정"}
-                  </S.InfoValue>
-                </S.InfoItem>
-                <S.InfoItem>
-                  <S.InfoLabel>직책</S.InfoLabel>
-                  <S.InfoValue>
-                    {project.clients[0]?.position || "미지정"}
-                  </S.InfoValue>
-                </S.InfoItem>
-              </S.InfoCardContent>
-            </S.InfoCard>
-
-            <S.InfoCard>
-              <S.InfoCardHeader>
-                <S.InfoCardIcon>
-                  <FiUsers size={20} />
-                </S.InfoCardIcon>
-                <S.InfoCardTitle>개발사 정보</S.InfoCardTitle>
-              </S.InfoCardHeader>
-              <S.InfoCardContent>
-                <S.InfoItem>
-                  <S.InfoLabel>개발사</S.InfoLabel>
-                  <S.InfoValueHighlight>
-                    {project.developers[0]?.companyName || "미지정"}
-                  </S.InfoValueHighlight>
-                </S.InfoItem>
-                <S.InfoItem>
-                  <S.InfoLabel>개발 담당자</S.InfoLabel>
-                  <S.InfoValue>
-                    {project.developers[0]?.name || "미지정"}
-                  </S.InfoValue>
-                </S.InfoItem>
-                <S.InfoItem>
-                  <S.InfoLabel>직책</S.InfoLabel>
-                  <S.InfoValue>
-                    {project.developers[0]?.position || "미지정"}
-                  </S.InfoValue>
-                </S.InfoItem>
-              </S.InfoCardContent>
-            </S.InfoCard>
-          </S.ProjectInfoSection>
-
           <S.ProjectStepsContainer>
             <S.StepsHeader>
               <S.StepsTitle>
