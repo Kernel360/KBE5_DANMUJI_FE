@@ -76,6 +76,14 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
           <div>기간</div>
           <div>{startDate} ~ {endDate}</div>
         </CardInfoGroup>
+
+        {/* {progress !== undefined && (
+          <CardProgress>
+            <span>진행률</span>
+            <progress value={progress} max={100} />
+            <span>{progress}%</span>
+          </CardProgress>
+        )} */}
       </CardBody>
 
       <CardFooter>
