@@ -107,6 +107,11 @@ const ProjectBoard = () => {
   return (
     <Wrapper>
       <Filters>
+        <Select>
+          <option>제목</option>
+        </Select>
+        <SearchInput placeholder="게시글 검색..." />
+
         <Select value={selectedStep} onChange={(e) => setSelectedStep(e.target.value)} disabled={loading}>
           <option value="">현재 단계: 전체</option>
           {steps.map((step) => (
@@ -116,20 +121,15 @@ const ProjectBoard = () => {
           ))}
         </Select>
 
-        <Select value={selectedPriority} onChange={(e) => setSelectedPriority(e.target.value as PostPriority)}>
+        {/* <Select value={selectedPriority} onChange={(e) => setSelectedPriority(e.target.value as PostPriority)}>
           <option value="">우선 순위: 전체</option>
           {POST_PRIORITY_OPTIONS.map((priority) => (
             <option key={priority} value={priority}>
               {POST_PRIORITY_LABELS[priority]}
             </option>
           ))}
-        </Select>
+        </Select> */}
 
-        <Select>
-          <option>정렬: 최신순</option>
-        </Select>
-
-        <SearchInput placeholder="게시글 검색..." />
         <NewButton>+ 게시글 작성</NewButton>
       </Filters>
 
