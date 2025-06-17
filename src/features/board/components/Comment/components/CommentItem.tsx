@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { FaUser } from "react-icons/fa";
-import type { Comment } from "@/features/project/types/post";
+import type { Comment } from "@/features/project-d/types/post";
 import {
   formatCommentDate,
   formatCommentContent,

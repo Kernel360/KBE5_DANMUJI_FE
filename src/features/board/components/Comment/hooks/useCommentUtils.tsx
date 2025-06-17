@@ -1,5 +1,5 @@
 import React from "react";
-import type { Comment } from "@/features/project/types/post";
+import type { Comment } from "@/features/project-d/types/post";
 
 // 날짜 포맷팅 함수
 export const formatCommentDate = (dateString: string) => {

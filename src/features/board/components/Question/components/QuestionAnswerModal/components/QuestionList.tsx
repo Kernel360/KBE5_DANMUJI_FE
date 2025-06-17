@@ -3,7 +3,7 @@ import {
   QuestionList as StyledQuestionList,
 } from "@/features/board/components/Question/styles/QuestionAnswerModal.styled";
 import QuestionItem from "./QuestionItem";
-import type { Question } from "@/features/project/types/question";
+import type { Question } from "@/features/project-d/types/question";
 
 interface QuestionListProps {
   questions: Question[];

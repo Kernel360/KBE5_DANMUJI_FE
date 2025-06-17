@@ -18,8 +18,8 @@ import {
   updateQuestion,
   deleteQuestion,
   resolveQuestion,
-} from "@/features/project/services/questionService";
-import type { Question } from "@/features/project/types/question";
+} from "@/features/project-d/services/questionService";
+import type { Question } from "@/features/project-d/types/question";
 import { useAuth } from "@/hooks/useAuth";
 
 interface QuestionItemProps {

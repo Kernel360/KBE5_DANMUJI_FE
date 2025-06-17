@@ -6,20 +6,35 @@ import { useAuth } from "@/hooks/useAuth";
 import LoginPage from "@/features/auth/pages/LoginPage";
 import ForgotPasswordPage from "@/features/auth/pages/ForgotPasswordPage";
 import ResetPasswordPage from "@/features/auth/pages/ResetPasswordPage";
+
+// dashboard
 import AdminDashboardPage from "@/features/admin/pages/DashboardPage";
-import CompanyPage from "@/features/company/pages/CompanyPage";
-import MemberPage from "@/features/user/pages/MemberPage";
-import EditProjectPage from "@/features/project/pages/EditProjectPage";
-import AdminProjectPage from "@/features/project/pages/AdminProjectPage";
-import CreateProjectPage from "@/features/project/pages/CreateProjectPage";
 import UserDashboardPage from "@/features/board/pages/DashboardPage";
+
+// project
+
+// company
+import CompanyPage from "@/features/company/pages/CompanyPage";
+
+// member
+import MemberPage from "@/features/user/pages/MemberPage";
+import MemberDetailPage from "@/features/user/pages/MemberDetailPage"; // todo : 삭제 예정
+import UserProfilePage from "@/features/user/pages/UserProfilePage"; // todo : 이걸로 변경
+
+
 import PostListPage from "@/features/board/components/Post/pages/PostListPage";
+
 import ProjectDetailPage from "@/features/project/pages/ProjectDetailPage";
-import CompletedProject from "@/features/project/pages/CompletedProject";
-import InProgressProject from "@/features/project/pages/InProgressProject";
-import UserProfilePage from "@/features/user/pages/UserProfilePage";
-import MemberDetailPage from "@/features/user/pages/MemberDetailPage";
-import MemberProjectPage from "@/features/project/pages/MemberProjectPage";
+import ProjectListPage from "@/features/project/pages/ProjectListPage";
+
+// project-d
+// import EditProjectPage from "@/features/project-d/pages/EditProjectPage";
+// import AdminProjectPage from "@/features/project-d/pages/AdminProjectPage";
+// import CreateProjectPage from "@/features/project-d/pages/CreateProjectPage";
+// import ProjectDetailPage from "@/features/project-d/pages/ProjectDetailPage";
+// import CompletedProject from "@/features/project-d/pages/CompletedProject";
+// import InProgressProject from "@/features/project-d/pages/InProgressProject";
+// import MemberProjectPage from "@/features/project-d/pages/MemberProjectPage";
 
 const AppRoutes = () => {
   const { role } = useAuth();
@@ -58,25 +73,26 @@ const AppRoutes = () => {
           <Route path="/company" element={<CompanyPage />} />
           <Route path="/members" element={<MemberPage />} />
           <Route path="/member/:id" element={<MemberDetailPage />} />
-          <Route path="/projects/create" element={<CreateProjectPage />} />
-          <Route
+          {/* <Route path="/projects/create" element={<CreateProjectPage />} /> */}
+          {/* <Route
             path="/projects/:projectId/edit"
             element={<EditProjectPage />}
           />
-          <Route path="/projects" element={<AdminProjectPage />} />
+          <Route path="/projects" element={<AdminProjectPage />} /> */}
         </>
       )}
 
       {/* 공용 페이지 */}
       <Route path="/posts/:stepId" element={<PostListPage />} />
-      <Route path="/projects/all" element={<MemberProjectPage />} />
+      {/* <Route path="/projects/all" element={<MemberProjectPage />} /> */}
       <Route
         path="/projects/:projectId/detail"
         element={<ProjectDetailPage />}
       />
-      <Route path="/projects/completed" element={<CompletedProject />} />
+      <Route path="/projects" element={<ProjectListPage />} />
+      {/* <Route path="/projects/completed" element={<CompletedProject />} />
       <Route path="/projects/inprogress" element={<InProgressProject />} />
-      <Route path="/projects/active" element={<InProgressProject />} />
+      <Route path="/projects/active" element={<InProgressProject />} /> */}
       <Route path="/my" element={<UserProfilePage />} />
     </Routes>
   );

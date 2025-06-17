@@ -58,61 +58,12 @@ export const Sidebar: React.FC = () => {
           isActive={location.pathname === "/dashboard"}
           onClick={() => handleMenuItemClick("대시보드", "/dashboard")}
         />
-        <div>
-          <MenuItem
-            icon={FaArchive}
-            text="프로젝트 관리"
-            isActive={location.pathname.startsWith("/projects")}
-            onClick={() => {
-              if (role === "ROLE_USER") {
-                handleMenuItemClick("프로젝트 관리", "/projects/active");
-              }
-              if (role === "ROLE_ADMIN") {
-                handleMenuItemClick("프로젝트 관리", "/projects");
-              }
-            }}
-          />
-          {role === "ROLE_USER" && (
-            <ul style={{ listStyle: "none", paddingLeft: 36, margin: 0 }}>
-              <li>
-                <MenuItemSide
-                  icon={FaPlay}
-                  text="진행 중인 프로젝트"
-                  isActive={location.pathname === "/projects/active"}
-                  onClick={() =>
-                    handleMenuItemClick(
-                      "진행 중인 프로젝트",
-                      "/projects/active"
-                    )
-                  }
-                />
-              </li>
-              <li>
-                <MenuItemSide
-                  icon={FaFlagCheckered}
-                  text="완료된 프로젝트"
-                  isActive={location.pathname === "/projects/completed"}
-                  onClick={() =>
-                    handleMenuItemClick(
-                      "완료된 프로젝트",
-                      "/projects/completed"
-                    )
-                  }
-                />
-              </li>
-              <li>
-                <MenuItemSide
-                  icon={FaAlignLeft}
-                  text="모든 프로젝트"
-                  isActive={location.pathname === "/projects/all"}
-                  onClick={() =>
-                    handleMenuItemClick("모든 프로젝트", "/projects/all")
-                  }
-                />
-              </li>
-            </ul>
-          )}
-        </div>
+        <MenuItem
+          icon={FaArchive}
+          text="프로젝트 목록"
+          isActive={location.pathname.startsWith("/projects")}
+          onClick={() => handleMenuItemClick("프로젝트 목록", "/projects")}
+        />
         {/* 관리자 전용 메뉴 */}
         {role === "ROLE_ADMIN" && (
           <>

@@ -7,7 +7,7 @@ import {
   Select,
   ErrorMessage,
 } from "@/features/board/components/Post/styles/PostFormModal.styled";
-import { PostType, PostStatus } from "@/features/project/types/post";
+import { PostType, PostStatus } from "@/features/project-d/types/post";
 
 interface PostFormFieldsProps {
   formData: {

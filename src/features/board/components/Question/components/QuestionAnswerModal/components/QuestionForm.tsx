@@ -7,8 +7,8 @@ import {
 import {
   createQuestion,
   getQuestionsByPost,
-} from "@/features/project/services/questionService";
-import type { Question } from "@/features/project/types/question";
+} from "@/features/project-d/services/questionService";
+import type { Question } from "@/features/project-d/types/question";
 
 interface QuestionFormProps {
   postId: number;

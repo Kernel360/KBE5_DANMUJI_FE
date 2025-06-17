@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import type { Comment } from "@/features/project/types/post";
+import type { Comment } from "@/features/project-d/types/post";
 import {
   organizeComments,
   getRenderedCommentCount,

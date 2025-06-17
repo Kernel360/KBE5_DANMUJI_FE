@@ -3,7 +3,7 @@ import { BrowserRouter as Router, useLocation } from "react-router-dom";
 import React, { useState } from "react";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { useNotification } from "@/hooks/useNotification";
-import AppRoutes from "@/AppRoutes";
+import AppRoutes from "@/routes/AppRoutes";
 import { Sidebar } from "@/layouts/Sidebar";
 import { Topbar } from "@/layouts/Topbar";
 import Footer from "@/layouts/Footer/Footer";

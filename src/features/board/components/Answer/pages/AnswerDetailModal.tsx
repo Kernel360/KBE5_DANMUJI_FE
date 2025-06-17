@@ -24,8 +24,8 @@ import {
   markQuestionAsAnswered,
   updateAnswer,
   deleteAnswer,
-} from "@/features/project/services/questionService";
-import type { Answer } from "@/features/project/types/question";
+} from "@/features/project-d/services/questionService";
+import type { Answer } from "@/features/project-d/types/question";
 import { useAuth } from "@/hooks/useAuth";
 
 interface AnswerDetailModalProps {
