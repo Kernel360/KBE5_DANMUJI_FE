@@ -48,10 +48,18 @@ const ProjectHeader: React.FC = () => {
           <FiCalendar size={14} />
           프로젝트 기간: 2023.06.01 ~ 2023.12.31
         </ProjectPeriod>
-        <ProjectStatusBadge status="IN_PROGRESS">
-          <FiPlay size={12} />
+        <span
+          style={{
+            color: "#2563eb",
+            fontWeight: 600,
+            fontSize: "0.95rem",
+            display: "flex",
+            alignItems: "center",
+            gap: 4,
+          }}
+        >
           진행중
-        </ProjectStatusBadge>
+        </span>
       </ProjectMeta>
 
       <div
