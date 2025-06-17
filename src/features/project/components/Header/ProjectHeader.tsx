@@ -1,11 +1,6 @@
 // components/Header/ProjectHeader.tsx
-import React, { useState } from "react";
-import {
-  FaBuilding,
-  FaUsers,
-  FaChevronDown,
-  FaChevronUp,
-} from "react-icons/fa";
+import React from "react";
+import { FaBuilding, FaUsers } from "react-icons/fa";
 import { FiCalendar, FiPlay } from "react-icons/fi";
 import {
   ProjectHeaderContainer,
@@ -14,23 +9,9 @@ import {
   ProjectMeta,
   ProjectPeriod,
   ProjectStatusBadge,
-  ProjectInfoSection,
-  InfoSection,
-  InfoSectionHeader,
-  InfoSectionIcon,
-  InfoSectionTitle,
-  ToggleButton,
-  InfoSectionContent,
-  InfoItemCard,
-  InfoLabel,
-  InfoValue,
-  InfoValueHighlight,
 } from "./ProjectHeader.styled";
 
 const ProjectHeader: React.FC = () => {
-  const [isClientInfoExpanded, setIsClientInfoExpanded] = useState(true);
-  const [isDeveloperInfoExpanded, setIsDeveloperInfoExpanded] = useState(true);
-
   // 더미 데이터
   const project = {
     name: "클라우드 기반 ERP 시스템 개발",
