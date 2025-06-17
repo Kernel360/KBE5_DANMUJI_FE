@@ -11,59 +11,65 @@ import {
   Th,
   Td,
   StatusBadge,
-} from './ProjectBoard.styled';
-import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import api from '@/api/axios';
-import type { Post, StepList, PostPriority, ProjectDetailResponse } from '../../types/Types';
-import { POST_PRIORITY_OPTIONS, POST_PRIORITY_LABELS } from '../../types/Types';
+} from "./ProjectBoard.styled";
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import api from "@/api/axios";
+import type {
+  Post,
+  StepList,
+  PostPriority,
+  ProjectDetailResponse,
+} from "../../types/Types";
+import { POST_PRIORITY_OPTIONS, POST_PRIORITY_LABELS } from "../../types/Types";
+import ProjectPostDetailModal from "@/features/board/components/Post/components/DetailModal/ProjectPostDetailModal";
 
 // 임시 데이터
 const posts: Post[] = [
   {
     id: 10,
-    step: '기획',
-    title: '데이터베이스 설계 완료 보고서',
-    writer: '이개발',
-    priority: 'LOW',
-    type: 'GENERAL',
-    createdAt: '2023.09.10',
+    step: "기획",
+    title: "데이터베이스 설계 완료 보고서",
+    writer: "이개발",
+    priority: "LOW",
+    type: "GENERAL",
+    createdAt: "2023.09.10",
   },
   {
     id: 9,
-    step: '디자인',
-    title: 'UI/UX 디자인 검토 요청',
-    writer: '최디자인',
-    priority: 'MEDIUM',
-    type: 'GENERAL',
-    createdAt: '2023.09.05',
+    step: "디자인",
+    title: "UI/UX 디자인 검토 요청",
+    writer: "최디자인",
+    priority: "MEDIUM",
+    type: "GENERAL",
+    createdAt: "2023.09.05",
   },
   {
     id: 8,
-    step: '개발',
-    title: 'API 개발 진행 상황 보고',
-    writer: '정백엔드',
-    priority: 'HIGH',
-    type: 'GENERAL',
-    createdAt: '2023.08.25',
+    step: "개발",
+    title: "API 개발 진행 상황 보고",
+    writer: "정백엔드",
+    priority: "HIGH",
+    type: "GENERAL",
+    createdAt: "2023.08.25",
   },
   {
     id: 7,
-    step: '기획',
-    title: '프론트엔드 프레임워크 선정 보고서',
-    writer: '김프론트',
-    priority: 'URGENT',
-    type: 'QUESTION',
-    createdAt: '2023.08.18',
+    step: "기획",
+    title: "프론트엔드 프레임워크 선정 보고서",
+    writer: "김프론트",
+    priority: "URGENT",
+    type: "QUESTION",
+    createdAt: "2023.08.18",
   },
   {
     id: 6,
-    step: '기획',
-    title: '요구사항 정의서 v1.2',
-    writer: '이개발',
-    priority: 'LOW',
-    type: 'GENERAL',
-    createdAt: '2023.08.05',
+    step: "기획",
+    title: "요구사항 정의서 v1.2",
+    writer: "이개발",
+    priority: "LOW",
+    type: "GENERAL",
+    createdAt: "2023.08.05",
   },
 ];
 
@@ -71,8 +77,12 @@ const ProjectBoard = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const [steps, setSteps] = useState<StepList>([]);
   const [loading, setLoading] = useState(false);
-  const [selectedStep, setSelectedStep] = useState('');
-  const [selectedPriority, setSelectedPriority] = useState<PostPriority | ''>('');
+  const [selectedStep, setSelectedStep] = useState("");
+  const [selectedPriority, setSelectedPriority] = useState<PostPriority | "">(
+    ""
+  );
+  const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const filteredPosts = posts.filter(
     (post) =>
@@ -86,7 +96,9 @@ const ProjectBoard = () => {
 
       try {
         setLoading(true);
-        const response = await api.get<ProjectDetailResponse>(`/api/projects/${projectId}`);
+        const response = await api.get<ProjectDetailResponse>(
+          `/api/projects/${projectId}`
+        );
 
         const projectSteps = response.data.data.steps
           .filter((step) => !step.isDeleted)
@@ -95,7 +107,7 @@ const ProjectBoard = () => {
 
         setSteps(projectSteps);
       } catch (error) {
-        console.error('단계 목록 불러오기 실패', error);
+        console.error("단계 목록 불러오기 실패", error);
       } finally {
         setLoading(false);
       }
@@ -103,6 +115,16 @@ const ProjectBoard = () => {
 
     fetchSteps();
   }, [projectId]);
+
+  const handleRowClick = (postId: number) => {
+    setSelectedPostId(postId);
+    setIsModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setSelectedPostId(null);
+  };
 
   return (
     <Wrapper>
@@ -112,7 +134,11 @@ const ProjectBoard = () => {
         </Select>
         <SearchInput placeholder="게시글 검색..." />
 
-        <Select value={selectedStep} onChange={(e) => setSelectedStep(e.target.value)} disabled={loading}>
+        <Select
+          value={selectedStep}
+          onChange={(e) => setSelectedStep(e.target.value)}
+          disabled={loading}
+        >
           <option value="">현재 단계: 전체</option>
           {steps.map((step) => (
             <option key={step} value={step}>
@@ -146,11 +172,15 @@ const ProjectBoard = () => {
         </Thead>
         <Tbody>
           {filteredPosts.map((post) => (
-            <Tr key={post.id}>
+            <Tr
+              key={post.id}
+              style={{ cursor: "pointer" }}
+              onClick={() => handleRowClick(post.id)}
+            >
               <Td>{post.id}</Td>
               <Td>{post.step}</Td>
               <Td>
-                <strong style={{ color: '#2563eb' }}>{post.title}</strong>
+                <strong style={{ color: "#2563eb" }}>{post.title}</strong>
               </Td>
               <Td>{post.writer}</Td>
               <Td>
@@ -163,6 +193,11 @@ const ProjectBoard = () => {
           ))}
         </Tbody>
       </Table>
+      <ProjectPostDetailModal
+        open={isModalOpen}
+        onClose={handleModalClose}
+        postId={selectedPostId}
+      />
     </Wrapper>
   );
 };
