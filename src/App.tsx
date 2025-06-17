@@ -8,6 +8,8 @@ import { Sidebar } from "@/layouts/Sidebar";
 import { Topbar } from "@/layouts/Topbar";
 import Footer from "@/layouts/Footer/Footer";
 import { AppContainer, MainContent, PageContent } from "./App.styled";
+import { NotificationList } from "@/features/Notification/NotificationList";
+import { useNotification as useToastNotification } from "@/features/Notification/NotificationContext";
 import type { Notification } from "@/layouts/Topbar/Topbar.types";
 
 const LayoutWrapper = ({
@@ -50,6 +52,11 @@ const LayoutWrapper = ({
 function AppContent() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [error, setError] = useState<string | null>(null);
+
+  const {
+    notifications: toastNotifications,
+    removeNotification,
+  } = useToastNotification();
 
   useNotification(
     (data) => {
@@ -111,6 +118,11 @@ function AppContent() {
   };
 
   return (
+    <>
+    <NotificationList
+        notifications={toastNotifications}
+        onRemove={removeNotification}
+      />
     <LayoutWrapper
       notifications={notifications}
       markAsRead={markAsRead}
@@ -118,6 +130,7 @@ function AppContent() {
     >
       <AppRoutes />
     </LayoutWrapper>
+    </>
   );
 }
 
