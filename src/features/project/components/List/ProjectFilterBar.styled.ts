@@ -220,6 +220,9 @@ export const DateButton = styled.button<{ $hasValue: boolean }>`
     font-size: 0.8rem;
     color: ${({ $hasValue }) => ($hasValue ? "#1e40af" : "#9ca3af")};
     font-weight: 400;
+    white-space: nowrap;
+    word-break: keep-all;
+    display: inline-block;
   }
 
   &:hover {
