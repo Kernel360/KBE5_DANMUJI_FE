@@ -9,7 +9,7 @@ export const Wrapper = styled.div`
 export const Filters = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: 8px;
   background: #f9fafb;
   border: 1px solid #e5e7eb;
   border-radius: 12px;
@@ -18,6 +18,14 @@ export const Filters = styled.div`
   align-items: flex-end;
   position: relative;
   overflow: visible;
+  justify-content: space-between;
+`;
+
+export const FilterLeft = styled.div`
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  flex-wrap: wrap;
 `;
 
 export const FilterGroup = styled.div`
@@ -36,8 +44,7 @@ export const FilterLabel = styled.label`
 
 export const FilterSearchRight = styled.div`
   display: flex;
-  gap: 12px;
-  flex: 1;
+  gap: 8px;
   align-items: center;
 `;
 
@@ -233,5 +240,139 @@ export const StatusButton = styled.button<{ $active: boolean; $color: string }>`
   &:focus {
     outline: none;
     box-shadow: 0 0 0 3px ${({ $color }) => `${$color}20`};
+  }
+`;
+
+export const DropdownButton = styled.button<{
+  $active: boolean;
+  $color: string;
+  $isOpen: boolean;
+}>`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: ${({ $active, $color }) => ($active ? `${$color}15` : "#ffffff")};
+  color: ${({ $active, $color }) => ($active ? $color : "#374151")};
+  border: 2px solid ${({ $active, $color }) => ($active ? $color : "#e5e7eb")};
+  padding: 8px 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: fit-content;
+  white-space: nowrap;
+
+  svg {
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+    transform: ${({ $isOpen }) =>
+      $isOpen ? "rotate(180deg)" : "rotate(0deg)"};
+  }
+
+  span {
+    font-weight: 500;
+  }
+
+  &:hover {
+    background: ${({ $active, $color }) =>
+      $active ? `${$color}25` : "#f9fafb"};
+    border-color: ${({ $active, $color }) => ($active ? $color : "#d1d5db")};
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px ${({ $color }) => `${$color}20`};
+  }
+`;
+
+export const DropdownMenu = styled.div<{ $isOpen: boolean }>`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  opacity: ${({ $isOpen }) => ($isOpen ? 1 : 0)};
+  visibility: ${({ $isOpen }) => ($isOpen ? "visible" : "hidden")};
+  transform: ${({ $isOpen }) =>
+    $isOpen ? "translateY(0)" : "translateY(-10px)"};
+  transition: all 0.2s ease;
+  margin-top: 4px;
+`;
+
+export const DropdownItem = styled.button<{ $active: boolean; $color: string }>`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px 12px;
+  background: ${({ $active, $color }) =>
+    $active ? `${$color}15` : "transparent"};
+  color: ${({ $active, $color }) => ($active ? $color : "#374151")};
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+
+  &:hover {
+    background: ${({ $active, $color }) =>
+      $active ? `${$color}25` : "#f9fafb"};
+  }
+
+  &:first-child {
+    border-radius: 6px 6px 0 0;
+  }
+
+  &:last-child {
+    border-radius: 0 0 6px 6px;
+  }
+`;
+
+export const DropdownContainer = styled.div`
+  position: relative;
+`;
+
+export const CreatePostButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+  white-space: nowrap;
+
+  &:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
   }
 `;
