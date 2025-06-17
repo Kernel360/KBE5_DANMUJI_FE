@@ -122,12 +122,9 @@ export const Thead = styled.thead`
 export const Tbody = styled.tbody``;
 
 export const Tr = styled.tr`
-  &:nth-child(even) {
-    background-color: #f9fafb;
-  }
-
   &:hover {
-    background-color: #fdf6e3;
+    background-color: #fefdf4;
+    transition: background-color 0.2s ease;
   }
 `;
 
@@ -157,7 +154,7 @@ export const StatusBadge = styled.span<{ priority: PostPriority }>`
       : priority === "MEDIUM"
       ? "#92400e"
       : priority === "HIGH"
-      ? "#b45309"
+      ? "#a21caf"
       : "#991b1b"};
   background-color: ${({ priority }) =>
     priority === "LOW"
@@ -165,7 +162,7 @@ export const StatusBadge = styled.span<{ priority: PostPriority }>`
       : priority === "MEDIUM"
       ? "#fef3c7"
       : priority === "HIGH"
-      ? "#fde68a"
+      ? "#fce7f3"
       : "#fee2e2"};
 `;
 
@@ -178,6 +175,16 @@ export const CommentInfo = styled.span`
   color: #9ca3af;
   font-size: 0.78rem;
   margin-left: 8px;
+`;
+
+export const TypeBadge = styled.span<{ type: "GENERAL" | "QUESTION" }>`
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  color: ${({ type }) => (type === "GENERAL" ? "#1e40af" : "#92400e")};
+  background-color: ${({ type }) =>
+    type === "GENERAL" ? "#dbeafe" : "#fef3c7"};
 `;
 
 export const StatusButtonGroup = styled.div`
@@ -204,6 +211,7 @@ export const StatusButton = styled.button<{ $active: boolean; $color: string }>`
 
   svg {
     flex-shrink: 0;
+    transition: transform 0.3s ease;
   }
 
   span {
@@ -212,11 +220,10 @@ export const StatusButton = styled.button<{ $active: boolean; $color: string }>`
 
   &:hover {
     background: ${({ $active, $color }) =>
-      $active ? `${$color}25` : "#fef3c7"};
-    border-color: ${({ $active, $color }) => ($active ? $color : "#fbbf24")};
-    color: ${({ $active, $color }) => ($active ? $color : "#f59e0b")};
+      $active ? `${$color}25` : "#f9fafb"};
+    border-color: ${({ $active, $color }) => ($active ? $color : "#d1d5db")};
     transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(251, 191, 36, 0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
   &:active {
@@ -225,6 +232,6 @@ export const StatusButton = styled.button<{ $active: boolean; $color: string }>`
 
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2);
+    box-shadow: 0 0 0 3px ${({ $color }) => `${$color}20`};
   }
 `;

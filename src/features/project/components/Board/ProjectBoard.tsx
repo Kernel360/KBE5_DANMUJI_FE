@@ -18,6 +18,7 @@ import {
   CommentInfo,
   StatusButtonGroup,
   StatusButton,
+  TypeBadge,
 } from "./ProjectBoard.styled";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
@@ -40,7 +41,7 @@ import {
   FiRotateCcw,
 } from "react-icons/fi";
 
-// 임시 데이터
+// 임시 데이터ㄴ
 const posts: Post[] = [
   {
     id: 10,
@@ -300,6 +301,7 @@ const ProjectBoard = () => {
             <Th>단계</Th>
             <Th>제목</Th>
             <Th>작성자</Th>
+            <Th>유형</Th>
             <Th>우선순위</Th>
             <Th>작성일</Th>
           </Tr>
@@ -328,6 +330,11 @@ const ProjectBoard = () => {
                 </div>
               </Td>
               <Td>{post.writer}</Td>
+              <Td>
+                <TypeBadge type={post.type}>
+                  {post.type === "GENERAL" ? "일반" : "질문"}
+                </TypeBadge>
+              </Td>
               <Td>
                 <StatusBadge priority={post.priority}>
                   {POST_PRIORITY_LABELS[post.priority]}
