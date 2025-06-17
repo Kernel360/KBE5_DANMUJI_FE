@@ -12,6 +12,8 @@ import {
   ManagerButton,
 } from './ProjectCard.styled';
 
+import { useAuth } from '@/hooks/useAuth';
+
 import type { Project } from '../../types/Types';
 
 const STATUS_MAP = {
@@ -41,6 +43,8 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
     endDate,
     // progress,
   } = project;
+
+  const { role } = useAuth();
 
   return (
     <Card>
@@ -72,19 +76,13 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
           <div>기간</div>
           <div>{startDate} ~ {endDate}</div>
         </CardInfoGroup>
-
-        {/* {progress !== undefined && (
-          <CardProgress>
-            <span>진행률</span>
-            <progress value={progress} max={100} />
-            <span>{progress}%</span>
-          </CardProgress>
-        )} */}
       </CardBody>
 
       <CardFooter>
         <DetailButton>상세 보기</DetailButton>
-        <ManagerButton>담당자 관리</ManagerButton>
+        {role === "ROLE_ADMIN" && (
+          <ManagerButton>담당자 관리</ManagerButton>
+        )}
       </CardFooter>
     </Card>
   );
