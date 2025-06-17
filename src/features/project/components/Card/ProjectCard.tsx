@@ -14,16 +14,21 @@ import {
 
 import type { Project } from '../../types/Types';
 
+const STATUS_MAP = {
+  'IN_PROGRESS': '진행중',
+  'COMPLETED': '완료',
+  'DELAYED': '지연'
+} as const;
+
+const STATUS_COLORS = {
+  'IN_PROGRESS': '#2563eb',
+  'COMPLETED': '#059669',
+  'DELAYED': '#ef4444'
+} as const;
+
 interface ProjectCardProps {
   project: Project;
 }
-
-const statusColors: Record<string, string> = {
-  진행중: '#2563eb',
-  완료: '#059669',
-  지연: '#ef4444',
-  대기: '#f59e0b',
-};
 
 const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
   const {
@@ -42,7 +47,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
       <CardHeader>
         <CardTitle>{name}</CardTitle>
         <CardBadges>
-          <Badge $color={statusColors[status] || '#6b7280'}>{status}</Badge>
+          <Badge $color={STATUS_COLORS[status]}>{STATUS_MAP[status]}</Badge>
         </CardBadges>
       </CardHeader>
 

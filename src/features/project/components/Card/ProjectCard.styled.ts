@@ -4,10 +4,12 @@ export const ProjectCard = styled.div`
   background: #fff;
   border-radius: 14px;
   box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-  padding: 0 0 16px 0;
+  padding:  16px 16px 16px 16px;
   display: flex;
   flex-direction: column;
-  min-width: 320px;
+  width: 360px;       
+  height: 300px;      // 카드 높이 고정
+  overflow: hidden;
 `;
 
 export const CardHeader = styled.div`

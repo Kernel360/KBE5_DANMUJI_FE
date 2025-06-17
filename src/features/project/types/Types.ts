@@ -19,17 +19,16 @@ export interface Post {
     createdAt: string;
 }
 
-export interface Project {
+export type Project = {
     id: number;
     name: string;
     client: string;
     clientManager: string;
     devManagers: string;
     status: 'IN_PROGRESS' | 'COMPLETED' | 'DELAYED';
-    priority: '긴급' | '높음' | '보통' | '낮음';
     startDate: string;
     endDate: string;
-}
+};
 
 export interface ProjectStep {
     id: number;
