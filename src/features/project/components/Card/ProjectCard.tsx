@@ -17,6 +17,7 @@ import {
   FiCheckCircle,
   FiAlertTriangle,
   FiChevronRight,
+  FiEye,
 } from "react-icons/fi";
 
 import { useAuth } from "@/hooks/useAuth";
@@ -107,7 +108,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
       </CardBody>
       <CardFooter>
         <StageButton onClick={handleStageClick}>
-          단계별 보기 <FiChevronRight size={16} />
+          상세 <FiEye size={14} />
         </StageButton>
       </CardFooter>
     </Card>
