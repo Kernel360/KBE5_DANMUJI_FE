@@ -51,22 +51,61 @@ export const Select = styled.select`
 
 export const SearchInput = styled.input`
   flex: 1;
-  min-width: 100px;
-  padding: 6px 12px;
+  min-width: 200px;
+  padding: 10px 16px;
   font-size: 14px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  background-color: #ffffff;
+  color: #374151;
+  transition: all 0.2s ease;
+  outline: none;
+
+  &::placeholder {
+    color: #9ca3af;
+  }
+
+  &:focus {
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+  }
+
+  &:hover {
+    border-color: #d1d5db;
+  }
 `;
 
 export const NewButton = styled.button`
-  padding: 8px 16px;
-  background-color: #4f46e5;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%);
   color: #ffffff;
   font-size: 14px;
-  font-weight: 500;
-  border: none;
-  border-radius: 8px;
+  font-weight: 600;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
   cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(107, 114, 128, 0.2);
+
+  &:hover {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    border-color: #fef3c7;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(251, 191, 36, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(251, 191, 36, 0.2);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2);
+  }
 `;
 
 /* Table styles */
@@ -173,10 +212,11 @@ export const StatusButton = styled.button<{ $active: boolean; $color: string }>`
 
   &:hover {
     background: ${({ $active, $color }) =>
-      $active ? `${$color}25` : "#f9fafb"};
-    border-color: ${({ $active, $color }) => ($active ? $color : "#d1d5db")};
+      $active ? `${$color}25` : "#fef3c7"};
+    border-color: ${({ $active, $color }) => ($active ? $color : "#fbbf24")};
+    color: ${({ $active, $color }) => ($active ? $color : "#f59e0b")};
     transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(251, 191, 36, 0.2);
   }
 
   &:active {
@@ -185,6 +225,6 @@ export const StatusButton = styled.button<{ $active: boolean; $color: string }>`
 
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 3px ${({ $color }) => `${$color}20`};
+    box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2);
   }
 `;

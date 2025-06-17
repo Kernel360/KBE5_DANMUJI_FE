@@ -37,6 +37,7 @@ import {
   FiFlag,
   FiArrowUp,
   FiSearch,
+  FiRotateCcw,
 } from "react-icons/fi";
 
 // 임시 데이터
@@ -153,6 +154,13 @@ const ProjectBoard = () => {
     setSelectedPostId(null);
   };
 
+  const handleResetFilters = () => {
+    setTypeFilter("ALL");
+    setPriorityFilter("ALL");
+    setKeywordType("title");
+    setKeyword("");
+  };
+
   return (
     <Wrapper>
       <Filters>
@@ -254,9 +262,32 @@ const ProjectBoard = () => {
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
             />
-            <NewButton>
-              <FiSearch size={16} style={{ marginRight: 4 }} />
-              검색
+            <NewButton
+              style={{
+                minWidth: "auto",
+                padding: "10px",
+                width: "40px",
+                height: "40px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <FiSearch size={16} />
+            </NewButton>
+            <NewButton
+              onClick={handleResetFilters}
+              style={{
+                minWidth: "auto",
+                padding: "10px",
+                width: "40px",
+                height: "40px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <FiRotateCcw size={16} />
             </NewButton>
           </div>
         </FilterGroup>
