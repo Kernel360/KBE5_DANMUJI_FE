@@ -52,11 +52,6 @@ const ProjectHeader: React.FC = () => {
         role: "프론트엔드 개발자",
         email: "park.front@company.com",
       },
-      {
-        name: "김백엔드",
-        role: "백엔드 개발자",
-        email: "kim.back@company.com",
-      },
     ],
   };
 
@@ -78,107 +73,51 @@ const ProjectHeader: React.FC = () => {
         </ProjectStatusBadge>
       </ProjectMeta>
 
-      <ProjectInfoSection>
-        {/* 고객사 정보 */}
-        <InfoSection>
-          <InfoSectionHeader>
-            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-              <InfoSectionIcon>
-                <FaBuilding />
-              </InfoSectionIcon>
-              <InfoSectionTitle>고객사 정보</InfoSectionTitle>
-            </div>
-            <ToggleButton
-              onClick={() => setIsClientInfoExpanded(!isClientInfoExpanded)}
-              aria-label={isClientInfoExpanded ? "접기" : "펼치기"}
-            >
-              {isClientInfoExpanded ? <FaChevronUp /> : <FaChevronDown />}
-            </ToggleButton>
-          </InfoSectionHeader>
-
-          <InfoSectionContent
-            style={{
-              maxHeight: isClientInfoExpanded ? "200px" : "0",
-              opacity: isClientInfoExpanded ? 1 : 0,
-            }}
-          >
-            <InfoItemCard>
-              <InfoLabel>고객사명</InfoLabel>
-              <InfoValue>{project.client.name}</InfoValue>
-            </InfoItemCard>
-
-            {project.client.contactPerson && (
-              <InfoItemCard>
-                <InfoLabel>담당자</InfoLabel>
-                <InfoValue>{project.client.contactPerson}</InfoValue>
-              </InfoItemCard>
-            )}
-
-            {project.client.email && (
-              <InfoItemCard>
-                <InfoLabel>이메일</InfoLabel>
-                <InfoValue>{project.client.email}</InfoValue>
-              </InfoItemCard>
-            )}
-
-            {project.client.phone && (
-              <InfoItemCard>
-                <InfoLabel>연락처</InfoLabel>
-                <InfoValue>{project.client.phone}</InfoValue>
-              </InfoItemCard>
-            )}
-          </InfoSectionContent>
-        </InfoSection>
-
-        {/* 개발사 정보 */}
-        <InfoSection>
-          <InfoSectionHeader>
-            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-              <InfoSectionIcon>
-                <FaUsers />
-              </InfoSectionIcon>
-              <InfoSectionTitle>개발사 정보</InfoSectionTitle>
-            </div>
-            <ToggleButton
-              onClick={() =>
-                setIsDeveloperInfoExpanded(!isDeveloperInfoExpanded)
-              }
-              aria-label={isDeveloperInfoExpanded ? "접기" : "펼치기"}
-            >
-              {isDeveloperInfoExpanded ? <FaChevronUp /> : <FaChevronDown />}
-            </ToggleButton>
-          </InfoSectionHeader>
-
-          <InfoSectionContent
-            style={{
-              maxHeight: isDeveloperInfoExpanded ? "300px" : "0",
-              opacity: isDeveloperInfoExpanded ? 1 : 0,
-            }}
-          >
-            {project.developers.map((developer, index) => (
-              <div key={index}>
-                <InfoItemCard>
-                  <InfoLabel>개발사 {index + 1}</InfoLabel>
-                  <InfoValueHighlight>{developer.name}</InfoValueHighlight>
-                </InfoItemCard>
-                <InfoItemCard>
-                  <InfoLabel>역할</InfoLabel>
-                  <InfoValue>{developer.role}</InfoValue>
-                </InfoItemCard>
-                {developer.email && (
-                  <InfoItemCard>
-                    <InfoLabel>이메일</InfoLabel>
-                    <InfoValue>{developer.email}</InfoValue>
-                  </InfoItemCard>
-                )}
-                {index < project.developers.length - 1 && (
-                  <div style={{ height: "8px" }}></div>
-                )}
-              </div>
-            ))}
-          </InfoSectionContent>
-        </InfoSection>
-      </ProjectInfoSection>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 4,
+          margin: "12px 0 0 0",
+          fontSize: "0.95rem",
+          color: "#6b7280",
+          fontWeight: 400,
+          lineHeight: 1.7,
+          padding: "0 24px",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <FaBuilding size={17} style={{ marginRight: 4, color: "#9ca3af" }} />
+          <span style={{ color: "#9ca3af", marginRight: 6 }}>고객사</span>
+          <span style={{ color: "#222", fontWeight: 500 }}>
+            {project.client.name}
+          </span>
+          {project.client.contactPerson && (
+            <>
+              <span style={{ color: "#d1d5db", margin: "0 6px" }}>|</span>
+              <span style={{ color: "#9ca3af", marginRight: 6 }}>담당자</span>
+              <span style={{ color: "#222", fontWeight: 500 }}>
+                {project.client.contactPerson}
+              </span>
+            </>
+          )}
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <FaUsers size={17} style={{ marginRight: 4, color: "#9ca3af" }} />
+          <span style={{ color: "#9ca3af", marginRight: 6 }}>개발사</span>
+          {project.developers.map((dev, idx) => (
+            <span key={dev.name}>
+              <span style={{ color: "#222", fontWeight: 500 }}>{dev.name}</span>
+              <span style={{ color: "#9ca3af", margin: "0 2px" }}>
+                ({dev.role})
+              </span>
+              {idx !== project.developers.length - 1 && (
+                <span style={{ color: "#d1d5db", margin: "0 6px" }}>,</span>
+              )}
+            </span>
+          ))}
+        </div>
+      </div>
     </ProjectHeaderContainer>
   );
 };
