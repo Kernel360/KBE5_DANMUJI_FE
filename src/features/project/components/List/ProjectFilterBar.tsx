@@ -237,168 +237,175 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
 
   return (
     <DatePickerStyles>
-      <FilterBar>
-        <FilterGroup>
-          <FilterLabel>프로젝트 상태</FilterLabel>
-          <StatusButtonGroup>
-            {Object.entries(STATUS_MAP).map(
-              ([value, { label, icon: Icon, color }]) => (
-                <StatusButton
-                  key={value || "all"}
-                  $active={filters.status === value}
-                  $color={color}
-                  onClick={() => onInputChange("status", value)}
+      <FilterBar style={{ flexDirection: "column" }}>
+        <div style={{ display: "flex", gap: 20, width: "100%" }}>
+          <FilterGroup>
+            <FilterLabel>프로젝트 상태</FilterLabel>
+            <StatusButtonGroup>
+              {Object.entries(STATUS_MAP).map(
+                ([value, { label, icon: Icon, color }]) => (
+                  <StatusButton
+                    key={value || "all"}
+                    $active={filters.status === value}
+                    $color={color}
+                    onClick={() => onInputChange("status", value)}
+                  >
+                    <Icon size={16} />
+                    <span>{label}</span>
+                  </StatusButton>
+                )
+              )}
+            </StatusButtonGroup>
+          </FilterGroup>
+          <FilterGroup>
+            <FilterLabel>프로젝트 기간</FilterLabel>
+            <DateRangeGroup>
+              <DatePickerWrapper>
+                <DateButton
+                  type="button"
+                  onClick={handleStartDateClick}
+                  $hasValue={!!filters.startDate}
                 >
-                  <Icon size={16} />
-                  <span>{label}</span>
-                </StatusButton>
-              )
+                  <FiCalendar size={16} />
+                  <span>시작일</span>
+                  <span className="date-value">
+                    {formatDate(filters.startDate)}
+                  </span>
+                </DateButton>
+              </DatePickerWrapper>
+              <DateSeparator>~</DateSeparator>
+              <DatePickerWrapper>
+                <DateButton
+                  type="button"
+                  onClick={handleEndDateClick}
+                  $hasValue={!!filters.endDate}
+                >
+                  <FiCalendar size={16} />
+                  <span>종료일</span>
+                  <span className="date-value">
+                    {formatDate(filters.endDate)}
+                  </span>
+                </DateButton>
+              </DatePickerWrapper>
+            </DateRangeGroup>
+            {/* DatePicker 팝업은 기존대로 유지 */}
+            {startDateOpen && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: "100%",
+                  left: 0,
+                  zIndex: 1000,
+                  marginTop: "4px",
+                }}
+              >
+                <DatePicker
+                  selected={
+                    filters.startDate ? new Date(filters.startDate) : null
+                  }
+                  onChange={handleStartDateChange}
+                  selectsStart
+                  startDate={
+                    filters.startDate ? new Date(filters.startDate) : null
+                  }
+                  endDate={filters.endDate ? new Date(filters.endDate) : null}
+                  maxDate={filters.endDate ? new Date(filters.endDate) : null}
+                  dateFormat="yyyy-MM-dd"
+                  placeholderText="시작일 선택"
+                  inline
+                />
+              </div>
             )}
-          </StatusButtonGroup>
-        </FilterGroup>
-        <FilterGroup>
-          <FilterLabel>프로젝트 기간</FilterLabel>
-          <DateRangeGroup>
-            <DatePickerWrapper>
-              <DateButton
-                type="button"
-                onClick={handleStartDateClick}
-                $hasValue={!!filters.startDate}
+            {endDateOpen && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: "100%",
+                  right: 0,
+                  zIndex: 1000,
+                  marginTop: "4px",
+                }}
               >
-                <FiCalendar size={16} />
-                <span>시작일</span>
-                <span className="date-value">
-                  {formatDate(filters.startDate)}
-                </span>
-              </DateButton>
-            </DatePickerWrapper>
-            <DateSeparator>~</DateSeparator>
-            <DatePickerWrapper>
-              <DateButton
-                type="button"
-                onClick={handleEndDateClick}
-                $hasValue={!!filters.endDate}
-              >
-                <FiCalendar size={16} />
-                <span>종료일</span>
-                <span className="date-value">
-                  {formatDate(filters.endDate)}
-                </span>
-              </DateButton>
-            </DatePickerWrapper>
-          </DateRangeGroup>
-
-          {/* 시작일 DatePicker */}
-          {startDateOpen && (
-            <div
-              style={{
-                position: "absolute",
-                top: "100%",
-                left: 0,
-                zIndex: 1000,
-                marginTop: "4px",
-              }}
-            >
-              <DatePicker
-                selected={
-                  filters.startDate ? new Date(filters.startDate) : null
-                }
-                onChange={handleStartDateChange}
-                selectsStart
-                startDate={
-                  filters.startDate ? new Date(filters.startDate) : null
-                }
-                endDate={filters.endDate ? new Date(filters.endDate) : null}
-                maxDate={filters.endDate ? new Date(filters.endDate) : null}
-                dateFormat="yyyy-MM-dd"
-                placeholderText="시작일 선택"
-                inline
-              />
-            </div>
-          )}
-
-          {/* 종료일 DatePicker */}
-          {endDateOpen && (
-            <div
-              style={{
-                position: "absolute",
-                top: "100%",
-                right: 0,
-                zIndex: 1000,
-                marginTop: "4px",
-              }}
-            >
-              <DatePicker
-                selected={filters.endDate ? new Date(filters.endDate) : null}
-                onChange={handleEndDateChange}
-                selectsEnd
-                startDate={
-                  filters.startDate ? new Date(filters.startDate) : null
-                }
-                endDate={filters.endDate ? new Date(filters.endDate) : null}
-                minDate={filters.startDate ? new Date(filters.startDate) : null}
-                dateFormat="yyyy-MM-dd"
-                placeholderText="종료일 선택"
-                inline
-              />
-            </div>
-          )}
-        </FilterGroup>
-        <FilterGroup>
-          <FilterLabel>고객사</FilterLabel>
-          <SelectButton
-            type="button"
-            onClick={handleClientModalOpen}
-            $hasValue={!!filters.client}
-          >
-            <FiHome size={16} />
-            <span className="select-value">
-              {getClientLabel(filters.client)}
-            </span>
-            <FiChevronDown size={16} />
-          </SelectButton>
-        </FilterGroup>
-        <FilterGroup>
-          <FilterLabel>정렬</FilterLabel>
-          <div style={{ position: "relative" }} ref={sortDropdownRef}>
+                <DatePicker
+                  selected={filters.endDate ? new Date(filters.endDate) : null}
+                  onChange={handleEndDateChange}
+                  selectsEnd
+                  startDate={
+                    filters.startDate ? new Date(filters.startDate) : null
+                  }
+                  endDate={filters.endDate ? new Date(filters.endDate) : null}
+                  minDate={
+                    filters.startDate ? new Date(filters.startDate) : null
+                  }
+                  dateFormat="yyyy-MM-dd"
+                  placeholderText="종료일 선택"
+                  inline
+                />
+              </div>
+            )}
+          </FilterGroup>
+        </div>
+        <div style={{ display: "flex", gap: 20, width: "100%", marginTop: 12 }}>
+          <FilterGroup>
+            <FilterLabel>고객사</FilterLabel>
             <SelectButton
               type="button"
-              onClick={handleSortDropdownToggle}
-              $hasValue={!!filters.sort}
-              className={sortDropdownOpen ? "open" : ""}
+              onClick={handleClientModalOpen}
+              $hasValue={!!filters.client}
+              style={{ paddingLeft: 10, paddingRight: 10, minWidth: 90 }}
             >
-              <FiArrowUp size={16} />
-              <span className="select-value">{getSortLabel(filters.sort)}</span>
+              <FiHome size={16} />
+              <span className="select-value">
+                {getClientLabel(filters.client)}
+              </span>
               <FiChevronDown size={16} />
             </SelectButton>
-            <SelectDropdown $isOpen={sortDropdownOpen}>
-              {SORT_OPTIONS.map((option) => (
-                <SelectOption
-                  key={option.value}
-                  $isSelected={filters.sort === option.value}
-                  onClick={() => handleSortSelect(option.value)}
-                >
-                  {option.label}
-                </SelectOption>
-              ))}
-            </SelectDropdown>
-          </div>
-        </FilterGroup>
-        <SearchRight>
-          <SearchInput
-            placeholder="프로젝트명, 고객사, 담당자 검색..."
-            value={filters.keyword}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              onInputChange("keyword", e.target.value)
-            }
-          />
-          <TopActions>
-            <ActionButton $primary onClick={onSearch}>
-              검색
-            </ActionButton>
-            <ActionButton onClick={onReset}>초기화</ActionButton>
-          </TopActions>
-        </SearchRight>
+          </FilterGroup>
+          <FilterGroup>
+            <FilterLabel>정렬</FilterLabel>
+            <div style={{ position: "relative" }} ref={sortDropdownRef}>
+              <SelectButton
+                type="button"
+                onClick={handleSortDropdownToggle}
+                $hasValue={!!filters.sort}
+                className={sortDropdownOpen ? "open" : ""}
+                style={{ paddingLeft: 10, paddingRight: 10, minWidth: 90 }}
+              >
+                <FiArrowUp size={16} />
+                <span className="select-value">
+                  {getSortLabel(filters.sort)}
+                </span>
+                <FiChevronDown size={16} />
+              </SelectButton>
+              <SelectDropdown $isOpen={sortDropdownOpen}>
+                {SORT_OPTIONS.map((option) => (
+                  <SelectOption
+                    key={option.value}
+                    $isSelected={filters.sort === option.value}
+                    onClick={() => handleSortSelect(option.value)}
+                  >
+                    {option.label}
+                  </SelectOption>
+                ))}
+              </SelectDropdown>
+            </div>
+          </FilterGroup>
+          <SearchRight>
+            <SearchInput
+              placeholder="프로젝트명, 고객사, 담당자 검색..."
+              value={filters.keyword}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                onInputChange("keyword", e.target.value)
+              }
+            />
+            <TopActions>
+              <ActionButton $primary onClick={onSearch}>
+                검색
+              </ActionButton>
+              <ActionButton onClick={onReset}>초기화</ActionButton>
+            </TopActions>
+          </SearchRight>
+        </div>
       </FilterBar>
 
       {/* 고객사 선택 모달 */}

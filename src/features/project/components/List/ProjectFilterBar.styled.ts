@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 export const FilterBar = styled.div`
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 20px;
   background: #f9fafb;
   border: 1px solid #e5e7eb;
@@ -11,14 +11,15 @@ export const FilterBar = styled.div`
   margin-bottom: 32px;
   align-items: flex-end;
   position: relative;
-  overflow: visible;
+  overflow-x: auto;
+  overflow-y: visible;
 `;
 
 export const FilterGroup = styled.div`
   display: flex;
   flex-direction: column;
   gap: 6px;
-  min-width: 160px;
+  min-width: 90px;
   position: relative;
 `;
 
@@ -329,7 +330,7 @@ export const SelectButton = styled.button<{ $hasValue: boolean }>`
   justify-content: space-between;
   gap: 8px;
   width: 100%;
-  padding: 10px 14px;
+  padding: 8px 10px;
   background: ${({ $hasValue }) => ($hasValue ? "#f0f9ff" : "#ffffff")};
   border: 2px solid ${({ $hasValue }) => ($hasValue ? "#3b82f6" : "#e5e7eb")};
   border-radius: 8px;
@@ -339,7 +340,7 @@ export const SelectButton = styled.button<{ $hasValue: boolean }>`
   cursor: pointer;
   transition: all 0.2s ease;
   text-align: left;
-  min-width: 140px;
+  min-width: 90px;
 
   svg {
     flex-shrink: 0;

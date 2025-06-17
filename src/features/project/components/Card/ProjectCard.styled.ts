@@ -91,7 +91,12 @@ export const CardProgress = styled.div`
     }
 
     &::-webkit-progress-value {
-      background-color: #fbbf24;
+      background-image: linear-gradient(90deg, #fbbf24, #f59e0b, #fbbf24);
+      border-radius: 4px;
+    }
+
+    &::-moz-progress-bar {
+      background-image: linear-gradient(90deg, #fbbf24, #f59e0b, #fbbf24);
       border-radius: 4px;
     }
   }
@@ -105,48 +110,21 @@ export const CardFooter = styled.div`
   margin-top: auto;
 `;
 
-export const DetailButton = styled.button`
-  background: #fff;
-  color: #fbbf24;
-  border: 2px solid #fbbf24;
-  border-radius: 8px;
-  padding: 8px 20px;
-  font-size: 0.938rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-
-  &:hover {
-    background: #fbbf24;
-    color: #fff;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(251, 191, 36, 0.2);
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-`;
-
-export const ManagerButton = styled.button`
+export const StageButton = styled.button`
   background: #fbbf24;
   color: #fff;
   border: none;
   border-radius: 8px;
-  padding: 8px 20px;
-  font-size: 0.938rem;
+  padding: 8px 18px;
+  font-size: 0.95rem;
   font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
-  box-shadow: 0 2px 4px rgba(251, 191, 36, 0.2);
-
+  transition: all 0.2s;
   &:hover {
     background: #f59e0b;
     transform: translateY(-1px);
-    box-shadow: 0 4px 6px rgba(251, 191, 36, 0.3);
-  }
-
-  &:active {
-    transform: translateY(0);
   }
 `;
