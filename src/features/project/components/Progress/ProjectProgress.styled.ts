@@ -1,12 +1,11 @@
 import styled from "styled-components";
 
 export const Wrapper = styled.div`
-  padding: 32px 24px;
-  margin: 0 24px;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 32px 0 0 0;
+  margin: 0;
+  background: #fff;
+  border: none;
+  box-shadow: none;
   display: flex;
   justify-content: center;
 `;
@@ -17,11 +16,10 @@ export const StepContainer = styled.div`
   gap: 20px;
   max-width: 960px;
   width: 100%;
-  padding: 20px 16px;
-  margin: 0 auto;
+  padding: 0 16px;
   background: #fff;
   border-radius: 8px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  box-shadow: none;
   justify-content: center;
 `;
 
@@ -33,7 +31,7 @@ export const StepItem = styled.div<{ active?: boolean; complete?: boolean }>`
   color: ${({ active, complete }) =>
     complete ? "#10b981" : active ? "#f59e0b" : "#9ca3af"};
   font-weight: ${({ active }) => (active ? "600" : "400")};
-  font-size: 14px;
+  font-size: 15px;
   position: relative;
   min-width: 56px;
   cursor: pointer;
@@ -76,7 +74,7 @@ export const StepLine = styled.div<{ active?: boolean; complete?: boolean }>`
 
 export const StepTitle = styled.div<{ active?: boolean; complete?: boolean }>`
   font-weight: 500;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   color: #6b7280;
   margin-bottom: 0;
   transition: all 0.2s ease;
