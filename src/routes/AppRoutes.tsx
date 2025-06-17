@@ -25,6 +25,7 @@ import UserProfilePage from "@/features/user/pages/UserProfilePage"; // todo : ì
 import PostListPage from "@/features/board/components/Post/pages/PostListPage";
 
 import ProjectDetailPage from "@/features/project/pages/ProjectDetailPage";
+import ProjectListPage from "@/features/project/pages/ProjectListPage";
 
 // project-d
 // import EditProjectPage from "@/features/project-d/pages/EditProjectPage";
@@ -88,6 +89,7 @@ const AppRoutes = () => {
         path="/projects/:projectId/detail"
         element={<ProjectDetailPage />}
       />
+      <Route path="/projects" element={<ProjectListPage />} />
       {/* <Route path="/projects/completed" element={<CompletedProject />} />
       <Route path="/projects/inprogress" element={<InProgressProject />} />
       <Route path="/projects/active" element={<InProgressProject />} /> */}

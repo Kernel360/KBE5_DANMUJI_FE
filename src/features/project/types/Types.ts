@@ -19,6 +19,17 @@ export interface Post {
     createdAt: string;
 }
 
+export interface Project {
+    id: number;
+    name: string;
+    client: string;
+    clientManager: string;
+    devManagers: string;
+    status: '진행중' | '지연' | '완료' | '대기';
+    startDate: string;
+    endDate: string;
+  }
+  
 export interface ProjectStep {
     id: number;
     stepOrder: number;
