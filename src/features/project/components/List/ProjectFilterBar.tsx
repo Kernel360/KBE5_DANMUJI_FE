@@ -10,6 +10,8 @@ import {
   FiChevronDown,
   FiHome,
   FiArrowUp,
+  FiSearch,
+  FiCheck,
 } from "react-icons/fi";
 import {
   FilterBar,
@@ -31,6 +33,25 @@ import {
   SelectButton,
   SelectDropdown,
   SelectOption,
+  ModalOverlay,
+  ClientModal,
+  ModalHeader,
+  ModalTitle,
+  ModalSubtitle,
+  ModalBody,
+  SearchInputWrapper,
+  ModalSearchInput,
+  SearchIcon,
+  ClientList,
+  ClientItem,
+  ClientInfo,
+  ClientName,
+  ClientDescription,
+  CheckIcon,
+  ModalFooter,
+  ModalButton,
+  NoResults,
+  EmptyState,
 } from "./ProjectFilterBar.styled";
 
 const STATUS_MAP = {
@@ -41,10 +62,26 @@ const STATUS_MAP = {
 } as const;
 
 const CLIENT_OPTIONS = [
-  { value: "", label: "전체 고객사" },
-  { value: "ABC 주식회사", label: "ABC 주식회사" },
-  { value: "XYZ 기업", label: "XYZ 기업" },
-  { value: "DEF 그룹", label: "DEF 그룹" },
+  { value: "", label: "전체 고객사", description: "모든 고객사" },
+  {
+    value: "ABC 주식회사",
+    label: "ABC 주식회사",
+    description: "IT 솔루션 전문 기업",
+  },
+  { value: "XYZ 기업", label: "XYZ 기업", description: "제조업 전문 기업" },
+  { value: "DEF 그룹", label: "DEF 그룹", description: "금융 서비스 기업" },
+  { value: "GHI 테크", label: "GHI 테크", description: "스타트업 기술 기업" },
+  { value: "JKL 시스템", label: "JKL 시스템", description: "시스템 통합 전문" },
+  {
+    value: "MNO 솔루션",
+    label: "MNO 솔루션",
+    description: "클라우드 솔루션 기업",
+  },
+  {
+    value: "PQR 인더스트리",
+    label: "PQR 인더스트리",
+    description: "중공업 전문 기업",
+  },
 ];
 
 const SORT_OPTIONS = [
@@ -76,21 +113,16 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
 }) => {
   const [startDateOpen, setStartDateOpen] = useState(false);
   const [endDateOpen, setEndDateOpen] = useState(false);
-  const [clientDropdownOpen, setClientDropdownOpen] = useState(false);
   const [sortDropdownOpen, setSortDropdownOpen] = useState(false);
+  const [clientModalOpen, setClientModalOpen] = useState(false);
+  const [clientSearchTerm, setClientSearchTerm] = useState("");
+  const [selectedClient, setSelectedClient] = useState(filters.client);
 
-  const clientDropdownRef = useRef<HTMLDivElement>(null);
   const sortDropdownRef = useRef<HTMLDivElement>(null);
 
   // 드롭다운 외부 클릭 시 닫기
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        clientDropdownRef.current &&
-        !clientDropdownRef.current.contains(event.target as Node)
-      ) {
-        setClientDropdownOpen(false);
-      }
       if (
         sortDropdownRef.current &&
         !sortDropdownRef.current.contains(event.target as Node)
@@ -104,6 +136,20 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  // ESC 키로 모달 닫기
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setClientModalOpen(false);
+      }
+    };
+
+    if (clientModalOpen) {
+      document.addEventListener("keydown", handleEscape);
+      return () => document.removeEventListener("keydown", handleEscape);
+    }
+  }, [clientModalOpen]);
 
   const formatDate = (dateString: string) => {
     if (!dateString) return "선택 안함";
@@ -141,19 +187,8 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
     setEndDateOpen(!endDateOpen);
   };
 
-  const handleClientDropdownToggle = () => {
-    setSortDropdownOpen(false); // 정렬 드롭다운 닫기
-    setClientDropdownOpen(!clientDropdownOpen);
-  };
-
   const handleSortDropdownToggle = () => {
-    setClientDropdownOpen(false); // 고객사 드롭다운 닫기
     setSortDropdownOpen(!sortDropdownOpen);
-  };
-
-  const handleClientSelect = (value: string) => {
-    onInputChange("client", value);
-    setClientDropdownOpen(false);
   };
 
   const handleSortSelect = (value: string) => {
@@ -161,15 +196,42 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
     setSortDropdownOpen(false);
   };
 
-  const getClientLabel = (value: string) => {
-    const option = CLIENT_OPTIONS.find((opt) => opt.value === value);
-    return option ? option.label : "전체 고객사";
+  const handleClientModalOpen = () => {
+    setSelectedClient(filters.client);
+    setClientSearchTerm("");
+    setClientModalOpen(true);
+  };
+
+  const handleClientModalClose = () => {
+    setClientModalOpen(false);
+    setClientSearchTerm("");
+  };
+
+  const handleClientSelect = (value: string) => {
+    setSelectedClient(value);
+  };
+
+  const handleClientConfirm = () => {
+    onInputChange("client", selectedClient);
+    setClientModalOpen(false);
   };
 
   const getSortLabel = (value: string) => {
     const option = SORT_OPTIONS.find((opt) => opt.value === value);
     return option ? option.label : "최신순";
   };
+
+  const getClientLabel = (value: string) => {
+    const option = CLIENT_OPTIONS.find((opt) => opt.value === value);
+    return option ? option.label : "전체 고객사";
+  };
+
+  // 고객사 검색 필터링
+  const filteredClients = CLIENT_OPTIONS.filter(
+    (client) =>
+      client.label.toLowerCase().includes(clientSearchTerm.toLowerCase()) ||
+      client.description.toLowerCase().includes(clientSearchTerm.toLowerCase())
+  );
 
   return (
     <DatePickerStyles>
@@ -282,31 +344,17 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
         </FilterGroup>
         <FilterGroup>
           <FilterLabel>고객사</FilterLabel>
-          <div style={{ position: "relative" }} ref={clientDropdownRef}>
-            <SelectButton
-              type="button"
-              onClick={handleClientDropdownToggle}
-              $hasValue={!!filters.client}
-              className={clientDropdownOpen ? "open" : ""}
-            >
-              <FiHome size={16} />
-              <span className="select-value">
-                {getClientLabel(filters.client)}
-              </span>
-              <FiChevronDown size={16} />
-            </SelectButton>
-            <SelectDropdown $isOpen={clientDropdownOpen}>
-              {CLIENT_OPTIONS.map((option) => (
-                <SelectOption
-                  key={option.value}
-                  $isSelected={filters.client === option.value}
-                  onClick={() => handleClientSelect(option.value)}
-                >
-                  {option.label}
-                </SelectOption>
-              ))}
-            </SelectDropdown>
-          </div>
+          <SelectButton
+            type="button"
+            onClick={handleClientModalOpen}
+            $hasValue={!!filters.client}
+          >
+            <FiHome size={16} />
+            <span className="select-value">
+              {getClientLabel(filters.client)}
+            </span>
+            <FiChevronDown size={16} />
+          </SelectButton>
         </FilterGroup>
         <FilterGroup>
           <FilterLabel>정렬</FilterLabel>
@@ -350,6 +398,71 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
           </TopActions>
         </SearchRight>
       </FilterBar>
+
+      {/* 고객사 선택 모달 */}
+      <ModalOverlay $isOpen={clientModalOpen} onClick={handleClientModalClose}>
+        <ClientModal
+          $isOpen={clientModalOpen}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <ModalHeader>
+            <ModalTitle>고객사 선택</ModalTitle>
+            <ModalSubtitle>
+              프로젝트를 진행할 고객사를 선택해주세요
+            </ModalSubtitle>
+          </ModalHeader>
+          <ModalBody>
+            <SearchInputWrapper>
+              <SearchIcon>
+                <FiSearch size={16} />
+              </SearchIcon>
+              <ModalSearchInput
+                placeholder="고객사명 또는 설명으로 검색..."
+                value={clientSearchTerm}
+                onChange={(e) => setClientSearchTerm(e.target.value)}
+                autoFocus
+              />
+            </SearchInputWrapper>
+            <ClientList>
+              {filteredClients.length > 0 ? (
+                filteredClients.map((client) => (
+                  <ClientItem
+                    key={client.value}
+                    $isSelected={selectedClient === client.value}
+                    onClick={() => handleClientSelect(client.value)}
+                  >
+                    <ClientInfo>
+                      <ClientName $isSelected={selectedClient === client.value}>
+                        {client.label}
+                      </ClientName>
+                      <ClientDescription>
+                        {client.description}
+                      </ClientDescription>
+                    </ClientInfo>
+                    <CheckIcon $isSelected={selectedClient === client.value}>
+                      <FiCheck size={16} />
+                    </CheckIcon>
+                  </ClientItem>
+                ))
+              ) : clientSearchTerm ? (
+                <NoResults>
+                  검색 결과가 없습니다.
+                  <br />
+                  다른 검색어를 입력해보세요.
+                </NoResults>
+              ) : (
+                <EmptyState>고객사 목록을 불러오는 중...</EmptyState>
+              )}
+            </ClientList>
+          </ModalBody>
+          <ModalFooter>
+            <ModalButton onClick={handleClientModalClose}>취소</ModalButton>
+            <ModalButton $primary onClick={handleClientConfirm}>
+              선택 완료
+            </ModalButton>
+          </ModalFooter>
+        </ClientModal>
+      </ModalOverlay>
     </DatePickerStyles>
   );
 };
