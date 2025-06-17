@@ -10,6 +10,8 @@ export const FilterBar = styled.div`
   padding: 20px;
   margin-bottom: 32px;
   align-items: flex-end;
+  position: relative;
+  overflow: visible;
 `;
 
 export const FilterGroup = styled.div`
@@ -17,6 +19,7 @@ export const FilterGroup = styled.div`
   flex-direction: column;
   gap: 6px;
   min-width: 160px;
+  position: relative;
 `;
 
 export const FilterLabel = styled.label`
@@ -137,6 +140,18 @@ export const DateRangeGroup = styled.div`
 export const DatePickerWrapper = styled.div`
   position: relative;
   flex: 1;
+
+  .react-datepicker-wrapper {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    margin-top: 4px;
+  }
+
+  .react-datepicker-popper {
+    z-index: 1000;
+  }
 `;
 
 export const DateButton = styled.button<{ $hasValue: boolean }>`
@@ -204,6 +219,16 @@ export const DatePickerStyles = styled.div`
     border: 1px solid #e5e7eb;
     border-radius: 8px;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+  }
+
+  .react-datepicker-popper {
+    z-index: 1000 !important;
+  }
+
+  .react-datepicker-wrapper {
+    position: absolute;
+    z-index: 1000;
   }
 
   .react-datepicker__header {

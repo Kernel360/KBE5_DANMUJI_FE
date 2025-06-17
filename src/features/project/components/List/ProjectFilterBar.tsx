@@ -83,6 +83,16 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
     setEndDateOpen(false);
   };
 
+  const handleStartDateClick = () => {
+    setEndDateOpen(false); // 종료일 달력 닫기
+    setStartDateOpen(!startDateOpen);
+  };
+
+  const handleEndDateClick = () => {
+    setStartDateOpen(false); // 시작일 달력 닫기
+    setEndDateOpen(!endDateOpen);
+  };
+
   return (
     <DatePickerStyles>
       <FilterBar>
@@ -110,7 +120,7 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
             <DatePickerWrapper>
               <DateButton
                 type="button"
-                onClick={() => setStartDateOpen(!startDateOpen)}
+                onClick={handleStartDateClick}
                 $hasValue={!!filters.startDate}
               >
                 <FiCalendar size={16} />
@@ -119,30 +129,12 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
                   {formatDate(filters.startDate)}
                 </span>
               </DateButton>
-              {startDateOpen && (
-                <DatePicker
-                  selected={
-                    filters.startDate ? new Date(filters.startDate) : null
-                  }
-                  onChange={handleStartDateChange}
-                  selectsStart
-                  startDate={
-                    filters.startDate ? new Date(filters.startDate) : null
-                  }
-                  endDate={filters.endDate ? new Date(filters.endDate) : null}
-                  maxDate={filters.endDate ? new Date(filters.endDate) : null}
-                  inline
-                  dateFormat="yyyy-MM-dd"
-                  placeholderText="시작일 선택"
-                  popperPlacement="bottom-start"
-                />
-              )}
             </DatePickerWrapper>
             <DateSeparator>~</DateSeparator>
             <DatePickerWrapper>
               <DateButton
                 type="button"
-                onClick={() => setEndDateOpen(!endDateOpen)}
+                onClick={handleEndDateClick}
                 $hasValue={!!filters.endDate}
               >
                 <FiCalendar size={16} />
@@ -151,26 +143,64 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
                   {formatDate(filters.endDate)}
                 </span>
               </DateButton>
-              {endDateOpen && (
-                <DatePicker
-                  selected={filters.endDate ? new Date(filters.endDate) : null}
-                  onChange={handleEndDateChange}
-                  selectsEnd
-                  startDate={
-                    filters.startDate ? new Date(filters.startDate) : null
-                  }
-                  endDate={filters.endDate ? new Date(filters.endDate) : null}
-                  minDate={
-                    filters.startDate ? new Date(filters.startDate) : null
-                  }
-                  inline
-                  dateFormat="yyyy-MM-dd"
-                  placeholderText="종료일 선택"
-                  popperPlacement="bottom-end"
-                />
-              )}
             </DatePickerWrapper>
           </DateRangeGroup>
+
+          {/* 시작일 DatePicker */}
+          {startDateOpen && (
+            <div
+              style={{
+                position: "absolute",
+                top: "100%",
+                left: 0,
+                zIndex: 1000,
+                marginTop: "4px",
+              }}
+            >
+              <DatePicker
+                selected={
+                  filters.startDate ? new Date(filters.startDate) : null
+                }
+                onChange={handleStartDateChange}
+                selectsStart
+                startDate={
+                  filters.startDate ? new Date(filters.startDate) : null
+                }
+                endDate={filters.endDate ? new Date(filters.endDate) : null}
+                maxDate={filters.endDate ? new Date(filters.endDate) : null}
+                dateFormat="yyyy-MM-dd"
+                placeholderText="시작일 선택"
+                inline
+              />
+            </div>
+          )}
+
+          {/* 종료일 DatePicker */}
+          {endDateOpen && (
+            <div
+              style={{
+                position: "absolute",
+                top: "100%",
+                right: 0,
+                zIndex: 1000,
+                marginTop: "4px",
+              }}
+            >
+              <DatePicker
+                selected={filters.endDate ? new Date(filters.endDate) : null}
+                onChange={handleEndDateChange}
+                selectsEnd
+                startDate={
+                  filters.startDate ? new Date(filters.startDate) : null
+                }
+                endDate={filters.endDate ? new Date(filters.endDate) : null}
+                minDate={filters.startDate ? new Date(filters.startDate) : null}
+                dateFormat="yyyy-MM-dd"
+                placeholderText="종료일 선택"
+                inline
+              />
+            </div>
+          )}
         </FilterGroup>
         <FilterGroup>
           <FilterLabel>고객사</FilterLabel>
