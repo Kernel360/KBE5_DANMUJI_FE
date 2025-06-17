@@ -8,10 +8,37 @@ export const Wrapper = styled.div`
 
 export const Filters = styled.div`
   display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
-  align-items: center;
   flex-wrap: wrap;
+  gap: 20px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 32px;
+  align-items: flex-end;
+  position: relative;
+  overflow: visible;
+`;
+
+export const FilterGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 160px;
+  position: relative;
+`;
+
+export const FilterLabel = styled.label`
+  font-size: 0.92rem;
+  color: #374151;
+  font-weight: 500;
+`;
+
+export const FilterSearchRight = styled.div`
+  display: flex;
+  gap: 12px;
+  flex: 1;
+  align-items: center;
 `;
 
 export const Select = styled.select`
@@ -112,4 +139,52 @@ export const CommentInfo = styled.span`
   color: #9ca3af;
   font-size: 0.78rem;
   margin-left: 8px;
+`;
+
+export const StatusButtonGroup = styled.div`
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+`;
+
+export const StatusButton = styled.button<{ $active: boolean; $color: string }>`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: ${({ $active, $color }) => ($active ? `${$color}15` : "#ffffff")};
+  color: ${({ $active, $color }) => ($active ? $color : "#374151")};
+  border: 2px solid ${({ $active, $color }) => ($active ? $color : "#e5e7eb")};
+  padding: 8px 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: fit-content;
+  white-space: nowrap;
+
+  svg {
+    flex-shrink: 0;
+  }
+
+  span {
+    font-weight: 500;
+  }
+
+  &:hover {
+    background: ${({ $active, $color }) =>
+      $active ? `${$color}25` : "#f9fafb"};
+    border-color: ${({ $active, $color }) => ($active ? $color : "#d1d5db")};
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px ${({ $color }) => `${$color}20`};
+  }
 `;

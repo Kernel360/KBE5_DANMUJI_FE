@@ -1,6 +1,9 @@
 import {
   Wrapper,
   Filters,
+  FilterGroup,
+  FilterLabel,
+  FilterSearchRight,
   Select,
   NewButton,
   SearchInput,
@@ -13,6 +16,8 @@ import {
   StatusBadge,
   TitleText,
   CommentInfo,
+  StatusButtonGroup,
+  StatusButton,
 } from "./ProjectBoard.styled";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
@@ -25,6 +30,14 @@ import type {
 } from "../../types/Types";
 import { POST_PRIORITY_OPTIONS, POST_PRIORITY_LABELS } from "../../types/Types";
 import ProjectPostDetailModal from "@/features/board/components/Post/components/DetailModal/ProjectPostDetailModal";
+import {
+  FiFileText,
+  FiUser,
+  FiMessageCircle,
+  FiFlag,
+  FiArrowUp,
+  FiSearch,
+} from "react-icons/fi";
 
 // 임시 데이터
 const posts: Post[] = [
@@ -90,12 +103,19 @@ const ProjectBoard = () => {
   );
   const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const filteredPosts = posts.filter(
-    (post) =>
-      (selectedPriority ? post.priority === selectedPriority : true) &&
-      (selectedStep ? post.step === selectedStep : true)
+  // 게시글 유형 필터
+  const [typeFilter, setTypeFilter] = useState<"ALL" | "GENERAL" | "QUESTION">(
+    "ALL"
   );
+  // 우선순위 필터
+  const [priorityFilter, setPriorityFilter] = useState<
+    "ALL" | "LOW" | "MEDIUM" | "HIGH" | "URGENT"
+  >("ALL");
+  // 키워드 필터
+  const [keywordType, setKeywordType] = useState<"title" | "writer">("title");
+  const [keyword, setKeyword] = useState("");
+
+  const filteredPosts = posts;
 
   useEffect(() => {
     const fetchSteps = async () => {
@@ -136,34 +156,110 @@ const ProjectBoard = () => {
   return (
     <Wrapper>
       <Filters>
-        <Select>
-          <option>제목</option>
-        </Select>
-        <SearchInput placeholder="게시글 검색..." />
-
-        <Select
-          value={selectedStep}
-          onChange={(e) => setSelectedStep(e.target.value)}
-          disabled={loading}
-        >
-          <option value="">현재 단계: 전체</option>
-          {steps.map((step) => (
-            <option key={step} value={step}>
-              {step}
-            </option>
-          ))}
-        </Select>
-
-        {/* <Select value={selectedPriority} onChange={(e) => setSelectedPriority(e.target.value as PostPriority)}>
-          <option value="">우선 순위: 전체</option>
-          {POST_PRIORITY_OPTIONS.map((priority) => (
-            <option key={priority} value={priority}>
-              {POST_PRIORITY_LABELS[priority]}
-            </option>
-          ))}
-        </Select> */}
-
-        <NewButton>+ 게시글 작성</NewButton>
+        <FilterGroup>
+          <FilterLabel>게시글 유형</FilterLabel>
+          <StatusButtonGroup>
+            <StatusButton
+              $active={typeFilter === "ALL"}
+              $color={"#6b7280"}
+              onClick={() => setTypeFilter("ALL")}
+            >
+              <FiFileText size={16} />
+              <span>전체</span>
+            </StatusButton>
+            <StatusButton
+              $active={typeFilter === "GENERAL"}
+              $color={"#3b82f6"}
+              onClick={() => setTypeFilter("GENERAL")}
+            >
+              <FiMessageCircle size={16} />
+              <span>일반</span>
+            </StatusButton>
+            <StatusButton
+              $active={typeFilter === "QUESTION"}
+              $color={"#f59e0b"}
+              onClick={() => setTypeFilter("QUESTION")}
+            >
+              <FiFlag size={16} />
+              <span>질문</span>
+            </StatusButton>
+          </StatusButtonGroup>
+        </FilterGroup>
+        <FilterGroup>
+          <FilterLabel>우선순위</FilterLabel>
+          <StatusButtonGroup>
+            <StatusButton
+              $active={priorityFilter === "ALL"}
+              $color={"#6b7280"}
+              onClick={() => setPriorityFilter("ALL")}
+            >
+              <FiArrowUp size={16} />
+              <span>전체</span>
+            </StatusButton>
+            <StatusButton
+              $active={priorityFilter === "LOW"}
+              $color={"#10b981"}
+              onClick={() => setPriorityFilter("LOW")}
+            >
+              <span>낮음</span>
+            </StatusButton>
+            <StatusButton
+              $active={priorityFilter === "MEDIUM"}
+              $color={"#fbbf24"}
+              onClick={() => setPriorityFilter("MEDIUM")}
+            >
+              <span>보통</span>
+            </StatusButton>
+            <StatusButton
+              $active={priorityFilter === "HIGH"}
+              $color={"#a21caf"}
+              onClick={() => setPriorityFilter("HIGH")}
+            >
+              <span>높음</span>
+            </StatusButton>
+            <StatusButton
+              $active={priorityFilter === "URGENT"}
+              $color={"#ef4444"}
+              onClick={() => setPriorityFilter("URGENT")}
+            >
+              <span>긴급</span>
+            </StatusButton>
+          </StatusButtonGroup>
+        </FilterGroup>
+        <FilterGroup>
+          <FilterLabel>키워드</FilterLabel>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <StatusButtonGroup>
+              <StatusButton
+                $active={keywordType === "title"}
+                $color={"#3b82f6"}
+                onClick={() => setKeywordType("title")}
+              >
+                <FiFileText size={16} />
+                <span>제목</span>
+              </StatusButton>
+              <StatusButton
+                $active={keywordType === "writer"}
+                $color={"#10b981"}
+                onClick={() => setKeywordType("writer")}
+              >
+                <FiUser size={16} />
+                <span>작성자</span>
+              </StatusButton>
+            </StatusButtonGroup>
+            <SearchInput
+              placeholder={
+                keywordType === "title" ? "제목으로 검색" : "작성자로 검색"
+              }
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+            />
+            <NewButton>
+              <FiSearch size={16} style={{ marginRight: 4 }} />
+              검색
+            </NewButton>
+          </div>
+        </FilterGroup>
       </Filters>
 
       <Table>
