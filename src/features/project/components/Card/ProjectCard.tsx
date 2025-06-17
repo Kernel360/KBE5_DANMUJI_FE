@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   ProjectCard as Card,
   CardHeader,
@@ -41,17 +42,53 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
     status,
     startDate,
     endDate,
-    // progress,
   } = project;
 
   const { role } = useAuth();
+  const navigate = useNavigate();
+
+  const handleDetailClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // 이벤트 버블링 방지
+    navigate(`/projects/${project.id}/detail`);
+  };
+
+  const handleManagerClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // 이벤트 버블링 방지
+    // TODO: 담당자 정보 표시 로직 구현
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'IN_PROGRESS':
+        return '#3b82f6';
+      case 'COMPLETED':
+        return '#10b981';
+      case 'DELAYED':
+        return '#ef4444';
+      default:
+        return '#6b7280';
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'IN_PROGRESS':
+        return '진행중';
+      case 'COMPLETED':
+        return '완료';
+      case 'DELAYED':
+        return '지연';
+      default:
+        return status;
+    }
+  };
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>{name}</CardTitle>
         <CardBadges>
-          <Badge $color={STATUS_COLORS[status]}>{STATUS_MAP[status]}</Badge>
+          <Badge $color={getStatusColor(status)}>{getStatusText(status)}</Badge>
         </CardBadges>
       </CardHeader>
 
@@ -76,20 +113,12 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
           <div>기간</div>
           <div>{startDate} ~ {endDate}</div>
         </CardInfoGroup>
-
-        {/* {progress !== undefined && (
-          <CardProgress>
-            <span>진행률</span>
-            <progress value={progress} max={100} />
-            <span>{progress}%</span>
-          </CardProgress>
-        )} */}
       </CardBody>
 
       <CardFooter>
-        <DetailButton>상세 보기</DetailButton>
+        <DetailButton onClick={handleDetailClick}>상세 보기</DetailButton>
         {role === "ROLE_ADMIN" && (
-          <ManagerButton>담당자 관리</ManagerButton>
+          <ManagerButton onClick={handleManagerClick}>담당자 관리</ManagerButton>
         )}
       </CardFooter>
     </Card>
