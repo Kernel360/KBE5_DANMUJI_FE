@@ -1,12 +1,5 @@
 import styled from 'styled-components';
 
-export const Wrapper = styled.div`
-  padding: 16px;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  background-color: #ffffff;
-`;
-
 export const Section = styled.div`
   margin-bottom: 24px;
 `;
@@ -28,12 +21,14 @@ export const CompanyGroup = styled.div`
   flex: 1;
 `;
 
-export const CompanyList = styled.div<{ count: number }>`
+export const CompanyList = styled.div`
   display: flex;
   gap: 16px;
+  flex-wrap: wrap;
 
   & > div {
-    flex: ${({ count }) => (count === 1 ? '0 0 50%' : count === 2 ? '0 0 33.33%' : '0 0 100%')};
+    width: 220px; 
+    flex-shrink: 0;
   }
 `;
 
@@ -74,4 +69,19 @@ export const Name = styled.span`
 export const Role = styled.span`
   font-size: 12px;
   color: #6b7280;
+`;
+
+export const Wrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  min-height: 10vh; 
+  background-color: #f3f4f6; 
+  padding: 10px;
+`;
+
+export const Inner = styled.div`
+  width: 100%;
+  max-width: 960px;
 `;

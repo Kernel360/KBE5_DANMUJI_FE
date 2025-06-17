@@ -14,7 +14,7 @@ const ProjectBoard = () => {
     <Wrapper>
       <Filters>
         <Select><option>현재 단계: 개발</option></Select>
-        <Select><option>태그: 전체</option></Select>
+        <Select><option>승인 상태: 전체</option></Select>
         <Select><option>정렬: 최신순</option></Select>
         <SearchInput placeholder="게시글 검색..." />
         <NewButton>+ 새 글 작성</NewButton>

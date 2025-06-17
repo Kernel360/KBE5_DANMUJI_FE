@@ -24,7 +24,7 @@ export const Select = styled.select`
 
 export const SearchInput = styled.input`
   flex: 1;
-  min-width: 200px;
+  min-width: 100px;
   padding: 6px 12px;
   font-size: 14px;
   border: 1px solid #d1d5db;
