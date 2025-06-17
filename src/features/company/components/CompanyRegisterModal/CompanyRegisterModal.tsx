@@ -1,5 +1,7 @@
 import api from "@/api/axios";
-import React, { useRef } from "react";
+import axios from "axios";
+import React, { useRef, useState } from "react";
+import { useNotification } from "@/features/Notification/NotificationContext";
 import styled from "styled-components";
 
 const ModalOverlay = styled.div`
@@ -96,21 +98,48 @@ const RegInput = styled(Input)`
   padding-right: 0;
 `;
 
+const MessageBox = styled.div<{ success?: boolean }>`
+  margin-bottom: 1rem;
+  color: ${({ success }) => (success ? "green" : "red")};
+  font-weight: 600;
+  font-size: 0.9rem;
+`;
+
+interface FieldError {
+  field: string;
+  value: string;
+  reason: string;
+}
+
+interface ErrorResponse {
+  status: string;
+  code: string;
+  message: string;
+  data?: {
+    errors: FieldError[];
+  };
+}
+
 interface Props {
   open: boolean;
   onClose: () => void;
-  onRegisterSuccess?: () => void; // ✅ 새로 추가
+  onRegisterSuccess?: () => void;
 }
 
 export default function CompanyRegisterModal({
   open,
   onClose,
-  onRegisterSuccess
+  onRegisterSuccess,
 }: Props) {
   const reg1 = useRef<HTMLInputElement>(null);
   const reg2 = useRef<HTMLInputElement>(null);
   const reg3 = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
+
+  const [fieldErrors, setFieldErrors] = useState<FieldError[]>([]);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const { notify } = useNotification();
 
   if (!open) return null;
 
@@ -128,47 +157,74 @@ export default function CompanyRegisterModal({
     }
   };
 
+  const handleClose = () => {
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    setFieldErrors([]);
+    onClose();
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    setFieldErrors([]);
+
+    const formData = new FormData(e.currentTarget);
+    const data = Object.fromEntries(formData) as { [key: string]: string };
+
+    const bizNo = `${data.reg1}${data.reg2}${data.reg3}`;
+
+    const requestBody = {
+      name: data.name,
+      bizNo,
+      address: data.address,
+      ceoName: data.ceoName,
+      email: data.email,
+      tel: data.tel,
+      bio: data.bio,
+    };
+
+    try {
+      await api.post("/api/companies", requestBody);
+      notify("회사 등록이 완료되었습니다!");
+      onRegisterSuccess?.();
+      handleClose();
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const errorData = err.response?.data as ErrorResponse | undefined;
+        if (errorData?.data?.errors) {
+          setFieldErrors(errorData.data.errors);
+          notify("회사 등록이 실패했습니다!", false);
+        } else {
+          setErrorMessage(errorData?.message || "회사 등록 중 알 수 없는 오류가 발생했습니다.");
+        }
+      } else {
+        setErrorMessage("회사 등록 중 알 수 없는 오류가 발생했습니다.");
+      }
+    }
+  };
+
   return (
     <ModalOverlay>
       <ModalContent>
-        <CloseButton onClick={onClose}>×</CloseButton>
+        <CloseButton onClick={handleClose}>×</CloseButton>
         <Title>회사 등록</Title>
-        <Form
-            ref={formRef}
-            onSubmit={async (e) => {
-              e.preventDefault();
-              const formData = new FormData(e.currentTarget);
-              const data = Object.fromEntries(formData) as { [key: string]: string };
 
-              // 사업자등록번호 결합
-              const bizNo = `${data.reg1}${data.reg2}${data.reg3}`;
+        {/* 성공 / 에러 메시지 표시 */}
+        {successMessage && <MessageBox success>{successMessage}</MessageBox>}
+        {errorMessage && <MessageBox>{errorMessage}</MessageBox>}
 
-              const requestBody = {
-                name: data.name,
-                bizNo,
-                address: data.address,
-                ceoName: data.ceoName,
-                email: data.email,
-                tel: data.tel,
-                bio: data.bio
-              };
-
-              try {
-                await api.post("/api/companies", requestBody);
-
-                // 성공 시 후처리 (예: 알림, 모달 닫기 등)
-                alert("회사 등록이 완료되었습니다!");
-                onClose();
-                onRegisterSuccess?.();
-              } catch (error) {
-                console.error(error);
-                alert("회사 등록 중 오류가 발생했습니다.");
-              }
-            }}
-          >
+        <Form ref={formRef} onSubmit={handleSubmit}>
           <FormGroup>
             <Label>회사명</Label>
             <Input name="name" required placeholder="회사명을 입력하세요" />
+            {fieldErrors.find((e) => e.field === "name") && (
+              <p style={{ color: "red", fontSize: "0.8rem", marginTop: "0.25rem" }}>
+                {fieldErrors.find((e) => e.field === "name")?.reason}
+              </p>
+            )}
           </FormGroup>
           <FormGroup>
             <Label>사업자등록번호</Label>
@@ -206,14 +262,29 @@ export default function CompanyRegisterModal({
                 pattern="[0-9]*"
               />
             </RegNumberRow>
+            {fieldErrors.find((e) => e.field === "bizNo") && (
+              <p style={{ color: "red", fontSize: "0.8rem", marginTop: "0.25rem" }}>
+                {fieldErrors.find((e) => e.field === "bizNo")?.reason}
+              </p>
+            )}
           </FormGroup>
           <FormGroup>
             <Label>주소</Label>
             <Input name="address" required placeholder="주소를 입력하세요" />
+            {fieldErrors.find((e) => e.field === "address") && (
+              <p style={{ color: "red", fontSize: "0.8rem", marginTop: "0.25rem" }}>
+                {fieldErrors.find((e) => e.field === "address")?.reason}
+              </p>
+            )}
           </FormGroup>
           <FormGroup>
-            <Label>사업자 명</Label>
-            <Input name="ceoName" required placeholder="사업자 명을 입력하세요" />
+            <Label>대표자명</Label>
+            <Input name="ceoName" required placeholder="대표자명을 입력하세요" />
+            {fieldErrors.find((e) => e.field === "ceoName") && (
+              <p style={{ color: "red", fontSize: "0.8rem", marginTop: "0.25rem" }}>
+                {fieldErrors.find((e) => e.field === "ceoName")?.reason}
+              </p>
+            )}
           </FormGroup>
           <FormGroup>
             <Label>이메일</Label>
@@ -223,34 +294,54 @@ export default function CompanyRegisterModal({
               required
               placeholder="이메일을 입력하세요"
             />
+            {fieldErrors.find((e) => e.field === "email") && (
+              <p style={{ color: "red", fontSize: "0.8rem", marginTop: "0.25rem" }}>
+                {fieldErrors.find((e) => e.field === "email")?.reason}
+              </p>
+            )}
           </FormGroup>
           <FormGroup>
-            <Label>연락처</Label>
-            <Input name="tel" required placeholder="010-0000-0000" />
+            <Label>전화번호</Label>
+            <Input
+              name="tel"
+              type="tel"
+              required
+              placeholder="전화번호를 입력하세요"
+            />
+            {fieldErrors.find((e) => e.field === "tel") && (
+              <p style={{ color: "red", fontSize: "0.8rem", marginTop: "0.25rem" }}>
+                {fieldErrors.find((e) => e.field === "tel")?.reason}
+              </p>
+            )}
           </FormGroup>
           <FormGroup>
-            <Label>소개</Label>
+            <Label>한줄소개</Label>
             <TextArea
               name="bio"
-              placeholder="회사에 대한 소개를 입력하세요"
-              rows={4}
+              rows={3}
+              placeholder="한 줄 소개를 입력하세요"
             />
+            {fieldErrors.find((e) => e.field === "bio") && (
+              <p style={{ color: "red", fontSize: "0.8rem", marginTop: "0.25rem" }}>
+                {fieldErrors.find((e) => e.field === "bio")?.reason}
+              </p>
+            )}
           </FormGroup>
-          <div className="flex justify-end gap-2 mt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 rounded bg-gray-100 text-gray-600 hover:bg-gray-200"
-            >
-              취소
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 rounded bg-blue-500 text-white font-semibold hover:bg-blue-600"
-            >
-              등록
-            </button>
-          </div>
+          <button
+            type="submit"
+            style={{
+              marginTop: 12,
+              cursor: "pointer",
+              backgroundColor: "#fdb924",
+              color: "white",
+              padding: "8px 12px",
+              borderRadius: 6,
+              border: "none",
+              fontWeight: "bold",
+            }}
+          >
+            등록하기
+          </button>
         </Form>
       </ModalContent>
     </ModalOverlay>
