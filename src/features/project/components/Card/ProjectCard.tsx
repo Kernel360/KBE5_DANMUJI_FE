@@ -1,5 +1,5 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import { useNavigate } from "react-router-dom";
 import {
   ProjectCard as Card,
   CardHeader,
@@ -11,22 +11,23 @@ import {
   CardFooter,
   DetailButton,
   ManagerButton,
-} from './ProjectCard.styled';
+} from "./ProjectCard.styled";
+import { FiClock, FiCheckCircle, FiAlertTriangle } from "react-icons/fi";
 
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from "@/hooks/useAuth";
 
-import type { Project } from '../../types/Types';
+import type { Project } from "../../types/Types";
 
 const STATUS_MAP = {
-  'IN_PROGRESS': '진행중',
-  'COMPLETED': '완료',
-  'DELAYED': '지연'
+  IN_PROGRESS: "진행중",
+  COMPLETED: "완료",
+  DELAYED: "지연",
 } as const;
 
 const STATUS_COLORS = {
-  'IN_PROGRESS': '#2563eb',
-  'COMPLETED': '#059669',
-  'DELAYED': '#ef4444'
+  IN_PROGRESS: "#2563eb",
+  COMPLETED: "#059669",
+  DELAYED: "#ef4444",
 } as const;
 
 interface ProjectCardProps {
@@ -59,27 +60,40 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'IN_PROGRESS':
-        return '#3b82f6';
-      case 'COMPLETED':
-        return '#10b981';
-      case 'DELAYED':
-        return '#ef4444';
+      case "IN_PROGRESS":
+        return "#3b82f6";
+      case "COMPLETED":
+        return "#10b981";
+      case "DELAYED":
+        return "#ef4444";
       default:
-        return '#6b7280';
+        return "#6b7280";
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'IN_PROGRESS':
-        return '진행중';
-      case 'COMPLETED':
-        return '완료';
-      case 'DELAYED':
-        return '지연';
+      case "IN_PROGRESS":
+        return "진행중";
+      case "COMPLETED":
+        return "완료";
+      case "DELAYED":
+        return "지연";
       default:
         return status;
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "IN_PROGRESS":
+        return <FiClock size={14} style={{ marginRight: 2 }} />;
+      case "COMPLETED":
+        return <FiCheckCircle size={14} style={{ marginRight: 2 }} />;
+      case "DELAYED":
+        return <FiAlertTriangle size={14} style={{ marginRight: 2 }} />;
+      default:
+        return null;
     }
   };
 
@@ -88,7 +102,10 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
       <CardHeader>
         <CardTitle>{name}</CardTitle>
         <CardBadges>
-          <Badge $color={getStatusColor(status)}>{getStatusText(status)}</Badge>
+          <Badge $color={getStatusColor(status)}>
+            {getStatusIcon(status)}
+            {getStatusText(status)}
+          </Badge>
         </CardBadges>
       </CardHeader>
 
@@ -111,14 +128,18 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
         </CardInfoGroup>
         <CardInfoGroup>
           <div>기간</div>
-          <div>{startDate} ~ {endDate}</div>
+          <div>
+            {startDate} ~ {endDate}
+          </div>
         </CardInfoGroup>
       </CardBody>
 
       <CardFooter>
         <DetailButton onClick={handleDetailClick}>상세 보기</DetailButton>
         {role === "ROLE_ADMIN" && (
-          <ManagerButton onClick={handleManagerClick}>담당자 관리</ManagerButton>
+          <ManagerButton onClick={handleManagerClick}>
+            담당자 관리
+          </ManagerButton>
         )}
       </CardFooter>
     </Card>

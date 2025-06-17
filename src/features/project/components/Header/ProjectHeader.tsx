@@ -1,7 +1,14 @@
 // components/Header/ProjectHeader.tsx
 import React from "react";
 import { FaBuilding, FaUsers } from "react-icons/fa";
-import { FiCalendar, FiPlay } from "react-icons/fi";
+import {
+  FiCalendar,
+  FiPlay,
+  FiGrid,
+  FiClock,
+  FiCheckCircle,
+  FiAlertTriangle,
+} from "react-icons/fi";
 import {
   ProjectHeaderContainer,
   ProjectTitle,
@@ -36,6 +43,30 @@ const ProjectHeader: React.FC = () => {
     ],
   };
 
+  // 상태별 아이콘 반환 함수
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "IN_PROGRESS":
+        return <FiClock size={14} style={{ marginRight: 4 }} />;
+      case "COMPLETED":
+        return <FiCheckCircle size={14} style={{ marginRight: 4 }} />;
+      case "DELAYED":
+        return <FiAlertTriangle size={14} style={{ marginRight: 4 }} />;
+      default:
+        return null;
+    }
+  };
+  // 임시 상태
+  const projectStatus = "IN_PROGRESS";
+  const projectStatusText =
+    projectStatus === "IN_PROGRESS"
+      ? "진행중"
+      : projectStatus === "COMPLETED"
+      ? "완료"
+      : projectStatus === "DELAYED"
+      ? "지연"
+      : projectStatus;
+
   return (
     <ProjectHeaderContainer>
       <ProjectTitle>{project.name}</ProjectTitle>
@@ -58,7 +89,8 @@ const ProjectHeader: React.FC = () => {
             gap: 4,
           }}
         >
-          진행중
+          {getStatusIcon(projectStatus)}
+          {projectStatusText}
         </span>
       </ProjectMeta>
 
