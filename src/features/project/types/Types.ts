@@ -25,11 +25,12 @@ export interface Project {
     client: string;
     clientManager: string;
     devManagers: string;
-    status: '진행중' | '지연' | '완료' | '대기';
+    status: 'IN_PROGRESS' | 'COMPLETED' | 'DELAYED';
+    priority: '긴급' | '높음' | '보통' | '낮음';
     startDate: string;
     endDate: string;
-  }
-  
+}
+
 export interface ProjectStep {
     id: number;
     stepOrder: number;
