@@ -65,7 +65,7 @@ export const TopActions = styled.div`
 `;
 
 export const ActionButton = styled.button<{ $primary?: boolean }>`
-  background: ${({ $primary }) => ($primary ? '#4f46e5' : '#ffffff')};
+  background: ${({ $primary }) => ($primary ? '#fbbf24' : '#ffffff')};
   color: ${({ $primary }) => ($primary ? '#fff' : '#374151')};
   border: 1px solid #d1d5db;
   padding: 8px 14px;
@@ -76,7 +76,7 @@ export const ActionButton = styled.button<{ $primary?: boolean }>`
   transition: 0.2s ease;
 
   &:hover {
-    background: ${({ $primary }) => ($primary ? '#4338ca' : '#f3f4f6')};
+    background: ${({ $primary }) => ($primary ? '#f59e0b' : '#f3f4f6')};
   }
 `;
 
@@ -86,7 +86,7 @@ export const StatusButtonGroup = styled.div`
 `;
 
 export const StatusButton = styled.button<{ $active: boolean }>`
-  background: ${({ $active }) => ($active ? '#2563eb' : '#fff')};
+  background: ${({ $active }) => ($active ? '#fbbf24' : '#fff')};
   color: ${({ $active }) => ($active ? '#fff' : '#374151')};
   border: 1px solid #d1d5db;
   padding: 6px 12px;
@@ -97,7 +97,7 @@ export const StatusButton = styled.button<{ $active: boolean }>`
   transition: 0.2s ease;
 
   &:hover {
-    background: ${({ $active }) => ($active ? '#1d4ed8' : '#f3f4f6')};
+    background: ${({ $active }) => ($active ? '#f59e0b' : '#f3f4f6')};
   }
 `;
 

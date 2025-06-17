@@ -190,7 +190,7 @@ export default function ProjectListPage() {
                 padding: '8px 16px',
                 border: '1px solid #e5e7eb',
                 borderRadius: '6px',
-                background: currentPage === pageNum ? '#2563eb' : '#fff',
+                background: currentPage === pageNum ? '#fbbf24' : '#fff',
                 color: currentPage === pageNum ? '#fff' : '#374151',
                 cursor: 'pointer',
               }}

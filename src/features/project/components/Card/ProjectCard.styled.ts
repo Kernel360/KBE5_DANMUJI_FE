@@ -4,12 +4,10 @@ export const ProjectCard = styled.div`
   background: #fff;
   border-radius: 14px;
   box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-  padding:  16px 16px 16px 16px;
+  padding: 0 0 16px 0;
   display: flex;
   flex-direction: column;
-  width: 360px;       
-  height: 300px;      // 카드 높이 고정
-  overflow: hidden;
+  min-width: 320px;
 `;
 
 export const CardHeader = styled.div`
@@ -60,8 +58,8 @@ export const CardFooter = styled.div`
 
 export const DetailButton = styled.button`
   background: #fff;
-  color: #2563eb;
-  border: 1px solid #2563eb;
+  color: #fbbf24;
+  border: 1px solid #fbbf24;
   border-radius: 6px;
   padding: 4px 18px;
   font-size: 0.98rem;
@@ -69,13 +67,13 @@ export const DetailButton = styled.button`
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
   &:hover {
-    background: #2563eb;
+    background: #fbbf24;
     color: #fff;
   }
 `;
 
 export const ManagerButton = styled.button`
-  background: #2563eb;
+  background: #fbbf24;
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -85,6 +83,6 @@ export const ManagerButton = styled.button`
   cursor: pointer;
   transition: background 0.2s;
   &:hover {
-    background: #1d4ed8;
+    background: #f59e0b;
   }
 `;
