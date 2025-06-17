@@ -23,7 +23,7 @@ export const Filters = styled.div`
 
 export const FilterLeft = styled.div`
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: flex-end;
   flex-wrap: wrap;
 `;
@@ -31,8 +31,7 @@ export const FilterLeft = styled.div`
 export const FilterGroup = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  min-width: 160px;
+  gap: 8px;
   position: relative;
 `;
 
@@ -44,8 +43,10 @@ export const FilterLabel = styled.label`
 
 export const FilterSearchRight = styled.div`
   display: flex;
-  gap: 8px;
+  gap: 3px;
   align-items: center;
+  margin: 0;
+  padding: 0;
 `;
 
 export const Select = styled.select`
@@ -87,14 +88,16 @@ export const NewButton = styled.button`
   align-items: center;
   gap: 6px;
   padding: 10px 20px;
-  background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%);
-  color: #ffffff;
+  background: #f9fafb;
+  color: #374151;
   font-size: 14px;
   font-weight: 600;
   border: 2px solid #e5e7eb;
   border-radius: 10px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    border 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 2px 4px rgba(107, 114, 128, 0.2);
 
   &:hover {
@@ -102,6 +105,7 @@ export const NewButton = styled.button`
     border-color: #fef3c7;
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(251, 191, 36, 0.3);
+    color: #fff;
   }
 
   &:active {
@@ -347,32 +351,36 @@ export const DropdownContainer = styled.div`
 export const CreatePostButton = styled.button`
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 20px;
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  justify-content: center;
+  gap: 6px;
+  padding: 10px;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
   color: #ffffff;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
-  border: none;
+  border: 2px solid #e5e7eb;
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
-  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.15);
+  margin: 0;
 
   &:hover {
-    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    border-color: #bfdbfe;
     transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.2);
   }
 
   &:active {
     transform: translateY(0);
-    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.15);
   }
 
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
   }
 `;

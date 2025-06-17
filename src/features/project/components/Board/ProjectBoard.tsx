@@ -21,7 +21,6 @@ import {
   DropdownMenu,
   DropdownItem,
   DropdownContainer,
-  CreatePostButton,
 } from "./ProjectBoard.styled";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
@@ -191,6 +190,12 @@ const ProjectBoard = () => {
     setPriorityFilter("ALL");
     setKeywordType("title");
     setKeyword("");
+  };
+
+  // 검색 함수 (임시)
+  const handleSearch = () => {
+    // 실제 검색 요청 로직 작성
+    console.log("검색 요청:", keywordType, keyword);
   };
 
   return (
@@ -418,6 +423,9 @@ const ProjectBoard = () => {
             }
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSearch();
+            }}
           />
           <NewButton
             style={{
@@ -429,6 +437,7 @@ const ProjectBoard = () => {
               alignItems: "center",
               justifyContent: "center",
             }}
+            onClick={handleSearch}
           >
             <FiSearch size={16} />
           </NewButton>
@@ -448,10 +457,10 @@ const ProjectBoard = () => {
           </NewButton>
         </FilterLeft>
         <FilterSearchRight>
-          <CreatePostButton>
+          <NewButton>
             <FiPlus size={16} />
             게시글 작성
-          </CreatePostButton>
+          </NewButton>
         </FilterSearchRight>
       </Filters>
 
