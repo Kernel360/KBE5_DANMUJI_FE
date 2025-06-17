@@ -11,6 +11,8 @@ import {
   Th,
   Td,
   StatusBadge,
+  TitleText,
+  CommentInfo,
 } from "./ProjectBoard.styled";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
@@ -34,6 +36,7 @@ const posts: Post[] = [
     priority: "LOW",
     type: "GENERAL",
     createdAt: "2023.09.10",
+    comments: [{ id: 1 }, { id: 2 }],
   },
   {
     id: 9,
@@ -43,6 +46,7 @@ const posts: Post[] = [
     priority: "MEDIUM",
     type: "GENERAL",
     createdAt: "2023.09.05",
+    comments: [],
   },
   {
     id: 8,
@@ -52,6 +56,7 @@ const posts: Post[] = [
     priority: "HIGH",
     type: "GENERAL",
     createdAt: "2023.08.25",
+    comments: [{ id: 1 }],
   },
   {
     id: 7,
@@ -61,6 +66,7 @@ const posts: Post[] = [
     priority: "URGENT",
     type: "QUESTION",
     createdAt: "2023.08.18",
+    comments: [],
   },
   {
     id: 6,
@@ -70,6 +76,7 @@ const posts: Post[] = [
     priority: "LOW",
     type: "GENERAL",
     createdAt: "2023.08.05",
+    comments: [{ id: 1 }, { id: 2 }, { id: 3 }],
   },
 ];
 
@@ -180,7 +187,18 @@ const ProjectBoard = () => {
               <Td>{post.id}</Td>
               <Td>{post.step}</Td>
               <Td>
-                <strong style={{ color: "#2563eb" }}>{post.title}</strong>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <TitleText>{post.title}</TitleText>
+                  {post.comments && post.comments.length > 0 && (
+                    <CommentInfo>댓글 {post.comments.length}</CommentInfo>
+                  )}
+                </div>
               </Td>
               <Td>{post.writer}</Td>
               <Td>

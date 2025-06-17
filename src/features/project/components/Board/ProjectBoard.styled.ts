@@ -1,5 +1,5 @@
-import styled from 'styled-components';
-import type { PostPriority } from '../../types/Types';
+import styled from "styled-components";
+import type { PostPriority } from "../../types/Types";
 
 export const Wrapper = styled.div`
   padding: 24px;
@@ -61,7 +61,7 @@ export const Tr = styled.tr`
   }
 
   &:hover {
-    background-color: #eef2ff;
+    background-color: #fdf6e3;
   }
 `;
 
@@ -86,19 +86,30 @@ export const StatusBadge = styled.span<{ priority: PostPriority }>`
   font-size: 12px;
   font-weight: 500;
   color: ${({ priority }) =>
-    priority === 'LOW'
-      ? '#065f46'
-      : priority === 'MEDIUM'
-      ? '#92400e'
-      : priority === 'HIGH'
-      ? '#b45309'
-      : '#991b1b'};
+    priority === "LOW"
+      ? "#065f46"
+      : priority === "MEDIUM"
+      ? "#92400e"
+      : priority === "HIGH"
+      ? "#b45309"
+      : "#991b1b"};
   background-color: ${({ priority }) =>
-    priority === 'LOW'
-      ? '#d1fae5'
-      : priority === 'MEDIUM'
-      ? '#fef3c7'
-      : priority === 'HIGH'
-      ? '#fde68a'
-      : '#fee2e2'};
+    priority === "LOW"
+      ? "#d1fae5"
+      : priority === "MEDIUM"
+      ? "#fef3c7"
+      : priority === "HIGH"
+      ? "#fde68a"
+      : "#fee2e2"};
+`;
+
+export const TitleText = styled.span`
+  color: #111;
+  font-weight: 600;
+`;
+
+export const CommentInfo = styled.span`
+  color: #9ca3af;
+  font-size: 0.78rem;
+  margin-left: 8px;
 `;
