@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import {
+  FiCalendar,
+  FiUsers,
+  FiBuilding,
+  FiTarget,
+  FiPlay,
+} from "react-icons/fi";
 import * as S from "./ProjectDetailPage.styled";
 import api from "@/api/axios";
 import { getPosts } from "@/features/project-d/services/postService";
@@ -253,69 +260,99 @@ export default function ProjectDetailPage() {
     <S.PageContainer>
       <S.MainContentWrapper>
         <S.ProjectDetailSection>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <S.ProjectHeader>
+            <S.ProjectHeaderContent>
               <S.ProjectTitle>{project.name}</S.ProjectTitle>
-              <S.StatusBadge
-                color={project.projectStatus === "COMPLETED" ? "red" : "green"}
-              >
-                {project.projectStatus}
-              </S.StatusBadge>
-            </div>
-            <S.ActionButton variant="edit" onClick={handleProjectStatusChange}>
-              프로젝트 상태 변경
-            </S.ActionButton>
-          </div>
-          <S.ProjectDescription>{project.description}</S.ProjectDescription>
-          <S.ProjectPeriod>
-            프로젝트 기간 : {project.startDate} ~ {project.endDate}
-          </S.ProjectPeriod>
-          <S.ProjectInfoGrid>
-            <div>
-              <S.ProjectInfoItem>
-                <S.InfoLabel>고객사</S.InfoLabel>
-                <S.InfoValue>
-                  {project.clients[0]?.companyName || "미지정"}
-                </S.InfoValue>
-              </S.ProjectInfoItem>
-              <S.ProjectInfoItem>
-                <S.InfoLabel>고객 담당자</S.InfoLabel>
-                <S.InfoValue>
-                  {project.clients[0]?.name || "미지정"}
-                </S.InfoValue>
-              </S.ProjectInfoItem>
-            </div>
-            <div>
-              <S.ProjectInfoItem>
-                <S.InfoLabel>개발사</S.InfoLabel>
-                <S.InfoValue>
-                  {project.developers[0]?.companyName || "미지정"}
-                </S.InfoValue>
-              </S.ProjectInfoItem>
-              <S.ProjectInfoItem>
-                <S.InfoLabel>개발 담당자</S.InfoLabel>
-                <S.InfoValue>
-                  {project.developers[0]?.name || "미지정"}
-                </S.InfoValue>
-              </S.ProjectInfoItem>
-            </div>
-          </S.ProjectInfoGrid>
+              <S.ProjectDescription>{project.description}</S.ProjectDescription>
+              <S.ProjectMeta>
+                <S.ProjectPeriod>
+                  <FiCalendar size={16} />
+                  {project.startDate} ~ {project.endDate}
+                </S.ProjectPeriod>
+                <S.ProjectStatusBadge status={project.projectStatus}>
+                  <FiPlay size={14} />
+                  {project.projectStatus === "COMPLETED" && "완료"}
+                  {project.projectStatus === "IN_PROGRESS" && "진행중"}
+                  {project.projectStatus === "DELAYED" && "지연"}
+                  {project.projectStatus === "PENDING" && "대기"}
+                </S.ProjectStatusBadge>
+              </S.ProjectMeta>
+            </S.ProjectHeaderContent>
+          </S.ProjectHeader>
+
+          <S.ProjectInfoSection>
+            <S.InfoCard>
+              <S.InfoCardHeader>
+                <S.InfoCardIcon>
+                  <FiBuilding size={20} />
+                </S.InfoCardIcon>
+                <S.InfoCardTitle>고객사 정보</S.InfoCardTitle>
+              </S.InfoCardHeader>
+              <S.InfoCardContent>
+                <S.InfoItem>
+                  <S.InfoLabel>고객사</S.InfoLabel>
+                  <S.InfoValueHighlight>
+                    {project.clients[0]?.companyName || "미지정"}
+                  </S.InfoValueHighlight>
+                </S.InfoItem>
+                <S.InfoItem>
+                  <S.InfoLabel>고객 담당자</S.InfoLabel>
+                  <S.InfoValue>
+                    {project.clients[0]?.name || "미지정"}
+                  </S.InfoValue>
+                </S.InfoItem>
+                <S.InfoItem>
+                  <S.InfoLabel>직책</S.InfoLabel>
+                  <S.InfoValue>
+                    {project.clients[0]?.position || "미지정"}
+                  </S.InfoValue>
+                </S.InfoItem>
+              </S.InfoCardContent>
+            </S.InfoCard>
+
+            <S.InfoCard>
+              <S.InfoCardHeader>
+                <S.InfoCardIcon>
+                  <FiUsers size={20} />
+                </S.InfoCardIcon>
+                <S.InfoCardTitle>개발사 정보</S.InfoCardTitle>
+              </S.InfoCardHeader>
+              <S.InfoCardContent>
+                <S.InfoItem>
+                  <S.InfoLabel>개발사</S.InfoLabel>
+                  <S.InfoValueHighlight>
+                    {project.developers[0]?.companyName || "미지정"}
+                  </S.InfoValueHighlight>
+                </S.InfoItem>
+                <S.InfoItem>
+                  <S.InfoLabel>개발 담당자</S.InfoLabel>
+                  <S.InfoValue>
+                    {project.developers[0]?.name || "미지정"}
+                  </S.InfoValue>
+                </S.InfoItem>
+                <S.InfoItem>
+                  <S.InfoLabel>직책</S.InfoLabel>
+                  <S.InfoValue>
+                    {project.developers[0]?.position || "미지정"}
+                  </S.InfoValue>
+                </S.InfoItem>
+              </S.InfoCardContent>
+            </S.InfoCard>
+          </S.ProjectInfoSection>
+
           <S.ProjectStepsContainer>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <S.InfoLabel>프로젝트 단계</S.InfoLabel>
-            </div>
+            <S.StepsHeader>
+              <S.StepsTitle>
+                <FiTarget size={20} />
+                프로젝트 단계
+              </S.StepsTitle>
+              <S.ActionButton
+                variant="edit"
+                onClick={handleProjectStatusChange}
+              >
+                프로젝트 상태 변경
+              </S.ActionButton>
+            </S.StepsHeader>
             <S.StepsList>
               {sortedSteps.map((step, index) => {
                 const isDone = step.projectStepStatus === "DONE";
