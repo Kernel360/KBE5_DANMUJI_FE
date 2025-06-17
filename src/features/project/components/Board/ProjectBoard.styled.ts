@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import type { PostPriority } from '../../types/Types';
 
 export const Wrapper = styled.div`
   padding: 24px;
@@ -79,13 +80,25 @@ export const Td = styled.td`
   border-bottom: 1px solid #f3f4f6;
 `;
 
-export const StatusBadge = styled.span<{ status: '승인' | '대기' | '반려' }>`
+export const StatusBadge = styled.span<{ priority: PostPriority }>`
   padding: 4px 8px;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 500;
-  color: ${({ status }) =>
-    status === '승인' ? '#065f46' : status === '대기' ? '#92400e' : '#991b1b'};
-  background-color: ${({ status }) =>
-    status === '승인' ? '#d1fae5' : status === '대기' ? '#fef3c7' : '#fee2e2'};
+  color: ${({ priority }) =>
+    priority === 'LOW'
+      ? '#065f46'
+      : priority === 'MEDIUM'
+      ? '#92400e'
+      : priority === 'HIGH'
+      ? '#b45309'
+      : '#991b1b'};
+  background-color: ${({ priority }) =>
+    priority === 'LOW'
+      ? '#d1fae5'
+      : priority === 'MEDIUM'
+      ? '#fef3c7'
+      : priority === 'HIGH'
+      ? '#fde68a'
+      : '#fee2e2'};
 `;

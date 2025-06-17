@@ -12,62 +12,123 @@ import {
   Td,
   StatusBadge,
 } from './ProjectBoard.styled';
-import type { Post } from '../../types/Types'; 
+import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import api from '@/api/axios';
+import type { Post, StepList, PostPriority, ProjectDetailResponse } from '../../types/Types';
+import { POST_PRIORITY_OPTIONS, POST_PRIORITY_LABELS } from '../../types/Types';
+
+// 임시 데이터
 const posts: Post[] = [
   {
     id: 10,
+    step: '기획',
     title: '데이터베이스 설계 완료 보고서',
     writer: '이개발',
-    status: '승인',
-    approver: '박관리',
-    approvedAt: '2023.09.15',
+    priority: 'LOW',
+    type: 'GENERAL',
     createdAt: '2023.09.10',
   },
   {
     id: 9,
+    step: '디자인',
     title: 'UI/UX 디자인 검토 요청',
     writer: '최디자인',
-    status: '대기',
-    approver: '-',
-    approvedAt: '-',
+    priority: 'MEDIUM',
+    type: 'GENERAL',
     createdAt: '2023.09.05',
   },
   {
     id: 8,
+    step: '개발',
     title: 'API 개발 진행 상황 보고',
     writer: '정백엔드',
-    status: '승인',
-    approver: '박관리',
-    approvedAt: '2023.08.28',
+    priority: 'HIGH',
+    type: 'GENERAL',
     createdAt: '2023.08.25',
   },
   {
     id: 7,
+    step: '기획',
     title: '프론트엔드 프레임워크 선정 보고서',
     writer: '김프론트',
-    status: '반려',
-    approver: '이개발',
-    approvedAt: '2023.08.20',
+    priority: 'URGENT',
+    type: 'QUESTION',
     createdAt: '2023.08.18',
   },
   {
     id: 6,
+    step: '기획',
     title: '요구사항 정의서 v1.2',
     writer: '이개발',
-    status: '승인',
-    approver: '김고객',
-    approvedAt: '2023.08.10',
+    priority: 'LOW',
+    type: 'GENERAL',
     createdAt: '2023.08.05',
   },
 ];
 
 const ProjectBoard = () => {
+  const { projectId } = useParams<{ projectId: string }>();
+  const [steps, setSteps] = useState<StepList>([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedStep, setSelectedStep] = useState('');
+  const [selectedPriority, setSelectedPriority] = useState<PostPriority | ''>('');
+
+  const filteredPosts = posts.filter(
+    (post) =>
+      (selectedPriority ? post.priority === selectedPriority : true) &&
+      (selectedStep ? post.step === selectedStep : true)
+  );
+
+  useEffect(() => {
+    const fetchSteps = async () => {
+      if (!projectId) return;
+
+      try {
+        setLoading(true);
+        const response = await api.get<ProjectDetailResponse>(`/api/projects/${projectId}`);
+
+        const projectSteps = response.data.data.steps
+          .filter((step) => !step.isDeleted)
+          .sort((a, b) => a.stepOrder - b.stepOrder)
+          .map((step) => step.name);
+
+        setSteps(projectSteps);
+      } catch (error) {
+        console.error('단계 목록 불러오기 실패', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSteps();
+  }, [projectId]);
+
   return (
     <Wrapper>
       <Filters>
-        <Select><option>현재 단계: 개발</option></Select>
-        <Select><option>승인 상태: 전체</option></Select>
-        <Select><option>정렬: 최신순</option></Select>
+        <Select value={selectedStep} onChange={(e) => setSelectedStep(e.target.value)} disabled={loading}>
+          <option value="">현재 단계: 전체</option>
+          {steps.map((step) => (
+            <option key={step} value={step}>
+              {step}
+            </option>
+          ))}
+        </Select>
+
+        <Select value={selectedPriority} onChange={(e) => setSelectedPriority(e.target.value as PostPriority)}>
+          <option value="">우선 순위: 전체</option>
+          {POST_PRIORITY_OPTIONS.map((priority) => (
+            <option key={priority} value={priority}>
+              {POST_PRIORITY_LABELS[priority]}
+            </option>
+          ))}
+        </Select>
+
+        <Select>
+          <option>정렬: 최신순</option>
+        </Select>
+
         <SearchInput placeholder="게시글 검색..." />
         <NewButton>+ 게시글 작성</NewButton>
       </Filters>
@@ -76,29 +137,27 @@ const ProjectBoard = () => {
         <Thead>
           <Tr>
             <Th>번호</Th>
+            <Th>단계</Th>
             <Th>제목</Th>
             <Th>작성자</Th>
-            <Th>승인상태</Th>
-            <Th>결재자</Th>
-            <Th>결재일</Th>
+            <Th>우선순위</Th>
             <Th>작성일</Th>
           </Tr>
         </Thead>
         <Tbody>
-          {posts.map((post) => (
+          {filteredPosts.map((post) => (
             <Tr key={post.id}>
               <Td>{post.id}</Td>
+              <Td>{post.step}</Td>
               <Td>
                 <strong style={{ color: '#2563eb' }}>{post.title}</strong>
               </Td>
               <Td>{post.writer}</Td>
               <Td>
-                <StatusBadge status={post.status as '승인' | '대기' | '반려'}>
-                  {post.status}
+                <StatusBadge priority={post.priority}>
+                  {POST_PRIORITY_LABELS[post.priority]}
                 </StatusBadge>
               </Td>
-              <Td>{post.approver}</Td>
-              <Td>{post.approvedAt}</Td>
               <Td>{post.createdAt}</Td>
             </Tr>
           ))}
