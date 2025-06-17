@@ -1,4 +1,3 @@
-// ProjectBoard.styled.ts
 import styled from 'styled-components';
 
 export const Wrapper = styled.div`
@@ -42,30 +41,51 @@ export const NewButton = styled.button`
   cursor: pointer;
 `;
 
-export const PostCard = styled.div`
-  background-color: #FEF3C7;
-  border: 1px solid #FACC15;
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 16px;
-`;
-
-export const PostHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  font-weight: 600;
-  font-size: 15px;
-`;
-
-export const PostBody = styled.p`
+/* Table styles */
+export const Table = styled.table`
+  width: 100%;
+  border-collapse: collapse;
   font-size: 14px;
-  color: #374151;
-  margin-top: 8px;
-  line-height: 1.6;
 `;
 
-export const PostFooter = styled.div`
+export const Thead = styled.thead`
+  background-color: #f9fafb;
+`;
+
+export const Tbody = styled.tbody``;
+
+export const Tr = styled.tr`
+  &:nth-child(even) {
+    background-color: #f9fafb;
+  }
+
+  &:hover {
+    background-color: #eef2ff;
+  }
+`;
+
+export const Th = styled.th`
+  text-align: left;
+  padding: 12px;
+  color: #6b7280;
+  font-weight: 500;
   font-size: 13px;
-  color: #6B7280;
-  margin-top: 10px;
+  border-bottom: 1px solid #e5e7eb;
+`;
+
+export const Td = styled.td`
+  padding: 12px;
+  color: #374151;
+  border-bottom: 1px solid #f3f4f6;
+`;
+
+export const StatusBadge = styled.span<{ status: '승인' | '대기' | '반려' }>`
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  color: ${({ status }) =>
+    status === '승인' ? '#065f46' : status === '대기' ? '#92400e' : '#991b1b'};
+  background-color: ${({ status }) =>
+    status === '승인' ? '#d1fae5' : status === '대기' ? '#fef3c7' : '#fee2e2'};
 `;
