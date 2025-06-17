@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ProjectListContainer, Header, Title, Description, CardGrid } from './ProjectListPage.styled';
 import type { Project } from '../types/Types';
 import ProjectFilterBar from '../components/List/ProjectFilterBar';
-import ProjectCard from '../components/List/ProjectCard';
+import ProjectCard from '../components/Card/ProjectCard';
 
 const mockProjects: Project[] = [
   {

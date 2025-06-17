@@ -6,34 +6,77 @@ import {
   CardBadges,
   Badge,
   CardBody,
-  CardInfo,
+  CardInfoGroup,
   CardFooter,
   DetailButton,
   ManagerButton,
-} from '../../pages/ProjectListPage.styled';
+} from './ProjectCard.styled';
+
 import type { Project } from '../../types/Types';
 
 interface ProjectCardProps {
   project: Project;
 }
 
+const statusColors: Record<string, string> = {
+  진행중: '#2563eb',
+  완료: '#059669',
+  지연: '#ef4444',
+  대기: '#f59e0b',
+};
+
 const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
+  const {
+    name,
+    client,
+    clientManager,
+    devManagers,
+    status,
+    startDate,
+    endDate,
+    // progress,
+  } = project;
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{project.name}</CardTitle>
+        <CardTitle>{name}</CardTitle>
         <CardBadges>
-          <Badge $color="#2563eb">{project.status}</Badge>
-          <Badge $color="#ef4444">{project.priority}</Badge>
+          <Badge $color={statusColors[status] || '#6b7280'}>{status}</Badge>
         </CardBadges>
       </CardHeader>
+
       <CardBody>
-        <CardInfo><div>고객사</div><div>{project.client}</div></CardInfo>
-        <CardInfo><div>고객 담당자</div><div>{project.clientManager}</div></CardInfo>
-        <CardInfo><div>개발 담당자</div><div>{project.devManagers}</div></CardInfo>
-        <CardInfo><div>시작일</div><div>{project.startDate}</div></CardInfo>
-        <CardInfo><div>종료 예정일</div><div>{project.endDate}</div></CardInfo>
+        <CardInfoGroup>
+          <div>고객사</div>
+          <div>{client}</div>
+        </CardInfoGroup>
+        <CardInfoGroup>
+          <div>고객 담당자</div>
+          <div>{clientManager}</div>
+        </CardInfoGroup>
+        <CardInfoGroup>
+          <div>개발사</div>
+          <div>{client}</div>
+        </CardInfoGroup>
+        <CardInfoGroup>
+          <div>개발 담당자</div>
+          <div>{devManagers}</div>
+        </CardInfoGroup>
+        <CardInfoGroup>
+          <div>기간</div>
+          <div>{startDate} ~ {endDate}</div>
+        </CardInfoGroup>
+
+        {/* {progress !== undefined && (
+          <CardProgress>
+            <span>진행률</span>
+            <progress value={progress} max={100} />
+            <span>{progress}%</span>
+          </CardProgress>
+        )} */}
       </CardBody>
+
       <CardFooter>
         <DetailButton>상세 보기</DetailButton>
         <ManagerButton>담당자 관리</ManagerButton>
@@ -42,4 +85,4 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
   );
 };
 
-export default ProjectCard; 
+export default ProjectCard;
