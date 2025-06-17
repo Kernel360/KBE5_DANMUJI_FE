@@ -57,7 +57,7 @@ export const StepIcon = styled.div<{ active?: boolean; complete?: boolean }>`
   justify-content: center;
   width: 38px;
   height: 38px;
-  box-shadow: none;
+  box-shadow: ${({ active }) => (active ? "0 0 0 3px #fef3c7" : "none")};
   transition: all 0.2s ease;
   position: relative;
 `;
