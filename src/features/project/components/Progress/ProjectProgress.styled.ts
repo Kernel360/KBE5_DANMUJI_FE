@@ -5,7 +5,7 @@ export const Wrapper = styled.div`
   border-bottom: 1px solid #e5e7eb;
   display: flex;
   justify-content: center;
-  background-color: #f9fafb;
+  background: rgba(255, 255, 255, 0.8);
 `;
 
 export const StepContainer = styled.div`

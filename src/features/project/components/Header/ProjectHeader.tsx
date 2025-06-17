@@ -1,27 +1,10 @@
 // components/Header/ProjectHeader.tsx
-import styled from 'styled-components';
-
-const Wrapper = styled.div`
-  padding: 16px;
-  border-bottom: 1px solid #e5e7eb;
-`;
-
-const Title = styled.h1`
-  font-size: 24px;
-  font-weight: bold;
-`;
-
-const Subtitle = styled.p`
-  font-size: 14px;
-  color: #6b7280;
-  margin-top: 4px;
-`;
-
-const InfoList = styled.div`
-  margin-top: 16px;
-  font-size: 17px;
-  line-height: 1.6;
-`;
+import {
+  Wrapper,
+  Title,
+  Subtitle,
+  InfoList,
+} from './ProjectHeader.styled';
 
 const ProjectHeader = () => {
   return (

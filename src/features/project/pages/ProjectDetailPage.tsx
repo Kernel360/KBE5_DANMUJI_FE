@@ -6,13 +6,13 @@ import ProjectMemberList from '../components/MemberList/ProjectMemberList';
 
 const ProjectDetailPage = () => {
     return (
-        <div>
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: '100vh' }}>
             <ProjectHeader />
             <ProjectMemberList />
             <ProjectProgress />
             <div style={{ display: 'flex', gap: 24 }}>
                 <div style={{ flex: 2 }}>
-                    <ProjectBoard />
+                    <ProjectBoard />    
                     {/* <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 24 }}>
                         <ProjectFileList />
                     </div> */}
