@@ -1,19 +1,39 @@
 import styled from "styled-components";
 
-export const ProjectCard = styled.div`
+export const ProjectCard = styled.div<{ $status?: string }>`
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   padding: 0 0 12px 0;
   display: flex;
   flex-direction: column;
-  min-width: 240px;
-  max-width: 320px;
+  min-width: 220px;
+  max-width: 100%;
+  width: 100%;
+  flex: 1 1 0;
   transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  border: ${({ $status }) =>
+    $status === "DELAYED"
+      ? "2px solid #ef4444"
+      : $status === "DUE_SOON"
+      ? "2px solid #f59e0b"
+      : "1px solid transparent"};
 
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  @media (max-width: 900px) {
+    min-width: 180px;
+    max-width: 100%;
+    flex-basis: 48%;
+  }
+
+  @media (max-width: 600px) {
+    min-width: 120px;
+    max-width: 100%;
+    flex-basis: 100%;
   }
 `;
 

@@ -18,7 +18,11 @@ interface TopbarProps {
   error: string | null;
 }
 
-export const Topbar: React.FC<TopbarProps> = ({ notifications, markAsRead, error }) => {
+export const Topbar: React.FC<TopbarProps> = ({
+  notifications,
+  markAsRead,
+  error,
+}) => {
   const location = useLocation();
 
   const getPageTitle = () => {
@@ -39,12 +43,12 @@ export const Topbar: React.FC<TopbarProps> = ({ notifications, markAsRead, error
 
   return (
     <TopbarContainer>
-      <PageTitle>{getPageTitle()}</PageTitle>
+      <PageTitle> </PageTitle>
       <UserInfo>
         <UserDropdown>
           <ProfileDropdown />
         </UserDropdown>
-        <NotificationDropdown 
+        <NotificationDropdown
           notifications={notifications}
           markAsRead={markAsRead}
           error={error}

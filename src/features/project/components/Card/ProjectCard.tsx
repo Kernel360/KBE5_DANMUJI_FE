@@ -18,8 +18,9 @@ import {
   FiAlertTriangle,
   FiChevronRight,
   FiEye,
+  FiAlertCircle,
 } from "react-icons/fi";
-
+import { AiOutlineSelect } from "react-icons/ai";
 import { useAuth } from "@/hooks/useAuth";
 
 import type { Project } from "../../types/Types";
@@ -71,6 +72,12 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
           color: "#ef4444",
           icon: <FiAlertTriangle size={14} />,
         };
+      case "DUE_SOON":
+        return {
+          text: "마감임박",
+          color: "#f59e0b",
+          icon: <FiAlertCircle size={14} />,
+        };
       default:
         return { text: status, color: "#6b7280", icon: null };
     }
@@ -79,7 +86,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
   const statusInfo = getStatus();
 
   return (
-    <Card>
+    <Card $status={status}>
       <CardHeader>
         <CardTitle>{name}</CardTitle>
         <CardBadges>
@@ -108,7 +115,8 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
       </CardBody>
       <CardFooter>
         <StageButton onClick={handleStageClick}>
-          상세 <FiEye size={14} />
+          <AiOutlineSelect size={14} />
+          보기
         </StageButton>
       </CardFooter>
     </Card>
