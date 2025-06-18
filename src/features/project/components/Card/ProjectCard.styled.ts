@@ -143,10 +143,10 @@ export const CardFooter = styled.div`
 `;
 
 export const StageButton = styled.button`
-  background: #f9fafb;
-  color: #fbbf24;
-  border: 1.5px solid #fbbf24;
-  border-radius: 7px;
+  background: #fdb924;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
   padding: 6px 14px;
   font-size: 0.92rem;
   font-weight: 600;
@@ -157,11 +157,11 @@ export const StageButton = styled.button`
   transition: all 0.18s;
   height: 32px;
   min-width: 0;
-  box-shadow: none;
+  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.07);
   &:hover {
     background: #fbbf24;
     color: #fff;
-    border-color: #fbbf24;
-    box-shadow: 0 2px 4px rgba(251, 191, 36, 0.12);
+    border-color: transparent;
+    box-shadow: 0 2px 8px 0 rgba(253, 185, 36, 0.12);
   }
 `;

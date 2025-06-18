@@ -82,19 +82,38 @@ export const DateInput = styled.input`
 `;
 
 export const SearchInput = styled.input`
-  flex: 1;
-  padding: 10px 14px;
-  font-size: 1rem;
-  border: 1px solid #e5e7eb;
+  width: 180px;
+  min-width: 120px;
+  max-width: 220px;
+  height: 32px;
+  padding: 0 14px;
+  font-size: 0.98rem;
+  border: 1.5px solid #e5e7eb;
   border-radius: 8px;
   background: #fff;
+  color: #444;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  transition: border 0.2s;
+  appearance: none;
+  position: relative;
+  margin-right: 0;
+  &:focus {
+    border: 1.5px solid #fdb924;
+    outline: none;
+  }
+  &::placeholder {
+    color: #9ca3af;
+    font-size: 0.8rem;
+  }
 `;
 
 export const SearchRight = styled.div`
   display: flex;
-  gap: 12px;
+  gap: 10px;
   flex: 1;
   align-items: center;
+  justify-content: flex-end;
 `;
 
 export const TopActions = styled.div`
@@ -103,18 +122,29 @@ export const TopActions = styled.div`
 `;
 
 export const ActionButton = styled.button<{ $primary?: boolean }>`
-  background: ${({ $primary }) => ($primary ? "#fbbf24" : "#ffffff")};
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 1rem;
+  height: 32px;
+  background: ${({ $primary }) => ($primary ? "#fdb924" : "#f3f4f6")};
   color: ${({ $primary }) => ($primary ? "#fff" : "#374151")};
-  border: 1px solid #d1d5db;
-  padding: 8px 14px;
-  font-size: 0.95rem;
-  font-weight: 500;
-  border-radius: 8px;
+  border: ${({ $primary }) => ($primary ? "none" : "1px solid #d1d5db")};
+  border-radius: 0.375rem;
+  font-size: 0.85rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: 0.2s ease;
-
+  transition: all 0.2s ease;
+  box-shadow: none;
   &:hover {
-    background: ${({ $primary }) => ($primary ? "#f59e0b" : "#f3f4f6")};
+    background: ${({ $primary }) => ($primary ? "#f59e0b" : "#e5e7eb")};
+    color: ${({ $primary }) => ($primary ? "#fff" : "#111827")};
+    border-color: #9ca3af;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+  }
+  &:active {
+    transform: translateY(0);
   }
 `;
 
@@ -194,7 +224,7 @@ export const DateButton = styled.button<{ $hasValue: boolean }>`
   align-items: center;
   gap: 8px;
   width: 100%;
-  padding: 10px 14px;
+  padding: 8px 12px;
   background: ${({ $hasValue }) => ($hasValue ? "#f0f9ff" : "#ffffff")};
   border: 2px solid ${({ $hasValue }) => ($hasValue ? "#3b82f6" : "#e5e7eb")};
   border-radius: 8px;
@@ -334,7 +364,7 @@ export const SelectButton = styled.button<{
   min-width: 120px;
   width: 100%;
   max-width: 180px;
-  padding: 8px 10px;
+  padding: 8px 12px;
   background: ${({ $hasValue }) => ($hasValue ? "#f0f9ff" : "#ffffff")};
   border: 2px solid ${({ $hasValue }) => ($hasValue ? "#3b82f6" : "#e5e7eb")};
   border-radius: 8px;

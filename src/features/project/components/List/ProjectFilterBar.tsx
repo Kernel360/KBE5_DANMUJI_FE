@@ -262,8 +262,14 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
 
   return (
     <DatePickerStyles>
-      <FilterBar style={{ flexDirection: "column" }}>
-        <div style={{ display: "flex", gap: 10, width: "100%" }}>
+      <FilterBar
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "flex-end",
+        }}
+      >
+        <div style={{ display: "flex", gap: 10, flexGrow: 1 }}>
           <FilterGroup>
             <FilterLabel>정렬</FilterLabel>
             <div style={{ position: "relative" }} ref={sortDropdownRef}>
@@ -439,23 +445,21 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
             )}
           </FilterGroup>
         </div>
-        <div style={{ display: "flex", gap: 20, width: "100%", marginTop: 12 }}>
-          <SearchRight>
-            <SearchInput
-              placeholder="프로젝트명, 고객사, 담당자 검색..."
-              value={filters.keyword}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                onInputChange("keyword", e.target.value)
-              }
-            />
-            <TopActions>
-              <ActionButton $primary onClick={onSearch}>
-                검색
-              </ActionButton>
-              <ActionButton onClick={onReset}>초기화</ActionButton>
-            </TopActions>
-          </SearchRight>
-        </div>
+        <SearchRight style={{ flex: "none" }}>
+          <SearchInput
+            placeholder="프로젝트명, 고객사, 담당자 검색..."
+            value={filters.keyword}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              onInputChange("keyword", e.target.value)
+            }
+          />
+          <TopActions>
+            <ActionButton $primary onClick={onSearch}>
+              검색
+            </ActionButton>
+            <ActionButton onClick={onReset}>초기화</ActionButton>
+          </TopActions>
+        </SearchRight>
       </FilterBar>
 
       {/* 고객사 선택 모달 */}

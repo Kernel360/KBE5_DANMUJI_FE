@@ -108,9 +108,18 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
           </span>
         </CardInfoGroup>
         <CardProgress>
-          <span>진행률</span>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "8px",
+            }}
+          >
+            <span>진행률</span>
+            <span>{progress}%</span>
+          </div>
           <progress value={progress} max={100} />
-          <span>{progress}%</span>
         </CardProgress>
       </CardBody>
       <CardFooter>
