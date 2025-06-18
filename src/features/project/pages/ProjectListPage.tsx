@@ -303,12 +303,13 @@ export default function ProjectListPage() {
       {totalPages > 1 && (
         <PaginationContainer>
           <PaginationNav>
-            <PaginationButton
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-            >
-              이전
-            </PaginationButton>
+            {currentPage > 1 && (
+              <PaginationButton
+                onClick={() => handlePageChange(currentPage - 1)}
+              >
+                이전
+              </PaginationButton>
+            )}
             {getPageNumbers().map((pageNum) => (
               <PaginationButton
                 key={pageNum}
@@ -318,12 +319,13 @@ export default function ProjectListPage() {
                 {pageNum}
               </PaginationButton>
             ))}
-            <PaginationButton
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-            >
-              다음
-            </PaginationButton>
+            {currentPage < totalPages && (
+              <PaginationButton
+                onClick={() => handlePageChange(currentPage + 1)}
+              >
+                다음
+              </PaginationButton>
+            )}
           </PaginationNav>
           <PaginationInfo>
             총 {filteredProjects.length}개의 프로젝트 중{" "}

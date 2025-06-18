@@ -54,13 +54,13 @@ export const PaginationInfo = styled.div`
 export const PaginationNav = styled.nav`
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.4rem;
   flex-wrap: wrap;
   justify-content: center;
 `;
 
 export const PaginationButton = styled.button<{ $active?: boolean }>`
-  padding: 0.32rem 0.7rem;
+  padding: 0.32rem 0.6rem;
   border: none;
   background: ${({ $active }) => ($active ? "#fdb924" : "#f9fafb")};
   color: ${({ $active }) => ($active ? "#fff" : "#374151")};
