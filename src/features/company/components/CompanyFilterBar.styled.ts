@@ -12,6 +12,7 @@ export const FilterBar = styled.div`
   align-items: flex-end;
   position: relative;
   overflow: visible;
+  justify-content: space-between;
 `;
 
 export const FilterGroup = styled.div`
@@ -111,9 +112,7 @@ export const NewButton = styled.button`
   border: 2px solid #e5e7eb;
   border-radius: 10px;
   cursor: pointer;
-  transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-    border 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-    box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background 0.25s, border 0.25s, box-shadow 0.25s;
   box-shadow: 0 2px 4px rgba(107, 114, 128, 0.2);
 
   &:hover {
@@ -140,6 +139,7 @@ export const SearchRight = styled.div`
   gap: 10px;
   align-items: center;
   justify-content: flex-end;
+  flex: 1;
 `;
 
 export const ActionButton = styled.button<{ $primary?: boolean }>`

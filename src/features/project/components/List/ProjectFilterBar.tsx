@@ -459,42 +459,48 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
           </FilterGroup>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <SearchInput
-            placeholder={"키워드별로검색해줄건가요?"}
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") handleSearch();
-            }}
-          />
-          <NewButton
-            style={{
-              minWidth: "auto",
-              padding: "10px",
-              width: "40px",
-              height: "40px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-            onClick={handleSearch}
-          >
-            <FiSearch size={16} />
-          </NewButton>
-          <NewButton
-            onClick={handleResetFilters}
-            style={{
-              minWidth: "auto",
-              padding: "10px",
-              width: "40px",
-              height: "40px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <FiRotateCcw size={16} />
-          </NewButton>
+          <FilterGroup style={{ marginBottom: 0 }}>
+            <div
+              style={{ display: "flex", alignItems: "flex-end", gap: "8px" }}
+            >
+              <SearchInput
+                placeholder={"키워드별로검색해줄건가요?"}
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleSearch();
+                }}
+              />
+              <NewButton
+                style={{
+                  minWidth: "auto",
+                  padding: "10px",
+                  width: "40px",
+                  height: "40px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+                onClick={handleSearch}
+              >
+                <FiSearch size={16} />
+              </NewButton>
+              <NewButton
+                onClick={handleResetFilters}
+                style={{
+                  minWidth: "auto",
+                  padding: "10px",
+                  width: "40px",
+                  height: "40px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <FiRotateCcw size={16} />
+              </NewButton>
+            </div>
+          </FilterGroup>
         </div>
       </FilterBar>
 

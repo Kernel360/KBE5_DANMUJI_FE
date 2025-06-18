@@ -417,6 +417,7 @@ const ProjectBoard = () => {
               </DropdownMenu>
             </DropdownContainer>
           </FilterGroup>
+
           <SearchInput
             placeholder={
               keywordType === "title" ? "제목으로 검색" : "작성자로 검색"
