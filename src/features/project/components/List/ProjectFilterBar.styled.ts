@@ -475,34 +475,18 @@ export const SelectDropdown = styled.div<{ $isOpen: boolean }>`
   overflow-y: auto;
 `;
 
-export const SelectOption = styled.button<{ $isSelected: boolean }>`
-  display: block;
-  width: 100%;
+export const SelectOption = styled.div<{ $isSelected: boolean }>`
   padding: 10px 14px;
-  background: ${({ $isSelected }) => ($isSelected ? "#f0f9ff" : "transparent")};
-  color: ${({ $isSelected }) => ($isSelected ? "#1e40af" : "#374151")};
-  border: none;
-  text-align: left;
   font-size: 0.875rem;
-  font-weight: ${({ $isSelected }) => ($isSelected ? "600" : "500")};
+  color: ${({ $isSelected }) => ($isSelected ? "#2563eb" : "#374151")};
+  background: ${({ $isSelected }) => ($isSelected ? "#f0f9ff" : "#fff")};
+  font-weight: ${({ $isSelected }) => ($isSelected ? 600 : 400)};
   cursor: pointer;
-  transition: all 0.15s ease;
-
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
   &:hover {
-    background: ${({ $isSelected }) => ($isSelected ? "#dbeafe" : "#f9fafb")};
-  }
-
-  &:first-child {
-    border-radius: 6px 6px 0 0;
-  }
-
-  &:last-child {
-    border-radius: 0 0 6px 6px;
-  }
-
-  &:focus {
-    outline: none;
-    background: ${({ $isSelected }) => ($isSelected ? "#dbeafe" : "#f3f4f6")};
+    background: #f3f8ff;
+    color: #2563eb;
   }
 `;
 

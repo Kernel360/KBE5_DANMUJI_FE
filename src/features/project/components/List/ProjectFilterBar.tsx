@@ -209,7 +209,13 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
   };
 
   const handleSortDropdownToggle = () => {
-    setSortDropdownOpen(!sortDropdownOpen);
+    setSortDropdownOpen((prev) => {
+      if (!prev) {
+        setStatusDropdownOpen(false);
+        setClientModalOpen(false);
+      }
+      return !prev;
+    });
   };
 
   const handleSortSelect = (value: string) => {
@@ -221,6 +227,8 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
     setSelectedClient(filters.client);
     setClientSearchTerm("");
     setClientModalOpen(true);
+    setSortDropdownOpen(false);
+    setStatusDropdownOpen(false);
   };
 
   const handleClientModalClose = () => {
@@ -255,7 +263,13 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
   );
 
   const handleStatusDropdownToggle = () => {
-    setStatusDropdownOpen((prev) => !prev);
+    setStatusDropdownOpen((prev) => {
+      if (!prev) {
+        setSortDropdownOpen(false);
+        setClientModalOpen(false);
+      }
+      return !prev;
+    });
   };
 
   useEffect(() => {

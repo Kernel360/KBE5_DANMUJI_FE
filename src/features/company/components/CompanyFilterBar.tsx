@@ -6,6 +6,7 @@ import {
   FiHome,
   FiChevronDown,
   FiCheck,
+  FiArrowUp,
 } from "react-icons/fi";
 import {
   FilterBar,
@@ -16,6 +17,8 @@ import {
   ActionButton,
   NewButton,
   SelectButton,
+  SelectDropdown,
+  SelectOption,
   CompanyList,
   CompanyItem,
   CompanyInfo,
@@ -46,9 +49,8 @@ import {
 import api from "@/api/axios";
 
 const SORT_OPTIONS = [
-  { value: "latest", label: "최신순" },
+  { value: "latest", label: "최근 등록 순" },
   { value: "name", label: "이름순" },
-  { value: "ceo", label: "대표자순" },
 ];
 
 const CLIENT_OPTIONS = [
@@ -99,6 +101,8 @@ const CompanyFilterBar: React.FC<CompanyFilterBarProps> = ({
   const [companyLoading, setCompanyLoading] = useState(false);
   const [companyError, setCompanyError] = useState<string | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
+  const [sortDropdownOpen, setSortDropdownOpen] = useState(false);
+  const sortDropdownRef = useRef<HTMLDivElement>(null);
 
   const handleSearch = () => {
     onInputChange("keyword", keyword);
@@ -244,21 +248,49 @@ const CompanyFilterBar: React.FC<CompanyFilterBarProps> = ({
     return () => document.removeEventListener("mousedown", handleClick);
   }, [addressModalOpen]);
 
+  const handleSortDropdownToggle = () => {
+    setSortDropdownOpen((prev) => !prev);
+  };
+
+  const handleSortSelect = (value: string) => {
+    onInputChange("sort", value);
+    setSortDropdownOpen(false);
+  };
+
+  const getSortLabel = (value: string) => {
+    const option = SORT_OPTIONS.find((opt) => opt.value === value);
+    return option ? option.label : "최근 등록 순";
+  };
+
   return (
     <FilterBar>
       <div style={{ display: "flex", alignItems: "flex-end", gap: "6px" }}>
         <FilterGroup style={{ marginBottom: 0 }}>
           <FilterLabel>정렬</FilterLabel>
-          <Select
-            value={filters.sort}
-            onChange={(e) => onInputChange("sort", e.target.value)}
-          >
-            {SORT_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </Select>
+          <div style={{ position: "relative" }} ref={sortDropdownRef}>
+            <SelectButton
+              type="button"
+              onClick={handleSortDropdownToggle}
+              $hasValue={!!filters.sort}
+              className={sortDropdownOpen ? "open" : ""}
+              style={{ paddingLeft: 10, paddingRight: 10, minWidth: 90 }}
+            >
+              <FiArrowUp size={16} />
+              <span className="select-value">{getSortLabel(filters.sort)}</span>
+              <FiChevronDown size={16} />
+            </SelectButton>
+            <SelectDropdown $isOpen={sortDropdownOpen}>
+              {SORT_OPTIONS.map((option) => (
+                <SelectOption
+                  key={option.value}
+                  $isSelected={filters.sort === option.value}
+                  onClick={() => handleSortSelect(option.value)}
+                >
+                  {option.label}
+                </SelectOption>
+              ))}
+            </SelectDropdown>
+          </div>
         </FilterGroup>
         <div
           style={{
