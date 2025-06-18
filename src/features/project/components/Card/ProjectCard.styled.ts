@@ -143,26 +143,24 @@ export const CardFooter = styled.div`
 `;
 
 export const StageButton = styled.button`
-  background: #fdb924;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
+  background: #ffffff;
+  color: #374151;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
   padding: 6px 14px;
   font-size: 0.92rem;
-  font-weight: 600;
+  font-weight: 500;
   display: flex;
   align-items: center;
   gap: 5px;
   cursor: pointer;
-  transition: all 0.18s;
+  transition: all 0.15s ease-in-out;
   height: 32px;
   min-width: 0;
-  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.07);
 
   &:hover {
-    background: #fbbf24;
-    color: #fff;
+    background: #fdb924;
+    color: #ffffff;
     border-color: transparent;
-    box-shadow: 0 2px 8px 0 rgba(253, 185, 36, 0.12);
   }
 `;
