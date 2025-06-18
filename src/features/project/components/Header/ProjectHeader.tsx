@@ -1,22 +1,145 @@
 // components/Header/ProjectHeader.tsx
+import React from "react";
+import { FaBuilding, FaUsers } from "react-icons/fa";
 import {
-  Wrapper,
-  Title,
-  Subtitle,
-  InfoList,
-} from './ProjectHeader.styled';
+  FiCalendar,
+  FiPlay,
+  FiGrid,
+  FiClock,
+  FiCheckCircle,
+  FiAlertTriangle,
+} from "react-icons/fi";
+import {
+  ProjectHeaderContainer,
+  ProjectTitle,
+  ProjectSubtitle,
+  ProjectMeta,
+  ProjectPeriod,
+  ProjectStatusBadge,
+} from "./ProjectHeader.styled";
 
-const ProjectHeader = () => {
+const ProjectHeader: React.FC = () => {
+  // 더미 데이터
+  const project = {
+    name: "클라우드 기반 ERP 시스템 개발",
+    description: "기업 자원 관리를 위한 클라우드 기반 ERP 시스템 구축 프로젝트",
+    client: {
+      name: "ABC 기업",
+      contactPerson: "김코딩",
+      email: "kim.coding@abc.com",
+      phone: "02-1234-5678",
+    },
+    developers: [
+      {
+        name: "이개발",
+        role: "수석 개발자",
+        email: "lee.dev@company.com",
+      },
+      {
+        name: "박프론트",
+        role: "프론트엔드 개발자",
+        email: "park.front@company.com",
+      },
+    ],
+  };
+
+  // 상태별 아이콘 반환 함수
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "IN_PROGRESS":
+        return <FiClock size={14} style={{ marginRight: 4 }} />;
+      case "COMPLETED":
+        return <FiCheckCircle size={14} style={{ marginRight: 4 }} />;
+      case "DELAYED":
+        return <FiAlertTriangle size={14} style={{ marginRight: 4 }} />;
+      default:
+        return null;
+    }
+  };
+  // 임시 상태
+  const projectStatus = "IN_PROGRESS";
+  const projectStatusText =
+    projectStatus === "IN_PROGRESS"
+      ? "진행중"
+      : projectStatus === "COMPLETED"
+      ? "완료"
+      : projectStatus === "DELAYED"
+      ? "지연"
+      : projectStatus;
+
   return (
-    <Wrapper>
-      <Title>클라우드 기반 ERP 시스템 개발</Title>
-      <Subtitle>기업 자원 관리를 위한 클라우드 기반 ERP 시스템 구축 프로젝트</Subtitle>
-      <InfoList>
-        <div>프로젝트 기간: <strong>2023.06.01 ~ 2023.12.31</strong></div>
-        {/* <div>고객사: ABC 기업 · 개발사: XYZ 소프트웨어</div>
-        <div>담당자: 김코딩 · PM: 이개발 · 직무: IT 팀장 · 유형: 수석 개발자</div> */}
-      </InfoList>
-    </Wrapper>
+    <ProjectHeaderContainer>
+      <ProjectTitle>{project.name}</ProjectTitle>
+      {project.description && (
+        <ProjectSubtitle>{project.description}</ProjectSubtitle>
+      )}
+
+      <ProjectMeta>
+        <ProjectPeriod>
+          <FiCalendar size={14} />
+          프로젝트 기간: 2023.06.01 ~ 2023.12.31
+        </ProjectPeriod>
+        <span
+          style={{
+            color: "#2563eb",
+            fontWeight: 600,
+            fontSize: "0.95rem",
+            display: "flex",
+            alignItems: "center",
+            gap: 4,
+          }}
+        >
+          {getStatusIcon(projectStatus)}
+          {projectStatusText}
+        </span>
+      </ProjectMeta>
+
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 4,
+          margin: "12px 0 0 0",
+          fontSize: "0.95rem",
+          color: "#6b7280",
+          fontWeight: 400,
+          lineHeight: 1.7,
+          padding: "0 24px",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <FaBuilding size={17} style={{ marginRight: 4, color: "#9ca3af" }} />
+          <span style={{ color: "#9ca3af", marginRight: 6 }}>고객사</span>
+          <span style={{ color: "#222", fontWeight: 500 }}>
+            {project.client.name}
+          </span>
+          {project.client.contactPerson && (
+            <>
+              <span style={{ color: "#d1d5db", margin: "0 6px" }}>|</span>
+              <span style={{ color: "#9ca3af", marginRight: 6 }}>담당자</span>
+              <span style={{ color: "#222", fontWeight: 500 }}>
+                {project.client.contactPerson}
+              </span>
+            </>
+          )}
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <FaUsers size={17} style={{ marginRight: 4, color: "#9ca3af" }} />
+          <span style={{ color: "#9ca3af", marginRight: 6 }}>개발사</span>
+          {project.developers.map((dev, idx) => (
+            <span key={dev.name}>
+              <span style={{ color: "#222", fontWeight: 500 }}>{dev.name}</span>
+              <span style={{ color: "#9ca3af", margin: "0 2px" }}>
+                ({dev.role})
+              </span>
+              {idx !== project.developers.length - 1 && (
+                <span style={{ color: "#d1d5db", margin: "0 6px" }}>,</span>
+              )}
+            </span>
+          ))}
+        </div>
+      </div>
+    </ProjectHeaderContainer>
   );
 };
 

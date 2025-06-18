@@ -11,7 +11,7 @@ export const Sidebar = styled.aside`
   background: #fff;
   display: flex;
   flex-direction: column;
-  box-shadow: 2px 0 8px rgba(0,0,0,0.03);
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.03);
   padding-bottom: 2rem;
 `;
 
@@ -33,11 +33,11 @@ export const Menu = styled.ul`
   flex: 1;
 `;
 
-export const MenuItem = styled.li<{active?: boolean}>`
+export const MenuItem = styled.li<{ active?: boolean }>`
   padding: 0.75rem 2rem;
   font-weight: 500;
-  color: ${({active}) => active ? '#fff' : '#1f2937'};
-  background: ${({active}) => active ? '#fdb924' : 'transparent'};
+  color: ${({ active }) => (active ? "#fff" : "#1f2937")};
+  background: ${({ active }) => (active ? "#fdb924" : "transparent")};
   border-radius: 8px;
   margin: 0.25rem 1rem;
   cursor: pointer;
@@ -71,14 +71,14 @@ export const Header = styled.header`
 `;
 
 export const PageTitle = styled.div`
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   font-weight: 900;
   color: #111827;
 `;
 
 export const PageDesc = styled.div`
   color: #6b7280;
-  font-size: 1rem;
+  font-size: 0.9rem;
 `;
 
 export const SearchBar = styled.div`
@@ -94,18 +94,18 @@ export const SearchInput = styled.input`
   border: 1px solid #cbd5e1;
   border-radius: 4px;
   padding: 0.5rem 1rem;
-  font-size: 1rem;
+  font-size: 0.9rem;
   width: 300px;
 `;
 
-export const Button = styled.button<{primary?: boolean}>`
-  background: ${({primary}) => primary ? '#3b82f6' : '#fff'};
-  color: ${({primary}) => primary ? '#fff' : '#3b82f6'};
+export const Button = styled.button<{ primary?: boolean }>`
+  background: ${({ primary }) => (primary ? "#3b82f6" : "#fff")};
+  color: ${({ primary }) => (primary ? "#fff" : "#3b82f6")};
   border: 1px solid #3b82f6;
   border-radius: 4px;
   padding: 0.5rem 1.5rem;
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.9rem;
   cursor: pointer;
 `;
 
@@ -118,7 +118,7 @@ export const CardGrid = styled.div`
 export const ProjectCard = styled.div`
   background: #fff;
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
   border: 1px solid #e2e8f0;
   width: 290px;
   padding: 1.5rem 1.25rem;
@@ -128,25 +128,25 @@ export const ProjectCard = styled.div`
 `;
 
 export const CardTitle = styled.div`
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 700;
   color: #1e293b;
 `;
 
-export const StatusBadge = styled.span<{color: string}>`
+export const StatusBadge = styled.span<{ color: string }>`
   display: inline-block;
   padding: 0.2em 0.8em;
   border-radius: 4px;
-  font-size: 0.85em;
+  font-size: 0.8em;
   font-weight: 600;
-  background: ${({color}) => color + '22'};
-  color: ${({color}) => color};
+  background: ${({ color }) => color + "22"};
+  color: ${({ color }) => color};
 `;
 
 export const CardRow = styled.div`
   display: flex;
   justify-content: space-between;
-  font-size: 0.95em;
+  font-size: 0.85em;
   color: #334155;
 `;
 
@@ -161,14 +161,15 @@ export const CardActions = styled.div`
   margin-top: 0.5rem;
 `;
 
-export const CardButton = styled.button<{primary?: boolean}>`
+export const CardButton = styled.button<{ primary?: boolean }>`
   flex: 1;
   padding: 0.4rem 0;
   border-radius: 4px;
   border: 1px solid #3b82f6;
-  background: ${({primary}) => primary ? '#3b82f6' : '#fff'};
-  color: ${({primary}) => primary ? '#fff' : '#3b82f6'};
+  background: ${({ primary }) => (primary ? "#3b82f6" : "#fff")};
+  color: ${({ primary }) => (primary ? "#fff" : "#3b82f6")};
   font-weight: 500;
+  font-size: 0.85rem;
   cursor: pointer;
 `;
 
@@ -191,6 +192,7 @@ export const PaginationButton = styled.button`
   color: #374151;
   cursor: pointer;
   border-radius: 0.375rem;
+  font-size: 0.85rem;
 
   &:disabled {
     opacity: 0.5;
@@ -227,6 +229,7 @@ export const TableRow = styled.tr``;
 export const TableCell = styled.td`
   padding: 12px 8px;
   border-bottom: 1px solid #eee;
+  font-size: 0.85rem;
 `;
 
 export const TableBody = styled.tbody``;

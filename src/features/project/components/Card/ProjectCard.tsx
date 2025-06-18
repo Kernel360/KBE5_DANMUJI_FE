@@ -1,5 +1,5 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import { useNavigate } from "react-router-dom";
 import {
   ProjectCard as Card,
   CardHeader,
@@ -9,24 +9,31 @@ import {
   CardBody,
   CardInfoGroup,
   CardFooter,
-  DetailButton,
-  ManagerButton,
-} from './ProjectCard.styled';
+  StageButton,
+  CardProgress,
+} from "./ProjectCard.styled";
+import {
+  FiClock,
+  FiCheckCircle,
+  FiAlertTriangle,
+  FiChevronRight,
+  FiEye,
+} from "react-icons/fi";
 
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from "@/hooks/useAuth";
 
-import type { Project } from '../../types/Types';
+import type { Project } from "../../types/Types";
 
 const STATUS_MAP = {
-  'IN_PROGRESS': '진행중',
-  'COMPLETED': '완료',
-  'DELAYED': '지연'
+  IN_PROGRESS: "진행중",
+  COMPLETED: "완료",
+  DELAYED: "지연",
 } as const;
 
 const STATUS_COLORS = {
-  'IN_PROGRESS': '#2563eb',
-  'COMPLETED': '#059669',
-  'DELAYED': '#ef4444'
+  IN_PROGRESS: "#2563eb",
+  COMPLETED: "#059669",
+  DELAYED: "#ef4444",
 } as const;
 
 interface ProjectCardProps {
@@ -34,92 +41,75 @@ interface ProjectCardProps {
 }
 
 const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
-  const {
-    name,
-    client,
-    clientManager,
-    devManagers,
-    status,
-    startDate,
-    endDate,
-  } = project;
+  const { name, client, status, startDate, endDate, progress = 0 } = project;
 
   const { role } = useAuth();
   const navigate = useNavigate();
 
-  const handleDetailClick = (e: React.MouseEvent) => {
-    e.stopPropagation(); // 이벤트 버블링 방지
+  const handleStageClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
     navigate(`/projects/${project.id}/detail`);
   };
 
-  const handleManagerClick = (e: React.MouseEvent) => {
-    e.stopPropagation(); // 이벤트 버블링 방지
-    // TODO: 담당자 정보 표시 로직 구현
-  };
-
-  const getStatusColor = (status: string) => {
+  const getStatus = () => {
     switch (status) {
-      case 'IN_PROGRESS':
-        return '#3b82f6';
-      case 'COMPLETED':
-        return '#10b981';
-      case 'DELAYED':
-        return '#ef4444';
+      case "IN_PROGRESS":
+        return {
+          text: "진행중",
+          color: "#3b82f6",
+          icon: <FiClock size={14} />,
+        };
+      case "COMPLETED":
+        return {
+          text: "완료",
+          color: "#10b981",
+          icon: <FiCheckCircle size={14} />,
+        };
+      case "DELAYED":
+        return {
+          text: "지연",
+          color: "#ef4444",
+          icon: <FiAlertTriangle size={14} />,
+        };
       default:
-        return '#6b7280';
+        return { text: status, color: "#6b7280", icon: null };
     }
   };
 
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'IN_PROGRESS':
-        return '진행중';
-      case 'COMPLETED':
-        return '완료';
-      case 'DELAYED':
-        return '지연';
-      default:
-        return status;
-    }
-  };
+  const statusInfo = getStatus();
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>{name}</CardTitle>
         <CardBadges>
-          <Badge $color={getStatusColor(status)}>{getStatusText(status)}</Badge>
+          <Badge $color={statusInfo.color}>
+            {statusInfo.icon}
+            {statusInfo.text}
+          </Badge>
         </CardBadges>
       </CardHeader>
-
       <CardBody>
         <CardInfoGroup>
-          <div>고객사</div>
-          <div>{client}</div>
+          <span>고객사</span>
+          <span>{client}</span>
         </CardInfoGroup>
         <CardInfoGroup>
-          <div>고객 담당자</div>
-          <div>{clientManager}</div>
+          <span>기간</span>
+          <span>
+            {startDate} ~ {endDate}
+          </span>
         </CardInfoGroup>
-        <CardInfoGroup>
-          <div>개발사</div>
-          <div>{client}</div>
-        </CardInfoGroup>
-        <CardInfoGroup>
-          <div>개발 담당자</div>
-          <div>{devManagers}</div>
-        </CardInfoGroup>
-        <CardInfoGroup>
-          <div>기간</div>
-          <div>{startDate} ~ {endDate}</div>
-        </CardInfoGroup>
+        <CardProgress>
+          <span>진행률</span>
+          <progress value={progress} max={100} />
+          <span>{progress}%</span>
+        </CardProgress>
       </CardBody>
-
       <CardFooter>
-        <DetailButton onClick={handleDetailClick}>상세 보기</DetailButton>
-        {role === "ROLE_ADMIN" && (
-          <ManagerButton onClick={handleManagerClick}>담당자 관리</ManagerButton>
-        )}
+        <StageButton onClick={handleStageClick}>
+          상세 <FiEye size={14} />
+        </StageButton>
       </CardFooter>
     </Card>
   );

@@ -1,5 +1,5 @@
-import styled from 'styled-components';
-import type { PostPriority } from '../../types/Types';
+import styled from "styled-components";
+import type { PostPriority } from "../../types/Types";
 
 export const Wrapper = styled.div`
   padding: 24px;
@@ -8,10 +8,45 @@ export const Wrapper = styled.div`
 
 export const Filters = styled.div`
   display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
-  align-items: center;
   flex-wrap: wrap;
+  gap: 8px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 32px;
+  align-items: flex-end;
+  position: relative;
+  overflow: visible;
+  justify-content: space-between;
+`;
+
+export const FilterLeft = styled.div`
+  display: flex;
+  gap: 6px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+`;
+
+export const FilterGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+`;
+
+export const FilterLabel = styled.label`
+  font-size: 0.92rem;
+  color: #374151;
+  font-weight: 500;
+`;
+
+export const FilterSearchRight = styled.div`
+  display: flex;
+  gap: 3px;
+  align-items: center;
+  margin: 0;
+  padding: 0;
 `;
 
 export const Select = styled.select`
@@ -24,22 +59,64 @@ export const Select = styled.select`
 
 export const SearchInput = styled.input`
   flex: 1;
-  min-width: 100px;
-  padding: 6px 12px;
+  min-width: 200px;
+  padding: 10px 16px;
   font-size: 14px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  background-color: #ffffff;
+  color: #374151;
+  transition: all 0.2s ease;
+  outline: none;
+
+  &::placeholder {
+    color: #9ca3af;
+  }
+
+  &:focus {
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+  }
+
+  &:hover {
+    border-color: #d1d5db;
+  }
 `;
 
 export const NewButton = styled.button`
-  padding: 8px 16px;
-  background-color: #4f46e5;
-  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: #f9fafb;
+  color: #374151;
   font-size: 14px;
-  font-weight: 500;
-  border: none;
-  border-radius: 8px;
+  font-weight: 600;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
   cursor: pointer;
+  transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    border 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(107, 114, 128, 0.2);
+
+  &:hover {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    border-color: #fef3c7;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(251, 191, 36, 0.3);
+    color: #fff;
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(251, 191, 36, 0.2);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2);
+  }
 `;
 
 /* Table styles */
@@ -56,12 +133,9 @@ export const Thead = styled.thead`
 export const Tbody = styled.tbody``;
 
 export const Tr = styled.tr`
-  &:nth-child(even) {
-    background-color: #f9fafb;
-  }
-
   &:hover {
-    background-color: #eef2ff;
+    background-color: #fefdf4;
+    transition: background-color 0.2s ease;
   }
 `;
 
@@ -86,19 +160,227 @@ export const StatusBadge = styled.span<{ priority: PostPriority }>`
   font-size: 12px;
   font-weight: 500;
   color: ${({ priority }) =>
-    priority === 'LOW'
-      ? '#065f46'
-      : priority === 'MEDIUM'
-      ? '#92400e'
-      : priority === 'HIGH'
-      ? '#b45309'
-      : '#991b1b'};
+    priority === "LOW"
+      ? "#065f46"
+      : priority === "MEDIUM"
+      ? "#92400e"
+      : priority === "HIGH"
+      ? "#a21caf"
+      : "#991b1b"};
   background-color: ${({ priority }) =>
-    priority === 'LOW'
-      ? '#d1fae5'
-      : priority === 'MEDIUM'
-      ? '#fef3c7'
-      : priority === 'HIGH'
-      ? '#fde68a'
-      : '#fee2e2'};
+    priority === "LOW"
+      ? "#d1fae5"
+      : priority === "MEDIUM"
+      ? "#fef3c7"
+      : priority === "HIGH"
+      ? "#fce7f3"
+      : "#fee2e2"};
+`;
+
+export const TitleText = styled.span`
+  color: #111;
+  font-weight: 600;
+`;
+
+export const CommentInfo = styled.span`
+  color: #9ca3af;
+  font-size: 0.78rem;
+  margin-left: 8px;
+`;
+
+export const TypeBadge = styled.span<{ type: "GENERAL" | "QUESTION" }>`
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  color: ${({ type }) => (type === "GENERAL" ? "#1e40af" : "#92400e")};
+  background-color: ${({ type }) =>
+    type === "GENERAL" ? "#dbeafe" : "#fef3c7"};
+`;
+
+export const StatusButtonGroup = styled.div`
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+`;
+
+export const StatusButton = styled.button<{ $active: boolean; $color: string }>`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: ${({ $active, $color }) => ($active ? `${$color}15` : "#ffffff")};
+  color: ${({ $active, $color }) => ($active ? $color : "#374151")};
+  border: 2px solid ${({ $active, $color }) => ($active ? $color : "#e5e7eb")};
+  padding: 8px 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: fit-content;
+  white-space: nowrap;
+
+  svg {
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+  }
+
+  span {
+    font-weight: 500;
+  }
+
+  &:hover {
+    background: ${({ $active, $color }) =>
+      $active ? `${$color}25` : "#f9fafb"};
+    border-color: ${({ $active, $color }) => ($active ? $color : "#d1d5db")};
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px ${({ $color }) => `${$color}20`};
+  }
+`;
+
+export const DropdownButton = styled.button<{
+  $active: boolean;
+  $color: string;
+  $isOpen: boolean;
+}>`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: ${({ $active, $color }) => ($active ? `${$color}15` : "#ffffff")};
+  color: ${({ $active, $color }) => ($active ? $color : "#374151")};
+  border: 2px solid ${({ $active, $color }) => ($active ? $color : "#e5e7eb")};
+  padding: 8px 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: fit-content;
+  white-space: nowrap;
+
+  svg {
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+    transform: ${({ $isOpen }) =>
+      $isOpen ? "rotate(180deg)" : "rotate(0deg)"};
+  }
+
+  span {
+    font-weight: 500;
+  }
+
+  &:hover {
+    background: ${({ $active, $color }) =>
+      $active ? `${$color}25` : "#f9fafb"};
+    border-color: ${({ $active, $color }) => ($active ? $color : "#d1d5db")};
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px ${({ $color }) => `${$color}20`};
+  }
+`;
+
+export const DropdownMenu = styled.div<{ $isOpen: boolean }>`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  opacity: ${({ $isOpen }) => ($isOpen ? 1 : 0)};
+  visibility: ${({ $isOpen }) => ($isOpen ? "visible" : "hidden")};
+  transform: ${({ $isOpen }) =>
+    $isOpen ? "translateY(0)" : "translateY(-10px)"};
+  transition: all 0.2s ease;
+  margin-top: 4px;
+`;
+
+export const DropdownItem = styled.button<{ $active: boolean; $color: string }>`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px 12px;
+  background: ${({ $active, $color }) =>
+    $active ? `${$color}15` : "transparent"};
+  color: ${({ $active, $color }) => ($active ? $color : "#374151")};
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+
+  &:hover {
+    background: ${({ $active, $color }) =>
+      $active ? `${$color}25` : "#f9fafb"};
+  }
+
+  &:first-child {
+    border-radius: 6px 6px 0 0;
+  }
+
+  &:last-child {
+    border-radius: 0 0 6px 6px;
+  }
+`;
+
+export const DropdownContainer = styled.div`
+  position: relative;
+`;
+
+export const CreatePostButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.15);
+  margin: 0;
+
+  &:hover {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    border-color: #bfdbfe;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.2);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.15);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  }
 `;

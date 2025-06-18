@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled from "styled-components";
 
 export const ProjectListContainer = styled.div`
   padding: 32px 24px;
@@ -10,20 +10,20 @@ export const Header = styled.div`
 `;
 
 export const Title = styled.h1`
-  font-size: 1.7rem;
+  font-size: 1.4rem;
   font-weight: 700;
   margin-bottom: 8px;
 `;
 
 export const Description = styled.div`
   color: #bdbdbd;
-  font-size: 1.08rem;
+  font-size: 0.9rem;
   margin-bottom: 18px;
 `;
 
 export const CardGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-  gap: 32px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
   margin-bottom: 32px;
 `;

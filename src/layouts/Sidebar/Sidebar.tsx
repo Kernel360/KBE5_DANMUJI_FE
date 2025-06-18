@@ -17,10 +17,11 @@ import styled from "styled-components";
 import { MdDashboard } from "react-icons/md";
 import { HiBuildingOffice2 } from "react-icons/hi2";
 import { HiUsers } from "react-icons/hi2";
-import { FaFlagCheckered } from "react-icons/fa";
+import { MdReport } from "react-icons/md";
 import { FaPlay } from "react-icons/fa";
 import { FaAlignLeft } from "react-icons/fa";
 import { FaArchive } from "react-icons/fa";
+import { FiHelpCircle } from "react-icons/fi";
 
 import { useAuth } from "@/hooks/useAuth";
 
@@ -63,6 +64,14 @@ export const Sidebar: React.FC = () => {
           text="프로젝트 목록"
           isActive={location.pathname.startsWith("/projects")}
           onClick={() => handleMenuItemClick("프로젝트 목록", "/projects")}
+        />
+        <MenuItem
+          icon={FiHelpCircle}
+          text="관리자에게 문의하기"
+          isActive={location.pathname === "/contact-admin"}
+          onClick={() =>
+            handleMenuItemClick("관리자에게 문의하기", "/contact-admin")
+          }
         />
         {/* 관리자 전용 메뉴 */}
         {role === "ROLE_ADMIN" && (

@@ -1,51 +1,61 @@
-import { useEffect, useState } from 'react';
-import { ProjectListContainer, Header, Title, Description, CardGrid } from './ProjectListPage.styled';
-import type { Project } from '../types/Types';
-import ProjectFilterBar from '../components/List/ProjectFilterBar';
-import ProjectCard from '../components/Card/ProjectCard';
+import { useEffect, useState } from "react";
+import {
+  ProjectListContainer,
+  Header,
+  Title,
+  Description,
+  CardGrid,
+} from "./ProjectListPage.styled";
+import type { Project } from "../types/Types";
+import ProjectFilterBar from "../components/List/ProjectFilterBar";
+import ProjectCard from "../components/Card/ProjectCard";
 
 const PAGE_SIZE = 12;
 
 const mockProjects: Project[] = [
   {
     id: 1,
-    name: 'ABC 기업 웹사이트 리뉴얼',
-    client: 'ABC 주식회사',
-    clientManager: '홍길동 외 2명',
-    devManagers: '김개발 외 3명',
-    status: 'IN_PROGRESS',
-    startDate: '2024-01-15',
-    endDate: '2024-06-30',
+    name: "ABC 기업 웹사이트 리뉴얼",
+    client: "ABC 주식회사",
+    clientManager: "홍길동 외 2명",
+    devManagers: "김개발 외 3명",
+    status: "IN_PROGRESS",
+    startDate: "2024-01-15",
+    endDate: "2024-06-30",
+    progress: 20,
   },
   {
     id: 2,
-    name: 'ABC 기업 웹사이트 리뉴얼',
-    client: 'ABC 주식회사',
-    clientManager: '홍길동 외 2명',
-    devManagers: '김개발 외 3명',
-    status: 'IN_PROGRESS',
-    startDate: '2024-01-15',
-    endDate: '2024-06-30',
+    name: "ABC 기업 웹사이트 리뉴얼",
+    client: "ABC 주식회사",
+    clientManager: "홍길동 외 2명",
+    devManagers: "김개발 외 3명",
+    status: "IN_PROGRESS",
+    startDate: "2024-01-15",
+    endDate: "2024-06-30",
+    progress: 40,
   },
   {
     id: 3,
-    name: 'ABC 기업 웹사이트 리뉴얼',
-    client: 'ABC 주식회사',
-    clientManager: '홍길동 외 2명',
-    devManagers: '김개발 외 3명',
-    status: 'DELAYED',
-    startDate: '2024-01-15',
-    endDate: '2024-06-30',
+    name: "ABC 기업 웹사이트 리뉴얼",
+    client: "ABC 주식회사",
+    clientManager: "홍길동 외 2명",
+    devManagers: "김개발 외 3명",
+    status: "DELAYED",
+    startDate: "2024-01-15",
+    endDate: "2024-06-30",
+    progress: 65,
   },
   {
     id: 4,
-    name: 'ABC 기업 웹사이트 리뉴얼',
-    client: 'ABC 주식회사',
-    clientManager: '홍길동 외 2명',
-    devManagers: '김개발 외 3명',
-    status: 'COMPLETED',
-    startDate: '2024-01-15',
-    endDate: '2024-06-30',
+    name: "ABC 기업 웹사이트 리뉴얼",
+    client: "ABC 주식회사",
+    clientManager: "홍길동 외 2명",
+    devManagers: "김개발 외 3명",
+    status: "COMPLETED",
+    startDate: "2024-01-15",
+    endDate: "2024-06-30",
+    progress: 90,
   },
 ];
 
@@ -54,12 +64,12 @@ export default function ProjectListPage() {
   const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState({
-    status: '',
-    client: '',
-    sort: 'latest',
-    startDate: '',
-    endDate: '',
-    keyword: '',
+    status: "",
+    client: "",
+    sort: "latest",
+    startDate: "",
+    endDate: "",
+    keyword: "",
   });
 
   useEffect(() => {
@@ -73,30 +83,38 @@ export default function ProjectListPage() {
 
   const handleSearch = () => {
     const filtered = projects.filter((project) => {
-      const matchesKeyword = project.name.includes(filters.keyword) || 
-                           project.client.includes(filters.keyword) ||
-                           project.clientManager.includes(filters.keyword) ||
-                           project.devManagers.includes(filters.keyword);
-      
-      const matchesStatus = !filters.status || project.status === filters.status;
-      const matchesClient = !filters.client || project.client === filters.client;
-      
+      const matchesKeyword =
+        project.name.includes(filters.keyword) ||
+        project.client.includes(filters.keyword) ||
+        project.clientManager.includes(filters.keyword) ||
+        project.devManagers.includes(filters.keyword);
+
+      const matchesStatus =
+        !filters.status || project.status === filters.status;
+      const matchesClient =
+        !filters.client || project.client === filters.client;
+
       const startDate = new Date(project.startDate);
       const endDate = new Date(project.endDate);
-      const filterStartDate = filters.startDate ? new Date(filters.startDate) : null;
+      const filterStartDate = filters.startDate
+        ? new Date(filters.startDate)
+        : null;
       const filterEndDate = filters.endDate ? new Date(filters.endDate) : null;
-      
-      const matchesDate = (!filterStartDate || startDate >= filterStartDate) && 
-                         (!filterEndDate || endDate <= filterEndDate);
+
+      const matchesDate =
+        (!filterStartDate || startDate >= filterStartDate) &&
+        (!filterEndDate || endDate <= filterEndDate);
 
       return matchesKeyword && matchesStatus && matchesClient && matchesDate;
     });
 
     // 정렬 적용
     const sorted = [...filtered].sort((a, b) => {
-      if (filters.sort === 'latest') {
-        return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
-      } else if (filters.sort === 'name') {
+      if (filters.sort === "latest") {
+        return (
+          new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
+        );
+      } else if (filters.sort === "name") {
         return a.name.localeCompare(b.name);
       }
       return 0;
@@ -108,12 +126,12 @@ export default function ProjectListPage() {
 
   const handleReset = () => {
     setFilters({
-      status: '',
-      client: '',
-      sort: 'latest',
-      startDate: '',
-      endDate: '',
-      keyword: '',
+      status: "",
+      client: "",
+      sort: "latest",
+      startDate: "",
+      endDate: "",
+      keyword: "",
     });
     setFilteredProjects(projects);
     setCurrentPage(1); // 초기화 시 첫 페이지로 이동
@@ -153,11 +171,13 @@ export default function ProjectListPage() {
     <ProjectListContainer>
       <Header>
         <Title>프로젝트 관리</Title>
-        <Description>프로젝트 관리 시스템의 주요 정보를 한눈에 확인하세요</Description>
+        <Description>
+          프로젝트 관리 시스템의 주요 정보를 한눈에 확인하세요
+        </Description>
       </Header>
-      <ProjectFilterBar 
-        filters={filters} 
-        onInputChange={handleInputChange} 
+      <ProjectFilterBar
+        filters={filters}
+        onInputChange={handleInputChange}
         onSearch={handleSearch}
         onReset={handleReset}
       />
@@ -167,17 +187,24 @@ export default function ProjectListPage() {
         ))}
       </CardGrid>
       {totalPages > 1 && (
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '24px' }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            gap: "8px",
+            marginTop: "24px",
+          }}
+        >
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
             style={{
-              padding: '8px 16px',
-              border: '1px solid #e5e7eb',
-              borderRadius: '6px',
-              background: currentPage === 1 ? '#f3f4f6' : '#fff',
-              color: currentPage === 1 ? '#9ca3af' : '#374151',
-              cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+              padding: "8px 16px",
+              border: "1px solid #e5e7eb",
+              borderRadius: "6px",
+              background: currentPage === 1 ? "#f3f4f6" : "#fff",
+              color: currentPage === 1 ? "#9ca3af" : "#374151",
+              cursor: currentPage === 1 ? "not-allowed" : "pointer",
             }}
           >
             이전
@@ -187,12 +214,12 @@ export default function ProjectListPage() {
               key={pageNum}
               onClick={() => handlePageChange(pageNum)}
               style={{
-                padding: '8px 16px',
-                border: '1px solid #e5e7eb',
-                borderRadius: '6px',
-                background: currentPage === pageNum ? '#fbbf24' : '#fff',
-                color: currentPage === pageNum ? '#fff' : '#374151',
-                cursor: 'pointer',
+                padding: "8px 16px",
+                border: "1px solid #e5e7eb",
+                borderRadius: "6px",
+                background: currentPage === pageNum ? "#fbbf24" : "#fff",
+                color: currentPage === pageNum ? "#fff" : "#374151",
+                cursor: "pointer",
               }}
             >
               {pageNum}
@@ -202,12 +229,12 @@ export default function ProjectListPage() {
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
             style={{
-              padding: '8px 16px',
-              border: '1px solid #e5e7eb',
-              borderRadius: '6px',
-              background: currentPage === totalPages ? '#f3f4f6' : '#fff',
-              color: currentPage === totalPages ? '#9ca3af' : '#374151',
-              cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+              padding: "8px 16px",
+              border: "1px solid #e5e7eb",
+              borderRadius: "6px",
+              background: currentPage === totalPages ? "#f3f4f6" : "#fff",
+              color: currentPage === totalPages ? "#9ca3af" : "#374151",
+              cursor: currentPage === totalPages ? "not-allowed" : "pointer",
             }}
           >
             다음

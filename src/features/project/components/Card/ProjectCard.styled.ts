@@ -1,18 +1,19 @@
-import styled from 'styled-components';
+import styled from "styled-components";
 
 export const ProjectCard = styled.div`
   background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  padding: 0 0 20px 0;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  padding: 0 0 12px 0;
   display: flex;
   flex-direction: column;
-  min-width: 320px;
-  transition: all 0.2s ease-in-out;
+  min-width: 240px;
+  max-width: 320px;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   }
 `;
 
@@ -20,43 +21,46 @@ export const CardHeader = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 24px 24px 16px 24px;
+  padding: 14px 16px 8px 16px;
   border-bottom: 1px solid #f3f4f6;
 `;
 
 export const CardTitle = styled.div`
-  font-size: 1.25rem;
+  font-size: 1rem;
   font-weight: 700;
   color: #111827;
-  line-height: 1.4;
+  line-height: 1.3;
 `;
 
 export const CardBadges = styled.div`
   display: flex;
-  gap: 8px;
+  gap: 6px;
 `;
 
 export const Badge = styled.span<{ $color: string }>`
-  background-color: ${({ $color }) => $color};
-  color: #fff;
-  font-size: 0.813rem;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-weight: 600;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: none;
+  color: ${({ $color }) => $color};
+  font-size: 0.85rem;
+  padding: 0 6px;
+  border-radius: 12px;
+  font-weight: 700;
+  box-shadow: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 `;
 
 export const CardBody = styled.div`
-  padding: 20px 24px 0 24px;
+  padding: 10px 16px 0 16px;
 `;
 
 export const CardInfoGroup = styled.div`
   display: flex;
   justify-content: space-between;
-  font-size: 0.938rem;
+  font-size: 0.88rem;
   color: #4b5563;
-  margin-bottom: 12px;
-  line-height: 1.5;
+  margin-bottom: 7px;
+  line-height: 1.4;
 
   &:last-child {
     margin-bottom: 0;
@@ -87,62 +91,57 @@ export const CardProgress = styled.div`
     }
 
     &::-webkit-progress-value {
-      background-color: #fbbf24;
+      background-image: linear-gradient(
+        90deg,
+        #60a5fa 0%,
+        #a78bfa 50%,
+        #f472b6 100%
+      );
       border-radius: 4px;
+      transition: background-image 0.3s;
+    }
+
+    &::-moz-progress-bar {
+      background-image: linear-gradient(
+        90deg,
+        #60a5fa 0%,
+        #a78bfa 50%,
+        #f472b6 100%
+      );
+      border-radius: 4px;
+      transition: background-image 0.3s;
     }
   }
 `;
 
 export const CardFooter = styled.div`
   display: flex;
-  gap: 12px;
+  gap: 8px;
   justify-content: flex-end;
-  padding: 20px 24px 0 24px;
+  padding: 10px 16px 0 16px;
   margin-top: auto;
 `;
 
-export const DetailButton = styled.button`
-  background: #fff;
+export const StageButton = styled.button`
+  background: #f9fafb;
   color: #fbbf24;
-  border: 2px solid #fbbf24;
-  border-radius: 8px;
-  padding: 8px 20px;
-  font-size: 0.938rem;
+  border: 1.5px solid #fbbf24;
+  border-radius: 7px;
+  padding: 6px 14px;
+  font-size: 0.92rem;
   font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 5px;
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
-
+  transition: all 0.18s;
+  height: 32px;
+  min-width: 0;
+  box-shadow: none;
   &:hover {
     background: #fbbf24;
     color: #fff;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(251, 191, 36, 0.2);
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-`;
-
-export const ManagerButton = styled.button`
-  background: #fbbf24;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 8px 20px;
-  font-size: 0.938rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-  box-shadow: 0 2px 4px rgba(251, 191, 36, 0.2);
-
-  &:hover {
-    background: #f59e0b;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 6px rgba(251, 191, 36, 0.3);
-  }
-
-  &:active {
-    transform: translateY(0);
+    border-color: #fbbf24;
+    box-shadow: 0 2px 4px rgba(251, 191, 36, 0.12);
   }
 `;
