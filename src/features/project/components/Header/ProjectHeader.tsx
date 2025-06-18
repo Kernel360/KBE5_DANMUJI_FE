@@ -8,7 +8,9 @@ import {
   FiClock,
   FiCheckCircle,
   FiAlertTriangle,
+  FiArrowLeft,
 } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 import {
   ProjectHeaderContainer,
   ProjectTitle,
@@ -16,9 +18,12 @@ import {
   ProjectMeta,
   ProjectPeriod,
   ProjectStatusBadge,
+  BackButton,
 } from "./ProjectHeader.styled";
 
 const ProjectHeader: React.FC = () => {
+  const navigate = useNavigate();
+
   // 더미 데이터
   const project = {
     name: "클라우드 기반 ERP 시스템 개발",
@@ -41,6 +46,10 @@ const ProjectHeader: React.FC = () => {
         email: "park.front@company.com",
       },
     ],
+  };
+
+  const handleBack = () => {
+    navigate("/projects");
   };
 
   // 상태별 아이콘 반환 함수
@@ -69,6 +78,10 @@ const ProjectHeader: React.FC = () => {
 
   return (
     <ProjectHeaderContainer>
+      <BackButton onClick={handleBack}>
+        <FiArrowLeft size={16} />
+        목록으로
+      </BackButton>
       <ProjectTitle>{project.name}</ProjectTitle>
       {project.description && (
         <ProjectSubtitle>{project.description}</ProjectSubtitle>
