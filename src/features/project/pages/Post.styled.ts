@@ -1,5 +1,5 @@
 // styled.ts
-import styled from 'styled-components';
+import styled from "styled-components";
 
 export const PageWrapper = styled.div``;
 
@@ -102,6 +102,13 @@ export const SearchInput = styled.input`
   font-size: 14px;
   border: 1px solid #d1d5db;
   border-radius: 8px;
+  outline: none;
+  transition: border 0.2s;
+
+  &:focus {
+    border-color: #fdb924;
+    box-shadow: 0 0 0 2px rgba(253, 185, 36, 0.1);
+  }
 `;
 
 export const NewPostButton = styled.button`
@@ -115,9 +122,11 @@ export const NewPostButton = styled.button`
   cursor: pointer;
 `;
 
-export const PostCard = styled.div<{ variant?: 'default' | 'notice' }>`
-  background-color: ${(props) => (props.variant === 'notice' ? '#FEF3C7' : '#F9FAFB')};
-  border: 1px solid ${(props) => (props.variant === 'notice' ? '#FACC15' : '#E5E7EB')};
+export const PostCard = styled.div<{ variant?: "default" | "notice" }>`
+  background-color: ${(props) =>
+    props.variant === "notice" ? "#FEF3C7" : "#F9FAFB"};
+  border: 1px solid
+    ${(props) => (props.variant === "notice" ? "#FACC15" : "#E5E7EB")};
   border-radius: 12px;
   padding: 20px;
   margin-bottom: 16px;
@@ -139,7 +148,7 @@ export const PostBody = styled.p`
 
 export const PostFooter = styled.div`
   font-size: 13px;
-  color: #6B7280;
+  color: #6b7280;
   margin-top: 10px;
 `;
 

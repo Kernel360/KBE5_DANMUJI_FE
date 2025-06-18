@@ -259,6 +259,42 @@ export default function ProjectDetailPage() {
   return (
     <S.PageContainer>
       <S.MainContentWrapper>
+        <div style={{ marginBottom: "24px" }}>
+          <h1
+            style={{
+              fontSize: "1.4rem",
+              fontWeight: 700,
+              marginBottom: "8px",
+              paddingLeft: "16px",
+              position: "relative",
+              color: "#111827",
+            }}
+          >
+            <span
+              style={{
+                position: "absolute",
+                left: 0,
+                top: "50%",
+                transform: "translateY(-50%)",
+                width: "4px",
+                height: "1.4rem",
+                background: "#fdb924",
+                borderRadius: "2px",
+              }}
+            ></span>
+            프로젝트 상세
+          </h1>
+          <p
+            style={{
+              color: "#bdbdbd",
+              fontSize: "0.9rem",
+              marginBottom: "18px",
+            }}
+          >
+            프로젝트의 상세 정보와 진행 상황을 확인하세요.
+          </p>
+        </div>
+
         <S.ProjectDetailSection>
           <S.ProjectHeader>
             <S.ProjectHeaderContent>

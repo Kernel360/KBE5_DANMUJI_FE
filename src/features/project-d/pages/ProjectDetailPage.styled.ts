@@ -9,7 +9,7 @@ export const PageContainer = styled.div`
 
 export const MainContentWrapper = styled.div`
   max-width: 1200px;
-  margin: 40px 20px;
+  margin: 40px 48px;
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
@@ -539,8 +539,8 @@ export const FormInput = styled.input`
 
   &:focus {
     outline: none;
-    border-color: #4f46e5;
-    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
+    border-color: #fdb924;
+    box-shadow: 0 0 0 2px rgba(253, 185, 36, 0.1);
   }
 `;
 

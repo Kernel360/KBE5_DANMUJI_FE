@@ -1,19 +1,67 @@
-import styled from "styled-components";
+import styled, { keyframes, css } from "styled-components";
 
-export const ProjectCard = styled.div`
+const blinkAnimation = keyframes`
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0.3;
+  }
+`;
+
+const blinkBorderAnimation = keyframes`
+  0%, 50% {
+    border-color: ${({ $status }: { $status?: string }) =>
+      $status === "DELAYED"
+        ? "#ef4444"
+        : $status === "DUE_SOON"
+        ? "#f59e0b"
+        : "transparent"};
+  }
+  51%, 100% {
+    border-color: ${({ $status }: { $status?: string }) =>
+      $status === "DELAYED"
+        ? "#fca5a5"
+        : $status === "DUE_SOON"
+        ? "#fcd34d"
+        : "transparent"};
+  }
+`;
+
+export const ProjectCard = styled.div<{ $status?: string }>`
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   padding: 0 0 12px 0;
   display: flex;
   flex-direction: column;
-  min-width: 240px;
-  max-width: 320px;
+  min-width: 220px;
+  max-width: 100%;
+  width: 100%;
+  flex: 1 1 0;
   transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid transparent;
+  ${({ $status }) =>
+    ($status === "DELAYED" || $status === "DUE_SOON") &&
+    css`
+      animation: ${blinkBorderAnimation} 0.8s ease-in-out infinite;
+    `}
 
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  @media (max-width: 900px) {
+    min-width: 180px;
+    max-width: 100%;
+    flex-basis: 48%;
+  }
+
+  @media (max-width: 600px) {
+    min-width: 120px;
+    max-width: 100%;
+    flex-basis: 100%;
   }
 `;
 
@@ -37,7 +85,7 @@ export const CardBadges = styled.div`
   gap: 6px;
 `;
 
-export const Badge = styled.span<{ $color: string }>`
+export const Badge = styled.span<{ $color: string; $status?: string }>`
   background: none;
   color: ${({ $color }) => $color};
   font-size: 0.85rem;
@@ -48,6 +96,11 @@ export const Badge = styled.span<{ $color: string }>`
   display: flex;
   align-items: center;
   gap: 4px;
+  ${({ $status }) =>
+    ($status === "DELAYED" || $status === "DUE_SOON") &&
+    css`
+      animation: ${blinkAnimation} 0.8s ease-in-out infinite;
+    `}
 `;
 
 export const CardBody = styled.div`
@@ -123,25 +176,24 @@ export const CardFooter = styled.div`
 `;
 
 export const StageButton = styled.button`
-  background: #f9fafb;
-  color: #fbbf24;
-  border: 1.5px solid #fbbf24;
-  border-radius: 7px;
+  background: #ffffff;
+  color: #374151;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
   padding: 6px 14px;
   font-size: 0.92rem;
-  font-weight: 600;
+  font-weight: 500;
   display: flex;
   align-items: center;
   gap: 5px;
   cursor: pointer;
-  transition: all 0.18s;
+  transition: all 0.15s ease-in-out;
   height: 32px;
   min-width: 0;
-  box-shadow: none;
+
   &:hover {
-    background: #fbbf24;
-    color: #fff;
-    border-color: #fbbf24;
-    box-shadow: 0 2px 4px rgba(251, 191, 36, 0.12);
+    background: #fdb924;
+    color: #ffffff;
+    border-color: transparent;
   }
 `;

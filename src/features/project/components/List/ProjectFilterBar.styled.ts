@@ -11,8 +11,7 @@ export const FilterBar = styled.div`
   margin-bottom: 32px;
   align-items: flex-end;
   position: relative;
-  overflow-x: auto;
-  overflow-y: visible;
+  overflow: visible;
 `;
 
 export const FilterGroup = styled.div`
@@ -73,6 +72,42 @@ export const Select = styled.select`
   }
 `;
 
+export const NewButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: #f9fafb;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    border 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(107, 114, 128, 0.2);
+
+  &:hover {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    border-color: #fef3c7;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(251, 191, 36, 0.3);
+    color: #fff;
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(251, 191, 36, 0.2);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2);
+  }
+`;
+
 export const DateInput = styled.input`
   padding: 8px 12px;
   font-size: 0.95rem;
@@ -84,18 +119,36 @@ export const DateInput = styled.input`
 
 export const SearchInput = styled.input`
   flex: 1;
-  padding: 10px 14px;
-  font-size: 1rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  background: #fff;
+  min-width: 200px;
+  padding: 10px 16px;
+  font-size: 14px;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  background-color: #ffffff;
+  color: #374151;
+  transition: all 0.1s ease;
+  outline: none;
+
+  &::placeholder {
+    color: #9ca3af;
+  }
+
+  &:focus {
+    border-color: #fdb924;
+    box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.1);
+  }
+
+  &:hover {
+    border-color: #d1d5db;
+  }
 `;
 
 export const SearchRight = styled.div`
   display: flex;
-  gap: 12px;
+  gap: 10px;
   flex: 1;
   align-items: center;
+  justify-content: flex-end;
 `;
 
 export const TopActions = styled.div`
@@ -104,18 +157,29 @@ export const TopActions = styled.div`
 `;
 
 export const ActionButton = styled.button<{ $primary?: boolean }>`
-  background: ${({ $primary }) => ($primary ? "#fbbf24" : "#ffffff")};
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 1rem;
+  height: 32px;
+  background: ${({ $primary }) => ($primary ? "#fdb924" : "#f3f4f6")};
   color: ${({ $primary }) => ($primary ? "#fff" : "#374151")};
-  border: 1px solid #d1d5db;
-  padding: 8px 14px;
-  font-size: 0.95rem;
-  font-weight: 500;
-  border-radius: 8px;
+  border: ${({ $primary }) => ($primary ? "none" : "1px solid #d1d5db")};
+  border-radius: 0.375rem;
+  font-size: 0.85rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: 0.2s ease;
-
+  transition: all 0.2s ease;
+  box-shadow: none;
   &:hover {
-    background: ${({ $primary }) => ($primary ? "#f59e0b" : "#f3f4f6")};
+    background: ${({ $primary }) => ($primary ? "#f59e0b" : "#e5e7eb")};
+    color: ${({ $primary }) => ($primary ? "#fff" : "#111827")};
+    border-color: #9ca3af;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+  }
+  &:active {
+    transform: translateY(0);
   }
 `;
 
@@ -195,11 +259,11 @@ export const DateButton = styled.button<{ $hasValue: boolean }>`
   align-items: center;
   gap: 8px;
   width: 100%;
-  padding: 10px 14px;
-  background: ${({ $hasValue }) => ($hasValue ? "#f0f9ff" : "#ffffff")};
-  border: 2px solid ${({ $hasValue }) => ($hasValue ? "#3b82f6" : "#e5e7eb")};
+  padding: 8px 12px;
+  background: ${({ $hasValue }) => ($hasValue ? "#fef3c7" : "#ffffff")};
+  border: 2px solid ${({ $hasValue }) => ($hasValue ? "#fdb924" : "#e5e7eb")};
   border-radius: 8px;
-  color: ${({ $hasValue }) => ($hasValue ? "#1e40af" : "#374151")};
+  color: ${({ $hasValue }) => ($hasValue ? "#a16207" : "#374151")};
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
@@ -208,7 +272,7 @@ export const DateButton = styled.button<{ $hasValue: boolean }>`
 
   svg {
     flex-shrink: 0;
-    color: ${({ $hasValue }) => ($hasValue ? "#3b82f6" : "#6b7280")};
+    color: ${({ $hasValue }) => ($hasValue ? "#fdb924" : "#6b7280")};
   }
 
   span:first-of-type {
@@ -219,7 +283,7 @@ export const DateButton = styled.button<{ $hasValue: boolean }>`
   .date-value {
     margin-left: auto;
     font-size: 0.8rem;
-    color: ${({ $hasValue }) => ($hasValue ? "#1e40af" : "#9ca3af")};
+    color: ${({ $hasValue }) => ($hasValue ? "#a16207" : "#9ca3af")};
     font-weight: 400;
     white-space: nowrap;
     word-break: keep-all;
@@ -227,15 +291,15 @@ export const DateButton = styled.button<{ $hasValue: boolean }>`
   }
 
   &:hover {
-    background: ${({ $hasValue }) => ($hasValue ? "#dbeafe" : "#f9fafb")};
-    border-color: ${({ $hasValue }) => ($hasValue ? "#2563eb" : "#d1d5db")};
+    background: ${({ $hasValue }) => ($hasValue ? "#fef9c3" : "#f9fafb")};
+    border-color: ${({ $hasValue }) => ($hasValue ? "#fdb924" : "#d1d5db")};
     transform: translateY(-1px);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.1);
   }
 
   &:active {
@@ -292,26 +356,26 @@ export const DatePickerStyles = styled.div`
     margin: 2px;
 
     &:hover {
-      background-color: #f3f4f6;
+      background-color: #fef3c7;
     }
   }
 
   .react-datepicker__day--selected {
-    background-color: #3b82f6;
+    background-color: #fdb924;
     color: white;
 
     &:hover {
-      background-color: #2563eb;
+      background-color: #f59e0b;
     }
   }
 
   .react-datepicker__day--in-range {
-    background-color: #dbeafe;
-    color: #1e40af;
+    background-color: #fef3c7;
+    color: #a16207;
   }
 
   .react-datepicker__day--keyboard-selected {
-    background-color: #3b82f6;
+    background-color: #fdb924;
     color: white;
   }
 
@@ -320,21 +384,27 @@ export const DatePickerStyles = styled.div`
   }
 
   .react-datepicker__navigation-icon::before {
-    border-color: #6b7280;
+    border-color: #a16207;
   }
 `;
 
-export const SelectButton = styled.button<{ $hasValue: boolean }>`
+export const SelectButton = styled.button<{
+  $hasValue: boolean;
+  $color?: string;
+}>`
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+  min-width: 120px;
   width: 100%;
-  padding: 8px 10px;
-  background: ${({ $hasValue }) => ($hasValue ? "#f0f9ff" : "#ffffff")};
-  border: 2px solid ${({ $hasValue }) => ($hasValue ? "#3b82f6" : "#e5e7eb")};
+  max-width: 180px;
+  padding: 8px 12px;
+  background: ${({ $hasValue }) => ($hasValue ? "#fef3c7" : "#ffffff")};
+  border: 2px solid
+    ${({ $hasValue, $color }) => ($hasValue ? "#fdb924" : "#e5e7eb")};
   border-radius: 8px;
-  color: ${({ $hasValue }) => ($hasValue ? "#1e40af" : "#374151")};
+  color: ${({ $hasValue, $color }) => ($hasValue ? "#a16207" : "#374151")};
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
@@ -344,8 +414,12 @@ export const SelectButton = styled.button<{ $hasValue: boolean }>`
 
   svg {
     flex-shrink: 0;
-    color: ${({ $hasValue }) => ($hasValue ? "#3b82f6" : "#6b7280")};
+    color: ${({ $hasValue, $color }) => ($hasValue ? "#fdb924" : "#6b7280")};
     transition: transform 0.2s ease;
+  }
+
+  &.open svg:first-child {
+    transform: rotate(180deg);
   }
 
   .select-value {
@@ -354,23 +428,21 @@ export const SelectButton = styled.button<{ $hasValue: boolean }>`
   }
 
   &:hover {
-    background: ${({ $hasValue }) => ($hasValue ? "#dbeafe" : "#f9fafb")};
-    border-color: ${({ $hasValue }) => ($hasValue ? "#2563eb" : "#d1d5db")};
+    background: ${({ $hasValue, $color }) =>
+      $hasValue ? "#fef9c3" : "#f9fafb"};
+    border-color: ${({ $hasValue, $color }) =>
+      $hasValue ? "#fdb924" : "#d1d5db"};
     transform: translateY(-1px);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.1);
   }
 
   &:active {
     transform: translateY(0);
-  }
-
-  &.open svg {
-    transform: rotate(180deg);
   }
 `;
 
@@ -395,34 +467,18 @@ export const SelectDropdown = styled.div<{ $isOpen: boolean }>`
   overflow-y: auto;
 `;
 
-export const SelectOption = styled.button<{ $isSelected: boolean }>`
-  display: block;
-  width: 100%;
+export const SelectOption = styled.div<{ $isSelected: boolean }>`
   padding: 10px 14px;
-  background: ${({ $isSelected }) => ($isSelected ? "#f0f9ff" : "transparent")};
-  color: ${({ $isSelected }) => ($isSelected ? "#1e40af" : "#374151")};
-  border: none;
-  text-align: left;
   font-size: 0.875rem;
-  font-weight: ${({ $isSelected }) => ($isSelected ? "600" : "500")};
+  color: ${({ $isSelected }) => ($isSelected ? "#2563eb" : "#374151")};
+  background: ${({ $isSelected }) => ($isSelected ? "#f0f9ff" : "#fff")};
+  font-weight: ${({ $isSelected }) => ($isSelected ? 600 : 400)};
   cursor: pointer;
-  transition: all 0.15s ease;
-
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
   &:hover {
-    background: ${({ $isSelected }) => ($isSelected ? "#dbeafe" : "#f9fafb")};
-  }
-
-  &:first-child {
-    border-radius: 6px 6px 0 0;
-  }
-
-  &:last-child {
-    border-radius: 0 0 6px 6px;
-  }
-
-  &:focus {
-    outline: none;
-    background: ${({ $isSelected }) => ($isSelected ? "#dbeafe" : "#f3f4f6")};
+    background: #f3f4f6;
+    color: #374151;
   }
 `;
 
@@ -492,12 +548,12 @@ export const ModalSearchInput = styled.input`
   font-size: 0.875rem;
   background: #ffffff;
   color: #374151;
-  transition: all 0.2s ease;
+  transition: all 0.1s ease;
 
   &:focus {
     outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    border-color: #fdb924;
+    box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.1);
   }
 
   &::placeholder {
@@ -525,7 +581,7 @@ export const ClientItem = styled.button<{ $isSelected: boolean }>`
   align-items: center;
   width: 100%;
   padding: 12px 16px;
-  background: ${({ $isSelected }) => ($isSelected ? "#f0f9ff" : "transparent")};
+  background: ${({ $isSelected }) => ($isSelected ? "#fefce8" : "transparent")};
   border: none;
   text-align: left;
   cursor: pointer;
@@ -537,12 +593,12 @@ export const ClientItem = styled.button<{ $isSelected: boolean }>`
   }
 
   &:hover {
-    background: ${({ $isSelected }) => ($isSelected ? "#dbeafe" : "#f9fafb")};
+    background: ${({ $isSelected }) => ($isSelected ? "#fef9c3" : "#f9fafb")};
   }
 
   &:focus {
     outline: none;
-    background: ${({ $isSelected }) => ($isSelected ? "#dbeafe" : "#f3f4f6")};
+    background: ${({ $isSelected }) => ($isSelected ? "#fef9c3" : "#f3f4f6")};
   }
 `;
 
@@ -553,17 +609,17 @@ export const ClientInfo = styled.div`
 export const ClientName = styled.div<{ $isSelected: boolean }>`
   font-size: 0.875rem;
   font-weight: ${({ $isSelected }) => ($isSelected ? "600" : "500")};
-  color: ${({ $isSelected }) => ($isSelected ? "#1e40af" : "#374151")};
+  color: ${({ $isSelected }) => ($isSelected ? "#ca8a04" : "#374151")};
   margin-bottom: 2px;
 `;
 
-export const ClientDescription = styled.div`
+export const ClientDescription = styled.div<{ $isSelected: boolean }>`
   font-size: 0.75rem;
-  color: #6b7280;
+  color: ${({ $isSelected }) => ($isSelected ? "#a16207" : "#6b7280")};
 `;
 
 export const CheckIcon = styled.div<{ $isSelected: boolean }>`
-  color: ${({ $isSelected }) => ($isSelected ? "#3b82f6" : "transparent")};
+  color: ${({ $isSelected }) => ($isSelected ? "#fdb924" : "transparent")};
   margin-left: 12px;
 `;
 
@@ -578,9 +634,9 @@ export const ModalFooter = styled.div`
 
 export const ModalButton = styled.button<{ $primary?: boolean }>`
   padding: 10px 20px;
-  border: 2px solid ${({ $primary }) => ($primary ? "#3b82f6" : "#d1d5db")};
+  border: 2px solid ${({ $primary }) => ($primary ? "#fdb924" : "#d1d5db")};
   border-radius: 8px;
-  background: ${({ $primary }) => ($primary ? "#3b82f6" : "#ffffff")};
+  background: ${({ $primary }) => ($primary ? "#fdb924" : "#ffffff")};
   color: ${({ $primary }) => ($primary ? "#ffffff" : "#374151")};
   font-size: 0.875rem;
   font-weight: 500;
@@ -588,15 +644,15 @@ export const ModalButton = styled.button<{ $primary?: boolean }>`
   transition: all 0.2s ease;
 
   &:hover {
-    background: ${({ $primary }) => ($primary ? "#2563eb" : "#f9fafb")};
-    border-color: ${({ $primary }) => ($primary ? "#2563eb" : "#9ca3af")};
+    background: ${({ $primary }) => ($primary ? "#f59e0b" : "#f9fafb")};
+    border-color: ${({ $primary }) => ($primary ? "#f59e0b" : "#9ca3af")};
     transform: translateY(-1px);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.1);
   }
 
   &:active {
@@ -616,4 +672,108 @@ export const EmptyState = styled.div`
   text-align: center;
   color: #6b7280;
   font-size: 0.875rem;
+`;
+
+export const StatusDropdownContainer = styled.div`
+  position: relative;
+`;
+
+export const StatusDropdownButton = styled.button<{
+  $active: boolean;
+  $color: string;
+  $isOpen: boolean;
+}>`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: ${({ $active, $color }) => ($active ? `${$color}15` : "#ffffff")};
+  color: ${({ $active, $color }) => ($active ? $color : "#374151")};
+  border: 2px solid ${({ $active, $color }) => ($active ? $color : "#e5e7eb")};
+  padding: 8px 17px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: fit-content;
+  white-space: nowrap;
+
+  svg {
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+    transform: ${({ $isOpen }) =>
+      $isOpen ? "rotate(180deg)" : "rotate(0deg)"};
+  }
+
+  span {
+    font-weight: 500;
+  }
+
+  &:hover {
+    background: ${({ $active, $color }) =>
+      $active ? `${$color}25` : "#f9fafb"};
+    border-color: ${({ $active, $color }) => ($active ? $color : "#d1d5db")};
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px ${({ $color }) => `${$color}20`};
+  }
+`;
+
+export const StatusDropdownMenu = styled.div<{ $isOpen: boolean }>`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  opacity: ${({ $isOpen }) => ($isOpen ? 1 : 0)};
+  visibility: ${({ $isOpen }) => ($isOpen ? "visible" : "hidden")};
+  transform: ${({ $isOpen }) =>
+    $isOpen ? "translateY(0)" : "translateY(-10px)"};
+  transition: all 0.2s ease;
+  margin-top: 4px;
+`;
+
+export const StatusDropdownItem = styled.button<{
+  $active: boolean;
+  $color: string;
+}>`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px 12px;
+  background: ${({ $active, $color }) =>
+    $active ? `${$color}15` : "transparent"};
+  color: ${({ $active, $color }) => ($active ? $color : "#374151")};
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+
+  &:hover {
+    background: ${({ $active, $color }) =>
+      $active ? `${$color}25` : "#f9fafb"};
+  }
+
+  &:first-child {
+    border-radius: 6px 6px 0 0;
+  }
+
+  &:last-child {
+    border-radius: 0 0 6px 6px;
+  }
 `;

@@ -13,6 +13,7 @@ import {
   FiSearch,
   FiCheck,
   FiAlertCircle,
+  FiRotateCcw,
 } from "react-icons/fi";
 import {
   FilterBar,
@@ -53,6 +54,11 @@ import {
   ModalButton,
   NoResults,
   EmptyState,
+  StatusDropdownContainer,
+  StatusDropdownButton,
+  StatusDropdownMenu,
+  StatusDropdownItem,
+  NewButton,
 } from "./ProjectFilterBar.styled";
 
 const STATUS_MAP = {
@@ -60,7 +66,7 @@ const STATUS_MAP = {
   IN_PROGRESS: { label: "진행중", icon: FiClock, color: "#3b82f6" },
   COMPLETED: { label: "완료", icon: FiCheckCircle, color: "#10b981" },
   DELAYED: { label: "지연", icon: FiAlertTriangle, color: "#ef4444" },
-  DUE_SOON: { label: "마감임박", icon: FiAlertCircle, color: "#f59e42" },
+  DUE_SOON: { label: "기한임박", icon: FiAlertCircle, color: "#f59e42" },
 } as const;
 
 const CLIENT_OPTIONS = [
@@ -119,8 +125,21 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
   const [clientModalOpen, setClientModalOpen] = useState(false);
   const [clientSearchTerm, setClientSearchTerm] = useState("");
   const [selectedClient, setSelectedClient] = useState(filters.client);
+  const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
+  const [keywordType, setKeywordType] = useState("title");
+  const [keyword, setKeyword] = useState("");
 
+  const statusDropdownRef = useRef<HTMLDivElement>(null);
   const sortDropdownRef = useRef<HTMLDivElement>(null);
+
+  const handleSearch = () => {
+    onSearch();
+  };
+
+  const handleResetFilters = () => {
+    setKeyword("");
+    onReset();
+  };
 
   // 드롭다운 외부 클릭 시 닫기
   useEffect(() => {
@@ -190,7 +209,13 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
   };
 
   const handleSortDropdownToggle = () => {
-    setSortDropdownOpen(!sortDropdownOpen);
+    setSortDropdownOpen((prev) => {
+      if (!prev) {
+        setStatusDropdownOpen(false);
+        setClientModalOpen(false);
+      }
+      return !prev;
+    });
   };
 
   const handleSortSelect = (value: string) => {
@@ -202,6 +227,8 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
     setSelectedClient(filters.client);
     setClientSearchTerm("");
     setClientModalOpen(true);
+    setSortDropdownOpen(false);
+    setStatusDropdownOpen(false);
   };
 
   const handleClientModalClose = () => {
@@ -223,9 +250,28 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
     return option ? option.label : "최신순";
   };
 
+  const getSortColor = (value: string) => {
+    switch (value) {
+      case "latest":
+        return "#f59e0b"; // 주황
+      case "name":
+        return "#3b82f6"; // 파랑
+      case "status":
+        return "#10b981"; // 초록
+      case "client":
+        return "#8b5cf6"; // 보라
+      default:
+        return "#6b7280"; // 회색
+    }
+  };
+
   const getClientLabel = (value: string) => {
     const option = CLIENT_OPTIONS.find((opt) => opt.value === value);
     return option ? option.label : "전체 고객사";
+  };
+
+  const getClientColor = (value: string) => {
+    return value ? "#fdb924" : "#6b7280"; // 선택된 고객사면 노랑, 아니면 회색
   };
 
   // 고객사 검색 필터링
@@ -235,132 +281,41 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
       client.description.toLowerCase().includes(clientSearchTerm.toLowerCase())
   );
 
+  const handleStatusDropdownToggle = () => {
+    setStatusDropdownOpen((prev) => {
+      if (!prev) {
+        setSortDropdownOpen(false);
+        setClientModalOpen(false);
+      }
+      return !prev;
+    });
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        statusDropdownRef.current &&
+        !statusDropdownRef.current.contains(event.target as Node)
+      ) {
+        setStatusDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <DatePickerStyles>
-      <FilterBar style={{ flexDirection: "column" }}>
-        <div style={{ display: "flex", gap: 20, width: "100%" }}>
-          <FilterGroup>
-            <FilterLabel>프로젝트 상태</FilterLabel>
-            <StatusButtonGroup>
-              {Object.entries(STATUS_MAP).map(
-                ([value, { label, icon: Icon, color }]) => (
-                  <StatusButton
-                    key={value || "all"}
-                    $active={filters.status === value}
-                    $color={color}
-                    onClick={() => onInputChange("status", value)}
-                  >
-                    <Icon size={16} />
-                    <span>{label}</span>
-                  </StatusButton>
-                )
-              )}
-            </StatusButtonGroup>
-          </FilterGroup>
-          <FilterGroup>
-            <FilterLabel>프로젝트 기간</FilterLabel>
-            <DateRangeGroup>
-              <DatePickerWrapper>
-                <DateButton
-                  type="button"
-                  onClick={handleStartDateClick}
-                  $hasValue={!!filters.startDate}
-                >
-                  <FiCalendar size={16} />
-                  <span>시작일</span>
-                  <span className="date-value">
-                    {formatDate(filters.startDate)}
-                  </span>
-                </DateButton>
-              </DatePickerWrapper>
-              <DateSeparator>~</DateSeparator>
-              <DatePickerWrapper>
-                <DateButton
-                  type="button"
-                  onClick={handleEndDateClick}
-                  $hasValue={!!filters.endDate}
-                >
-                  <FiCalendar size={16} />
-                  <span>종료일</span>
-                  <span className="date-value">
-                    {formatDate(filters.endDate)}
-                  </span>
-                </DateButton>
-              </DatePickerWrapper>
-            </DateRangeGroup>
-            {/* DatePicker 팝업은 기존대로 유지 */}
-            {startDateOpen && (
-              <div
-                style={{
-                  position: "absolute",
-                  top: "100%",
-                  left: 0,
-                  zIndex: 1000,
-                  marginTop: "4px",
-                }}
-              >
-                <DatePicker
-                  selected={
-                    filters.startDate ? new Date(filters.startDate) : null
-                  }
-                  onChange={handleStartDateChange}
-                  selectsStart
-                  startDate={
-                    filters.startDate ? new Date(filters.startDate) : null
-                  }
-                  endDate={filters.endDate ? new Date(filters.endDate) : null}
-                  maxDate={filters.endDate ? new Date(filters.endDate) : null}
-                  dateFormat="yyyy-MM-dd"
-                  placeholderText="시작일 선택"
-                  inline
-                />
-              </div>
-            )}
-            {endDateOpen && (
-              <div
-                style={{
-                  position: "absolute",
-                  top: "100%",
-                  right: 0,
-                  zIndex: 1000,
-                  marginTop: "4px",
-                }}
-              >
-                <DatePicker
-                  selected={filters.endDate ? new Date(filters.endDate) : null}
-                  onChange={handleEndDateChange}
-                  selectsEnd
-                  startDate={
-                    filters.startDate ? new Date(filters.startDate) : null
-                  }
-                  endDate={filters.endDate ? new Date(filters.endDate) : null}
-                  minDate={
-                    filters.startDate ? new Date(filters.startDate) : null
-                  }
-                  dateFormat="yyyy-MM-dd"
-                  placeholderText="종료일 선택"
-                  inline
-                />
-              </div>
-            )}
-          </FilterGroup>
-        </div>
-        <div style={{ display: "flex", gap: 20, width: "100%", marginTop: 12 }}>
-          <FilterGroup>
-            <FilterLabel>고객사</FilterLabel>
-            <SelectButton
-              type="button"
-              onClick={handleClientModalOpen}
-              $hasValue={!!filters.client}
-              style={{ paddingLeft: 10, paddingRight: 10, minWidth: 90 }}
-            >
-              <FiHome size={16} />
-              <span className="select-value">
-                {getClientLabel(filters.client)}
-              </span>
-              <FiChevronDown size={16} />
-            </SelectButton>
-          </FilterGroup>
+      <FilterBar
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "flex-end",
+        }}
+      >
+        <div style={{ display: "flex", gap: 10, flexGrow: 1 }}>
           <FilterGroup>
             <FilterLabel>정렬</FilterLabel>
             <div style={{ position: "relative" }} ref={sortDropdownRef}>
@@ -368,6 +323,7 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
                 type="button"
                 onClick={handleSortDropdownToggle}
                 $hasValue={!!filters.sort}
+                $color={getSortColor(filters.sort)}
                 className={sortDropdownOpen ? "open" : ""}
                 style={{ paddingLeft: 10, paddingRight: 10, minWidth: 90 }}
               >
@@ -390,21 +346,214 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
               </SelectDropdown>
             </div>
           </FilterGroup>
-          <SearchRight>
-            <SearchInput
-              placeholder="프로젝트명, 고객사, 담당자 검색..."
-              value={filters.keyword}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                onInputChange("keyword", e.target.value)
-              }
-            />
-            <TopActions>
-              <ActionButton $primary onClick={onSearch}>
-                검색
-              </ActionButton>
-              <ActionButton onClick={onReset}>초기화</ActionButton>
-            </TopActions>
-          </SearchRight>
+          <FilterGroup>
+            <FilterLabel>프로젝트 상태</FilterLabel>
+            <StatusDropdownContainer ref={statusDropdownRef}>
+              <StatusDropdownButton
+                type="button"
+                $active={!!filters.status}
+                $color={STATUS_MAP[filters.status || ""].color}
+                $isOpen={statusDropdownOpen}
+                onClick={handleStatusDropdownToggle}
+              >
+                {STATUS_MAP[filters.status || ""].icon &&
+                  React.createElement(STATUS_MAP[filters.status || ""].icon, {
+                    size: 16,
+                    color: STATUS_MAP[filters.status || ""].color,
+                    style: { marginRight: 4 },
+                  })}
+                <span>{STATUS_MAP[filters.status || ""].label}</span>
+                <FiChevronDown size={16} />
+              </StatusDropdownButton>
+              <StatusDropdownMenu $isOpen={statusDropdownOpen}>
+                {Object.entries(STATUS_MAP).map(
+                  ([value, { label, icon: Icon, color }]) => (
+                    <StatusDropdownItem
+                      key={value}
+                      $active={filters.status === value}
+                      $color={color}
+                      onClick={() => {
+                        onInputChange("status", value);
+                        setStatusDropdownOpen(false);
+                      }}
+                    >
+                      <Icon
+                        size={16}
+                        color={color}
+                        style={{ marginRight: 4 }}
+                      />
+                      <span>{label}</span>
+                    </StatusDropdownItem>
+                  )
+                )}
+              </StatusDropdownMenu>
+            </StatusDropdownContainer>
+          </FilterGroup>
+          <FilterGroup>
+            <FilterLabel>고객사</FilterLabel>
+            <SelectButton
+              type="button"
+              onClick={handleClientModalOpen}
+              $hasValue={!!filters.client}
+              $color={getClientColor(filters.client)}
+              style={{ paddingLeft: 10, paddingRight: 10, minWidth: 90 }}
+            >
+              <FiHome size={16} />
+              <span className="select-value">
+                {getClientLabel(filters.client)}
+              </span>
+              <FiChevronDown size={16} />
+            </SelectButton>
+          </FilterGroup>
+          <FilterGroup>
+            <FilterLabel>프로젝트 기간</FilterLabel>
+            <DateRangeGroup>
+              <DatePickerWrapper>
+                <DateButton
+                  type="button"
+                  onClick={handleStartDateClick}
+                  $hasValue={!!filters.startDate}
+                >
+                  <FiCalendar size={16} />
+                  <span>시작일</span>
+                  <span className="date-value">
+                    {formatDate(filters.startDate)}
+                  </span>
+                </DateButton>
+                {/* 시작일 DatePicker 팝업 */}
+                {startDateOpen && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "100%",
+                      left: 0,
+                      zIndex: 1000,
+                      marginTop: "4px",
+                    }}
+                  >
+                    <DatePicker
+                      selected={
+                        filters.startDate ? new Date(filters.startDate) : null
+                      }
+                      onChange={handleStartDateChange}
+                      selectsStart
+                      startDate={
+                        filters.startDate ? new Date(filters.startDate) : null
+                      }
+                      endDate={
+                        filters.endDate ? new Date(filters.endDate) : null
+                      }
+                      maxDate={
+                        filters.endDate ? new Date(filters.endDate) : null
+                      }
+                      dateFormat="yyyy-MM-dd"
+                      placeholderText="시작일 선택"
+                      inline
+                      onClickOutside={() => setStartDateOpen(false)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Escape") setStartDateOpen(false);
+                      }}
+                    />
+                  </div>
+                )}
+              </DatePickerWrapper>
+              <DateSeparator>~</DateSeparator>
+              <DatePickerWrapper>
+                <DateButton
+                  type="button"
+                  onClick={handleEndDateClick}
+                  $hasValue={!!filters.endDate}
+                >
+                  <FiCalendar size={16} />
+                  <span>종료일</span>
+                  <span className="date-value">
+                    {formatDate(filters.endDate)}
+                  </span>
+                </DateButton>
+                {/* 종료일 DatePicker 팝업 */}
+                {endDateOpen && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "100%",
+                      left: 0,
+                      zIndex: 1000,
+                      marginTop: "4px",
+                    }}
+                  >
+                    <DatePicker
+                      selected={
+                        filters.endDate ? new Date(filters.endDate) : null
+                      }
+                      onChange={handleEndDateChange}
+                      selectsEnd
+                      startDate={
+                        filters.startDate ? new Date(filters.startDate) : null
+                      }
+                      endDate={
+                        filters.endDate ? new Date(filters.endDate) : null
+                      }
+                      minDate={
+                        filters.startDate ? new Date(filters.startDate) : null
+                      }
+                      dateFormat="yyyy-MM-dd"
+                      placeholderText="종료일 선택"
+                      inline
+                      onClickOutside={() => setEndDateOpen(false)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Escape") setEndDateOpen(false);
+                      }}
+                      popperPlacement="bottom-start"
+                    />
+                  </div>
+                )}
+              </DatePickerWrapper>
+            </DateRangeGroup>
+          </FilterGroup>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <FilterGroup style={{ marginBottom: 0 }}>
+            <div
+              style={{ display: "flex", alignItems: "flex-end", gap: "8px" }}
+            >
+              <SearchInput
+                placeholder={"키워드별로검색해줄건가요?"}
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleSearch();
+                }}
+              />
+              <NewButton
+                style={{
+                  minWidth: "auto",
+                  padding: "10px",
+                  width: "40px",
+                  height: "40px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+                onClick={handleSearch}
+              >
+                <FiSearch size={16} />
+              </NewButton>
+              <NewButton
+                onClick={handleResetFilters}
+                style={{
+                  minWidth: "auto",
+                  padding: "10px",
+                  width: "40px",
+                  height: "40px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <FiRotateCcw size={16} />
+              </NewButton>
+            </div>
+          </FilterGroup>
         </div>
       </FilterBar>
 
@@ -444,7 +593,9 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
                       <ClientName $isSelected={selectedClient === client.value}>
                         {client.label}
                       </ClientName>
-                      <ClientDescription>
+                      <ClientDescription
+                        $isSelected={selectedClient === client.value}
+                      >
                         {client.description}
                       </ClientDescription>
                     </ClientInfo>

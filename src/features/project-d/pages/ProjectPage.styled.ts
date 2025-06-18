@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 export const PageContainer = styled.div`
-  padding: 32px;
+  padding: 32px 48px;
   background-color: #f9fafb;
 `;
 
@@ -10,10 +10,24 @@ export const Header = styled.div`
 `;
 
 export const Title = styled.h1`
-  font-size: 24px;
+  font-size: 1.4rem;
   font-weight: 700;
+  margin-bottom: 8px;
+  padding-left: 16px;
+  position: relative;
   color: #1f2937;
-  margin-bottom: 4px;
+
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 1.4rem;
+    background: #fdb924;
+    border-radius: 2px;
+  }
 `;
 
 export const Description = styled.p`
@@ -37,8 +51,8 @@ export const SearchInput = styled.input`
   outline: none;
   transition: border 0.2s;
   &:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 2px #3b82f633;
+    border-color: #fdb924;
+    box-shadow: 0 0 0 2px rgba(253, 185, 36, 0.1);
   }
 `;
 
@@ -104,10 +118,8 @@ export const TableCell = styled.td`
 export const StatusSpan = styled.span<{ $status: string }>`
   font-weight: 700;
   ${(props) => {
-    if (props.$status === "진행중")
-      return "color: #10b981;";
-    if (props.$status === "대기")
-      return "color: #f59e0b;";
+    if (props.$status === "진행중") return "color: #10b981;";
+    if (props.$status === "대기") return "color: #f59e0b;";
     return "color: #9ca3af;";
   }}
 `;

@@ -1,6 +1,17 @@
 import api from "@/api/axios";
 import axios from "axios";
 import React, { useRef, useState } from "react";
+import {
+  FiX,
+  FiHome,
+  FiUser,
+  FiMail,
+  FiPhone,
+  FiMapPin,
+  FiHash,
+  FiFileText,
+  FiPlus,
+} from "react-icons/fi";
 import { useNotification } from "@/features/Notification/NotificationContext";
 import styled from "styled-components";
 
@@ -11,77 +22,131 @@ const ModalOverlay = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
 `;
 
 const ModalContent = styled.div`
   background-color: white;
-  border-radius: 0.75rem;
+  border-radius: 16px;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
-    0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  width: 420px;
-  padding: 2rem;
+    0 4px 6px -2px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(253, 185, 36, 0.1);
+  width: 600px;
+  padding: 24px;
   position: relative;
+  animation: modalSlideIn 0.2s ease-out;
+
+  @keyframes modalSlideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 `;
 
 const TextArea = styled.textarea`
   width: 100%;
   border: 1px solid #e5e7eb;
-  border-radius: 0.375rem;
-  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  padding: 12px 16px;
   resize: vertical;
+  font-size: 14px;
+  background-color: #ffffff;
+  color: #374151;
 
   &:focus {
     outline: none;
     border-color: #fdb924;
-    box-shadow: 0 0 0 2px rgba(253, 185, 36, 0.1);
+    box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.1);
   }
 `;
 
 const CloseButton = styled.button`
   position: absolute;
-  top: 1rem;
-  right: 1rem;
-  color: #9ca3af;
-  font-size: 1.25rem;
+  top: 16px;
+  right: 16px;
+  background: #f8fafc;
+  border: none;
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  color: #64748b;
+  transition: all 0.2s ease;
 
   &:hover {
-    color: #4b5563;
+    background: #e2e8f0;
+    color: #475569;
+  }
+
+  &:active {
+    transform: scale(0.95);
   }
 `;
 
 const Title = styled.div`
-  font-size: 1.5rem;
+  font-size: 20px;
   font-weight: 700;
-  margin-bottom: 1.5rem;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #1e293b;
+
+  svg {
+    color: #fdb924;
+  }
 `;
 
 const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
 `;
 
-const FormGroup = styled.div``;
+const FormGroup = styled.div`
+  &:nth-child(1),
+  &:nth-child(2),
+  &:nth-child(7),
+  &:nth-child(8) {
+    grid-column: 1 / -1;
+  }
+`;
 
 const Label = styled.label`
-  display: block;
-  font-size: 0.875rem;
-  font-weight: 500;
-  margin-bottom: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #374151;
+
+  svg {
+    color: #f59e0b;
+  }
 `;
 
 const Input = styled.input`
   width: 100%;
   border: 1px solid #e5e7eb;
-  border-radius: 0.375rem;
-  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 14px;
+  background-color: #ffffff;
+  color: #374151;
 
   &:focus {
     outline: none;
     border-color: #fdb924;
-    box-shadow: 0 0 0 2px rgba(253, 185, 36, 0.1);
+    box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.1);
   }
 `;
 
@@ -99,10 +164,45 @@ const RegInput = styled(Input)`
 `;
 
 const MessageBox = styled.div<{ success?: boolean }>`
-  margin-bottom: 1rem;
+  margin-bottom: 16px;
   color: ${({ success }) => (success ? "green" : "red")};
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 14px;
+`;
+
+const SubmitButton = styled.button`
+  background: linear-gradient(135deg, #fdb924 0%, #f59e0b 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: fit-content;
+  margin: 0 auto;
+  margin-top: 8px;
+  grid-column: 1 / -1;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(253, 185, 36, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
 `;
 
 interface FieldError {
@@ -198,7 +298,9 @@ export default function CompanyRegisterModal({
           setFieldErrors(errorData.data.errors);
           notify("회사 등록이 실패했습니다!", false);
         } else {
-          setErrorMessage(errorData?.message || "회사 등록 중 알 수 없는 오류가 발생했습니다.");
+          setErrorMessage(
+            errorData?.message || "회사 등록 중 알 수 없는 오류가 발생했습니다."
+          );
         }
       } else {
         setErrorMessage("회사 등록 중 알 수 없는 오류가 발생했습니다.");
@@ -209,8 +311,13 @@ export default function CompanyRegisterModal({
   return (
     <ModalOverlay>
       <ModalContent>
-        <CloseButton onClick={handleClose}>×</CloseButton>
-        <Title>회사 등록</Title>
+        <CloseButton onClick={handleClose}>
+          <FiX size={18} />
+        </CloseButton>
+        <Title>
+          <FiPlus size={20} />
+          회사 등록
+        </Title>
 
         {/* 성공 / 에러 메시지 표시 */}
         {successMessage && <MessageBox success>{successMessage}</MessageBox>}
@@ -218,16 +325,22 @@ export default function CompanyRegisterModal({
 
         <Form ref={formRef} onSubmit={handleSubmit}>
           <FormGroup>
-            <Label>회사명</Label>
+            <Label>
+              <FiHome size={14} />
+              회사명
+            </Label>
             <Input name="name" required placeholder="회사명을 입력하세요" />
             {fieldErrors.find((e) => e.field === "name") && (
-              <p style={{ color: "red", fontSize: "0.8rem", marginTop: "0.25rem" }}>
+              <p style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>
                 {fieldErrors.find((e) => e.field === "name")?.reason}
               </p>
             )}
           </FormGroup>
           <FormGroup>
-            <Label>사업자등록번호</Label>
+            <Label>
+              <FiHash size={14} />
+              사업자등록번호
+            </Label>
             <RegNumberRow>
               <RegInput
                 name="reg1"
@@ -263,31 +376,44 @@ export default function CompanyRegisterModal({
               />
             </RegNumberRow>
             {fieldErrors.find((e) => e.field === "bizNo") && (
-              <p style={{ color: "red", fontSize: "0.8rem", marginTop: "0.25rem" }}>
+              <p style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>
                 {fieldErrors.find((e) => e.field === "bizNo")?.reason}
               </p>
             )}
           </FormGroup>
           <FormGroup>
-            <Label>주소</Label>
+            <Label>
+              <FiMapPin size={14} />
+              주소
+            </Label>
             <Input name="address" required placeholder="주소를 입력하세요" />
             {fieldErrors.find((e) => e.field === "address") && (
-              <p style={{ color: "red", fontSize: "0.8rem", marginTop: "0.25rem" }}>
+              <p style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>
                 {fieldErrors.find((e) => e.field === "address")?.reason}
               </p>
             )}
           </FormGroup>
           <FormGroup>
-            <Label>대표자명</Label>
-            <Input name="ceoName" required placeholder="대표자명을 입력하세요" />
+            <Label>
+              <FiUser size={14} />
+              대표자명
+            </Label>
+            <Input
+              name="ceoName"
+              required
+              placeholder="대표자명을 입력하세요"
+            />
             {fieldErrors.find((e) => e.field === "ceoName") && (
-              <p style={{ color: "red", fontSize: "0.8rem", marginTop: "0.25rem" }}>
+              <p style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>
                 {fieldErrors.find((e) => e.field === "ceoName")?.reason}
               </p>
             )}
           </FormGroup>
           <FormGroup>
-            <Label>이메일</Label>
+            <Label>
+              <FiMail size={14} />
+              이메일
+            </Label>
             <Input
               name="email"
               type="email"
@@ -295,13 +421,16 @@ export default function CompanyRegisterModal({
               placeholder="이메일을 입력하세요"
             />
             {fieldErrors.find((e) => e.field === "email") && (
-              <p style={{ color: "red", fontSize: "0.8rem", marginTop: "0.25rem" }}>
+              <p style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>
                 {fieldErrors.find((e) => e.field === "email")?.reason}
               </p>
             )}
           </FormGroup>
           <FormGroup>
-            <Label>전화번호</Label>
+            <Label>
+              <FiPhone size={14} />
+              전화번호
+            </Label>
             <Input
               name="tel"
               type="tel"
@@ -309,39 +438,31 @@ export default function CompanyRegisterModal({
               placeholder="전화번호를 입력하세요"
             />
             {fieldErrors.find((e) => e.field === "tel") && (
-              <p style={{ color: "red", fontSize: "0.8rem", marginTop: "0.25rem" }}>
+              <p style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>
                 {fieldErrors.find((e) => e.field === "tel")?.reason}
               </p>
             )}
           </FormGroup>
           <FormGroup>
-            <Label>한줄소개</Label>
+            <Label>
+              <FiFileText size={14} />
+              회사 소개
+            </Label>
             <TextArea
               name="bio"
               rows={3}
-              placeholder="한 줄 소개를 입력하세요"
+              placeholder="간단한 설명을 입력하세요"
             />
             {fieldErrors.find((e) => e.field === "bio") && (
-              <p style={{ color: "red", fontSize: "0.8rem", marginTop: "0.25rem" }}>
+              <p style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>
                 {fieldErrors.find((e) => e.field === "bio")?.reason}
               </p>
             )}
           </FormGroup>
-          <button
-            type="submit"
-            style={{
-              marginTop: 12,
-              cursor: "pointer",
-              backgroundColor: "#fdb924",
-              color: "white",
-              padding: "8px 12px",
-              borderRadius: 6,
-              border: "none",
-              fontWeight: "bold",
-            }}
-          >
+          <SubmitButton type="submit">
+            <FiPlus size={16} />
             등록하기
-          </button>
+          </SubmitButton>
         </Form>
       </ModalContent>
     </ModalOverlay>

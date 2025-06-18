@@ -281,3 +281,26 @@ export const ProjectSubtitle = styled.p`
   margin: 0 0 16px 24px;
   line-height: 1.5;
 `;
+
+export const BackButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  margin-left: 24px;
+  margin-bottom: 16px;
+  background: #ffffff;
+  color: #4b5563;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 0.925rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+
+  &:hover {
+    background: #f9fafb;
+    color: #111827;
+    border-color: #d1d5db;
+  }
+`;

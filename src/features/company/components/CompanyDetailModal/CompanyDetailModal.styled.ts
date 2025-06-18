@@ -63,13 +63,32 @@ export const SectionTitle = styled.h3`
   margin-bottom: 10px;
   border-bottom: 1px solid #e5e7eb;
   padding-bottom: 5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  svg {
+    color: #fdb924;
+  }
 `;
 
 export const DetailItem = styled.div`
   display: flex;
+  align-items: center;
   margin-bottom: 8px;
   font-size: 14px;
   color: #4b5563;
+  gap: 8px;
+`;
+
+export const DetailIcon = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: #f59e0b;
+  flex-shrink: 0;
 `;
 
 export const DetailLabel = styled.span`
@@ -81,4 +100,4 @@ export const DetailLabel = styled.span`
 export const DetailValue = styled.span`
   flex-grow: 1;
   color: #1f2937;
-`; 
+`;

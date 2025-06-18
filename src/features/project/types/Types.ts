@@ -1,55 +1,61 @@
-export type PostPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
-export const POST_PRIORITY_OPTIONS: PostPriority[] = ['LOW', 'MEDIUM', 'HIGH', 'URGENT'];
+export type PostPriority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+export const POST_PRIORITY_OPTIONS: PostPriority[] = [
+  "LOW",
+  "MEDIUM",
+  "HIGH",
+  "URGENT",
+];
 export const POST_PRIORITY_LABELS: Record<PostPriority, string> = {
-    LOW: '낮음',
-    MEDIUM: '보통',
-    HIGH: '높음',
-    URGENT: '긴급',
+  LOW: "낮음",
+  MEDIUM: "보통",
+  HIGH: "높음",
+  URGENT: "긴급",
 };
 
-export type PostType = 'GENERAL' | 'QUESTION';
+export type PostType = "GENERAL" | "QUESTION";
 
 export interface Post {
-    id: number;
-    step: string;
-    title: string;
-    writer: string;
-    priority: PostPriority;
-    type: PostType;
-    createdAt: string;
+  id: number;
+  step: string;
+  title: string;
+  writer: string;
+  priority: PostPriority;
+  type: PostType;
+  createdAt: string;
 }
 
 export type Project = {
-    id: number;
-    name: string;
-    client: string;
-    clientManager: string;
-    devManagers: string;
-    status: 'IN_PROGRESS' | 'COMPLETED' | 'DELAYED';
-    startDate: string;
-    endDate: string;
+  id: number;
+  name: string;
+  client: string;
+  clientManager: string;
+  devManagers: string;
+  status: "IN_PROGRESS" | "COMPLETED" | "DELAYED" | "DUE_SOON";
+  startDate: string;
+  endDate: string;
+  progress: number;
 };
 
 export interface ProjectStep {
-    id: number;
-    stepOrder: number;
-    name: string;
-    projectStepStatus: string;
-    projectFeedbackStepStatus: string | null;
-    isDeleted: boolean;
-    user: any;
+  id: number;
+  stepOrder: number;
+  name: string;
+  projectStepStatus: string;
+  projectFeedbackStepStatus: string | null;
+  isDeleted: boolean;
+  user: any;
 }
 
 export type Step = string;
 export type StepList = Step[];
 
 export interface ProjectDetailResponse {
-    status: string;
-    code: string;
-    message: string;
-    data: {
-        id: number;
-        name: string;
-        steps: ProjectStep[];
-    };
+  status: string;
+  code: string;
+  message: string;
+  data: {
+    id: number;
+    name: string;
+    steps: ProjectStep[];
+  };
 }

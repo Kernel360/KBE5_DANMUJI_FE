@@ -300,8 +300,8 @@ export const CommentTextArea = styled.textarea`
 
   &:focus {
     outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 1px #3b82f6;
+    border-color: #fdb924;
+    box-shadow: 0 0 0 2px rgba(253, 185, 36, 0.1);
   }
 
   &::placeholder {

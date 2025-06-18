@@ -8,7 +8,11 @@ import {
   getPostsWithComments,
   searchPosts,
 } from "@/features/project-d/services/postService";
-import type { Post, PostStatus, PostType } from "@/features/project-d/types/post";
+import type {
+  Post,
+  PostStatus,
+  PostType,
+} from "@/features/project-d/types/post";
 import {
   PageContainer,
   Header,
@@ -462,6 +466,7 @@ export default function PostListPage() {
         <FilterGrid $isExpanded={isFilterExpanded}>
           {/* 검색어 입력 */}
           <FilterGroup>
+            <FilterLabel style={{ marginBottom: 6 }}>검색</FilterLabel>
             <FilterLabel htmlFor="searchTypeSelect">검색 기준</FilterLabel>
             <FilterSelect
               id="searchTypeSelect"

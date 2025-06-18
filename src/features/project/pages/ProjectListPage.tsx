@@ -5,12 +5,16 @@ import {
   Title,
   Description,
   CardGrid,
+  PaginationContainer,
+  PaginationNav,
+  PaginationButton,
+  PaginationInfo,
 } from "./ProjectListPage.styled";
 import type { Project } from "../types/Types";
 import ProjectFilterBar from "../components/List/ProjectFilterBar";
 import ProjectCard from "../components/Card/ProjectCard";
 
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 8;
 
 const mockProjects: Project[] = [
   {
@@ -45,6 +49,116 @@ const mockProjects: Project[] = [
     startDate: "2024-01-15",
     endDate: "2024-06-30",
     progress: 65,
+  },
+  {
+    id: 4,
+    name: "ABC 기업 웹사이트 리뉴얼",
+    client: "ABC 주식회사",
+    clientManager: "홍길동 외 2명",
+    devManagers: "김개발 외 3명",
+    status: "DUE_SOON",
+    startDate: "2024-01-15",
+    endDate: "2024-06-30",
+    progress: 90,
+  },
+  {
+    id: 4,
+    name: "ABC 기업 웹사이트 리뉴얼",
+    client: "ABC 주식회사",
+    clientManager: "홍길동 외 2명",
+    devManagers: "김개발 외 3명",
+    status: "COMPLETED",
+    startDate: "2024-01-15",
+    endDate: "2024-06-30",
+    progress: 90,
+  },
+  {
+    id: 4,
+    name: "ABC 기업 웹사이트 리뉴얼",
+    client: "ABC 주식회사",
+    clientManager: "홍길동 외 2명",
+    devManagers: "김개발 외 3명",
+    status: "COMPLETED",
+    startDate: "2024-01-15",
+    endDate: "2024-06-30",
+    progress: 90,
+  },
+  {
+    id: 4,
+    name: "ABC 기업 웹사이트 리뉴얼",
+    client: "ABC 주식회사",
+    clientManager: "홍길동 외 2명",
+    devManagers: "김개발 외 3명",
+    status: "COMPLETED",
+    startDate: "2024-01-15",
+    endDate: "2024-06-30",
+    progress: 90,
+  },
+  {
+    id: 4,
+    name: "ABC 기업 웹사이트 리뉴얼",
+    client: "ABC 주식회사",
+    clientManager: "홍길동 외 2명",
+    devManagers: "김개발 외 3명",
+    status: "COMPLETED",
+    startDate: "2024-01-15",
+    endDate: "2024-06-30",
+    progress: 90,
+  },
+  {
+    id: 4,
+    name: "ABC 기업 웹사이트 리뉴얼",
+    client: "ABC 주식회사",
+    clientManager: "홍길동 외 2명",
+    devManagers: "김개발 외 3명",
+    status: "COMPLETED",
+    startDate: "2024-01-15",
+    endDate: "2024-06-30",
+    progress: 90,
+  },
+  {
+    id: 4,
+    name: "ABC 기업 웹사이트 리뉴얼",
+    client: "ABC 주식회사",
+    clientManager: "홍길동 외 2명",
+    devManagers: "김개발 외 3명",
+    status: "COMPLETED",
+    startDate: "2024-01-15",
+    endDate: "2024-06-30",
+    progress: 90,
+  },
+  {
+    id: 4,
+    name: "ABC 기업 웹사이트 리뉴얼",
+    client: "ABC 주식회사",
+    clientManager: "홍길동 외 2명",
+    devManagers: "김개발 외 3명",
+    status: "COMPLETED",
+    startDate: "2024-01-15",
+    endDate: "2024-06-30",
+    progress: 90,
+  },
+  {
+    id: 4,
+    name: "ABC 기업 웹사이트 리뉴얼",
+    client: "ABC 주식회사",
+    clientManager: "홍길동 외 2명",
+    devManagers: "김개발 외 3명",
+    status: "COMPLETED",
+    startDate: "2024-01-15",
+    endDate: "2024-06-30",
+    progress: 90,
+  },
+  {
+    id: 4,
+    name: "ABC 기업 웹사이트 리뉴얼",
+    client: "ABC 주식회사",
+    clientManager: "홍길동 외 2명",
+    devManagers: "김개발 외 3명",
+    status: "COMPLETED",
+    startDate: "2024-01-15",
+    endDate: "2024-06-30",
+    progress: 90,
   },
   {
     id: 4,
@@ -170,7 +284,7 @@ export default function ProjectListPage() {
   return (
     <ProjectListContainer>
       <Header>
-        <Title>프로젝트 관리</Title>
+        <Title>프로젝트 목록</Title>
         <Description>
           프로젝트 관리 시스템의 주요 정보를 한눈에 확인하세요
         </Description>
@@ -187,59 +301,41 @@ export default function ProjectListPage() {
         ))}
       </CardGrid>
       {totalPages > 1 && (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            gap: "8px",
-            marginTop: "24px",
-          }}
-        >
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            style={{
-              padding: "8px 16px",
-              border: "1px solid #e5e7eb",
-              borderRadius: "6px",
-              background: currentPage === 1 ? "#f3f4f6" : "#fff",
-              color: currentPage === 1 ? "#9ca3af" : "#374151",
-              cursor: currentPage === 1 ? "not-allowed" : "pointer",
-            }}
-          >
-            이전
-          </button>
-          {getPageNumbers().map((pageNum) => (
-            <button
-              key={pageNum}
-              onClick={() => handlePageChange(pageNum)}
-              style={{
-                padding: "8px 16px",
-                border: "1px solid #e5e7eb",
-                borderRadius: "6px",
-                background: currentPage === pageNum ? "#fbbf24" : "#fff",
-                color: currentPage === pageNum ? "#fff" : "#374151",
-                cursor: "pointer",
-              }}
-            >
-              {pageNum}
-            </button>
-          ))}
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            style={{
-              padding: "8px 16px",
-              border: "1px solid #e5e7eb",
-              borderRadius: "6px",
-              background: currentPage === totalPages ? "#f3f4f6" : "#fff",
-              color: currentPage === totalPages ? "#9ca3af" : "#374151",
-              cursor: currentPage === totalPages ? "not-allowed" : "pointer",
-            }}
-          >
-            다음
-          </button>
-        </div>
+        <PaginationContainer>
+          <PaginationNav>
+            {currentPage > 1 && (
+              <PaginationButton
+                onClick={() => handlePageChange(currentPage - 1)}
+              >
+                이전
+              </PaginationButton>
+            )}
+            {getPageNumbers().map((pageNum) => (
+              <PaginationButton
+                key={pageNum}
+                onClick={() => handlePageChange(pageNum)}
+                $active={currentPage === pageNum}
+              >
+                {pageNum}
+              </PaginationButton>
+            ))}
+            {currentPage < totalPages && (
+              <PaginationButton
+                onClick={() => handlePageChange(currentPage + 1)}
+              >
+                다음
+              </PaginationButton>
+            )}
+          </PaginationNav>
+          <PaginationInfo>
+            총 {filteredProjects.length}개의 프로젝트 중{" "}
+            {filteredProjects.length > 0
+              ? (currentPage - 1) * PAGE_SIZE + 1
+              : 0}
+            -{Math.min(currentPage * PAGE_SIZE, filteredProjects.length)}개 표시
+            {filters.keyword && ` (검색어: "${filters.keyword}")`}
+          </PaginationInfo>
+        </PaginationContainer>
       )}
     </ProjectListContainer>
   );

@@ -45,7 +45,7 @@ export const FilterSelect = styled.select`
   min-width: 100px;
   font-weight: 500;
   color: #374151;
-  transition: all 0.2s ease;
+  transition: all 0.1s ease;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   height: 32px;
 
@@ -80,7 +80,7 @@ export const SearchInput = styled.input`
   color: #444;
   font-weight: 500;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-  transition: border 0.2s;
+  transition: border 0.1s;
   appearance: none;
   position: relative;
   margin-right: 18px;
@@ -431,7 +431,7 @@ export const FilterInput = styled.input`
   font-size: 0.75rem;
   background-color: white;
   color: #374151;
-  transition: all 0.2s ease;
+  transition: all 0.1s ease;
   height: 32px;
 
   &:hover {

@@ -198,6 +198,36 @@ const ProjectBoard = () => {
     console.log("검색 요청:", keywordType, keyword);
   };
 
+  const handleTypeDropdownToggle = () => {
+    setIsTypeDropdownOpen((prev) => {
+      if (!prev) {
+        setIsPriorityDropdownOpen(false);
+        setIsKeywordDropdownOpen(false);
+      }
+      return !prev;
+    });
+  };
+
+  const handlePriorityDropdownToggle = () => {
+    setIsPriorityDropdownOpen((prev) => {
+      if (!prev) {
+        setIsTypeDropdownOpen(false);
+        setIsKeywordDropdownOpen(false);
+      }
+      return !prev;
+    });
+  };
+
+  const handleKeywordDropdownToggle = () => {
+    setIsKeywordDropdownOpen((prev) => {
+      if (!prev) {
+        setIsTypeDropdownOpen(false);
+        setIsPriorityDropdownOpen(false);
+      }
+      return !prev;
+    });
+  };
+
   return (
     <Wrapper>
       <Filters>
@@ -215,7 +245,7 @@ const ProjectBoard = () => {
                     : "#f59e0b"
                 }
                 $isOpen={isTypeDropdownOpen}
-                onClick={() => setIsTypeDropdownOpen(!isTypeDropdownOpen)}
+                onClick={handleTypeDropdownToggle}
               >
                 {typeFilter === "ALL" ? (
                   <FiGrid size={16} />
@@ -287,9 +317,7 @@ const ProjectBoard = () => {
                     : "#ef4444"
                 }
                 $isOpen={isPriorityDropdownOpen}
-                onClick={() =>
-                  setIsPriorityDropdownOpen(!isPriorityDropdownOpen)
-                }
+                onClick={handlePriorityDropdownToggle}
               >
                 {priorityFilter === "ALL" ? (
                   <FiGrid size={16} />
@@ -381,7 +409,7 @@ const ProjectBoard = () => {
                 $active={true}
                 $color={keywordType === "title" ? "#3b82f6" : "#10b981"}
                 $isOpen={isKeywordDropdownOpen}
-                onClick={() => setIsKeywordDropdownOpen(!isKeywordDropdownOpen)}
+                onClick={handleKeywordDropdownToggle}
               >
                 {keywordType === "title" ? (
                   <FiFileText size={16} />
@@ -417,6 +445,7 @@ const ProjectBoard = () => {
               </DropdownMenu>
             </DropdownContainer>
           </FilterGroup>
+
           <SearchInput
             placeholder={
               keywordType === "title" ? "제목으로 검색" : "작성자로 검색"

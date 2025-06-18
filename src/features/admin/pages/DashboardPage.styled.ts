@@ -2,25 +2,40 @@ import styled from "styled-components";
 
 export const DashboardContainer = styled.div`
   flex: 1;
-  padding: 32px;
+  padding: 32px 32px;
   background-color: #f9fafb;
-  min-height: 100vh; 
+  min-height: 100vh;
 `;
 
 export const Header = styled.div`
-  margin-bottom: 36px;
+  margin-bottom: 24px;
 `;
 
 export const Title = styled.h1`
-  font-size: 24px;
+  font-size: 1.4rem;
   font-weight: 700;
-  color: #1f2937;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
+  padding-left: 16px;
+  position: relative;
+  color: #111827;
+
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 1.4rem;
+    background: #fdb924;
+    border-radius: 2px;
+  }
 `;
 
 export const Description = styled.p`
-  color: #6b7280;
-  font-size: 14px;
+  color: #bdbdbd;
+  font-size: 0.9rem;
+  margin-bottom: 18px;
 `;
 
 export const CardGrid = styled.div`
@@ -60,9 +75,7 @@ export const Icon = styled.img`
   width: 1.75rem;
 `;
 
-export const CardContent = styled.div`
-
-  `;
+export const CardContent = styled.div``;
 
 export const CardValue = styled.div`
   font-size: 1.5rem;

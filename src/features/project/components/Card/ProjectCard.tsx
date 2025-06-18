@@ -16,10 +16,9 @@ import {
   FiClock,
   FiCheckCircle,
   FiAlertTriangle,
-  FiChevronRight,
-  FiEye,
+  FiAlertCircle,
 } from "react-icons/fi";
-
+import { AiOutlineSelect } from "react-icons/ai";
 import { useAuth } from "@/hooks/useAuth";
 
 import type { Project } from "../../types/Types";
@@ -71,6 +70,12 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
           color: "#ef4444",
           icon: <FiAlertTriangle size={14} />,
         };
+      case "DUE_SOON":
+        return {
+          text: "기한임박",
+          color: "#f59e0b",
+          icon: <FiAlertCircle size={14} />,
+        };
       default:
         return { text: status, color: "#6b7280", icon: null };
     }
@@ -79,11 +84,11 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
   const statusInfo = getStatus();
 
   return (
-    <Card>
+    <Card $status={status}>
       <CardHeader>
         <CardTitle>{name}</CardTitle>
         <CardBadges>
-          <Badge $color={statusInfo.color}>
+          <Badge $color={statusInfo.color} $status={status}>
             {statusInfo.icon}
             {statusInfo.text}
           </Badge>
@@ -101,14 +106,24 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
           </span>
         </CardInfoGroup>
         <CardProgress>
-          <span>진행률</span>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "8px",
+            }}
+          >
+            <span>진행률</span>
+            <span>{progress}%</span>
+          </div>
           <progress value={progress} max={100} />
-          <span>{progress}%</span>
         </CardProgress>
       </CardBody>
       <CardFooter>
         <StageButton onClick={handleStageClick}>
-          상세 <FiEye size={14} />
+          <AiOutlineSelect size={14} />
+          보기
         </StageButton>
       </CardFooter>
     </Card>

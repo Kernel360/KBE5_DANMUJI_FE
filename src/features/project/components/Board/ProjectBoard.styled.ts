@@ -66,7 +66,7 @@ export const SearchInput = styled.input`
   border-radius: 10px;
   background-color: #ffffff;
   color: #374151;
-  transition: all 0.2s ease;
+  transition: all 0.1s ease;
   outline: none;
 
   &::placeholder {
@@ -74,8 +74,8 @@ export const SearchInput = styled.input`
   }
 
   &:focus {
-    border-color: #4f46e5;
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    border-color: #fdb924;
+    box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.1);
   }
 
   &:hover {
@@ -128,6 +128,12 @@ export const Table = styled.table`
 
 export const Thead = styled.thead`
   background-color: #f9fafb;
+
+  tr {
+    &:hover {
+      background-color: #f9fafb !important;
+    }
+  }
 `;
 
 export const Tbody = styled.tbody``;

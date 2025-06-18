@@ -1,19 +1,153 @@
 import React, { useRef, useEffect, useState } from "react";
-import styled from 'styled-components';
+import styled from "styled-components";
 import {
-  ModalOverlay,
-  ModalContent,
-  CloseButton,
-  Title,
-  Form,
-  FormGroup,
-  Label,
-  Input,
-  ButtonGroup,
-  Button,
-} from "./CompanyEditModal.styled";
-import type { CompanyFormData } from '../../pages/CompanyPage';
-import type { Company } from '../../pages/CompanyPage';
+  FiX,
+  FiHome,
+  FiUser,
+  FiMail,
+  FiPhone,
+  FiMapPin,
+  FiHash,
+  FiFileText,
+  FiEdit3,
+} from "react-icons/fi";
+import type { CompanyFormData } from "../../pages/CompanyPage";
+import type { Company } from "../../pages/CompanyPage";
+
+const ModalOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+`;
+
+const ModalContent = styled.div`
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(253, 185, 36, 0.1);
+  width: 600px;
+  padding: 24px;
+  position: relative;
+  animation: modalSlideIn 0.2s ease-out;
+
+  @keyframes modalSlideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+`;
+
+const TextArea = styled.textarea`
+  width: 100%;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px 16px;
+  resize: vertical;
+  font-size: 14px;
+  background-color: #ffffff;
+  color: #374151;
+
+  &:focus {
+    outline: none;
+    border-color: #fdb924;
+    box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.1);
+  }
+`;
+
+const CloseButton = styled.button`
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: #f8fafc;
+  border: none;
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #64748b;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #e2e8f0;
+    color: #475569;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+`;
+
+const Title = styled.div`
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #1e293b;
+
+  svg {
+    color: #fdb924;
+  }
+`;
+
+const Form = styled.form`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+`;
+
+const FormGroup = styled.div`
+  &:nth-child(1),
+  &:nth-child(2),
+  &:nth-child(7),
+  &:nth-child(8) {
+    grid-column: 1 / -1;
+  }
+`;
+
+const Label = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #374151;
+
+  svg {
+    color: #f59e0b;
+  }
+`;
+
+const Input = styled.input`
+  width: 100%;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 14px;
+  background-color: #ffffff;
+  color: #374151;
+
+  &:focus {
+    outline: none;
+    border-color: #fdb924;
+    box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.1);
+  }
+`;
 
 const RegNumberRow = styled.div`
   display: flex;
@@ -26,6 +160,41 @@ const RegInput = styled(Input)`
   text-align: center;
   padding-left: 0;
   padding-right: 0;
+`;
+
+const SubmitButton = styled.button`
+  background: linear-gradient(135deg, #fdb924 0%, #f59e0b 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: fit-content;
+  margin: 0 auto;
+  margin-top: 8px;
+  grid-column: 1 / -1;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(253, 185, 36, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
 `;
 
 interface Props {
@@ -132,11 +301,19 @@ export default function CompanyEditModal({
   return (
     <ModalOverlay>
       <ModalContent>
-        <CloseButton onClick={onClose}>×</CloseButton>
-        <Title>회사 정보 수정</Title>
+        <CloseButton onClick={onClose}>
+          <FiX size={18} />
+        </CloseButton>
+        <Title>
+          <FiEdit3 size={20} />
+          회사 정보 수정
+        </Title>
         <Form onSubmit={handleSubmit}>
           <FormGroup>
-            <Label>회사명</Label>
+            <Label>
+              <FiHome size={14} />
+              회사명
+            </Label>
             <Input
               name="name"
               required
@@ -146,7 +323,10 @@ export default function CompanyEditModal({
             />
           </FormGroup>
           <FormGroup>
-            <Label>사업자등록번호</Label>
+            <Label>
+              <FiHash size={14} />
+              사업자등록번호
+            </Label>
             <RegNumberRow>
               <RegInput
                 ref={reg1Ref}
@@ -177,7 +357,10 @@ export default function CompanyEditModal({
             </RegNumberRow>
           </FormGroup>
           <FormGroup>
-            <Label>주소</Label>
+            <Label>
+              <FiMapPin size={14} />
+              주소
+            </Label>
             <Input
               name="address"
               required
@@ -187,17 +370,23 @@ export default function CompanyEditModal({
             />
           </FormGroup>
           <FormGroup>
-            <Label>사업자 명</Label>
+            <Label>
+              <FiUser size={14} />
+              대표자명
+            </Label>
             <Input
               name="ceoName"
               required
-              placeholder="사업자 명을 입력하세요"
+              placeholder="대표자명을 입력하세요"
               value={formData.ceoName || ""}
               onChange={handleChange}
             />
           </FormGroup>
           <FormGroup>
-            <Label>이메일</Label>
+            <Label>
+              <FiMail size={14} />
+              이메일
+            </Label>
             <Input
               name="email"
               type="email"
@@ -208,23 +397,36 @@ export default function CompanyEditModal({
             />
           </FormGroup>
           <FormGroup>
-            <Label>연락처</Label>
+            <Label>
+              <FiPhone size={14} />
+              전화번호
+            </Label>
             <Input
               name="tel"
+              type="tel"
               required
-              placeholder="010-0000-0000"
+              placeholder="전화번호를 입력하세요"
               value={formData.tel || ""}
               onChange={handleChange}
             />
           </FormGroup>
-          <ButtonGroup>
-            <Button type="button" onClick={onClose} $variant="secondary">
-              취소
-            </Button>
-            <Button type="submit" $variant="primary">
-              저장
-            </Button>
-          </ButtonGroup>
+          <FormGroup>
+            <Label>
+              <FiFileText size={14} />
+              회사소개
+            </Label>
+            <TextArea
+              name="bio"
+              rows={3}
+              placeholder="간단한 설명을 입력하세요"
+              value={formData.bio || ""}
+              onChange={handleChange}
+            />
+          </FormGroup>
+          <SubmitButton type="submit">
+            <FiEdit3 size={16} />
+            수정하기
+          </SubmitButton>
         </Form>
       </ModalContent>
     </ModalOverlay>

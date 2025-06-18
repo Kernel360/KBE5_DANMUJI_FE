@@ -18,12 +18,16 @@ interface TopbarProps {
   error: string | null;
 }
 
-export const Topbar: React.FC<TopbarProps> = ({ notifications, markAsRead, error }) => {
+export const Topbar: React.FC<TopbarProps> = ({
+  notifications,
+  markAsRead,
+  error,
+}) => {
   const location = useLocation();
 
   const getPageTitle = () => {
     if (location.pathname === "/members") {
-      return "멤버 관리";
+      return "회원 관리";
     } else if (location.pathname.startsWith("/member/")) {
       return "회원 정보";
     } else if (location.pathname === "/dashboard") {
@@ -39,12 +43,12 @@ export const Topbar: React.FC<TopbarProps> = ({ notifications, markAsRead, error
 
   return (
     <TopbarContainer>
-      <PageTitle>{getPageTitle()}</PageTitle>
+      <PageTitle> </PageTitle>
       <UserInfo>
         <UserDropdown>
           <ProfileDropdown />
         </UserDropdown>
-        <NotificationDropdown 
+        <NotificationDropdown
           notifications={notifications}
           markAsRead={markAsRead}
           error={error}
