@@ -15,11 +15,24 @@ export const ModalOverlay = styled.div`
 
 export const ModalContent = styled.div`
   background-color: white;
-  padding: 2rem;
-  border-radius: 0.5rem;
-  width: 100%;
-  max-width: 32rem;
+  border-radius: 16px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(253, 185, 36, 0.1);
+  width: 600px;
+  padding: 24px;
   position: relative;
+  animation: modalSlideIn 0.2s ease-out;
+
+  @keyframes modalSlideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 `;
 
 export const CloseButton = styled.button`
@@ -40,22 +53,35 @@ export const CloseButton = styled.button`
 `;
 
 export const Title = styled.h2`
-  font-size: 1.5rem;
+  font-size: 20px;
   font-weight: 700;
-  color: #1f2937;
-  margin-bottom: 1.5rem;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #1e293b;
+
+  svg {
+    color: #fdb924;
+  }
 `;
 
 export const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
 `;
 
 export const FormGroup = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+
+  &:nth-child(1),
+  &:nth-child(2),
+  &:nth-child(7) {
+    grid-column: 1 / -1;
+  }
 `;
 
 export const Label = styled.label`
