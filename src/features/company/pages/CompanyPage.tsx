@@ -1,10 +1,11 @@
 import axios from "axios";
 import api from "@/api/axios";
-import { useState, useEffect } from 'react';
-import CompanyRegisterModal from '../components/CompanyRegisterModal';
-import CompanyEditModal from '../components/CompanyEditModal';
-import CompanyDetailModal from '../components/CompanyDetailModal/CompanyDetailModal';
-import styled from 'styled-components';
+import { useState, useEffect } from "react";
+import CompanyRegisterModal from "../components/CompanyRegisterModal";
+import CompanyEditModal from "../components/CompanyEditModal";
+import CompanyDetailModal from "../components/CompanyDetailModal/CompanyDetailModal";
+import CompanyFilterBar from "../components/CompanyFilterBar";
+import styled from "styled-components";
 
 export interface Company {
   id: number;
@@ -33,154 +34,225 @@ export interface CompanyFormData {
 const Container = styled.div`
   padding: 32px;
   background-color: #f9fafb;
+  min-height: 100vh;
 `;
+
 const HeaderSection = styled.div`
   margin-bottom: 32px;
 `;
+
 const Title = styled.h1`
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 700;
-  color: #1f2937;
-  margin-bottom: 4px;
-`;
-const Subtitle = styled.p`
-  color: #6b7280;
-  font-size: 14px;
-`;
-const SearchSection = styled.div`
-  display: flex;
-  align-items: center;
-  margin-bottom: 1rem;
-  gap: 0.5rem;
-`;
-const SearchInput = styled.input`
-  border: 1px solid #d1d5db;
-  border-radius: 0.375rem;
-  padding: 0.5rem 0.75rem;
-  width: 16rem;
-  font-size: 0.875rem;
-  outline: none;
-  transition: border 0.2s;
-  &:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 2px #3b82f633;
+  color: #111827;
+  margin-bottom: 8px;
+  position: relative;
+  padding-left: 16px;
+
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 28px;
+    background: #fdb924;
+    border-radius: 2px;
   }
 `;
+
+const Subtitle = styled.p`
+  color: #6b7280;
+  font-size: 16px;
+  margin-left: 8px;
+`;
+
 const RegisterButton = styled.button`
   margin-left: auto;
-  background: #3b82f6;
+  background: #fdb924;
   color: #fff;
-  padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
   font-weight: 600;
   border: none;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s ease;
+
   &:hover {
-    background: #2563eb;
+    background: #f59e0b;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(253, 185, 36, 0.3);
   }
 `;
+
 const TableContainer = styled.div`
-  overflow-x: auto;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  background-color: white;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
 `;
+
 const Table = styled.table`
-  min-width: 100%;
+  width: 100%;
   font-size: 14px;
   border-collapse: collapse;
 `;
+
 const TableHead = styled.thead`
   background-color: #f9fafb;
   border-bottom: 1px solid #e5e7eb;
 `;
+
 const TableHeader = styled.th`
-  padding: 12px 16px;
+  padding: 16px;
   text-align: left;
   font-weight: 600;
-  color: #4b5563;
+  color: #374151;
   white-space: nowrap;
+  font-size: 13px;
 `;
+
 const TableBody = styled.tbody``;
+
 const TableRow = styled.tr`
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid #f3f4f6;
+  transition: background-color 0.2s ease;
+
   &:last-child {
     border-bottom: none;
   }
+
+  &:hover {
+    background-color: #f9fafb;
+  }
 `;
+
 const TableCell = styled.td`
-  padding: 12px 16px;
+  padding: 16px;
   text-align: left;
   color: #374151;
   vertical-align: middle;
+  font-size: 14px;
 `;
+
+const CompanyNameCell = styled(TableCell)`
+  cursor: pointer;
+  color: #2563eb;
+  font-weight: 500;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: #1d4ed8;
+    text-decoration: underline;
+  }
+`;
+
 const ActionButton = styled.button`
-  background: #e5e7eb;
+  background: #ffffff;
   color: #374151;
-  padding: 6px 12px;
-  border-radius: 0.25rem;
-  font-size: 0.75rem;
-  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid #e5e7eb;
   cursor: pointer;
-  margin-right: 0.25rem;
-  transition: background 0.2s;
+  margin-right: 8px;
+  transition: all 0.15s ease-in-out;
+
   &:hover {
-    background: #d1d5db;
+    background: #fdb924;
+    color: #ffffff;
+    border-color: transparent;
   }
 `;
+
 const DeleteButton = styled.button`
-  background: #fee2e2;
+  background: #ffffff;
   color: #ef4444;
-  padding: 6px 12px;
-  border-radius: 0.25rem;
-  font-size: 0.75rem;
-  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid #fecaca;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.15s ease-in-out;
+
   &:hover {
-    background: #fecaca;
+    background: #ef4444;
+    color: #ffffff;
+    border-color: transparent;
   }
 `;
+
 const PaginationContainer = styled.div`
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 32px;
+  gap: 0.7rem;
+`;
+
+const PaginationInfo = styled.div`
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.825rem;
+  margin-top: 0.75rem;
+  margin-bottom: 0.1rem;
+`;
+
+const PaginationNav = styled.nav`
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  flex-wrap: wrap;
   justify-content: center;
-  margin-top: 1.5rem;
 `;
-const PaginationNav = styled.nav``;
-const PaginationButton = styled.button`
-  padding: 0.5rem 1rem;
-  border: 1px solid #e5e7eb;
-  background-color: white;
-  color: #374151;
-  &:hover {
-    background-color: #f3f4f6;
-  }
-  &:first-child {
-    border-top-left-radius: 0.375rem;
-    border-bottom-left-radius: 0.375rem;
-  }
-  &:last-child {
-    border-top-right-radius: 0.375rem;
-    border-bottom-right-radius: 0.375rem;
-  }
-  &:disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
-  }
-`;
-const CurrentPageButton = styled(PaginationButton)`
-  background: #3b82f6;
-  color: #fff;
-  border-radius: 0.375rem;
-  font-weight: 600;
+
+const PaginationButton = styled.button<{ $active?: boolean }>`
+  padding: 0.32rem 0.6rem;
   border: none;
-  cursor: not-allowed;
-  z-index: 10;
-  &:hover {
-    background: #3b82f6;
-  }
+  background: none;
+  color: ${({ $active }) => ($active ? "#fff" : "#111827")};
+  border-radius: 1.2rem;
+  font-size: 1rem;
+  font-weight: 500;
+  box-shadow: none;
+  cursor: pointer;
+  outline: none;
+  min-width: 32px;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  ${({ $active }) =>
+    $active &&
+    `
+      background: #fdb924;
+      color: #fff;
+    `}
+`;
+
+const LoadingText = styled.div`
+  text-align: center;
+  padding: 40px;
+  color: #6b7280;
+  font-size: 14px;
+`;
+
+const ErrorText = styled.div`
+  text-align: center;
+  padding: 40px;
+  color: #ef4444;
+  font-size: 14px;
+`;
+
+const EmptyText = styled.div`
+  text-align: center;
+  padding: 40px;
+  color: #6b7280;
+  font-size: 14px;
 `;
 
 export const formatBizNo = (bizNo: string) => {
@@ -189,7 +261,10 @@ export const formatBizNo = (bizNo: string) => {
 };
 
 export default function CompanyPage() {
-  const [search, setSearch] = useState('');
+  const [filters, setFilters] = useState({
+    sort: "latest",
+    keyword: "",
+  });
   const [companies, setCompanies] = useState<Company[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -202,8 +277,10 @@ export default function CompanyPage() {
     totalElements: number;
     totalPages: number;
   } | null>(null);
-  const [isCompanyDetailModalOpen, setIsCompanyDetailModalOpen] = useState(false);
-  const [selectedCompanyForDetail, setSelectedCompanyForDetail] = useState<Company | null>(null);
+  const [isCompanyDetailModalOpen, setIsCompanyDetailModalOpen] =
+    useState(false);
+  const [selectedCompanyForDetail, setSelectedCompanyForDetail] =
+    useState<Company | null>(null);
 
   const handlePageChange = (newPage: number) => {
     fetchCompanies(newPage);
@@ -214,7 +291,7 @@ export default function CompanyPage() {
       setLoading(true);
       const response = await api.get(`/api/companies?page=${pageNumber}`);
       const responseData = response.data;
-      setCompanies(responseData.data.content);  // 여기서 한 번만 data 접근
+      setCompanies(responseData.data.content);
       setPage(responseData.data.page);
     } catch (err: unknown) {
       let errorMessage = "An unknown error occurred";
@@ -234,25 +311,68 @@ export default function CompanyPage() {
     fetchCompanies();
   }, []);
 
-  const filtered = companies.filter(c => c.name.includes(search));
+  const handleFilterChange = (field: string, value: string) => {
+    setFilters((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
 
   const handleSearch = () => {
-    // 예시: axios 또는 fetch로 API 호출
-    api.get(`/api/company/search?name=${encodeURIComponent(search)}`)
-      .then(res => {
-        setCompanies(res.data.data);
-      })
-      .catch(err => {
-        console.error('검색 오류:', err);
-      });
+    // 필터링된 결과를 클라이언트 사이드에서 처리
+    fetchCompanies();
   };
-  
+
+  const handleResetFilters = () => {
+    setFilters({
+      sort: "latest",
+      keyword: "",
+    });
+    fetchCompanies();
+  };
+
+  // 필터링된 회사 목록
+  const filteredCompanies = companies.filter((company) => {
+    if (!filters.keyword) return true;
+
+    const keyword = filters.keyword.toLowerCase();
+    return (
+      company.name.toLowerCase().includes(keyword) ||
+      company.ceoName.toLowerCase().includes(keyword) ||
+      company.email.toLowerCase().includes(keyword)
+    );
+  });
+
+  // 정렬된 회사 목록
+  const sortedCompanies = [...filteredCompanies].sort((a, b) => {
+    switch (filters.sort) {
+      case "name":
+        return a.name.localeCompare(b.name);
+      case "ceo":
+        return a.ceoName.localeCompare(b.ceoName);
+      case "latest":
+      default:
+        return b.id - a.id;
+    }
+  });
+
+  // 페이지네이션 정보 계산
+  const getPaginationInfo = () => {
+    if (!page) return "";
+    const start = page.number * page.size + 1;
+    const end = Math.min((page.number + 1) * page.size, page.totalElements);
+    return `총 ${page.totalElements}개의 회사 중 ${start}-${end}개 표시`;
+  };
+
   const handleEdit = async (data: CompanyFormData) => {
     if (!editData) return;
 
     try {
       // Construct the bizNo from reg1, reg2, reg3
-      const bizNoCombined = parseInt(`${data.reg1}${data.reg2}${data.reg3}`, 10);
+      const bizNoCombined = parseInt(
+        `${data.reg1}${data.reg2}${data.reg3}`,
+        10
+      );
 
       const companyUpdateData = {
         name: data.name,
@@ -268,20 +388,22 @@ export default function CompanyPage() {
       await api.put(`/api/companies/${editData.id}`, companyUpdateData);
 
       // 성공 시 상태 업데이트
-      setCompanies(prev => prev.map(c =>
-        c.id === editData.id
-          ? {
-              ...c,
-              name: data.name || c.name,
-              bizNo: bizNoCombined || c.bizNo,
-              address: data.address || c.address,
-              ceoName: data.ceoName || c.ceoName,
-              email: data.email || c.email,
-              tel: data.tel || c.tel,
-              bio: data.bio || c.bio,
-            }
-          : c
-      ));
+      setCompanies((prev) =>
+        prev.map((c) =>
+          c.id === editData.id
+            ? {
+                ...c,
+                name: data.name || c.name,
+                bizNo: bizNoCombined || c.bizNo,
+                address: data.address || c.address,
+                ceoName: data.ceoName || c.ceoName,
+                email: data.email || c.email,
+                tel: data.tel || c.tel,
+                bio: data.bio || c.bio,
+              }
+            : c
+        )
+      );
 
       // 모달 닫기
       setEditModalOpen(false);
@@ -314,7 +436,11 @@ export default function CompanyPage() {
 
   return (
     <Container>
-      <CompanyRegisterModal open={modalOpen} onClose={() => setModalOpen(false)} onRegisterSuccess={fetchCompanies} />
+      <CompanyRegisterModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onRegisterSuccess={fetchCompanies}
+      />
       {editData && (
         <CompanyEditModal
           open={editModalOpen}
@@ -330,23 +456,19 @@ export default function CompanyPage() {
       />
       <HeaderSection>
         <Title>회사 관리</Title>
-        <Subtitle>프로젝트 관리 시스템의 회사 정보를 한눈에 확인하세요</Subtitle>
+        <Subtitle>
+          프로젝트 관리 시스템의 회사 정보를 한눈에 확인하세요
+        </Subtitle>
       </HeaderSection>
-      <SearchSection>
-        <SearchInput
-          type="text"
-          placeholder="회사명 검색..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          onKeyDown={e => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              handleSearch();
-            }
-          }}
-        />
-        <RegisterButton onClick={() => setModalOpen(true)}>회사 등록</RegisterButton>
-      </SearchSection>
+
+      <CompanyFilterBar
+        filters={filters}
+        onInputChange={handleFilterChange}
+        onSearch={handleSearch}
+        onReset={handleResetFilters}
+        onRegisterClick={() => setModalOpen(true)}
+      />
+
       <TableContainer>
         <Table>
           <TableHead>
@@ -363,65 +485,88 @@ export default function CompanyPage() {
           </TableHead>
           <TableBody>
             {loading && (
-              <TableRow><TableCell colSpan={9}>로딩 중...</TableCell></TableRow>
-            )}
-            {error && (
-              <TableRow><TableCell colSpan={9} style={{ color: 'red' }}>오류: {error}</TableCell></TableRow>
-            )}
-            {!loading && !error && filtered.length === 0 && (
-              <TableRow><TableCell colSpan={9}>데이터가 없습니다.</TableCell></TableRow>
-            )}
-            {!loading && !error && filtered.map((c) => (
-              <TableRow key={c.id}>
-                <TableCell>{c.id}</TableCell>
-                <TableCell
-                  onClick={() => handleCompanyClick(c)}
-                  style={{ cursor: "pointer", textDecoration: "underline" }}
-                >
-                  {c.name}
-                </TableCell>
-                <TableCell>{formatBizNo(c.bizNo.toString())}</TableCell>
-                <TableCell>{c.address}</TableCell>
-                <TableCell>{c.ceoName}</TableCell>
-                <TableCell>{c.email}</TableCell>
-                <TableCell>{c.tel}</TableCell>
-                <TableCell>
-                  <ActionButton onClick={() => { setEditModalOpen(true); setEditData(c); }}>수정</ActionButton>
-                  <DeleteButton onClick={() => handleDelete(c.id)}>삭제</DeleteButton>
+              <TableRow>
+                <TableCell colSpan={8}>
+                  <LoadingText>로딩 중...</LoadingText>
                 </TableCell>
               </TableRow>
-            ))}
+            )}
+            {error && (
+              <TableRow>
+                <TableCell colSpan={8}>
+                  <ErrorText>오류: {error}</ErrorText>
+                </TableCell>
+              </TableRow>
+            )}
+            {!loading && !error && sortedCompanies.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={8}>
+                  <EmptyText>데이터가 없습니다.</EmptyText>
+                </TableCell>
+              </TableRow>
+            )}
+            {!loading &&
+              !error &&
+              sortedCompanies.map((c) => (
+                <TableRow key={c.id}>
+                  <TableCell>{c.id}</TableCell>
+                  <CompanyNameCell onClick={() => handleCompanyClick(c)}>
+                    {c.name}
+                  </CompanyNameCell>
+                  <TableCell>{formatBizNo(c.bizNo.toString())}</TableCell>
+                  <TableCell>{c.address}</TableCell>
+                  <TableCell>{c.ceoName}</TableCell>
+                  <TableCell>{c.email}</TableCell>
+                  <TableCell>{c.tel}</TableCell>
+                  <TableCell>
+                    <ActionButton
+                      onClick={() => {
+                        setEditModalOpen(true);
+                        setEditData(c);
+                      }}
+                    >
+                      수정
+                    </ActionButton>
+                    <DeleteButton onClick={() => handleDelete(c.id)}>
+                      삭제
+                    </DeleteButton>
+                  </TableCell>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       </TableContainer>
       <PaginationContainer>
         <PaginationNav>
-          <PaginationButton
-            disabled={!page || page.number === 0}
-            onClick={() => page && handlePageChange(page.number - 1)}
-          >
-            {'<'}
-          </PaginationButton>
+          {/* 첫 페이지가 아니면 이전 버튼 렌더 */}
+          {page && page.number > 0 && (
+            <PaginationButton onClick={() => handlePageChange(page.number - 1)}>
+              이전
+            </PaginationButton>
+          )}
 
           {/* 페이지 번호 버튼들을 동적으로 생성 */}
-          {Array.from({ length: page?.totalPages ?? 0 }, (_, idx) => (
+          {Array.from({ length: page?.totalPages ?? 0 }, (_, idx) =>
             idx === (page?.number ?? 0) ? (
-              <CurrentPageButton key={idx}>{idx + 1}</CurrentPageButton>
+              <PaginationButton key={idx} $active>
+                {idx + 1}
+              </PaginationButton>
             ) : (
               <PaginationButton key={idx} onClick={() => handlePageChange(idx)}>
                 {idx + 1}
               </PaginationButton>
             )
-          ))}
+          )}
 
-          <PaginationButton
-            disabled={!page || page.number + 1 >= (page?.totalPages ?? 0)}
-            onClick={() => page && handlePageChange(page.number + 1)}
-          >
-            {'>'}
-          </PaginationButton>
+          {/* 마지막 페이지가 아니면 다음 버튼 렌더 */}
+          {page && page.number + 1 < (page?.totalPages ?? 0) && (
+            <PaginationButton onClick={() => handlePageChange(page.number + 1)}>
+              다음
+            </PaginationButton>
+          )}
         </PaginationNav>
+        <PaginationInfo>{getPaginationInfo()}</PaginationInfo>
       </PaginationContainer>
     </Container>
   );
-} 
+}
