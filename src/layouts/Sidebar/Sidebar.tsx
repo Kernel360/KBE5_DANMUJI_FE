@@ -65,16 +65,7 @@ export const Sidebar: React.FC = () => {
           isActive={location.pathname.startsWith("/projects")}
           onClick={() => handleMenuItemClick("프로젝트 목록", "/projects")}
         />
-        <MenuItem
-          icon={FiHelpCircle}
-          text="관리자에게 문의하기"
-          isActive={location.pathname === "/contact-admin"}
-          onClick={() =>
-            handleMenuItemClick("관리자에게 문의하기", "/contact-admin")
-          }
-        />
-        {/* 관리자 전용 메뉴 */}
-        {role === "ROLE_ADMIN" && (
+        {role === "ROLE_ADMIN" ? (
           <>
             <MenuItem
               icon={HiBuildingOffice2}
@@ -88,7 +79,22 @@ export const Sidebar: React.FC = () => {
               isActive={location.pathname.startsWith("/member")}
               onClick={() => handleMenuItemClick("멤버 관리", "/members")}
             />
+            <MenuItem
+              icon={FiHelpCircle}
+              text="문의 목록"
+              isActive={location.pathname === "/contact-admin"}
+              onClick={() => handleMenuItemClick("문의 목록", "/contact-admin")}
+            />
           </>
+        ) : (
+          <MenuItem
+            icon={FiHelpCircle}
+            text="관리자에게 문의하기"
+            isActive={location.pathname === "/contact-admin"}
+            onClick={() =>
+              handleMenuItemClick("관리자에게 문의하기", "/contact-admin")
+            }
+          />
         )}
       </MainMenu>
     </SidebarContainer>
