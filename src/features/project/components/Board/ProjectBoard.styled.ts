@@ -128,6 +128,12 @@ export const Table = styled.table`
 
 export const Thead = styled.thead`
   background-color: #f9fafb;
+
+  tr {
+    &:hover {
+      background-color: #f9fafb !important;
+    }
+  }
 `;
 
 export const Tbody = styled.tbody``;
