@@ -420,6 +420,42 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
                     {formatDate(filters.startDate)}
                   </span>
                 </DateButton>
+                {/* 시작일 DatePicker 팝업 */}
+                {startDateOpen && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "100%",
+                      left: 0,
+                      zIndex: 1000,
+                      marginTop: "4px",
+                    }}
+                  >
+                    <DatePicker
+                      selected={
+                        filters.startDate ? new Date(filters.startDate) : null
+                      }
+                      onChange={handleStartDateChange}
+                      selectsStart
+                      startDate={
+                        filters.startDate ? new Date(filters.startDate) : null
+                      }
+                      endDate={
+                        filters.endDate ? new Date(filters.endDate) : null
+                      }
+                      maxDate={
+                        filters.endDate ? new Date(filters.endDate) : null
+                      }
+                      dateFormat="yyyy-MM-dd"
+                      placeholderText="시작일 선택"
+                      inline
+                      onClickOutside={() => setStartDateOpen(false)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Escape") setStartDateOpen(false);
+                      }}
+                    />
+                  </div>
+                )}
               </DatePickerWrapper>
               <DateSeparator>~</DateSeparator>
               <DatePickerWrapper>
@@ -434,72 +470,45 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
                     {formatDate(filters.endDate)}
                   </span>
                 </DateButton>
+                {/* 종료일 DatePicker 팝업 */}
+                {endDateOpen && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "100%",
+                      left: 0,
+                      zIndex: 1000,
+                      marginTop: "4px",
+                    }}
+                  >
+                    <DatePicker
+                      selected={
+                        filters.endDate ? new Date(filters.endDate) : null
+                      }
+                      onChange={handleEndDateChange}
+                      selectsEnd
+                      startDate={
+                        filters.startDate ? new Date(filters.startDate) : null
+                      }
+                      endDate={
+                        filters.endDate ? new Date(filters.endDate) : null
+                      }
+                      minDate={
+                        filters.startDate ? new Date(filters.startDate) : null
+                      }
+                      dateFormat="yyyy-MM-dd"
+                      placeholderText="종료일 선택"
+                      inline
+                      onClickOutside={() => setEndDateOpen(false)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Escape") setEndDateOpen(false);
+                      }}
+                      popperPlacement="bottom-start"
+                    />
+                  </div>
+                )}
               </DatePickerWrapper>
             </DateRangeGroup>
-            {/* DatePicker 팝업은 기존대로 유지 */}
-            {startDateOpen && (
-              <div
-                style={{
-                  position: "absolute",
-                  top: "100%",
-                  left: 0,
-                  zIndex: 1000,
-                  marginTop: "4px",
-                }}
-              >
-                <DatePicker
-                  selected={
-                    filters.startDate ? new Date(filters.startDate) : null
-                  }
-                  onChange={handleStartDateChange}
-                  selectsStart
-                  startDate={
-                    filters.startDate ? new Date(filters.startDate) : null
-                  }
-                  endDate={filters.endDate ? new Date(filters.endDate) : null}
-                  maxDate={filters.endDate ? new Date(filters.endDate) : null}
-                  dateFormat="yyyy-MM-dd"
-                  placeholderText="시작일 선택"
-                  inline
-                  onClickOutside={() => setStartDateOpen(false)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Escape") setStartDateOpen(false);
-                  }}
-                />
-              </div>
-            )}
-            {endDateOpen && (
-              <div
-                style={{
-                  position: "absolute",
-                  top: "100%",
-                  left: 0,
-                  zIndex: 1000,
-                  marginTop: "4px",
-                }}
-              >
-                <DatePicker
-                  selected={filters.endDate ? new Date(filters.endDate) : null}
-                  onChange={handleEndDateChange}
-                  selectsEnd
-                  startDate={
-                    filters.startDate ? new Date(filters.startDate) : null
-                  }
-                  endDate={filters.endDate ? new Date(filters.endDate) : null}
-                  minDate={
-                    filters.startDate ? new Date(filters.startDate) : null
-                  }
-                  dateFormat="yyyy-MM-dd"
-                  placeholderText="종료일 선택"
-                  inline
-                  onClickOutside={() => setEndDateOpen(false)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Escape") setEndDateOpen(false);
-                  }}
-                  popperPlacement="bottom-start"
-                />
-              </div>
-            )}
           </FilterGroup>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
