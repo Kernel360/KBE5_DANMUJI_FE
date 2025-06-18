@@ -1,5 +1,12 @@
-import React, { useState } from "react";
-import { FiSearch, FiRotateCcw, FiPlus, FiHome } from "react-icons/fi";
+import React, { useState, useEffect, useRef } from "react";
+import {
+  FiSearch,
+  FiRotateCcw,
+  FiPlus,
+  FiHome,
+  FiChevronDown,
+  FiCheck,
+} from "react-icons/fi";
 import {
   FilterBar,
   FilterGroup,
@@ -8,12 +15,45 @@ import {
   SearchInput,
   ActionButton,
   NewButton,
+  SelectButton,
 } from "./CompanyFilterBar.styled";
+import {
+  ModalOverlay,
+  ClientModal,
+  ModalHeader,
+  ModalTitle,
+  ModalSubtitle,
+  ModalBody,
+  SearchInputWrapper,
+  SearchIcon,
+  ModalSearchInput,
+  ClientList,
+  ClientItem,
+  ClientInfo,
+  ClientName,
+  ClientDescription,
+  CheckIcon,
+  ModalFooter,
+  ModalButton,
+  NoResults,
+  EmptyState,
+} from "@/features/project/components/List/ProjectFilterBar.styled";
 
 const SORT_OPTIONS = [
   { value: "latest", label: "최신순" },
   { value: "name", label: "이름순" },
   { value: "ceo", label: "대표자순" },
+];
+
+const CLIENT_OPTIONS = [
+  { value: "all", label: "전체 고객사", description: "모든 고객사" },
+  { value: "abc", label: "ABC 주식회사", description: "IT 솔루션 전문 기업" },
+  { value: "xyz", label: "XYZ 기업", description: "제조업 전문 기업" },
+  { value: "def", label: "DEF 그룹", description: "금융 서비스 기업" },
+  { value: "ghi", label: "GHI 테크", description: "스타트업 기술 기업" },
+  { value: "jkl", label: "JKL 시스템", description: "시스템 통합 전문" },
+  { value: "mno", label: "MNO 솔루션", description: "클라우드 솔루션 기업" },
+  { value: "pqr", label: "PQR 인더스트리", description: "중공업 전문 기업" },
 ];
 
 interface CompanyFilterBarProps {
@@ -40,6 +80,10 @@ const CompanyFilterBar: React.FC<CompanyFilterBarProps> = ({
   const [addressSearch, setAddressSearch] = useState("");
   const [addressResults, setAddressResults] = useState<string[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<string>("");
+  const [clientModalOpen, setClientModalOpen] = useState(false);
+  const [clientSearchTerm, setClientSearchTerm] = useState("");
+  const [selectedClient, setSelectedClient] = useState(filters.client || "");
+  const modalRef = useRef<HTMLDivElement>(null);
 
   const handleSearch = () => {
     onInputChange("keyword", keyword);
@@ -88,6 +132,59 @@ const CompanyFilterBar: React.FC<CompanyFilterBarProps> = ({
     setAddressModalOpen(false);
   };
 
+  const handleClientModalOpen = () => {
+    setSelectedClient(filters.client || "");
+    setClientSearchTerm("");
+    setClientModalOpen(true);
+  };
+
+  const handleClientModalClose = () => {
+    setClientModalOpen(false);
+    setClientSearchTerm("");
+  };
+
+  const handleClientSelect = (value: string) => {
+    setSelectedClient(value);
+  };
+
+  const handleClientConfirm = () => {
+    onInputChange("client", selectedClient);
+    setClientModalOpen(false);
+  };
+
+  const getClientLabel = (value: string) => {
+    const option = CLIENT_OPTIONS.find((opt) => opt.value === value);
+    return option ? option.label : "전체 고객사";
+  };
+
+  const filteredClients = CLIENT_OPTIONS.filter(
+    (client) =>
+      client.label.toLowerCase().includes(clientSearchTerm.toLowerCase()) ||
+      client.description.toLowerCase().includes(clientSearchTerm.toLowerCase())
+  );
+
+  // ESC 키로 모달 닫기
+  useEffect(() => {
+    if (!addressModalOpen) return;
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setAddressModalOpen(false);
+    };
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, [addressModalOpen]);
+
+  // 바깥 클릭 시 모달 닫기
+  useEffect(() => {
+    if (!addressModalOpen) return;
+    const handleClick = (e: MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
+        setAddressModalOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [addressModalOpen]);
+
   return (
     <FilterBar>
       <div style={{ display: "flex", alignItems: "flex-end", gap: "6px" }}>
@@ -112,28 +209,74 @@ const CompanyFilterBar: React.FC<CompanyFilterBarProps> = ({
           }}
         >
           <FilterLabel style={{ marginBottom: 6 }}>주소 검색</FilterLabel>
-          <button
-            type="button"
-            onClick={handleAddressModalOpen}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              padding: "10px 14px",
-              border: "2px solid #e5e7eb",
-              borderRadius: 8,
-              background: "#fff",
-              color: "#374151",
-              fontWeight: 400,
-              fontSize: 14,
-              cursor: "pointer",
-              minWidth: 120,
-              maxWidth: 160,
-            }}
+          <ModalOverlay
+            $isOpen={addressModalOpen}
+            onClick={handleAddressModalClose}
           >
-            <FiHome size={16} />
-            주소 검색
-          </button>
+            <ClientModal
+              $isOpen={addressModalOpen}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ModalHeader>
+                <ModalTitle>고객사 선택</ModalTitle>
+                <ModalSubtitle>
+                  프로젝트를 진행할 고객사를 선택해주세요
+                </ModalSubtitle>
+              </ModalHeader>
+              <ModalBody>
+                <SearchInputWrapper>
+                  <SearchIcon>
+                    <FiSearch size={16} />
+                  </SearchIcon>
+                  <ModalSearchInput
+                    placeholder="고객사명 또는 설명으로 검색..."
+                    value={addressSearch}
+                    onChange={(e) => setAddressSearch(e.target.value)}
+                    autoFocus
+                  />
+                </SearchInputWrapper>
+                <ClientList>
+                  {addressResults.length > 0 ? (
+                    addressResults.map((addr) => (
+                      <ClientItem
+                        key={addr}
+                        $isSelected={selectedAddress === addr}
+                        onClick={() => handleAddressSelect(addr)}
+                      >
+                        <ClientInfo>
+                          <ClientName $isSelected={selectedAddress === addr}>
+                            {addr}
+                          </ClientName>
+                          <ClientDescription>
+                            {addr.split(" ").slice(1).join(" ")}
+                          </ClientDescription>
+                        </ClientInfo>
+                        <CheckIcon $isSelected={selectedAddress === addr}>
+                          <FiCheck size={16} />
+                        </CheckIcon>
+                      </ClientItem>
+                    ))
+                  ) : addressSearch ? (
+                    <NoResults>
+                      검색 결과가 없습니다.
+                      <br />
+                      다른 검색어를 입력해보세요.
+                    </NoResults>
+                  ) : (
+                    <EmptyState>고객사 목록을 불러오는 중...</EmptyState>
+                  )}
+                </ClientList>
+              </ModalBody>
+              <ModalFooter>
+                <ModalButton onClick={handleAddressModalClose}>
+                  취소
+                </ModalButton>
+                <ModalButton $primary onClick={handleAddressConfirm}>
+                  선택 완료
+                </ModalButton>
+              </ModalFooter>
+            </ClientModal>
+          </ModalOverlay>
         </div>
         <div
           style={{
@@ -143,221 +286,93 @@ const CompanyFilterBar: React.FC<CompanyFilterBarProps> = ({
           }}
         >
           <div style={{ display: "flex", alignItems: "flex-end", gap: "6px" }}>
-            <SearchInput
-              type="text"
-              placeholder="회사명, 대표자명, 이메일로 검색..."
-              value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
-              onKeyPress={handleKeyPress}
-              style={{ minWidth: 120, maxWidth: 320 }}
-            />
-            <ActionButton onClick={handleSearch}>
-              <FiSearch size={16} />
-              검색
-            </ActionButton>
-            <ActionButton onClick={handleResetFilters}>
-              <FiRotateCcw size={16} />
-              초기화
-            </ActionButton>
+            <FilterGroup>
+              <FilterLabel>고객사</FilterLabel>
+              <SelectButton
+                type="button"
+                onClick={handleClientModalOpen}
+                $hasValue={!!filters.client}
+                style={{ paddingLeft: 10, paddingRight: 10, minWidth: 90 }}
+              >
+                <FiHome size={16} />
+                <span className="select-value">
+                  {getClientLabel(filters.client)}
+                </span>
+                <FiChevronDown size={16} />
+              </SelectButton>
+            </FilterGroup>
           </div>
         </div>
       </div>
-      {addressModalOpen && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100vw",
-            height: "100vh",
-            background: "rgba(0,0,0,0.18)",
-            zIndex: 1000,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <div
-            style={{
-              background: "#fff",
-              borderRadius: 16,
-              boxShadow: "0 4px 24px rgba(0,0,0,0.13)",
-              padding: 36,
-              minWidth: 480,
-              maxWidth: 540,
-              width: "100%",
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <div style={{ fontWeight: 700, fontSize: 22, marginBottom: 6 }}>
-              고객사 선택
-            </div>
-            <div style={{ color: "#6b7280", fontSize: 15, marginBottom: 18 }}>
-              프로젝트를 진행할 고객사를 선택해주세요
-            </div>
-            <input
-              type="text"
-              placeholder="고객사명 또는 설명으로 검색..."
-              value={addressSearch}
-              onChange={(e) => setAddressSearch(e.target.value)}
-              style={{
-                padding: "12px 16px",
-                border: "1.5px solid #e5e7eb",
-                borderRadius: 8,
-                fontSize: 15,
-                marginBottom: 18,
-                outline: "none",
-                background: "#fff",
-              }}
-            />
-            <div
-              style={{
-                background: "#f8fafc",
-                borderRadius: 10,
-                border: "1.5px solid #e5e7eb",
-                overflow: "hidden",
-                marginBottom: 24,
-              }}
-            >
-              <div
-                onClick={() => handleAddressSelect("전체 회사")}
-                style={{
-                  padding: "16px 18px 8px 18px",
-                  background:
-                    selectedAddress === "전체 회사" ? "#f1f5ff" : "#f8fafc",
-                  color:
-                    selectedAddress === "전체 회사" ? "#2563eb" : "#2563eb",
-                  fontWeight: 600,
-                  fontSize: 16,
-                  cursor: "pointer",
-                  borderBottom: "1px solid #e5e7eb",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                }}
-              >
-                전체 회사
-                {selectedAddress === "전체 회사" && (
-                  <span
-                    style={{
-                      marginLeft: "auto",
-                      color: "#2563eb",
-                      fontWeight: 700,
-                    }}
-                  >
-                    ✓
-                  </span>
-                )}
-              </div>
-              <div
-                style={{
-                  color: "#9ca3af",
-                  fontSize: 13,
-                  padding: "0 18px 10px 18px",
-                  borderBottom: "1px solid #e5e7eb",
-                }}
-              >
-                모든 회사
-              </div>
-              {/* 실제 고객사 리스트 렌더링 */}
-              {["ABC 주식회사", "XYZ 기업", "DEF 그룹", "GHI 테크"].map(
-                (name, idx) => (
-                  <div
-                    key={name}
-                    onClick={() => handleAddressSelect(name)}
-                    style={{
-                      padding: "14px 18px 6px 18px",
-                      background:
-                        selectedAddress === name ? "#f1f5ff" : "#f8fafc",
-                      color: selectedAddress === name ? "#2563eb" : "#222",
-                      fontWeight: selectedAddress === name ? 700 : 500,
-                      fontSize: 16,
-                      cursor: "pointer",
-                      borderBottom: idx !== 3 ? "1px solid #e5e7eb" : undefined,
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 2,
-                    }}
-                  >
-                    <span>{name}</span>
-                    <span
-                      style={{
-                        color: "#9ca3af",
-                        fontWeight: 400,
-                        fontSize: 13,
-                        marginTop: 2,
-                      }}
-                    >
-                      {name === "ABC 주식회사"
-                        ? "IT 솔루션 전문 기업"
-                        : name === "XYZ 기업"
-                        ? "제조업 전문 기업"
-                        : name === "DEF 그룹"
-                        ? "금융 서비스 기업"
-                        : "스타트업 기술 기업"}
-                    </span>
-                    {selectedAddress === name && (
-                      <span
-                        style={{
-                          position: "absolute",
-                          right: 24,
-                          color: "#2563eb",
-                          fontWeight: 700,
-                        }}
-                      >
-                        ✓
-                      </span>
-                    )}
-                  </div>
-                )
-              )}
-            </div>
-            <div
-              style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}
-            >
-              <button
-                onClick={handleAddressModalClose}
-                style={{
-                  background: "#f3f4f6",
-                  color: "#374151",
-                  border: "none",
-                  borderRadius: 8,
-                  padding: "10px 28px",
-                  fontWeight: 500,
-                  fontSize: 15,
-                  cursor: "pointer",
-                }}
-              >
-                취소
-              </button>
-              <button
-                onClick={handleAddressConfirm}
-                style={{
-                  background: "#2563eb",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: 8,
-                  padding: "10px 28px",
-                  fontWeight: 700,
-                  fontSize: 15,
-                  cursor: selectedAddress ? "pointer" : "not-allowed",
-                  opacity: selectedAddress ? 1 : 0.5,
-                }}
-                disabled={!selectedAddress}
-              >
-                선택 완료
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
       {onRegisterClick && (
         <NewButton type="button" onClick={onRegisterClick}>
           <FiPlus size={18} />
           회사 등록
         </NewButton>
       )}
+      <ModalOverlay $isOpen={clientModalOpen} onClick={handleClientModalClose}>
+        <ClientModal
+          $isOpen={clientModalOpen}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <ModalHeader>
+            <ModalTitle>고객사 선택</ModalTitle>
+            <ModalSubtitle>
+              프로젝트를 진행할 고객사를 선택해주세요
+            </ModalSubtitle>
+          </ModalHeader>
+          <ModalBody>
+            <SearchInputWrapper>
+              <SearchIcon>
+                <FiSearch size={16} />
+              </SearchIcon>
+              <ModalSearchInput
+                placeholder="고객사명 또는 설명으로 검색..."
+                value={clientSearchTerm}
+                onChange={(e) => setClientSearchTerm(e.target.value)}
+                autoFocus
+              />
+            </SearchInputWrapper>
+            <ClientList>
+              {filteredClients.length > 0 ? (
+                filteredClients.map((client) => (
+                  <ClientItem
+                    key={client.value}
+                    $isSelected={selectedClient === client.value}
+                    onClick={() => handleClientSelect(client.value)}
+                  >
+                    <ClientInfo>
+                      <ClientName $isSelected={selectedClient === client.value}>
+                        {client.label}
+                      </ClientName>
+                      <ClientDescription>
+                        {client.description}
+                      </ClientDescription>
+                    </ClientInfo>
+                    <CheckIcon $isSelected={selectedClient === client.value}>
+                      <FiCheck size={16} />
+                    </CheckIcon>
+                  </ClientItem>
+                ))
+              ) : clientSearchTerm ? (
+                <NoResults>
+                  검색 결과가 없습니다.
+                  <br />
+                  다른 검색어를 입력해보세요.
+                </NoResults>
+              ) : (
+                <EmptyState>고객사 목록을 불러오는 중...</EmptyState>
+              )}
+            </ClientList>
+          </ModalBody>
+          <ModalFooter>
+            <ModalButton onClick={handleClientModalClose}>취소</ModalButton>
+            <ModalButton $primary onClick={handleClientConfirm}>
+              선택 완료
+            </ModalButton>
+          </ModalFooter>
+        </ClientModal>
+      </ModalOverlay>
     </FilterBar>
   );
 };
