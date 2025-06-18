@@ -173,7 +173,7 @@ export const ActionButton = styled.button<{ $primary?: boolean }>`
 
 export const SelectButton = styled.button<{
   $hasValue: boolean;
-  $status?: string;
+  $color?: string;
 }>`
   display: flex;
   align-items: center;
@@ -181,45 +181,53 @@ export const SelectButton = styled.button<{
   gap: 8px;
   min-width: 120px;
   width: 100%;
-  padding: 10px 14px;
+  max-width: 180px;
+  padding: 8px 12px;
+  background: ${({ $hasValue }) => ($hasValue ? "#f0f9ff" : "#ffffff")};
+  border: 2px solid
+    ${({ $hasValue, $color }) => ($hasValue ? $color || "#3b82f6" : "#e5e7eb")};
+  border-radius: 8px;
+  color: ${({ $hasValue, $color }) =>
+    $hasValue ? $color || "#1e40af" : "#374151"};
   font-size: 0.875rem;
   font-weight: 500;
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
-  background: #fff;
-  color: #374151;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: none;
-  appearance: none;
-  position: relative;
-  z-index: 1;
+  text-align: left;
+  min-width: 90px;
+
+  svg {
+    flex-shrink: 0;
+    color: ${({ $hasValue, $color }) =>
+      $hasValue ? $color || "#fdb924" : "#6b7280"};
+    transition: transform 0.2s ease;
+  }
+
+  &.open svg:first-child {
+    transform: rotate(180deg);
+  }
+
+  .select-value {
+    flex: 1;
+    font-weight: ${({ $hasValue }) => ($hasValue ? "600" : "500")};
+  }
 
   &:hover {
-    border-color: #d1d5db;
-    background-color: #f9fafb;
+    background: ${({ $hasValue, $color }) =>
+      $hasValue ? "#dbeafe" : "#f9fafb"};
+    border-color: ${({ $hasValue, $color }) =>
+      $hasValue ? $color || "#2563eb" : "#d1d5db"};
     transform: translateY(-1px);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
   &:focus {
     outline: none;
-    border-color: #fdb924;
-    box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.1);
-    background-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 
   &:active {
     transform: translateY(0);
-  }
-
-  /* 화살표 회전 스타일 */
-  svg:last-child {
-    transition: transform 0.2s ease;
-  }
-
-  &.open svg:last-child {
-    transform: rotate(180deg);
   }
 `;
 
@@ -240,15 +248,15 @@ export const SelectDropdown = styled.div<{ $isOpen: boolean }>`
 export const SelectOption = styled.div<{ $isSelected: boolean }>`
   padding: 10px 14px;
   font-size: 0.875rem;
-  color: ${({ $isSelected }) => ($isSelected ? "#fdb924" : "#374151")};
-  background: ${({ $isSelected }) => ($isSelected ? "#fef3c7" : "#fff")};
+  color: ${({ $isSelected }) => ($isSelected ? "#3b82f6" : "#374151")};
+  background: ${({ $isSelected }) => ($isSelected ? "#eff6ff" : "#fff")};
   font-weight: ${({ $isSelected }) => ($isSelected ? 600 : 400)};
   cursor: pointer;
   border-radius: 6px;
   transition: background 0.2s, color 0.2s;
   &:hover {
-    background: #f9fafb;
-    color: #fdb924;
+    background: #f3f4f6;
+    color: #111827;
   }
 `;
 

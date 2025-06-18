@@ -262,6 +262,17 @@ const CompanyFilterBar: React.FC<CompanyFilterBarProps> = ({
     return option ? option.label : "최근 등록 순";
   };
 
+  const getSortColor = (value: string) => {
+    switch (value) {
+      case "latest":
+        return "#f59e0b"; // 주황
+      case "name":
+        return "#3b82f6"; // 파랑
+      default:
+        return "#6b7280"; // 회색
+    }
+  };
+
   // 정렬 드롭다운 ESC/바깥 클릭 닫기
   useEffect(() => {
     if (!sortDropdownOpen) return;
@@ -313,6 +324,7 @@ const CompanyFilterBar: React.FC<CompanyFilterBarProps> = ({
               type="button"
               onClick={handleSortDropdownToggle}
               $hasValue={!!filters.sort}
+              $color={getSortColor(filters.sort)}
               className={sortDropdownOpen ? "open" : ""}
               style={{ paddingLeft: 10, paddingRight: 10, minWidth: 90 }}
             >

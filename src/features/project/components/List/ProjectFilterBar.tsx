@@ -253,7 +253,7 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
   const getSortColor = (value: string) => {
     switch (value) {
       case "latest":
-        return "#fdb924"; // 노랑
+        return "#f59e0b"; // 주황
       case "name":
         return "#3b82f6"; // 파랑
       case "status":
