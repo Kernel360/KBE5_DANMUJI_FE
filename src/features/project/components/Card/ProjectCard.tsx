@@ -90,7 +90,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
       <CardHeader>
         <CardTitle>{name}</CardTitle>
         <CardBadges>
-          <Badge $color={statusInfo.color}>
+          <Badge $color={statusInfo.color} $status={status}>
             {statusInfo.icon}
             {statusInfo.text}
           </Badge>

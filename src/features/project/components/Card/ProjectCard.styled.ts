@@ -1,4 +1,32 @@
-import styled from "styled-components";
+import styled, { keyframes, css } from "styled-components";
+
+const blinkAnimation = keyframes`
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0.3;
+  }
+`;
+
+const blinkBorderAnimation = keyframes`
+  0%, 50% {
+    border-color: ${({ $status }: { $status?: string }) =>
+      $status === "DELAYED"
+        ? "#ef4444"
+        : $status === "DUE_SOON"
+        ? "#f59e0b"
+        : "transparent"};
+  }
+  51%, 100% {
+    border-color: ${({ $status }: { $status?: string }) =>
+      $status === "DELAYED"
+        ? "#fca5a5"
+        : $status === "DUE_SOON"
+        ? "#fcd34d"
+        : "transparent"};
+  }
+`;
 
 export const ProjectCard = styled.div<{ $status?: string }>`
   background: #fff;
@@ -12,12 +40,12 @@ export const ProjectCard = styled.div<{ $status?: string }>`
   width: 100%;
   flex: 1 1 0;
   transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
-  border: ${({ $status }) =>
-    $status === "DELAYED"
-      ? "2px solid #ef4444"
-      : $status === "DUE_SOON"
-      ? "2px solid #f59e0b"
-      : "1px solid transparent"};
+  border: 2px solid transparent;
+  ${({ $status }) =>
+    ($status === "DELAYED" || $status === "DUE_SOON") &&
+    css`
+      animation: ${blinkBorderAnimation} 0.8s ease-in-out infinite;
+    `}
 
   &:hover {
     transform: translateY(-2px);
@@ -57,7 +85,7 @@ export const CardBadges = styled.div`
   gap: 6px;
 `;
 
-export const Badge = styled.span<{ $color: string }>`
+export const Badge = styled.span<{ $color: string; $status?: string }>`
   background: none;
   color: ${({ $color }) => $color};
   font-size: 0.85rem;
@@ -68,6 +96,11 @@ export const Badge = styled.span<{ $color: string }>`
   display: flex;
   align-items: center;
   gap: 4px;
+  ${({ $status }) =>
+    ($status === "DELAYED" || $status === "DUE_SOON") &&
+    css`
+      animation: ${blinkAnimation} 0.8s ease-in-out infinite;
+    `}
 `;
 
 export const CardBody = styled.div`
