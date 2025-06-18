@@ -16,6 +16,11 @@ import {
   ActionButton,
   NewButton,
   SelectButton,
+  CompanyList,
+  CompanyItem,
+  CompanyInfo,
+  CompanyName,
+  CompanyDescription,
 } from "./CompanyFilterBar.styled";
 import {
   ModalOverlay,
@@ -38,6 +43,7 @@ import {
   NoResults,
   EmptyState,
 } from "@/features/project/components/List/ProjectFilterBar.styled";
+import api from "@/api/axios";
 
 const SORT_OPTIONS = [
   { value: "latest", label: "최신순" },
@@ -46,7 +52,7 @@ const SORT_OPTIONS = [
 ];
 
 const CLIENT_OPTIONS = [
-  { value: "all", label: "전체 고객사", description: "모든 고객사" },
+  { value: "all", label: "회사 검색", description: "모든 회사" },
   { value: "abc", label: "ABC 주식회사", description: "IT 솔루션 전문 기업" },
   { value: "xyz", label: "XYZ 기업", description: "제조업 전문 기업" },
   { value: "def", label: "DEF 그룹", description: "금융 서비스 기업" },
@@ -61,6 +67,7 @@ interface CompanyFilterBarProps {
     sort: string;
     keyword: string;
     client: string;
+    companyId: number | null;
   };
   onInputChange: (field: string, value: string) => void;
   onSearch: () => void;
@@ -83,6 +90,14 @@ const CompanyFilterBar: React.FC<CompanyFilterBarProps> = ({
   const [clientModalOpen, setClientModalOpen] = useState(false);
   const [clientSearchTerm, setClientSearchTerm] = useState("");
   const [selectedClient, setSelectedClient] = useState(filters.client || "");
+  const [selectedCompany, setSelectedCompany] = useState<number | null>(
+    filters.companyId
+  );
+  const [companyModalOpen, setCompanyModalOpen] = useState(false);
+  const [companySearchTerm, setCompanySearchTerm] = useState("");
+  const [companies, setCompanies] = useState<any[]>([]);
+  const [companyLoading, setCompanyLoading] = useState(false);
+  const [companyError, setCompanyError] = useState<string | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
 
   const handleSearch = () => {
@@ -154,7 +169,7 @@ const CompanyFilterBar: React.FC<CompanyFilterBarProps> = ({
 
   const getClientLabel = (value: string) => {
     const option = CLIENT_OPTIONS.find((opt) => opt.value === value);
-    return option ? option.label : "전체 고객사";
+    return option ? option.label : "회사 검색";
   };
 
   const filteredClients = CLIENT_OPTIONS.filter(
@@ -162,6 +177,50 @@ const CompanyFilterBar: React.FC<CompanyFilterBarProps> = ({
       client.label.toLowerCase().includes(clientSearchTerm.toLowerCase()) ||
       client.description.toLowerCase().includes(clientSearchTerm.toLowerCase())
   );
+
+  // 회사 목록 불러오기
+  useEffect(() => {
+    if (!companyModalOpen) return;
+    setCompanyLoading(true);
+    setCompanyError(null);
+    api
+      .get("/api/companies?page=0&size=1000")
+      .then((res) => {
+        setCompanies(res.data.data.content || []);
+      })
+      .catch(() => {
+        setCompanyError("회사 목록을 불러오지 못했습니다.");
+      })
+      .finally(() => setCompanyLoading(false));
+  }, [companyModalOpen]);
+
+  // 검색어로 필터링
+  const filteredCompanies = companies.filter((company) => {
+    if (!companySearchTerm) return true;
+    const bizNo = String(company.bizNo).replace(/-/g, "");
+    return bizNo.includes(companySearchTerm.replace(/-/g, ""));
+  });
+
+  const handleCompanyModalOpen = () => {
+    setCompanySearchTerm("");
+    setSelectedCompany(filters.companyId);
+    setCompanyModalOpen(true);
+  };
+
+  const handleCompanyModalClose = () => {
+    setCompanyModalOpen(false);
+  };
+
+  const handleCompanySelect = (id: number) => {
+    setSelectedCompany(id);
+  };
+
+  const handleCompanyConfirm = () => {
+    if (selectedCompany !== null) {
+      onInputChange("companyId", selectedCompany);
+    }
+    setCompanyModalOpen(false);
+  };
 
   // ESC 키로 모달 닫기
   useEffect(() => {
@@ -207,77 +266,7 @@ const CompanyFilterBar: React.FC<CompanyFilterBarProps> = ({
             flexDirection: "column",
             justifyContent: "flex-end",
           }}
-        >
-          <FilterLabel style={{ marginBottom: 6 }}>주소 검색</FilterLabel>
-          <ModalOverlay
-            $isOpen={addressModalOpen}
-            onClick={handleAddressModalClose}
-          >
-            <ClientModal
-              $isOpen={addressModalOpen}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <ModalHeader>
-                <ModalTitle>고객사 선택</ModalTitle>
-                <ModalSubtitle>
-                  프로젝트를 진행할 고객사를 선택해주세요
-                </ModalSubtitle>
-              </ModalHeader>
-              <ModalBody>
-                <SearchInputWrapper>
-                  <SearchIcon>
-                    <FiSearch size={16} />
-                  </SearchIcon>
-                  <ModalSearchInput
-                    placeholder="고객사명 또는 설명으로 검색..."
-                    value={addressSearch}
-                    onChange={(e) => setAddressSearch(e.target.value)}
-                    autoFocus
-                  />
-                </SearchInputWrapper>
-                <ClientList>
-                  {addressResults.length > 0 ? (
-                    addressResults.map((addr) => (
-                      <ClientItem
-                        key={addr}
-                        $isSelected={selectedAddress === addr}
-                        onClick={() => handleAddressSelect(addr)}
-                      >
-                        <ClientInfo>
-                          <ClientName $isSelected={selectedAddress === addr}>
-                            {addr}
-                          </ClientName>
-                          <ClientDescription>
-                            {addr.split(" ").slice(1).join(" ")}
-                          </ClientDescription>
-                        </ClientInfo>
-                        <CheckIcon $isSelected={selectedAddress === addr}>
-                          <FiCheck size={16} />
-                        </CheckIcon>
-                      </ClientItem>
-                    ))
-                  ) : addressSearch ? (
-                    <NoResults>
-                      검색 결과가 없습니다.
-                      <br />
-                      다른 검색어를 입력해보세요.
-                    </NoResults>
-                  ) : (
-                    <EmptyState>고객사 목록을 불러오는 중...</EmptyState>
-                  )}
-                </ClientList>
-              </ModalBody>
-              <ModalFooter>
-                <ModalButton onClick={handleAddressModalClose}>
-                  취소
-                </ModalButton>
-                <ModalButton $primary onClick={handleAddressConfirm}>
-                  선택 완료
-                </ModalButton>
-              </ModalFooter>
-            </ClientModal>
-          </ModalOverlay>
-        </div>
+        ></div>
         <div
           style={{
             display: "flex",
@@ -287,16 +276,17 @@ const CompanyFilterBar: React.FC<CompanyFilterBarProps> = ({
         >
           <div style={{ display: "flex", alignItems: "flex-end", gap: "6px" }}>
             <FilterGroup>
-              <FilterLabel>고객사</FilterLabel>
+              <FilterLabel>회사 검색</FilterLabel>
               <SelectButton
                 type="button"
-                onClick={handleClientModalOpen}
-                $hasValue={!!filters.client}
+                onClick={handleCompanyModalOpen}
+                $hasValue={!!filters.companyId}
                 style={{ paddingLeft: 10, paddingRight: 10, minWidth: 90 }}
               >
                 <FiHome size={16} />
                 <span className="select-value">
-                  {getClientLabel(filters.client)}
+                  {companies.find((c) => c.id === filters.companyId)?.name ||
+                    "회사 검색"}
                 </span>
                 <FiChevronDown size={16} />
               </SelectButton>
@@ -310,15 +300,18 @@ const CompanyFilterBar: React.FC<CompanyFilterBarProps> = ({
           회사 등록
         </NewButton>
       )}
-      <ModalOverlay $isOpen={clientModalOpen} onClick={handleClientModalClose}>
+      <ModalOverlay
+        $isOpen={companyModalOpen}
+        onClick={handleCompanyModalClose}
+      >
         <ClientModal
-          $isOpen={clientModalOpen}
+          $isOpen={companyModalOpen}
           onClick={(e) => e.stopPropagation()}
         >
           <ModalHeader>
-            <ModalTitle>고객사 선택</ModalTitle>
+            <ModalTitle>회사 검색</ModalTitle>
             <ModalSubtitle>
-              프로젝트를 진행할 고객사를 선택해주세요
+              검색할 회사의 이름 또는 사업자 등록 번호를 입력해주세요
             </ModalSubtitle>
           </ModalHeader>
           <ModalBody>
@@ -327,47 +320,59 @@ const CompanyFilterBar: React.FC<CompanyFilterBarProps> = ({
                 <FiSearch size={16} />
               </SearchIcon>
               <ModalSearchInput
-                placeholder="고객사명 또는 설명으로 검색..."
-                value={clientSearchTerm}
-                onChange={(e) => setClientSearchTerm(e.target.value)}
+                placeholder="회사명 또는 사업자등록번호를 구분자 ' - ' 없이 입력..."
+                value={companySearchTerm}
+                onChange={(e) => setCompanySearchTerm(e.target.value)}
                 autoFocus
               />
             </SearchInputWrapper>
-            <ClientList>
-              {filteredClients.length > 0 ? (
-                filteredClients.map((client) => (
-                  <ClientItem
-                    key={client.value}
-                    $isSelected={selectedClient === client.value}
-                    onClick={() => handleClientSelect(client.value)}
+            <CompanyList>
+              {companyLoading ? (
+                <EmptyState>회사 목록을 불러오는 중...</EmptyState>
+              ) : companyError ? (
+                <NoResults>{companyError}</NoResults>
+              ) : filteredCompanies.length > 0 ? (
+                filteredCompanies.map((company) => (
+                  <CompanyItem
+                    key={company.id}
+                    $isSelected={selectedCompany === company.id}
+                    onClick={() => handleCompanySelect(company.id)}
                   >
-                    <ClientInfo>
-                      <ClientName $isSelected={selectedClient === client.value}>
-                        {client.label}
-                      </ClientName>
-                      <ClientDescription>
-                        {client.description}
-                      </ClientDescription>
-                    </ClientInfo>
-                    <CheckIcon $isSelected={selectedClient === client.value}>
+                    <CompanyInfo>
+                      <CompanyName $isSelected={selectedCompany === company.id}>
+                        {company.name}
+                      </CompanyName>
+                      <CompanyDescription
+                        $isSelected={selectedCompany === company.id}
+                      >
+                        사업자등록번호: {company.bizNo}
+                        <br />
+                        대표자: {company.ceoName}
+                      </CompanyDescription>
+                    </CompanyInfo>
+                    <CheckIcon $isSelected={selectedCompany === company.id}>
                       <FiCheck size={16} />
                     </CheckIcon>
-                  </ClientItem>
+                  </CompanyItem>
                 ))
-              ) : clientSearchTerm ? (
+              ) : companySearchTerm ? (
                 <NoResults>
                   검색 결과가 없습니다.
                   <br />
-                  다른 검색어를 입력해보세요.
+                  올바르게 입력했는지 확인해보세요.
                 </NoResults>
               ) : (
-                <EmptyState>고객사 목록을 불러오는 중...</EmptyState>
+                <EmptyState>회사 목록을 불러오는 중...</EmptyState>
               )}
-            </ClientList>
+            </CompanyList>
           </ModalBody>
           <ModalFooter>
-            <ModalButton onClick={handleClientModalClose}>취소</ModalButton>
-            <ModalButton $primary onClick={handleClientConfirm}>
+            <ModalButton onClick={handleCompanyModalClose}>취소</ModalButton>
+            <ModalButton
+              $primary
+              onClick={handleCompanyConfirm}
+              disabled={selectedCompany === null}
+            >
               선택 완료
             </ModalButton>
           </ModalFooter>

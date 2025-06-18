@@ -137,15 +137,8 @@ const TableCell = styled.td`
 `;
 
 const CompanyNameCell = styled(TableCell)`
-  cursor: pointer;
-  color: #2563eb;
+  color: #374151;
   font-weight: 500;
-  transition: color 0.2s ease;
-
-  &:hover {
-    color: #1d4ed8;
-    text-decoration: underline;
-  }
 `;
 
 const ActionButton = styled.button`
@@ -252,6 +245,15 @@ const EmptyText = styled.div`
   padding: 40px;
   color: #6b7280;
   font-size: 14px;
+`;
+
+const ClickableTableRow = styled(TableRow)`
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #f9fafb;
+  }
 `;
 
 export const formatBizNo = (bizNo: string) => {
@@ -507,17 +509,18 @@ export default function CompanyPage() {
             {!loading &&
               !error &&
               sortedCompanies.map((c) => (
-                <TableRow key={c.id}>
+                <ClickableTableRow
+                  key={c.id}
+                  onClick={() => handleCompanyClick(c)}
+                >
                   <TableCell>{c.id}</TableCell>
-                  <CompanyNameCell onClick={() => handleCompanyClick(c)}>
-                    {c.name}
-                  </CompanyNameCell>
+                  <CompanyNameCell>{c.name}</CompanyNameCell>
                   <TableCell>{formatBizNo(c.bizNo.toString())}</TableCell>
                   <TableCell>{c.address}</TableCell>
                   <TableCell>{c.ceoName}</TableCell>
                   <TableCell>{c.email}</TableCell>
                   <TableCell>{c.tel}</TableCell>
-                  <TableCell>
+                  <TableCell onClick={(e) => e.stopPropagation()}>
                     <ActionButton
                       onClick={() => {
                         setEditModalOpen(true);
@@ -530,7 +533,7 @@ export default function CompanyPage() {
                       삭제
                     </DeleteButton>
                   </TableCell>
-                </TableRow>
+                </ClickableTableRow>
               ))}
           </TableBody>
         </Table>

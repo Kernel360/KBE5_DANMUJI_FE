@@ -239,3 +239,52 @@ export const SelectOption = styled.div<{ $isSelected: boolean }>`
     color: #fdb924;
   }
 `;
+
+export const CompanyList = styled.div`
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+`;
+
+export const CompanyItem = styled.button<{ $isSelected: boolean }>`
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 12px 16px;
+  background: ${({ $isSelected }) => ($isSelected ? "#fefce8" : "transparent")};
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border-bottom: 1px solid #f3f4f6;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: ${({ $isSelected }) => ($isSelected ? "#fef9c3" : "#f9fafb")};
+  }
+
+  &:focus {
+    outline: none;
+    background: ${({ $isSelected }) => ($isSelected ? "#fef9c3" : "#f3f4f6")};
+  }
+`;
+
+export const CompanyInfo = styled.div`
+  flex: 1;
+`;
+
+export const CompanyName = styled.div<{ $isSelected: boolean }>`
+  font-size: 0.875rem;
+  font-weight: ${({ $isSelected }) => ($isSelected ? "600" : "500")};
+  color: ${({ $isSelected }) => ($isSelected ? "#ca8a04" : "#374151")};
+  margin-bottom: 2px;
+`;
+
+export const CompanyDescription = styled.div<{ $isSelected: boolean }>`
+  font-size: 0.75rem;
+  color: ${({ $isSelected }) => ($isSelected ? "#a16207" : "#6b7280")};
+`;

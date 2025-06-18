@@ -540,7 +540,9 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
                       <ClientName $isSelected={selectedClient === client.value}>
                         {client.label}
                       </ClientName>
-                      <ClientDescription>
+                      <ClientDescription
+                        $isSelected={selectedClient === client.value}
+                      >
                         {client.description}
                       </ClientDescription>
                     </ClientInfo>

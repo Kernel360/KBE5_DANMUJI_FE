@@ -605,7 +605,7 @@ export const ClientItem = styled.button<{ $isSelected: boolean }>`
   align-items: center;
   width: 100%;
   padding: 12px 16px;
-  background: ${({ $isSelected }) => ($isSelected ? "#f0f9ff" : "transparent")};
+  background: ${({ $isSelected }) => ($isSelected ? "#fefce8" : "transparent")};
   border: none;
   text-align: left;
   cursor: pointer;
@@ -617,12 +617,12 @@ export const ClientItem = styled.button<{ $isSelected: boolean }>`
   }
 
   &:hover {
-    background: ${({ $isSelected }) => ($isSelected ? "#dbeafe" : "#f9fafb")};
+    background: ${({ $isSelected }) => ($isSelected ? "#fef9c3" : "#f9fafb")};
   }
 
   &:focus {
     outline: none;
-    background: ${({ $isSelected }) => ($isSelected ? "#dbeafe" : "#f3f4f6")};
+    background: ${({ $isSelected }) => ($isSelected ? "#fef9c3" : "#f3f4f6")};
   }
 `;
 
@@ -633,17 +633,17 @@ export const ClientInfo = styled.div`
 export const ClientName = styled.div<{ $isSelected: boolean }>`
   font-size: 0.875rem;
   font-weight: ${({ $isSelected }) => ($isSelected ? "600" : "500")};
-  color: ${({ $isSelected }) => ($isSelected ? "#1e40af" : "#374151")};
+  color: ${({ $isSelected }) => ($isSelected ? "#ca8a04" : "#374151")};
   margin-bottom: 2px;
 `;
 
-export const ClientDescription = styled.div`
+export const ClientDescription = styled.div<{ $isSelected: boolean }>`
   font-size: 0.75rem;
-  color: #6b7280;
+  color: ${({ $isSelected }) => ($isSelected ? "#a16207" : "#6b7280")};
 `;
 
 export const CheckIcon = styled.div<{ $isSelected: boolean }>`
-  color: ${({ $isSelected }) => ($isSelected ? "#3b82f6" : "transparent")};
+  color: ${({ $isSelected }) => ($isSelected ? "#fdb924" : "transparent")};
   margin-left: 12px;
 `;
 
@@ -658,9 +658,9 @@ export const ModalFooter = styled.div`
 
 export const ModalButton = styled.button<{ $primary?: boolean }>`
   padding: 10px 20px;
-  border: 2px solid ${({ $primary }) => ($primary ? "#3b82f6" : "#d1d5db")};
+  border: 2px solid ${({ $primary }) => ($primary ? "#fdb924" : "#d1d5db")};
   border-radius: 8px;
-  background: ${({ $primary }) => ($primary ? "#3b82f6" : "#ffffff")};
+  background: ${({ $primary }) => ($primary ? "#fdb924" : "#ffffff")};
   color: ${({ $primary }) => ($primary ? "#ffffff" : "#374151")};
   font-size: 0.875rem;
   font-weight: 500;
@@ -668,15 +668,15 @@ export const ModalButton = styled.button<{ $primary?: boolean }>`
   transition: all 0.2s ease;
 
   &:hover {
-    background: ${({ $primary }) => ($primary ? "#2563eb" : "#f9fafb")};
-    border-color: ${({ $primary }) => ($primary ? "#2563eb" : "#9ca3af")};
+    background: ${({ $primary }) => ($primary ? "#f59e0b" : "#f9fafb")};
+    border-color: ${({ $primary }) => ($primary ? "#f59e0b" : "#9ca3af")};
     transform: translateY(-1px);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.1);
   }
 
   &:active {
