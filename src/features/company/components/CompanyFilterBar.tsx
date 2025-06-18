@@ -60,11 +60,9 @@ interface CompanyFilterBarProps {
 const CompanyFilterBar: React.FC<CompanyFilterBarProps> = ({
   filters,
   onInputChange,
-  onSearch,
-  onReset,
+
   onRegisterClick,
 }) => {
-  const [keyword, setKeyword] = useState(filters.keyword);
   const [addressModalOpen, setAddressModalOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<number | null>(
     filters.companyId
@@ -77,11 +75,6 @@ const CompanyFilterBar: React.FC<CompanyFilterBarProps> = ({
   const modalRef = useRef<HTMLDivElement>(null);
   const [sortDropdownOpen, setSortDropdownOpen] = useState(false);
   const sortDropdownRef = useRef<HTMLDivElement>(null);
-
-  const handleSearch = () => {
-    onInputChange("keyword", keyword);
-    onSearch();
-  };
 
   // 회사 목록 불러오기
   useEffect(() => {

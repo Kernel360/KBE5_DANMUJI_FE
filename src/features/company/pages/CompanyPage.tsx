@@ -32,19 +32,19 @@ export interface CompanyFormData {
 
 // styled-components
 const Container = styled.div`
-  padding: 32px;
+  padding: 32px 32px;
   background-color: #f9fafb;
   min-height: 100vh;
 `;
 
 const HeaderSection = styled.div`
-  margin-bottom: 32px;
+  margin-bottom: 24px;
 `;
 
 const Title = styled.h1`
   font-size: 1.4rem;
   font-weight: 700;
-  margin-bottom: 8px;
+  margin-bottom: -7px;
   padding-left: 16px;
   position: relative;
   color: #111827;
@@ -62,28 +62,9 @@ const Title = styled.h1`
 `;
 
 const Subtitle = styled.p`
-  color: #6b7280;
-  font-size: 16px;
-  margin-left: 8px;
-`;
-
-const RegisterButton = styled.button`
-  margin-left: auto;
-  background: #fdb924;
-  color: #fff;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: #f59e0b;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(253, 185, 36, 0.3);
-  }
+  color: #bdbdbd;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
 `;
 
 const TableContainer = styled.div`

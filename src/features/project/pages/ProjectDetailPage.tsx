@@ -16,10 +16,10 @@ const DetailPageContainer = styled.div`
 const PageTitle = styled.h1`
   font-size: 1.4rem;
   font-weight: 700;
-  margin-bottom: 24px;
+  margin-bottom: -7px;
   padding-left: 16px;
   position: relative;
-  color: #1f2937;
+  color: #111827;
 
   &::before {
     content: "";
@@ -34,10 +34,19 @@ const PageTitle = styled.h1`
   }
 `;
 
+const PageDescription = styled.p`
+  color: #bdbdbd;
+  font-size: 0.9rem;
+  margin-bottom: 18px;
+`;
+
 const ProjectDetailPage = () => {
   return (
     <DetailPageContainer>
       <PageTitle>프로젝트 상세</PageTitle>
+      <PageDescription>
+        프로젝트의 상세 정보와 진행 상황을 확인하세요.
+      </PageDescription>
       <div
         style={{
           display: "flex",

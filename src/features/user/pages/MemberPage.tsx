@@ -34,16 +34,19 @@ interface Company {
 
 // styled-components
 const Container = styled.div`
-  padding: 32px;
+  padding: 32px 32px;
   background-color: #f9fafb;
+  min-height: 100vh;
 `;
+
 const HeaderSection = styled.div`
-  margin-bottom: 32px;
+  margin-bottom: 24px;
 `;
+
 const Title = styled.h1`
   font-size: 1.4rem;
   font-weight: 700;
-  margin-bottom: 8px;
+  margin-bottom: -7px;
   padding-left: 16px;
   position: relative;
   color: #111827;
@@ -59,10 +62,13 @@ const Title = styled.h1`
     border-radius: 2px;
   }
 `;
+
 const Subtitle = styled.p`
-  color: #6b7280;
-  font-size: 14px;
+  color: #bdbdbd;
+  font-size: 0.9rem;
+  margin-bottom: 18px;
 `;
+
 const SearchSection = styled.div`
   display: flex;
   align-items: center;
