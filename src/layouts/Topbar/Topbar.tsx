@@ -27,7 +27,7 @@ export const Topbar: React.FC<TopbarProps> = ({
 
   const getPageTitle = () => {
     if (location.pathname === "/members") {
-      return "멤버 관리";
+      return "회원 관리";
     } else if (location.pathname.startsWith("/member/")) {
       return "회원 정보";
     } else if (location.pathname === "/dashboard") {

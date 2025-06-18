@@ -75,9 +75,9 @@ export const Sidebar: React.FC = () => {
             />
             <MenuItem
               icon={HiUsers}
-              text="멤버 관리"
+              text="회원 관리"
               isActive={location.pathname.startsWith("/member")}
-              onClick={() => handleMenuItemClick("멤버 관리", "/members")}
+              onClick={() => handleMenuItemClick("회원 관리", "/members")}
             />
             <MenuItem
               icon={FiHelpCircle}

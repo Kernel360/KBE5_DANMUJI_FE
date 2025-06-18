@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 export const ProjectListContainer = styled.div`
-  padding: 32px 24px;
+  padding: 32px 32px;
   min-height: 100vh;
 `;
 

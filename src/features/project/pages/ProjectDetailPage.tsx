@@ -10,7 +10,7 @@ const DetailPageContainer = styled.div`
   flex-direction: column;
   flex: 1;
   min-height: 100vh;
-  padding: 32px 24px;
+  padding: 32px 32px;
 `;
 
 const PageTitle = styled.h1`

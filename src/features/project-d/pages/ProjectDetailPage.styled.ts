@@ -9,7 +9,7 @@ export const PageContainer = styled.div`
 
 export const MainContentWrapper = styled.div`
   max-width: 1200px;
-  margin: 40px 20px;
+  margin: 40px 48px;
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
