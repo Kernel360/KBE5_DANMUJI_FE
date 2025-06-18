@@ -440,6 +440,10 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
                   dateFormat="yyyy-MM-dd"
                   placeholderText="시작일 선택"
                   inline
+                  onClickOutside={() => setStartDateOpen(false)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") setStartDateOpen(false);
+                  }}
                 />
               </div>
             )}
@@ -448,7 +452,7 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
                 style={{
                   position: "absolute",
                   top: "100%",
-                  right: 0,
+                  left: 0,
                   zIndex: 1000,
                   marginTop: "4px",
                 }}
@@ -467,6 +471,11 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
                   dateFormat="yyyy-MM-dd"
                   placeholderText="종료일 선택"
                   inline
+                  onClickOutside={() => setEndDateOpen(false)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") setEndDateOpen(false);
+                  }}
+                  popperPlacement="bottom-start"
                 />
               </div>
             )}

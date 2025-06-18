@@ -83,7 +83,7 @@ export const SearchInput = styled.input`
   border-radius: 10px;
   background-color: #ffffff;
   color: #374151;
-  transition: all 0.2s ease;
+  transition: all 0.1s ease;
   outline: none;
 
   &::placeholder {

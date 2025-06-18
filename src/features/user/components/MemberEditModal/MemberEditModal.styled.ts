@@ -72,8 +72,8 @@ export const Input = styled.input`
 
   &:focus {
     outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 1px #3b82f6;
+    border-color: #fdb924;
+    box-shadow: 0 0 0 2px rgba(253, 185, 36, 0.1);
   }
 `;
 
@@ -86,8 +86,8 @@ export const Select = styled.select`
 
   &:focus {
     outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 1px #3b82f6;
+    border-color: #fdb924;
+    box-shadow: 0 0 0 2px rgba(253, 185, 36, 0.1);
   }
 `;
 
@@ -108,11 +108,11 @@ export const Button = styled.button<{ $variant?: "primary" | "secondary" }>`
   ${(props) =>
     props.$variant === "primary"
       ? `
-    background-color: #3b82f6;
+    background-color: #fdb924;
     color: white;
 
     &:hover {
-      background-color: #2563eb;
+      background-color: #f59e0b;
     }
   `
       : `
@@ -123,4 +123,22 @@ export const Button = styled.button<{ $variant?: "primary" | "secondary" }>`
       background-color: #e5e7eb;
     }
   `}
-`; 
+`;
+
+export const RadioGroup = styled.div`
+  display: flex;
+  gap: 1.5rem;
+  padding: 0.25rem;
+`;
+
+export const RadioLabel = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+
+  input[type="radio"] {
+    accent-color: #fdb924;
+  }
+`;

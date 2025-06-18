@@ -126,7 +126,7 @@ export const SearchInput = styled.input`
   border-radius: 10px;
   background-color: #ffffff;
   color: #374151;
-  transition: all 0.2s ease;
+  transition: all 0.1s ease;
   outline: none;
 
   &::placeholder {
@@ -134,8 +134,8 @@ export const SearchInput = styled.input`
   }
 
   &:focus {
-    border-color: #4f46e5;
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    border-color: #fdb924;
+    box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.1);
   }
 
   &:hover {
@@ -556,12 +556,12 @@ export const ModalSearchInput = styled.input`
   font-size: 0.875rem;
   background: #ffffff;
   color: #374151;
-  transition: all 0.2s ease;
+  transition: all 0.1s ease;
 
   &:focus {
     outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    border-color: #fdb924;
+    box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.1);
   }
 
   &::placeholder {

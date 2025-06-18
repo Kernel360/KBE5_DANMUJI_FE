@@ -275,6 +275,8 @@ export const SearchInput = styled.input`
 
   &:focus {
     outline: none;
+    border-color: #fdb924;
+    box-shadow: 0 0 0 2px rgba(253, 185, 36, 0.1);
   }
 `;
 

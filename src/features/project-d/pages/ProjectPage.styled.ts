@@ -51,8 +51,8 @@ export const SearchInput = styled.input`
   outline: none;
   transition: border 0.2s;
   &:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 2px #3b82f633;
+    border-color: #fdb924;
+    box-shadow: 0 0 0 2px rgba(253, 185, 36, 0.1);
   }
 `;
 
