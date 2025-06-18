@@ -15,6 +15,20 @@ export const Title = styled.h1`
   font-weight: 700;
   color: #1f2937;
   margin-bottom: 4px;
+  padding-left: 16px;
+  position: relative;
+
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 24px;
+    background: #fdb924;
+    border-radius: 2px;
+  }
 `;
 
 export const Description = styled.p`
