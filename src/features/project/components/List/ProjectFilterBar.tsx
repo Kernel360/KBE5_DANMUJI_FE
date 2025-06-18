@@ -13,6 +13,7 @@ import {
   FiSearch,
   FiCheck,
   FiAlertCircle,
+  FiRotateCcw,
 } from "react-icons/fi";
 import {
   FilterBar,
@@ -57,6 +58,7 @@ import {
   StatusDropdownButton,
   StatusDropdownMenu,
   StatusDropdownItem,
+  NewButton,
 } from "./ProjectFilterBar.styled";
 
 const STATUS_MAP = {
@@ -124,9 +126,20 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
   const [clientSearchTerm, setClientSearchTerm] = useState("");
   const [selectedClient, setSelectedClient] = useState(filters.client);
   const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
-  const statusDropdownRef = useRef<HTMLDivElement>(null);
+  const [keywordType, setKeywordType] = useState("title");
+  const [keyword, setKeyword] = useState("");
 
+  const statusDropdownRef = useRef<HTMLDivElement>(null);
   const sortDropdownRef = useRef<HTMLDivElement>(null);
+
+  const handleSearch = () => {
+    onSearch();
+  };
+
+  const handleResetFilters = () => {
+    setKeyword("");
+    onReset();
+  };
 
   // 드롭다운 외부 클릭 시 닫기
   useEffect(() => {
@@ -445,21 +458,44 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
             )}
           </FilterGroup>
         </div>
-        <SearchRight style={{ flex: "none" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <SearchInput
-            placeholder="프로젝트명, 고객사, 담당자 검색..."
-            value={filters.keyword}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              onInputChange("keyword", e.target.value)
-            }
+            placeholder={"키워드별로검색해줄건가요?"}
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSearch();
+            }}
           />
-          <TopActions>
-            <ActionButton $primary onClick={onSearch}>
-              검색
-            </ActionButton>
-            <ActionButton onClick={onReset}>초기화</ActionButton>
-          </TopActions>
-        </SearchRight>
+          <NewButton
+            style={{
+              minWidth: "auto",
+              padding: "10px",
+              width: "40px",
+              height: "40px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+            onClick={handleSearch}
+          >
+            <FiSearch size={16} />
+          </NewButton>
+          <NewButton
+            onClick={handleResetFilters}
+            style={{
+              minWidth: "auto",
+              padding: "10px",
+              width: "40px",
+              height: "40px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <FiRotateCcw size={16} />
+          </NewButton>
+        </div>
       </FilterBar>
 
       {/* 고객사 선택 모달 */}

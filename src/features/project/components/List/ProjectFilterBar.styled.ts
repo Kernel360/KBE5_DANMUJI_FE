@@ -72,6 +72,42 @@ export const Select = styled.select`
   }
 `;
 
+export const NewButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: #f9fafb;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    border 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(107, 114, 128, 0.2);
+
+  &:hover {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    border-color: #fef3c7;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(251, 191, 36, 0.3);
+    color: #fff;
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(251, 191, 36, 0.2);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2);
+  }
+`;
+
 export const DateInput = styled.input`
   padding: 8px 12px;
   font-size: 0.95rem;
@@ -82,29 +118,28 @@ export const DateInput = styled.input`
 `;
 
 export const SearchInput = styled.input`
-  width: 180px;
-  min-width: 120px;
-  max-width: 220px;
-  height: 32px;
-  padding: 0 14px;
-  font-size: 0.98rem;
-  border: 1.5px solid #e5e7eb;
-  border-radius: 8px;
-  background: #fff;
-  color: #444;
-  font-weight: 500;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-  transition: border 0.2s;
-  appearance: none;
-  position: relative;
-  margin-right: 0;
-  &:focus {
-    border: 1.5px solid #fdb924;
-    outline: none;
-  }
+  flex: 1;
+  min-width: 200px;
+  padding: 10px 16px;
+  font-size: 14px;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  background-color: #ffffff;
+  color: #374151;
+  transition: all 0.2s ease;
+  outline: none;
+
   &::placeholder {
     color: #9ca3af;
-    font-size: 0.8rem;
+  }
+
+  &:focus {
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+  }
+
+  &:hover {
+    border-color: #d1d5db;
   }
 `;
 
