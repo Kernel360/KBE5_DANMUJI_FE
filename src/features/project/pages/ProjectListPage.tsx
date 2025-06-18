@@ -10,7 +10,7 @@ import type { Project } from "../types/Types";
 import ProjectFilterBar from "../components/List/ProjectFilterBar";
 import ProjectCard from "../components/Card/ProjectCard";
 
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 8;
 
 const mockProjects: Project[] = [
   {

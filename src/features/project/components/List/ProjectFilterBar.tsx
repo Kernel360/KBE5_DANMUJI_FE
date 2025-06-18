@@ -53,6 +53,10 @@ import {
   ModalButton,
   NoResults,
   EmptyState,
+  StatusDropdownContainer,
+  StatusDropdownButton,
+  StatusDropdownMenu,
+  StatusDropdownItem,
 } from "./ProjectFilterBar.styled";
 
 const STATUS_MAP = {
@@ -119,6 +123,8 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
   const [clientModalOpen, setClientModalOpen] = useState(false);
   const [clientSearchTerm, setClientSearchTerm] = useState("");
   const [selectedClient, setSelectedClient] = useState(filters.client);
+  const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
+  const statusDropdownRef = useRef<HTMLDivElement>(null);
 
   const sortDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -235,27 +241,71 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
       client.description.toLowerCase().includes(clientSearchTerm.toLowerCase())
   );
 
+  const handleStatusDropdownToggle = () => {
+    setStatusDropdownOpen((prev) => !prev);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        statusDropdownRef.current &&
+        !statusDropdownRef.current.contains(event.target as Node)
+      ) {
+        setStatusDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <DatePickerStyles>
       <FilterBar style={{ flexDirection: "column" }}>
         <div style={{ display: "flex", gap: 20, width: "100%" }}>
           <FilterGroup>
             <FilterLabel>프로젝트 상태</FilterLabel>
-            <StatusButtonGroup>
-              {Object.entries(STATUS_MAP).map(
-                ([value, { label, icon: Icon, color }]) => (
-                  <StatusButton
-                    key={value || "all"}
-                    $active={filters.status === value}
-                    $color={color}
-                    onClick={() => onInputChange("status", value)}
-                  >
-                    <Icon size={16} />
-                    <span>{label}</span>
-                  </StatusButton>
-                )
-              )}
-            </StatusButtonGroup>
+            <StatusDropdownContainer ref={statusDropdownRef}>
+              <StatusDropdownButton
+                type="button"
+                $active={!!filters.status}
+                $color={STATUS_MAP[filters.status || ""].color}
+                $isOpen={statusDropdownOpen}
+                onClick={handleStatusDropdownToggle}
+              >
+                {STATUS_MAP[filters.status || ""].icon &&
+                  React.createElement(STATUS_MAP[filters.status || ""].icon, {
+                    size: 16,
+                    color: STATUS_MAP[filters.status || ""].color,
+                    style: { marginRight: 4 },
+                  })}
+                <span>{STATUS_MAP[filters.status || ""].label}</span>
+                <FiChevronDown size={16} />
+              </StatusDropdownButton>
+              <StatusDropdownMenu $isOpen={statusDropdownOpen}>
+                {Object.entries(STATUS_MAP).map(
+                  ([value, { label, icon: Icon, color }]) => (
+                    <StatusDropdownItem
+                      key={value}
+                      $active={filters.status === value}
+                      $color={color}
+                      onClick={() => {
+                        onInputChange("status", value);
+                        setStatusDropdownOpen(false);
+                      }}
+                    >
+                      <Icon
+                        size={16}
+                        color={color}
+                        style={{ marginRight: 4 }}
+                      />
+                      <span>{label}</span>
+                    </StatusDropdownItem>
+                  )
+                )}
+              </StatusDropdownMenu>
+            </StatusDropdownContainer>
           </FilterGroup>
           <FilterGroup>
             <FilterLabel>프로젝트 기간</FilterLabel>

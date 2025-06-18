@@ -324,12 +324,17 @@ export const DatePickerStyles = styled.div`
   }
 `;
 
-export const SelectButton = styled.button<{ $hasValue: boolean }>`
+export const SelectButton = styled.button<{
+  $hasValue: boolean;
+  $status?: string;
+}>`
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+  min-width: 120px;
   width: 100%;
+  max-width: 180px;
   padding: 8px 10px;
   background: ${({ $hasValue }) => ($hasValue ? "#f0f9ff" : "#ffffff")};
   border: 2px solid ${({ $hasValue }) => ($hasValue ? "#3b82f6" : "#e5e7eb")};
@@ -344,7 +349,18 @@ export const SelectButton = styled.button<{ $hasValue: boolean }>`
 
   svg {
     flex-shrink: 0;
-    color: ${({ $hasValue }) => ($hasValue ? "#3b82f6" : "#6b7280")};
+    color: ${({ $hasValue, $status }) =>
+      !$hasValue || !$status
+        ? "#6b7280"
+        : $status === "IN_PROGRESS"
+        ? "#2563eb"
+        : $status === "COMPLETED"
+        ? "#059669"
+        : $status === "DELAYED"
+        ? "#ef4444"
+        : $status === "DUE_SOON"
+        ? "#f59e0b"
+        : "#6b7280"};
     transition: transform 0.2s ease;
   }
 
@@ -616,4 +632,108 @@ export const EmptyState = styled.div`
   text-align: center;
   color: #6b7280;
   font-size: 0.875rem;
+`;
+
+export const StatusDropdownContainer = styled.div`
+  position: relative;
+`;
+
+export const StatusDropdownButton = styled.button<{
+  $active: boolean;
+  $color: string;
+  $isOpen: boolean;
+}>`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: ${({ $active, $color }) => ($active ? `${$color}15` : "#ffffff")};
+  color: ${({ $active, $color }) => ($active ? $color : "#374151")};
+  border: 2px solid ${({ $active, $color }) => ($active ? $color : "#e5e7eb")};
+  padding: 8px 17px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: fit-content;
+  white-space: nowrap;
+
+  svg {
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+    transform: ${({ $isOpen }) =>
+      $isOpen ? "rotate(180deg)" : "rotate(0deg)"};
+  }
+
+  span {
+    font-weight: 500;
+  }
+
+  &:hover {
+    background: ${({ $active, $color }) =>
+      $active ? `${$color}25` : "#f9fafb"};
+    border-color: ${({ $active, $color }) => ($active ? $color : "#d1d5db")};
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px ${({ $color }) => `${$color}20`};
+  }
+`;
+
+export const StatusDropdownMenu = styled.div<{ $isOpen: boolean }>`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  opacity: ${({ $isOpen }) => ($isOpen ? 1 : 0)};
+  visibility: ${({ $isOpen }) => ($isOpen ? "visible" : "hidden")};
+  transform: ${({ $isOpen }) =>
+    $isOpen ? "translateY(0)" : "translateY(-10px)"};
+  transition: all 0.2s ease;
+  margin-top: 4px;
+`;
+
+export const StatusDropdownItem = styled.button<{
+  $active: boolean;
+  $color: string;
+}>`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px 12px;
+  background: ${({ $active, $color }) =>
+    $active ? `${$color}15` : "transparent"};
+  color: ${({ $active, $color }) => ($active ? $color : "#374151")};
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+
+  &:hover {
+    background: ${({ $active, $color }) =>
+      $active ? `${$color}25` : "#f9fafb"};
+  }
+
+  &:first-child {
+    border-radius: 6px 6px 0 0;
+  }
+
+  &:last-child {
+    border-radius: 0 0 6px 6px;
+  }
 `;
