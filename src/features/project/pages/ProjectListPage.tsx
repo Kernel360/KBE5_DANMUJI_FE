@@ -5,6 +5,10 @@ import {
   Title,
   Description,
   CardGrid,
+  PaginationContainer,
+  PaginationNav,
+  PaginationButton,
+  PaginationInfo,
 } from "./ProjectListPage.styled";
 import type { Project } from "../types/Types";
 import ProjectFilterBar from "../components/List/ProjectFilterBar";
@@ -297,59 +301,39 @@ export default function ProjectListPage() {
         ))}
       </CardGrid>
       {totalPages > 1 && (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            gap: "8px",
-            marginTop: "24px",
-          }}
-        >
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            style={{
-              padding: "8px 16px",
-              border: "1px solid #e5e7eb",
-              borderRadius: "6px",
-              background: currentPage === 1 ? "#f3f4f6" : "#fff",
-              color: currentPage === 1 ? "#9ca3af" : "#374151",
-              cursor: currentPage === 1 ? "not-allowed" : "pointer",
-            }}
-          >
-            이전
-          </button>
-          {getPageNumbers().map((pageNum) => (
-            <button
-              key={pageNum}
-              onClick={() => handlePageChange(pageNum)}
-              style={{
-                padding: "8px 16px",
-                border: "1px solid #e5e7eb",
-                borderRadius: "6px",
-                background: currentPage === pageNum ? "#fbbf24" : "#fff",
-                color: currentPage === pageNum ? "#fff" : "#374151",
-                cursor: "pointer",
-              }}
+        <PaginationContainer>
+          <PaginationNav>
+            <PaginationButton
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
             >
-              {pageNum}
-            </button>
-          ))}
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            style={{
-              padding: "8px 16px",
-              border: "1px solid #e5e7eb",
-              borderRadius: "6px",
-              background: currentPage === totalPages ? "#f3f4f6" : "#fff",
-              color: currentPage === totalPages ? "#9ca3af" : "#374151",
-              cursor: currentPage === totalPages ? "not-allowed" : "pointer",
-            }}
-          >
-            다음
-          </button>
-        </div>
+              이전
+            </PaginationButton>
+            {getPageNumbers().map((pageNum) => (
+              <PaginationButton
+                key={pageNum}
+                onClick={() => handlePageChange(pageNum)}
+                $active={currentPage === pageNum}
+              >
+                {pageNum}
+              </PaginationButton>
+            ))}
+            <PaginationButton
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              다음
+            </PaginationButton>
+          </PaginationNav>
+          <PaginationInfo>
+            총 {filteredProjects.length}개의 프로젝트 중{" "}
+            {filteredProjects.length > 0
+              ? (currentPage - 1) * PAGE_SIZE + 1
+              : 0}
+            -{Math.min(currentPage * PAGE_SIZE, filteredProjects.length)}개 표시
+            {filters.keyword && ` (검색어: "${filters.keyword}")`}
+          </PaginationInfo>
+        </PaginationContainer>
       )}
     </ProjectListContainer>
   );

@@ -34,3 +34,50 @@ export const CardGrid = styled.div`
     grid-template-columns: 1fr;
   }
 `;
+
+export const PaginationContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 0.5rem;
+  gap: 0.7rem;
+`;
+
+export const PaginationInfo = styled.div`
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.825rem;
+  margin-top: 0.75rem;
+  margin-bottom: 0.1rem;
+`;
+
+export const PaginationNav = styled.nav`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+`;
+
+export const PaginationButton = styled.button<{ $active?: boolean }>`
+  padding: 0.32rem 0.7rem;
+  border: none;
+  background: ${({ $active }) => ($active ? "#fdb924" : "#f9fafb")};
+  color: ${({ $active }) => ($active ? "#fff" : "#374151")};
+  border-radius: 1.2rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  box-shadow: none;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  outline: none;
+  &:hover:not(:disabled) {
+    background: #fbbf24;
+    color: #fff;
+  }
+  &:disabled {
+    background: #f3f4f6;
+    color: #9ca3af;
+    cursor: not-allowed;
+  }
+`;
