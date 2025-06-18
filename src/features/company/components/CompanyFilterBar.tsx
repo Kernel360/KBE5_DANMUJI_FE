@@ -180,86 +180,152 @@ const CompanyFilterBar: React.FC<CompanyFilterBarProps> = ({
           <div
             style={{
               background: "#fff",
-              borderRadius: 12,
+              borderRadius: 16,
               boxShadow: "0 4px 24px rgba(0,0,0,0.13)",
-              padding: 32,
-              minWidth: 340,
-              maxWidth: 420,
+              padding: 36,
+              minWidth: 480,
+              maxWidth: 540,
+              width: "100%",
+              display: "flex",
+              flexDirection: "column",
             }}
           >
-            <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 16 }}>
-              주소 검색
+            <div style={{ fontWeight: 700, fontSize: 22, marginBottom: 6 }}>
+              고객사 선택
             </div>
-            <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-              <input
-                type="text"
-                placeholder="도로명, 지번 등으로 검색"
-                value={addressSearch}
-                onChange={(e) => setAddressSearch(e.target.value)}
+            <div style={{ color: "#6b7280", fontSize: 15, marginBottom: 18 }}>
+              프로젝트를 진행할 고객사를 선택해주세요
+            </div>
+            <input
+              type="text"
+              placeholder="고객사명 또는 설명으로 검색..."
+              value={addressSearch}
+              onChange={(e) => setAddressSearch(e.target.value)}
+              style={{
+                padding: "12px 16px",
+                border: "1.5px solid #e5e7eb",
+                borderRadius: 8,
+                fontSize: 15,
+                marginBottom: 18,
+                outline: "none",
+                background: "#fff",
+              }}
+            />
+            <div
+              style={{
+                background: "#f8fafc",
+                borderRadius: 10,
+                border: "1.5px solid #e5e7eb",
+                overflow: "hidden",
+                marginBottom: 24,
+              }}
+            >
+              <div
+                onClick={() => handleAddressSelect("전체 회사")}
                 style={{
-                  flex: 1,
-                  padding: "8px 12px",
-                  border: "1px solid #e5e7eb",
-                  borderRadius: 6,
-                  fontSize: 15,
-                }}
-              />
-              <button
-                onClick={handleAddressSearch}
-                style={{
-                  background: "#fdb924",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: 6,
-                  padding: "8px 18px",
+                  padding: "16px 18px 8px 18px",
+                  background:
+                    selectedAddress === "전체 회사" ? "#f1f5ff" : "#f8fafc",
+                  color:
+                    selectedAddress === "전체 회사" ? "#2563eb" : "#2563eb",
                   fontWeight: 600,
-                  fontSize: 15,
+                  fontSize: 16,
                   cursor: "pointer",
+                  borderBottom: "1px solid #e5e7eb",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
                 }}
               >
-                검색
-              </button>
+                전체 회사
+                {selectedAddress === "전체 회사" && (
+                  <span
+                    style={{
+                      marginLeft: "auto",
+                      color: "#2563eb",
+                      fontWeight: 700,
+                    }}
+                  >
+                    ✓
+                  </span>
+                )}
+              </div>
+              <div
+                style={{
+                  color: "#9ca3af",
+                  fontSize: 13,
+                  padding: "0 18px 10px 18px",
+                  borderBottom: "1px solid #e5e7eb",
+                }}
+              >
+                모든 회사
+              </div>
+              {/* 실제 고객사 리스트 렌더링 */}
+              {["ABC 주식회사", "XYZ 기업", "DEF 그룹", "GHI 테크"].map(
+                (name, idx) => (
+                  <div
+                    key={name}
+                    onClick={() => handleAddressSelect(name)}
+                    style={{
+                      padding: "14px 18px 6px 18px",
+                      background:
+                        selectedAddress === name ? "#f1f5ff" : "#f8fafc",
+                      color: selectedAddress === name ? "#2563eb" : "#222",
+                      fontWeight: selectedAddress === name ? 700 : 500,
+                      fontSize: 16,
+                      cursor: "pointer",
+                      borderBottom: idx !== 3 ? "1px solid #e5e7eb" : undefined,
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 2,
+                    }}
+                  >
+                    <span>{name}</span>
+                    <span
+                      style={{
+                        color: "#9ca3af",
+                        fontWeight: 400,
+                        fontSize: 13,
+                        marginTop: 2,
+                      }}
+                    >
+                      {name === "ABC 주식회사"
+                        ? "IT 솔루션 전문 기업"
+                        : name === "XYZ 기업"
+                        ? "제조업 전문 기업"
+                        : name === "DEF 그룹"
+                        ? "금융 서비스 기업"
+                        : "스타트업 기술 기업"}
+                    </span>
+                    {selectedAddress === name && (
+                      <span
+                        style={{
+                          position: "absolute",
+                          right: 24,
+                          color: "#2563eb",
+                          fontWeight: 700,
+                        }}
+                      >
+                        ✓
+                      </span>
+                    )}
+                  </div>
+                )
+              )}
             </div>
             <div
-              style={{ maxHeight: 180, overflowY: "auto", marginBottom: 16 }}
+              style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}
             >
-              {addressResults.length === 0 && (
-                <div
-                  style={{ color: "#9ca3af", textAlign: "center", padding: 16 }}
-                >
-                  검색 결과가 없습니다.
-                </div>
-              )}
-              {addressResults.map((addr) => (
-                <div
-                  key={addr}
-                  onClick={() => handleAddressSelect(addr)}
-                  style={{
-                    padding: "8px 10px",
-                    borderRadius: 6,
-                    background: selectedAddress === addr ? "#fdb92422" : "#fff",
-                    color: selectedAddress === addr ? "#fdb924" : "#374151",
-                    fontWeight: selectedAddress === addr ? 600 : 400,
-                    cursor: "pointer",
-                    marginBottom: 2,
-                  }}
-                >
-                  {addr}
-                </div>
-              ))}
-            </div>
-            <div style={{ display: "flex", justifyContent: "flex-end" }}>
               <button
                 onClick={handleAddressModalClose}
                 style={{
                   background: "#f3f4f6",
                   color: "#374151",
                   border: "none",
-                  borderRadius: 6,
-                  padding: "6px 14px",
+                  borderRadius: 8,
+                  padding: "10px 28px",
                   fontWeight: 500,
-                  fontSize: 14,
-                  marginRight: 6,
+                  fontSize: 15,
                   cursor: "pointer",
                 }}
               >
@@ -268,18 +334,19 @@ const CompanyFilterBar: React.FC<CompanyFilterBarProps> = ({
               <button
                 onClick={handleAddressConfirm}
                 style={{
-                  background: "#fdb924",
+                  background: "#2563eb",
                   color: "#fff",
                   border: "none",
-                  borderRadius: 6,
-                  padding: "6px 18px",
-                  fontWeight: 600,
-                  fontSize: 14,
-                  cursor: "pointer",
+                  borderRadius: 8,
+                  padding: "10px 28px",
+                  fontWeight: 700,
+                  fontSize: 15,
+                  cursor: selectedAddress ? "pointer" : "not-allowed",
+                  opacity: selectedAddress ? 1 : 0.5,
                 }}
                 disabled={!selectedAddress}
               >
-                선택
+                선택 완료
               </button>
             </div>
           </div>
