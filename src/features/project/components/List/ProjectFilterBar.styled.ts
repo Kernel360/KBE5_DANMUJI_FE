@@ -11,8 +11,7 @@ export const FilterBar = styled.div`
   margin-bottom: 32px;
   align-items: flex-end;
   position: relative;
-  overflow-x: auto;
-  overflow-y: visible;
+  overflow: visible;
 `;
 
 export const FilterGroup = styled.div`
