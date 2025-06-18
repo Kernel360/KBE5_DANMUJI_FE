@@ -1,9 +1,9 @@
 import api from "@/api/axios";
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import MemberRegisterModal from '../components/MemberRegisterModal/MemberRegisterModal';
-import MemberEditModal from '../components/MemberEditModal/MemberEditModal';
-import styled from 'styled-components';
+import MemberRegisterModal from "../components/MemberRegisterModal/MemberRegisterModal";
+import MemberEditModal from "../components/MemberEditModal/MemberEditModal";
+import styled from "styled-components";
 
 export interface Member {
   id: number;
@@ -41,10 +41,23 @@ const HeaderSection = styled.div`
   margin-bottom: 32px;
 `;
 const Title = styled.h1`
-  font-size: 24px;
+  font-size: 1.4rem;
   font-weight: 700;
-  color: #1f2937;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
+  padding-left: 16px;
+  position: relative;
+  color: #111827;
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 1.4rem;
+    background: #fdb924;
+    border-radius: 2px;
+  }
 `;
 const Subtitle = styled.p`
   color: #6b7280;
@@ -149,7 +162,7 @@ const DeleteButton = styled.button`
 
 export const formatTelNo = (telNo: string) => {
   if (!telNo) return telNo;
-  const cleaned = ('' + telNo).replace(/\D/g, '');
+  const cleaned = ("" + telNo).replace(/\D/g, "");
   const match = cleaned.match(/^(\d{3})(\d{4})(\d{4})$/);
   if (match) {
     return `${match[1]}-${match[2]}-${match[3]}`;
@@ -158,7 +171,7 @@ export const formatTelNo = (telNo: string) => {
 };
 
 export default function MemberPage() {
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [members, setMembers] = useState<Member[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -190,7 +203,7 @@ export default function MemberPage() {
 
   const fetchCompanies = async () => {
     try {
-      const response = await api.get('/api/companies/all'); // 충분한 크기로 모든 회사 데이터를 가져옴
+      const response = await api.get("/api/companies/all"); // 충분한 크기로 모든 회사 데이터를 가져옴
       console.log("API Response for companies:", response.data);
       console.log("Companies content:", response.data.data);
       setCompanies(response.data.data);
@@ -205,12 +218,14 @@ export default function MemberPage() {
     fetchCompanies();
   }, []);
 
-  const filtered = members.filter(m => m.name.toLowerCase().includes(search.toLowerCase()));
+  const filtered = members.filter((m) =>
+    m.name.toLowerCase().includes(search.toLowerCase())
+  );
 
   const handleSearch = () => {
     fetchMembers();
   };
-  
+
   const handleEdit = async (data: MemberFormData) => {
     try {
       const memberToUpdate = {
@@ -228,7 +243,7 @@ export default function MemberPage() {
       alert("회원 정보가 성공적으로 수정되었습니다!");
       setEditModalOpen(false);
     } catch (error: unknown) {
-      console.error('Error updating member:', error);
+      console.error("Error updating member:", error);
       alert("회원 정보 수정 중 오류가 발생했습니다.");
     }
   };
@@ -238,43 +253,43 @@ export default function MemberPage() {
       const newMember = {
         ...data,
       };
-    // API 호출
-    const response = await api.post('/api/admin', newMember);
+      // API 호출
+      const response = await api.post("/api/admin", newMember);
 
-    // API 응답에서 username과 password 추출
-    const { username, password } = response.data.data;
+      // API 응답에서 username과 password 추출
+      const { username, password } = response.data.data;
 
-    // 텍스트 파일 생성 및 저장
-    const fileContent = `Username: ${username}\nPassword: ${password}`;
-    const blob = new Blob([fileContent], { type: 'text/plain' });
-    const fileUrl = URL.createObjectURL(blob);
+      // 텍스트 파일 생성 및 저장
+      const fileContent = `Username: ${username}\nPassword: ${password}`;
+      const blob = new Blob([fileContent], { type: "text/plain" });
+      const fileUrl = URL.createObjectURL(blob);
 
-    // 파일 다운로드 트리거
-    const link = document.createElement('a');
-    link.href = fileUrl;
-    link.download = 'member_credentials.txt';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+      // 파일 다운로드 트리거
+      const link = document.createElement("a");
+      link.href = fileUrl;
+      link.download = "member_credentials.txt";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
 
       fetchMembers();
       alert("회원 등록이 완료되었습니다!");
       setModalOpen(false);
     } catch (error: unknown) {
-      console.error('Error registering member:', error);
+      console.error("Error registering member:", error);
       alert("회원 등록 중 오류가 발생했습니다.");
     }
   };
 
   const handleDelete = async (memberId: number) => {
-    if (window.confirm('정말로 이 회원을 삭제하시겠습니까?')) {
+    if (window.confirm("정말로 이 회원을 삭제하시겠습니까?")) {
       try {
         // TODO: Replace with actual API call to delete member
         await api.delete(`/api/admin/${memberId}`);
         fetchMembers();
         alert("회원 삭제가 완료되었습니다!");
       } catch (error: unknown) {
-        console.error('Error deleting member:', error);
+        console.error("Error deleting member:", error);
         alert("회원 삭제 중 오류가 발생했습니다.");
       }
     }
@@ -291,7 +306,9 @@ export default function MemberPage() {
     <Container>
       <HeaderSection>
         <Title>회원 관리</Title>
-        <Subtitle>프로젝트 관리 시스템의 회원 정보를 한눈에 확인하세요.</Subtitle>
+        <Subtitle>
+          프로젝트 관리 시스템의 회원 정보를 한눈에 확인하세요.
+        </Subtitle>
       </HeaderSection>
       <SearchSection>
         <SearchInput
@@ -300,7 +317,7 @@ export default function MemberPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           onKeyPress={(e) => {
-            if (e.key === 'Enter') {
+            if (e.key === "Enter") {
               handleSearch();
             }
           }}
@@ -325,13 +342,17 @@ export default function MemberPage() {
             {filtered.map((member) => (
               <TableRow key={member.id}>
                 <TableCell
-                  style={{ cursor: 'pointer' }}
+                  style={{ cursor: "pointer" }}
                   onClick={() => handleMemberClick(member)}
                 >
                   {member.name}
                 </TableCell>
                 <TableCell>{member.username}</TableCell>
-                <TableCell>{companies && companies.find(c => c.id === member.companyId)?.name || 'N/A'}</TableCell>
+                <TableCell>
+                  {(companies &&
+                    companies.find((c) => c.id === member.companyId)?.name) ||
+                    "N/A"}
+                </TableCell>
                 <TableCell>{member.position}</TableCell>
                 <TableCell>{formatTelNo(member.phone)}</TableCell>
                 <TableCell>
@@ -369,4 +390,4 @@ export default function MemberPage() {
       )}
     </Container>
   );
-} 
+}

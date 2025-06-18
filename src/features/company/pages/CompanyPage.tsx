@@ -42,13 +42,12 @@ const HeaderSection = styled.div`
 `;
 
 const Title = styled.h1`
-  font-size: 28px;
+  font-size: 1.4rem;
   font-weight: 700;
-  color: #111827;
   margin-bottom: 8px;
-  position: relative;
   padding-left: 16px;
-
+  position: relative;
+  color: #111827;
   &::before {
     content: "";
     position: absolute;
@@ -56,7 +55,7 @@ const Title = styled.h1`
     top: 50%;
     transform: translateY(-50%);
     width: 4px;
-    height: 28px;
+    height: 1.4rem;
     background: #fdb924;
     border-radius: 2px;
   }

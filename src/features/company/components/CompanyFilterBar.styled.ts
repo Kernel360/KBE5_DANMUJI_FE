@@ -170,3 +170,72 @@ export const ActionButton = styled.button<{ $primary?: boolean }>`
     transform: translateY(0);
   }
 `;
+
+export const SelectButton = styled.button<{
+  $hasValue: boolean;
+  $status?: string;
+}>`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 120px;
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: none;
+  appearance: none;
+  position: relative;
+  z-index: 1;
+  &:hover {
+    border-color: #d1d5db;
+    background-color: #f9fafb;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  &:focus {
+    outline: none;
+    border-color: #fdb924;
+    box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.1);
+    background-color: #ffffff;
+  }
+  &:active {
+    transform: translateY(0);
+  }
+`;
+
+export const SelectDropdown = styled.div<{ $isOpen: boolean }>`
+  position: absolute;
+  top: 110%;
+  left: 0;
+  width: 100%;
+  min-width: 120px;
+  background: #fff;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  z-index: 10;
+  display: ${({ $isOpen }) => ($isOpen ? "block" : "none")};
+`;
+
+export const SelectOption = styled.div<{ $isSelected: boolean }>`
+  padding: 10px 14px;
+  font-size: 0.875rem;
+  color: ${({ $isSelected }) => ($isSelected ? "#fdb924" : "#374151")};
+  background: ${({ $isSelected }) => ($isSelected ? "#fef3c7" : "#fff")};
+  font-weight: ${({ $isSelected }) => ($isSelected ? 600 : 400)};
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+  &:hover {
+    background: #f9fafb;
+    color: #fdb924;
+  }
+`;

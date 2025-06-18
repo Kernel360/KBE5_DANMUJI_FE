@@ -1,11 +1,5 @@
 import React, { useState } from "react";
-import {
-  FiSearch,
-  FiRotateCcw,
-  FiPlus,
-  FiHome,
-  FiChevronDown,
-} from "react-icons/fi";
+import { FiSearch, FiRotateCcw, FiPlus, FiHome } from "react-icons/fi";
 import {
   FilterBar,
   FilterGroup,
@@ -122,17 +116,22 @@ const CompanyFilterBar: React.FC<CompanyFilterBarProps> = ({
             type="button"
             onClick={handleAddressModalOpen}
             style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
               padding: "10px 14px",
               border: "2px solid #e5e7eb",
               borderRadius: 8,
               background: "#fff",
               color: "#374151",
-              fontWeight: 500,
+              fontWeight: 400,
               fontSize: 14,
               cursor: "pointer",
-              minWidth: 140,
+              minWidth: 120,
+              maxWidth: 160,
             }}
           >
+            <FiHome size={16} />
             주소 검색
           </button>
         </div>
