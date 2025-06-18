@@ -71,4 +71,4 @@ const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
   );
 };
 
-export default CompanyDetailModal; 
+export default CompanyDetailModal;

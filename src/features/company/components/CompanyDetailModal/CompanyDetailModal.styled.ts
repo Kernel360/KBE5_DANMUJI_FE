@@ -81,4 +81,4 @@ export const DetailLabel = styled.span`
 export const DetailValue = styled.span`
   flex-grow: 1;
   color: #1f2937;
-`; 
+`;

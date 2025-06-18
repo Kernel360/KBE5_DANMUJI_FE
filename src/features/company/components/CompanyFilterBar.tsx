@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
   FiSearch,
-  FiRotateCcw,
   FiPlus,
   FiHome,
   FiChevronDown,
@@ -12,9 +11,6 @@ import {
   FilterBar,
   FilterGroup,
   FilterLabel,
-  Select,
-  SearchInput,
-  ActionButton,
   NewButton,
   SelectButton,
   SelectDropdown,
@@ -35,11 +31,6 @@ import {
   SearchInputWrapper,
   SearchIcon,
   ModalSearchInput,
-  ClientList,
-  ClientItem,
-  ClientInfo,
-  ClientName,
-  ClientDescription,
   CheckIcon,
   ModalFooter,
   ModalButton,
@@ -51,17 +42,6 @@ import api from "@/api/axios";
 const SORT_OPTIONS = [
   { value: "latest", label: "최근 등록 순" },
   { value: "name", label: "이름순" },
-];
-
-const CLIENT_OPTIONS = [
-  { value: "all", label: "회사 검색", description: "모든 회사" },
-  { value: "abc", label: "ABC 주식회사", description: "IT 솔루션 전문 기업" },
-  { value: "xyz", label: "XYZ 기업", description: "제조업 전문 기업" },
-  { value: "def", label: "DEF 그룹", description: "금융 서비스 기업" },
-  { value: "ghi", label: "GHI 테크", description: "스타트업 기술 기업" },
-  { value: "jkl", label: "JKL 시스템", description: "시스템 통합 전문" },
-  { value: "mno", label: "MNO 솔루션", description: "클라우드 솔루션 기업" },
-  { value: "pqr", label: "PQR 인더스트리", description: "중공업 전문 기업" },
 ];
 
 interface CompanyFilterBarProps {
@@ -86,12 +66,6 @@ const CompanyFilterBar: React.FC<CompanyFilterBarProps> = ({
 }) => {
   const [keyword, setKeyword] = useState(filters.keyword);
   const [addressModalOpen, setAddressModalOpen] = useState(false);
-  const [addressSearch, setAddressSearch] = useState("");
-  const [addressResults, setAddressResults] = useState<string[]>([]);
-  const [selectedAddress, setSelectedAddress] = useState<string>("");
-  const [clientModalOpen, setClientModalOpen] = useState(false);
-  const [clientSearchTerm, setClientSearchTerm] = useState("");
-  const [selectedClient, setSelectedClient] = useState(filters.client || "");
   const [selectedCompany, setSelectedCompany] = useState<number | null>(
     filters.companyId
   );
@@ -108,79 +82,6 @@ const CompanyFilterBar: React.FC<CompanyFilterBarProps> = ({
     onInputChange("keyword", keyword);
     onSearch();
   };
-
-  const handleResetFilters = () => {
-    setKeyword("");
-    onReset();
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleSearch();
-    }
-  };
-
-  const handleAddressModalOpen = () => {
-    setAddressSearch("");
-    setAddressResults([]);
-    setSelectedAddress("");
-    setAddressModalOpen(true);
-  };
-
-  const handleAddressModalClose = () => {
-    setAddressModalOpen(false);
-  };
-
-  const handleAddressSearch = () => {
-    // 임시: 검색어 포함하는 주소 리스트 반환
-    const dummy = [
-      "서울특별시 강남구 테헤란로 123",
-      "서울특별시 강남구 역삼동 456",
-      "경기도 성남시 분당구 판교로 789",
-      "부산광역시 해운대구 센텀중앙로 101",
-    ];
-    setAddressResults(dummy.filter((addr) => addr.includes(addressSearch)));
-  };
-
-  const handleAddressSelect = (addr: string) => {
-    setSelectedAddress(addr);
-  };
-
-  const handleAddressConfirm = () => {
-    onInputChange("address", selectedAddress);
-    setAddressModalOpen(false);
-  };
-
-  const handleClientModalOpen = () => {
-    setSelectedClient(filters.client || "");
-    setClientSearchTerm("");
-    setClientModalOpen(true);
-  };
-
-  const handleClientModalClose = () => {
-    setClientModalOpen(false);
-    setClientSearchTerm("");
-  };
-
-  const handleClientSelect = (value: string) => {
-    setSelectedClient(value);
-  };
-
-  const handleClientConfirm = () => {
-    onInputChange("client", selectedClient);
-    setClientModalOpen(false);
-  };
-
-  const getClientLabel = (value: string) => {
-    const option = CLIENT_OPTIONS.find((opt) => opt.value === value);
-    return option ? option.label : "회사 검색";
-  };
-
-  const filteredClients = CLIENT_OPTIONS.filter(
-    (client) =>
-      client.label.toLowerCase().includes(clientSearchTerm.toLowerCase()) ||
-      client.description.toLowerCase().includes(clientSearchTerm.toLowerCase())
-  );
 
   // 회사 목록 불러오기
   useEffect(() => {

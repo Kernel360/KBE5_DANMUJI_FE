@@ -400,12 +400,11 @@ export const SelectButton = styled.button<{
   width: 100%;
   max-width: 180px;
   padding: 8px 12px;
-  background: ${({ $hasValue }) => ($hasValue ? "#f0f9ff" : "#ffffff")};
+  background: ${({ $hasValue }) => ($hasValue ? "#fef3c7" : "#ffffff")};
   border: 2px solid
-    ${({ $hasValue, $color }) => ($hasValue ? $color || "#3b82f6" : "#e5e7eb")};
+    ${({ $hasValue, $color }) => ($hasValue ? "#fdb924" : "#e5e7eb")};
   border-radius: 8px;
-  color: ${({ $hasValue, $color }) =>
-    $hasValue ? $color || "#1e40af" : "#374151"};
+  color: ${({ $hasValue, $color }) => ($hasValue ? "#a16207" : "#374151")};
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
@@ -415,8 +414,7 @@ export const SelectButton = styled.button<{
 
   svg {
     flex-shrink: 0;
-    color: ${({ $hasValue, $color }) =>
-      $hasValue ? $color || "#fdb924" : "#6b7280"};
+    color: ${({ $hasValue, $color }) => ($hasValue ? "#fdb924" : "#6b7280")};
     transition: transform 0.2s ease;
   }
 
@@ -431,16 +429,16 @@ export const SelectButton = styled.button<{
 
   &:hover {
     background: ${({ $hasValue, $color }) =>
-      $hasValue ? "#dbeafe" : "#f9fafb"};
+      $hasValue ? "#fef9c3" : "#f9fafb"};
     border-color: ${({ $hasValue, $color }) =>
-      $hasValue ? $color || "#2563eb" : "#d1d5db"};
+      $hasValue ? "#fdb924" : "#d1d5db"};
     transform: translateY(-1px);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.1);
   }
 
   &:active {
