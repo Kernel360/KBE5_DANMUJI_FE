@@ -262,6 +262,47 @@ const CompanyFilterBar: React.FC<CompanyFilterBarProps> = ({
     return option ? option.label : "최근 등록 순";
   };
 
+  // 정렬 드롭다운 ESC/바깥 클릭 닫기
+  useEffect(() => {
+    if (!sortDropdownOpen) return;
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSortDropdownOpen(false);
+    };
+    const handleClick = (e: MouseEvent) => {
+      if (
+        sortDropdownRef.current &&
+        !sortDropdownRef.current.contains(e.target as Node)
+      ) {
+        setSortDropdownOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleEsc);
+    document.addEventListener("mousedown", handleClick);
+    return () => {
+      window.removeEventListener("keydown", handleEsc);
+      document.removeEventListener("mousedown", handleClick);
+    };
+  }, [sortDropdownOpen]);
+
+  // 회사검색 모달 ESC/바깥 클릭 닫기
+  useEffect(() => {
+    if (!companyModalOpen) return;
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setCompanyModalOpen(false);
+    };
+    const handleClick = (e: MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
+        setCompanyModalOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleEsc);
+    document.addEventListener("mousedown", handleClick);
+    return () => {
+      window.removeEventListener("keydown", handleEsc);
+      document.removeEventListener("mousedown", handleClick);
+    };
+  }, [companyModalOpen]);
+
   return (
     <FilterBar>
       <div style={{ display: "flex", alignItems: "flex-end", gap: "6px" }}>

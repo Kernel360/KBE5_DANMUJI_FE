@@ -66,7 +66,7 @@ const STATUS_MAP = {
   IN_PROGRESS: { label: "진행중", icon: FiClock, color: "#3b82f6" },
   COMPLETED: { label: "완료", icon: FiCheckCircle, color: "#10b981" },
   DELAYED: { label: "지연", icon: FiAlertTriangle, color: "#ef4444" },
-  DUE_SOON: { label: "마감임박", icon: FiAlertCircle, color: "#f59e42" },
+  DUE_SOON: { label: "기한임박", icon: FiAlertCircle, color: "#f59e42" },
 } as const;
 
 const CLIENT_OPTIONS = [

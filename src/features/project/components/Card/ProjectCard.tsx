@@ -16,8 +16,6 @@ import {
   FiClock,
   FiCheckCircle,
   FiAlertTriangle,
-  FiChevronRight,
-  FiEye,
   FiAlertCircle,
 } from "react-icons/fi";
 import { AiOutlineSelect } from "react-icons/ai";
@@ -74,7 +72,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
         };
       case "DUE_SOON":
         return {
-          text: "마감임박",
+          text: "기한임박",
           color: "#f59e0b",
           icon: <FiAlertCircle size={14} />,
         };

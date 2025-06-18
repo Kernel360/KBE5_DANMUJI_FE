@@ -260,10 +260,10 @@ export const DateButton = styled.button<{ $hasValue: boolean }>`
   gap: 8px;
   width: 100%;
   padding: 8px 12px;
-  background: ${({ $hasValue }) => ($hasValue ? "#f0f9ff" : "#ffffff")};
-  border: 2px solid ${({ $hasValue }) => ($hasValue ? "#3b82f6" : "#e5e7eb")};
+  background: ${({ $hasValue }) => ($hasValue ? "#fef3c7" : "#ffffff")};
+  border: 2px solid ${({ $hasValue }) => ($hasValue ? "#fdb924" : "#e5e7eb")};
   border-radius: 8px;
-  color: ${({ $hasValue }) => ($hasValue ? "#1e40af" : "#374151")};
+  color: ${({ $hasValue }) => ($hasValue ? "#a16207" : "#374151")};
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
@@ -272,7 +272,7 @@ export const DateButton = styled.button<{ $hasValue: boolean }>`
 
   svg {
     flex-shrink: 0;
-    color: ${({ $hasValue }) => ($hasValue ? "#3b82f6" : "#6b7280")};
+    color: ${({ $hasValue }) => ($hasValue ? "#fdb924" : "#6b7280")};
   }
 
   span:first-of-type {
@@ -283,7 +283,7 @@ export const DateButton = styled.button<{ $hasValue: boolean }>`
   .date-value {
     margin-left: auto;
     font-size: 0.8rem;
-    color: ${({ $hasValue }) => ($hasValue ? "#1e40af" : "#9ca3af")};
+    color: ${({ $hasValue }) => ($hasValue ? "#a16207" : "#9ca3af")};
     font-weight: 400;
     white-space: nowrap;
     word-break: keep-all;
@@ -291,15 +291,15 @@ export const DateButton = styled.button<{ $hasValue: boolean }>`
   }
 
   &:hover {
-    background: ${({ $hasValue }) => ($hasValue ? "#dbeafe" : "#f9fafb")};
-    border-color: ${({ $hasValue }) => ($hasValue ? "#2563eb" : "#d1d5db")};
+    background: ${({ $hasValue }) => ($hasValue ? "#fef9c3" : "#f9fafb")};
+    border-color: ${({ $hasValue }) => ($hasValue ? "#fdb924" : "#d1d5db")};
     transform: translateY(-1px);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.1);
   }
 
   &:active {
@@ -356,26 +356,26 @@ export const DatePickerStyles = styled.div`
     margin: 2px;
 
     &:hover {
-      background-color: #f3f4f6;
+      background-color: #fef3c7;
     }
   }
 
   .react-datepicker__day--selected {
-    background-color: #3b82f6;
+    background-color: #fdb924;
     color: white;
 
     &:hover {
-      background-color: #2563eb;
+      background-color: #f59e0b;
     }
   }
 
   .react-datepicker__day--in-range {
-    background-color: #dbeafe;
-    color: #1e40af;
+    background-color: #fef3c7;
+    color: #a16207;
   }
 
   .react-datepicker__day--keyboard-selected {
-    background-color: #3b82f6;
+    background-color: #fdb924;
     color: white;
   }
 
@@ -384,7 +384,7 @@ export const DatePickerStyles = styled.div`
   }
 
   .react-datepicker__navigation-icon::before {
-    border-color: #6b7280;
+    border-color: #a16207;
   }
 `;
 
@@ -485,8 +485,8 @@ export const SelectOption = styled.div<{ $isSelected: boolean }>`
   border-radius: 6px;
   transition: background 0.2s, color 0.2s;
   &:hover {
-    background: #f3f8ff;
-    color: #2563eb;
+    background: #f3f4f6;
+    color: #374151;
   }
 `;
 
