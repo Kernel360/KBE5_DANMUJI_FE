@@ -390,7 +390,7 @@ export const DatePickerStyles = styled.div`
 
 export const SelectButton = styled.button<{
   $hasValue: boolean;
-  $status?: string;
+  $color?: string;
 }>`
   display: flex;
   align-items: center;
@@ -401,9 +401,11 @@ export const SelectButton = styled.button<{
   max-width: 180px;
   padding: 8px 12px;
   background: ${({ $hasValue }) => ($hasValue ? "#f0f9ff" : "#ffffff")};
-  border: 2px solid ${({ $hasValue }) => ($hasValue ? "#3b82f6" : "#e5e7eb")};
+  border: 2px solid
+    ${({ $hasValue, $color }) => ($hasValue ? $color || "#3b82f6" : "#e5e7eb")};
   border-radius: 8px;
-  color: ${({ $hasValue }) => ($hasValue ? "#1e40af" : "#374151")};
+  color: ${({ $hasValue, $color }) =>
+    $hasValue ? $color || "#1e40af" : "#374151"};
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
@@ -413,19 +415,13 @@ export const SelectButton = styled.button<{
 
   svg {
     flex-shrink: 0;
-    color: ${({ $hasValue, $status }) =>
-      !$hasValue || !$status
-        ? "#6b7280"
-        : $status === "IN_PROGRESS"
-        ? "#2563eb"
-        : $status === "COMPLETED"
-        ? "#059669"
-        : $status === "DELAYED"
-        ? "#ef4444"
-        : $status === "DUE_SOON"
-        ? "#f59e0b"
-        : "#6b7280"};
+    color: ${({ $hasValue, $color }) =>
+      $hasValue ? $color || "#fdb924" : "#6b7280"};
     transition: transform 0.2s ease;
+  }
+
+  &.open svg:first-child {
+    transform: rotate(180deg);
   }
 
   .select-value {
@@ -434,8 +430,10 @@ export const SelectButton = styled.button<{
   }
 
   &:hover {
-    background: ${({ $hasValue }) => ($hasValue ? "#dbeafe" : "#f9fafb")};
-    border-color: ${({ $hasValue }) => ($hasValue ? "#2563eb" : "#d1d5db")};
+    background: ${({ $hasValue, $color }) =>
+      $hasValue ? "#dbeafe" : "#f9fafb"};
+    border-color: ${({ $hasValue, $color }) =>
+      $hasValue ? $color || "#2563eb" : "#d1d5db"};
     transform: translateY(-1px);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
@@ -447,10 +445,6 @@ export const SelectButton = styled.button<{
 
   &:active {
     transform: translateY(0);
-  }
-
-  &.open svg {
-    transform: rotate(180deg);
   }
 `;
 

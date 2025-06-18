@@ -194,20 +194,32 @@ export const SelectButton = styled.button<{
   appearance: none;
   position: relative;
   z-index: 1;
+
   &:hover {
     border-color: #d1d5db;
     background-color: #f9fafb;
     transform: translateY(-1px);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
+
   &:focus {
     outline: none;
     border-color: #fdb924;
     box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.1);
     background-color: #ffffff;
   }
+
   &:active {
     transform: translateY(0);
+  }
+
+  /* 화살표 회전 스타일 */
+  svg:last-child {
+    transition: transform 0.2s ease;
+  }
+
+  &.open svg:last-child {
+    transform: rotate(180deg);
   }
 `;
 

@@ -250,9 +250,28 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
     return option ? option.label : "최신순";
   };
 
+  const getSortColor = (value: string) => {
+    switch (value) {
+      case "latest":
+        return "#fdb924"; // 노랑
+      case "name":
+        return "#3b82f6"; // 파랑
+      case "status":
+        return "#10b981"; // 초록
+      case "client":
+        return "#8b5cf6"; // 보라
+      default:
+        return "#6b7280"; // 회색
+    }
+  };
+
   const getClientLabel = (value: string) => {
     const option = CLIENT_OPTIONS.find((opt) => opt.value === value);
     return option ? option.label : "전체 고객사";
+  };
+
+  const getClientColor = (value: string) => {
+    return value ? "#fdb924" : "#6b7280"; // 선택된 고객사면 노랑, 아니면 회색
   };
 
   // 고객사 검색 필터링
@@ -304,6 +323,7 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
                 type="button"
                 onClick={handleSortDropdownToggle}
                 $hasValue={!!filters.sort}
+                $color={getSortColor(filters.sort)}
                 className={sortDropdownOpen ? "open" : ""}
                 style={{ paddingLeft: 10, paddingRight: 10, minWidth: 90 }}
               >
@@ -375,6 +395,7 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
               type="button"
               onClick={handleClientModalOpen}
               $hasValue={!!filters.client}
+              $color={getClientColor(filters.client)}
               style={{ paddingLeft: 10, paddingRight: 10, minWidth: 90 }}
             >
               <FiHome size={16} />
