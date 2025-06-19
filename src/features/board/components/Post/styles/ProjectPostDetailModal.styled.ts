@@ -283,6 +283,7 @@ export const NoFilesMessage = styled.div`
   color: #6b7280;
   font-style: italic;
   font-size: 0.9rem;
+  margin-left: -1rem;
 `;
 
 export const CommentsSection = styled(Section)`

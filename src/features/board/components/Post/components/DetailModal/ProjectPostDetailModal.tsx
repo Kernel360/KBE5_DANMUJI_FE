@@ -66,12 +66,12 @@ import { useAuth } from "@/hooks/useAuth";
 import {
   FiUser,
   FiCalendar,
-  FiCheckCircle,
   FiFile,
   FiDownload,
   FiImage,
   FiFileText,
   FiFile as FiFileGeneric,
+  FiFlag,
 } from "react-icons/fi";
 
 interface PostDetailModalProps {
@@ -271,52 +271,67 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
     }
   };
 
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case "PENDING":
-        return "대기";
-      case "APPROVED":
-        return "승인";
-      case "REJECTED":
-        return "거부";
+  // 우선순위 텍스트 반환 함수
+  const getPriorityText = (priority: number) => {
+    switch (priority) {
+      case 1:
+        return "낮음";
+      case 2:
+        return "보통";
+      case 3:
+        return "높음";
+      case 4:
+        return "긴급";
       default:
-        return status;
+        return "낮음";
     }
   };
 
-  // 상태별 스타일 반환 함수
-  const getStatusStyle = (status: string) => {
-    switch (status) {
-      case "PENDING":
+  // 우선순위별 스타일 반환 함수
+  const getPriorityStyle = (priority: number) => {
+    switch (priority) {
+      case 1:
         return {
-          background: "#fef3c7",
-          color: "#d97706",
+          backgroundColor: "#dcfce7",
+          color: "#166534",
+          border: "1px solid #bbf7d0",
         };
-      case "APPROVED":
+      case 2:
         return {
-          background: "#d1fae5",
-          color: "#059669",
+          backgroundColor: "#fef3c7",
+          color: "#92400e",
+          border: "1px solid #fde68a",
         };
-      case "REJECTED":
+      case 3:
         return {
-          background: "#fee2e2",
+          backgroundColor: "#f3e8ff",
+          color: "#7c3aed",
+          border: "1px solid #e9d5ff",
+        };
+      case 4:
+        return {
+          backgroundColor: "#fee2e2",
           color: "#dc2626",
+          border: "1px solid #fecaca",
         };
       default:
         return {
-          background: "#f3f4f6",
-          color: "#6b7280",
+          backgroundColor: "#dcfce7",
+          color: "#166534",
+          border: "1px solid #bbf7d0",
         };
     }
   };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    const kstDate = new Date(date.getTime() + 9 * 60 * 60 * 1000);
-    return kstDate.toLocaleDateString("ko-KR", {
+    // UTC 시간에 9시간 추가 (한국 시간)
+    date.setHours(date.getHours() + 9);
+
+    return date.toLocaleDateString("ko-KR", {
       year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
+      month: "long",
+      day: "numeric",
       hour: "2-digit",
       minute: "2-digit",
     });
@@ -685,44 +700,6 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                     fontSize: "0.95rem",
                   }}
                 >
-                  <FiCheckCircle style={{ color: "#fdb924" }} /> 상태
-                </InfoKey>
-                <InfoValue
-                  style={{
-                    fontWeight: 600,
-                    fontSize: "0.95rem",
-                    color: "#111827",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                  }}
-                >
-                  <span
-                    style={{
-                      ...getStatusStyle(post.status),
-                      fontWeight: 600,
-                      fontSize: 13,
-                      borderRadius: 9999,
-                      padding: "2px 12px",
-                      marginLeft: 0,
-                      display: "inline-block",
-                    }}
-                  >
-                    {getStatusText(post.status)}
-                  </span>
-                </InfoValue>
-              </InfoRow>
-              <InfoRow>
-                <InfoKey
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6,
-                    color: "#6b7280",
-                    fontWeight: 500,
-                    fontSize: "0.95rem",
-                  }}
-                >
                   <FiCalendar style={{ color: "#fdb924" }} /> 작성일
                 </InfoKey>
                 <InfoValue
@@ -791,6 +768,44 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                   </span>
                 </InfoValue>
               </InfoRow>
+              <InfoRow>
+                <InfoKey
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    color: "#6b7280",
+                    fontWeight: 500,
+                    fontSize: "0.95rem",
+                  }}
+                >
+                  <FiFlag style={{ color: "#fdb924" }} /> 우선순위
+                </InfoKey>
+                <InfoValue
+                  style={{
+                    fontWeight: 600,
+                    fontSize: "0.95rem",
+                    color: "#111827",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                  }}
+                >
+                  <span
+                    style={{
+                      ...getPriorityStyle(post.priority),
+                      fontWeight: 600,
+                      fontSize: 13,
+                      borderRadius: 9999,
+                      padding: "2px 12px",
+                      marginLeft: 0,
+                      display: "inline-block",
+                    }}
+                  >
+                    {getPriorityText(post.priority)}
+                  </span>
+                </InfoValue>
+              </InfoRow>
             </InfoGrid>
 
             {/* 작업 설명 */}
@@ -848,7 +863,20 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                     ))
                 ) : (
                   <FileItem>
-                    <NoFilesMessage>첨부된 파일이 없습니다.</NoFilesMessage>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        padding: "-2px -2px -2px 12px",
+                      }}
+                    >
+                      <FiFile
+                        size={16}
+                        style={{ color: "#9ca3af", marginLeft: -10 }}
+                      />
+                      <NoFilesMessage>첨부된 파일이 없습니다.</NoFilesMessage>
+                    </div>
                   </FileItem>
                 )}
               </FileList>
