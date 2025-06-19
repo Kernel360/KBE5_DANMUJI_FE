@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, type JSX } from "react";
 import { getPostsByProjectStep } from "../../../project-d/services/postService";
 import type { PostSummaryReadResponse } from "../../../project-d/types/post";
 import {
@@ -39,8 +39,6 @@ import {
   FiAlertTriangle,
   FiGrid,
   FiPlus,
-  FiChevronLeft,
-  FiChevronRight,
 } from "react-icons/fi";
 import { POST_PRIORITY_LABELS } from "../../types/Types";
 import {
@@ -203,7 +201,7 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
     posts: PostSummaryReadResponse[],
     parentId: number | null = null,
     depth: number = 0
-  ) => {
+  ): JSX.Element[] => {
     return posts
       .filter((post) => post.parentId === parentId)
       .map((post) => [
@@ -250,8 +248,9 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
             </TypeBadge>
           </Td>
           <Td>
-            <StatusBadge priority={post.priority as any}>
-              {POST_PRIORITY_LABELS[post.priority as any]}
+            <StatusBadge priority={post.priority as PostPriority}>
+              {POST_PRIORITY_LABELS[post.priority as PostPriority] ??
+                post.priority}
             </StatusBadge>
           </Td>
           <Td>{formatDate(post.createdAt)}</Td>
