@@ -801,9 +801,9 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
             {/* 첨부 파일 */}
             <AttachmentsSection>
               <SectionTitle>첨부 파일</SectionTitle>
-              {post.files && post.files.length > 0 ? (
-                <FileList>
-                  {post.files.map((file: PostFile) => (
+              <FileList>
+                {post.files && post.files.length > 0 ? (
+                  post.files.map((file: PostFile) => (
                     <FileItem key={file.id}>
                       <FileInfo>
                         <FileIcon>{getFileIcon(file)}</FileIcon>
@@ -824,11 +824,13 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                         </FileActionButton>
                       </FileActions>
                     </FileItem>
-                  ))}
-                </FileList>
-              ) : (
-                <NoFilesMessage>첨부된 파일이 없습니다.</NoFilesMessage>
-              )}
+                  ))
+                ) : (
+                  <FileItem>
+                    <NoFilesMessage>첨부된 파일이 없습니다.</NoFilesMessage>
+                  </FileItem>
+                )}
+              </FileList>
             </AttachmentsSection>
 
             <div style={{ margin: "0 16px" }}>

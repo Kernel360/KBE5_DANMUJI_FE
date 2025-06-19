@@ -185,6 +185,7 @@ export const FileList = styled.ul`
   padding: 0;
   margin: 0;
   width: 100%;
+  max-width: 590px;
 `;
 
 export const FileItem = styled.li`
@@ -272,11 +273,10 @@ export const FileActionButton = styled.button`
 export const AttachmentsSection = styled.div`
   margin: 20px 16px 0 16px;
   padding-bottom: 1rem;
-  border-bottom: 1px solid #e5e7eb;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  max-width: 600px;
+  max-width: 538px;
   width: 100%;
   box-sizing: border-box;
 `;
