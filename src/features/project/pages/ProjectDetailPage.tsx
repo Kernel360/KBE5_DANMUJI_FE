@@ -70,6 +70,9 @@ const ProjectDetailPage = () => {
     useState<ProjectDetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedStepId, setSelectedStepId] = useState<number | undefined>(
+    undefined
+  );
 
   // 프로젝트 상세 정보 가져오기
   const fetchProjectDetail = async () => {
@@ -98,6 +101,13 @@ const ProjectDetailPage = () => {
   useEffect(() => {
     fetchProjectDetail();
   }, [projectId]);
+
+  const handleStepSelect = (stepId: number) => {
+    setSelectedStepId(stepId);
+    // 여기에 스텝 선택 시 추가 로직을 구현할 수 있습니다
+    // 예: 해당 스텝의 게시글만 필터링, 스텝별 상세 정보 표시 등
+    console.log(`Selected step: ${stepId}`);
+  };
 
   if (loading) {
     return (
@@ -144,10 +154,17 @@ const ProjectDetailPage = () => {
       >
         <ProjectHeader projectDetail={projectDetail} />
         {/* <ProjectMemberList projectDetail={projectDetail} /> */}
-        <ProjectProgress projectDetail={projectDetail} />
+        <ProjectProgress
+          projectDetail={projectDetail}
+          onStepSelect={handleStepSelect}
+          selectedStepId={selectedStepId}
+        />
         <div style={{ display: "flex", gap: 24, padding: "0 24px 24px" }}>
           <div style={{ flex: 2 }}>
-            <ProjectBoard projectDetail={projectDetail} />
+            <ProjectBoard
+              projectId={projectDetail.id}
+              selectedStepId={selectedStepId}
+            />
             {/* <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 24 }}>
                         <ProjectFileList />
                     </div> */}

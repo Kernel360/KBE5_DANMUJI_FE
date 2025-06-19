@@ -22,7 +22,7 @@ import {
   DropdownItem,
   DropdownContainer,
 } from "./ProjectBoard.styled";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import api from "@/api/axios";
 import type {
@@ -49,13 +49,18 @@ import {
   FiGrid,
   FiPlus,
 } from "react-icons/fi";
+import { FaChevronRight } from "react-icons/fa";
 
 interface ProjectBoardProps {
-  projectDetail: ProjectDetailResponse;
+  projectId: number;
+  selectedStepId?: number;
 }
 
-const ProjectBoard: React.FC<ProjectBoardProps> = ({ projectDetail }) => {
-  const { projectId } = useParams<{ projectId: string }>();
+const ProjectBoard: React.FC<ProjectBoardProps> = ({
+  projectId,
+  selectedStepId,
+}) => {
+  const { projectDetail } = useParams<{ projectId: string }>();
   const [steps, setSteps] = useState<StepList>([]);
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
@@ -111,25 +116,19 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({ projectDetail }) => {
     }
   };
 
-  // 필터링된 게시글
-  const filteredPosts = posts.filter((post) => {
-    // 유형 필터
-    if (typeFilter !== "ALL" && post.type !== typeFilter) return false;
-
-    // 우선순위 필터
-    if (priorityFilter !== "ALL" && post.priority !== priorityFilter)
-      return false;
-
-    // 키워드 필터
-    if (keyword) {
-      if (keywordType === "title" && !post.title.includes(keyword))
-        return false;
-      if (keywordType === "writer" && !post.authorName.includes(keyword))
-        return false;
+  // 선택된 스텝에 따른 게시글 필터링 (필요시 구현)
+  const filteredPosts = useMemo(() => {
+    if (!selectedStepId) {
+      return posts; // 스텝이 선택되지 않았으면 모든 게시글 표시
     }
 
-    return true;
-  });
+    // 선택된 스텝의 게시글만 필터링하는 로직
+    // 실제 구현시에는 게시글에 스텝 정보가 있어야 함
+    return posts.filter((post) => {
+      // 예시: post.stepId === selectedStepId
+      return true; // 현재는 모든 게시글 표시
+    });
+  }, [posts, selectedStepId]);
 
   useEffect(() => {
     fetchPosts();

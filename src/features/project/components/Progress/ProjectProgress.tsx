@@ -22,9 +22,15 @@ import type { ProjectDetailResponse } from "../../services/projectService";
 
 interface ProjectProgressProps {
   projectDetail: ProjectDetailResponse;
+  onStepSelect?: (stepId: number) => void;
+  selectedStepId?: number;
 }
 
-const ProjectProgress: React.FC<ProjectProgressProps> = ({ projectDetail }) => {
+const ProjectProgress: React.FC<ProjectProgressProps> = ({
+  projectDetail,
+  onStepSelect,
+  selectedStepId,
+}) => {
   // 스텝 상태에 따른 아이콘 매핑
   const getStepIcon = (stepName: string) => {
     const name = stepName.toLowerCase();
@@ -60,6 +66,13 @@ const ProjectProgress: React.FC<ProjectProgressProps> = ({ projectDetail }) => {
 
   const currentStepIndex = getCurrentStepIndex();
 
+  // 스텝 클릭 핸들러
+  const handleStepClick = (stepId: number) => {
+    if (onStepSelect) {
+      onStepSelect(stepId);
+    }
+  };
+
   return (
     <Wrapper>
       <StepContainer>
@@ -67,25 +80,43 @@ const ProjectProgress: React.FC<ProjectProgressProps> = ({ projectDetail }) => {
           const isActive = step.projectStepStatus === "IN_PROGRESS";
           const isComplete = step.projectStepStatus === "COMPLETED";
           const isReached = index <= currentStepIndex || isComplete;
+          const isSelected = selectedStepId === step.id;
 
           const Icon = getStepIcon(step.name);
-          const iconColor = isComplete || isActive ? "#ffffff" : "#9ca3af";
 
           return (
             <React.Fragment key={step.id}>
-              <StepItem active={isActive} complete={isComplete}>
-                <StepIcon active={isActive} complete={isComplete}>
-                  <Icon size={18} color={iconColor} />
+              <StepItem
+                active={isActive || isSelected}
+                complete={isComplete}
+                onClick={() => handleStepClick(step.id)}
+                style={{
+                  cursor: onStepSelect ? "pointer" : "default",
+                  transform: isSelected ? "translateY(-2px)" : "none",
+                  boxShadow: isSelected ? "0 4px 12px rgba(0,0,0,0.1)" : "none",
+                }}
+              >
+                <StepIcon active={isActive || isSelected} complete={isComplete}>
+                  <Icon size={18} />
                 </StepIcon>
-                <StepTitle active={isActive} complete={isComplete}>
+                <StepTitle
+                  active={isActive || isSelected}
+                  complete={isComplete}
+                >
                   {step.name}
                 </StepTitle>
-                <StepStatus active={isActive} complete={isComplete}>
+                <StepStatus
+                  active={isActive || isSelected}
+                  complete={isComplete}
+                >
                   {getStepStatusText(step.projectStepStatus)}
                 </StepStatus>
               </StepItem>
               {index !== projectDetail.steps.length - 1 && (
-                <StepLine active={isActive} complete={isComplete} />
+                <StepLine
+                  active={isActive || isSelected}
+                  complete={isComplete}
+                />
               )}
             </React.Fragment>
           );
