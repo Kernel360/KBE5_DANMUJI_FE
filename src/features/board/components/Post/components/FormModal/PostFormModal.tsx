@@ -988,7 +988,6 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
                         gap: "6px",
                       }}
                     >
-                      <FiX size={16} />
                       취소
                     </div>
                   </CancelButton>
@@ -1004,20 +1003,14 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
                         <>
                           <div
                             className="spinner"
-                            style={{ width: "16px", height: "16px" }}
+                            style={{ width: "1px", height: "16px" }}
                           ></div>
                           처리 중...
                         </>
                       ) : mode === "create" ? (
-                        <>
-                          <FiSave size={16} />
-                          작성
-                        </>
+                        <>확인</>
                       ) : (
-                        <>
-                          <FiEdit3 size={16} />
-                          수정
-                        </>
+                        <>수정</>
                       )}
                     </div>
                   </SubmitButton>

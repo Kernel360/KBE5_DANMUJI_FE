@@ -29,7 +29,7 @@ const PostFormActions: React.FC<PostFormActionsProps> = ({
           취소
         </CancelButton>
         <SubmitButton type="submit" disabled={loading} onClick={onSubmit}>
-          {loading ? "처리 중..." : mode === "create" ? "작성" : "수정"}
+          {loading ? "처리 중..." : "확인"}
         </SubmitButton>
       </ButtonGroup>
     </>

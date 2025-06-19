@@ -1370,52 +1370,6 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
               </CommentsSection>
             </div>
           </ModalBody>
-          {/* 하단 버튼 영역 */}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "flex-end",
-              gap: "12px",
-              padding: "18px 24px 18px 24px",
-              borderTop: "1px solid #f3f4f6",
-              background: "#fff",
-            }}
-          >
-            <button
-              type="button"
-              onClick={onClose}
-              style={{
-                padding: "8px 20px",
-                fontSize: "1rem",
-                borderRadius: "6px",
-                border: "1px solid #e5e7eb",
-                background: "#f9fafb",
-                color: "#6b7280",
-                fontWeight: 500,
-                cursor: "pointer",
-                transition: "background 0.15s, color 0.15s",
-              }}
-            >
-              취소
-            </button>
-            <button
-              type="button"
-              onClick={onClose}
-              style={{
-                padding: "8px 20px",
-                fontSize: "1rem",
-                borderRadius: "6px",
-                border: "1px solid #fdb924",
-                background: "#fdb924",
-                color: "#fff",
-                fontWeight: 600,
-                cursor: "pointer",
-                transition: "background 0.15s, color 0.15s",
-              }}
-            >
-              확인
-            </button>
-          </div>
         </ModalPanel>
       </ModalOverlay>
       <QuestionAnswerModal

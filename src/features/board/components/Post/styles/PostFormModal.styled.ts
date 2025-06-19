@@ -178,7 +178,7 @@ export const ButtonGroup = styled.div`
 `;
 
 export const SubmitButton = styled.button`
-  padding: 0.75rem 1.5rem;
+  padding: 0.5rem 1rem;
   background: #fdb924;
   border: none;
   border-radius: 0.5rem;
@@ -202,7 +202,7 @@ export const SubmitButton = styled.button`
 `;
 
 export const CancelButton = styled.button`
-  padding: 0.75rem 1.5rem;
+  padding: 0.5rem 1rem;
   background: #f3f4f6;
   border: 1px solid #d1d5db;
   border-radius: 0.5rem;
