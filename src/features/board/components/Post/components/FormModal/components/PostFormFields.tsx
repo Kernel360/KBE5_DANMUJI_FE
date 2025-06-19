@@ -6,6 +6,8 @@ import {
   TextArea,
   Select,
   ErrorMessage,
+  RelativeTextareaWrapper,
+  ResizeGuide,
 } from "@/features/board/components/Post/styles/PostFormModal.styled";
 import { PostType, PostStatus } from "@/features/project-d/types/post";
 
@@ -93,15 +95,26 @@ const PostFormFields: React.FC<PostFormFieldsProps> = ({
 
       <FormGroup>
         <Label htmlFor="content">내용 *</Label>
-        <TextArea
-          id="content"
-          name="content"
-          value={formData.content}
-          onChange={onChange}
-          placeholder="게시글 내용을 입력하세요"
-          rows={8}
-          required
-        />
+        <RelativeTextareaWrapper>
+          <TextArea
+            id="content"
+            name="content"
+            value={formData.content}
+            onChange={onChange}
+            placeholder="게시글 내용을 입력하세요 (크기 조절 가능)"
+            rows={8}
+            required
+          />
+          <ResizeGuide>
+            <svg width="16" height="16" viewBox="0 0 18 18">
+              <path
+                d="M6 16h2v-2H6v2zm4 0h2v-4h-2v4zm4 0h2v-6h-2v6z"
+                fill="#bdbdbd"
+              />
+            </svg>
+            크기조절
+          </ResizeGuide>
+        </RelativeTextareaWrapper>
         {formErrors.content && (
           <ErrorMessage>{formErrors.content}</ErrorMessage>
         )}

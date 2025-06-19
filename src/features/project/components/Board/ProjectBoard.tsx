@@ -1,3 +1,6 @@
+import React, { useState, useEffect, type JSX } from "react";
+import { getPostsByProjectStep } from "../../../project-d/services/postService";
+import type { PostSummaryReadResponse } from "../../../project-d/types/post";
 import {
   Wrapper,
   Filters,
@@ -17,22 +20,11 @@ import {
   TitleText,
   CommentInfo,
   TypeBadge,
+  DropdownContainer,
   DropdownButton,
   DropdownMenu,
   DropdownItem,
-  DropdownContainer,
 } from "./ProjectBoard.styled";
-import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import api from "@/api/axios";
-import type {
-  Post,
-  StepList,
-  PostPriority,
-  ProjectDetailResponse,
-} from "../../types/Types";
-import { POST_PRIORITY_LABELS } from "../../types/Types";
-import ProjectPostDetailModal from "@/features/board/components/Post/components/DetailModal/ProjectPostDetailModal";
 import {
   FiFileText,
   FiUser,
@@ -48,71 +40,32 @@ import {
   FiGrid,
   FiPlus,
 } from "react-icons/fi";
+import { POST_PRIORITY_LABELS } from "../../types/Types";
+import {
+  PaginationContainer,
+  PaginationInfo,
+  PaginationNav,
+  PaginationButton,
+} from "@/features/board/components/Post/styles/PostListPage.styled";
+import ProjectPostDetailModal from "@/features/board/components/Post/components/DetailModal/ProjectPostDetailModal";
+import PostFormModal from "@/features/board/components/Post/components/FormModal/PostFormModal";
 
-// 임시 데이터ㄴ
-const posts: Post[] = [
-  {
-    id: 10,
-    step: "기획",
-    title: "데이터베이스 설계 완료 보고서",
-    writer: "이개발",
-    priority: "LOW",
-    type: "GENERAL",
-    createdAt: "2023.09.10",
-    comments: [{ id: 1 }, { id: 2 }],
-  },
-  {
-    id: 9,
-    step: "디자인",
-    title: "UI/UX 디자인 검토 요청",
-    writer: "최디자인",
-    priority: "MEDIUM",
-    type: "GENERAL",
-    createdAt: "2023.09.05",
-    comments: [],
-  },
-  {
-    id: 8,
-    step: "개발",
-    title: "API 개발 진행 상황 보고",
-    writer: "정백엔드",
-    priority: "HIGH",
-    type: "GENERAL",
-    createdAt: "2023.08.25",
-    comments: [{ id: 1 }],
-  },
-  {
-    id: 7,
-    step: "기획",
-    title: "프론트엔드 프레임워크 선정 보고서",
-    writer: "김프론트",
-    priority: "URGENT",
-    type: "QUESTION",
-    createdAt: "2023.08.18",
-    comments: [],
-  },
-  {
-    id: 6,
-    step: "기획",
-    title: "요구사항 정의서 v1.2",
-    writer: "이개발",
-    priority: "LOW",
-    type: "GENERAL",
-    createdAt: "2023.08.05",
-    comments: [{ id: 1 }, { id: 2 }, { id: 3 }],
-  },
-];
+interface ProjectBoardProps {
+  projectId: number;
+  selectedStepId?: number;
+}
 
-const ProjectBoard = () => {
-  const { projectId } = useParams<{ projectId: string }>();
-  const [steps, setSteps] = useState<StepList>([]);
+const ProjectBoard: React.FC<ProjectBoardProps> = ({
+  projectId,
+  selectedStepId,
+}) => {
+  const [posts, setPosts] = useState<PostSummaryReadResponse[]>([]);
   const [loading, setLoading] = useState(false);
-  const [selectedStep, setSelectedStep] = useState("");
-  const [selectedPriority, setSelectedPriority] = useState<PostPriority | "">(
-    ""
-  );
-  const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+
   // 게시글 유형 필터
   const [typeFilter, setTypeFilter] = useState<"ALL" | "GENERAL" | "QUESTION">(
     "ALL"
@@ -130,59 +83,76 @@ const ProjectBoard = () => {
   const [isPriorityDropdownOpen, setIsPriorityDropdownOpen] = useState(false);
   const [isKeywordDropdownOpen, setIsKeywordDropdownOpen] = useState(false);
 
-  const filteredPosts = posts;
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
+
+  // 게시글 작성 모달 상태
+  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
+  const [formModalMode, setFormModalMode] = useState<"create" | "edit">(
+    "create"
+  );
+  const [formModalPostId, setFormModalPostId] = useState<number | null>(null);
+  const [formModalParentId, setFormModalParentId] = useState<number | null>(
+    null
+  );
+
+  // fetchPosts 함수를 컴포넌트 레벨로 이동
+  const fetchPosts = async () => {
+    if (!selectedStepId) {
+      setPosts([]);
+      setTotalPages(0);
+      setTotalElements(0);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await getPostsByProjectStep(
+        projectId,
+        selectedStepId,
+        currentPage,
+        10
+      );
+      setPosts(response.content);
+      setTotalPages(response.page.totalPages);
+      setTotalElements(response.page.totalElements);
+    } catch (err) {
+      setError("게시글을 불러오는데 실패했습니다.");
+      console.error("게시글 조회 실패:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchSteps = async () => {
-      if (!projectId) return;
+    fetchPosts();
+  }, [projectId, selectedStepId, currentPage]);
 
-      try {
-        setLoading(true);
-        const response = await api.get<ProjectDetailResponse>(
-          `/api/projects/${projectId}`
-        );
+  // 필터링된 게시글
+  const filteredPosts = posts.filter((post) => {
+    // 유형 필터
+    if (typeFilter !== "ALL" && post.type !== typeFilter) return false;
 
-        const projectSteps = response.data.data.steps
-          .filter((step) => !step.isDeleted)
-          .sort((a, b) => a.stepOrder - b.stepOrder)
-          .map((step) => step.name);
+    // 우선순위 필터
+    if (priorityFilter !== "ALL" && post.priority !== priorityFilter)
+      return false;
 
-        setSteps(projectSteps);
-      } catch (error) {
-        console.error("단계 목록 불러오기 실패", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    // 키워드 필터
+    if (keyword) {
+      if (keywordType === "title" && !post.title.includes(keyword))
+        return false;
+      if (keywordType === "writer" && !post.authorName.includes(keyword))
+        return false;
+    }
 
-    fetchSteps();
-  }, [projectId]);
-
-  // 드롭다운 외부 클릭 시 닫기
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Element;
-      if (!target.closest(".dropdown-container")) {
-        setIsTypeDropdownOpen(false);
-        setIsPriorityDropdownOpen(false);
-        setIsKeywordDropdownOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+    return true;
+  });
 
   const handleRowClick = (postId: number) => {
     setSelectedPostId(postId);
-    setIsModalOpen(true);
-  };
-
-  const handleModalClose = () => {
-    setIsModalOpen(false);
-    setSelectedPostId(null);
+    setDetailModalOpen(true);
   };
 
   const handleResetFilters = () => {
@@ -192,7 +162,6 @@ const ProjectBoard = () => {
     setKeyword("");
   };
 
-  // 검색 함수 (임시)
   const handleSearch = () => {
     // 실제 검색 요청 로직 작성
     console.log("검색 요청:", keywordType, keyword);
@@ -226,6 +195,123 @@ const ProjectBoard = () => {
       }
       return !prev;
     });
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("ko-KR", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
+  // 게시글 작성 모달 핸들러
+  const handleCreatePost = () => {
+    setFormModalMode("create");
+    setFormModalPostId(null);
+    setFormModalParentId(null);
+    setIsFormModalOpen(true);
+  };
+
+  const handleEditPost = (postId: number) => {
+    setFormModalMode("edit");
+    setFormModalPostId(postId);
+    setFormModalParentId(null);
+    setIsFormModalOpen(true);
+  };
+
+  const handleReplyPost = (parentId: number) => {
+    setFormModalMode("create");
+    setFormModalPostId(null);
+    setFormModalParentId(parentId);
+    setIsFormModalOpen(true);
+  };
+
+  const handleFormModalClose = () => {
+    setIsFormModalOpen(false);
+    setFormModalPostId(null);
+    setFormModalParentId(null);
+  };
+
+  const handleFormModalSuccess = () => {
+    // 게시글 목록 새로고침
+    fetchPosts();
+  };
+
+  const handlePostDelete = (deletedPostId: number) => {
+    // 게시글 삭제 후 목록 새로고침
+    fetchPosts();
+  };
+
+  // 게시글 계층 렌더링 함수
+  const renderPosts = (
+    posts: PostSummaryReadResponse[],
+    parentId: number | null = null,
+    depth: number = 0
+  ): JSX.Element[] => {
+    return posts
+      .filter((post) => post.parentId === parentId)
+      .map((post) => [
+        <Tr
+          key={post.postId}
+          style={{
+            cursor: "pointer",
+          }}
+          onClick={() => handleRowClick(post.postId)}
+        >
+          <Td style={depth > 0 ? { paddingLeft: 32 * depth } : {}}>
+            <TitleText>
+              {depth > 0 && (
+                <>
+                  <span
+                    style={{
+                      color: "#fdb924",
+                      fontSize: "0.85em",
+                      fontWeight: 700,
+                      marginRight: 8,
+                    }}
+                  >
+                    ㄴ [답글]
+                  </span>
+                </>
+              )}
+              {post.title}
+            </TitleText>
+          </Td>
+          <Td>
+            {post.comments && post.comments.length > 0 ? (
+              <CommentInfo>댓글 {post.comments.length}</CommentInfo>
+            ) : (
+              ""
+            )}
+          </Td>
+          <Td>
+            <span>{post.authorName}</span>
+          </Td>
+          <Td>
+            <TypeBadge type={post.type as "GENERAL" | "QUESTION"}>
+              {post.type === "GENERAL" ? "일반" : "질문"}
+            </TypeBadge>
+          </Td>
+          <Td>
+            <StatusBadge priority={post.priority as PostPriority}>
+              {POST_PRIORITY_LABELS[post.priority as PostPriority] ??
+                post.priority}
+            </StatusBadge>
+          </Td>
+          <Td>{formatDate(post.createdAt)}</Td>
+        </Tr>,
+        // 답글(자식)도 재귀적으로 렌더링
+        ...renderPosts(posts, post.postId, depth + 1),
+      ])
+      .flat();
   };
 
   return (
@@ -486,7 +572,7 @@ const ProjectBoard = () => {
           </NewButton>
         </FilterLeft>
         <FilterSearchRight>
-          <NewButton>
+          <NewButton onClick={handleCreatePost}>
             <FiPlus size={16} />
             게시글 작성
           </NewButton>
@@ -496,9 +582,8 @@ const ProjectBoard = () => {
       <Table>
         <Thead>
           <Tr>
-            <Th>번호</Th>
-            <Th>단계</Th>
             <Th>제목</Th>
+            <Th></Th>
             <Th>작성자</Th>
             <Th>유형</Th>
             <Th>우선순위</Th>
@@ -506,48 +591,107 @@ const ProjectBoard = () => {
           </Tr>
         </Thead>
         <Tbody>
-          {filteredPosts.map((post) => (
-            <Tr
-              key={post.id}
-              style={{ cursor: "pointer" }}
-              onClick={() => handleRowClick(post.id)}
-            >
-              <Td>{post.id}</Td>
-              <Td>{post.step}</Td>
-              <Td>
+          {loading ? (
+            <Tr>
+              <Td colSpan={6}>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "40px 24px",
+                    gap: "12px",
+                    color: "#6b7280",
+                    fontSize: "14px",
+                  }}
+                >
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  <span>게시글을 불러오는 중...</span>
+                </div>
+              </Td>
+            </Tr>
+          ) : error ? (
+            <Tr>
+              <Td colSpan={6}>
                 <div
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "space-between",
+                    justifyContent: "center",
+                    padding: "40px 24px",
+                    color: "#ef4444",
+                    fontSize: "14px",
                   }}
                 >
-                  <TitleText>{post.title}</TitleText>
-                  {post.comments && post.comments.length > 0 && (
-                    <CommentInfo>댓글 {post.comments.length}</CommentInfo>
-                  )}
+                  <span>게시글을 불러오는데 실패했습니다: {error}</span>
                 </div>
               </Td>
-              <Td>{post.writer}</Td>
-              <Td>
-                <TypeBadge type={post.type}>
-                  {post.type === "GENERAL" ? "일반" : "질문"}
-                </TypeBadge>
-              </Td>
-              <Td>
-                <StatusBadge priority={post.priority}>
-                  {POST_PRIORITY_LABELS[post.priority]}
-                </StatusBadge>
-              </Td>
-              <Td>{post.createdAt}</Td>
             </Tr>
-          ))}
+          ) : filteredPosts.length === 0 ? (
+            <Tr>
+              <Td colSpan={6}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "40px 24px",
+                    color: "#9ca3af",
+                    fontSize: "14px",
+                  }}
+                >
+                  <span>게시글이 없습니다.</span>
+                </div>
+              </Td>
+            </Tr>
+          ) : (
+            renderPosts(filteredPosts)
+          )}
         </Tbody>
       </Table>
+
+      {/* 페이지네이션 */}
+      {totalPages > 1 && (
+        <PaginationContainer>
+          <PaginationInfo>
+            {currentPage + 1} / {totalPages} 페이지
+          </PaginationInfo>
+          <PaginationNav>
+            <PaginationButton
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 0}
+            >
+              이전
+            </PaginationButton>
+            <PaginationButton
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages - 1}
+            >
+              다음
+            </PaginationButton>
+          </PaginationNav>
+        </PaginationContainer>
+      )}
+
       <ProjectPostDetailModal
-        open={isModalOpen}
-        onClose={handleModalClose}
+        open={detailModalOpen}
         postId={selectedPostId}
+        onClose={() => setDetailModalOpen(false)}
+        onEditPost={handleEditPost}
+        onReplyPost={handleReplyPost}
+        onPostDelete={handlePostDelete}
+      />
+
+      <PostFormModal
+        open={isFormModalOpen}
+        onClose={handleFormModalClose}
+        mode={formModalMode}
+        postId={formModalPostId ?? undefined}
+        parentId={formModalParentId ?? undefined}
+        projectId={projectId}
+        onSuccess={handleFormModalSuccess}
+        colorTheme={{ main: "#fdb924", sub: "#f59e0b" }}
       />
     </Wrapper>
   );

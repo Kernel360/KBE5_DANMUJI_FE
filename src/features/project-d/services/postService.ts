@@ -12,6 +12,10 @@ import type {
   PostType,
   PostPriority,
   PostUpdateRequest,
+  PostDetailReadResponse,
+  PostSummaryReadResponse,
+  PageResponse,
+  PostFile,
 } from "../types/post";
 import { getQuestionsByPost } from "./questionService";
 import { AxiosError } from "axios";
@@ -44,6 +48,12 @@ const handleApiResponse = async <T>(
     "댓글 생성 완료",
     "댓글 수정 완료",
     "댓글 삭제 완료",
+    "POST_CREATE_SUCCESS",
+    "POST_UPDATE_SUCCESS",
+    "POST_DELETE_SUCCESS",
+    "COMMENT_CREATE_SUCCESS",
+    "COMMENT_UPDATE_SUCCESS",
+    "COMMENT_DELETE_SUCCESS",
   ];
 
   // success가 false이고, 메시지가 성공 메시지가 아닌 경우에만 에러로 처리
@@ -59,17 +69,69 @@ const handleApiResponse = async <T>(
 
 // 게시글 생성
 export const createPost = async (
-  postData: PostCreateData
+  postData: PostCreateData,
+  files?: File[]
 ): Promise<ApiResponse<PostCreateResponse>> => {
   try {
+    // FormData 객체 생성
+    const formData = new FormData();
+
+    // JSON 데이터를 "data" 파트로 추가
+    const jsonData = {
+      projectId: postData.projectId,
+      stepId: postData.stepId,
+      title: postData.title,
+      content: postData.content,
+      type: postData.type,
+      status: postData.status,
+      priority: postData.priority,
+      ...(postData.parentId && { parentId: postData.parentId }),
+    };
+
+    formData.append(
+      "data",
+      new Blob([JSON.stringify(jsonData)], {
+        type: "application/json",
+      })
+    );
+
+    // 파일이 있는 경우 "files" 파트로 추가
+    if (files && files.length > 0) {
+      files.forEach((file) => {
+        formData.append("files", file);
+      });
+    }
+
+    console.log("=== createPost API 호출 ===");
+    console.log("요청 데이터:", jsonData);
+    console.log("파일 개수:", files?.length || 0);
+
     const response = await api.post<ApiResponse<PostCreateResponse>>(
       "/api/posts",
-      postData
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
     );
+
+    console.log("API 응답:", response);
+    console.log("응답 데이터:", response.data);
+    console.log("======================");
+
     return handleApiResponse<PostCreateResponse>(response);
   } catch (error) {
+    console.error("=== createPost 에러 ===");
+    console.error("에러:", error);
+
     if (error instanceof ApiError) throw error;
     if (error instanceof AxiosError) {
+      console.error(
+        "AxiosError:",
+        error.response?.data,
+        error.response?.status
+      );
       throw new ApiError(
         error.response?.data?.message || "게시글 생성 중 오류가 발생했습니다.",
         error.response?.status
@@ -210,13 +272,61 @@ export const getPostsWithComments = async (
 // 게시글 수정
 export const updatePost = async (
   postId: number,
-  postData: PostUpdateRequest
+  postData: PostUpdateRequest,
+  files?: File[]
 ): Promise<ApiResponse<Post>> => {
   try {
+    // FormData 객체 생성
+    const formData = new FormData();
+
+    // JSON 데이터를 "data" 파트로 추가
+    const jsonData = {
+      projectId: postData.projectId,
+      title: postData.title,
+      content: postData.content,
+      type: postData.type,
+      status: postData.status,
+      priority: postData.priority,
+      stepId: postData.stepId,
+      ...(postData.fileIdsToDelete &&
+        postData.fileIdsToDelete.length > 0 && {
+          fileIdsToDelete: postData.fileIdsToDelete,
+        }),
+    };
+
+    formData.append(
+      "data",
+      new Blob([JSON.stringify(jsonData)], {
+        type: "application/json",
+      })
+    );
+
+    // 새로 추가된 파일들을 "files" 파트로 추가
+    if (files && files.length > 0) {
+      files.forEach((file) => {
+        formData.append("files", file);
+      });
+    }
+
+    console.log("=== updatePost API 호출 ===");
+    console.log("요청 데이터:", jsonData);
+    console.log("새로 추가된 파일 개수:", files?.length || 0);
+    console.log("삭제할 파일 ID:", postData.fileIdsToDelete);
+
     const response = await api.put<ApiResponse<Post>>(
       `/api/posts/${postId}`,
-      postData
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
     );
+
+    console.log("API 응답:", response);
+    console.log("응답 데이터:", response.data);
+    console.log("======================");
+
     return handleApiResponse<Post>(response);
   } catch (error) {
     if (error instanceof ApiError) throw error;
@@ -426,5 +536,48 @@ export const searchPosts = async (
       );
     }
     throw new ApiError("게시글 검색 중 알 수 없는 오류가 발생했습니다.");
+  }
+};
+
+// 단계별 게시글 목록 조회 (댓글 포함)
+export const getPostsByProjectStep = async (
+  projectId: number,
+  stepId: number,
+  page: number = 0,
+  size: number = 10
+): Promise<PageResponse<PostSummaryReadResponse>> => {
+  try {
+    const response = await api.get<
+      ApiResponse<PageResponse<PostSummaryReadResponse>>
+    >(
+      `/api/posts/projects/${projectId}/steps/${stepId}?page=${page}&size=${size}`
+    );
+
+    // 각 게시글의 댓글 정보를 가져오기
+    const postsWithComments = await Promise.all(
+      response.data.data.content.map(async (post) => {
+        try {
+          const commentsResponse = await getComments(post.postId);
+          return {
+            ...post,
+            comments: commentsResponse.data || [],
+          };
+        } catch (error) {
+          console.error(`게시글 ${post.postId} 댓글 로드 실패:`, error);
+          return {
+            ...post,
+            comments: [],
+          };
+        }
+      })
+    );
+
+    return {
+      ...response.data.data,
+      content: postsWithComments,
+    };
+  } catch (error) {
+    console.error("단계별 게시글 조회 실패:", error);
+    throw error;
   }
 };

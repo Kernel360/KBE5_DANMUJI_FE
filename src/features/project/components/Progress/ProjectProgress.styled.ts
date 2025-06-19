@@ -23,7 +23,11 @@ export const StepContainer = styled.div`
   justify-content: center;
 `;
 
-export const StepItem = styled.div<{ active?: boolean; complete?: boolean }>`
+export const StepItem = styled.div<{
+  active?: boolean;
+  complete?: boolean;
+  selected?: boolean;
+}>`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -35,11 +39,32 @@ export const StepItem = styled.div<{ active?: boolean; complete?: boolean }>`
   position: relative;
   min-width: 56px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   gap: 2px;
+  padding: 8px;
+  border-radius: 8px;
+  outline: none;
+  border: 2px solid transparent;
+  box-sizing: border-box;
+
+  ${({ selected }) =>
+    selected &&
+    `
+      transform: scale(1.08) translateY(-8px);
+      z-index: 10;
+    `}
 
   &:hover {
     transform: translateY(-2px);
+    color: #fdb924;
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:focus {
+    outline: none;
   }
 `;
 
@@ -58,6 +83,21 @@ export const StepIcon = styled.div<{ active?: boolean; complete?: boolean }>`
   box-shadow: ${({ active }) => (active ? "0 0 0 3px #fef3c7" : "none")};
   transition: all 0.2s ease;
   position: relative;
+
+  svg {
+    color: ${({ complete, active }) =>
+      complete || active ? "#ffffff" : "#9ca3af"};
+    transition: color 0.2s ease;
+  }
+
+  ${StepItem}:hover & {
+    background: #fdb924;
+    box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.3);
+
+    svg {
+      color: white;
+    }
+  }
 `;
 
 export const StepLine = styled.div<{ active?: boolean; complete?: boolean }>`
@@ -70,6 +110,7 @@ export const StepLine = styled.div<{ active?: boolean; complete?: boolean }>`
   overflow: hidden;
   align-self: flex-start;
   margin-top: 19px;
+  transition: all 0.2s ease;
 `;
 
 export const StepTitle = styled.div<{ active?: boolean; complete?: boolean }>`
@@ -78,6 +119,11 @@ export const StepTitle = styled.div<{ active?: boolean; complete?: boolean }>`
   color: #6b7280;
   margin-bottom: 0;
   transition: all 0.2s ease;
+
+  ${StepItem}:hover & {
+    color: #fdb924;
+    font-weight: 600;
+  }
 `;
 
 export const StepStatus = styled.div<{ active?: boolean; complete?: boolean }>`
@@ -86,4 +132,8 @@ export const StepStatus = styled.div<{ active?: boolean; complete?: boolean }>`
     complete ? "#10b981" : active ? "#f59e0b" : "#9ca3af"};
   font-weight: 500;
   transition: all 0.2s ease;
+
+  ${StepItem}:hover & {
+    color: #fdb924;
+  }
 `;

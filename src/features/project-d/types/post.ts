@@ -17,6 +17,7 @@ export enum PostPriority {
   LOW = 1,
   MEDIUM = 2,
   HIGH = 3,
+  URGENT = 4,
 }
 
 // 작성자 타입
@@ -45,9 +46,11 @@ export type Comment = {
   deletedAt: unknown;
   id: number;
   postId: number;
-  parentCommentId: number | null;
+  parentId?: number | null;
   authorIp: string;
-  author: Author;
+  authorId?: number;
+  authorName?: string;
+  author?: Author;
   content: string;
   createdAt: string;
   updatedAt: string;
@@ -56,6 +59,7 @@ export type Comment = {
 
 // 게시글 생성 데이터 타입
 export type PostCreateData = {
+  projectId: number;
   title: string;
   content: string;
   type: PostType;
@@ -72,6 +76,7 @@ export type Post = {
   parentId: number | null;
   projectStepId: number;
   authorIp: string;
+  authorId: number;
   author: Author;
   approver?: Author;
   project?: Project;
@@ -89,6 +94,7 @@ export type Post = {
   questionCount?: number;
   isDeleted?: boolean;
   delete?: boolean;
+  files?: PostFile[];
 };
 
 // API 응답 타입
@@ -134,11 +140,14 @@ export type CommentResponse = ApiResponse<Comment>;
 
 // 게시글 수정 요청 데이터 타입
 export type PostUpdateRequest = {
+  projectId?: number;
   title?: string;
   content?: string;
   type?: PostType;
   status?: PostStatus;
   priority?: PostPriority;
+  stepId?: number;
+  fileIdsToDelete?: number[];
 };
 
 // 게시글 검색 요청 데이터 타입
@@ -154,3 +163,56 @@ export type PostSearchRequest = {
   startDate?: string;
   endDate?: string;
 };
+
+export interface PostFile {
+  id: number;
+  postId: number;
+  fileName: string;
+  fileUrl: string;
+  fileType: string;
+  fileSize: string;
+}
+
+export interface PostDetailReadResponse {
+  postId: number;
+  parentId: number | null;
+  projectId: number;
+  projectStepId: number;
+  authorIp: string;
+  authorId: number;
+  authorName: string;
+  title: string;
+  content: string;
+  type: string;
+  priority: string;
+  createdAt: string;
+  updatedAt: string;
+  files: PostFile[];
+  delete: boolean;
+}
+
+export interface PostSummaryReadResponse {
+  postId: number;
+  parentId: number | null;
+  projectId: number;
+  projectStepId: number;
+  authorId: number;
+  authorName: string;
+  title: string;
+  type: string;
+  priority: string;
+  createdAt: string;
+  comments?: Comment[];
+}
+
+export interface PageInfo {
+  size: number;
+  number: number;
+  totalElements: number;
+  totalPages: number;
+}
+
+export interface PageResponse<T> {
+  content: T[];
+  page: PageInfo;
+}

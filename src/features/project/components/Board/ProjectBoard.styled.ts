@@ -152,12 +152,78 @@ export const Th = styled.th`
   font-weight: 500;
   font-size: 13px;
   border-bottom: 1px solid #e5e7eb;
+
+  &:nth-child(1) {
+    /* 제목 */
+    width: 300px;
+    text-align: left;
+  }
+  &:nth-child(2) {
+    /* 댓글 */
+    width: 50px;
+    text-align: center;
+  }
+  &:nth-child(3) {
+    /* 작성자 */
+    width: 100px;
+    text-align: center;
+  }
+  &:nth-child(4) {
+    /* 유형 */
+    width: 65px;
+    text-align: center;
+  }
+  &:nth-child(5) {
+    /* 우선순위 */
+    width: 65px;
+    text-align: center;
+  }
+  &:nth-child(6) {
+    /* 작성일 */
+    width: 150px;
+    text-align: center;
+  }
 `;
 
 export const Td = styled.td`
   padding: 12px;
   color: #374151;
   border-bottom: 1px solid #f3f4f6;
+
+  &:nth-child(1) {
+    /* 제목 */
+    width: 300px;
+    max-width: 300px;
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  &:nth-child(2) {
+    /* 댓글 */
+    width: 50px;
+    text-align: center;
+  }
+  &:nth-child(3) {
+    /* 작성자 */
+    width: 100px;
+    text-align: center;
+  }
+  &:nth-child(4) {
+    /* 유형 */
+    width: 65px;
+    text-align: center;
+  }
+  &:nth-child(5) {
+    /* 우선순위 */
+    width: 65px;
+    text-align: center;
+  }
+  &:nth-child(6) {
+    /* 작성일 */
+    width: 150px;
+    text-align: center;
+  }
 `;
 
 export const StatusBadge = styled.span<{ priority: PostPriority }>`
@@ -191,7 +257,7 @@ export const TitleText = styled.span`
 export const CommentInfo = styled.span`
   color: #9ca3af;
   font-size: 0.78rem;
-  margin-left: 8px;
+  margin-right: 0;
 `;
 
 export const TypeBadge = styled.span<{ type: "GENERAL" | "QUESTION" }>`
@@ -253,6 +319,11 @@ export const StatusButton = styled.button<{ $active: boolean; $color: string }>`
   }
 `;
 
+export const DropdownContainer = styled.div`
+  position: relative;
+  display: inline-block;
+`;
+
 export const DropdownButton = styled.button<{
   $active: boolean;
   $color: string;
@@ -261,44 +332,32 @@ export const DropdownButton = styled.button<{
   display: flex;
   align-items: center;
   gap: 6px;
+  padding: 10px 16px;
   background: ${({ $active, $color }) => ($active ? `${$color}15` : "#ffffff")};
   color: ${({ $active, $color }) => ($active ? $color : "#374151")};
   border: 2px solid ${({ $active, $color }) => ($active ? $color : "#e5e7eb")};
-  padding: 8px 12px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  border-radius: 8px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  min-width: fit-content;
-  white-space: nowrap;
+  min-width: 120px;
+  justify-content: space-between;
 
   svg {
-    flex-shrink: 0;
-    transition: transform 0.3s ease;
-    transform: ${({ $isOpen }) =>
-      $isOpen ? "rotate(180deg)" : "rotate(0deg)"};
-  }
-
-  span {
-    font-weight: 500;
+    transition: transform 0.2s;
+    transform: ${({ $isOpen }) => ($isOpen ? "rotate(180deg)" : "none")};
   }
 
   &:hover {
     background: ${({ $active, $color }) =>
       $active ? `${$color}25` : "#f9fafb"};
     border-color: ${({ $active, $color }) => ($active ? $color : "#d1d5db")};
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-
-  &:active {
-    transform: translateY(0);
   }
 
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 3px ${({ $color }) => `${$color}20`};
+    box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.1);
   }
 `;
 
@@ -309,9 +368,9 @@ export const DropdownMenu = styled.div<{ $isOpen: boolean }>`
   right: 0;
   background: #ffffff;
   border: 2px solid #e5e7eb;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  z-index: 10;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
   opacity: ${({ $isOpen }) => ($isOpen ? 1 : 0)};
   visibility: ${({ $isOpen }) => ($isOpen ? "visible" : "hidden")};
   transform: ${({ $isOpen }) =>
@@ -320,38 +379,37 @@ export const DropdownMenu = styled.div<{ $isOpen: boolean }>`
   margin-top: 4px;
 `;
 
-export const DropdownItem = styled.button<{ $active: boolean; $color: string }>`
+export const DropdownItem = styled.div<{
+  $active: boolean;
+  $color: string;
+}>`
   display: flex;
   align-items: center;
-  gap: 6px;
-  width: 100%;
-  padding: 8px 12px;
-  background: ${({ $active, $color }) =>
-    $active ? `${$color}15` : "transparent"};
+  gap: 8px;
+  padding: 10px 16px;
+  background: ${({ $active, $color }) => ($active ? `${$color}15` : "#ffffff")};
   color: ${({ $active, $color }) => ($active ? $color : "#374151")};
   border: none;
-  font-size: 0.875rem;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  text-align: left;
 
   &:hover {
     background: ${({ $active, $color }) =>
       $active ? `${$color}25` : "#f9fafb"};
+    border: none;
   }
 
   &:first-child {
-    border-radius: 6px 6px 0 0;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
   }
 
   &:last-child {
-    border-radius: 0 0 6px 6px;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
   }
-`;
-
-export const DropdownContainer = styled.div`
-  position: relative;
 `;
 
 export const CreatePostButton = styled.button`
@@ -389,4 +447,181 @@ export const CreatePostButton = styled.button`
     outline: none;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
   }
+`;
+
+export const BoardContainer = styled.div`
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+`;
+
+export const BoardHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f9fafb;
+`;
+
+export const BoardTitle = styled.h2`
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+`;
+
+export const PostButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+
+  &:hover {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(37, 99, 235, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+`;
+
+export const PostList = styled.div`
+  padding: 0;
+`;
+
+export const PostItem = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid #f3f4f6;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #f9fafb;
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+`;
+
+export const PostContent = styled.div`
+  flex: 1;
+`;
+
+export const PostTitle = styled.h3`
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 4px 0;
+`;
+
+export const PostMeta = styled.div`
+  display: flex;
+  gap: 16px;
+  font-size: 14px;
+  color: #6b7280;
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+`;
+
+export const PostIcon = styled.div`
+  color: #9ca3af;
+  transition: color 0.2s ease;
+`;
+
+export const LoadingContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  gap: 12px;
+  color: #6b7280;
+  font-size: 14px;
+`;
+
+export const ErrorContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  color: #ef4444;
+  font-size: 14px;
+`;
+
+export const EmptyContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  color: #9ca3af;
+  font-size: 14px;
+`;
+
+export const PaginationContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 20px;
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+`;
+
+export const PaginationButton = styled.button<{ $disabled?: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: ${({ $disabled }) => ($disabled ? "#f3f4f6" : "#ffffff")};
+  color: ${({ $disabled }) => ($disabled ? "#9ca3af" : "#374151")};
+  font-size: 14px;
+  font-weight: 500;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  cursor: ${({ $disabled }) => ($disabled ? "not-allowed" : "pointer")};
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: #f9fafb;
+    border-color: #d1d5db;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.1);
+  }
+`;
+
+export const PaginationInfo = styled.span`
+  padding: 8px 12px;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 500;
 `;

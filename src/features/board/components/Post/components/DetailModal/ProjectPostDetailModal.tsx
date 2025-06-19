@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   ModalOverlay,
   ModalPanel,
@@ -26,21 +26,53 @@ import {
   InfoKey,
   InfoValue,
   QuestionAnswerStyledButton,
+  RelativeTextareaWrapper,
+  AttachmentsSection,
+  FileList,
+  FileItem,
+  FileInfo,
+  FileIcon,
+  FileDetails,
+  FileName,
+  FileMeta,
+  FileActions,
+  FileActionButton,
+  NoFilesMessage,
 } from "@/features/board/components/Post/styles/ProjectPostDetailModal.styled";
 import {
   getPostDetail,
   getComments,
-  createComment,
   deletePost,
   updateComment,
   deleteComment,
+  createComment,
 } from "@/features/project-d/services/postService";
-import type { Post, Comment } from "@/features/project-d/types/post";
+import type { Post, Comment, PostFile } from "@/features/project-d/types/post";
 import QuestionAnswerModal from "@/features/board/components/Question/components/QuestionAnswerModal/QuestionAnswerModal";
+import api from "@/api/axios";
 
-import { FaReply, FaEdit, FaTrash, FaComments } from "react-icons/fa";
+import {
+  FaReply,
+  FaEdit,
+  FaTrash,
+  FaComments,
+  FaFileWord,
+  FaFileExcel,
+  FaFilePowerpoint,
+  FaFileArchive,
+  FaFileAlt,
+} from "react-icons/fa";
 import { useAuth } from "@/hooks/useAuth";
-import { FiUser, FiCalendar, FiCheckCircle } from "react-icons/fi";
+import {
+  FiUser,
+  FiCalendar,
+  FiFile,
+  FiDownload,
+  FiImage,
+  FiFileText,
+  FiFile as FiFileGeneric,
+  FiFlag,
+} from "react-icons/fi";
 
 interface PostDetailModalProps {
   open: boolean;
@@ -108,6 +140,13 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
           try {
             const commentsResponse = await getComments(postId);
             if (commentsResponse.data) {
+              // 추가: 각 댓글의 작성자 이름과 IP 콘솔 출력
+              (Array.isArray(commentsResponse.data)
+                ? commentsResponse.data
+                : []
+              ).forEach((c) => {
+                console.log("댓글 작성자:", c.authorName, "IP:", c.authorIp);
+              });
               setComments(commentsResponse.data);
             }
           } catch (commentError) {
@@ -134,16 +173,13 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
 
     try {
       setSubmittingComment(true);
-      const response = await createComment(postId, commentText);
-
-      if (response.data) {
-        // 댓글 목록을 다시 불러오기
-        const commentsResponse = await getComments(postId);
-        if (commentsResponse.data) {
-          setComments(commentsResponse.data);
-        }
-        setCommentText("");
+      await createComment(postId, commentText);
+      // 댓글 목록을 다시 불러오기
+      const commentsResponse = await getComments(postId);
+      if (commentsResponse.data) {
+        setComments(commentsResponse.data);
       }
+      setCommentText("");
     } catch (error) {
       console.error("댓글 작성 중 오류:", error);
       alert("댓글 작성 중 오류가 발생했습니다.");
@@ -155,7 +191,9 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
   // 대댓글 생성 함수
   const handleReplyClick = (comment: Comment) => {
     setReplyingTo(comment.id);
-    setReplyText(`@${comment.author?.name || "알 수 없는 사용자"} `);
+    const authorName =
+      comment.authorName || comment.author?.name || "알 수 없는 사용자";
+    setReplyText(`@${authorName} `);
   };
 
   // 답글 등록
@@ -163,7 +201,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
     if (!replyText.trim() || !postId || replyingTo === null) return;
     try {
       setSubmittingReply(true);
-      await createComment(postId, replyText, replyingTo); // parentId는 남겨두되, UI는 평면
+      await createComment(postId, replyText, replyingTo);
       // 댓글 목록 새로고침
       const commentsResponse = await getComments(postId);
       setComments(commentsResponse.data || []);
@@ -228,52 +266,73 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
     }
   };
 
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case "PENDING":
-        return "대기";
-      case "APPROVED":
-        return "승인";
-      case "REJECTED":
-        return "거부";
+  // 우선순위 텍스트 반환 함수
+  const getPriorityText = (priority: number) => {
+    switch (priority) {
+      case 1:
+        return "낮음";
+      case 2:
+        return "보통";
+      case 3:
+        return "높음";
+      case 4:
+        return "긴급";
       default:
-        return status;
+        return "낮음";
     }
   };
 
-  // 상태별 스타일 반환 함수
-  const getStatusStyle = (status: string) => {
-    switch (status) {
-      case "PENDING":
+  // 우선순위별 스타일 반환 함수
+  const getPriorityStyle = (priority: number) => {
+    switch (priority) {
+      case 1:
         return {
-          background: "#fef3c7",
-          color: "#d97706",
+          backgroundColor: "#dcfce7",
+          color: "#166534",
+          border: "1px solid #bbf7d0",
         };
-      case "APPROVED":
+      case 2:
         return {
-          background: "#d1fae5",
-          color: "#059669",
+          backgroundColor: "#fef3c7",
+          color: "#92400e",
+          border: "1px solid #fde68a",
         };
-      case "REJECTED":
+      case 3:
         return {
-          background: "#fee2e2",
+          backgroundColor: "#f3e8ff",
+          color: "#7c3aed",
+          border: "1px solid #e9d5ff",
+        };
+      case 4:
+        return {
+          backgroundColor: "#fee2e2",
           color: "#dc2626",
+          border: "1px solid #fecaca",
         };
       default:
         return {
-          background: "#f3f4f6",
-          color: "#6b7280",
+          backgroundColor: "#dcfce7",
+          color: "#166534",
+          border: "1px solid #bbf7d0",
         };
     }
   };
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const kstDate = new Date(date.getTime() + 9 * 60 * 60 * 1000);
-    return kstDate.toLocaleDateString("ko-KR", {
+    let date;
+    if (dateString.includes("T")) {
+      // ISO 8601 (UTC) 문자열
+      date = new Date(dateString);
+    } else {
+      // 'YYYY-MM-DD HH:mm:ss' → 'YYYY-MM-DDTHH:mm:ssZ'로 변환 후 UTC로 파싱
+      date = new Date(dateString.replace(" ", "T") + "Z");
+    }
+    date.setHours(date.getHours() + 9);
+
+    return date.toLocaleDateString("ko-KR", {
       year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
+      month: "long",
+      day: "numeric",
       hour: "2-digit",
       minute: "2-digit",
     });
@@ -296,11 +355,11 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
 
     // 이 댓글을 부모로 하는 대댓글이 있는지 확인
     return comments.some((reply) => {
-      let parent = reply.parentCommentId;
+      let parent = reply.parentId;
       while (parent) {
         if (parent === comment.id) return true;
         const parentComment = comments.find((cc) => cc.id === parent);
-        parent = parentComment?.parentCommentId ?? null;
+        parent = parentComment?.parentId ?? null;
         if (!parent) return false;
       }
       return false;
@@ -312,29 +371,17 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
 
   // 렌더링되는 댓글 개수 계산
   const getRenderedCommentCount = () => {
-    const rootComments = visibleComments.filter(
-      (comment) => !comment.parentCommentId
-    );
-    let totalCount = 0;
-
-    rootComments.forEach((rootComment) => {
-      totalCount++; // 루트 댓글 카운트
-
-      // 이 댓글을 부모로 하는 모든 답글(1,2,3...depth) 카운트
-      const replies = visibleComments.filter((c) => {
-        let parent = c.parentCommentId;
-        while (parent) {
-          if (parent === rootComment.id) return true;
-          const parentComment = visibleComments.find((cc) => cc.id === parent);
-          parent = parentComment?.parentCommentId ?? null;
+    let count = 0;
+    const countComments = (comments: Comment[]) => {
+      comments.forEach((comment) => {
+        count++;
+        if (comment.children && comment.children.length > 0) {
+          countComments(comment.children);
         }
-        return false;
       });
-
-      totalCount += replies.length; // 답글들 카운트
-    });
-
-    return totalCount;
+    };
+    countComments(comments);
+    return count;
   };
 
   const renderedCommentCount = getRenderedCommentCount();
@@ -368,6 +415,79 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
       alert("댓글 삭제 중 오류가 발생했습니다.");
     }
   };
+
+  // 파일 아이콘 결정 함수 (확장자별로 알맞게)
+  const getFileIcon = (file: PostFile) => {
+    const name = file.fileName.toLowerCase();
+    const ext = name.split(".").pop();
+    const yellow = "#fdb924";
+    if (!ext) return <FiFile size={16} color={yellow} />;
+    if (["png", "jpg", "jpeg", "gif", "bmp", "webp", "svg"].includes(ext))
+      return <FiImage size={16} color={yellow} />;
+    if (["pdf"].includes(ext)) return <FiFileText size={16} color={yellow} />;
+    if (["doc", "docx", "docs"].includes(ext))
+      return <FaFileWord size={16} color={yellow} />;
+    if (["xls", "xlsx", "csv"].includes(ext))
+      return <FaFileExcel size={16} color={yellow} />;
+    if (["ppt", "pptx"].includes(ext))
+      return <FaFilePowerpoint size={16} color={yellow} />;
+    if (["hwp", "hwpx"].includes(ext))
+      return <FaFileAlt size={16} color={yellow} />;
+    if (["zip", "rar", "7z", "tar", "gz"].includes(ext))
+      return <FaFileArchive size={16} color={yellow} />;
+    if (["txt", "md", "rtf"].includes(ext))
+      return <FiFileText size={16} color={yellow} />;
+    return <FiFileGeneric size={16} color={yellow} />;
+  };
+
+  // 파일 크기 포맷 함수
+  const formatFileSize = (bytes: string) => {
+    const size = parseInt(bytes);
+    if (size === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(size) / Math.log(k));
+    return parseFloat((size / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+  };
+
+  // 파일 다운로드 함수 수정
+  const handleFileDownload = async (file: PostFile, postId: number) => {
+    try {
+      const response = await api.get(`/api/posts/${postId}/files/${file.id}`, {
+        responseType: "blob",
+      });
+      // 파일명 추출
+      const contentDisposition = response.headers["content-disposition"];
+      let fileName = file.fileName;
+      if (contentDisposition) {
+        const match = contentDisposition.match(/filename=\"(.+)\"/);
+        if (match && match[1]) fileName = decodeURIComponent(match[1]);
+      }
+      // 다운로드 처리
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      alert("파일 다운로드에 실패했습니다.");
+      console.error(err);
+    }
+  };
+
+  // 파일 유효성 체크
+  const hasValidFiles =
+    post &&
+    Array.isArray(post.files) &&
+    post.files.some((f) => Number(f.fileSize) > 0);
+
+  const hasAttachments =
+    post?.files &&
+    post.files.length > 0 &&
+    post.files.some((f) => Number(f.fileSize) > 0);
 
   if (!open && !closing) return null;
 
@@ -438,74 +558,76 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
               >
                 <FaReply size={14} style={{ marginRight: 4 }} /> 답글
               </ModalHeaderActionButton>
-              {post.author?.id && isAuthor(post.author.id) && (
-                <>
-                  <button
-                    onClick={handleEditPost}
-                    style={{
-                      background: "none",
-                      color: "#888",
-                      border: "none",
-                      borderRadius: "5px",
-                      padding: "0 10px",
-                      fontSize: "0.85rem",
-                      fontWeight: "600",
-                      cursor: "pointer",
-                      height: "28px",
-                      minWidth: "0",
-                      boxShadow: "none",
-                      whiteSpace: "nowrap",
-                      transition: "background 0.15s, color 0.15s",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                    onMouseOver={(e) => {
-                      e.currentTarget.style.background = "#f3f4f6";
-                      e.currentTarget.style.color = "#fdb924";
-                    }}
-                    onMouseOut={(e) => {
-                      e.currentTarget.style.background = "none";
-                      e.currentTarget.style.color = "#888";
-                    }}
-                  >
-                    <FaEdit style={{ marginRight: "0.25rem" }} />
-                    수정
-                  </button>
-                  <button
-                    onClick={handleDeletePost}
-                    style={{
-                      background: "none",
-                      color: "#888",
-                      border: "none",
-                      borderRadius: "5px",
-                      padding: "0 10px",
-                      fontSize: "0.85rem",
-                      fontWeight: "600",
-                      cursor: "pointer",
-                      height: "28px",
-                      minWidth: "0",
-                      boxShadow: "none",
-                      whiteSpace: "nowrap",
-                      transition: "background 0.15s, color 0.15s",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                    onMouseOver={(e) => {
-                      e.currentTarget.style.background = "#f3f4f6";
-                      e.currentTarget.style.color = "#fdb924";
-                    }}
-                    onMouseOut={(e) => {
-                      e.currentTarget.style.background = "none";
-                      e.currentTarget.style.color = "#888";
-                    }}
-                  >
-                    <FaTrash style={{ marginRight: "0.25rem" }} />
-                    삭제
-                  </button>
-                </>
-              )}
+              {post.author?.id ?? post.authorId
+                ? isAuthor(post.author?.id ?? post.authorId) && (
+                    <>
+                      <button
+                        onClick={handleEditPost}
+                        style={{
+                          background: "none",
+                          color: "#888",
+                          border: "none",
+                          borderRadius: "5px",
+                          padding: "0 10px",
+                          fontSize: "0.85rem",
+                          fontWeight: "600",
+                          cursor: "pointer",
+                          height: "28px",
+                          minWidth: "0",
+                          boxShadow: "none",
+                          whiteSpace: "nowrap",
+                          transition: "background 0.15s, color 0.15s",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                        onMouseOver={(e) => {
+                          e.currentTarget.style.background = "#f3f4f6";
+                          e.currentTarget.style.color = "#fdb924";
+                        }}
+                        onMouseOut={(e) => {
+                          e.currentTarget.style.background = "none";
+                          e.currentTarget.style.color = "#888";
+                        }}
+                      >
+                        <FaEdit style={{ marginRight: "0.25rem" }} />
+                        수정
+                      </button>
+                      <button
+                        onClick={handleDeletePost}
+                        style={{
+                          background: "none",
+                          color: "#888",
+                          border: "none",
+                          borderRadius: "5px",
+                          padding: "0 10px",
+                          fontSize: "0.85rem",
+                          fontWeight: "600",
+                          cursor: "pointer",
+                          height: "28px",
+                          minWidth: "0",
+                          boxShadow: "none",
+                          whiteSpace: "nowrap",
+                          transition: "background 0.15s, color 0.15s",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                        onMouseOver={(e) => {
+                          e.currentTarget.style.background = "#f3f4f6";
+                          e.currentTarget.style.color = "#fdb924";
+                        }}
+                        onMouseOut={(e) => {
+                          e.currentTarget.style.background = "none";
+                          e.currentTarget.style.color = "#888";
+                        }}
+                      >
+                        <FaTrash style={{ marginRight: "0.25rem" }} />
+                        삭제
+                      </button>
+                    </>
+                  )
+                : null}
               <ModalHeaderCloseButton onClick={handleCloseWithAnimation}>
                 ×
               </ModalHeaderCloseButton>
@@ -573,44 +695,6 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
 
             {/* 상세 정보 */}
             <InfoGrid style={{ marginLeft: 18 }}>
-              <InfoRow>
-                <InfoKey
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6,
-                    color: "#6b7280",
-                    fontWeight: 500,
-                    fontSize: "0.95rem",
-                  }}
-                >
-                  <FiCheckCircle style={{ color: "#fdb924" }} /> 상태
-                </InfoKey>
-                <InfoValue
-                  style={{
-                    fontWeight: 600,
-                    fontSize: "0.95rem",
-                    color: "#111827",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                  }}
-                >
-                  <span
-                    style={{
-                      ...getStatusStyle(post.status),
-                      fontWeight: 600,
-                      fontSize: 13,
-                      borderRadius: 9999,
-                      padding: "2px 12px",
-                      marginLeft: 0,
-                      display: "inline-block",
-                    }}
-                  >
-                    {getStatusText(post.status)}
-                  </span>
-                </InfoValue>
-              </InfoRow>
               <InfoRow>
                 <InfoKey
                   style={{
@@ -690,6 +774,44 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                   </span>
                 </InfoValue>
               </InfoRow>
+              <InfoRow>
+                <InfoKey
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    color: "#6b7280",
+                    fontWeight: 500,
+                    fontSize: "0.95rem",
+                  }}
+                >
+                  <FiFlag style={{ color: "#fdb924" }} /> 우선순위
+                </InfoKey>
+                <InfoValue
+                  style={{
+                    fontWeight: 600,
+                    fontSize: "0.95rem",
+                    color: "#111827",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                  }}
+                >
+                  <span
+                    style={{
+                      ...getPriorityStyle(post.priority),
+                      fontWeight: 600,
+                      fontSize: 13,
+                      borderRadius: 9999,
+                      padding: "2px 12px",
+                      marginLeft: 0,
+                      display: "inline-block",
+                    }}
+                  >
+                    {getPriorityText(post.priority)}
+                  </span>
+                </InfoValue>
+              </InfoRow>
             </InfoGrid>
 
             {/* 작업 설명 */}
@@ -715,110 +837,65 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
             </div>
 
             {/* 첨부 파일 */}
-            <div style={{ margin: "20px 16px 0 16px" }}>
-              <div style={{ fontWeight: 600, marginBottom: 10, fontSize: 15 }}>
-                첨부 파일
-              </div>
-              <div>
-                {post.attachments && post.attachments.length > 0 ? (
-                  post.attachments.map(
-                    (file: { name: string; size: string }, idx: number) => {
-                      const ext = file.name.split(".").pop();
-                      let icon = null;
-                      if (ext === "pdf")
-                        icon = (
-                          <span
-                            style={{
-                              display: "inline-block",
-                              width: 18,
-                              height: 18,
-                              background: "#e74c3c",
-                              borderRadius: 4,
-                              marginRight: 8,
-                            }}
-                          />
-                        );
-                      else if (ext === "zip")
-                        icon = (
-                          <span
-                            style={{
-                              display: "inline-block",
-                              width: 18,
-                              height: 18,
-                              background: "#f1c40f",
-                              borderRadius: 4,
-                              marginRight: 8,
-                            }}
-                          />
-                        );
-                      else
-                        icon = (
-                          <span
-                            style={{
-                              display: "inline-block",
-                              width: 18,
-                              height: 18,
-                              background: "#bdbdbd",
-                              borderRadius: 4,
-                              marginRight: 8,
-                            }}
-                          />
-                        );
-                      return (
-                        <div
-                          key={idx}
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            background: "#f7f7f8",
-                            borderRadius: 8,
-                            padding: "10px 14px",
-                            marginBottom: 8,
-                            fontSize: 14,
-                          }}
-                        >
-                          {icon}
-                          <span style={{ flex: 1 }}>{file.name}</span>
-                          <span
-                            style={{
-                              color: "#b0b0b0",
-                              fontSize: 12,
-                              marginLeft: 8,
-                            }}
+            <AttachmentsSection>
+              <SectionTitle>첨부 파일</SectionTitle>
+              <FileList>
+                {hasValidFiles ? (
+                  post.files
+                    .filter((f) => Number(f.fileSize) > 0)
+                    .map((file: PostFile) => (
+                      <FileItem key={file.id}>
+                        <FileInfo>
+                          <FileIcon>{getFileIcon(file)}</FileIcon>
+                          <FileDetails>
+                            <FileName>{file.fileName}</FileName>
+                            <FileMeta>
+                              <span>{file.fileType.toUpperCase()}</span>
+                              <span>{formatFileSize(file.fileSize)}</span>
+                            </FileMeta>
+                          </FileDetails>
+                        </FileInfo>
+                        <FileActions>
+                          <FileActionButton
+                            onClick={() =>
+                              handleFileDownload(file, post.postId)
+                            }
+                            title="다운로드"
                           >
-                            {file.size}
-                          </span>
-                        </div>
-                      );
-                    }
-                  )
+                            <FiDownload size={16} />
+                          </FileActionButton>
+                        </FileActions>
+                      </FileItem>
+                    ))
                 ) : (
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      background: "#f7f7f8",
-                      borderRadius: 8,
-                      padding: "10px 14px",
-                      fontSize: 14,
-                      color: "#9ca3af",
-                      fontStyle: "italic",
-                    }}
-                  >
-                    첨부된 파일이 없습니다.
-                  </div>
+                  <FileItem>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        padding: "2px 12px",
+                      }}
+                    >
+                      <FiFile
+                        size={16}
+                        style={{ color: "#9ca3af", marginLeft: -10 }}
+                      />
+                      <NoFilesMessage>첨부된 파일이 없습니다.</NoFilesMessage>
+                    </div>
+                  </FileItem>
                 )}
-              </div>
-            </div>
+              </FileList>
+            </AttachmentsSection>
 
             <div style={{ margin: "0 16px" }}>
               <CommentsSection>
                 <SectionTitle>댓글 ({renderedCommentCount})</SectionTitle>
 
                 {/* 댓글 입력창을 위로 이동 */}
-                <div style={{ marginBottom: "1.5rem", position: "relative" }}>
+                <RelativeTextareaWrapper style={{ marginBottom: "1.5rem" }}>
                   <CommentTextArea
-                    placeholder="댓글을 입력하세요"
+                    placeholder="댓글을 입력하세요 (우측 하단 마우스 드래그를 통해 크기 조절 가능)"
                     value={commentText}
                     onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                       setCommentText(e.target.value)
@@ -830,7 +907,6 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                       borderRadius: "0.5rem",
                       padding: "0.75rem",
                       fontSize: "0.875rem",
-                      resize: "vertical",
                       minHeight: "60px",
                       background: "white",
                       color: "#374151",
@@ -864,22 +940,22 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                   >
                     {submittingComment ? "..." : "댓글"}
                   </CommentSubmitButton>
-                </div>
+                </RelativeTextareaWrapper>
 
                 <CommentsList>
                   {commentsToRender.length > 0 ? (
                     commentsToRender
-                      .filter((comment) => !comment.parentCommentId)
+                      .filter((comment) => !comment.parentId)
                       .map((rootComment) => {
                         // 이 댓글을 부모로 하는 모든 답글(1,2,3...depth) 평면적으로 시간순 정렬
                         const replies = commentsToRender.filter((c) => {
-                          let parent = c.parentCommentId;
+                          let parent = c.parentId;
                           while (parent) {
                             if (parent === rootComment.id) return true;
                             const parentComment = commentsToRender.find(
                               (cc) => cc.id === parent
                             );
-                            parent = parentComment?.parentCommentId ?? null;
+                            parent = parentComment?.parentId ?? null;
                           }
                           return false;
                         });
@@ -919,7 +995,8 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                   <CommentMeta>
                                     <CommentAuthor>
                                       {rootComment.author?.name ||
-                                        "알 수 없는 사용자"}
+                                        rootComment.authorName ||
+                                        "undefined"}
                                       <span
                                         style={{
                                           fontSize: 11,
@@ -935,61 +1012,66 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                       <span>
                                         {formatDate(rootComment.createdAt)}
                                       </span>
-                                      {rootComment.author &&
-                                        isAuthor(rootComment.author.id) && (
-                                          <>
-                                            {editingCommentId ===
-                                            rootComment.id ? (
-                                              <>
-                                                <CommentActionButton
-                                                  onClick={() => {
-                                                    setEditingCommentId(
-                                                      rootComment.id
-                                                    );
-                                                    setEditText(
-                                                      rootComment.content
-                                                    );
-                                                  }}
-                                                >
-                                                  수정
-                                                </CommentActionButton>
-                                                <CommentActionButton
-                                                  onClick={() =>
-                                                    handleDeleteComment(
-                                                      rootComment.id
-                                                    )
-                                                  }
-                                                >
-                                                  삭제
-                                                </CommentActionButton>
-                                              </>
-                                            ) : (
-                                              <>
-                                                <CommentActionButton
-                                                  onClick={() => {
-                                                    setEditingCommentId(
-                                                      rootComment.id
-                                                    );
-                                                    setEditText(
-                                                      rootComment.content
-                                                    );
-                                                  }}
-                                                >
-                                                  수정
-                                                </CommentActionButton>
-                                                <CommentActionButton
-                                                  onClick={() =>
-                                                    handleDeleteComment(
-                                                      rootComment.id
-                                                    )
-                                                  }
-                                                >
-                                                  삭제
-                                                </CommentActionButton>
-                                              </>
-                                            )}
-                                          </>
-                                        )}
+                                      {rootComment.author?.id ??
+                                      rootComment.authorId
+                                        ? isAuthor(
+                                            rootComment.author?.id ??
+                                              rootComment.authorId
+                                          ) && (
+                                            <>
+                                              {editingCommentId ===
+                                              rootComment.id ? (
+                                                <>
+                                                  <CommentActionButton
+                                                    onClick={() => {
+                                                      setEditingCommentId(
+                                                        rootComment.id
+                                                      );
+                                                      setEditText(
+                                                        rootComment.content
+                                                      );
+                                                    }}
+                                                  >
+                                                    수정
+                                                  </CommentActionButton>
+                                                  <CommentActionButton
+                                                    onClick={() =>
+                                                      handleDeleteComment(
+                                                        rootComment.id
+                                                      )
+                                                    }
+                                                  >
+                                                    삭제
+                                                  </CommentActionButton>
+                                                </>
+                                              ) : (
+                                                <>
+                                                  <CommentActionButton
+                                                    onClick={() => {
+                                                      setEditingCommentId(
+                                                        rootComment.id
+                                                      );
+                                                      setEditText(
+                                                        rootComment.content
+                                                      );
+                                                    }}
+                                                  >
+                                                    수정
+                                                  </CommentActionButton>
+                                                  <CommentActionButton
+                                                    onClick={() =>
+                                                      handleDeleteComment(
+                                                        rootComment.id
+                                                      )
+                                                    }
+                                                  >
+                                                    삭제
+                                                  </CommentActionButton>
+                                                </>
+                                              )}
+                                            </>
+                                          )
+                                        : null}
                                       <CommentActionButton
                                         onClick={() =>
                                           handleReplyClick(rootComment)
@@ -1069,11 +1151,15 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                     rootComment.id && (
                                     <ReplyInputContainer>
                                       <CommentTextArea
-                                        placeholder="답글을 입력하세요"
                                         value={replyText}
-                                        onChange={(
-                                          e: React.ChangeEvent<HTMLTextAreaElement>
-                                        ) => setReplyText(e.target.value)}
+                                        onChange={(e) =>
+                                          setReplyText(e.target.value)
+                                        }
+                                        placeholder={`@${
+                                          rootComment.authorName ||
+                                          rootComment.author?.name ||
+                                          "알 수 없는 사용자"
+                                        } 님에게 답글을 입력하세요`}
                                         disabled={submittingReply}
                                         rows={3}
                                       />
@@ -1081,8 +1167,19 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                         style={{
                                           display: "flex",
                                           justifyContent: "flex-end",
+                                          gap: 8,
                                         }}
                                       >
+                                        <CommentActionButton
+                                          type="button"
+                                          onClick={() => {
+                                            setReplyText("");
+                                            setReplyingTo(null);
+                                          }}
+                                          disabled={submittingReply}
+                                        >
+                                          취소
+                                        </CommentActionButton>
                                         <CommentSubmitButton
                                           onClick={handleReplySubmit}
                                           disabled={
@@ -1091,7 +1188,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                         >
                                           {submittingReply
                                             ? "등록 중..."
-                                            : "답글 등록"}
+                                            : "등록"}
                                         </CommentSubmitButton>
                                       </div>
                                     </ReplyInputContainer>
@@ -1109,15 +1206,14 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                               if (isDeleted) {
                                 const hasReplies = commentsToRender.some(
                                   (comment) => {
-                                    let parent = comment.parentCommentId;
+                                    let parent = comment.parentId;
                                     while (parent) {
                                       if (parent === reply.id) return true;
                                       const parentComment =
                                         commentsToRender.find(
                                           (cc) => cc.id === parent
                                         );
-                                      parent =
-                                        parentComment?.parentCommentId ?? null;
+                                      parent = parentComment?.parentId ?? null;
                                     }
                                     return false;
                                   }
@@ -1151,7 +1247,8 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                   <CommentMeta>
                                     <CommentAuthor>
                                       {reply.author?.name ||
-                                        "알 수 없는 사용자"}
+                                        reply.authorName ||
+                                        "undefined"}
                                       <span
                                         style={{
                                           fontSize: 11,
@@ -1165,56 +1262,63 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                     </CommentAuthor>
                                     <CommentActions>
                                       <span>{formatDate(reply.createdAt)}</span>
-                                      {reply.author &&
-                                        isAuthor(reply.author.id) && (
-                                          <>
-                                            {editingCommentId === reply.id ? (
-                                              <>
-                                                <CommentActionButton
-                                                  onClick={() => {
-                                                    setEditingCommentId(
-                                                      reply.id
-                                                    );
-                                                    setEditText(reply.content);
-                                                  }}
-                                                >
-                                                  수정
-                                                </CommentActionButton>
-                                                <CommentActionButton
-                                                  onClick={() =>
-                                                    handleDeleteComment(
-                                                      reply.id
-                                                    )
-                                                  }
-                                                >
-                                                  삭제
-                                                </CommentActionButton>
-                                              </>
-                                            ) : (
-                                              <>
-                                                <CommentActionButton
-                                                  onClick={() => {
-                                                    setEditingCommentId(
-                                                      reply.id
-                                                    );
-                                                    setEditText(reply.content);
-                                                  }}
-                                                >
-                                                  수정
-                                                </CommentActionButton>
-                                                <CommentActionButton
-                                                  onClick={() =>
-                                                    handleDeleteComment(
-                                                      reply.id
-                                                    )
-                                                  }
-                                                >
-                                                  삭제
-                                                </CommentActionButton>
-                                              </>
-                                            )}
-                                          </>
-                                        )}
+                                      {reply.author?.id ?? reply.authorId
+                                        ? isAuthor(
+                                            reply.author?.id ?? reply.authorId
+                                          ) && (
+                                            <>
+                                              {editingCommentId === reply.id ? (
+                                                <>
+                                                  <CommentActionButton
+                                                    onClick={() => {
+                                                      setEditingCommentId(
+                                                        reply.id
+                                                      );
+                                                      setEditText(
+                                                        reply.content
+                                                      );
+                                                    }}
+                                                  >
+                                                    수정
+                                                  </CommentActionButton>
+                                                  <CommentActionButton
+                                                    onClick={() =>
+                                                      handleDeleteComment(
+                                                        reply.id
+                                                      )
+                                                    }
+                                                  >
+                                                    삭제
+                                                  </CommentActionButton>
+                                                </>
+                                              ) : (
+                                                <>
+                                                  <CommentActionButton
+                                                    onClick={() => {
+                                                      setEditingCommentId(
+                                                        reply.id
+                                                      );
+                                                      setEditText(
+                                                        reply.content
+                                                      );
+                                                    }}
+                                                  >
+                                                    수정
+                                                  </CommentActionButton>
+                                                  <CommentActionButton
+                                                    onClick={() =>
+                                                      handleDeleteComment(
+                                                        reply.id
+                                                      )
+                                                    }
+                                                  >
+                                                    삭제
+                                                  </CommentActionButton>
+                                                </>
+                                              )}
+                                            </>
+                                          )
+                                        : null}
                                       <CommentActionButton
                                         onClick={() => handleReplyClick(reply)}
                                       >
@@ -1240,9 +1344,9 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                     {editingCommentId === reply.id ? (
                                       <div style={{ marginTop: 8 }}>
                                         <CommentTextArea
-                                          value={editText}
+                                          value={replyText}
                                           onChange={(e) =>
-                                            setEditText(e.target.value)
+                                            setReplyText(e.target.value)
                                           }
                                           autoFocus
                                           rows={3}
@@ -1266,16 +1370,16 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                           }}
                                         >
                                           <CommentSubmitButton
-                                            onClick={() =>
-                                              handleSaveEdit(reply.id)
-                                            }
+                                            onClick={() => {
+                                              handleReplySubmit();
+                                            }}
                                           >
                                             저장
                                           </CommentSubmitButton>
                                           <CommentActionButton
                                             onClick={() => {
-                                              setEditingCommentId(null);
-                                              setEditText("");
+                                              setReplyText("");
+                                              setReplyingTo(null);
                                             }}
                                           >
                                             취소
@@ -1306,11 +1410,15 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                     reply.id && (
                                     <ReplyInputContainer>
                                       <CommentTextArea
-                                        placeholder="답글을 입력하세요"
                                         value={replyText}
-                                        onChange={(
-                                          e: React.ChangeEvent<HTMLTextAreaElement>
-                                        ) => setReplyText(e.target.value)}
+                                        onChange={(e) =>
+                                          setReplyText(e.target.value)
+                                        }
+                                        placeholder={`@${
+                                          reply.authorName ||
+                                          reply.author?.name ||
+                                          "알 수 없는 사용자"
+                                        } 님에게 답글을 입력하세요`}
                                         disabled={submittingReply}
                                         rows={3}
                                       />
@@ -1318,8 +1426,19 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                         style={{
                                           display: "flex",
                                           justifyContent: "flex-end",
+                                          gap: 8,
                                         }}
                                       >
+                                        <CommentActionButton
+                                          type="button"
+                                          onClick={() => {
+                                            setReplyText("");
+                                            setReplyingTo(null);
+                                          }}
+                                          disabled={submittingReply}
+                                        >
+                                          취소
+                                        </CommentActionButton>
                                         <CommentSubmitButton
                                           onClick={handleReplySubmit}
                                           disabled={
@@ -1328,7 +1447,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                         >
                                           {submittingReply
                                             ? "등록 중..."
-                                            : "답글 등록"}
+                                            : "등록"}
                                         </CommentSubmitButton>
                                       </div>
                                     </ReplyInputContainer>

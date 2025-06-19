@@ -20,33 +20,14 @@ import {
   ProjectStatusBadge,
   BackButton,
 } from "./ProjectHeader.styled";
+import type { ProjectDetailResponse } from "../../services/projectService";
 
-const ProjectHeader: React.FC = () => {
+interface ProjectHeaderProps {
+  projectDetail: ProjectDetailResponse;
+}
+
+const ProjectHeader: React.FC<ProjectHeaderProps> = ({ projectDetail }) => {
   const navigate = useNavigate();
-
-  // 더미 데이터
-  const project = {
-    name: "클라우드 기반 ERP 시스템 개발",
-    description: "기업 자원 관리를 위한 클라우드 기반 ERP 시스템 구축 프로젝트",
-    client: {
-      name: "ABC 기업",
-      contactPerson: "김코딩",
-      email: "kim.coding@abc.com",
-      phone: "02-1234-5678",
-    },
-    developers: [
-      {
-        name: "이개발",
-        role: "수석 개발자",
-        email: "lee.dev@company.com",
-      },
-      {
-        name: "박프론트",
-        role: "프론트엔드 개발자",
-        email: "park.front@company.com",
-      },
-    ],
-  };
 
   const handleBack = () => {
     navigate("/projects");
@@ -59,22 +40,43 @@ const ProjectHeader: React.FC = () => {
         return <FiClock size={14} style={{ marginRight: 4 }} />;
       case "COMPLETED":
         return <FiCheckCircle size={14} style={{ marginRight: 4 }} />;
-      case "DELAYED":
+      case "DELAY":
         return <FiAlertTriangle size={14} style={{ marginRight: 4 }} />;
       default:
         return null;
     }
   };
-  // 임시 상태
-  const projectStatus = "IN_PROGRESS";
-  const projectStatusText =
-    projectStatus === "IN_PROGRESS"
-      ? "진행중"
-      : projectStatus === "COMPLETED"
-      ? "완료"
-      : projectStatus === "DELAYED"
-      ? "지연"
-      : projectStatus;
+
+  // 상태 텍스트 변환
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case "IN_PROGRESS":
+        return "진행중";
+      case "COMPLETED":
+        return "완료";
+      case "DELAY":
+        return "지연";
+      default:
+        return status;
+    }
+  };
+
+  // 상태 색상 반환
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "IN_PROGRESS":
+        return "#2563eb";
+      case "COMPLETED":
+        return "#059669";
+      case "DELAY":
+        return "#ef4444";
+      default:
+        return "#6b7280";
+    }
+  };
+
+  const statusColor = getStatusColor(projectDetail.projectStatus);
+  const statusText = getStatusText(projectDetail.projectStatus);
 
   return (
     <ProjectHeaderContainer>
@@ -82,19 +84,19 @@ const ProjectHeader: React.FC = () => {
         <FiArrowLeft size={16} />
         목록으로
       </BackButton>
-      <ProjectTitle>{project.name}</ProjectTitle>
-      {project.description && (
-        <ProjectSubtitle>{project.description}</ProjectSubtitle>
+      <ProjectTitle>{projectDetail.name}</ProjectTitle>
+      {projectDetail.description && (
+        <ProjectSubtitle>{projectDetail.description}</ProjectSubtitle>
       )}
 
       <ProjectMeta>
         <ProjectPeriod>
           <FiCalendar size={14} />
-          프로젝트 기간: 2023.06.01 ~ 2023.12.31
+          프로젝트 기간: {projectDetail.startDate} ~ {projectDetail.endDate}
         </ProjectPeriod>
         <span
           style={{
-            color: "#2563eb",
+            color: statusColor,
             fontWeight: 600,
             fontSize: "0.95rem",
             display: "flex",
@@ -102,8 +104,8 @@ const ProjectHeader: React.FC = () => {
             gap: 4,
           }}
         >
-          {getStatusIcon(projectStatus)}
-          {projectStatusText}
+          {getStatusIcon(projectDetail.projectStatus)}
+          {statusText}
         </span>
       </ProjectMeta>
 
@@ -124,14 +126,14 @@ const ProjectHeader: React.FC = () => {
           <FaBuilding size={17} style={{ marginRight: 4, color: "#9ca3af" }} />
           <span style={{ color: "#9ca3af", marginRight: 6 }}>고객사</span>
           <span style={{ color: "#222", fontWeight: 500 }}>
-            {project.client.name}
+            {projectDetail.clients[0]?.companyName || "미지정"}
           </span>
-          {project.client.contactPerson && (
+          {projectDetail.clients[0]?.assignUsers[0] && (
             <>
               <span style={{ color: "#d1d5db", margin: "0 6px" }}>|</span>
               <span style={{ color: "#9ca3af", marginRight: 6 }}>담당자</span>
               <span style={{ color: "#222", fontWeight: 500 }}>
-                {project.client.contactPerson}
+                {projectDetail.clients[0].assignUsers[0].name}
               </span>
             </>
           )}
@@ -139,17 +141,29 @@ const ProjectHeader: React.FC = () => {
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <FaUsers size={17} style={{ marginRight: 4, color: "#9ca3af" }} />
           <span style={{ color: "#9ca3af", marginRight: 6 }}>개발사</span>
-          {project.developers.map((dev, idx) => (
-            <span key={dev.name}>
-              <span style={{ color: "#222", fontWeight: 500 }}>{dev.name}</span>
-              <span style={{ color: "#9ca3af", margin: "0 2px" }}>
-                ({dev.role})
-              </span>
-              {idx !== project.developers.length - 1 && (
-                <span style={{ color: "#d1d5db", margin: "0 6px" }}>,</span>
-              )}
-            </span>
-          ))}
+          <span style={{ color: "#222", fontWeight: 500 }}>
+            {projectDetail.developers[0]?.companyName || "미지정"}
+          </span>
+          {projectDetail.developers[0]?.assignUsers.length > 0 && (
+            <>
+              <span style={{ color: "#d1d5db", margin: "0 6px" }}>|</span>
+              <span style={{ color: "#9ca3af", marginRight: 6 }}>개발팀</span>
+              {projectDetail.developers[0].assignUsers.map((dev, idx) => (
+                <span key={dev.id}>
+                  <span style={{ color: "#222", fontWeight: 500 }}>
+                    {dev.name}
+                  </span>
+                  <span style={{ color: "#9ca3af", margin: "0 2px" }}>
+                    ({dev.positon})
+                  </span>
+                  {idx !==
+                    projectDetail.developers[0].assignUsers.length - 1 && (
+                    <span style={{ color: "#d1d5db", margin: "0 6px" }}>,</span>
+                  )}
+                </span>
+              ))}
+            </>
+          )}
         </div>
       </div>
     </ProjectHeaderContainer>

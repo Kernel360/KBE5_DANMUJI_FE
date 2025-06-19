@@ -184,33 +184,106 @@ export const FileList = styled.ul`
   list-style: none;
   padding: 0;
   margin: 0;
+  width: 100%;
+  max-width: 590px;
 `;
 
 export const FileItem = styled.li`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #f3f4f6;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  margin-bottom: 0.5rem;
+  background-color: #f9fafb;
+  transition: all 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+
+  &:hover {
+    background-color: #f3f4f6;
+  }
 
   &:last-child {
-    border-bottom: none;
+    margin-bottom: 0;
   }
+`;
+
+export const FileInfo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+`;
+
+export const FileIcon = styled.div`
+  width: auto;
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* 배경, 테두리, 색상 제거 */
+`;
+
+export const FileDetails = styled.div`
+  flex: 1;
+  min-width: 0;
 `;
 
 export const FileName = styled.div`
-  font-size: 0.875rem;
-  color: #3b82f6;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.25rem;
+  word-break: break-all;
+  font-size: 0.92rem;
+`;
+
+export const FileMeta = styled.div`
+  font-size: 0.75rem;
+  color: #6b7280;
+  display: flex;
+  gap: 1rem;
+`;
+
+export const FileActions = styled.div`
+  display: flex;
+  gap: 0.5rem;
+`;
+
+export const FileActionButton = styled.button`
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
   cursor: pointer;
+  color: #6b7280;
+  transition: all 0.2s ease;
 
   &:hover {
-    text-decoration: underline;
+    background-color: #e5e7eb;
+    color: #374151;
   }
 `;
 
-export const FileSize = styled.div`
-  font-size: 0.875rem;
+export const AttachmentsSection = styled.div`
+  margin: 20px 16px 0 16px;
+  padding-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 538px;
+  width: 100%;
+  box-sizing: border-box;
+  border: none;
+`;
+
+export const NoFilesMessage = styled.div`
+  text-align: center;
+  padding: 1rem;
   color: #6b7280;
+  font-style: italic;
+  font-size: 0.9rem;
+  margin-left: -1rem;
 `;
 
 export const CommentsSection = styled(Section)`
@@ -246,7 +319,7 @@ export const CommentActions = styled.div`
   font-size: 0.75rem;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.1rem;
 
   a {
     color: #6b7280;
@@ -265,9 +338,10 @@ export const CommentActionButton = styled.button`
   color: #6b7280;
   font-size: 0.75rem;
   cursor: pointer;
-  padding: 0.25rem 0.5rem;
+  padding: 0.15rem 0.4rem;
   border-radius: 0.25rem;
   transition: all 0.2s;
+  width: 55px;
 
   &:hover {
     background-color: #f3f4f6;
@@ -294,9 +368,11 @@ export const CommentTextArea = styled.textarea`
   padding: 0.5rem 0.75rem;
   font-size: 0.875rem;
   min-height: 60px;
-  resize: vertical;
-  background-color: #ffffff;
-  color: #333333;
+  resize: both;
+  background: white;
+  position: relative;
+  padding-bottom: 2.2em;
+  color: #000000;
 
   &:focus {
     outline: none;
@@ -306,6 +382,23 @@ export const CommentTextArea = styled.textarea`
 
   &::placeholder {
     color: #9ca3af;
+  }
+
+  &::-webkit-resizer {
+    display: none;
+  }
+  &::-moz-resizer {
+    display: none;
+  }
+  &::-ms-resizer {
+    display: none;
+  }
+  &::resizer {
+    display: none;
+  }
+  &:hover {
+    cursor: se-resize;
+    box-shadow: 0 0 0 2px #fdb92433;
   }
 `;
 
@@ -408,7 +501,6 @@ export const ReplyInputContainer = styled.div`
   padding: 0.75rem;
   background-color: #f8f9fa;
   border-radius: 0.375rem;
-  border-left: 3px solid #fdb924;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -454,4 +546,52 @@ export const InfoValue = styled.span`
   color: #222;
   font-size: 0.95rem;
   font-weight: 500;
+`;
+
+export const RelativeTextareaWrapper = styled.div`
+  position: relative;
+  width: 100%;
+  min-width: 0;
+`;
+
+export const ResizeGuide = styled.div`
+  position: absolute;
+  right: 10px;
+  bottom: 38px;
+  font-size: 13px;
+  color: #bdbdbd;
+  opacity: 0.6;
+  pointer-events: none;
+  user-select: none;
+  transition: opacity 0.2s;
+  z-index: 2;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  svg {
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  ${RelativeTextareaWrapper}:hover & {
+    opacity: 1;
+    color: #fdb924;
+    svg path {
+      fill: #fdb924;
+    }
+  }
+`;
+
+// 답글 입력창용 스타일 컴포넌트
+export const ReplyTextArea = styled(CommentTextArea)`
+  color: #000000;
+
+  /* @태그 하이라이팅을 위한 스타일 */
+  &::selection {
+    background-color: rgba(253, 185, 36, 0.3);
+  }
 `;

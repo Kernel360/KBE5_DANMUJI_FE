@@ -51,12 +51,20 @@ import PostFormModal from "../components/FormModal/PostFormModal";
 import { useParams, useSearchParams } from "react-router-dom";
 
 const formatDate = (dateString: string) => {
-  const options: Intl.DateTimeFormatOptions = {
+  let date;
+  if (dateString.includes("T")) {
+    date = new Date(dateString);
+  } else {
+    date = new Date(dateString.replace(" ", "T") + "Z");
+  }
+  date.setHours(date.getHours() + 9);
+  return date.toLocaleDateString("ko-KR", {
     year: "numeric",
     month: "long",
     day: "numeric",
-  };
-  return new Date(dateString).toLocaleDateString("ko-KR", options);
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 };
 
 const getStatusText = (status: PostStatus) => {
@@ -134,6 +142,7 @@ export default function PostListPage() {
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
   const [itemsPerPage] = useState(10);
+  const [projectId, setProjectId] = useState<number>(1); // 기본값 1
 
   // 검색 및 필터 상태
   const [searchTerm, setSearchTerm] = useState("");
@@ -179,80 +188,66 @@ export default function PostListPage() {
     setLoading(true);
     setError(null);
 
+    let fetched: Post[] = [];
+    let page = currentPage;
+    let remain = itemsPerPage;
+    let keepFetching = true;
+    let totalCount = 0;
+
     try {
-      let response;
-
-      // 검색어나 필터가 있는 경우 검색 API 사용
-      const hasFilters =
-        activeSearchTerm.trim() ||
-        activeStatusFilter !== "ALL" ||
-        activeTypeFilter !== "ALL" ||
-        activePriorityFilter !== "ALL" ||
-        activeAssigneeFilter !== "" ||
-        activeClientFilter !== "";
-
-      if (!stepId) {
-        setError("단계 정보가 없습니다.");
-        setLoading(false);
-        return;
-      }
-      if (hasFilters) {
-        const searchParams: {
-          status?: PostStatus;
-          type?: PostType;
-          priority?: number;
-          author?: string;
-          clientCompany?: string;
-          title?: string;
-        } = {
-          status: activeStatusFilter === "ALL" ? undefined : activeStatusFilter,
-          type: activeTypeFilter === "ALL" ? undefined : activeTypeFilter,
-          priority:
-            activePriorityFilter === "ALL" ? undefined : activePriorityFilter,
-          author:
-            activeAssigneeFilter === "" ? undefined : activeAssigneeFilter,
-          clientCompany:
-            activeClientFilter === "" ? undefined : activeClientFilter,
-        };
-
-        // 검색 타입에 따라 다른 필드 설정
-        if (activeSearchType === "title") {
-          searchParams.title = activeSearchTerm;
-        } else if (activeSearchType === "content") {
-          // content 검색은 새로운 API에서 지원하지 않으므로 title로 대체
-          searchParams.title = activeSearchTerm;
-        } else if (activeSearchType === "author") {
-          searchParams.author = activeSearchTerm;
-        }
-
-        response = await searchPosts(
+      while (remain > 0 && keepFetching) {
+        const response = await getPostsWithComments(
           Number(stepId),
-          searchParams,
-          currentPage,
+          page,
           itemsPerPage
         );
-      } else {
-        // 검색어도 없고 필터도 없는 경우에만 일반 목록 API 사용
-        response = await getPostsWithComments(
-          Number(stepId),
-          currentPage,
-          itemsPerPage
+        if (!response.data || response.data.content.length === 0) break;
+
+        // 소프트딜리트 제외
+        const visible = response.data.content.filter(
+          (post) => !post.isDeleted && !post.delete
         );
-      }
 
-      if (response.data) {
-        setPosts(response.data.content);
-        setTotalPages(response.data.page.totalPages);
-        setTotalElements(response.data.page.totalElements);
+        fetched = [...fetched, ...visible];
 
-        // 현재 페이지에 게시글이 없고, 총 페이지가 1보다 크면 이전 페이지로 이동
+        // 실제 전체 개수는 백엔드에서 내려주는 totalElements에서 소프트딜리트 제외한 개수로 계산(임시)
         if (
-          response.data.content.length === 0 &&
-          response.data.page.totalPages > 1 &&
-          response.data.page.number > 0
+          page === 0 &&
+          response.data.page &&
+          typeof response.data.page.totalElements === "number"
         ) {
-          setCurrentPage(response.data.page.number - 1);
+          totalCount = response.data.page.totalElements;
         }
+
+        // 만약 10개가 모이면 break
+        if (fetched.length >= itemsPerPage) break;
+
+        // 다음 페이지로
+        page += 1;
+        remain = itemsPerPage - fetched.length;
+
+        // 마지막 페이지라면 break
+        if (response.data.content.length < itemsPerPage) keepFetching = false;
+      }
+
+      // posts 가공 로직 추가
+      const deletedWithReplies = fetched.filter(
+        (post) =>
+          (post.isDeleted || post.delete) &&
+          fetched.some((reply) => reply.parentId === post.postId)
+      );
+      const visiblePosts = [
+        ...fetched.filter((post) => !post.isDeleted && !post.delete),
+        ...deletedWithReplies,
+      ];
+      setPosts(visiblePosts);
+
+      setTotalElements(totalCount); // 실제 전체 개수(소프트딜리트 제외 필요시 별도 계산)
+      setTotalPages(Math.ceil(totalCount / itemsPerPage));
+
+      // 첫 번째 게시글에서 projectId 가져오기
+      if (visiblePosts.length > 0 && visiblePosts[0].project?.projectId) {
+        setProjectId(visiblePosts[0].project.projectId);
       }
     } catch (err) {
       if (err instanceof Error && err.message.includes("완료")) {
@@ -264,18 +259,7 @@ export default function PostListPage() {
     } finally {
       setLoading(false);
     }
-  }, [
-    activeSearchTerm,
-    activeSearchType,
-    activeStatusFilter,
-    activeTypeFilter,
-    activePriorityFilter,
-    activeAssigneeFilter,
-    activeClientFilter,
-    currentPage,
-    itemsPerPage,
-    stepId,
-  ]);
+  }, [currentPage, itemsPerPage, stepId]);
 
   useEffect(() => {
     fetchPosts();
@@ -445,7 +429,10 @@ export default function PostListPage() {
             검색 및 필터
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <FilterToggleButton onClick={handleFilterToggle}>
+            <FilterToggleButton
+              onClick={handleFilterToggle}
+              className={isFilterExpanded ? "expanded" : ""}
+            >
               {isFilterExpanded ? "필터 접기" : "필터 펼치기"}
               <AiOutlineReload size={16} />
             </FilterToggleButton>
@@ -562,200 +549,221 @@ export default function PostListPage() {
               const processedReplies = new Set();
 
               posts.forEach((post) => {
-                if (!post.parentId) {
-                  // 부모 게시글 렌더링
+                if (post.isDeleted || post.delete) {
+                  // 답글이 있는 삭제된 게시글
+                  // '삭제된 게시글입니다' 회색 텍스트, 클릭 비활성화
                   result.push(
                     <TableRow
-                      key={post.postId}
-                      onClick={() => handlePostClick(post.postId)}
+                      style={{
+                        background: "#f3f4f6",
+                        color: "#9ca3af",
+                        pointerEvents: "none",
+                        cursor: "not-allowed",
+                      }}
                     >
-                      <TableCell>
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                          }}
-                        >
-                          <PostTitle>
-                            {post.title.length > 30
-                              ? post.title.slice(0, 30) + "..."
-                              : post.title}
-                          </PostTitle>
-                          {(post.comments && post.comments.length > 0) ||
-                          (post.questionCount !== undefined &&
-                            post.questionCount > 0) ? (
-                            <div
-                              style={{
-                                fontSize: "0.75rem",
-                                color: "#9ca3af",
-                                display: "flex",
-                                gap: "0.5rem",
-                              }}
-                            >
-                              {post.comments && post.comments.length > 0 && (
-                                <span>댓글 {post.comments.length}</span>
-                              )}
-                              {post.questionCount !== undefined &&
-                                post.questionCount > 0 && (
-                                  <span>질문 {post.questionCount}</span>
-                                )}
-                            </div>
-                          ) : null}
-                        </div>
-                      </TableCell>
-                      <TableCell>{post.author.name}</TableCell>
-                      <TableCell $align="center">
-                        <StatusBadge $status={getStatusText(post.status)}>
-                          {getStatusText(post.status)}
-                        </StatusBadge>
-                      </TableCell>
-                      <TableCell $align="center">
-                        {getTypeText(post.type)}
-                      </TableCell>
-                      <TableCell $align="center">
-                        <span
-                          style={{
-                            ...getPriorityStyle(post.priority),
-                            fontWeight: 600,
-                            fontSize: 13,
-                            borderRadius: 8,
-                            padding: "2px 12px",
-                            display: "inline-block",
-                          }}
-                        >
-                          {getPriorityText(post.priority)}
-                        </span>
-                      </TableCell>
-                      <TableCell $align="center">
-                        {formatDate(post.createdAt)}
-                      </TableCell>
+                      <TableCell colSpan={6}>삭제된 게시글입니다.</TableCell>
                     </TableRow>
                   );
+                } else {
+                  if (!post.parentId) {
+                    // 부모 게시글 렌더링
+                    result.push(
+                      <TableRow
+                        key={post.postId}
+                        onClick={() => handlePostClick(post.postId)}
+                      >
+                        <TableCell>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                            }}
+                          >
+                            <PostTitle>
+                              {post.title.length > 30
+                                ? post.title.slice(0, 30) + "..."
+                                : post.title}
+                            </PostTitle>
+                            {(post.comments && post.comments.length > 0) ||
+                            (post.questionCount !== undefined &&
+                              post.questionCount > 0) ? (
+                              <div
+                                style={{
+                                  fontSize: "0.75rem",
+                                  color: "#9ca3af",
+                                  display: "flex",
+                                  gap: "0.5rem",
+                                }}
+                              >
+                                {post.comments && post.comments.length > 0 && (
+                                  <span>댓글 {post.comments.length}</span>
+                                )}
+                                {post.questionCount !== undefined &&
+                                  post.questionCount > 0 && (
+                                    <span>질문 {post.questionCount}</span>
+                                  )}
+                              </div>
+                            ) : null}
+                          </div>
+                        </TableCell>
+                        <TableCell>{post.author.name}</TableCell>
+                        <TableCell $align="center">
+                          <StatusBadge $status={getStatusText(post.status)}>
+                            {getStatusText(post.status)}
+                          </StatusBadge>
+                        </TableCell>
+                        <TableCell $align="center">
+                          {getTypeText(post.type)}
+                        </TableCell>
+                        <TableCell $align="center">
+                          <span
+                            style={{
+                              ...getPriorityStyle(post.priority),
+                              fontWeight: 600,
+                              fontSize: 13,
+                              borderRadius: 8,
+                              padding: "2px 12px",
+                              display: "inline-block",
+                            }}
+                          >
+                            {getPriorityText(post.priority)}
+                          </span>
+                        </TableCell>
+                        <TableCell $align="center">
+                          {formatDate(post.createdAt)}
+                        </TableCell>
+                      </TableRow>
+                    );
 
-                  // 이 부모의 답글들을 바로 다음에 렌더링
-                  const replies = posts.filter(
-                    (p) => p.parentId === post.postId
-                  );
-                  replies.forEach((reply) => {
-                    if (!processedReplies.has(reply.postId)) {
-                      processedReplies.add(reply.postId);
-                      result.push(
-                        <TableRow
-                          key={reply.postId}
-                          onClick={() => handlePostClick(reply.postId)}
-                        >
-                          <TableCell style={{ paddingLeft: 40 }}>
-                            <div
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "1rem",
-                              }}
-                            >
+                    // 이 부모의 답글들을 바로 다음에 렌더링
+                    const replies = posts.filter(
+                      (p) => p.parentId === post.postId
+                    );
+                    replies.forEach((reply) => {
+                      if (!processedReplies.has(reply.postId)) {
+                        processedReplies.add(reply.postId);
+                        result.push(
+                          <TableRow
+                            key={reply.postId}
+                            onClick={() => handlePostClick(reply.postId)}
+                          >
+                            <TableCell style={{ paddingLeft: 40 }}>
                               <div
                                 style={{
                                   display: "flex",
                                   alignItems: "center",
+                                  gap: "1rem",
                                 }}
                               >
-                                <span
+                                <div
                                   style={{
-                                    display: "inline-block",
-                                    background: "#fdb924",
-                                    color: "white",
-                                    borderRadius: 4,
-                                    fontSize: "0.75em",
-                                    padding: "2px 7px",
-                                    marginRight: 8,
-                                    verticalAlign: "middle",
-                                  }}
-                                >
-                                  답글
-                                </span>
-                                <span
-                                  style={{
-                                    color: "#888",
-                                    fontSize: "0.92em",
-                                    display: "inline-flex",
+                                    display: "flex",
                                     alignItems: "center",
                                   }}
                                 >
-                                  {post.title.length > 10
-                                    ? post.title.slice(0, 10) + "..."
-                                    : post.title}
-                                </span>
-                              </div>
-                              <div
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "space-between",
-                                  flex: 1,
-                                }}
-                              >
-                                <PostTitle>
-                                  {reply.title.length > 20
-                                    ? reply.title.slice(0, 20) + "..."
-                                    : reply.title}
-                                </PostTitle>
-                                {(reply.comments &&
-                                  reply.comments.length > 0) ||
-                                (reply.questionCount !== undefined &&
-                                  reply.questionCount > 0) ? (
-                                  <div
+                                  <span
                                     style={{
-                                      fontSize: "0.75rem",
-                                      color: "#9ca3af",
-                                      display: "flex",
-                                      gap: "0.5rem",
+                                      display: "inline-block",
+                                      background: "#fdb924",
+                                      color: "white",
+                                      borderRadius: 4,
+                                      fontSize: "0.75em",
+                                      padding: "2px 7px",
+                                      marginRight: 8,
+                                      verticalAlign: "middle",
                                     }}
                                   >
-                                    {reply.comments &&
-                                      reply.comments.length > 0 && (
-                                        <span>
-                                          댓글 {reply.comments.length}
-                                        </span>
-                                      )}
-                                    {reply.questionCount !== undefined &&
-                                      reply.questionCount > 0 && (
-                                        <span>질문 {reply.questionCount}</span>
-                                      )}
-                                  </div>
-                                ) : null}
+                                    답글
+                                  </span>
+                                  <span
+                                    style={{
+                                      color: "#888",
+                                      fontSize: "0.92em",
+                                      display: "inline-flex",
+                                      alignItems: "center",
+                                    }}
+                                  >
+                                    {post.title.length > 10
+                                      ? post.title.slice(0, 10) + "..."
+                                      : post.title}
+                                  </span>
+                                </div>
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "space-between",
+                                    flex: 1,
+                                  }}
+                                >
+                                  <PostTitle>
+                                    {reply.title.length > 20
+                                      ? reply.title.slice(0, 20) + "..."
+                                      : reply.title}
+                                  </PostTitle>
+                                  {(reply.comments &&
+                                    reply.comments.length > 0) ||
+                                  (reply.questionCount !== undefined &&
+                                    reply.questionCount > 0) ? (
+                                    <div
+                                      style={{
+                                        fontSize: "0.75rem",
+                                        color: "#9ca3af",
+                                        display: "flex",
+                                        gap: "0.5rem",
+                                      }}
+                                    >
+                                      {reply.comments &&
+                                        reply.comments.length > 0 && (
+                                          <span>
+                                            댓글 {reply.comments.length}
+                                          </span>
+                                        )}
+                                      {reply.questionCount !== undefined &&
+                                        reply.questionCount > 0 && (
+                                          <span>
+                                            질문 {reply.questionCount}
+                                          </span>
+                                        )}
+                                    </div>
+                                  ) : null}
+                                </div>
                               </div>
-                            </div>
-                          </TableCell>
-                          <TableCell>{reply.author.name}</TableCell>
-                          <TableCell $align="center">
-                            <StatusBadge $status={getStatusText(reply.status)}>
-                              {getStatusText(reply.status)}
-                            </StatusBadge>
-                          </TableCell>
-                          <TableCell $align="center">
-                            {getTypeText(reply.type)}
-                          </TableCell>
-                          <TableCell $align="center">
-                            <span
-                              style={{
-                                ...getPriorityStyle(reply.priority),
-                                fontWeight: 600,
-                                fontSize: 13,
-                                borderRadius: 8,
-                                padding: "2px 12px",
-                                display: "inline-block",
-                              }}
-                            >
-                              {getPriorityText(reply.priority)}
-                            </span>
-                          </TableCell>
-                          <TableCell $align="center">
-                            {formatDate(reply.createdAt)}
-                          </TableCell>
-                        </TableRow>
-                      );
-                    }
-                  });
+                            </TableCell>
+                            <TableCell>{reply.author.name}</TableCell>
+                            <TableCell $align="center">
+                              <StatusBadge
+                                $status={getStatusText(reply.status)}
+                              >
+                                {getStatusText(reply.status)}
+                              </StatusBadge>
+                            </TableCell>
+                            <TableCell $align="center">
+                              {getTypeText(reply.type)}
+                            </TableCell>
+                            <TableCell $align="center">
+                              <span
+                                style={{
+                                  ...getPriorityStyle(reply.priority),
+                                  fontWeight: 600,
+                                  fontSize: 13,
+                                  borderRadius: 8,
+                                  padding: "2px 12px",
+                                  display: "inline-block",
+                                }}
+                              >
+                                {getPriorityText(reply.priority)}
+                              </span>
+                            </TableCell>
+                            <TableCell $align="center">
+                              {formatDate(reply.createdAt)}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      }
+                    });
+                  }
                 }
               });
 
@@ -954,6 +962,7 @@ export default function PostListPage() {
         postId={formModalPostId || undefined}
         parentId={formModalParentId || undefined}
         stepId={stepId ? Number(stepId) : undefined}
+        projectId={projectId}
       />
     </PageContainer>
   );
