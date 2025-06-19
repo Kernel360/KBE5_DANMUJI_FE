@@ -270,7 +270,7 @@ export const FileActionButton = styled.button`
 `;
 
 export const AttachmentsSection = styled.div`
-  margin-bottom: 1.5rem;
+  margin: 20px 16px 0 16px;
   padding-bottom: 1rem;
   border-bottom: 1px solid #e5e7eb;
   display: flex;
@@ -278,6 +278,7 @@ export const AttachmentsSection = styled.div`
   align-items: flex-start;
   max-width: 600px;
   width: 100%;
+  box-sizing: border-box;
 `;
 
 export const NoFilesMessage = styled.div`
