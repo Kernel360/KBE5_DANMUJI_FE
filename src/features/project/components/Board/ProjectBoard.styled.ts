@@ -156,26 +156,37 @@ export const Th = styled.th`
   &:nth-child(1) {
     /* 번호 */
     width: 80px;
+    text-align: center;
   }
   &:nth-child(2) {
     /* 제목 */
-    width: 400px;
+    width: 300px;
+    text-align: left;
   }
   &:nth-child(3) {
-    /* 작성자 */
-    width: 120px;
+    /* 댓글 */
+    width: 80px;
+    text-align: center;
   }
   &:nth-child(4) {
-    /* 유형 */
-    width: 80px;
+    /* 작성자 */
+    width: 100px;
+    text-align: center;
   }
   &:nth-child(5) {
-    /* 우선순위 */
-    width: 100px;
+    /* 유형 */
+    width: 80px;
+    text-align: center;
   }
   &:nth-child(6) {
+    /* 우선순위 */
+    width: 100px;
+    text-align: center;
+  }
+  &:nth-child(7) {
     /* 작성일 */
     width: 150px;
+    text-align: center;
   }
 `;
 
@@ -187,26 +198,41 @@ export const Td = styled.td`
   &:nth-child(1) {
     /* 번호 */
     width: 80px;
+    text-align: center;
   }
   &:nth-child(2) {
     /* 제목 */
-    width: 400px;
+    width: 300px;
+    text-align: left;
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   &:nth-child(3) {
-    /* 작성자 */
-    width: 120px;
+    /* 댓글 */
+    width: 80px;
+    text-align: center;
   }
   &:nth-child(4) {
-    /* 유형 */
-    width: 80px;
+    /* 작성자 */
+    width: 100px;
+    text-align: center;
   }
   &:nth-child(5) {
-    /* 우선순위 */
-    width: 100px;
+    /* 유형 */
+    width: 80px;
+    text-align: center;
   }
   &:nth-child(6) {
+    /* 우선순위 */
+    width: 100px;
+    text-align: center;
+  }
+  &:nth-child(7) {
     /* 작성일 */
     width: 150px;
+    text-align: center;
   }
 `;
 

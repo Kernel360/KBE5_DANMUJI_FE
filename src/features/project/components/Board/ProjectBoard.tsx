@@ -468,6 +468,7 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
           <Tr>
             <Th>번호</Th>
             <Th>제목</Th>
+            <Th></Th>
             <Th>작성자</Th>
             <Th>유형</Th>
             <Th>우선순위</Th>
@@ -477,7 +478,7 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
         <Tbody>
           {loading ? (
             <Tr>
-              <Td colSpan={6}>
+              <Td colSpan={7}>
                 <div
                   style={{
                     display: "flex",
@@ -497,7 +498,7 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
             </Tr>
           ) : error ? (
             <Tr>
-              <Td colSpan={6}>
+              <Td colSpan={7}>
                 <div
                   style={{
                     display: "flex",
@@ -514,7 +515,7 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
             </Tr>
           ) : filteredPosts.length === 0 ? (
             <Tr>
-              <Td colSpan={6}>
+              <Td colSpan={7}>
                 <div
                   style={{
                     display: "flex",
@@ -538,32 +539,18 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
               >
                 <Td>{post.postId}</Td>
                 <Td>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      width: "100%",
-                      minWidth: 0,
-                    }}
-                  >
-                    <TitleText
-                      style={{
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                        flex: 1,
-                        minWidth: 0,
-                      }}
-                    >
-                      {post.title}
-                    </TitleText>
-                    {post.comments && post.comments.length > 0 && (
-                      <CommentInfo>댓글 {post.comments.length}</CommentInfo>
-                    )}
-                  </div>
+                  <TitleText>{post.title}</TitleText>
                 </Td>
-                <Td>{post.authorName}</Td>
+                <Td>
+                  {post.comments && post.comments.length > 0 ? (
+                    <CommentInfo>댓글 {post.comments.length}</CommentInfo>
+                  ) : (
+                    ""
+                  )}
+                </Td>
+                <Td>
+                  <span>{post.authorName}</span>
+                </Td>
                 <Td>
                   <TypeBadge type={post.type as "GENERAL" | "QUESTION"}>
                     {post.type === "GENERAL" ? "일반" : "질문"}
