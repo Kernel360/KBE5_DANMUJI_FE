@@ -58,6 +58,7 @@ export type Comment = {
 
 // 게시글 생성 데이터 타입
 export type PostCreateData = {
+  projectId: number;
   title: string;
   content: string;
   type: PostType;
@@ -74,6 +75,7 @@ export type Post = {
   parentId: number | null;
   projectStepId: number;
   authorIp: string;
+  authorId: number;
   author: Author;
   approver?: Author;
   project?: Project;

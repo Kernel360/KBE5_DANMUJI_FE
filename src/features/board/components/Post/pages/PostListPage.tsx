@@ -134,6 +134,7 @@ export default function PostListPage() {
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
   const [itemsPerPage] = useState(10);
+  const [projectId, setProjectId] = useState<number>(1); // 기본값 1
 
   // 검색 및 필터 상태
   const [searchTerm, setSearchTerm] = useState("");
@@ -244,6 +245,14 @@ export default function PostListPage() {
         setPosts(response.data.content);
         setTotalPages(response.data.page.totalPages);
         setTotalElements(response.data.page.totalElements);
+
+        // 첫 번째 게시글에서 projectId 가져오기
+        if (
+          response.data.content.length > 0 &&
+          response.data.content[0].project?.projectId
+        ) {
+          setProjectId(response.data.content[0].project.projectId);
+        }
 
         // 현재 페이지에 게시글이 없고, 총 페이지가 1보다 크면 이전 페이지로 이동
         if (
@@ -445,7 +454,10 @@ export default function PostListPage() {
             검색 및 필터
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <FilterToggleButton onClick={handleFilterToggle}>
+            <FilterToggleButton
+              onClick={handleFilterToggle}
+              className={isFilterExpanded ? "expanded" : ""}
+            >
               {isFilterExpanded ? "필터 접기" : "필터 펼치기"}
               <AiOutlineReload size={16} />
             </FilterToggleButton>
@@ -954,6 +966,7 @@ export default function PostListPage() {
         postId={formModalPostId || undefined}
         parentId={formModalParentId || undefined}
         stepId={stepId ? Number(stepId) : undefined}
+        projectId={projectId}
       />
     </PageContainer>
   );

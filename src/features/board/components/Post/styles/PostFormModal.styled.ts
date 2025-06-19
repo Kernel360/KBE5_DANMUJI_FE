@@ -222,3 +222,38 @@ export const LoadingSpinner = styled.div`
   color: #6b7280;
   font-size: 0.875rem;
 `;
+
+export const FileUploadArea = styled.div<{ isDragOver: boolean }>`
+  border: 2px dashed ${(props) => (props.isDragOver ? "#fdb924" : "#e5e7eb")};
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  text-align: center;
+  background-color: ${(props) => (props.isDragOver ? "#fffdfa" : "#f9fafb")};
+  transition: all 0.2s ease;
+  cursor: pointer;
+  position: relative;
+
+  &:hover {
+    border-color: #fdb924;
+    background-color: #fffdfa;
+  }
+`;
+
+// 스피너 애니메이션을 위한 글로벌 스타일
+export const SpinnerAnimation = styled.div`
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  .spinner {
+    border: 2px solid #f3f4f6;
+    border-top: 2px solid #fdb924;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+`;

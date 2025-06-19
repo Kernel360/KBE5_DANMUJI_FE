@@ -307,11 +307,11 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
 
     // 이 댓글을 부모로 하는 대댓글이 있는지 확인
     return comments.some((reply) => {
-      let parent = reply.parentCommentId;
+      let parent = reply.parentId;
       while (parent) {
         if (parent === comment.id) return true;
         const parentComment = comments.find((cc) => cc.id === parent);
-        parent = parentComment?.parentCommentId ?? null;
+        parent = parentComment?.parentId ?? null;
         if (!parent) return false;
       }
       return false;
@@ -323,9 +323,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
 
   // 렌더링되는 댓글 개수 계산
   const getRenderedCommentCount = () => {
-    const rootComments = visibleComments.filter(
-      (comment) => !comment.parentCommentId
-    );
+    const rootComments = visibleComments.filter((comment) => !comment.parentId);
     let totalCount = 0;
 
     rootComments.forEach((rootComment) => {
@@ -333,11 +331,11 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
 
       // 이 댓글을 부모로 하는 모든 답글(1,2,3...depth) 카운트
       const replies = visibleComments.filter((c) => {
-        let parent = c.parentCommentId;
+        let parent = c.parentId;
         while (parent) {
           if (parent === rootComment.id) return true;
           const parentComment = visibleComments.find((cc) => cc.id === parent);
-          parent = parentComment?.parentCommentId ?? null;
+          parent = parentComment?.parentId ?? null;
         }
         return false;
       });
@@ -449,74 +447,76 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
               >
                 <FaReply size={14} style={{ marginRight: 4 }} /> 답글
               </ModalHeaderActionButton>
-              {post.author?.id && isAuthor(post.author.id) && (
-                <>
-                  <button
-                    onClick={handleEditPost}
-                    style={{
-                      background: "none",
-                      color: "#888",
-                      border: "none",
-                      borderRadius: "5px",
-                      padding: "0 10px",
-                      fontSize: "0.85rem",
-                      fontWeight: "600",
-                      cursor: "pointer",
-                      height: "28px",
-                      minWidth: "0",
-                      boxShadow: "none",
-                      whiteSpace: "nowrap",
-                      transition: "background 0.15s, color 0.15s",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                    onMouseOver={(e) => {
-                      e.currentTarget.style.background = "#f3f4f6";
-                      e.currentTarget.style.color = "#fdb924";
-                    }}
-                    onMouseOut={(e) => {
-                      e.currentTarget.style.background = "none";
-                      e.currentTarget.style.color = "#888";
-                    }}
-                  >
-                    <FaEdit style={{ marginRight: "0.25rem" }} />
-                    수정
-                  </button>
-                  <button
-                    onClick={handleDeletePost}
-                    style={{
-                      background: "none",
-                      color: "#888",
-                      border: "none",
-                      borderRadius: "5px",
-                      padding: "0 10px",
-                      fontSize: "0.85rem",
-                      fontWeight: "600",
-                      cursor: "pointer",
-                      height: "28px",
-                      minWidth: "0",
-                      boxShadow: "none",
-                      whiteSpace: "nowrap",
-                      transition: "background 0.15s, color 0.15s",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                    onMouseOver={(e) => {
-                      e.currentTarget.style.background = "#f3f4f6";
-                      e.currentTarget.style.color = "#fdb924";
-                    }}
-                    onMouseOut={(e) => {
-                      e.currentTarget.style.background = "none";
-                      e.currentTarget.style.color = "#888";
-                    }}
-                  >
-                    <FaTrash style={{ marginRight: "0.25rem" }} />
-                    삭제
-                  </button>
-                </>
-              )}
+              {post.author?.id ?? post.authorId
+                ? isAuthor(post.author?.id ?? post.authorId) && (
+                    <>
+                      <button
+                        onClick={handleEditPost}
+                        style={{
+                          background: "none",
+                          color: "#888",
+                          border: "none",
+                          borderRadius: "5px",
+                          padding: "0 10px",
+                          fontSize: "0.85rem",
+                          fontWeight: "600",
+                          cursor: "pointer",
+                          height: "28px",
+                          minWidth: "0",
+                          boxShadow: "none",
+                          whiteSpace: "nowrap",
+                          transition: "background 0.15s, color 0.15s",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                        onMouseOver={(e) => {
+                          e.currentTarget.style.background = "#f3f4f6";
+                          e.currentTarget.style.color = "#fdb924";
+                        }}
+                        onMouseOut={(e) => {
+                          e.currentTarget.style.background = "none";
+                          e.currentTarget.style.color = "#888";
+                        }}
+                      >
+                        <FaEdit style={{ marginRight: "0.25rem" }} />
+                        수정
+                      </button>
+                      <button
+                        onClick={handleDeletePost}
+                        style={{
+                          background: "none",
+                          color: "#888",
+                          border: "none",
+                          borderRadius: "5px",
+                          padding: "0 10px",
+                          fontSize: "0.85rem",
+                          fontWeight: "600",
+                          cursor: "pointer",
+                          height: "28px",
+                          minWidth: "0",
+                          boxShadow: "none",
+                          whiteSpace: "nowrap",
+                          transition: "background 0.15s, color 0.15s",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                        onMouseOver={(e) => {
+                          e.currentTarget.style.background = "#f3f4f6";
+                          e.currentTarget.style.color = "#fdb924";
+                        }}
+                        onMouseOut={(e) => {
+                          e.currentTarget.style.background = "none";
+                          e.currentTarget.style.color = "#888";
+                        }}
+                      >
+                        <FaTrash style={{ marginRight: "0.25rem" }} />
+                        삭제
+                      </button>
+                    </>
+                  )
+                : null}
               <ModalHeaderCloseButton onClick={handleCloseWithAnimation}>
                 ×
               </ModalHeaderCloseButton>
@@ -1126,15 +1126,14 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                               if (isDeleted) {
                                 const hasReplies = commentsToRender.some(
                                   (comment) => {
-                                    let parent = comment.parentCommentId;
+                                    let parent = comment.parentId;
                                     while (parent) {
                                       if (parent === reply.id) return true;
                                       const parentComment =
                                         commentsToRender.find(
                                           (cc) => cc.id === parent
                                         );
-                                      parent =
-                                        parentComment?.parentCommentId ?? null;
+                                      parent = parentComment?.parentId ?? null;
                                     }
                                     return false;
                                   }

@@ -48,6 +48,7 @@ import {
   PaginationButton,
 } from "@/features/board/components/Post/styles/PostListPage.styled";
 import ProjectPostDetailModal from "@/features/board/components/Post/components/DetailModal/ProjectPostDetailModal";
+import PostFormModal from "@/features/board/components/Post/components/FormModal/PostFormModal";
 
 interface ProjectBoardProps {
   projectId: number;
@@ -84,6 +85,16 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
 
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
+
+  // 게시글 작성 모달 상태
+  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
+  const [formModalMode, setFormModalMode] = useState<"create" | "edit">(
+    "create"
+  );
+  const [formModalPostId, setFormModalPostId] = useState<number | null>(null);
+  const [formModalParentId, setFormModalParentId] = useState<number | null>(
+    null
+  );
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -198,6 +209,39 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
+  };
+
+  // 게시글 작성 모달 핸들러
+  const handleCreatePost = () => {
+    setFormModalMode("create");
+    setFormModalPostId(null);
+    setFormModalParentId(null);
+    setIsFormModalOpen(true);
+  };
+
+  const handleEditPost = (postId: number) => {
+    setFormModalMode("edit");
+    setFormModalPostId(postId);
+    setFormModalParentId(null);
+    setIsFormModalOpen(true);
+  };
+
+  const handleReplyPost = (parentId: number) => {
+    setFormModalMode("create");
+    setFormModalPostId(null);
+    setFormModalParentId(parentId);
+    setIsFormModalOpen(true);
+  };
+
+  const handleFormModalClose = () => {
+    setIsFormModalOpen(false);
+    setFormModalPostId(null);
+    setFormModalParentId(null);
+  };
+
+  const handleFormModalSuccess = () => {
+    // 게시글 목록 새로고침
+    fetchPosts();
   };
 
   // 게시글 계층 렌더링 함수
@@ -523,7 +567,7 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
           </NewButton>
         </FilterLeft>
         <FilterSearchRight>
-          <NewButton onClick={() => console.log("새 게시글 작성")}>
+          <NewButton onClick={handleCreatePost}>
             <FiPlus size={16} />
             게시글 작성
           </NewButton>
@@ -629,6 +673,17 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
         open={detailModalOpen}
         postId={selectedPostId}
         onClose={() => setDetailModalOpen(false)}
+      />
+
+      <PostFormModal
+        open={isFormModalOpen}
+        mode={formModalMode}
+        postId={formModalPostId || undefined}
+        parentId={formModalParentId || undefined}
+        stepId={selectedStepId}
+        projectId={projectId}
+        onClose={handleFormModalClose}
+        onSuccess={handleFormModalSuccess}
       />
     </Wrapper>
   );

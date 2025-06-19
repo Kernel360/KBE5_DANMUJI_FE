@@ -344,6 +344,11 @@ export const DropdownButton = styled.button<{
   min-width: 120px;
   justify-content: space-between;
 
+  svg {
+    transition: transform 0.2s;
+    transform: ${({ $isOpen }) => ($isOpen ? "rotate(180deg)" : "none")};
+  }
+
   &:hover {
     background: ${({ $active, $color }) =>
       $active ? `${$color}25` : "#f9fafb"};
@@ -384,7 +389,7 @@ export const DropdownItem = styled.div<{
   padding: 10px 16px;
   background: ${({ $active, $color }) => ($active ? `${$color}15` : "#ffffff")};
   color: ${({ $active, $color }) => ($active ? $color : "#374151")};
-  border: 2px solid ${({ $active, $color }) => ($active ? $color : "#e5e7eb")};
+  border: none;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -393,7 +398,7 @@ export const DropdownItem = styled.div<{
   &:hover {
     background: ${({ $active, $color }) =>
       $active ? `${$color}25` : "#f9fafb"};
-    border-color: ${({ $active, $color }) => ($active ? $color : "#d1d5db")};
+    border: none;
   }
 
   &:first-child {

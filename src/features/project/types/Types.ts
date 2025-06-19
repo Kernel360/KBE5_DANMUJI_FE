@@ -1,4 +1,6 @@
 export type PostPriority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+export type PostType = "GENERAL" | "QUESTION";
+
 export const POST_PRIORITY_OPTIONS: PostPriority[] = [
   "LOW",
   "MEDIUM",
@@ -11,8 +13,6 @@ export const POST_PRIORITY_LABELS: Record<PostPriority, string> = {
   HIGH: "높음",
   URGENT: "긴급",
 };
-
-export type PostType = "GENERAL" | "QUESTION";
 
 // 파일 타입
 export type PostFile = {

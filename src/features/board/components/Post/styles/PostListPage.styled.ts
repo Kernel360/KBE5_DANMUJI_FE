@@ -37,7 +37,7 @@ export const Toolbar = styled.div`
 
 export const FilterSelect = styled.select`
   padding: 0.375rem 0.5rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid #d1d5db !important;
   border-radius: 0.375rem;
   background-color: white;
   font-size: 0.75rem;
@@ -48,16 +48,23 @@ export const FilterSelect = styled.select`
   transition: all 0.1s ease;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   height: 32px;
+  outline: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 1em;
+  padding-right: 2rem;
 
   &:hover {
-    border-color: #9ca3af;
+    border-color: #9ca3af !important;
     background-color: #f9fafb;
   }
 
   &:focus {
-    outline: none;
-    border-color: #fdb924;
-    box-shadow: 0 0 0 2px rgba(253, 185, 36, 0.1);
+    outline: none !important;
+    border-color: #fdb924 !important;
+    box-shadow: 0 0 0 2px rgba(253, 185, 36, 0.1) !important;
     background-color: white;
   }
 
@@ -397,6 +404,14 @@ export const FilterToggleButton = styled.button`
   &:hover {
     background: #e5e7eb;
     border-color: #9ca3af;
+  }
+
+  svg {
+    transition: transform 0.2s ease;
+  }
+
+  &.expanded svg {
+    transform: rotate(180deg);
   }
 `;
 

@@ -65,9 +65,36 @@ export const createPost = async (
   postData: PostCreateData
 ): Promise<ApiResponse<PostCreateResponse>> => {
   try {
+    // FormData 객체 생성
+    const formData = new FormData();
+
+    // JSON 데이터를 "data" 파트로 추가
+    const jsonData = {
+      projectId: postData.projectId,
+      stepId: postData.stepId,
+      title: postData.title,
+      content: postData.content,
+      type: postData.type,
+      status: postData.status,
+      priority: postData.priority,
+      ...(postData.parentId && { parentId: postData.parentId }),
+    };
+
+    formData.append(
+      "data",
+      new Blob([JSON.stringify(jsonData)], {
+        type: "application/json",
+      })
+    );
+
     const response = await api.post<ApiResponse<PostCreateResponse>>(
       "/api/posts",
-      postData
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
     );
     return handleApiResponse<PostCreateResponse>(response);
   } catch (error) {
