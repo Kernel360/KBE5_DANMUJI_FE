@@ -39,6 +39,7 @@ export const StepItem = styled.div<{ active?: boolean; complete?: boolean }>`
   gap: 2px;
   padding: 8px;
   border-radius: 8px;
+  outline: none;
 
   &:hover {
     transform: translateY(-2px);
@@ -47,6 +48,10 @@ export const StepItem = styled.div<{ active?: boolean; complete?: boolean }>`
 
   &:active {
     transform: translateY(0);
+  }
+
+  &:focus {
+    outline: none;
   }
 `;
 
