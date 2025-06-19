@@ -198,6 +198,70 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
     setCurrentPage(newPage);
   };
 
+  // 게시글 계층 렌더링 함수
+  const renderPosts = (
+    posts: PostSummaryReadResponse[],
+    parentId: number | null = null,
+    depth: number = 0
+  ) => {
+    return posts
+      .filter((post) => post.parentId === parentId)
+      .map((post) => [
+        <Tr
+          key={post.postId}
+          style={{
+            cursor: "pointer",
+            background: depth > 0 ? "#f9fafb" : undefined,
+          }}
+          onClick={() => handleRowClick(post.postId)}
+        >
+          <Td style={depth > 0 ? { paddingLeft: 32 * depth } : {}}>
+            <TitleText>
+              {depth > 0 && (
+                <>
+                  <span
+                    style={{
+                      color: "#fdb924",
+                      fontSize: "0.85em",
+                      fontWeight: 700,
+                      marginRight: 8,
+                    }}
+                  >
+                    ㄴ [답글]
+                  </span>
+                </>
+              )}
+              {post.title}
+            </TitleText>
+          </Td>
+          <Td>
+            {post.comments && post.comments.length > 0 ? (
+              <CommentInfo>댓글 {post.comments.length}</CommentInfo>
+            ) : (
+              ""
+            )}
+          </Td>
+          <Td>
+            <span>{post.authorName}</span>
+          </Td>
+          <Td>
+            <TypeBadge type={post.type as "GENERAL" | "QUESTION"}>
+              {post.type === "GENERAL" ? "일반" : "질문"}
+            </TypeBadge>
+          </Td>
+          <Td>
+            <StatusBadge priority={post.priority as any}>
+              {POST_PRIORITY_LABELS[post.priority as any]}
+            </StatusBadge>
+          </Td>
+          <Td>{formatDate(post.createdAt)}</Td>
+        </Tr>,
+        // 답글(자식)도 재귀적으로 렌더링
+        ...renderPosts(posts, post.postId, depth + 1),
+      ])
+      .flat();
+  };
+
   return (
     <Wrapper>
       <Filters>
@@ -466,7 +530,6 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
       <Table>
         <Thead>
           <Tr>
-            <Th>번호</Th>
             <Th>제목</Th>
             <Th></Th>
             <Th>작성자</Th>
@@ -478,7 +541,7 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
         <Tbody>
           {loading ? (
             <Tr>
-              <Td colSpan={7}>
+              <Td colSpan={6}>
                 <div
                   style={{
                     display: "flex",
@@ -498,7 +561,7 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
             </Tr>
           ) : error ? (
             <Tr>
-              <Td colSpan={7}>
+              <Td colSpan={6}>
                 <div
                   style={{
                     display: "flex",
@@ -515,7 +578,7 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
             </Tr>
           ) : filteredPosts.length === 0 ? (
             <Tr>
-              <Td colSpan={7}>
+              <Td colSpan={6}>
                 <div
                   style={{
                     display: "flex",
@@ -531,39 +594,7 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
               </Td>
             </Tr>
           ) : (
-            filteredPosts.map((post) => (
-              <Tr
-                key={post.postId}
-                style={{ cursor: "pointer" }}
-                onClick={() => handleRowClick(post.postId)}
-              >
-                <Td>{post.postId}</Td>
-                <Td>
-                  <TitleText>{post.title}</TitleText>
-                </Td>
-                <Td>
-                  {post.comments && post.comments.length > 0 ? (
-                    <CommentInfo>댓글 {post.comments.length}</CommentInfo>
-                  ) : (
-                    ""
-                  )}
-                </Td>
-                <Td>
-                  <span>{post.authorName}</span>
-                </Td>
-                <Td>
-                  <TypeBadge type={post.type as "GENERAL" | "QUESTION"}>
-                    {post.type === "GENERAL" ? "일반" : "질문"}
-                  </TypeBadge>
-                </Td>
-                <Td>
-                  <StatusBadge priority={post.priority as any}>
-                    {POST_PRIORITY_LABELS[post.priority as any]}
-                  </StatusBadge>
-                </Td>
-                <Td>{formatDate(post.createdAt)}</Td>
-              </Tr>
-            ))
+            renderPosts(filteredPosts)
           )}
         </Tbody>
       </Table>
