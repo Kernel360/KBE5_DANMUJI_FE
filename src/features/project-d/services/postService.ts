@@ -492,7 +492,7 @@ export const searchPosts = async (
     author?: string;
     clientCompany?: string;
     developerCompany?: string;
-    priority?: number;
+    priority?: PostPriority;
     status?: PostStatus;
     type?: PostType;
   },

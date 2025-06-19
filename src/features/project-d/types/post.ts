@@ -14,10 +14,10 @@ export enum PostType {
 
 // 우선순위 enum
 export enum PostPriority {
-  LOW = 1,
-  MEDIUM = 2,
-  HIGH = 3,
-  URGENT = 4,
+  LOW = "LOW",
+  MEDIUM = "MEDIUM",
+  HIGH = "HIGH",
+  URGENT = "URGENT",
 }
 
 // 작성자 타입
