@@ -880,17 +880,17 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                 <CommentsList>
                   {commentsToRender.length > 0 ? (
                     commentsToRender
-                      .filter((comment) => !comment.parentCommentId)
+                      .filter((comment) => !comment.parentId)
                       .map((rootComment) => {
                         // 이 댓글을 부모로 하는 모든 답글(1,2,3...depth) 평면적으로 시간순 정렬
                         const replies = commentsToRender.filter((c) => {
-                          let parent = c.parentCommentId;
+                          let parent = c.parentId;
                           while (parent) {
                             if (parent === rootComment.id) return true;
                             const parentComment = commentsToRender.find(
                               (cc) => cc.id === parent
                             );
-                            parent = parentComment?.parentCommentId ?? null;
+                            parent = parentComment?.parentId ?? null;
                           }
                           return false;
                         });
@@ -930,7 +930,8 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                   <CommentMeta>
                                     <CommentAuthor>
                                       {rootComment.author?.name ||
-                                        "알 수 없는 사용자"}
+                                        rootComment.authorName ||
+                                        "undefined"}
                                       <span
                                         style={{
                                           fontSize: 11,
@@ -1162,7 +1163,8 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                   <CommentMeta>
                                     <CommentAuthor>
                                       {reply.author?.name ||
-                                        "알 수 없는 사용자"}
+                                        reply.authorName ||
+                                        "undefined"}
                                       <span
                                         style={{
                                           fontSize: 11,
