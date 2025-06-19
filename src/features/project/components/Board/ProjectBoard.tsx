@@ -47,6 +47,7 @@ import {
   PaginationNav,
   PaginationButton,
 } from "@/features/board/components/Post/styles/PostListPage.styled";
+import ProjectPostDetailModal from "@/features/board/components/Post/components/DetailModal/ProjectPostDetailModal";
 
 interface ProjectBoardProps {
   projectId: number;
@@ -80,6 +81,9 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
   const [isTypeDropdownOpen, setIsTypeDropdownOpen] = useState(false);
   const [isPriorityDropdownOpen, setIsPriorityDropdownOpen] = useState(false);
   const [isKeywordDropdownOpen, setIsKeywordDropdownOpen] = useState(false);
+
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -135,8 +139,8 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
   });
 
   const handleRowClick = (postId: number) => {
-    console.log("게시글 클릭:", postId);
-    // 여기에 게시글 상세 모달 또는 페이지 이동 로직 추가
+    setSelectedPostId(postId);
+    setDetailModalOpen(true);
   };
 
   const handleResetFilters = () => {
@@ -620,6 +624,12 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
           </PaginationNav>
         </PaginationContainer>
       )}
+
+      <ProjectPostDetailModal
+        open={detailModalOpen}
+        postId={selectedPostId}
+        onClose={() => setDetailModalOpen(false)}
+      />
     </Wrapper>
   );
 };
