@@ -45,9 +45,11 @@ export type Comment = {
   deletedAt: unknown;
   id: number;
   postId: number;
-  parentCommentId: number | null;
+  parentId?: number | null;
   authorIp: string;
-  author: Author;
+  authorId?: number;
+  authorName?: string;
+  author?: Author;
   content: string;
   createdAt: string;
   updatedAt: string;

@@ -108,6 +108,13 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
           try {
             const commentsResponse = await getComments(postId);
             if (commentsResponse.data) {
+              // 추가: 각 댓글의 작성자 이름과 IP 콘솔 출력
+              (Array.isArray(commentsResponse.data)
+                ? commentsResponse.data
+                : []
+              ).forEach((c) => {
+                console.log("댓글 작성자:", c.authorName, "IP:", c.authorIp);
+              });
               setComments(commentsResponse.data);
             }
           } catch (commentError) {
