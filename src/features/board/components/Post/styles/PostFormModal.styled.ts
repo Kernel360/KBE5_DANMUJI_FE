@@ -349,7 +349,7 @@ export const DropdownItem = styled.div<{
   align-items: center;
   gap: 8px;
   padding: 12px 16px;
-  background: ${({ $active, $color }) => ($active ? `${$color}15` : "#ffffff")};
+  background: ${({ $active, $color }) => ($active ? "#f6f7fa" : "#ffffff")};
   color: ${({ $active, $color }) => ($active ? $color : "#374151")};
   border: none;
   font-size: 14px;
@@ -360,8 +360,7 @@ export const DropdownItem = styled.div<{
   text-align: left;
 
   &:hover {
-    background: ${({ $active, $color }) =>
-      $active ? `${$color}25` : "#f9fafb"};
+    background: ${({ $active, $color }) => ($active ? "#f0f1f3" : "#f9fafb")};
     border: none;
   }
 

@@ -23,7 +23,11 @@ export const StepContainer = styled.div`
   justify-content: center;
 `;
 
-export const StepItem = styled.div<{ active?: boolean; complete?: boolean }>`
+export const StepItem = styled.div<{
+  active?: boolean;
+  complete?: boolean;
+  selected?: boolean;
+}>`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -35,11 +39,20 @@ export const StepItem = styled.div<{ active?: boolean; complete?: boolean }>`
   position: relative;
   min-width: 56px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   gap: 2px;
   padding: 8px;
   border-radius: 8px;
   outline: none;
+  border: 2px solid transparent;
+  box-sizing: border-box;
+
+  ${({ selected }) =>
+    selected &&
+    `
+      transform: scale(1.08) translateY(-8px);
+      z-index: 10;
+    `}
 
   &:hover {
     transform: translateY(-2px);

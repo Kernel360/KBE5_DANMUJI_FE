@@ -89,9 +89,13 @@ const ProjectProgress: React.FC<ProjectProgressProps> = ({
               <StepItem
                 active={isActive || isSelected}
                 complete={isComplete}
+                selected={isSelected}
                 onClick={() => handleStepClick(step.id)}
                 style={{
                   cursor: onStepSelect ? "pointer" : "default",
+                  border: "none",
+                  background: "transparent",
+                  boxShadow: "none",
                 }}
               >
                 <StepIcon active={isActive || isSelected} complete={isComplete}>
