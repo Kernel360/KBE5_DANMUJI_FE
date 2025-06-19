@@ -111,10 +111,7 @@ const ProjectProgress: React.FC<ProjectProgressProps> = ({
                 </StepStatus>
               </StepItem>
               {index !== projectDetail.steps.length - 1 && (
-                <StepLine
-                  active={isActive || isSelected}
-                  complete={isComplete}
-                />
+                <StepLine active={isActive} complete={isComplete} />
               )}
             </React.Fragment>
           );
