@@ -109,12 +109,26 @@ export const TextArea = styled.textarea`
   font-size: 0.875rem;
   background-color: white;
   color: #374151;
-  resize: vertical;
-  min-height: 120px;
-  transition: all 0.2s ease;
+  resize: both;
+  background: white;
+  position: relative;
+  padding-bottom: 2.2em;
 
+  &::-webkit-resizer {
+    display: none;
+  }
+  &::-moz-resizer {
+    display: none;
+  }
+  &::-ms-resizer {
+    display: none;
+  }
+  &::resizer {
+    display: none;
+  }
   &:hover {
-    border-color: #9ca3af;
+    cursor: se-resize;
+    box-shadow: 0 0 0 2px #fdb92433;
   }
 
   &:focus {

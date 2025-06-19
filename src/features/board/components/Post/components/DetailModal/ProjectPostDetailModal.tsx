@@ -26,6 +26,7 @@ import {
   InfoKey,
   InfoValue,
   QuestionAnswerStyledButton,
+  RelativeTextareaWrapper,
 } from "@/features/board/components/Post/styles/ProjectPostDetailModal.styled";
 import {
   getPostDetail,
@@ -827,9 +828,9 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                 <SectionTitle>댓글 ({renderedCommentCount})</SectionTitle>
 
                 {/* 댓글 입력창을 위로 이동 */}
-                <div style={{ marginBottom: "1.5rem", position: "relative" }}>
+                <RelativeTextareaWrapper style={{ marginBottom: "1.5rem" }}>
                   <CommentTextArea
-                    placeholder="댓글을 입력하세요"
+                    placeholder="댓글을 입력하세요 (우측 하단 마우스 드래그를 통해 크기 조절 가능)"
                     value={commentText}
                     onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                       setCommentText(e.target.value)
@@ -841,7 +842,6 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                       borderRadius: "0.5rem",
                       padding: "0.75rem",
                       fontSize: "0.875rem",
-                      resize: "vertical",
                       minHeight: "60px",
                       background: "white",
                       color: "#374151",
@@ -875,7 +875,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                   >
                     {submittingComment ? "..." : "댓글"}
                   </CommentSubmitButton>
-                </div>
+                </RelativeTextareaWrapper>
 
                 <CommentsList>
                   {commentsToRender.length > 0 ? (
@@ -1086,7 +1086,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                     rootComment.id && (
                                     <ReplyInputContainer>
                                       <CommentTextArea
-                                        placeholder="답글을 입력하세요"
+                                        placeholder="답글을 입력하세요 (크기 조절 가능)"
                                         value={replyText}
                                         onChange={(
                                           e: React.ChangeEvent<HTMLTextAreaElement>
@@ -1330,7 +1330,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                     reply.id && (
                                     <ReplyInputContainer>
                                       <CommentTextArea
-                                        placeholder="답글을 입력하세요"
+                                        placeholder="답글을 입력하세요 (크기 조절 가능)"
                                         value={replyText}
                                         onChange={(
                                           e: React.ChangeEvent<HTMLTextAreaElement>
@@ -1370,6 +1370,52 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
               </CommentsSection>
             </div>
           </ModalBody>
+          {/* 하단 버튼 영역 */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              gap: "12px",
+              padding: "18px 24px 18px 24px",
+              borderTop: "1px solid #f3f4f6",
+              background: "#fff",
+            }}
+          >
+            <button
+              type="button"
+              onClick={onClose}
+              style={{
+                padding: "8px 20px",
+                fontSize: "1rem",
+                borderRadius: "6px",
+                border: "1px solid #e5e7eb",
+                background: "#f9fafb",
+                color: "#6b7280",
+                fontWeight: 500,
+                cursor: "pointer",
+                transition: "background 0.15s, color 0.15s",
+              }}
+            >
+              취소
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              style={{
+                padding: "8px 20px",
+                fontSize: "1rem",
+                borderRadius: "6px",
+                border: "1px solid #fdb924",
+                background: "#fdb924",
+                color: "#fff",
+                fontWeight: 600,
+                cursor: "pointer",
+                transition: "background 0.15s, color 0.15s",
+              }}
+            >
+              확인
+            </button>
+          </div>
         </ModalPanel>
       </ModalOverlay>
       <QuestionAnswerModal

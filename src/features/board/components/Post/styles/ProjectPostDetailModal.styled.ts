@@ -294,9 +294,10 @@ export const CommentTextArea = styled.textarea`
   padding: 0.5rem 0.75rem;
   font-size: 0.875rem;
   min-height: 60px;
-  resize: vertical;
-  background-color: #ffffff;
-  color: #333333;
+  resize: both;
+  background: white;
+  position: relative;
+  padding-bottom: 2.2em;
 
   &:focus {
     outline: none;
@@ -306,6 +307,23 @@ export const CommentTextArea = styled.textarea`
 
   &::placeholder {
     color: #9ca3af;
+  }
+
+  &::-webkit-resizer {
+    display: none;
+  }
+  &::-moz-resizer {
+    display: none;
+  }
+  &::-ms-resizer {
+    display: none;
+  }
+  &::resizer {
+    display: none;
+  }
+  &:hover {
+    cursor: se-resize;
+    box-shadow: 0 0 0 2px #fdb92433;
   }
 `;
 
@@ -454,4 +472,42 @@ export const InfoValue = styled.span`
   color: #222;
   font-size: 0.95rem;
   font-weight: 500;
+`;
+
+export const RelativeTextareaWrapper = styled.div`
+  position: relative;
+  width: 100%;
+  min-width: 0;
+`;
+
+export const ResizeGuide = styled.div`
+  position: absolute;
+  right: 10px;
+  bottom: 38px;
+  font-size: 13px;
+  color: #bdbdbd;
+  opacity: 0.6;
+  pointer-events: none;
+  user-select: none;
+  transition: opacity 0.2s;
+  z-index: 2;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  svg {
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  ${RelativeTextareaWrapper}:hover & {
+    opacity: 1;
+    color: #fdb924;
+    svg path {
+      fill: #fdb924;
+    }
+  }
 `;

@@ -523,11 +523,13 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
                       data-dropdown="type"
                     >
                       <DropdownButton
-                        $active={formData.type !== PostType.GENERAL}
+                        $active={true}
                         $color={
                           formData.type === PostType.GENERAL
                             ? "#3b82f6"
-                            : "#f59e0b"
+                            : formData.type === PostType.NOTICE
+                            ? "#f59e0b"
+                            : "#3b82f6"
                         }
                         $isOpen={isTypeDropdownOpen}
                         onClick={handleTypeDropdownToggle}
@@ -587,7 +589,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
                       data-dropdown="priority"
                     >
                       <DropdownButton
-                        $active={formData.priority !== PostPriority.LOW}
+                        $active={true}
                         $color={
                           formData.priority === PostPriority.LOW
                             ? "#10b981"
@@ -595,7 +597,9 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
                             ? "#fbbf24"
                             : formData.priority === PostPriority.HIGH
                             ? "#a21caf"
-                            : "#ef4444"
+                            : formData.priority === PostPriority.URGENT
+                            ? "#ef4444"
+                            : "#10b981"
                         }
                         $isOpen={isPriorityDropdownOpen}
                         onClick={handlePriorityDropdownToggle}
@@ -803,7 +807,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
                     name="content"
                     value={formData.content}
                     onChange={handleChange}
-                    placeholder="게시글 내용을 입력하세요"
+                    placeholder="게시글 내용을 입력하세요 (우측 하단 마우스 드래그를 통해 크기 조절이 가능)"
                     rows={8}
                     required
                   />
