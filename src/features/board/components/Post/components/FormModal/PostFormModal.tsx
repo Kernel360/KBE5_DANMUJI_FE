@@ -8,8 +8,11 @@ import {
   type PostCreateData,
   type PostUpdateRequest,
   PostStatus,
+  PostType,
+  PostPriority,
 } from "@/features/project-d/types/post";
-import type { PostType, PostPriority } from "@/features/project/types/Types";
+import { getProjectDetail } from "@/features/project/services/projectService";
+import type { ProjectDetailResponse } from "@/features/project/services/projectService";
 import {
   ModalOverlay,
   ModalPanel,
@@ -54,6 +57,7 @@ import {
   FiMinus,
   FiArrowUp,
   FiAlertTriangle,
+  FiTarget,
 } from "react-icons/fi";
 
 interface PostFormModalProps {
@@ -83,8 +87,8 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
     projectId: projectId,
     title: "",
     content: "",
-    type: "GENERAL" as PostType,
-    priority: "LOW" as PostPriority,
+    type: PostType.GENERAL,
+    priority: PostPriority.LOW,
     status: PostStatus.PENDING,
     stepId: stepId,
   });
@@ -99,8 +103,38 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
   // 드롭다운 상태
   const [isTypeDropdownOpen, setIsTypeDropdownOpen] = useState(false);
   const [isPriorityDropdownOpen, setIsPriorityDropdownOpen] = useState(false);
+  const [isStepDropdownOpen, setIsStepDropdownOpen] = useState(false);
+
+  // 프로젝트 단계 정보
+  const [projectSteps, setProjectSteps] = useState<
+    ProjectDetailResponse["steps"]
+  >([]);
+  const [projectLoading, setProjectLoading] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // 프로젝트 단계 정보 가져오기
+  useEffect(() => {
+    const fetchProjectSteps = async () => {
+      if (!projectId) return;
+
+      try {
+        setProjectLoading(true);
+        const response = await getProjectDetail(projectId);
+        if (response.data) {
+          setProjectSteps(response.data.steps);
+        }
+      } catch (err) {
+        console.error("프로젝트 단계 정보 로드 실패:", err);
+      } finally {
+        setProjectLoading(false);
+      }
+    };
+
+    if (open) {
+      fetchProjectSteps();
+    }
+  }, [open, projectId]);
 
   // 수정 모드일 때 기존 게시글 데이터 로드
   useEffect(() => {
@@ -142,8 +176,8 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
               projectId: projectId,
               title: "",
               content: "",
-              type: "GENERAL" as PostType,
-              priority: "LOW" as PostPriority,
+              type: PostType.GENERAL,
+              priority: PostPriority.LOW,
               status: PostStatus.PENDING,
               stepId: stepId,
             });
@@ -155,8 +189,8 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
               projectId: projectId,
               title: "",
               content: "",
-              type: "GENERAL" as PostType,
-              priority: "LOW" as PostPriority,
+              type: PostType.GENERAL,
+              priority: PostPriority.LOW,
               status: PostStatus.PENDING,
               stepId: stepId,
             });
@@ -171,8 +205,8 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
           projectId: projectId,
           title: "",
           content: "",
-          type: "GENERAL" as PostType,
-          priority: "LOW" as PostPriority,
+          type: PostType.GENERAL,
+          priority: PostPriority.LOW,
           status: PostStatus.PENDING,
           stepId: stepId,
         });
@@ -190,7 +224,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === "priority" ? (value as PostPriority) : value,
+      [name]: name === "priority" ? (Number(value) as PostPriority) : value,
     }));
     setFormErrors((prev) => ({ ...prev, [name]: "" }));
   };
@@ -200,6 +234,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
     setIsTypeDropdownOpen((prev) => {
       if (!prev) {
         setIsPriorityDropdownOpen(false);
+        setIsStepDropdownOpen(false);
       }
       return !prev;
     });
@@ -209,6 +244,17 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
     setIsPriorityDropdownOpen((prev) => {
       if (!prev) {
         setIsTypeDropdownOpen(false);
+        setIsStepDropdownOpen(false);
+      }
+      return !prev;
+    });
+  };
+
+  const handleStepDropdownToggle = () => {
+    setIsStepDropdownOpen((prev) => {
+      if (!prev) {
+        setIsTypeDropdownOpen(false);
+        setIsPriorityDropdownOpen(false);
       }
       return !prev;
     });
@@ -223,6 +269,28 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
   const handlePrioritySelect = (priority: PostPriority) => {
     setFormData((prev) => ({ ...prev, priority }));
     setIsPriorityDropdownOpen(false);
+  };
+
+  const handleStepSelect = (stepId: number) => {
+    setFormData((prev) => ({ ...prev, stepId }));
+    setIsStepDropdownOpen(false);
+  };
+
+  // 모달 내 클릭 시 드롭다운 닫기
+  const handleModalClick = (e: React.MouseEvent) => {
+    // 드롭다운 컨테이너나 버튼을 클릭한 경우는 제외
+    const target = e.target as HTMLElement;
+    if (
+      target.closest(".dropdown-container") ||
+      target.closest("[data-dropdown]")
+    ) {
+      return;
+    }
+
+    // 다른 곳을 클릭하면 모든 드롭다운 닫기
+    setIsTypeDropdownOpen(false);
+    setIsPriorityDropdownOpen(false);
+    setIsStepDropdownOpen(false);
   };
 
   const validateForm = () => {
@@ -351,6 +419,23 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
     setFiles((prev) => [...prev, ...selectedFiles]);
   };
 
+  // 단계 상태 텍스트 변환
+  const getStepStatusText = (status: string) => {
+    switch (status) {
+      case "COMPLETED":
+        return "완료";
+      case "IN_PROGRESS":
+        return "진행중";
+      case "PENDING":
+        return "대기";
+      default:
+        return status;
+    }
+  };
+
+  // 현재 선택된 단계 정보
+  const selectedStep = projectSteps.find((step) => step.id === formData.stepId);
+
   if (!open) return null;
 
   return (
@@ -380,7 +465,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
             </ModalCloseButton>
           </ModalHeader>
 
-          <ModalBody>
+          <ModalBody onClick={handleModalClick}>
             {loading ? (
               <LoadingSpinner>로딩 중...</LoadingSpinner>
             ) : (
@@ -433,39 +518,44 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
                         유형
                       </div>
                     </Label>
-                    <DropdownContainer>
+                    <DropdownContainer
+                      className="dropdown-container"
+                      data-dropdown="type"
+                    >
                       <DropdownButton
-                        $active={formData.type !== "GENERAL"}
+                        $active={formData.type !== PostType.GENERAL}
                         $color={
-                          formData.type === "GENERAL" ? "#3b82f6" : "#f59e0b"
+                          formData.type === PostType.GENERAL
+                            ? "#3b82f6"
+                            : "#f59e0b"
                         }
                         $isOpen={isTypeDropdownOpen}
                         onClick={handleTypeDropdownToggle}
                         type="button"
                       >
-                        {formData.type === "GENERAL" ? (
+                        {formData.type === PostType.GENERAL ? (
                           <FiMessageSquare size={16} />
                         ) : (
                           <FiFlag size={16} />
                         )}
                         <span>
-                          {formData.type === "GENERAL" ? "일반" : "질문"}
+                          {formData.type === PostType.GENERAL ? "일반" : "질문"}
                         </span>
                         <FiChevronDown size={16} />
                       </DropdownButton>
                       <DropdownMenu $isOpen={isTypeDropdownOpen}>
                         <DropdownItem
-                          $active={formData.type === "GENERAL"}
+                          $active={formData.type === PostType.GENERAL}
                           $color={"#3b82f6"}
-                          onClick={() => handleTypeSelect("GENERAL")}
+                          onClick={() => handleTypeSelect(PostType.GENERAL)}
                         >
                           <FiMessageSquare size={16} />
                           <span>일반</span>
                         </DropdownItem>
                         <DropdownItem
-                          $active={formData.type === "QUESTION"}
+                          $active={formData.type === PostType.NOTICE}
                           $color={"#f59e0b"}
-                          onClick={() => handleTypeSelect("QUESTION")}
+                          onClick={() => handleTypeSelect(PostType.NOTICE)}
                         >
                           <FiFlag size={16} />
                           <span>질문</span>
@@ -486,15 +576,18 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
                         우선순위
                       </div>
                     </Label>
-                    <DropdownContainer>
+                    <DropdownContainer
+                      className="dropdown-container"
+                      data-dropdown="priority"
+                    >
                       <DropdownButton
-                        $active={formData.priority !== "LOW"}
+                        $active={formData.priority !== PostPriority.LOW}
                         $color={
-                          formData.priority === "LOW"
+                          formData.priority === PostPriority.LOW
                             ? "#10b981"
-                            : formData.priority === "MEDIUM"
+                            : formData.priority === PostPriority.MEDIUM
                             ? "#fbbf24"
-                            : formData.priority === "HIGH"
+                            : formData.priority === PostPriority.HIGH
                             ? "#a21caf"
                             : "#ef4444"
                         }
@@ -502,21 +595,21 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
                         onClick={handlePriorityDropdownToggle}
                         type="button"
                       >
-                        {formData.priority === "LOW" ? (
+                        {formData.priority === PostPriority.LOW ? (
                           <FiArrowDown size={16} />
-                        ) : formData.priority === "MEDIUM" ? (
+                        ) : formData.priority === PostPriority.MEDIUM ? (
                           <FiMinus size={16} />
-                        ) : formData.priority === "HIGH" ? (
+                        ) : formData.priority === PostPriority.HIGH ? (
                           <FiArrowUp size={16} />
                         ) : (
                           <FiAlertTriangle size={16} />
                         )}
                         <span>
-                          {formData.priority === "LOW"
+                          {formData.priority === PostPriority.LOW
                             ? "낮음"
-                            : formData.priority === "MEDIUM"
+                            : formData.priority === PostPriority.MEDIUM
                             ? "보통"
-                            : formData.priority === "HIGH"
+                            : formData.priority === PostPriority.HIGH
                             ? "높음"
                             : "긴급"}
                         </span>
@@ -524,37 +617,128 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
                       </DropdownButton>
                       <DropdownMenu $isOpen={isPriorityDropdownOpen}>
                         <DropdownItem
-                          $active={formData.priority === "LOW"}
+                          $active={formData.priority === PostPriority.LOW}
                           $color={"#10b981"}
-                          onClick={() => handlePrioritySelect("LOW")}
+                          onClick={() => handlePrioritySelect(PostPriority.LOW)}
                         >
                           <FiArrowDown size={16} />
                           <span>낮음</span>
                         </DropdownItem>
                         <DropdownItem
-                          $active={formData.priority === "MEDIUM"}
+                          $active={formData.priority === PostPriority.MEDIUM}
                           $color={"#fbbf24"}
-                          onClick={() => handlePrioritySelect("MEDIUM")}
+                          onClick={() =>
+                            handlePrioritySelect(PostPriority.MEDIUM)
+                          }
                         >
                           <FiMinus size={16} />
                           <span>보통</span>
                         </DropdownItem>
                         <DropdownItem
-                          $active={formData.priority === "HIGH"}
+                          $active={formData.priority === PostPriority.HIGH}
                           $color={"#a21caf"}
-                          onClick={() => handlePrioritySelect("HIGH")}
+                          onClick={() =>
+                            handlePrioritySelect(PostPriority.HIGH)
+                          }
                         >
                           <FiArrowUp size={16} />
                           <span>높음</span>
                         </DropdownItem>
                         <DropdownItem
-                          $active={formData.priority === "URGENT"}
+                          $active={formData.priority === PostPriority.URGENT}
                           $color={"#ef4444"}
-                          onClick={() => handlePrioritySelect("URGENT")}
+                          onClick={() =>
+                            handlePrioritySelect(PostPriority.URGENT)
+                          }
                         >
                           <FiAlertTriangle size={16} />
                           <span>긴급</span>
                         </DropdownItem>
+                      </DropdownMenu>
+                    </DropdownContainer>
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <Label htmlFor="step">
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px",
+                        }}
+                      >
+                        <FiTarget size={16} style={{ color: colorTheme.sub }} />
+                        단계
+                      </div>
+                    </Label>
+                    <DropdownContainer
+                      className="dropdown-container"
+                      data-dropdown="step"
+                    >
+                      <DropdownButton
+                        $active={true}
+                        $color={
+                          selectedStep?.projectStepStatus === "IN_PROGRESS"
+                            ? "#fdb924"
+                            : selectedStep?.projectStepStatus === "COMPLETED"
+                            ? "#10b981"
+                            : "#6b7280"
+                        }
+                        $isOpen={isStepDropdownOpen}
+                        onClick={handleStepDropdownToggle}
+                        type="button"
+                        disabled={projectLoading}
+                      >
+                        {projectLoading ? (
+                          <div
+                            className="spinner"
+                            style={{ width: "16px", height: "16px" }}
+                          ></div>
+                        ) : (
+                          <FiTarget size={16} />
+                        )}
+                        <span>
+                          {projectLoading
+                            ? "로딩 중..."
+                            : selectedStep
+                            ? selectedStep.name
+                            : "단계 선택"}
+                        </span>
+                        <FiChevronDown size={16} />
+                      </DropdownButton>
+                      <DropdownMenu $isOpen={isStepDropdownOpen}>
+                        {projectSteps
+                          .sort((a, b) => a.stepOrder - b.stepOrder)
+                          .map((step) => (
+                            <DropdownItem
+                              key={step.id}
+                              $active={formData.stepId === step.id}
+                              $color={
+                                step.projectStepStatus === "IN_PROGRESS"
+                                  ? "#fdb924"
+                                  : step.projectStepStatus === "COMPLETED"
+                                  ? "#10b981"
+                                  : "#6b7280"
+                              }
+                              onClick={() => handleStepSelect(step.id)}
+                            >
+                              <FiTarget size={16} />
+                              <div style={{ flex: 1 }}>
+                                <div
+                                  style={{
+                                    fontSize: "14px",
+                                    fontWeight: "500",
+                                  }}
+                                >
+                                  {step.name}
+                                </div>
+                                <div
+                                  style={{ fontSize: "12px", color: "#9ca3af" }}
+                                >
+                                  {getStepStatusText(step.projectStepStatus)}
+                                </div>
+                              </div>
+                            </DropdownItem>
+                          ))}
                       </DropdownMenu>
                     </DropdownContainer>
                   </div>

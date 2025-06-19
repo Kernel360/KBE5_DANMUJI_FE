@@ -17,6 +17,7 @@ export enum PostPriority {
   LOW = 1,
   MEDIUM = 2,
   HIGH = 3,
+  URGENT = 4,
 }
 
 // 작성자 타입
