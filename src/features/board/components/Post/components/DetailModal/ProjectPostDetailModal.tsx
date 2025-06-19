@@ -51,7 +51,17 @@ import type { Post, Comment, PostFile } from "@/features/project-d/types/post";
 import QuestionAnswerModal from "@/features/board/components/Question/components/QuestionAnswerModal/QuestionAnswerModal";
 import api from "@/api/axios";
 
-import { FaReply, FaEdit, FaTrash, FaComments } from "react-icons/fa";
+import {
+  FaReply,
+  FaEdit,
+  FaTrash,
+  FaComments,
+  FaFileWord,
+  FaFileExcel,
+  FaFilePowerpoint,
+  FaFileArchive,
+  FaFileAlt,
+} from "react-icons/fa";
 import { useAuth } from "@/hooks/useAuth";
 import {
   FiUser,
@@ -61,6 +71,7 @@ import {
   FiDownload,
   FiImage,
   FiFileText,
+  FiFile as FiFileGeneric,
 } from "react-icons/fi";
 
 interface PostDetailModalProps {
@@ -389,28 +400,26 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
     }
   };
 
-  // 파일 아이콘 결정 함수
+  // 파일 아이콘 결정 함수 (확장자별로 알맞게)
   const getFileIcon = (file: PostFile) => {
-    const fileType = file.fileType.toLowerCase();
-    if (
-      fileType.startsWith("image/") ||
-      fileType === "png" ||
-      fileType === "jpg" ||
-      fileType === "jpeg" ||
-      fileType === "gif"
-    ) {
+    const name = file.fileName.toLowerCase();
+    const ext = name.split(".").pop();
+    if (!ext) return <FiFile size={16} />;
+    if (["png", "jpg", "jpeg", "gif", "bmp", "webp", "svg"].includes(ext))
       return <FiImage size={16} />;
-    }
-    if (fileType === "pdf") {
-      return <FiFileText size={16} />;
-    }
-    if (fileType.includes("word") || fileType.includes("document")) {
-      return <FiFileText size={16} />;
-    }
-    if (fileType.includes("excel") || fileType.includes("spreadsheet")) {
-      return <FiFileText size={16} />;
-    }
-    return <FiFile size={16} />;
+    if (["pdf"].includes(ext)) return <FiFileText size={16} />;
+    if (["doc", "docx", "docs"].includes(ext))
+      return <FaFileWord size={16} color="#2b579a" />;
+    if (["xls", "xlsx", "csv"].includes(ext))
+      return <FaFileExcel size={16} color="#217346" />;
+    if (["ppt", "pptx"].includes(ext))
+      return <FaFilePowerpoint size={16} color="#d24726" />;
+    if (["hwp", "hwpx"].includes(ext))
+      return <FaFileAlt size={16} color="#2986d7" />;
+    if (["zip", "rar", "7z", "tar", "gz"].includes(ext))
+      return <FaFileArchive size={16} color="#eab308" />;
+    if (["txt", "md", "rtf"].includes(ext)) return <FiFileText size={16} />;
+    return <FiFileGeneric size={16} />;
   };
 
   // 파일 크기 포맷 함수

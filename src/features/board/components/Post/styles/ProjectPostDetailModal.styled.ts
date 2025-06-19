@@ -279,6 +279,7 @@ export const AttachmentsSection = styled.div`
   max-width: 538px;
   width: 100%;
   box-sizing: border-box;
+  border: none;
 `;
 
 export const NoFilesMessage = styled.div`
