@@ -506,3 +506,51 @@ export const EmptyContainer = styled.div`
   color: #9ca3af;
   font-size: 14px;
 `;
+
+export const PaginationContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 20px;
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+`;
+
+export const PaginationButton = styled.button<{ $disabled?: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: ${({ $disabled }) => ($disabled ? "#f3f4f6" : "#ffffff")};
+  color: ${({ $disabled }) => ($disabled ? "#9ca3af" : "#374151")};
+  font-size: 14px;
+  font-weight: 500;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  cursor: ${({ $disabled }) => ($disabled ? "not-allowed" : "pointer")};
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: #f9fafb;
+    border-color: #d1d5db;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.1);
+  }
+`;
+
+export const PaginationInfo = styled.span`
+  padding: 8px 12px;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 500;
+`;

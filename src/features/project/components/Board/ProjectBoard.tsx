@@ -39,8 +39,16 @@ import {
   FiAlertTriangle,
   FiGrid,
   FiPlus,
+  FiChevronLeft,
+  FiChevronRight,
 } from "react-icons/fi";
 import { POST_PRIORITY_LABELS } from "../../types/Types";
+import {
+  PaginationContainer,
+  PaginationInfo,
+  PaginationNav,
+  PaginationButton,
+} from "@/features/board/components/Post/styles/PostListPage.styled";
 
 interface ProjectBoardProps {
   projectId: number;
@@ -560,55 +568,25 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
 
       {/* 페이지네이션 */}
       {totalPages > 1 && (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            gap: "8px",
-            padding: "20px",
-            borderTop: "1px solid #e5e7eb",
-          }}
-        >
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 0}
-            style={{
-              padding: "8px 12px",
-              border: "1px solid #d1d5db",
-              borderRadius: "6px",
-              backgroundColor: currentPage === 0 ? "#f3f4f6" : "#ffffff",
-              color: currentPage === 0 ? "#9ca3af" : "#374151",
-              cursor: currentPage === 0 ? "not-allowed" : "pointer",
-            }}
-          >
-            이전
-          </button>
-          <span
-            style={{
-              padding: "8px 12px",
-              color: "#6b7280",
-              fontSize: "14px",
-            }}
-          >
-            {currentPage + 1} / {totalPages}
-          </span>
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages - 1}
-            style={{
-              padding: "8px 12px",
-              border: "1px solid #d1d5db",
-              borderRadius: "6px",
-              backgroundColor:
-                currentPage === totalPages - 1 ? "#f3f4f6" : "#ffffff",
-              color: currentPage === totalPages - 1 ? "#9ca3af" : "#374151",
-              cursor:
-                currentPage === totalPages - 1 ? "not-allowed" : "pointer",
-            }}
-          >
-            다음
-          </button>
-        </div>
+        <PaginationContainer>
+          <PaginationInfo>
+            {currentPage + 1} / {totalPages} 페이지
+          </PaginationInfo>
+          <PaginationNav>
+            <PaginationButton
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 0}
+            >
+              이전
+            </PaginationButton>
+            <PaginationButton
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages - 1}
+            >
+              다음
+            </PaginationButton>
+          </PaginationNav>
+        </PaginationContainer>
       )}
     </Wrapper>
   );
