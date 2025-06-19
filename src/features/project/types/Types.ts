@@ -14,14 +14,36 @@ export const POST_PRIORITY_LABELS: Record<PostPriority, string> = {
 
 export type PostType = "GENERAL" | "QUESTION";
 
-export interface Post {
+// 파일 타입
+export type PostFile = {
   id: number;
-  step: string;
+  postId: number;
+  fileName: string;
+  fileUrl: string;
+  fileType: string;
+  fileSize: string;
+};
+
+export interface Post {
+  postId: number;
+  parentId: number | null;
+  projectId: number;
+  projectStepId: number;
+  authorIp: string;
+  authorId: number;
+  authorName: string;
   title: string;
-  writer: string;
-  priority: PostPriority;
+  content: string;
   type: PostType;
+  priority: PostPriority;
   createdAt: string;
+  updatedAt: string;
+  files: PostFile[];
+  delete: boolean;
+  // 기존 필드들 (호환성을 위해 유지)
+  id?: number;
+  step?: string;
+  writer?: string;
 }
 
 export type Project = {
@@ -34,6 +56,30 @@ export type Project = {
   startDate: string;
   endDate: string;
   progress: number;
+  // 백엔드 API 응답 필드들
+  description?: string;
+  clientCompany?: string;
+  developerCompany?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  deletedAt?: string | null;
+  isDeleted?: boolean;
+  steps?: Array<{
+    id: number;
+    projectId: number;
+    userId: number | null;
+    user: any | null;
+    name: string;
+    stepOrder: number;
+    projectStepStatus: string;
+    deleteAt: string | null;
+    deleted: boolean;
+  }>;
+  users?: Array<{
+    companyType: "DEVELOPER" | "CLIENT";
+    clientCompany: string;
+    developerCompany: string;
+  }>;
 };
 
 export interface ProjectStep {
