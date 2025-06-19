@@ -10,6 +10,7 @@ import {
   PostStatus,
   PostType,
   PostPriority,
+  type PostFile,
 } from "@/features/project-d/types/post";
 import { getProjectDetail } from "@/features/project/services/projectService";
 import type { ProjectDetailResponse } from "@/features/project/services/projectService";
@@ -24,7 +25,6 @@ import {
   Label,
   Input,
   TextArea,
-  Select,
   ButtonGroup,
   SubmitButton,
   CancelButton,
@@ -39,18 +39,15 @@ import {
 } from "@/features/board/components/Post/styles/PostFormModal.styled";
 import {
   FiPaperclip,
-  FiX,
   FiFile,
   FiImage,
   FiFileText,
   FiDownload,
   FiTrash2,
   FiEdit3,
-  FiSave,
   FiPlus,
   FiFlag,
   FiMessageSquare,
-  FiCheck,
   FiX as FiXCircle,
   FiChevronDown,
   FiArrowDown,
@@ -99,6 +96,9 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
   // 파일 업로드 관련 상태
   const [files, setFiles] = useState<File[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
+
+  // 기존 파일 관련 상태 (수정 모드용)
+  const [existingFiles, setExistingFiles] = useState<PostFile[]>([]);
 
   // 드롭다운 상태
   const [isTypeDropdownOpen, setIsTypeDropdownOpen] = useState(false);
@@ -154,6 +154,8 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
               status: post.status,
               stepId: stepId,
             });
+            // 기존 파일 정보 설정
+            setExistingFiles(post.files || []);
           }
         } catch (err) {
           setError("게시글을 불러오는 데 실패했습니다.");
@@ -213,6 +215,8 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
       }
       setError(null);
       setFormErrors({});
+      // 생성 모드에서는 기존 파일 초기화
+      setExistingFiles([]);
     }
   }, [open, mode, postId, parentId, stepId, projectId]);
 
@@ -321,6 +325,10 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
         };
         const response = await createPost(requestData, files);
         if (response.success || response.message?.includes("완료")) {
+          // 상태 초기화
+          setFiles([]);
+          setExistingFiles([]);
+          setIsDragOver(false);
           onSuccess?.();
           onClose();
         } else {
@@ -335,9 +343,14 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
           type: formData.type,
           status: formData.status,
           priority: formData.priority,
+          stepId: formData.stepId,
         };
-        const response = await updatePost(postId, requestData);
+        const response = await updatePost(postId, requestData, files);
         if (response.success || response.message?.includes("완료")) {
+          // 상태 초기화
+          setFiles([]);
+          setExistingFiles([]);
+          setIsDragOver(false);
           onSuccess?.();
           onClose();
         } else {
@@ -362,12 +375,21 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
   };
 
   const handleCancel = () => {
+    // 상태 초기화
+    setFiles([]);
+    setExistingFiles([]);
+    setIsDragOver(false);
     onClose();
   };
 
   // 파일 업로드 관련 핸들러
   const handleFileRemove = (index: number) => {
     setFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  // 기존 파일 삭제 핸들러
+  const handleExistingFileRemove = (fileId: number) => {
+    setExistingFiles((prev) => prev.filter((file) => file.id !== fileId));
   };
 
   const getFileIcon = (file: File) => {
@@ -378,6 +400,20 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
       return <FiFileText size={16} />;
     if (type.includes("excel") || type.includes("spreadsheet"))
       return <FiFileText size={16} />;
+    return <FiFile size={16} />;
+  };
+
+  // 기존 파일용 아이콘 함수
+  const getExistingFileIcon = (file: PostFile) => {
+    const name = file.fileName.toLowerCase();
+    const ext = name.split(".").pop();
+    if (!ext) return <FiFile size={16} />;
+    if (["png", "jpg", "jpeg", "gif", "bmp", "webp", "svg"].includes(ext))
+      return <FiImage size={16} />;
+    if (["pdf"].includes(ext)) return <FiFileText size={16} />;
+    if (["doc", "docx", "docs"].includes(ext)) return <FiFileText size={16} />;
+    if (["xls", "xlsx", "csv"].includes(ext)) return <FiFileText size={16} />;
+    if (["txt", "md", "rtf"].includes(ext)) return <FiFileText size={16} />;
     return <FiFile size={16} />;
   };
 
@@ -762,33 +798,6 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
                   </div>
                 </FormGroup>
 
-                {mode === "edit" && (
-                  <FormGroup>
-                    <Label htmlFor="status">
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "6px",
-                        }}
-                      >
-                        <FiCheck size={16} style={{ color: colorTheme.sub }} />
-                        상태
-                      </div>
-                    </Label>
-                    <Select
-                      id="status"
-                      name="status"
-                      value={formData.status}
-                      onChange={handleChange}
-                    >
-                      <option value="PENDING">대기</option>
-                      <option value="APPROVED">승인</option>
-                      <option value="REJECTED">거부</option>
-                    </Select>
-                  </FormGroup>
-                )}
-
                 <FormGroup>
                   <Label htmlFor="content">
                     <div
@@ -871,7 +880,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
                 </FormGroup>
 
                 {/* 첨부된 파일 목록 */}
-                {files.length > 0 && (
+                {(files.length > 0 || existingFiles.length > 0) && (
                   <div style={{ marginTop: "12px" }}>
                     <div
                       style={{
@@ -885,7 +894,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
                       }}
                     >
                       <FiFile size={16} style={{ color: colorTheme.sub }} />
-                      첨부된 파일 ({files.length}개)
+                      첨부된 파일 ({files.length + existingFiles.length}개)
                     </div>
                     <div
                       style={{
@@ -894,9 +903,91 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
                         gap: "8px",
                       }}
                     >
+                      {/* 기존 파일 목록 */}
+                      {existingFiles.map((file) => (
+                        <div
+                          key={`existing-${file.id}`}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            padding: "8px 12px",
+                            backgroundColor: "#f0f9ff",
+                            borderRadius: "6px",
+                            border: "1px solid #0ea5e9",
+                          }}
+                        >
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "8px",
+                              flex: 1,
+                            }}
+                          >
+                            <div style={{ color: "#0ea5e9" }}>
+                              {getExistingFileIcon(file)}
+                            </div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div
+                                style={{
+                                  fontSize: "14px",
+                                  color: "#374151",
+                                  fontWeight: "500",
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                  whiteSpace: "nowrap",
+                                }}
+                              >
+                                {file.fileName}
+                              </div>
+                              <div
+                                style={{
+                                  fontSize: "12px",
+                                  color: "#9ca3af",
+                                  marginTop: "2px",
+                                }}
+                              >
+                                {formatFileSize(parseInt(file.fileSize))}
+                              </div>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleExistingFileRemove(file.id);
+                            }}
+                            style={{
+                              background: "none",
+                              border: "none",
+                              color: "#ef4444",
+                              cursor: "pointer",
+                              padding: "4px",
+                              borderRadius: "4px",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              transition: "background-color 0.2s",
+                            }}
+                            onMouseOver={(e) => {
+                              e.currentTarget.style.backgroundColor = "#fef2f2";
+                            }}
+                            onMouseOut={(e) => {
+                              e.currentTarget.style.backgroundColor =
+                                "transparent";
+                            }}
+                            title="파일 삭제"
+                          >
+                            <FiTrash2 size={14} />
+                          </button>
+                        </div>
+                      ))}
+
+                      {/* 새로 추가된 파일 목록 */}
                       {files.map((file, index) => (
                         <div
-                          key={index}
+                          key={`new-${index}`}
                           style={{
                             display: "flex",
                             alignItems: "center",

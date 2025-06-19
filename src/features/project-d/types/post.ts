@@ -140,11 +140,13 @@ export type CommentResponse = ApiResponse<Comment>;
 
 // 게시글 수정 요청 데이터 타입
 export type PostUpdateRequest = {
+  projectId?: number;
   title?: string;
   content?: string;
   type?: PostType;
   status?: PostStatus;
   priority?: PostPriority;
+  stepId?: number;
 };
 
 // 게시글 검색 요청 데이터 타입

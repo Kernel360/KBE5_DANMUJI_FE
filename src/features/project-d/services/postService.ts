@@ -15,6 +15,7 @@ import type {
   PostDetailReadResponse,
   PostSummaryReadResponse,
   PageResponse,
+  PostFile,
 } from "../types/post";
 import { getQuestionsByPost } from "./questionService";
 import { AxiosError } from "axios";
@@ -271,13 +272,56 @@ export const getPostsWithComments = async (
 // 게시글 수정
 export const updatePost = async (
   postId: number,
-  postData: PostUpdateRequest
+  postData: PostUpdateRequest,
+  files?: File[]
 ): Promise<ApiResponse<Post>> => {
   try {
+    // FormData 객체 생성
+    const formData = new FormData();
+
+    // JSON 데이터를 "data" 파트로 추가
+    const jsonData = {
+      projectId: postData.projectId,
+      title: postData.title,
+      content: postData.content,
+      type: postData.type,
+      status: postData.status,
+      priority: postData.priority,
+      stepId: postData.stepId,
+    };
+
+    formData.append(
+      "data",
+      new Blob([JSON.stringify(jsonData)], {
+        type: "application/json",
+      })
+    );
+
+    // 새로 추가된 파일들을 "files" 파트로 추가
+    if (files && files.length > 0) {
+      files.forEach((file) => {
+        formData.append("files", file);
+      });
+    }
+
+    console.log("=== updatePost API 호출 ===");
+    console.log("요청 데이터:", jsonData);
+    console.log("새로 추가된 파일 개수:", files?.length || 0);
+
     const response = await api.put<ApiResponse<Post>>(
       `/api/posts/${postId}`,
-      postData
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
     );
+
+    console.log("API 응답:", response);
+    console.log("응답 데이터:", response.data);
+    console.log("======================");
+
     return handleApiResponse<Post>(response);
   } catch (error) {
     if (error instanceof ApiError) throw error;
