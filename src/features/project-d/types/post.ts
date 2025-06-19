@@ -193,6 +193,7 @@ export interface PostSummaryReadResponse {
   type: string;
   priority: string;
   createdAt: string;
+  comments?: Comment[];
 }
 
 export interface PageInfo {

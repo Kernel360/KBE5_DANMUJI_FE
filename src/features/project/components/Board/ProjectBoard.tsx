@@ -543,9 +543,24 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "space-between",
+                      width: "100%",
+                      minWidth: 0,
                     }}
                   >
-                    <TitleText>{post.title}</TitleText>
+                    <TitleText
+                      style={{
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        flex: 1,
+                        minWidth: 0,
+                      }}
+                    >
+                      {post.title}
+                    </TitleText>
+                    {post.comments && post.comments.length > 0 && (
+                      <CommentInfo>댓글 {post.comments.length}</CommentInfo>
+                    )}
                   </div>
                 </Td>
                 <Td>{post.authorName}</Td>

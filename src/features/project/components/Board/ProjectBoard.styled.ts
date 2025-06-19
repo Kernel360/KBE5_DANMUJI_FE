@@ -152,12 +152,62 @@ export const Th = styled.th`
   font-weight: 500;
   font-size: 13px;
   border-bottom: 1px solid #e5e7eb;
+
+  &:nth-child(1) {
+    /* 번호 */
+    width: 80px;
+  }
+  &:nth-child(2) {
+    /* 제목 */
+    width: 400px;
+  }
+  &:nth-child(3) {
+    /* 작성자 */
+    width: 120px;
+  }
+  &:nth-child(4) {
+    /* 유형 */
+    width: 80px;
+  }
+  &:nth-child(5) {
+    /* 우선순위 */
+    width: 100px;
+  }
+  &:nth-child(6) {
+    /* 작성일 */
+    width: 150px;
+  }
 `;
 
 export const Td = styled.td`
   padding: 12px;
   color: #374151;
   border-bottom: 1px solid #f3f4f6;
+
+  &:nth-child(1) {
+    /* 번호 */
+    width: 80px;
+  }
+  &:nth-child(2) {
+    /* 제목 */
+    width: 400px;
+  }
+  &:nth-child(3) {
+    /* 작성자 */
+    width: 120px;
+  }
+  &:nth-child(4) {
+    /* 유형 */
+    width: 80px;
+  }
+  &:nth-child(5) {
+    /* 우선순위 */
+    width: 100px;
+  }
+  &:nth-child(6) {
+    /* 작성일 */
+    width: 150px;
+  }
 `;
 
 export const StatusBadge = styled.span<{ priority: PostPriority }>`
