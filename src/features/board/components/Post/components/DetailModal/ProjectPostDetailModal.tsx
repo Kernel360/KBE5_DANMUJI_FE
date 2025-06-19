@@ -462,6 +462,12 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
     }
   };
 
+  // 파일 유효성 체크
+  const hasValidFiles =
+    post &&
+    Array.isArray(post.files) &&
+    post.files.some((f) => Number(f.fileSize) > 0);
+
   if (!open && !closing) return null;
 
   if (loading) {
@@ -813,29 +819,33 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
             <AttachmentsSection>
               <SectionTitle>첨부 파일</SectionTitle>
               <FileList>
-                {post.files && post.files.length > 0 ? (
-                  post.files.map((file: PostFile) => (
-                    <FileItem key={file.id}>
-                      <FileInfo>
-                        <FileIcon>{getFileIcon(file)}</FileIcon>
-                        <FileDetails>
-                          <FileName>{file.fileName}</FileName>
-                          <FileMeta>
-                            <span>{file.fileType.toUpperCase()}</span>
-                            <span>{formatFileSize(file.fileSize)}</span>
-                          </FileMeta>
-                        </FileDetails>
-                      </FileInfo>
-                      <FileActions>
-                        <FileActionButton
-                          onClick={() => handleFileDownload(file, post.postId)}
-                          title="다운로드"
-                        >
-                          <FiDownload size={16} />
-                        </FileActionButton>
-                      </FileActions>
-                    </FileItem>
-                  ))
+                {hasValidFiles ? (
+                  post.files
+                    .filter((f) => Number(f.fileSize) > 0)
+                    .map((file: PostFile) => (
+                      <FileItem key={file.id}>
+                        <FileInfo>
+                          <FileIcon>{getFileIcon(file)}</FileIcon>
+                          <FileDetails>
+                            <FileName>{file.fileName}</FileName>
+                            <FileMeta>
+                              <span>{file.fileType.toUpperCase()}</span>
+                              <span>{formatFileSize(file.fileSize)}</span>
+                            </FileMeta>
+                          </FileDetails>
+                        </FileInfo>
+                        <FileActions>
+                          <FileActionButton
+                            onClick={() =>
+                              handleFileDownload(file, post.postId)
+                            }
+                            title="다운로드"
+                          >
+                            <FiDownload size={16} />
+                          </FileActionButton>
+                        </FileActions>
+                      </FileItem>
+                    ))
                 ) : (
                   <FileItem>
                     <NoFilesMessage>첨부된 파일이 없습니다.</NoFilesMessage>
