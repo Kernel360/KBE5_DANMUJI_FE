@@ -47,6 +47,12 @@ const handleApiResponse = async <T>(
     "댓글 생성 완료",
     "댓글 수정 완료",
     "댓글 삭제 완료",
+    "POST_CREATE_SUCCESS",
+    "POST_UPDATE_SUCCESS",
+    "POST_DELETE_SUCCESS",
+    "COMMENT_CREATE_SUCCESS",
+    "COMMENT_UPDATE_SUCCESS",
+    "COMMENT_DELETE_SUCCESS",
   ];
 
   // success가 false이고, 메시지가 성공 메시지가 아닌 경우에만 에러로 처리
@@ -62,7 +68,8 @@ const handleApiResponse = async <T>(
 
 // 게시글 생성
 export const createPost = async (
-  postData: PostCreateData
+  postData: PostCreateData,
+  files?: File[]
 ): Promise<ApiResponse<PostCreateResponse>> => {
   try {
     // FormData 객체 생성
@@ -87,6 +94,17 @@ export const createPost = async (
       })
     );
 
+    // 파일이 있는 경우 "files" 파트로 추가
+    if (files && files.length > 0) {
+      files.forEach((file) => {
+        formData.append("files", file);
+      });
+    }
+
+    console.log("=== createPost API 호출 ===");
+    console.log("요청 데이터:", jsonData);
+    console.log("파일 개수:", files?.length || 0);
+
     const response = await api.post<ApiResponse<PostCreateResponse>>(
       "/api/posts",
       formData,
@@ -96,10 +114,23 @@ export const createPost = async (
         },
       }
     );
+
+    console.log("API 응답:", response);
+    console.log("응답 데이터:", response.data);
+    console.log("======================");
+
     return handleApiResponse<PostCreateResponse>(response);
   } catch (error) {
+    console.error("=== createPost 에러 ===");
+    console.error("에러:", error);
+
     if (error instanceof ApiError) throw error;
     if (error instanceof AxiosError) {
+      console.error(
+        "AxiosError:",
+        error.response?.data,
+        error.response?.status
+      );
       throw new ApiError(
         error.response?.data?.message || "게시글 생성 중 오류가 발생했습니다.",
         error.response?.status

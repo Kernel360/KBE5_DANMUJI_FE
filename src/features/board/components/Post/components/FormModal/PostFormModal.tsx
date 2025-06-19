@@ -319,7 +319,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
           ...formData,
           ...(parentId && { parentId }),
         };
-        const response = await createPost(requestData);
+        const response = await createPost(requestData, files);
         if (response.success || response.message?.includes("완료")) {
           onSuccess?.();
           onClose();

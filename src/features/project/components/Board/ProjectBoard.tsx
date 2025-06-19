@@ -96,36 +96,37 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
     null
   );
 
+  // fetchPosts 함수를 컴포넌트 레벨로 이동
+  const fetchPosts = async () => {
+    if (!selectedStepId) {
+      setPosts([]);
+      setTotalPages(0);
+      setTotalElements(0);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await getPostsByProjectStep(
+        projectId,
+        selectedStepId,
+        currentPage,
+        10
+      );
+      setPosts(response.content);
+      setTotalPages(response.page.totalPages);
+      setTotalElements(response.page.totalElements);
+    } catch (err) {
+      setError("게시글을 불러오는데 실패했습니다.");
+      console.error("게시글 조회 실패:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchPosts = async () => {
-      if (!selectedStepId) {
-        setPosts([]);
-        setTotalPages(0);
-        setTotalElements(0);
-        return;
-      }
-
-      setLoading(true);
-      setError(null);
-
-      try {
-        const response = await getPostsByProjectStep(
-          projectId,
-          selectedStepId,
-          currentPage,
-          10
-        );
-        setPosts(response.content);
-        setTotalPages(response.page.totalPages);
-        setTotalElements(response.page.totalElements);
-      } catch (err) {
-        setError("게시글을 불러오는데 실패했습니다.");
-        console.error("게시글 조회 실패:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchPosts();
   }, [projectId, selectedStepId, currentPage]);
 
