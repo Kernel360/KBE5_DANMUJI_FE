@@ -89,6 +89,14 @@ const ProjectDetailPage = () => {
 
       if (response.data) {
         setProjectDetail(response.data);
+
+        // 진행중인 단계를 기본으로 선택
+        const inProgressStep = response.data.steps.find(
+          (step) => step.projectStepStatus === "IN_PROGRESS"
+        );
+        if (inProgressStep) {
+          setSelectedStepId(inProgressStep.id);
+        }
       }
     } catch (err) {
       console.error("프로젝트 상세 정보 불러오기 실패", err);
