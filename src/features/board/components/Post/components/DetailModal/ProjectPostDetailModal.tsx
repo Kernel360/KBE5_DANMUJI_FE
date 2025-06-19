@@ -27,6 +27,17 @@ import {
   InfoValue,
   QuestionAnswerStyledButton,
   RelativeTextareaWrapper,
+  AttachmentsSection,
+  FileList,
+  FileItem,
+  FileInfo,
+  FileIcon,
+  FileDetails,
+  FileName,
+  FileMeta,
+  FileActions,
+  FileActionButton,
+  NoFilesMessage,
 } from "@/features/board/components/Post/styles/ProjectPostDetailModal.styled";
 import {
   getPostDetail,
@@ -36,12 +47,21 @@ import {
   deleteComment,
 } from "@/features/project-d/services/postService";
 import { createComment } from "@/features/project/services/commentService";
-import type { Post, Comment } from "@/features/project-d/types/post";
+import type { Post, Comment, PostFile } from "@/features/project-d/types/post";
 import QuestionAnswerModal from "@/features/board/components/Question/components/QuestionAnswerModal/QuestionAnswerModal";
+import api from "@/api/axios";
 
 import { FaReply, FaEdit, FaTrash, FaComments } from "react-icons/fa";
 import { useAuth } from "@/hooks/useAuth";
-import { FiUser, FiCalendar, FiCheckCircle } from "react-icons/fi";
+import {
+  FiUser,
+  FiCalendar,
+  FiCheckCircle,
+  FiFile,
+  FiDownload,
+  FiImage,
+  FiFileText,
+} from "react-icons/fi";
 
 interface PostDetailModalProps {
   open: boolean;
@@ -324,27 +344,17 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
 
   // 렌더링되는 댓글 개수 계산
   const getRenderedCommentCount = () => {
-    const rootComments = visibleComments.filter((comment) => !comment.parentId);
-    let totalCount = 0;
-
-    rootComments.forEach((rootComment) => {
-      totalCount++; // 루트 댓글 카운트
-
-      // 이 댓글을 부모로 하는 모든 답글(1,2,3...depth) 카운트
-      const replies = visibleComments.filter((c) => {
-        let parent = c.parentId;
-        while (parent) {
-          if (parent === rootComment.id) return true;
-          const parentComment = visibleComments.find((cc) => cc.id === parent);
-          parent = parentComment?.parentId ?? null;
+    let count = 0;
+    const countComments = (comments: Comment[]) => {
+      comments.forEach((comment) => {
+        count++;
+        if (comment.children && comment.children.length > 0) {
+          countComments(comment.children);
         }
-        return false;
       });
-
-      totalCount += replies.length; // 답글들 카운트
-    });
-
-    return totalCount;
+    };
+    countComments(comments);
+    return count;
   };
 
   const renderedCommentCount = getRenderedCommentCount();
@@ -376,6 +386,68 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
       }
     } catch {
       alert("댓글 삭제 중 오류가 발생했습니다.");
+    }
+  };
+
+  // 파일 아이콘 결정 함수
+  const getFileIcon = (file: PostFile) => {
+    const fileType = file.fileType.toLowerCase();
+    if (
+      fileType.startsWith("image/") ||
+      fileType === "png" ||
+      fileType === "jpg" ||
+      fileType === "jpeg" ||
+      fileType === "gif"
+    ) {
+      return <FiImage size={16} />;
+    }
+    if (fileType === "pdf") {
+      return <FiFileText size={16} />;
+    }
+    if (fileType.includes("word") || fileType.includes("document")) {
+      return <FiFileText size={16} />;
+    }
+    if (fileType.includes("excel") || fileType.includes("spreadsheet")) {
+      return <FiFileText size={16} />;
+    }
+    return <FiFile size={16} />;
+  };
+
+  // 파일 크기 포맷 함수
+  const formatFileSize = (bytes: string) => {
+    const size = parseInt(bytes);
+    if (size === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(size) / Math.log(k));
+    return parseFloat((size / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+  };
+
+  // 파일 다운로드 함수 수정
+  const handleFileDownload = async (file: PostFile, postId: number) => {
+    try {
+      const response = await api.get(`/api/posts/${postId}/files/${file.id}`, {
+        responseType: "blob",
+      });
+      // 파일명 추출
+      const contentDisposition = response.headers["content-disposition"];
+      let fileName = file.fileName;
+      if (contentDisposition) {
+        const match = contentDisposition.match(/filename=\"(.+)\"/);
+        if (match && match[1]) fileName = decodeURIComponent(match[1]);
+      }
+      // 다운로드 처리
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      alert("파일 다운로드에 실패했습니다.");
+      console.error(err);
     }
   };
 
@@ -727,101 +799,37 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
             </div>
 
             {/* 첨부 파일 */}
-            <div style={{ margin: "20px 16px 0 16px" }}>
-              <div style={{ fontWeight: 600, marginBottom: 10, fontSize: 15 }}>
-                첨부 파일
-              </div>
-              <div>
-                {post.attachments && post.attachments.length > 0 ? (
-                  post.attachments.map(
-                    (file: { name: string; size: string }, idx: number) => {
-                      const ext = file.name.split(".").pop();
-                      let icon = null;
-                      if (ext === "pdf")
-                        icon = (
-                          <span
-                            style={{
-                              display: "inline-block",
-                              width: 18,
-                              height: 18,
-                              background: "#e74c3c",
-                              borderRadius: 4,
-                              marginRight: 8,
-                            }}
-                          />
-                        );
-                      else if (ext === "zip")
-                        icon = (
-                          <span
-                            style={{
-                              display: "inline-block",
-                              width: 18,
-                              height: 18,
-                              background: "#f1c40f",
-                              borderRadius: 4,
-                              marginRight: 8,
-                            }}
-                          />
-                        );
-                      else
-                        icon = (
-                          <span
-                            style={{
-                              display: "inline-block",
-                              width: 18,
-                              height: 18,
-                              background: "#bdbdbd",
-                              borderRadius: 4,
-                              marginRight: 8,
-                            }}
-                          />
-                        );
-                      return (
-                        <div
-                          key={idx}
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            background: "#f7f7f8",
-                            borderRadius: 8,
-                            padding: "10px 14px",
-                            marginBottom: 8,
-                            fontSize: 14,
-                          }}
+            <AttachmentsSection>
+              <SectionTitle>첨부 파일</SectionTitle>
+              {post.files && post.files.length > 0 ? (
+                <FileList>
+                  {post.files.map((file: PostFile) => (
+                    <FileItem key={file.id}>
+                      <FileInfo>
+                        <FileIcon>{getFileIcon(file)}</FileIcon>
+                        <FileDetails>
+                          <FileName>{file.fileName}</FileName>
+                          <FileMeta>
+                            <span>{file.fileType.toUpperCase()}</span>
+                            <span>{formatFileSize(file.fileSize)}</span>
+                          </FileMeta>
+                        </FileDetails>
+                      </FileInfo>
+                      <FileActions>
+                        <FileActionButton
+                          onClick={() => handleFileDownload(file, post.postId)}
+                          title="다운로드"
                         >
-                          {icon}
-                          <span style={{ flex: 1 }}>{file.name}</span>
-                          <span
-                            style={{
-                              color: "#b0b0b0",
-                              fontSize: 12,
-                              marginLeft: 8,
-                            }}
-                          >
-                            {file.size}
-                          </span>
-                        </div>
-                      );
-                    }
-                  )
-                ) : (
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      background: "#f7f7f8",
-                      borderRadius: 8,
-                      padding: "10px 14px",
-                      fontSize: 14,
-                      color: "#9ca3af",
-                      fontStyle: "italic",
-                    }}
-                  >
-                    첨부된 파일이 없습니다.
-                  </div>
-                )}
-              </div>
-            </div>
+                          <FiDownload size={16} />
+                        </FileActionButton>
+                      </FileActions>
+                    </FileItem>
+                  ))}
+                </FileList>
+              ) : (
+                <NoFilesMessage>첨부된 파일이 없습니다.</NoFilesMessage>
+              )}
+            </AttachmentsSection>
 
             <div style={{ margin: "0 16px" }}>
               <CommentsSection>

@@ -184,33 +184,107 @@ export const FileList = styled.ul`
   list-style: none;
   padding: 0;
   margin: 0;
+  width: 100%;
 `;
 
 export const FileItem = styled.li`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #f3f4f6;
+  padding: 0.75rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  margin-bottom: 0.5rem;
+  background-color: #f9fafb;
+  transition: all 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+
+  &:hover {
+    background-color: #f3f4f6;
+    border-color: #d1d5db;
+  }
 
   &:last-child {
-    border-bottom: none;
+    margin-bottom: 0;
   }
+`;
+
+export const FileInfo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+`;
+
+export const FileIcon = styled.div`
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #fdb924;
+  border-radius: 0.375rem;
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 600;
+`;
+
+export const FileDetails = styled.div`
+  flex: 1;
+  min-width: 0;
 `;
 
 export const FileName = styled.div`
-  font-size: 0.875rem;
-  color: #3b82f6;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.25rem;
+  word-break: break-all;
+`;
+
+export const FileMeta = styled.div`
+  font-size: 0.75rem;
+  color: #6b7280;
+  display: flex;
+  gap: 1rem;
+`;
+
+export const FileActions = styled.div`
+  display: flex;
+  gap: 0.5rem;
+`;
+
+export const FileActionButton = styled.button`
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
   cursor: pointer;
+  color: #6b7280;
+  transition: all 0.2s ease;
 
   &:hover {
-    text-decoration: underline;
+    background-color: #e5e7eb;
+    color: #374151;
   }
 `;
 
-export const FileSize = styled.div`
-  font-size: 0.875rem;
+export const AttachmentsSection = styled.div`
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 600px;
+  width: 100%;
+`;
+
+export const NoFilesMessage = styled.div`
+  text-align: center;
+  padding: 1rem;
   color: #6b7280;
+  font-style: italic;
 `;
 
 export const CommentsSection = styled(Section)`

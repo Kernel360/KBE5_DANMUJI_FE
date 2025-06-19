@@ -94,6 +94,7 @@ export type Post = {
   questionCount?: number;
   isDeleted?: boolean;
   delete?: boolean;
+  files?: PostFile[];
 };
 
 // API 응답 타입
