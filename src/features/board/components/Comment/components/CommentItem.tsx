@@ -102,7 +102,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
         <CommentAuthor>
           <FaUser style={{ marginRight: "0.5rem" }} />
           <CommentAuthorName>
-            {comment.author?.name || "알 수 없는 사용자"}
+            {comment.authorName || "알 수 없는 사용자"}
           </CommentAuthorName>
           <CommentAuthorIp>{comment.authorIp}</CommentAuthorIp>
           {depth > 0 && <ReplyBadge>답글</ReplyBadge>}
@@ -158,7 +158,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
       {isReplying && (
         <CommentForm
           placeholder="답글을 입력하세요..."
-          initialValue={`@${comment.author?.name || "알 수 없는 사용자"} `}
+          initialValue={`@${comment.authorName || "알 수 없는 사용자"} `}
           onSubmit={handleReplySubmit}
           onCancel={handleReplyCancel}
           isSubmitting={isSubmitting}

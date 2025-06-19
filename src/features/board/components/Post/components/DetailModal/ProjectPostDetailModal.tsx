@@ -30,11 +30,11 @@ import {
 import {
   getPostDetail,
   getComments,
-  createComment,
   deletePost,
   updateComment,
   deleteComment,
 } from "@/features/project-d/services/postService";
+import { createComment } from "@/features/project/services/commentService";
 import type { Post, Comment } from "@/features/project-d/types/post";
 import QuestionAnswerModal from "@/features/board/components/Question/components/QuestionAnswerModal/QuestionAnswerModal";
 
@@ -134,16 +134,16 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
 
     try {
       setSubmittingComment(true);
-      const response = await createComment(postId, commentText);
-
-      if (response.data) {
-        // 댓글 목록을 다시 불러오기
-        const commentsResponse = await getComments(postId);
-        if (commentsResponse.data) {
-          setComments(commentsResponse.data);
-        }
-        setCommentText("");
+      await createComment({
+        postId,
+        content: commentText,
+      });
+      // 댓글 목록을 다시 불러오기
+      const commentsResponse = await getComments(postId);
+      if (commentsResponse.data) {
+        setComments(commentsResponse.data);
       }
+      setCommentText("");
     } catch (error) {
       console.error("댓글 작성 중 오류:", error);
       alert("댓글 작성 중 오류가 발생했습니다.");
@@ -163,7 +163,11 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
     if (!replyText.trim() || !postId || replyingTo === null) return;
     try {
       setSubmittingReply(true);
-      await createComment(postId, replyText, replyingTo); // parentId는 남겨두되, UI는 평면
+      await createComment({
+        postId,
+        parentId: replyingTo,
+        content: replyText,
+      });
       // 댓글 목록 새로고침
       const commentsResponse = await getComments(postId);
       setComments(commentsResponse.data || []);
