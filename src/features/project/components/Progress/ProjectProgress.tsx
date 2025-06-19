@@ -16,48 +16,76 @@ import {
   FaClipboardList,
   FaSearch,
   FaFlag,
+  FaList,
 } from "react-icons/fa";
+import type { ProjectDetailResponse } from "../../services/projectService";
 
-const steps = [
-  { label: "기획", icon: FaCheckCircle, key: "plan", status: "완료" },
-  { label: "디자인", icon: FaPaintBrush, key: "design", status: "진행중" },
-  { label: "개발", icon: FaCode, key: "dev", status: "대기" },
-  { label: "테스트", icon: FaClipboardList, key: "test", status: "대기" },
-  { label: "검수", icon: FaSearch, key: "review", status: "대기" },
-  { label: "완료", icon: FaFlag, key: "done", status: "대기" },
-];
+interface ProjectProgressProps {
+  projectDetail: ProjectDetailResponse;
+}
 
-const currentStep = "design";
+const ProjectProgress: React.FC<ProjectProgressProps> = ({ projectDetail }) => {
+  // 스텝 상태에 따른 아이콘 매핑
+  const getStepIcon = (stepName: string) => {
+    const name = stepName.toLowerCase();
+    if (name.includes("요구사항") || name.includes("기획")) return FaList;
+    if (name.includes("설계") || name.includes("디자인")) return FaPaintBrush;
+    if (name.includes("개발") || name.includes("구현")) return FaCode;
+    if (name.includes("테스트")) return FaClipboardList;
+    if (name.includes("검수") || name.includes("검토")) return FaSearch;
+    if (name.includes("완료") || name.includes("배포")) return FaFlag;
+    return FaCheckCircle; // 기본 아이콘
+  };
 
-const ProjectProgress = () => {
-  let reached = true;
+  // 스텝 상태 텍스트 변환
+  const getStepStatusText = (status: string) => {
+    switch (status) {
+      case "COMPLETED":
+        return "완료";
+      case "IN_PROGRESS":
+        return "진행중";
+      case "PENDING":
+        return "대기";
+      default:
+        return status;
+    }
+  };
+
+  // 현재 진행 중인 스텝 찾기
+  const getCurrentStepIndex = () => {
+    return projectDetail.steps.findIndex(
+      (step) => step.projectStepStatus === "IN_PROGRESS"
+    );
+  };
+
+  const currentStepIndex = getCurrentStepIndex();
 
   return (
     <Wrapper>
       <StepContainer>
-        {steps.map((step, index) => {
-          const active = step.key === currentStep;
-          const complete = reached && !active;
-          if (active) reached = false;
+        {projectDetail.steps.map((step, index) => {
+          const isActive = step.projectStepStatus === "IN_PROGRESS";
+          const isComplete = step.projectStepStatus === "COMPLETED";
+          const isReached = index <= currentStepIndex || isComplete;
 
-          const Icon = step.icon;
-          const iconColor = complete || active ? "#ffffff" : "#9ca3af";
+          const Icon = getStepIcon(step.name);
+          const iconColor = isComplete || isActive ? "#ffffff" : "#9ca3af";
 
           return (
-            <React.Fragment key={step.key}>
-              <StepItem active={active} complete={complete}>
-                <StepIcon active={active} complete={complete}>
+            <React.Fragment key={step.id}>
+              <StepItem active={isActive} complete={isComplete}>
+                <StepIcon active={isActive} complete={isComplete}>
                   <Icon size={18} color={iconColor} />
                 </StepIcon>
-                <StepTitle active={active} complete={complete}>
-                  {step.label}
+                <StepTitle active={isActive} complete={isComplete}>
+                  {step.name}
                 </StepTitle>
-                <StepStatus active={active} complete={complete}>
-                  {complete ? "완료" : active ? "진행중" : "대기"}
+                <StepStatus active={isActive} complete={isComplete}>
+                  {getStepStatusText(step.projectStepStatus)}
                 </StepStatus>
               </StepItem>
-              {index !== steps.length - 1 && (
-                <StepLine active={active} complete={complete} />
+              {index !== projectDetail.steps.length - 1 && (
+                <StepLine active={isActive} complete={isComplete} />
               )}
             </React.Fragment>
           );

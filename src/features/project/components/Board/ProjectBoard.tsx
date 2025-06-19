@@ -30,6 +30,7 @@ import type {
   StepList,
   PostPriority,
   ProjectDetailResponse,
+  PostType,
 } from "../../types/Types";
 import { POST_PRIORITY_LABELS } from "../../types/Types";
 import ProjectPostDetailModal from "@/features/board/components/Post/components/DetailModal/ProjectPostDetailModal";
@@ -49,63 +50,14 @@ import {
   FiPlus,
 } from "react-icons/fi";
 
-// 임시 데이터ㄴ
-const posts: Post[] = [
-  {
-    id: 10,
-    step: "기획",
-    title: "데이터베이스 설계 완료 보고서",
-    writer: "이개발",
-    priority: "LOW",
-    type: "GENERAL",
-    createdAt: "2023.09.10",
-    comments: [{ id: 1 }, { id: 2 }],
-  },
-  {
-    id: 9,
-    step: "디자인",
-    title: "UI/UX 디자인 검토 요청",
-    writer: "최디자인",
-    priority: "MEDIUM",
-    type: "GENERAL",
-    createdAt: "2023.09.05",
-    comments: [],
-  },
-  {
-    id: 8,
-    step: "개발",
-    title: "API 개발 진행 상황 보고",
-    writer: "정백엔드",
-    priority: "HIGH",
-    type: "GENERAL",
-    createdAt: "2023.08.25",
-    comments: [{ id: 1 }],
-  },
-  {
-    id: 7,
-    step: "기획",
-    title: "프론트엔드 프레임워크 선정 보고서",
-    writer: "김프론트",
-    priority: "URGENT",
-    type: "QUESTION",
-    createdAt: "2023.08.18",
-    comments: [],
-  },
-  {
-    id: 6,
-    step: "기획",
-    title: "요구사항 정의서 v1.2",
-    writer: "이개발",
-    priority: "LOW",
-    type: "GENERAL",
-    createdAt: "2023.08.05",
-    comments: [{ id: 1 }, { id: 2 }, { id: 3 }],
-  },
-];
+interface ProjectBoardProps {
+  projectDetail: ProjectDetailResponse;
+}
 
-const ProjectBoard = () => {
+const ProjectBoard: React.FC<ProjectBoardProps> = ({ projectDetail }) => {
   const { projectId } = useParams<{ projectId: string }>();
   const [steps, setSteps] = useState<StepList>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedStep, setSelectedStep] = useState("");
   const [selectedPriority, setSelectedPriority] = useState<PostPriority | "">(
@@ -130,32 +82,57 @@ const ProjectBoard = () => {
   const [isPriorityDropdownOpen, setIsPriorityDropdownOpen] = useState(false);
   const [isKeywordDropdownOpen, setIsKeywordDropdownOpen] = useState(false);
 
-  const filteredPosts = posts;
+  // 프로젝트 스텝 정보 설정
+  useEffect(() => {
+    if (projectDetail && projectDetail.steps) {
+      const projectSteps = projectDetail.steps
+        .filter((step) => !step.isDeleted)
+        .sort((a, b) => a.stepOrder - b.stepOrder)
+        .map((step) => step.name);
+      setSteps(projectSteps);
+    }
+  }, [projectDetail]);
+
+  // 게시글 목록 가져오기
+  const fetchPosts = async () => {
+    if (!projectId) return;
+
+    try {
+      setLoading(true);
+      const response = await api.get(`/api/posts/project/${projectId}`);
+      if (response.data.status === "OK" && response.data.data) {
+        setPosts(response.data.data.content || []);
+      }
+    } catch (error) {
+      console.error("게시글 목록 불러오기 실패", error);
+      setPosts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 필터링된 게시글
+  const filteredPosts = posts.filter((post) => {
+    // 유형 필터
+    if (typeFilter !== "ALL" && post.type !== typeFilter) return false;
+
+    // 우선순위 필터
+    if (priorityFilter !== "ALL" && post.priority !== priorityFilter)
+      return false;
+
+    // 키워드 필터
+    if (keyword) {
+      if (keywordType === "title" && !post.title.includes(keyword))
+        return false;
+      if (keywordType === "writer" && !post.authorName.includes(keyword))
+        return false;
+    }
+
+    return true;
+  });
 
   useEffect(() => {
-    const fetchSteps = async () => {
-      if (!projectId) return;
-
-      try {
-        setLoading(true);
-        const response = await api.get<ProjectDetailResponse>(
-          `/api/projects/${projectId}`
-        );
-
-        const projectSteps = response.data.data.steps
-          .filter((step) => !step.isDeleted)
-          .sort((a, b) => a.stepOrder - b.stepOrder)
-          .map((step) => step.name);
-
-        setSteps(projectSteps);
-      } catch (error) {
-        console.error("단계 목록 불러오기 실패", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSteps();
+    fetchPosts();
   }, [projectId]);
 
   // 드롭다운 외부 클릭 시 닫기

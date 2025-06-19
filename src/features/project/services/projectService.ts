@@ -38,25 +38,48 @@ export type ProjectUser = {
   developerCompany: string;
 };
 
-// 프로젝트 응답 타입
-export type ProjectResponse = {
+// 프로젝트 상세 조회용 사용자 타입
+export type AssignUser = {
+  id: number;
+  name: string;
+  positon: string;
+};
+
+// 프로젝트 상세 조회용 회사 타입
+export type ProjectCompany = {
+  id: number;
+  companyName: string;
+  assignUsers: AssignUser[];
+};
+
+// 프로젝트 상세 조회용 스텝 타입
+export type ProjectDetailStep = {
+  id: number;
+  stepOrder: number;
+  name: string;
+  projectStepStatus: string;
+  projectFeedbackStepStatus: string | null;
+  isDeleted: boolean;
+  user: any | null;
+};
+
+// 프로젝트 상세 응답 타입
+export type ProjectDetailResponse = {
   id: number;
   name: string;
   description: string;
   startDate: string;
   endDate: string;
-  createdAt: string;
-  updatedAt: string;
-  deletedAt: string | null;
-  isDeleted: boolean;
-  status: string;
-  steps: ProjectStep[];
-  clientCompany: string;
-  developerCompany: string;
-  users: ProjectUser[];
+  projectStatus: string;
+  clients: ProjectCompany[];
+  developers: ProjectCompany[];
+  steps: ProjectDetailStep[];
 };
 
-// API 응답 타입
+// 프로젝트 상세 조회 응답 타입
+export type ProjectDetailApiResponse = ApiResponse<ProjectDetailResponse>;
+
+// 프로젝트 응답 타입
 export type ApiResponse<T> = {
   status: string;
   code: string;
@@ -119,5 +142,27 @@ export const getProjects = async (
       );
     }
     throw new ApiError("프로젝트 목록 조회 중 알 수 없는 오류가 발생했습니다.");
+  }
+};
+
+// 프로젝트 상세 조회
+export const getProjectDetail = async (
+  projectId: number
+): Promise<ProjectDetailApiResponse> => {
+  try {
+    const response = await api.get<ProjectDetailApiResponse>(
+      `/api/projects/${projectId}`
+    );
+    return handleApiResponse<ProjectDetailResponse>(response);
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
+    if (error instanceof AxiosError) {
+      throw new ApiError(
+        error.response?.data?.message ||
+          "프로젝트 상세 조회 중 오류가 발생했습니다.",
+        error.response?.status
+      );
+    }
+    throw new ApiError("프로젝트 상세 조회 중 알 수 없는 오류가 발생했습니다.");
   }
 };

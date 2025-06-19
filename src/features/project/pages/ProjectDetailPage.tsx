@@ -1,6 +1,12 @@
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import ProjectHeader from "../components/Header/ProjectHeader";
 import ProjectProgress from "../components/Progress/ProjectProgress";
 import ProjectBoard from "../components/Board/ProjectBoard";
+import {
+  getProjectDetail,
+  type ProjectDetailResponse,
+} from "../services/projectService";
 import styled from "styled-components";
 // import ProjectMemberList from "../components/MemberList/ProjectMemberList";
 // import ProjectFileList from '../components/FileList/ProjectFileList';
@@ -40,10 +46,88 @@ const PageDescription = styled.p`
   margin-bottom: 18px;
 `;
 
+const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 400px;
+  font-size: 1.1rem;
+  color: #666;
+`;
+
+const ErrorContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 400px;
+  font-size: 1.1rem;
+  color: #ef4444;
+`;
+
 const ProjectDetailPage = () => {
+  const { projectId } = useParams<{ projectId: string }>();
+  const [projectDetail, setProjectDetail] =
+    useState<ProjectDetailResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // 프로젝트 상세 정보 가져오기
+  const fetchProjectDetail = async () => {
+    if (!projectId) {
+      setError("프로젝트 ID가 없습니다.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await getProjectDetail(parseInt(projectId));
+
+      if (response.data) {
+        setProjectDetail(response.data);
+      }
+    } catch (err) {
+      console.error("프로젝트 상세 정보 불러오기 실패", err);
+      setError("프로젝트 상세 정보를 불러오는데 실패했습니다.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProjectDetail();
+  }, [projectId]);
+
+  if (loading) {
+    return (
+      <DetailPageContainer>
+        <PageTitle>프로젝트 상세</PageTitle>
+        <PageDescription>
+          프로젝트의 상세 정보와 진행 상황을 확인하세요.
+        </PageDescription>
+        <LoadingContainer>프로젝트 상세 정보를 불러오는 중...</LoadingContainer>
+      </DetailPageContainer>
+    );
+  }
+
+  if (error || !projectDetail) {
+    return (
+      <DetailPageContainer>
+        <PageTitle>프로젝트 상세</PageTitle>
+        <PageDescription>
+          프로젝트의 상세 정보와 진행 상황을 확인하세요.
+        </PageDescription>
+        <ErrorContainer>
+          {error || "프로젝트 정보를 찾을 수 없습니다."}
+        </ErrorContainer>
+      </DetailPageContainer>
+    );
+  }
+
   return (
     <DetailPageContainer>
-      <PageTitle>프로젝트 상세</PageTitle>
+      <PageTitle>{projectDetail.name}</PageTitle>
       <PageDescription>
         프로젝트의 상세 정보와 진행 상황을 확인하세요.
       </PageDescription>
@@ -58,12 +142,12 @@ const ProjectDetailPage = () => {
           overflow: "hidden",
         }}
       >
-        <ProjectHeader />
-        {/* <ProjectMemberList /> */}
-        <ProjectProgress />
+        <ProjectHeader projectDetail={projectDetail} />
+        {/* <ProjectMemberList projectDetail={projectDetail} /> */}
+        <ProjectProgress projectDetail={projectDetail} />
         <div style={{ display: "flex", gap: 24, padding: "0 24px 24px" }}>
           <div style={{ flex: 2 }}>
-            <ProjectBoard />
+            <ProjectBoard projectDetail={projectDetail} />
             {/* <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 24 }}>
                         <ProjectFileList />
                     </div> */}
