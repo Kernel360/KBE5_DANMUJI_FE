@@ -45,8 +45,8 @@ import {
   deletePost,
   updateComment,
   deleteComment,
+  createComment,
 } from "@/features/project-d/services/postService";
-import { createComment } from "@/features/project/services/commentService";
 import type { Post, Comment, PostFile } from "@/features/project-d/types/post";
 import QuestionAnswerModal from "@/features/board/components/Question/components/QuestionAnswerModal/QuestionAnswerModal";
 import api from "@/api/axios";
@@ -173,10 +173,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
 
     try {
       setSubmittingComment(true);
-      await createComment({
-        postId,
-        content: commentText,
-      });
+      await createComment(postId, commentText);
       // 댓글 목록을 다시 불러오기
       const commentsResponse = await getComments(postId);
       if (commentsResponse.data) {
@@ -194,7 +191,9 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
   // 대댓글 생성 함수
   const handleReplyClick = (comment: Comment) => {
     setReplyingTo(comment.id);
-    setReplyText(`@${comment.author?.name || "알 수 없는 사용자"} `);
+    const authorName =
+      comment.authorName || comment.author?.name || "알 수 없는 사용자";
+    setReplyText(`@${authorName} `);
   };
 
   // 답글 등록
@@ -202,11 +201,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
     if (!replyText.trim() || !postId || replyingTo === null) return;
     try {
       setSubmittingReply(true);
-      await createComment({
-        postId,
-        parentId: replyingTo,
-        content: replyText,
-      });
+      await createComment(postId, replyText, replyingTo);
       // 댓글 목록 새로고침
       const commentsResponse = await getComments(postId);
       setComments(commentsResponse.data || []);
@@ -1145,7 +1140,11 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                     rootComment.id && (
                                     <ReplyInputContainer>
                                       <CommentTextArea
-                                        placeholder="답글을 입력하세요 (크기 조절 가능)"
+                                        placeholder={`@${
+                                          rootComment.authorName ||
+                                          rootComment.author?.name ||
+                                          "알 수 없는 사용자"
+                                        } 님에게 답글을 입력하세요`}
                                         value={replyText}
                                         onChange={(
                                           e: React.ChangeEvent<HTMLTextAreaElement>
@@ -1389,7 +1388,11 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                     reply.id && (
                                     <ReplyInputContainer>
                                       <CommentTextArea
-                                        placeholder="답글을 입력하세요 (크기 조절 가능)"
+                                        placeholder={`@${
+                                          reply.authorName ||
+                                          reply.author?.name ||
+                                          "알 수 없는 사용자"
+                                        } 님에게 답글을 입력하세요`}
                                         value={replyText}
                                         onChange={(
                                           e: React.ChangeEvent<HTMLTextAreaElement>

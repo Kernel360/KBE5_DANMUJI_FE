@@ -245,6 +245,11 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
     fetchPosts();
   };
 
+  const handlePostDelete = (deletedPostId: number) => {
+    // 게시글 삭제 후 목록 새로고침
+    fetchPosts();
+  };
+
   // 게시글 계층 렌더링 함수
   const renderPosts = (
     posts: PostSummaryReadResponse[],
@@ -675,6 +680,7 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
         onClose={() => setDetailModalOpen(false)}
         onEditPost={handleEditPost}
         onReplyPost={handleReplyPost}
+        onPostDelete={handlePostDelete}
       />
 
       <PostFormModal
