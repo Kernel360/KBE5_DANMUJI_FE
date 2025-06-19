@@ -193,7 +193,6 @@ export const FileItem = styled.li`
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem;
-  border: 1px solid #e5e7eb;
   border-radius: 0.5rem;
   margin-bottom: 0.5rem;
   background-color: #f9fafb;
@@ -203,7 +202,6 @@ export const FileItem = styled.li`
 
   &:hover {
     background-color: #f3f4f6;
-    border-color: #d1d5db;
   }
 
   &:last-child {
@@ -219,16 +217,12 @@ export const FileInfo = styled.div`
 `;
 
 export const FileIcon = styled.div`
-  width: 2rem;
-  height: 2rem;
+  width: auto;
+  height: auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #fdb924;
-  border-radius: 0.375rem;
-  color: white;
-  font-size: 0.875rem;
-  font-weight: 600;
+  /* 배경, 테두리, 색상 제거 */
 `;
 
 export const FileDetails = styled.div`
@@ -241,6 +235,7 @@ export const FileName = styled.div`
   color: #374151;
   margin-bottom: 0.25rem;
   word-break: break-all;
+  font-size: 0.92rem;
 `;
 
 export const FileMeta = styled.div`
@@ -287,6 +282,7 @@ export const NoFilesMessage = styled.div`
   padding: 1rem;
   color: #6b7280;
   font-style: italic;
+  font-size: 0.9rem;
 `;
 
 export const CommentsSection = styled(Section)`

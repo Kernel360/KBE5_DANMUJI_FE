@@ -404,22 +404,24 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
   const getFileIcon = (file: PostFile) => {
     const name = file.fileName.toLowerCase();
     const ext = name.split(".").pop();
-    if (!ext) return <FiFile size={16} />;
+    const yellow = "#fdb924";
+    if (!ext) return <FiFile size={16} color={yellow} />;
     if (["png", "jpg", "jpeg", "gif", "bmp", "webp", "svg"].includes(ext))
-      return <FiImage size={16} />;
-    if (["pdf"].includes(ext)) return <FiFileText size={16} />;
+      return <FiImage size={16} color={yellow} />;
+    if (["pdf"].includes(ext)) return <FiFileText size={16} color={yellow} />;
     if (["doc", "docx", "docs"].includes(ext))
-      return <FaFileWord size={16} color="#2b579a" />;
+      return <FaFileWord size={16} color={yellow} />;
     if (["xls", "xlsx", "csv"].includes(ext))
-      return <FaFileExcel size={16} color="#217346" />;
+      return <FaFileExcel size={16} color={yellow} />;
     if (["ppt", "pptx"].includes(ext))
-      return <FaFilePowerpoint size={16} color="#d24726" />;
+      return <FaFilePowerpoint size={16} color={yellow} />;
     if (["hwp", "hwpx"].includes(ext))
-      return <FaFileAlt size={16} color="#2986d7" />;
+      return <FaFileAlt size={16} color={yellow} />;
     if (["zip", "rar", "7z", "tar", "gz"].includes(ext))
-      return <FaFileArchive size={16} color="#eab308" />;
-    if (["txt", "md", "rtf"].includes(ext)) return <FiFileText size={16} />;
-    return <FiFileGeneric size={16} />;
+      return <FaFileArchive size={16} color={yellow} />;
+    if (["txt", "md", "rtf"].includes(ext))
+      return <FiFileText size={16} color={yellow} />;
+    return <FiFileGeneric size={16} color={yellow} />;
   };
 
   // 파일 크기 포맷 함수
