@@ -319,8 +319,14 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
   };
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    // UTC 시간에 9시간 추가 (한국 시간)
+    let date;
+    if (dateString.includes("T")) {
+      // ISO 8601 (UTC) 문자열
+      date = new Date(dateString);
+    } else {
+      // 'YYYY-MM-DD HH:mm:ss' → 'YYYY-MM-DDTHH:mm:ssZ'로 변환 후 UTC로 파싱
+      date = new Date(dateString.replace(" ", "T") + "Z");
+    }
     date.setHours(date.getHours() + 9);
 
     return date.toLocaleDateString("ko-KR", {
