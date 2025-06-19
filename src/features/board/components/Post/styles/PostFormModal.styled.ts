@@ -265,7 +265,7 @@ export const DropdownButton = styled.button<{
 }>`
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   padding: 10px 16px;
   background: ${({ $active, $color }) => ($active ? `${$color}15` : "#ffffff")};
   color: ${({ $active, $color }) => ($active ? $color : "#374151")};
@@ -275,11 +275,33 @@ export const DropdownButton = styled.button<{
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  min-width: 120px;
-  justify-content: space-between;
+  min-width: 160px;
+  width: 100%;
+  justify-content: flex-start;
+  text-align: left;
+
+  .dropdown-label {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .dropdown-arrow {
+    margin-left: auto;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+  }
 
   svg {
     transition: transform 0.2s;
+  }
+  .dropdown-arrow svg {
     transform: ${({ $isOpen }) => ($isOpen ? "rotate(180deg)" : "none")};
   }
 
@@ -292,6 +314,11 @@ export const DropdownButton = styled.button<{
   &:focus {
     outline: none;
     box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.1);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
 `;
 
@@ -311,6 +338,7 @@ export const DropdownMenu = styled.div<{ $isOpen: boolean }>`
     $isOpen ? "translateY(0)" : "translateY(-10px)"};
   transition: all 0.2s ease;
   margin-top: 4px;
+  width: 100%;
 `;
 
 export const DropdownItem = styled.div<{
@@ -320,7 +348,7 @@ export const DropdownItem = styled.div<{
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 16px;
+  padding: 12px 16px;
   background: ${({ $active, $color }) => ($active ? `${$color}15` : "#ffffff")};
   color: ${({ $active, $color }) => ($active ? $color : "#374151")};
   border: none;
@@ -328,6 +356,8 @@ export const DropdownItem = styled.div<{
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+  width: 100%;
+  text-align: left;
 
   &:hover {
     background: ${({ $active, $color }) =>

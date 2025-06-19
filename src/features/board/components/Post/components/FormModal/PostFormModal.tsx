@@ -533,15 +533,21 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
                         onClick={handleTypeDropdownToggle}
                         type="button"
                       >
-                        {formData.type === PostType.GENERAL ? (
-                          <FiMessageSquare size={16} />
-                        ) : (
-                          <FiFlag size={16} />
-                        )}
-                        <span>
-                          {formData.type === PostType.GENERAL ? "일반" : "질문"}
+                        <span className="dropdown-label">
+                          {formData.type === PostType.GENERAL ? (
+                            <FiMessageSquare size={16} />
+                          ) : (
+                            <FiFlag size={16} />
+                          )}
+                          <span>
+                            {formData.type === PostType.GENERAL
+                              ? "일반"
+                              : "질문"}
+                          </span>
                         </span>
-                        <FiChevronDown size={16} />
+                        <span className="dropdown-arrow">
+                          <FiChevronDown size={16} />
+                        </span>
                       </DropdownButton>
                       <DropdownMenu $isOpen={isTypeDropdownOpen}>
                         <DropdownItem
@@ -595,25 +601,29 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
                         onClick={handlePriorityDropdownToggle}
                         type="button"
                       >
-                        {formData.priority === PostPriority.LOW ? (
-                          <FiArrowDown size={16} />
-                        ) : formData.priority === PostPriority.MEDIUM ? (
-                          <FiMinus size={16} />
-                        ) : formData.priority === PostPriority.HIGH ? (
-                          <FiArrowUp size={16} />
-                        ) : (
-                          <FiAlertTriangle size={16} />
-                        )}
-                        <span>
-                          {formData.priority === PostPriority.LOW
-                            ? "낮음"
-                            : formData.priority === PostPriority.MEDIUM
-                            ? "보통"
-                            : formData.priority === PostPriority.HIGH
-                            ? "높음"
-                            : "긴급"}
+                        <span className="dropdown-label">
+                          {formData.priority === PostPriority.LOW ? (
+                            <FiArrowDown size={16} />
+                          ) : formData.priority === PostPriority.MEDIUM ? (
+                            <FiMinus size={16} />
+                          ) : formData.priority === PostPriority.HIGH ? (
+                            <FiArrowUp size={16} />
+                          ) : (
+                            <FiAlertTriangle size={16} />
+                          )}
+                          <span>
+                            {formData.priority === PostPriority.LOW
+                              ? "낮음"
+                              : formData.priority === PostPriority.MEDIUM
+                              ? "보통"
+                              : formData.priority === PostPriority.HIGH
+                              ? "높음"
+                              : "긴급"}
+                          </span>
                         </span>
-                        <FiChevronDown size={16} />
+                        <span className="dropdown-arrow">
+                          <FiChevronDown size={16} />
+                        </span>
                       </DropdownButton>
                       <DropdownMenu $isOpen={isPriorityDropdownOpen}>
                         <DropdownItem
@@ -688,22 +698,26 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
                         type="button"
                         disabled={projectLoading}
                       >
-                        {projectLoading ? (
-                          <div
-                            className="spinner"
-                            style={{ width: "16px", height: "16px" }}
-                          ></div>
-                        ) : (
-                          <FiTarget size={16} />
-                        )}
-                        <span>
-                          {projectLoading
-                            ? "로딩 중..."
-                            : selectedStep
-                            ? selectedStep.name
-                            : "단계 선택"}
+                        <span className="dropdown-label">
+                          {projectLoading ? (
+                            <div
+                              className="spinner"
+                              style={{ width: "16px", height: "16px" }}
+                            ></div>
+                          ) : (
+                            <FiTarget size={16} />
+                          )}
+                          <span>
+                            {projectLoading
+                              ? "로딩 중..."
+                              : selectedStep
+                              ? selectedStep.name
+                              : "단계 선택"}
+                          </span>
                         </span>
-                        <FiChevronDown size={16} />
+                        <span className="dropdown-arrow">
+                          <FiChevronDown size={16} />
+                        </span>
                       </DropdownButton>
                       <DropdownMenu $isOpen={isStepDropdownOpen}>
                         {projectSteps
