@@ -868,7 +868,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                         display: "flex",
                         alignItems: "center",
                         gap: "8px",
-                        padding: "-2px -2px -2px 12px",
+                        padding: "2px 12px",
                       }}
                     >
                       <FiFile
