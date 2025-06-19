@@ -205,41 +205,35 @@ export const CancelButton = styled.button`
 `;
 
 export const ErrorMessage = styled.div`
-  color: #dc2626;
-  font-size: 0.875rem;
-  margin-top: 0.5rem;
-  padding: 0.5rem;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 0.375rem;
+  color: #ef4444;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
 `;
 
 export const LoadingSpinner = styled.div`
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   padding: 2rem;
   color: #6b7280;
   font-size: 0.875rem;
 `;
 
 export const FileUploadArea = styled.div<{ isDragOver: boolean }>`
-  border: 2px dashed ${(props) => (props.isDragOver ? "#fdb924" : "#e5e7eb")};
+  border: 2px dashed ${({ isDragOver }) => (isDragOver ? "#fdb924" : "#d1d5db")};
   border-radius: 0.5rem;
-  padding: 1.5rem;
+  padding: 1rem;
   text-align: center;
-  background-color: ${(props) => (props.isDragOver ? "#fffdfa" : "#f9fafb")};
-  transition: all 0.2s ease;
   cursor: pointer;
-  position: relative;
+  transition: all 0.2s ease;
+  background-color: ${({ isDragOver }) => (isDragOver ? "#fef3c7" : "#f9fafb")};
 
   &:hover {
     border-color: #fdb924;
-    background-color: #fffdfa;
+    background-color: #fef3c7;
   }
 `;
 
-// 스피너 애니메이션을 위한 글로벌 스타일
 export const SpinnerAnimation = styled.div`
   @keyframes spin {
     0% {
@@ -255,5 +249,99 @@ export const SpinnerAnimation = styled.div`
     border-top: 2px solid #fdb924;
     border-radius: 50%;
     animation: spin 1s linear infinite;
+  }
+`;
+
+// 드롭다운 스타일 추가
+export const DropdownContainer = styled.div`
+  position: relative;
+  display: inline-block;
+`;
+
+export const DropdownButton = styled.button<{
+  $active: boolean;
+  $color: string;
+  $isOpen: boolean;
+}>`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: ${({ $active, $color }) => ($active ? `${$color}15` : "#ffffff")};
+  color: ${({ $active, $color }) => ($active ? $color : "#374151")};
+  border: 2px solid ${({ $active, $color }) => ($active ? $color : "#e5e7eb")};
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 120px;
+  justify-content: space-between;
+
+  svg {
+    transition: transform 0.2s;
+    transform: ${({ $isOpen }) => ($isOpen ? "rotate(180deg)" : "none")};
+  }
+
+  &:hover {
+    background: ${({ $active, $color }) =>
+      $active ? `${$color}25` : "#f9fafb"};
+    border-color: ${({ $active, $color }) => ($active ? $color : "#d1d5db")};
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.1);
+  }
+`;
+
+export const DropdownMenu = styled.div<{ $isOpen: boolean }>`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  opacity: ${({ $isOpen }) => ($isOpen ? 1 : 0)};
+  visibility: ${({ $isOpen }) => ($isOpen ? "visible" : "hidden")};
+  transform: ${({ $isOpen }) =>
+    $isOpen ? "translateY(0)" : "translateY(-10px)"};
+  transition: all 0.2s ease;
+  margin-top: 4px;
+`;
+
+export const DropdownItem = styled.div<{
+  $active: boolean;
+  $color: string;
+}>`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: ${({ $active, $color }) => ($active ? `${$color}15` : "#ffffff")};
+  color: ${({ $active, $color }) => ($active ? $color : "#374151")};
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: ${({ $active, $color }) =>
+      $active ? `${$color}25` : "#f9fafb"};
+    border: none;
+  }
+
+  &:first-child {
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+  }
+
+  &:last-child {
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
   }
 `;

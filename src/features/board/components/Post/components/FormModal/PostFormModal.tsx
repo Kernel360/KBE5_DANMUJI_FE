@@ -29,6 +29,10 @@ import {
   LoadingSpinner,
   FileUploadArea,
   SpinnerAnimation,
+  DropdownContainer,
+  DropdownButton,
+  DropdownMenu,
+  DropdownItem,
 } from "@/features/board/components/Post/styles/PostFormModal.styled";
 import {
   FiPaperclip,
@@ -41,13 +45,15 @@ import {
   FiEdit3,
   FiSave,
   FiPlus,
-  FiType,
   FiFlag,
   FiMessageSquare,
-  FiUser,
-  FiCalendar,
   FiCheck,
   FiX as FiXCircle,
+  FiChevronDown,
+  FiArrowDown,
+  FiMinus,
+  FiArrowUp,
+  FiAlertTriangle,
 } from "react-icons/fi";
 
 interface PostFormModalProps {
@@ -88,8 +94,11 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
 
   // 파일 업로드 관련 상태
   const [files, setFiles] = useState<File[]>([]);
-  const [dragActive, setDragActive] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
+
+  // 드롭다운 상태
+  const [isTypeDropdownOpen, setIsTypeDropdownOpen] = useState(false);
+  const [isPriorityDropdownOpen, setIsPriorityDropdownOpen] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -106,8 +115,8 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
               projectId: projectId,
               title: post.title,
               content: post.content,
-              type: post.type,
-              priority: post.priority,
+              type: post.type as PostType,
+              priority: post.priority as PostPriority,
               status: post.status,
               stepId: stepId,
             });
@@ -184,6 +193,36 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
       [name]: name === "priority" ? (value as PostPriority) : value,
     }));
     setFormErrors((prev) => ({ ...prev, [name]: "" }));
+  };
+
+  // 드롭다운 토글 핸들러
+  const handleTypeDropdownToggle = () => {
+    setIsTypeDropdownOpen((prev) => {
+      if (!prev) {
+        setIsPriorityDropdownOpen(false);
+      }
+      return !prev;
+    });
+  };
+
+  const handlePriorityDropdownToggle = () => {
+    setIsPriorityDropdownOpen((prev) => {
+      if (!prev) {
+        setIsTypeDropdownOpen(false);
+      }
+      return !prev;
+    });
+  };
+
+  // 드롭다운 아이템 선택 핸들러
+  const handleTypeSelect = (type: PostType) => {
+    setFormData((prev) => ({ ...prev, type }));
+    setIsTypeDropdownOpen(false);
+  };
+
+  const handlePrioritySelect = (priority: PostPriority) => {
+    setFormData((prev) => ({ ...prev, priority }));
+    setIsPriorityDropdownOpen(false);
   };
 
   const validateForm = () => {
@@ -394,16 +433,45 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
                         유형
                       </div>
                     </Label>
-                    <Select
-                      id="type"
-                      name="type"
-                      value={formData.type}
-                      onChange={handleChange}
-                      style={{ minWidth: 120, width: "100%" }}
-                    >
-                      <option value="GENERAL">일반</option>
-                      <option value="QUESTION">질문</option>
-                    </Select>
+                    <DropdownContainer>
+                      <DropdownButton
+                        $active={formData.type !== "GENERAL"}
+                        $color={
+                          formData.type === "GENERAL" ? "#3b82f6" : "#f59e0b"
+                        }
+                        $isOpen={isTypeDropdownOpen}
+                        onClick={handleTypeDropdownToggle}
+                        type="button"
+                      >
+                        {formData.type === "GENERAL" ? (
+                          <FiMessageSquare size={16} />
+                        ) : (
+                          <FiFlag size={16} />
+                        )}
+                        <span>
+                          {formData.type === "GENERAL" ? "일반" : "질문"}
+                        </span>
+                        <FiChevronDown size={16} />
+                      </DropdownButton>
+                      <DropdownMenu $isOpen={isTypeDropdownOpen}>
+                        <DropdownItem
+                          $active={formData.type === "GENERAL"}
+                          $color={"#3b82f6"}
+                          onClick={() => handleTypeSelect("GENERAL")}
+                        >
+                          <FiMessageSquare size={16} />
+                          <span>일반</span>
+                        </DropdownItem>
+                        <DropdownItem
+                          $active={formData.type === "QUESTION"}
+                          $color={"#f59e0b"}
+                          onClick={() => handleTypeSelect("QUESTION")}
+                        >
+                          <FiFlag size={16} />
+                          <span>질문</span>
+                        </DropdownItem>
+                      </DropdownMenu>
+                    </DropdownContainer>
                   </div>
                   <div style={{ flex: 1 }}>
                     <Label htmlFor="priority">
@@ -418,18 +486,77 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
                         우선순위
                       </div>
                     </Label>
-                    <Select
-                      id="priority"
-                      name="priority"
-                      value={formData.priority}
-                      onChange={handleChange}
-                      style={{ minWidth: 120, width: "100%" }}
-                    >
-                      <option value="LOW">낮음</option>
-                      <option value="MEDIUM">보통</option>
-                      <option value="HIGH">높음</option>
-                      <option value="URGENT">긴급</option>
-                    </Select>
+                    <DropdownContainer>
+                      <DropdownButton
+                        $active={formData.priority !== "LOW"}
+                        $color={
+                          formData.priority === "LOW"
+                            ? "#10b981"
+                            : formData.priority === "MEDIUM"
+                            ? "#fbbf24"
+                            : formData.priority === "HIGH"
+                            ? "#a21caf"
+                            : "#ef4444"
+                        }
+                        $isOpen={isPriorityDropdownOpen}
+                        onClick={handlePriorityDropdownToggle}
+                        type="button"
+                      >
+                        {formData.priority === "LOW" ? (
+                          <FiArrowDown size={16} />
+                        ) : formData.priority === "MEDIUM" ? (
+                          <FiMinus size={16} />
+                        ) : formData.priority === "HIGH" ? (
+                          <FiArrowUp size={16} />
+                        ) : (
+                          <FiAlertTriangle size={16} />
+                        )}
+                        <span>
+                          {formData.priority === "LOW"
+                            ? "낮음"
+                            : formData.priority === "MEDIUM"
+                            ? "보통"
+                            : formData.priority === "HIGH"
+                            ? "높음"
+                            : "긴급"}
+                        </span>
+                        <FiChevronDown size={16} />
+                      </DropdownButton>
+                      <DropdownMenu $isOpen={isPriorityDropdownOpen}>
+                        <DropdownItem
+                          $active={formData.priority === "LOW"}
+                          $color={"#10b981"}
+                          onClick={() => handlePrioritySelect("LOW")}
+                        >
+                          <FiArrowDown size={16} />
+                          <span>낮음</span>
+                        </DropdownItem>
+                        <DropdownItem
+                          $active={formData.priority === "MEDIUM"}
+                          $color={"#fbbf24"}
+                          onClick={() => handlePrioritySelect("MEDIUM")}
+                        >
+                          <FiMinus size={16} />
+                          <span>보통</span>
+                        </DropdownItem>
+                        <DropdownItem
+                          $active={formData.priority === "HIGH"}
+                          $color={"#a21caf"}
+                          onClick={() => handlePrioritySelect("HIGH")}
+                        >
+                          <FiArrowUp size={16} />
+                          <span>높음</span>
+                        </DropdownItem>
+                        <DropdownItem
+                          $active={formData.priority === "URGENT"}
+                          $color={"#ef4444"}
+                          onClick={() => handlePrioritySelect("URGENT")}
+                        >
+                          <FiAlertTriangle size={16} />
+                          <span>긴급</span>
+                        </DropdownItem>
+                      </DropdownMenu>
+                    </DropdownContainer>
                   </div>
                 </FormGroup>
 
