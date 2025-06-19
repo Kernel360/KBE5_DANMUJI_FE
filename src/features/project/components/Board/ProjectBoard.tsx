@@ -257,7 +257,6 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
           key={post.postId}
           style={{
             cursor: "pointer",
-            background: depth > 0 ? "#f9fafb" : undefined,
           }}
           onClick={() => handleRowClick(post.postId)}
         >
@@ -677,13 +676,13 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
 
       <PostFormModal
         open={isFormModalOpen}
-        mode={formModalMode}
-        postId={formModalPostId || undefined}
-        parentId={formModalParentId || undefined}
-        stepId={selectedStepId}
-        projectId={projectId}
         onClose={handleFormModalClose}
+        mode={formModalMode}
+        postId={formModalPostId ?? undefined}
+        parentId={formModalParentId ?? undefined}
+        projectId={projectId}
         onSuccess={handleFormModalSuccess}
+        colorTheme={{ main: "#fdb924", sub: "#f59e0b" }}
       />
     </Wrapper>
   );

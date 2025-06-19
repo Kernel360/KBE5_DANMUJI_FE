@@ -59,6 +59,7 @@ interface PostFormModalProps {
   stepId?: number;
   projectId?: number;
   onSuccess?: () => void;
+  colorTheme?: { main: string; sub: string };
 }
 
 const PostFormModal: React.FC<PostFormModalProps> = ({
@@ -70,6 +71,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
   stepId = 1, // 기본값 1
   projectId = 1, // 기본값 1
   onSuccess,
+  colorTheme = { main: "#fdb924", sub: "#f59e0b" },
 }) => {
   const [formData, setFormData] = useState<PostCreateData & PostUpdateRequest>({
     projectId: projectId,
@@ -323,12 +325,12 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
               >
                 {mode === "create" ? (
                   <>
-                    <FiPlus size={20} style={{ color: "#fdb924" }} />
+                    <FiPlus size={20} style={{ color: colorTheme.main }} />
                     <span>{parentId ? "답글 작성" : "새 게시글 작성"}</span>
                   </>
                 ) : (
                   <>
-                    <FiEdit3 size={20} style={{ color: "#fdb924" }} />
+                    <FiEdit3 size={20} style={{ color: colorTheme.main }} />
                     <span>게시글 수정</span>
                   </>
                 )}
@@ -353,8 +355,8 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
                         gap: "6px",
                       }}
                     >
-                      <FiType size={16} style={{ color: "#6b7280" }} />
-                      제목 *
+                      <FiEdit3 size={16} style={{ color: colorTheme.sub }} />
+                      제목
                     </div>
                   </Label>
                   <Input
@@ -375,54 +377,60 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
                   )}
                 </FormGroup>
 
-                <FormGroup>
-                  <Label htmlFor="type">
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                      }}
+                <FormGroup style={{ display: "flex", gap: 12 }}>
+                  <div style={{ flex: 1 }}>
+                    <Label htmlFor="type">
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px",
+                        }}
+                      >
+                        <FiMessageSquare
+                          size={16}
+                          style={{ color: colorTheme.sub }}
+                        />
+                        유형
+                      </div>
+                    </Label>
+                    <Select
+                      id="type"
+                      name="type"
+                      value={formData.type}
+                      onChange={handleChange}
+                      style={{ minWidth: 120, width: "100%" }}
                     >
-                      <FiMessageSquare size={16} style={{ color: "#6b7280" }} />
-                      유형
-                    </div>
-                  </Label>
-                  <Select
-                    id="type"
-                    name="type"
-                    value={formData.type}
-                    onChange={handleChange}
-                  >
-                    <option value="GENERAL">일반</option>
-                    <option value="QUESTION">질문</option>
-                  </Select>
-                </FormGroup>
-
-                <FormGroup>
-                  <Label htmlFor="priority">
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                      }}
+                      <option value="GENERAL">일반</option>
+                      <option value="QUESTION">질문</option>
+                    </Select>
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <Label htmlFor="priority">
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px",
+                        }}
+                      >
+                        <FiFlag size={16} style={{ color: colorTheme.sub }} />
+                        우선순위
+                      </div>
+                    </Label>
+                    <Select
+                      id="priority"
+                      name="priority"
+                      value={formData.priority}
+                      onChange={handleChange}
+                      style={{ minWidth: 120, width: "100%" }}
                     >
-                      <FiFlag size={16} style={{ color: "#6b7280" }} />
-                      우선순위
-                    </div>
-                  </Label>
-                  <Select
-                    id="priority"
-                    name="priority"
-                    value={formData.priority}
-                    onChange={handleChange}
-                  >
-                    <option value="LOW">낮음</option>
-                    <option value="MEDIUM">보통</option>
-                    <option value="HIGH">높음</option>
-                    <option value="URGENT">긴급</option>
-                  </Select>
+                      <option value="LOW">낮음</option>
+                      <option value="MEDIUM">보통</option>
+                      <option value="HIGH">높음</option>
+                      <option value="URGENT">긴급</option>
+                    </Select>
+                  </div>
                 </FormGroup>
 
                 {mode === "edit" && (
@@ -435,7 +443,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
                           gap: "6px",
                         }}
                       >
-                        <FiCheck size={16} style={{ color: "#6b7280" }} />
+                        <FiCheck size={16} style={{ color: colorTheme.sub }} />
                         상태
                       </div>
                     </Label>
@@ -461,8 +469,8 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
                         gap: "6px",
                       }}
                     >
-                      <FiFileText size={16} style={{ color: "#6b7280" }} />
-                      내용 *
+                      <FiFileText size={16} style={{ color: colorTheme.sub }} />
+                      내용
                     </div>
                   </Label>
                   <TextArea
@@ -489,7 +497,10 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
                         gap: "6px",
                       }}
                     >
-                      <FiPaperclip size={16} style={{ color: "#6b7280" }} />
+                      <FiPaperclip
+                        size={16}
+                        style={{ color: colorTheme.sub }}
+                      />
                       첨부파일
                     </div>
                   </Label>
@@ -544,7 +555,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
                         gap: "6px",
                       }}
                     >
-                      <FiFile size={16} style={{ color: "#6b7280" }} />
+                      <FiFile size={16} style={{ color: colorTheme.sub }} />
                       첨부된 파일 ({files.length}개)
                     </div>
                     <div
@@ -575,7 +586,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
                               flex: 1,
                             }}
                           >
-                            <div style={{ color: "#6b7280" }}>
+                            <div style={{ color: colorTheme.sub }}>
                               {getFileIcon(file)}
                             </div>
                             <div style={{ flex: 1, minWidth: 0 }}>
