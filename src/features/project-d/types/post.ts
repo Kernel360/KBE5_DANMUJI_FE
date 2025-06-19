@@ -154,3 +154,55 @@ export type PostSearchRequest = {
   startDate?: string;
   endDate?: string;
 };
+
+export interface PostFile {
+  id: number;
+  postId: number;
+  fileName: string;
+  fileUrl: string;
+  fileType: string;
+  fileSize: string;
+}
+
+export interface PostDetailReadResponse {
+  postId: number;
+  parentId: number | null;
+  projectId: number;
+  projectStepId: number;
+  authorIp: string;
+  authorId: number;
+  authorName: string;
+  title: string;
+  content: string;
+  type: string;
+  priority: string;
+  createdAt: string;
+  updatedAt: string;
+  files: PostFile[];
+  delete: boolean;
+}
+
+export interface PostSummaryReadResponse {
+  postId: number;
+  parentId: number | null;
+  projectId: number;
+  projectStepId: number;
+  authorId: number;
+  authorName: string;
+  title: string;
+  type: string;
+  priority: string;
+  createdAt: string;
+}
+
+export interface PageInfo {
+  size: number;
+  number: number;
+  totalElements: number;
+  totalPages: number;
+}
+
+export interface PageResponse<T> {
+  content: T[];
+  page: PageInfo;
+}

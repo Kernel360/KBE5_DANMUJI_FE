@@ -12,6 +12,9 @@ import type {
   PostType,
   PostPriority,
   PostUpdateRequest,
+  PostDetailReadResponse,
+  PostSummaryReadResponse,
+  PageResponse,
 } from "../types/post";
 import { getQuestionsByPost } from "./questionService";
 import { AxiosError } from "axios";
@@ -426,5 +429,25 @@ export const searchPosts = async (
       );
     }
     throw new ApiError("게시글 검색 중 알 수 없는 오류가 발생했습니다.");
+  }
+};
+
+// 단계별 게시글 목록 조회
+export const getPostsByProjectStep = async (
+  projectId: number,
+  stepId: number,
+  page: number = 0,
+  size: number = 10
+): Promise<PageResponse<PostSummaryReadResponse>> => {
+  try {
+    const response = await api.get<
+      ApiResponse<PageResponse<PostSummaryReadResponse>>
+    >(
+      `/api/posts/projects/${projectId}/steps/${stepId}?page=${page}&size=${size}`
+    );
+    return response.data.data;
+  } catch (error) {
+    console.error("단계별 게시글 조회 실패:", error);
+    throw error;
   }
 };
