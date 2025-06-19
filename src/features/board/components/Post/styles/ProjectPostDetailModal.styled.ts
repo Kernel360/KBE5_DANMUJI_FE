@@ -246,7 +246,7 @@ export const CommentActions = styled.div`
   font-size: 0.75rem;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.1rem;
 
   a {
     color: #6b7280;
@@ -265,7 +265,7 @@ export const CommentActionButton = styled.button`
   color: #6b7280;
   font-size: 0.75rem;
   cursor: pointer;
-  padding: 0.25rem 0.5rem;
+  padding: 0.15rem 0.4rem;
   border-radius: 0.25rem;
   transition: all 0.2s;
 

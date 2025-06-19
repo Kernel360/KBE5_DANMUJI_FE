@@ -947,61 +947,66 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                       <span>
                                         {formatDate(rootComment.createdAt)}
                                       </span>
-                                      {rootComment.author &&
-                                        isAuthor(rootComment.author.id) && (
-                                          <>
-                                            {editingCommentId ===
-                                            rootComment.id ? (
-                                              <>
-                                                <CommentActionButton
-                                                  onClick={() => {
-                                                    setEditingCommentId(
-                                                      rootComment.id
-                                                    );
-                                                    setEditText(
-                                                      rootComment.content
-                                                    );
-                                                  }}
-                                                >
-                                                  수정
-                                                </CommentActionButton>
-                                                <CommentActionButton
-                                                  onClick={() =>
-                                                    handleDeleteComment(
-                                                      rootComment.id
-                                                    )
-                                                  }
-                                                >
-                                                  삭제
-                                                </CommentActionButton>
-                                              </>
-                                            ) : (
-                                              <>
-                                                <CommentActionButton
-                                                  onClick={() => {
-                                                    setEditingCommentId(
-                                                      rootComment.id
-                                                    );
-                                                    setEditText(
-                                                      rootComment.content
-                                                    );
-                                                  }}
-                                                >
-                                                  수정
-                                                </CommentActionButton>
-                                                <CommentActionButton
-                                                  onClick={() =>
-                                                    handleDeleteComment(
-                                                      rootComment.id
-                                                    )
-                                                  }
-                                                >
-                                                  삭제
-                                                </CommentActionButton>
-                                              </>
-                                            )}
-                                          </>
-                                        )}
+                                      {rootComment.author?.id ??
+                                      rootComment.authorId
+                                        ? isAuthor(
+                                            rootComment.author?.id ??
+                                              rootComment.authorId
+                                          ) && (
+                                            <>
+                                              {editingCommentId ===
+                                              rootComment.id ? (
+                                                <>
+                                                  <CommentActionButton
+                                                    onClick={() => {
+                                                      setEditingCommentId(
+                                                        rootComment.id
+                                                      );
+                                                      setEditText(
+                                                        rootComment.content
+                                                      );
+                                                    }}
+                                                  >
+                                                    수정
+                                                  </CommentActionButton>
+                                                  <CommentActionButton
+                                                    onClick={() =>
+                                                      handleDeleteComment(
+                                                        rootComment.id
+                                                      )
+                                                    }
+                                                  >
+                                                    삭제
+                                                  </CommentActionButton>
+                                                </>
+                                              ) : (
+                                                <>
+                                                  <CommentActionButton
+                                                    onClick={() => {
+                                                      setEditingCommentId(
+                                                        rootComment.id
+                                                      );
+                                                      setEditText(
+                                                        rootComment.content
+                                                      );
+                                                    }}
+                                                  >
+                                                    수정
+                                                  </CommentActionButton>
+                                                  <CommentActionButton
+                                                    onClick={() =>
+                                                      handleDeleteComment(
+                                                        rootComment.id
+                                                      )
+                                                    }
+                                                  >
+                                                    삭제
+                                                  </CommentActionButton>
+                                                </>
+                                              )}
+                                            </>
+                                          )
+                                        : null}
                                       <CommentActionButton
                                         onClick={() =>
                                           handleReplyClick(rootComment)
@@ -1178,56 +1183,63 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                     </CommentAuthor>
                                     <CommentActions>
                                       <span>{formatDate(reply.createdAt)}</span>
-                                      {reply.author &&
-                                        isAuthor(reply.author.id) && (
-                                          <>
-                                            {editingCommentId === reply.id ? (
-                                              <>
-                                                <CommentActionButton
-                                                  onClick={() => {
-                                                    setEditingCommentId(
-                                                      reply.id
-                                                    );
-                                                    setEditText(reply.content);
-                                                  }}
-                                                >
-                                                  수정
-                                                </CommentActionButton>
-                                                <CommentActionButton
-                                                  onClick={() =>
-                                                    handleDeleteComment(
-                                                      reply.id
-                                                    )
-                                                  }
-                                                >
-                                                  삭제
-                                                </CommentActionButton>
-                                              </>
-                                            ) : (
-                                              <>
-                                                <CommentActionButton
-                                                  onClick={() => {
-                                                    setEditingCommentId(
-                                                      reply.id
-                                                    );
-                                                    setEditText(reply.content);
-                                                  }}
-                                                >
-                                                  수정
-                                                </CommentActionButton>
-                                                <CommentActionButton
-                                                  onClick={() =>
-                                                    handleDeleteComment(
-                                                      reply.id
-                                                    )
-                                                  }
-                                                >
-                                                  삭제
-                                                </CommentActionButton>
-                                              </>
-                                            )}
-                                          </>
-                                        )}
+                                      {reply.author?.id ?? reply.authorId
+                                        ? isAuthor(
+                                            reply.author?.id ?? reply.authorId
+                                          ) && (
+                                            <>
+                                              {editingCommentId === reply.id ? (
+                                                <>
+                                                  <CommentActionButton
+                                                    onClick={() => {
+                                                      setEditingCommentId(
+                                                        reply.id
+                                                      );
+                                                      setEditText(
+                                                        reply.content
+                                                      );
+                                                    }}
+                                                  >
+                                                    수정
+                                                  </CommentActionButton>
+                                                  <CommentActionButton
+                                                    onClick={() =>
+                                                      handleDeleteComment(
+                                                        reply.id
+                                                      )
+                                                    }
+                                                  >
+                                                    삭제
+                                                  </CommentActionButton>
+                                                </>
+                                              ) : (
+                                                <>
+                                                  <CommentActionButton
+                                                    onClick={() => {
+                                                      setEditingCommentId(
+                                                        reply.id
+                                                      );
+                                                      setEditText(
+                                                        reply.content
+                                                      );
+                                                    }}
+                                                  >
+                                                    수정
+                                                  </CommentActionButton>
+                                                  <CommentActionButton
+                                                    onClick={() =>
+                                                      handleDeleteComment(
+                                                        reply.id
+                                                      )
+                                                    }
+                                                  >
+                                                    삭제
+                                                  </CommentActionButton>
+                                                </>
+                                              )}
+                                            </>
+                                          )
+                                        : null}
                                       <CommentActionButton
                                         onClick={() => handleReplyClick(reply)}
                                       >
