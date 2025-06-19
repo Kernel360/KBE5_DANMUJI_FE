@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   ModalOverlay,
   ModalPanel,
@@ -476,6 +476,11 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
   const hasValidFiles =
     post &&
     Array.isArray(post.files) &&
+    post.files.some((f) => Number(f.fileSize) > 0);
+
+  const hasAttachments =
+    post?.files &&
+    post.files.length > 0 &&
     post.files.some((f) => Number(f.fileSize) > 0);
 
   if (!open && !closing) return null;
@@ -1140,15 +1145,15 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                     rootComment.id && (
                                     <ReplyInputContainer>
                                       <CommentTextArea
+                                        value={replyText}
+                                        onChange={(e) =>
+                                          setReplyText(e.target.value)
+                                        }
                                         placeholder={`@${
                                           rootComment.authorName ||
                                           rootComment.author?.name ||
                                           "알 수 없는 사용자"
                                         } 님에게 답글을 입력하세요`}
-                                        value={replyText}
-                                        onChange={(
-                                          e: React.ChangeEvent<HTMLTextAreaElement>
-                                        ) => setReplyText(e.target.value)}
                                         disabled={submittingReply}
                                         rows={3}
                                       />
@@ -1156,8 +1161,19 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                         style={{
                                           display: "flex",
                                           justifyContent: "flex-end",
+                                          gap: 8,
                                         }}
                                       >
+                                        <CommentActionButton
+                                          type="button"
+                                          onClick={() => {
+                                            setReplyText("");
+                                            setReplyingTo(null);
+                                          }}
+                                          disabled={submittingReply}
+                                        >
+                                          취소
+                                        </CommentActionButton>
                                         <CommentSubmitButton
                                           onClick={handleReplySubmit}
                                           disabled={
@@ -1166,7 +1182,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                         >
                                           {submittingReply
                                             ? "등록 중..."
-                                            : "답글 등록"}
+                                            : "등록"}
                                         </CommentSubmitButton>
                                       </div>
                                     </ReplyInputContainer>
@@ -1322,9 +1338,9 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                     {editingCommentId === reply.id ? (
                                       <div style={{ marginTop: 8 }}>
                                         <CommentTextArea
-                                          value={editText}
+                                          value={replyText}
                                           onChange={(e) =>
-                                            setEditText(e.target.value)
+                                            setReplyText(e.target.value)
                                           }
                                           autoFocus
                                           rows={3}
@@ -1348,16 +1364,16 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                           }}
                                         >
                                           <CommentSubmitButton
-                                            onClick={() =>
-                                              handleSaveEdit(reply.id)
-                                            }
+                                            onClick={() => {
+                                              handleReplySubmit();
+                                            }}
                                           >
                                             저장
                                           </CommentSubmitButton>
                                           <CommentActionButton
                                             onClick={() => {
-                                              setEditingCommentId(null);
-                                              setEditText("");
+                                              setReplyText("");
+                                              setReplyingTo(null);
                                             }}
                                           >
                                             취소
@@ -1388,15 +1404,15 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                     reply.id && (
                                     <ReplyInputContainer>
                                       <CommentTextArea
+                                        value={replyText}
+                                        onChange={(e) =>
+                                          setReplyText(e.target.value)
+                                        }
                                         placeholder={`@${
                                           reply.authorName ||
                                           reply.author?.name ||
                                           "알 수 없는 사용자"
                                         } 님에게 답글을 입력하세요`}
-                                        value={replyText}
-                                        onChange={(
-                                          e: React.ChangeEvent<HTMLTextAreaElement>
-                                        ) => setReplyText(e.target.value)}
                                         disabled={submittingReply}
                                         rows={3}
                                       />
@@ -1404,8 +1420,19 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                         style={{
                                           display: "flex",
                                           justifyContent: "flex-end",
+                                          gap: 8,
                                         }}
                                       >
+                                        <CommentActionButton
+                                          type="button"
+                                          onClick={() => {
+                                            setReplyText("");
+                                            setReplyingTo(null);
+                                          }}
+                                          disabled={submittingReply}
+                                        >
+                                          취소
+                                        </CommentActionButton>
                                         <CommentSubmitButton
                                           onClick={handleReplySubmit}
                                           disabled={
@@ -1414,7 +1441,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                         >
                                           {submittingReply
                                             ? "등록 중..."
-                                            : "답글 등록"}
+                                            : "등록"}
                                         </CommentSubmitButton>
                                       </div>
                                     </ReplyInputContainer>

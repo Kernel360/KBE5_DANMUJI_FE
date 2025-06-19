@@ -341,6 +341,7 @@ export const CommentActionButton = styled.button`
   padding: 0.15rem 0.4rem;
   border-radius: 0.25rem;
   transition: all 0.2s;
+  width: 55px;
 
   &:hover {
     background-color: #f3f4f6;
@@ -371,6 +372,7 @@ export const CommentTextArea = styled.textarea`
   background: white;
   position: relative;
   padding-bottom: 2.2em;
+  color: #000000;
 
   &:focus {
     outline: none;
@@ -499,7 +501,6 @@ export const ReplyInputContainer = styled.div`
   padding: 0.75rem;
   background-color: #f8f9fa;
   border-radius: 0.375rem;
-  border-left: 3px solid #fdb924;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -582,5 +583,15 @@ export const ResizeGuide = styled.div`
     svg path {
       fill: #fdb924;
     }
+  }
+`;
+
+// 답글 입력창용 스타일 컴포넌트
+export const ReplyTextArea = styled(CommentTextArea)`
+  color: #000000;
+
+  /* @태그 하이라이팅을 위한 스타일 */
+  &::selection {
+    background-color: rgba(253, 185, 36, 0.3);
   }
 `;
