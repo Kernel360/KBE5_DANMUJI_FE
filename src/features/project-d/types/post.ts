@@ -147,6 +147,7 @@ export type PostUpdateRequest = {
   status?: PostStatus;
   priority?: PostPriority;
   stepId?: number;
+  fileIdsToDelete?: number[];
 };
 
 // 게시글 검색 요청 데이터 타입

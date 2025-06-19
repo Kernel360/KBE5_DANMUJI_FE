@@ -288,6 +288,10 @@ export const updatePost = async (
       status: postData.status,
       priority: postData.priority,
       stepId: postData.stepId,
+      ...(postData.fileIdsToDelete &&
+        postData.fileIdsToDelete.length > 0 && {
+          fileIdsToDelete: postData.fileIdsToDelete,
+        }),
     };
 
     formData.append(
@@ -307,6 +311,7 @@ export const updatePost = async (
     console.log("=== updatePost API 호출 ===");
     console.log("요청 데이터:", jsonData);
     console.log("새로 추가된 파일 개수:", files?.length || 0);
+    console.log("삭제할 파일 ID:", postData.fileIdsToDelete);
 
     const response = await api.put<ApiResponse<Post>>(
       `/api/posts/${postId}`,

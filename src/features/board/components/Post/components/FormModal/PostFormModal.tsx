@@ -99,6 +99,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
 
   // 기존 파일 관련 상태 (수정 모드용)
   const [existingFiles, setExistingFiles] = useState<PostFile[]>([]);
+  const [deletedFileIds, setDeletedFileIds] = useState<number[]>([]);
 
   // 드롭다운 상태
   const [isTypeDropdownOpen, setIsTypeDropdownOpen] = useState(false);
@@ -156,6 +157,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
             });
             // 기존 파일 정보 설정
             setExistingFiles(post.files || []);
+            setDeletedFileIds([]);
           }
         } catch (err) {
           setError("게시글을 불러오는 데 실패했습니다.");
@@ -217,6 +219,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
       setFormErrors({});
       // 생성 모드에서는 기존 파일 초기화
       setExistingFiles([]);
+      setDeletedFileIds([]);
     }
   }, [open, mode, postId, parentId, stepId, projectId]);
 
@@ -328,6 +331,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
           // 상태 초기화
           setFiles([]);
           setExistingFiles([]);
+          setDeletedFileIds([]);
           setIsDragOver(false);
           onSuccess?.();
           onClose();
@@ -344,12 +348,14 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
           status: formData.status,
           priority: formData.priority,
           stepId: formData.stepId,
+          ...(deletedFileIds.length > 0 && { fileIdsToDelete: deletedFileIds }),
         };
         const response = await updatePost(postId, requestData, files);
         if (response.success || response.message?.includes("완료")) {
           // 상태 초기화
           setFiles([]);
           setExistingFiles([]);
+          setDeletedFileIds([]);
           setIsDragOver(false);
           onSuccess?.();
           onClose();
@@ -378,6 +384,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
     // 상태 초기화
     setFiles([]);
     setExistingFiles([]);
+    setDeletedFileIds([]);
     setIsDragOver(false);
     onClose();
   };
@@ -389,6 +396,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
 
   // 기존 파일 삭제 핸들러
   const handleExistingFileRemove = (fileId: number) => {
+    setDeletedFileIds((prev) => [...prev, fileId]);
     setExistingFiles((prev) => prev.filter((file) => file.id !== fileId));
   };
 
