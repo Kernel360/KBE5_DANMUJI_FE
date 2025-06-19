@@ -165,7 +165,7 @@ export const Th = styled.th`
   }
   &:nth-child(3) {
     /* 댓글 */
-    width: 80px;
+    width: 20px;
     text-align: center;
   }
   &:nth-child(4) {
@@ -175,12 +175,12 @@ export const Th = styled.th`
   }
   &:nth-child(5) {
     /* 유형 */
-    width: 80px;
+    width: 65px;
     text-align: center;
   }
   &:nth-child(6) {
     /* 우선순위 */
-    width: 100px;
+    width: 65px;
     text-align: center;
   }
   &:nth-child(7) {
@@ -211,7 +211,7 @@ export const Td = styled.td`
   }
   &:nth-child(3) {
     /* 댓글 */
-    width: 80px;
+    width: 60px;
     text-align: center;
   }
   &:nth-child(4) {
@@ -221,12 +221,12 @@ export const Td = styled.td`
   }
   &:nth-child(5) {
     /* 유형 */
-    width: 80px;
+    width: 65px;
     text-align: center;
   }
   &:nth-child(6) {
     /* 우선순위 */
-    width: 100px;
+    width: 65px;
     text-align: center;
   }
   &:nth-child(7) {
@@ -267,7 +267,7 @@ export const TitleText = styled.span`
 export const CommentInfo = styled.span`
   color: #9ca3af;
   font-size: 0.78rem;
-  margin-left: 8px;
+  margin-right: 1px;
 `;
 
 export const TypeBadge = styled.span<{ type: "GENERAL" | "QUESTION" }>`
