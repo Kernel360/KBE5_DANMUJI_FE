@@ -259,6 +259,7 @@ const CompanyFilterBar: React.FC<CompanyFilterBarProps> = ({
               <SelectButton
                 type="button"
                 onClick={handleCompanyModalOpen}
+                $color="#fdb924"
                 $hasValue={!!filters.companyId}
                 style={{ paddingLeft: 10, paddingRight: 10, minWidth: 90 }}
               >
