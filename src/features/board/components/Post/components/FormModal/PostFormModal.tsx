@@ -14,8 +14,6 @@ import {
 } from "@/features/project-d/types/post";
 import { getProjectDetail } from "@/features/project/services/projectService";
 import type { ProjectDetailResponse } from "@/features/project/services/projectService";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import {
   ModalOverlay,
   ModalPanel,
@@ -26,13 +24,11 @@ import {
   FormGroup,
   Label,
   Input,
-  TextArea,
   ButtonGroup,
   SubmitButton,
   CancelButton,
   ErrorMessage,
   LoadingSpinner,
-  FileUploadArea,
   SpinnerAnimation,
   DropdownContainer,
   DropdownButton,
@@ -40,14 +36,7 @@ import {
   DropdownItem,
 } from "@/features/board/components/Post/styles/PostFormModal.styled";
 import {
-  FiPaperclip,
-  FiFile,
-  FiImage,
-  FiFileText,
-  FiDownload,
-  FiTrash2,
   FiEdit3,
-  FiPlus,
   FiFlag,
   FiMessageSquare,
   FiX as FiXCircle,
@@ -57,9 +46,11 @@ import {
   FiArrowUp,
   FiAlertTriangle,
   FiTarget,
-  FiEye,
-  FiEdit,
+  FiPlus,
 } from "react-icons/fi";
+import FullScreenContentEditor from "./FullScreenContentEditor";
+import FileUploadSection from "./components/FileUploadSection";
+import ContentEditorSection from "./components/ContentEditorSection";
 
 interface PostFormModalProps {
   open: boolean;
@@ -113,6 +104,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
   // 마크다운 에디터 모드 상태
   const [isMarkdownMode, setIsMarkdownMode] = useState(false);
   const [isPreviewMode, setIsPreviewMode] = useState(false);
+  const [isFullScreenModal, setIsFullScreenModal] = useState(false);
 
   // 프로젝트 단계 정보
   const [projectSteps, setProjectSteps] = useState<
@@ -389,76 +381,37 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
   };
 
   const handleCancel = () => {
-    // 상태 초기화
+    setFormData({
+      projectId: projectId,
+      title: "",
+      content: "",
+      type: PostType.GENERAL,
+      priority: PostPriority.LOW,
+      status: PostStatus.PENDING,
+      stepId: stepId,
+    });
     setFiles([]);
     setExistingFiles([]);
     setDeletedFileIds([]);
-    setIsDragOver(false);
+    setFormErrors({});
+    setError(null);
     onClose();
-  };
-
-  // 파일 업로드 관련 핸들러
-  const handleFileRemove = (index: number) => {
-    setFiles((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  // 기존 파일 삭제 핸들러
-  const handleExistingFileRemove = (fileId: number) => {
-    setDeletedFileIds((prev) => [...prev, fileId]);
-    setExistingFiles((prev) => prev.filter((file) => file.id !== fileId));
-  };
-
-  const getFileIcon = (file: File) => {
-    const type = file.type;
-    if (type.startsWith("image/")) return <FiImage size={16} />;
-    if (type.includes("pdf")) return <FiFileText size={16} />;
-    if (type.includes("word") || type.includes("document"))
-      return <FiFileText size={16} />;
-    if (type.includes("excel") || type.includes("spreadsheet"))
-      return <FiFileText size={16} />;
-    return <FiFile size={16} />;
-  };
-
-  // 기존 파일용 아이콘 함수
-  const getExistingFileIcon = (file: PostFile) => {
-    const name = file.fileName.toLowerCase();
-    const ext = name.split(".").pop();
-    if (!ext) return <FiFile size={16} />;
-    if (["png", "jpg", "jpeg", "gif", "bmp", "webp", "svg"].includes(ext))
-      return <FiImage size={16} />;
-    if (["pdf"].includes(ext)) return <FiFileText size={16} />;
-    if (["doc", "docx", "docs"].includes(ext)) return <FiFileText size={16} />;
-    if (["xls", "xlsx", "csv"].includes(ext)) return <FiFileText size={16} />;
-    if (["txt", "md", "rtf"].includes(ext)) return <FiFileText size={16} />;
-    return <FiFile size={16} />;
-  };
-
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const sizes = ["Bytes", "KB", "MB", "GB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
   const handleFileDrop = (e: React.DragEvent) => {
     e.preventDefault();
-    e.stopPropagation();
     setIsDragOver(false);
-
     const droppedFiles = Array.from(e.dataTransfer.files);
     setFiles((prev) => [...prev, ...droppedFiles]);
   };
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
-    e.stopPropagation();
     setIsDragOver(true);
   };
 
   const handleDragLeave = (e: React.DragEvent) => {
     e.preventDefault();
-    e.stopPropagation();
     setIsDragOver(false);
   };
 
@@ -471,13 +424,21 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
     setFiles((prev) => [...prev, ...selectedFiles]);
   };
 
-  // 단계 상태 텍스트 변환
+  const handleFileRemove = (index: number) => {
+    setFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleExistingFileRemove = (fileId: number) => {
+    setDeletedFileIds((prev) => [...prev, fileId]);
+    setExistingFiles((prev) => prev.filter((file) => file.id !== fileId));
+  };
+
   const getStepStatusText = (status: string) => {
     switch (status) {
-      case "COMPLETED":
-        return "완료";
       case "IN_PROGRESS":
         return "진행중";
+      case "COMPLETED":
+        return "완료";
       case "PENDING":
         return "대기";
       default:
@@ -488,74 +449,55 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
   // 현재 선택된 단계 정보
   const selectedStep = projectSteps.find((step) => step.id === formData.stepId);
 
+  const handleFullScreenConfirm = (newContent: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      content: newContent,
+    }));
+    setIsFullScreenModal(false);
+  };
+
+  const handleFullScreenClose = () => {
+    setIsFullScreenModal(false);
+  };
+
   if (!open) return null;
 
   return (
-    <SpinnerAnimation>
-      <ModalOverlay onClick={onClose}>
-        <ModalPanel onClick={(e) => e.stopPropagation()}>
-          <ModalHeader>
-            <ModalTitle>
-              <div
-                style={{ display: "flex", alignItems: "center", gap: "8px" }}
-              >
-                {mode === "create" ? (
-                  <>
-                    <FiPlus size={20} style={{ color: colorTheme.main }} />
-                    <span>{parentId ? "답글 작성" : "새 게시글 작성"}</span>
-                  </>
-                ) : (
-                  <>
-                    <FiEdit3 size={20} style={{ color: colorTheme.main }} />
-                    <span>게시글 수정</span>
-                  </>
-                )}
-              </div>
-            </ModalTitle>
-            <ModalCloseButton onClick={onClose}>
-              <FiXCircle size={18} />
-            </ModalCloseButton>
-          </ModalHeader>
-
-          <ModalBody onClick={handleModalClick}>
-            {loading ? (
-              <LoadingSpinner>로딩 중...</LoadingSpinner>
-            ) : (
-              <form onSubmit={handleSubmit}>
-                <FormGroup>
-                  <Label htmlFor="title">
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                      }}
-                    >
-                      <FiEdit3 size={16} style={{ color: colorTheme.sub }} />
-                      제목
-                    </div>
-                  </Label>
-                  <Input
-                    id="title"
-                    name="title"
-                    type="text"
-                    value={formData.title}
-                    onChange={handleChange}
-                    placeholder={
-                      parentId
-                        ? "답글 제목을 입력하세요"
-                        : "게시글 제목을 입력하세요"
-                    }
-                    required
-                  />
-                  {formErrors.title && (
-                    <ErrorMessage>{formErrors.title}</ErrorMessage>
+    <>
+      <SpinnerAnimation>
+        <ModalOverlay onClick={onClose}>
+          <ModalPanel onClick={(e) => e.stopPropagation()}>
+            <ModalHeader>
+              <ModalTitle>
+                <div
+                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                >
+                  {mode === "create" ? (
+                    <>
+                      <FiPlus size={20} style={{ color: colorTheme.main }} />
+                      <span>{parentId ? "답글 작성" : "새 게시글 작성"}</span>
+                    </>
+                  ) : (
+                    <>
+                      <FiEdit3 size={20} style={{ color: colorTheme.main }} />
+                      <span>게시글 수정</span>
+                    </>
                   )}
-                </FormGroup>
+                </div>
+              </ModalTitle>
+              <ModalCloseButton onClick={onClose}>
+                <FiXCircle size={18} />
+              </ModalCloseButton>
+            </ModalHeader>
 
-                <FormGroup style={{ display: "flex", gap: 12 }}>
-                  <div style={{ flex: 1 }}>
-                    <Label htmlFor="type">
+            <ModalBody onClick={handleModalClick}>
+              {loading ? (
+                <LoadingSpinner>로딩 중...</LoadingSpinner>
+              ) : (
+                <form onSubmit={handleSubmit}>
+                  <FormGroup>
+                    <Label htmlFor="title">
                       <div
                         style={{
                           display: "flex",
@@ -563,816 +505,383 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
                           gap: "6px",
                         }}
                       >
-                        <FiMessageSquare
-                          size={16}
-                          style={{ color: colorTheme.sub }}
-                        />
-                        유형
+                        <FiEdit3 size={16} style={{ color: colorTheme.sub }} />
+                        제목
                       </div>
                     </Label>
-                    <DropdownContainer
-                      className="dropdown-container"
-                      data-dropdown="type"
-                    >
-                      <DropdownButton
-                        $active={true}
-                        $color={
-                          formData.type === PostType.GENERAL
-                            ? "#3b82f6"
-                            : formData.type === PostType.NOTICE
-                            ? "#f59e0b"
-                            : "#3b82f6"
-                        }
-                        $isOpen={isTypeDropdownOpen}
-                        onClick={handleTypeDropdownToggle}
-                        type="button"
-                      >
-                        <span className="dropdown-label">
-                          {formData.type === PostType.GENERAL ? (
-                            <FiMessageSquare size={16} />
-                          ) : (
-                            <FiFlag size={16} />
-                          )}
-                          <span>
-                            {formData.type === PostType.GENERAL
-                              ? "일반"
-                              : "질문"}
-                          </span>
-                        </span>
-                        <span className="dropdown-arrow">
-                          <FiChevronDown size={16} />
-                        </span>
-                      </DropdownButton>
-                      <DropdownMenu $isOpen={isTypeDropdownOpen}>
-                        <DropdownItem
-                          $active={formData.type === PostType.GENERAL}
-                          $color={"#3b82f6"}
-                          onClick={() => handleTypeSelect(PostType.GENERAL)}
-                        >
-                          <FiMessageSquare size={16} />
-                          <span>일반</span>
-                        </DropdownItem>
-                        <DropdownItem
-                          $active={formData.type === PostType.NOTICE}
-                          $color={"#f59e0b"}
-                          onClick={() => handleTypeSelect(PostType.NOTICE)}
-                        >
-                          <FiFlag size={16} />
-                          <span>질문</span>
-                        </DropdownItem>
-                      </DropdownMenu>
-                    </DropdownContainer>
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <Label htmlFor="priority">
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "6px",
-                        }}
-                      >
-                        <FiFlag size={16} style={{ color: colorTheme.sub }} />
-                        우선순위
-                      </div>
-                    </Label>
-                    <DropdownContainer
-                      className="dropdown-container"
-                      data-dropdown="priority"
-                    >
-                      <DropdownButton
-                        $active={true}
-                        $color={
-                          formData.priority === PostPriority.LOW
-                            ? "#10b981"
-                            : formData.priority === PostPriority.MEDIUM
-                            ? "#fbbf24"
-                            : formData.priority === PostPriority.HIGH
-                            ? "#a21caf"
-                            : formData.priority === PostPriority.URGENT
-                            ? "#ef4444"
-                            : "#10b981"
-                        }
-                        $isOpen={isPriorityDropdownOpen}
-                        onClick={handlePriorityDropdownToggle}
-                        type="button"
-                      >
-                        <span className="dropdown-label">
-                          {formData.priority === PostPriority.LOW ? (
-                            <FiArrowDown size={16} />
-                          ) : formData.priority === PostPriority.MEDIUM ? (
-                            <FiMinus size={16} />
-                          ) : formData.priority === PostPriority.HIGH ? (
-                            <FiArrowUp size={16} />
-                          ) : (
-                            <FiAlertTriangle size={16} />
-                          )}
-                          <span>
-                            {formData.priority === PostPriority.LOW
-                              ? "낮음"
-                              : formData.priority === PostPriority.MEDIUM
-                              ? "보통"
-                              : formData.priority === PostPriority.HIGH
-                              ? "높음"
-                              : "긴급"}
-                          </span>
-                        </span>
-                        <span className="dropdown-arrow">
-                          <FiChevronDown size={16} />
-                        </span>
-                      </DropdownButton>
-                      <DropdownMenu $isOpen={isPriorityDropdownOpen}>
-                        <DropdownItem
-                          $active={formData.priority === PostPriority.LOW}
-                          $color={"#10b981"}
-                          onClick={() => handlePrioritySelect(PostPriority.LOW)}
-                        >
-                          <FiArrowDown size={16} />
-                          <span>낮음</span>
-                        </DropdownItem>
-                        <DropdownItem
-                          $active={formData.priority === PostPriority.MEDIUM}
-                          $color={"#fbbf24"}
-                          onClick={() =>
-                            handlePrioritySelect(PostPriority.MEDIUM)
-                          }
-                        >
-                          <FiMinus size={16} />
-                          <span>보통</span>
-                        </DropdownItem>
-                        <DropdownItem
-                          $active={formData.priority === PostPriority.HIGH}
-                          $color={"#a21caf"}
-                          onClick={() =>
-                            handlePrioritySelect(PostPriority.HIGH)
-                          }
-                        >
-                          <FiArrowUp size={16} />
-                          <span>높음</span>
-                        </DropdownItem>
-                        <DropdownItem
-                          $active={formData.priority === PostPriority.URGENT}
-                          $color={"#ef4444"}
-                          onClick={() =>
-                            handlePrioritySelect(PostPriority.URGENT)
-                          }
-                        >
-                          <FiAlertTriangle size={16} />
-                          <span>긴급</span>
-                        </DropdownItem>
-                      </DropdownMenu>
-                    </DropdownContainer>
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <Label htmlFor="step">
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "6px",
-                        }}
-                      >
-                        <FiTarget size={16} style={{ color: colorTheme.sub }} />
-                        단계
-                      </div>
-                    </Label>
-                    <DropdownContainer
-                      className="dropdown-container"
-                      data-dropdown="step"
-                    >
-                      <DropdownButton
-                        $active={true}
-                        $color={
-                          selectedStep?.projectStepStatus === "IN_PROGRESS"
-                            ? "#fdb924"
-                            : selectedStep?.projectStepStatus === "COMPLETED"
-                            ? "#10b981"
-                            : "#6b7280"
-                        }
-                        $isOpen={isStepDropdownOpen}
-                        onClick={handleStepDropdownToggle}
-                        type="button"
-                        disabled={projectLoading}
-                      >
-                        <span className="dropdown-label">
-                          {projectLoading ? (
-                            <div
-                              className="spinner"
-                              style={{ width: "16px", height: "16px" }}
-                            ></div>
-                          ) : (
-                            <FiTarget size={16} />
-                          )}
-                          <span>
-                            {projectLoading
-                              ? "로딩 중..."
-                              : selectedStep
-                              ? selectedStep.name
-                              : "단계 선택"}
-                          </span>
-                        </span>
-                        <span className="dropdown-arrow">
-                          <FiChevronDown size={16} />
-                        </span>
-                      </DropdownButton>
-                      <DropdownMenu $isOpen={isStepDropdownOpen}>
-                        {projectSteps
-                          .sort((a, b) => a.stepOrder - b.stepOrder)
-                          .map((step) => (
-                            <DropdownItem
-                              key={step.id}
-                              $active={formData.stepId === step.id}
-                              $color={
-                                step.projectStepStatus === "IN_PROGRESS"
-                                  ? "#fdb924"
-                                  : step.projectStepStatus === "COMPLETED"
-                                  ? "#10b981"
-                                  : "#6b7280"
-                              }
-                              onClick={() => handleStepSelect(step.id)}
-                            >
-                              <FiTarget size={16} />
-                              <div style={{ flex: 1 }}>
-                                <div
-                                  style={{
-                                    fontSize: "14px",
-                                    fontWeight: "500",
-                                  }}
-                                >
-                                  {step.name}
-                                </div>
-                                <div
-                                  style={{ fontSize: "12px", color: "#9ca3af" }}
-                                >
-                                  {getStepStatusText(step.projectStepStatus)}
-                                </div>
-                              </div>
-                            </DropdownItem>
-                          ))}
-                      </DropdownMenu>
-                    </DropdownContainer>
-                  </div>
-                </FormGroup>
+                    <Input
+                      id="title"
+                      name="title"
+                      type="text"
+                      value={formData.title}
+                      onChange={handleChange}
+                      placeholder={
+                        parentId
+                          ? "답글 제목을 입력하세요"
+                          : "게시글 제목을 입력하세요"
+                      }
+                      required
+                    />
+                    {formErrors.title && (
+                      <ErrorMessage>{formErrors.title}</ErrorMessage>
+                    )}
+                  </FormGroup>
 
-                <FormGroup>
-                  <Label>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        width: "100%",
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "6px",
-                        }}
-                      >
-                        <FiFileText
-                          size={16}
-                          style={{ color: colorTheme.sub }}
-                        />
-                        내용
-                      </div>
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "8px",
-                        }}
-                      >
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setIsMarkdownMode(!isMarkdownMode);
-                            if (!isMarkdownMode) {
-                              setIsPreviewMode(false);
-                            }
-                          }}
+                  <FormGroup style={{ display: "flex", gap: 12 }}>
+                    <div style={{ flex: 1 }}>
+                      <Label htmlFor="type">
+                        <div
                           style={{
-                            background: "none",
-                            color: isMarkdownMode ? colorTheme.main : "#6b7280",
-                            border: "none",
-                            padding: "0",
-                            fontSize: "13px",
-                            cursor: "pointer",
                             display: "flex",
                             alignItems: "center",
                             gap: "6px",
-                            transition: "all 0.2s",
-                            fontWeight: isMarkdownMode ? "600" : "500",
-                            textDecoration: "none",
                           }}
-                          title="마크다운 모드"
                         >
-                          <FiEdit size={14} />
-                          마크다운
-                        </button>
-                        {isMarkdownMode && (
-                          <button
-                            type="button"
-                            onClick={() => setIsPreviewMode(!isPreviewMode)}
-                            style={{
-                              background: "none",
-                              color: isPreviewMode
-                                ? colorTheme.main
-                                : "#6b7280",
-                              border: "none",
-                              padding: "0",
-                              fontSize: "13px",
-                              cursor: "pointer",
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "6px",
-                              transition: "all 0.2s",
-                              fontWeight: isPreviewMode ? "600" : "500",
-                              textDecoration: "none",
-                            }}
-                            title="미리보기"
+                          <FiMessageSquare
+                            size={16}
+                            style={{ color: colorTheme.sub }}
+                          />
+                          유형
+                        </div>
+                      </Label>
+                      <DropdownContainer
+                        className="dropdown-container"
+                        data-dropdown="type"
+                      >
+                        <DropdownButton
+                          $active={true}
+                          $color={
+                            formData.type === PostType.GENERAL
+                              ? "#3b82f6"
+                              : formData.type === PostType.NOTICE
+                              ? "#f59e0b"
+                              : "#3b82f6"
+                          }
+                          $isOpen={isTypeDropdownOpen}
+                          onClick={handleTypeDropdownToggle}
+                          type="button"
+                        >
+                          <span className="dropdown-label">
+                            {formData.type === PostType.GENERAL ? (
+                              <FiMessageSquare size={16} />
+                            ) : (
+                              <FiFlag size={16} />
+                            )}
+                            <span>
+                              {formData.type === PostType.GENERAL
+                                ? "일반"
+                                : "질문"}
+                            </span>
+                          </span>
+                          <span className="dropdown-arrow">
+                            <FiChevronDown size={16} />
+                          </span>
+                        </DropdownButton>
+                        <DropdownMenu $isOpen={isTypeDropdownOpen}>
+                          <DropdownItem
+                            $active={formData.type === PostType.GENERAL}
+                            $color={"#3b82f6"}
+                            onClick={() => handleTypeSelect(PostType.GENERAL)}
                           >
-                            <FiEye size={14} />
-                            미리보기
-                          </button>
+                            <FiMessageSquare size={16} />
+                            <span>일반</span>
+                          </DropdownItem>
+                          <DropdownItem
+                            $active={formData.type === PostType.NOTICE}
+                            $color={"#f59e0b"}
+                            onClick={() => handleTypeSelect(PostType.NOTICE)}
+                          >
+                            <FiFlag size={16} />
+                            <span>질문</span>
+                          </DropdownItem>
+                        </DropdownMenu>
+                      </DropdownContainer>
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <Label htmlFor="priority">
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "6px",
+                          }}
+                        >
+                          <FiFlag size={16} style={{ color: colorTheme.sub }} />
+                          우선순위
+                        </div>
+                      </Label>
+                      <DropdownContainer
+                        className="dropdown-container"
+                        data-dropdown="priority"
+                      >
+                        <DropdownButton
+                          $active={true}
+                          $color={
+                            formData.priority === PostPriority.LOW
+                              ? "#10b981"
+                              : formData.priority === PostPriority.MEDIUM
+                              ? "#fbbf24"
+                              : formData.priority === PostPriority.HIGH
+                              ? "#a21caf"
+                              : formData.priority === PostPriority.URGENT
+                              ? "#ef4444"
+                              : "#10b981"
+                          }
+                          $isOpen={isPriorityDropdownOpen}
+                          onClick={handlePriorityDropdownToggle}
+                          type="button"
+                        >
+                          <span className="dropdown-label">
+                            {formData.priority === PostPriority.LOW ? (
+                              <FiArrowDown size={16} />
+                            ) : formData.priority === PostPriority.MEDIUM ? (
+                              <FiMinus size={16} />
+                            ) : formData.priority === PostPriority.HIGH ? (
+                              <FiArrowUp size={16} />
+                            ) : (
+                              <FiAlertTriangle size={16} />
+                            )}
+                            <span>
+                              {formData.priority === PostPriority.LOW
+                                ? "낮음"
+                                : formData.priority === PostPriority.MEDIUM
+                                ? "보통"
+                                : formData.priority === PostPriority.HIGH
+                                ? "높음"
+                                : "긴급"}
+                            </span>
+                          </span>
+                          <span className="dropdown-arrow">
+                            <FiChevronDown size={16} />
+                          </span>
+                        </DropdownButton>
+                        <DropdownMenu $isOpen={isPriorityDropdownOpen}>
+                          <DropdownItem
+                            $active={formData.priority === PostPriority.LOW}
+                            $color={"#10b981"}
+                            onClick={() =>
+                              handlePrioritySelect(PostPriority.LOW)
+                            }
+                          >
+                            <FiArrowDown size={16} />
+                            <span>낮음</span>
+                          </DropdownItem>
+                          <DropdownItem
+                            $active={formData.priority === PostPriority.MEDIUM}
+                            $color={"#fbbf24"}
+                            onClick={() =>
+                              handlePrioritySelect(PostPriority.MEDIUM)
+                            }
+                          >
+                            <FiMinus size={16} />
+                            <span>보통</span>
+                          </DropdownItem>
+                          <DropdownItem
+                            $active={formData.priority === PostPriority.HIGH}
+                            $color={"#a21caf"}
+                            onClick={() =>
+                              handlePrioritySelect(PostPriority.HIGH)
+                            }
+                          >
+                            <FiArrowUp size={16} />
+                            <span>높음</span>
+                          </DropdownItem>
+                          <DropdownItem
+                            $active={formData.priority === PostPriority.URGENT}
+                            $color={"#ef4444"}
+                            onClick={() =>
+                              handlePrioritySelect(PostPriority.URGENT)
+                            }
+                          >
+                            <FiAlertTriangle size={16} />
+                            <span>긴급</span>
+                          </DropdownItem>
+                        </DropdownMenu>
+                      </DropdownContainer>
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <Label htmlFor="step">
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "6px",
+                          }}
+                        >
+                          <FiTarget
+                            size={16}
+                            style={{ color: colorTheme.sub }}
+                          />
+                          단계
+                        </div>
+                      </Label>
+                      <DropdownContainer
+                        className="dropdown-container"
+                        data-dropdown="step"
+                      >
+                        <DropdownButton
+                          $active={true}
+                          $color={
+                            selectedStep?.projectStepStatus === "IN_PROGRESS"
+                              ? "#fdb924"
+                              : selectedStep?.projectStepStatus === "COMPLETED"
+                              ? "#10b981"
+                              : "#6b7280"
+                          }
+                          $isOpen={isStepDropdownOpen}
+                          onClick={handleStepDropdownToggle}
+                          type="button"
+                          disabled={projectLoading}
+                        >
+                          <span className="dropdown-label">
+                            {projectLoading ? (
+                              <div
+                                className="spinner"
+                                style={{ width: "16px", height: "16px" }}
+                              ></div>
+                            ) : (
+                              <FiTarget size={16} />
+                            )}
+                            <span>
+                              {projectLoading
+                                ? "로딩 중..."
+                                : selectedStep
+                                ? selectedStep.name
+                                : "단계 선택"}
+                            </span>
+                          </span>
+                          <span className="dropdown-arrow">
+                            <FiChevronDown size={16} />
+                          </span>
+                        </DropdownButton>
+                        <DropdownMenu $isOpen={isStepDropdownOpen}>
+                          {projectSteps
+                            .sort((a, b) => a.stepOrder - b.stepOrder)
+                            .map((step) => (
+                              <DropdownItem
+                                key={step.id}
+                                $active={formData.stepId === step.id}
+                                $color={
+                                  step.projectStepStatus === "IN_PROGRESS"
+                                    ? "#fdb924"
+                                    : step.projectStepStatus === "COMPLETED"
+                                    ? "#10b981"
+                                    : "#6b7280"
+                                }
+                                onClick={() => handleStepSelect(step.id)}
+                              >
+                                <FiTarget size={16} />
+                                <div style={{ flex: 1 }}>
+                                  <div
+                                    style={{
+                                      fontSize: "14px",
+                                      fontWeight: "500",
+                                    }}
+                                  >
+                                    {step.name}
+                                  </div>
+                                  <div
+                                    style={{
+                                      fontSize: "12px",
+                                      color: "#9ca3af",
+                                    }}
+                                  >
+                                    {getStepStatusText(step.projectStepStatus)}
+                                  </div>
+                                </div>
+                              </DropdownItem>
+                            ))}
+                        </DropdownMenu>
+                      </DropdownContainer>
+                    </div>
+                  </FormGroup>
+
+                  <ContentEditorSection
+                    content={formData.content}
+                    isMarkdownMode={isMarkdownMode}
+                    isPreviewMode={isPreviewMode}
+                    formErrors={formErrors}
+                    onContentChange={handleChange}
+                    onMarkdownModeToggle={() => {
+                      setIsMarkdownMode(!isMarkdownMode);
+                      if (!isMarkdownMode) {
+                        setIsPreviewMode(false);
+                      }
+                    }}
+                    onPreviewModeToggle={() => setIsPreviewMode(!isPreviewMode)}
+                    onFullScreenOpen={() => setIsFullScreenModal(true)}
+                    colorTheme={colorTheme}
+                  />
+
+                  <FileUploadSection
+                    files={files}
+                    existingFiles={existingFiles}
+                    isDragOver={isDragOver}
+                    fileInputRef={fileInputRef}
+                    handleFileDrop={handleFileDrop}
+                    handleDragOver={handleDragOver}
+                    handleDragLeave={handleDragLeave}
+                    handleFileClick={handleFileClick}
+                    handleFileChange={handleFileChange}
+                    handleFileRemove={handleFileRemove}
+                    handleExistingFileRemove={handleExistingFileRemove}
+                    colorTheme={colorTheme}
+                  />
+
+                  {error && <ErrorMessage>{error}</ErrorMessage>}
+
+                  <ButtonGroup>
+                    <CancelButton type="button" onClick={handleCancel}>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px",
+                        }}
+                      >
+                        취소
+                      </div>
+                    </CancelButton>
+                    <SubmitButton type="submit" disabled={loading}>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px",
+                        }}
+                      >
+                        {loading ? (
+                          <>
+                            <div
+                              className="spinner"
+                              style={{ width: "1px", height: "16px" }}
+                            ></div>
+                            처리 중...
+                          </>
+                        ) : mode === "create" ? (
+                          <>확인</>
+                        ) : (
+                          <>수정</>
                         )}
                       </div>
-                    </div>
-                  </Label>
-                  {isMarkdownMode && isPreviewMode ? (
-                    <div
-                      style={{
-                        border: "1px solid #d1d5db",
-                        borderRadius: "6px",
-                        padding: "12px",
-                        minHeight: "200px",
-                        backgroundColor: "#f9fafb",
-                        overflow: "auto",
-                      }}
-                    >
-                      <ReactMarkdown
-                        remarkPlugins={[remarkGfm]}
-                        components={{
-                          h1: ({ children }) => (
-                            <h1
-                              style={{
-                                fontSize: "1.5rem",
-                                fontWeight: "bold",
-                                margin: "16px 0 8px 0",
-                              }}
-                            >
-                              {children}
-                            </h1>
-                          ),
-                          h2: ({ children }) => (
-                            <h2
-                              style={{
-                                fontSize: "1.25rem",
-                                fontWeight: "bold",
-                                margin: "14px 0 6px 0",
-                              }}
-                            >
-                              {children}
-                            </h2>
-                          ),
-                          h3: ({ children }) => (
-                            <h3
-                              style={{
-                                fontSize: "1.125rem",
-                                fontWeight: "bold",
-                                margin: "12px 0 4px 0",
-                              }}
-                            >
-                              {children}
-                            </h3>
-                          ),
-                          p: ({ children }) => (
-                            <p style={{ margin: "8px 0", lineHeight: "1.6" }}>
-                              {children}
-                            </p>
-                          ),
-                          ul: ({ children }) => (
-                            <ul
-                              style={{ margin: "8px 0", paddingLeft: "20px" }}
-                            >
-                              {children}
-                            </ul>
-                          ),
-                          ol: ({ children }) => (
-                            <ol
-                              style={{ margin: "8px 0", paddingLeft: "20px" }}
-                            >
-                              {children}
-                            </ol>
-                          ),
-                          li: ({ children }) => (
-                            <li style={{ margin: "4px 0" }}>{children}</li>
-                          ),
-                          code: ({ children, className }) => {
-                            const isInline = !className;
-                            return isInline ? (
-                              <code
-                                style={{
-                                  backgroundColor: "#f3f4f6",
-                                  padding: "2px 4px",
-                                  borderRadius: "3px",
-                                  fontSize: "0.875rem",
-                                  fontFamily: "monospace",
-                                }}
-                              >
-                                {children}
-                              </code>
-                            ) : (
-                              <pre
-                                style={{
-                                  backgroundColor: "#f3f4f6",
-                                  padding: "12px",
-                                  borderRadius: "6px",
-                                  overflow: "auto",
-                                  margin: "8px 0",
-                                }}
-                              >
-                                <code
-                                  style={{
-                                    fontFamily: "monospace",
-                                    fontSize: "0.875rem",
-                                  }}
-                                >
-                                  {children}
-                                </code>
-                              </pre>
-                            );
-                          },
-                          blockquote: ({ children }) => (
-                            <blockquote
-                              style={{
-                                borderLeft: "4px solid #d1d5db",
-                                paddingLeft: "12px",
-                                margin: "8px 0",
-                                color: "#6b7280",
-                                fontStyle: "italic",
-                              }}
-                            >
-                              {children}
-                            </blockquote>
-                          ),
-                          table: ({ children }) => (
-                            <table
-                              style={{
-                                borderCollapse: "collapse",
-                                width: "100%",
-                                margin: "8px 0",
-                              }}
-                            >
-                              {children}
-                            </table>
-                          ),
-                          th: ({ children }) => (
-                            <th
-                              style={{
-                                border: "1px solid #d1d5db",
-                                padding: "8px",
-                                backgroundColor: "#f9fafb",
-                                fontWeight: "bold",
-                                textAlign: "left",
-                              }}
-                            >
-                              {children}
-                            </th>
-                          ),
-                          td: ({ children }) => (
-                            <td
-                              style={{
-                                border: "1px solid #d1d5db",
-                                padding: "8px",
-                              }}
-                            >
-                              {children}
-                            </td>
-                          ),
-                        }}
-                      >
-                        {formData.content}
-                      </ReactMarkdown>
-                    </div>
-                  ) : (
-                    <TextArea
-                      name="content"
-                      value={formData.content}
-                      onChange={handleChange}
-                      placeholder={
-                        isMarkdownMode
-                          ? "마크다운 문법을 사용하여 내용을 작성하세요"
-                          : "게시글 내용을 입력하세요"
-                      }
-                      style={{
-                        fontFamily: isMarkdownMode ? "monospace" : "inherit",
-                        fontSize: isMarkdownMode ? "14px" : "inherit",
-                        lineHeight: isMarkdownMode ? "1.4" : "inherit",
-                      }}
-                    />
-                  )}
-                  {formErrors.content && (
-                    <div
-                      style={{
-                        color: "#ef4444",
-                        fontSize: "12px",
-                        marginTop: "4px",
-                      }}
-                    >
-                      {formErrors.content}
-                    </div>
-                  )}
-                </FormGroup>
+                    </SubmitButton>
+                  </ButtonGroup>
+                </form>
+              )}
+            </ModalBody>
+          </ModalPanel>
+        </ModalOverlay>
+      </SpinnerAnimation>
 
-                {/* 파일 업로드 섹션 */}
-                <FormGroup>
-                  <Label>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                      }}
-                    >
-                      <FiPaperclip
-                        size={16}
-                        style={{ color: colorTheme.sub }}
-                      />
-                      첨부파일
-                    </div>
-                  </Label>
-                  <FileUploadArea
-                    onDrop={handleFileDrop}
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    isDragOver={isDragOver}
-                    onClick={handleFileClick}
-                  >
-                    <div style={{ textAlign: "center", padding: "20px" }}>
-                      <FiDownload
-                        size={32}
-                        style={{ color: "#9ca3af", marginBottom: "8px" }}
-                      />
-                      <p style={{ margin: "0 0 8px 0", color: "#6b7280" }}>
-                        파일을 드래그하여 업로드하거나 클릭하여 선택하세요
-                      </p>
-                      <p
-                        style={{
-                          margin: 0,
-                          fontSize: "12px",
-                          color: "#9ca3af",
-                        }}
-                      >
-                        최대 5개 파일, 각 파일 최대 10MB
-                      </p>
-                    </div>
-                    <input
-                      id="file-input"
-                      type="file"
-                      multiple
-                      onChange={handleFileChange}
-                      style={{ display: "none" }}
-                      accept="image/*,.pdf,.doc,.docx,.txt"
-                      ref={fileInputRef}
-                    />
-                  </FileUploadArea>
-                </FormGroup>
-
-                {/* 첨부된 파일 목록 */}
-                {(files.length > 0 || existingFiles.length > 0) && (
-                  <div style={{ marginTop: "12px" }}>
-                    <div
-                      style={{
-                        fontSize: "14px",
-                        fontWeight: "600",
-                        color: "#374151",
-                        marginBottom: "8px",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                      }}
-                    >
-                      <FiFile size={16} style={{ color: colorTheme.sub }} />
-                      첨부된 파일 ({files.length + existingFiles.length}개)
-                    </div>
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: "8px",
-                      }}
-                    >
-                      {/* 기존 파일 목록 */}
-                      {existingFiles.map((file) => (
-                        <div
-                          key={`existing-${file.id}`}
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                            padding: "8px 12px",
-                            backgroundColor: "#f9fafb",
-                            borderRadius: "6px",
-                            border: "1px solid #e5e7eb",
-                          }}
-                        >
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "8px",
-                              flex: 1,
-                            }}
-                          >
-                            <div style={{ color: "#9ca3af" }}>
-                              {getExistingFileIcon(file)}
-                            </div>
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <div
-                                style={{
-                                  fontSize: "14px",
-                                  color: "#374151",
-                                  fontWeight: "500",
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                  whiteSpace: "nowrap",
-                                }}
-                              >
-                                {file.fileName}
-                              </div>
-                              <div
-                                style={{
-                                  fontSize: "12px",
-                                  color: "#9ca3af",
-                                  marginTop: "2px",
-                                }}
-                              >
-                                {formatFileSize(parseInt(file.fileSize))}
-                              </div>
-                            </div>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleExistingFileRemove(file.id);
-                            }}
-                            style={{
-                              background: "none",
-                              border: "none",
-                              color: "#ef4444",
-                              cursor: "pointer",
-                              padding: "4px",
-                              borderRadius: "4px",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              transition: "background-color 0.2s",
-                            }}
-                            onMouseOver={(e) => {
-                              e.currentTarget.style.backgroundColor = "#fef2f2";
-                            }}
-                            onMouseOut={(e) => {
-                              e.currentTarget.style.backgroundColor =
-                                "transparent";
-                            }}
-                            title="파일 삭제"
-                          >
-                            <FiTrash2 size={14} />
-                          </button>
-                        </div>
-                      ))}
-
-                      {/* 새로 추가된 파일 목록 */}
-                      {files.map((file, index) => (
-                        <div
-                          key={`new-${index}`}
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                            padding: "8px 12px",
-                            backgroundColor: "#f0f9ff",
-                            borderRadius: "6px",
-                            border: "1px solid #bae6fd",
-                          }}
-                        >
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "8px",
-                              flex: 1,
-                            }}
-                          >
-                            <div style={{ color: colorTheme.sub }}>
-                              {getFileIcon(file)}
-                            </div>
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <div
-                                style={{
-                                  fontSize: "14px",
-                                  color: "#374151",
-                                  fontWeight: "500",
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                  whiteSpace: "nowrap",
-                                }}
-                              >
-                                {file.name}
-                              </div>
-                              <div
-                                style={{
-                                  fontSize: "12px",
-                                  color: "#9ca3af",
-                                  marginTop: "2px",
-                                }}
-                              >
-                                {formatFileSize(file.size)}
-                              </div>
-                            </div>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleFileRemove(index);
-                            }}
-                            style={{
-                              background: "none",
-                              border: "none",
-                              color: "#ef4444",
-                              cursor: "pointer",
-                              padding: "4px",
-                              borderRadius: "4px",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              transition: "background-color 0.2s",
-                            }}
-                            onMouseOver={(e) => {
-                              e.currentTarget.style.backgroundColor = "#fef2f2";
-                            }}
-                            onMouseOut={(e) => {
-                              e.currentTarget.style.backgroundColor =
-                                "transparent";
-                            }}
-                            title="파일 삭제"
-                          >
-                            <FiTrash2 size={14} />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {error && <ErrorMessage>{error}</ErrorMessage>}
-
-                <ButtonGroup>
-                  <CancelButton type="button" onClick={handleCancel}>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                      }}
-                    >
-                      취소
-                    </div>
-                  </CancelButton>
-                  <SubmitButton type="submit" disabled={loading}>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                      }}
-                    >
-                      {loading ? (
-                        <>
-                          <div
-                            className="spinner"
-                            style={{ width: "1px", height: "16px" }}
-                          ></div>
-                          처리 중...
-                        </>
-                      ) : mode === "create" ? (
-                        <>확인</>
-                      ) : (
-                        <>수정</>
-                      )}
-                    </div>
-                  </SubmitButton>
-                </ButtonGroup>
-              </form>
-            )}
-          </ModalBody>
-        </ModalPanel>
-      </ModalOverlay>
-    </SpinnerAnimation>
+      {/* 전체화면 내용 편집기 */}
+      <FullScreenContentEditor
+        isOpen={isFullScreenModal}
+        onClose={handleFullScreenClose}
+        onConfirm={handleFullScreenConfirm}
+        initialContent={formData.content}
+        colorTheme={colorTheme}
+      />
+    </>
   );
 };
 
