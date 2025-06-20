@@ -209,11 +209,33 @@ export const ErrorMessage = styled.div`
 
 export const LoadingSpinner = styled.div`
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   padding: 2rem;
   color: #6b7280;
   font-size: 0.875rem;
+  gap: 1rem;
+
+  &::before {
+    content: "";
+    width: 32px;
+    height: 32px;
+    background-image: url("/favicon.ico");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
 `;
 
 export const FileUploadArea = styled.div<{ isDragOver: boolean }>`
