@@ -920,9 +920,9 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
                             alignItems: "center",
                             justifyContent: "space-between",
                             padding: "8px 12px",
-                            backgroundColor: "#f0f9ff",
+                            backgroundColor: "#f9fafb",
                             borderRadius: "6px",
-                            border: "1px solid #0ea5e9",
+                            border: "1px solid #e5e7eb",
                           }}
                         >
                           <div
@@ -933,7 +933,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
                               flex: 1,
                             }}
                           >
-                            <div style={{ color: "#0ea5e9" }}>
+                            <div style={{ color: "#9ca3af" }}>
                               {getExistingFileIcon(file)}
                             </div>
                             <div style={{ flex: 1, minWidth: 0 }}>
@@ -1001,9 +1001,9 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
                             alignItems: "center",
                             justifyContent: "space-between",
                             padding: "8px 12px",
-                            backgroundColor: "#f9fafb",
+                            backgroundColor: "#f0f9ff",
                             borderRadius: "6px",
-                            border: "1px solid #e5e7eb",
+                            border: "1px solid #bae6fd",
                           }}
                         >
                           <div
