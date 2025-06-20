@@ -110,27 +110,9 @@ export const TextArea = styled.textarea`
   font-size: 0.875rem;
   background-color: white;
   color: #374151;
-  resize: both;
+  resize: none;
   background: white;
   position: relative;
-  padding-bottom: 2.2em;
-
-  &::-webkit-resizer {
-    display: none;
-  }
-  &::-moz-resizer {
-    display: none;
-  }
-  &::-ms-resizer {
-    display: none;
-  }
-  &::resizer {
-    display: none;
-  }
-  &:hover {
-    cursor: se-resize;
-    box-shadow: 0 0 0 2px #fdb92433;
-  }
 
   &:focus {
     outline: none;

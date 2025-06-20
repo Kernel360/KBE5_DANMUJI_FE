@@ -249,7 +249,7 @@ export const QuestionTextArea = styled.textarea`
   border: 1px solid #d1d5db;
   border-radius: 0.5rem;
   font-size: 0.875rem;
-  resize: vertical;
+  resize: none;
   margin-bottom: 1rem;
   background-color: #ffffff;
   color: #333333;
@@ -302,7 +302,7 @@ export const AnswerTextArea = styled.textarea`
   border: 1px solid #d1d5db;
   border-radius: 0.5rem;
   font-size: 0.875rem;
-  resize: vertical;
+  resize: none;
   margin-bottom: 1rem;
   background-color: #ffffff;
   color: #333333;
