@@ -41,16 +41,18 @@ const FullScreenContentEditor: React.FC<FullScreenContentEditorProps> = ({
   useEffect(() => {
     const handleEscKey = (event: KeyboardEvent) => {
       if (event.key === "Escape" && isOpen) {
+        event.preventDefault();
+        event.stopPropagation();
         onClose();
       }
     };
 
     if (isOpen) {
-      document.addEventListener("keydown", handleEscKey);
+      document.addEventListener("keydown", handleEscKey, true); // capture phase에서 처리
     }
 
     return () => {
-      document.removeEventListener("keydown", handleEscKey);
+      document.removeEventListener("keydown", handleEscKey, true);
     };
   }, [isOpen, onClose]);
 

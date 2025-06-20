@@ -461,12 +461,36 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
     setIsFullScreenModal(false);
   };
 
+  // ESC 키 이벤트 처리
+  useEffect(() => {
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && open && !isFullScreenModal) {
+        onClose();
+      }
+    };
+
+    if (open) {
+      document.addEventListener("keydown", handleEscKey);
+    }
+
+    return () => {
+      document.removeEventListener("keydown", handleEscKey);
+    };
+  }, [open, onClose, isFullScreenModal]);
+
+  // 모달 바깥 클릭 처리
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   if (!open) return null;
 
   return (
     <>
       <SpinnerAnimation>
-        <ModalOverlay onClick={onClose}>
+        <ModalOverlay onClick={handleOverlayClick}>
           <ModalPanel onClick={(e) => e.stopPropagation()}>
             <ModalHeader>
               <ModalTitle>
