@@ -5,7 +5,7 @@ import MemberRegisterModal from "../components/MemberRegisterModal/MemberRegiste
 import MemberEditModal from "../components/MemberEditModal/MemberEditModal";
 import styled from "styled-components";
 import { FiSearch, FiPlus, FiChevronDown, FiRotateCcw } from "react-icons/fi";
-import { HiBuildingOffice2, HiUsers } from "react-icons/hi2";
+import { IoBusinessOutline, IoPeopleOutline } from "react-icons/io5";
 
 export interface Member {
   id: number;
@@ -74,7 +74,7 @@ const Subtitle = styled.p`
 const FilterBar = styled.div`
   display: flex;
   flex-wrap: nowrap;
-  gap: 20px;
+  gap: 12px;
   background: #f9fafb;
   border: 1px solid #e5e7eb;
   border-radius: 12px;
@@ -634,7 +634,7 @@ export default function MemberPage() {
             onClick={handleCompanyDropdownToggle}
             className={companyDropdownOpen ? "open" : ""}
           >
-            <HiBuildingOffice2 size={16} />
+            <IoBusinessOutline size={16} />
             <span className="select-value">
               {companies.find((c) => c.id === parseInt(filters.companyId))
                 ?.name || "모든 회사"}
@@ -667,7 +667,7 @@ export default function MemberPage() {
             onClick={handlePositionDropdownToggle}
             className={positionDropdownOpen ? "open" : ""}
           >
-            <HiUsers size={16} />
+            <IoPeopleOutline size={16} />
             <span className="select-value">
               {filters.position || "모든 직책"}
             </span>
