@@ -83,7 +83,7 @@ const FileUploadSection: React.FC<FileUploadSectionProps> = ({
           onDrop={handleFileDrop}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
-          isDragOver={isDragOver}
+          $isDragOver={isDragOver}
           onClick={handleFileClick}
         >
           <div style={{ textAlign: "center", padding: "20px" }}>

@@ -238,14 +238,16 @@ export const LoadingSpinner = styled.div`
   }
 `;
 
-export const FileUploadArea = styled.div<{ isDragOver: boolean }>`
-  border: 2px dashed ${({ isDragOver }) => (isDragOver ? "#fdb924" : "#d1d5db")};
+export const FileUploadArea = styled.div<{ $isDragOver: boolean }>`
+  border: 2px dashed
+    ${({ $isDragOver }) => ($isDragOver ? "#fdb924" : "#d1d5db")};
   border-radius: 0.5rem;
   padding: 1rem;
   text-align: center;
   cursor: pointer;
   transition: all 0.2s ease;
-  background-color: ${({ isDragOver }) => (isDragOver ? "#fef3c7" : "#f9fafb")};
+  background-color: ${({ $isDragOver }) =>
+    $isDragOver ? "#fef3c7" : "#f9fafb"};
 
   &:hover {
     border-color: #fdb924;
