@@ -121,6 +121,30 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
     }, 320); // 애니메이션 시간과 맞춤
   };
 
+  // ESC 키 이벤트 처리
+  useEffect(() => {
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && open) {
+        handleCloseWithAnimation();
+      }
+    };
+
+    if (open) {
+      document.addEventListener("keydown", handleEscKey);
+    }
+
+    return () => {
+      document.removeEventListener("keydown", handleEscKey);
+    };
+  }, [open]);
+
+  // 모달 바깥 클릭 처리
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      handleCloseWithAnimation();
+    }
+  };
+
   useEffect(() => {
     const loadPostData = async () => {
       if (open && postId !== null) {
@@ -495,7 +519,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
 
   if (loading) {
     return (
-      <ModalOverlay onClick={handleCloseWithAnimation}>
+      <ModalOverlay onClick={handleOverlayClick}>
         <ModalPanel>
           <LoadingSpinner>로딩 중...</LoadingSpinner>
         </ModalPanel>
@@ -505,7 +529,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
 
   if (!post) {
     return (
-      <ModalOverlay onClick={handleCloseWithAnimation}>
+      <ModalOverlay onClick={handleOverlayClick}>
         <ModalPanel>
           <ErrorMessage>게시글을 찾을 수 없습니다.</ErrorMessage>
         </ModalPanel>
@@ -515,7 +539,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
 
   return (
     <>
-      <ModalOverlay onClick={handleCloseWithAnimation}>
+      <ModalOverlay onClick={handleOverlayClick}>
         <ModalPanel
           $closing={closing}
           onClick={(e: React.MouseEvent) => e.stopPropagation()}

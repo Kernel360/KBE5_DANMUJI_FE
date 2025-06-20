@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FiX, FiCheck, FiEdit, FiEye } from "react-icons/fi";
+import { FiX, FiEdit, FiEye } from "react-icons/fi";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {
@@ -37,6 +37,23 @@ const FullScreenContentEditor: React.FC<FullScreenContentEditorProps> = ({
     setContent(initialContent);
   }, [initialContent]);
 
+  // ESC 키 이벤트 처리
+  useEffect(() => {
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && isOpen) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("keydown", handleEscKey);
+    }
+
+    return () => {
+      document.removeEventListener("keydown", handleEscKey);
+    };
+  }, [isOpen, onClose]);
+
   const handleConfirm = () => {
     onConfirm(content);
     onClose();
@@ -46,10 +63,16 @@ const FullScreenContentEditor: React.FC<FullScreenContentEditorProps> = ({
     onClose();
   };
 
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
-    <ModalOverlay onClick={handleClose}>
+    <ModalOverlay onClick={handleOverlayClick}>
       <ModalPanel
         onClick={(e) => e.stopPropagation()}
         style={{
@@ -341,20 +364,13 @@ const FullScreenContentEditor: React.FC<FullScreenContentEditorProps> = ({
             <ButtonGroup
               style={{
                 marginTop: "20px",
-                paddingTop: "20px",
-                borderTop: "1px solid #e5e7eb",
               }}
             >
               <CancelButton type="button" onClick={handleClose}>
                 취소
               </CancelButton>
               <SubmitButton type="button" onClick={handleConfirm}>
-                <div
-                  style={{ display: "flex", alignItems: "center", gap: "6px" }}
-                >
-                  <FiCheck size={16} />
-                  확인
-                </div>
+                확인
               </SubmitButton>
             </ButtonGroup>
           </div>
