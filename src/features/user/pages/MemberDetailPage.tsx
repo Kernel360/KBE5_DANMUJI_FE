@@ -3,8 +3,13 @@ import styled from "styled-components";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "@/api/axios";
 import { type Member, formatTelNo } from "../pages/MemberPage";
-import MemberEditModal from '../components/MemberEditModal/MemberEditModal';
-import { type MemberFormData } from '../pages/MemberPage';
+import MemberEditModal from "../components/MemberEditModal/MemberEditModal";
+import { type MemberFormData } from "../pages/MemberPage";
+import {
+  showErrorToast,
+  showSuccessToast,
+  withErrorHandling,
+} from "@/utils/errorHandler";
 
 interface Company {
   id: number;
@@ -211,7 +216,8 @@ const MemberDetailPage: React.FC = () => {
         const response = await api.get(`/api/admin/${id}`); // Adjust API endpoint if necessary
         setMember(response.data.data);
       } catch (err: unknown) {
-        let errorMessage = "회원 상세 정보를 가져오는 중 알 수 없는 오류가 발생했습니다.";
+        let errorMessage =
+          "회원 상세 정보를 가져오는 중 알 수 없는 오류가 발생했습니다.";
         if (err instanceof Error) {
           errorMessage = err.message;
         }
@@ -227,11 +233,11 @@ const MemberDetailPage: React.FC = () => {
   useEffect(() => {
     const fetchCompanies = async () => {
       try {
-        const response = await api.get('/api/companies'); // 모든 회사를 가져오기 위해 size를 충분히 크게 설정
+        const response = await api.get("/api/companies"); // 모든 회사를 가져오기 위해 size를 충분히 크게 설정
         setCompanies(response.data.data.content);
       } catch (error) {
-        console.error('Failed to fetch companies:', error);
-        alert('회사 목록을 불러오는 데 실패했습니다.');
+        console.error("Failed to fetch companies:", error);
+        alert("회사 목록을 불러오는 데 실패했습니다.");
       }
     };
     fetchCompanies();
@@ -245,20 +251,18 @@ const MemberDetailPage: React.FC = () => {
   };
 
   const handleDeleteMember = async () => {
-    if (member && window.confirm('정말로 이 회원을 삭제하시겠습니까?')) {
-      try {
+    if (member && window.confirm("정말로 이 회원을 삭제하시겠습니까?")) {
+      const result = await withErrorHandling(async () => {
         await api.delete(`/api/admin/${member.id}`);
-        alert("회원 삭제가 완료되었습니다!");
+        showSuccessToast("회원 삭제가 완료되었습니다!");
         navigate("/members");
-      } catch (error: unknown) {
-        console.error('Error deleting member:', error);
-        alert("회원 삭제 중 오류가 발생했습니다.");
-      }
+        return null;
+      }, "회원 삭제에 실패했습니다.");
     }
   };
 
   const handleUpdateMember = async (data: MemberFormData) => {
-    try {
+    const result = await withErrorHandling(async () => {
       const memberToUpdate = {
         id: member?.id,
         username: data.username,
@@ -270,24 +274,23 @@ const MemberDetailPage: React.FC = () => {
         email: data.email,
       };
       await api.put(`/api/admin/${member?.id}`, memberToUpdate);
-      alert("회원 정보가 성공적으로 수정되었습니다!");
+      showSuccessToast("회원 정보가 성공적으로 수정되었습니다!");
       setEditModalOpen(false);
       const response = await api.get(`/api/admin/${member?.id}`);
       setMember(response.data.data);
-    } catch (error: unknown) {
-      console.error('Error updating member:', error);
-      alert("회원 정보 수정 중 오류가 발생했습니다.");
-    }
+      return response;
+    }, "회원 정보 수정에 실패했습니다.");
   };
 
   const handleResetPassword = () => {
-    alert("비밀번호 초기화 버튼 클릭됨");
+    showErrorToast("비밀번호 초기화 기능은 준비 중입니다.");
     // TODO: 비밀번호 초기화 로직 추가
   };
 
   if (loading) return <PageContainer>로딩 중...</PageContainer>;
   if (error) return <PageContainer>에러: {error}</PageContainer>;
-  if (!member) return <PageContainer>회원 정보를 찾을 수 없습니다.</PageContainer>;
+  if (!member)
+    return <PageContainer>회원 정보를 찾을 수 없습니다.</PageContainer>;
 
   const today = new Date();
   const year = today.getFullYear();
@@ -297,34 +300,45 @@ const MemberDetailPage: React.FC = () => {
 
   const hours = today.getHours();
   const minutes = today.getMinutes();
-  const ampm = hours >= 12 ? '오후' : '오전';
-  const formattedTime = `${ampm} ${hours % 12 || 12}:${minutes < 10 ? '0' + minutes : minutes}`;
+  const ampm = hours >= 12 ? "오후" : "오전";
+  const formattedTime = `${ampm} ${hours % 12 || 12}:${
+    minutes < 10 ? "0" + minutes : minutes
+  }`;
 
-  const companyName = companies.find(c => c.id === member.companyId)?.name || 'N/A';
+  const companyName =
+    companies.find((c) => c.id === member.companyId)?.name || "N/A";
 
   return (
     <PageContainer>
       <PageHeaderSection>
         <PageTitle>회원 상세 정보</PageTitle>
-        <PageSubtitle>회원 정보 ({formattedDate} {formattedTime})</PageSubtitle>
+        <PageSubtitle>
+          회원 정보 ({formattedDate} {formattedTime})
+        </PageSubtitle>
       </PageHeaderSection>
 
       <MainContentArea>
         <ProfileHeader>
           <ProfileTitle>사용자 프로필</ProfileTitle>
           <ButtonGroup>
-            <BackButton onClick={() => navigate("/members")}>뒤로가기</BackButton>
+            <BackButton onClick={() => navigate("/members")}>
+              뒤로가기
+            </BackButton>
             <DeleteButton onClick={handleDeleteMember}>회원 삭제</DeleteButton>
             <EditButton onClick={handleEditMember}>회원 정보 수정</EditButton>
           </ButtonGroup>
         </ProfileHeader>
 
         <UserProfileSection>
-          <ProfileImagePlaceholder>{member.name.charAt(0)}</ProfileImagePlaceholder>
+          <ProfileImagePlaceholder>
+            {member.name.charAt(0)}
+          </ProfileImagePlaceholder>
           <ProfileDetails>
             <ProfileTitle>{member.name}</ProfileTitle>
             <RoleTag>{member.role}</RoleTag>
-            <ResetPasswordLink onClick={handleResetPassword}>비밀번호 초기화</ResetPasswordLink>
+            <ResetPasswordLink onClick={handleResetPassword}>
+              비밀번호 초기화
+            </ResetPasswordLink>
           </ProfileDetails>
         </UserProfileSection>
 
@@ -365,7 +379,9 @@ const MemberDetailPage: React.FC = () => {
             </DetailItem>
             <DetailItem>
               <DetailLabel>등록일:</DetailLabel>
-              <DetailValue>{new Date(member.createdAt).toLocaleDateString()}</DetailValue>
+              <DetailValue>
+                {new Date(member.createdAt).toLocaleDateString()}
+              </DetailValue>
             </DetailItem>
           </InfoColumn>
         </InfoGrid>
@@ -381,4 +397,4 @@ const MemberDetailPage: React.FC = () => {
   );
 };
 
-export default MemberDetailPage; 
+export default MemberDetailPage;

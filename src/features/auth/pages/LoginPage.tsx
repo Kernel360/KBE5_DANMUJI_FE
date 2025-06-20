@@ -3,6 +3,11 @@ import api from "@/api/axios";
 import { LeftPanel } from "@/features/auth/components/LeftPanel";
 import { DanmujiLogo } from "@/features/auth/components/DanmujiLogo";
 import { useAuth } from "@/hooks/useAuth";
+import {
+  showErrorToast,
+  showSuccessToast,
+  withErrorHandling,
+} from "@/utils/errorHandler";
 
 import {
   ComponentContainer,
@@ -19,7 +24,7 @@ import {
 export default function LoginPage() {
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
-  const { refreshUser } = useAuth(); 
+  const { refreshUser } = useAuth();
 
   const handleForgotPassword = () => {
     window.location.href = "/forgot-password";
@@ -27,7 +32,8 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
+
+    const result = await withErrorHandling(async () => {
       const res = await api.post(
         "/api/auth/login",
         { username: id, password },
@@ -42,25 +48,22 @@ export default function LoginPage() {
         const accessToken = res.headers["authorization"].replace("Bearer ", "");
         if (accessToken) {
           localStorage.setItem("accessToken", accessToken);
-          
+
           // 사용자 정보 가져오기
           await refreshUser();
-          
-          alert("로그인 되었습니다.");
+
+          showSuccessToast("로그인 되었습니다.");
           window.location.href = "/dashboard";
         } else {
-          console.error("액세스 토큰이 없습니다.");
-          alert("로그인에 실패했습니다.");
+          throw new Error("액세스 토큰이 없습니다.");
         }
       } else if (res.data?.code === "C005") {
-        alert("비밀번호가 일치하지 않습니다."); // todo : BE 오류 메세지 수정
+        throw new Error("비밀번호가 일치하지 않습니다.");
       } else {
-        alert("해당 아이디가 존재하지 않습니다."); // todo : 오류 메세지 수정
+        throw new Error("해당 아이디가 존재하지 않습니다.");
       }
-    } catch (err) {
-      alert("네트워크 오류가 발생했습니다. 다시 시도해주세요.");
-      console.error("Login error:", err);
-    }
+      return res;
+    }, "로그인에 실패했습니다.");
   };
 
   return (
