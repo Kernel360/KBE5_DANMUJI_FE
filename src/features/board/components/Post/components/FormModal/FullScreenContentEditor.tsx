@@ -61,40 +61,39 @@ const FullScreenContentEditor: React.FC<FullScreenContentEditorProps> = ({
       >
         <ModalHeader>
           <ModalTitle>게시글 내용 편집</ModalTitle>
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <button
-              type="button"
-              onClick={() => {
-                setIsMarkdownMode(!isMarkdownMode);
-                if (!isMarkdownMode) {
-                  setIsPreviewMode(false);
-                }
-              }}
+          <ModalCloseButton onClick={handleClose}>
+            <FiX size={18} />
+          </ModalCloseButton>
+        </ModalHeader>
+
+        <ModalBody style={{ height: "calc(85vh - 80px)", padding: "2rem" }}>
+          <div
+            style={{ height: "100%", display: "flex", flexDirection: "column" }}
+          >
+            {/* 마크다운 및 미리보기 버튼 */}
+            <div
               style={{
-                background: "none",
-                color: isMarkdownMode ? colorTheme.main : "#6b7280",
-                border: "none",
-                padding: "0",
-                fontSize: "13px",
-                cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
-                gap: "6px",
-                transition: "all 0.2s",
-                fontWeight: isMarkdownMode ? "600" : "500",
+                gap: "8px",
+                marginBottom: "16px",
+                justifyContent: "flex-end",
               }}
-              title="마크다운 모드"
             >
-              <FiEdit size={14} />
-              마크다운
-            </button>
-            {isMarkdownMode && (
               <button
                 type="button"
-                onClick={() => setIsPreviewMode(!isPreviewMode)}
+                onClick={() => {
+                  setIsMarkdownMode(!isMarkdownMode);
+                  if (!isMarkdownMode) {
+                    setIsPreviewMode(false);
+                  }
+                }}
                 style={{
                   background: "none",
-                  color: isPreviewMode ? colorTheme.main : "#6b7280",
+                  color:
+                    isMarkdownMode && !isPreviewMode
+                      ? colorTheme.main
+                      : "#6b7280",
                   border: "none",
                   padding: "0",
                   fontSize: "13px",
@@ -103,24 +102,47 @@ const FullScreenContentEditor: React.FC<FullScreenContentEditorProps> = ({
                   alignItems: "center",
                   gap: "6px",
                   transition: "all 0.2s",
-                  fontWeight: isPreviewMode ? "600" : "500",
+                  fontWeight: isMarkdownMode && !isPreviewMode ? "600" : "500",
                 }}
-                title="미리보기"
+                title="마크다운 모드"
+              >
+                <FiEdit size={14} />
+                마크다운
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (isMarkdownMode) {
+                    setIsPreviewMode(!isPreviewMode);
+                  }
+                }}
+                disabled={!isMarkdownMode}
+                style={{
+                  background: "none",
+                  color:
+                    isMarkdownMode && isPreviewMode
+                      ? colorTheme.main
+                      : "#6b7280",
+                  border: "none",
+                  padding: "0",
+                  fontSize: "13px",
+                  cursor: isMarkdownMode ? "pointer" : "not-allowed",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  transition: "all 0.2s",
+                  fontWeight: isMarkdownMode && isPreviewMode ? "600" : "500",
+                  opacity: isMarkdownMode ? 1 : 0.5,
+                }}
+                title={
+                  isMarkdownMode ? "미리보기" : "마크다운 모드에서만 사용 가능"
+                }
               >
                 <FiEye size={14} />
                 미리보기
               </button>
-            )}
-            <ModalCloseButton onClick={handleClose}>
-              <FiX size={18} />
-            </ModalCloseButton>
-          </div>
-        </ModalHeader>
+            </div>
 
-        <ModalBody style={{ height: "calc(85vh - 80px)", padding: "2rem" }}>
-          <div
-            style={{ height: "100%", display: "flex", flexDirection: "column" }}
-          >
             {isMarkdownMode && isPreviewMode ? (
               <div
                 style={{
@@ -281,8 +303,8 @@ const FullScreenContentEditor: React.FC<FullScreenContentEditorProps> = ({
                 onChange={(e) => setContent(e.target.value)}
                 placeholder={
                   isMarkdownMode
-                    ? "마크다운 문법을 사용하여 내용을 작성하세요"
-                    : "게시글 내용을 입력하세요"
+                    ? "마크다운 문법을 사용하여 내용을 작성할 수 있습니다."
+                    : "게시글 내용을 입력하세요."
                 }
                 style={{
                   width: "100%",
@@ -298,8 +320,23 @@ const FullScreenContentEditor: React.FC<FullScreenContentEditorProps> = ({
                   backgroundColor: "#ffffff",
                   color: "#374151",
                 }}
+                onFocus={(e) => {
+                  e.target.style.fontSize = isMarkdownMode ? "14px" : "14px";
+                }}
+                onBlur={(e) => {
+                  e.target.style.fontSize = isMarkdownMode ? "14px" : "14px";
+                }}
               />
             )}
+
+            <style>
+              {`
+                textarea::placeholder {
+                  font-size: 13px !important;
+                  color: #9ca3af !important;
+                }
+              `}
+            </style>
 
             <ButtonGroup
               style={{

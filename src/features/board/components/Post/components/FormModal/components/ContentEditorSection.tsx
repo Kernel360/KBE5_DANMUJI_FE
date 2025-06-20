@@ -85,7 +85,10 @@ const ContentEditorSection: React.FC<ContentEditorSectionProps> = ({
               onClick={onMarkdownModeToggle}
               style={{
                 background: "none",
-                color: isMarkdownMode ? colorTheme.main : "#6b7280",
+                color:
+                  isMarkdownMode && !isPreviewMode
+                    ? colorTheme.main
+                    : "#6b7280",
                 border: "none",
                 padding: "0",
                 fontSize: "13px",
@@ -94,7 +97,7 @@ const ContentEditorSection: React.FC<ContentEditorSectionProps> = ({
                 alignItems: "center",
                 gap: "6px",
                 transition: "all 0.2s",
-                fontWeight: isMarkdownMode ? "600" : "500",
+                fontWeight: isMarkdownMode && !isPreviewMode ? "600" : "500",
                 textDecoration: "none",
               }}
               title="마크다운 모드"
@@ -102,30 +105,37 @@ const ContentEditorSection: React.FC<ContentEditorSectionProps> = ({
               <FiEdit size={14} />
               마크다운
             </button>
-            {isMarkdownMode && (
-              <button
-                type="button"
-                onClick={onPreviewModeToggle}
-                style={{
-                  background: "none",
-                  color: isPreviewMode ? colorTheme.main : "#6b7280",
-                  border: "none",
-                  padding: "0",
-                  fontSize: "13px",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  transition: "all 0.2s",
-                  fontWeight: isPreviewMode ? "600" : "500",
-                  textDecoration: "none",
-                }}
-                title="미리보기"
-              >
-                <FiEye size={14} />
-                미리보기
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={() => {
+                if (isMarkdownMode) {
+                  onPreviewModeToggle();
+                }
+              }}
+              disabled={!isMarkdownMode}
+              style={{
+                background: "none",
+                color:
+                  isMarkdownMode && isPreviewMode ? colorTheme.main : "#6b7280",
+                border: "none",
+                padding: "0",
+                fontSize: "13px",
+                cursor: isMarkdownMode ? "pointer" : "not-allowed",
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+                transition: "all 0.2s",
+                fontWeight: isMarkdownMode && isPreviewMode ? "600" : "500",
+                textDecoration: "none",
+                opacity: isMarkdownMode ? 1 : 0.5,
+              }}
+              title={
+                isMarkdownMode ? "미리보기" : "마크다운 모드에서만 사용 가능"
+              }
+            >
+              <FiEye size={14} />
+              미리보기
+            </button>
           </div>
         </div>
       </Label>
@@ -286,16 +296,30 @@ const ContentEditorSection: React.FC<ContentEditorSectionProps> = ({
           onChange={onContentChange}
           placeholder={
             isMarkdownMode
-              ? "마크다운 문법을 사용하여 내용을 작성하세요"
-              : "게시글 내용을 입력하세요"
+              ? "마크다운 문법을 사용하여 내용을 작성할 수 있습니다."
+              : "게시글 내용을 입력하세요."
           }
           style={{
             fontFamily: isMarkdownMode ? "monospace" : "inherit",
             fontSize: isMarkdownMode ? "14px" : "inherit",
             lineHeight: isMarkdownMode ? "1.4" : "inherit",
           }}
+          onFocus={(e) => {
+            e.target.style.fontSize = isMarkdownMode ? "14px" : "14px";
+          }}
+          onBlur={(e) => {
+            e.target.style.fontSize = isMarkdownMode ? "14px" : "14px";
+          }}
         />
       )}
+      <style>
+        {`
+          textarea::placeholder {
+            font-size: 13px !important;
+            color: #9ca3af !important;
+          }
+        `}
+      </style>
       {formErrors.content && (
         <div
           style={{

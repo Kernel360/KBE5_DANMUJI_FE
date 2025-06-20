@@ -808,7 +808,9 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
                         setIsPreviewMode(false);
                       }
                     }}
-                    onPreviewModeToggle={() => setIsPreviewMode(!isPreviewMode)}
+                    onPreviewModeToggle={() => {
+                      setIsPreviewMode(!isPreviewMode);
+                    }}
                     onFullScreenOpen={() => setIsFullScreenModal(true)}
                     colorTheme={colorTheme}
                   />
