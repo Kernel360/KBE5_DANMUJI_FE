@@ -15,7 +15,11 @@ import {
 } from "../components/UserPage.styled";
 import { useNavigate } from "react-router-dom";
 import api from "@/api/axios";
-import { AxiosError } from "axios";
+import {
+  showErrorToast,
+  showSuccessToast,
+  withErrorHandling,
+} from "@/utils/errorHandler";
 
 export default function ForgotPasswordPage() {
   const [username, setUsername] = useState("");
@@ -26,27 +30,20 @@ export default function ForgotPasswordPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      setIsLoading(true); // 로딩 시작
+
+    const result = await withErrorHandling(async () => {
+      setIsLoading(true);
       await api.post("/api/users/password/reset-mail/request", {
         username,
         email,
       });
 
-      setSubmitted(true); // 2xx 응답이면 성공 처리
-    } catch (error: unknown) {
-      const axiosError = error as AxiosError<{ code: string }>;
-      const code = axiosError.response?.data?.code;
-      if (code === "U001") {
-        alert(
-          "입력하신 아이디로 등록된 사용자를 찾을 수 없습니다.\n아이디를 다시 확인해주세요."
-        );
-      } else {
-        alert("비밀번호 재설정 메일 전송에 실패했습니다. 다시 시도해주세요.");
-      }
-    } finally {
-      setIsLoading(false);
-    }
+      setSubmitted(true);
+      showSuccessToast("비밀번호 재설정 메일이 전송되었습니다.");
+      return null;
+    }, "비밀번호 재설정 메일 전송에 실패했습니다.");
+
+    setIsLoading(false);
   };
 
   return (

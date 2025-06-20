@@ -51,6 +51,11 @@ import {
 import FullScreenContentEditor from "./FullScreenContentEditor";
 import FileUploadSection from "./components/FileUploadSection";
 import ContentEditorSection from "./components/ContentEditorSection";
+import {
+  showErrorToast,
+  showSuccessToast,
+  withErrorHandling,
+} from "@/utils/errorHandler";
 
 interface PostFormModalProps {
   open: boolean;
@@ -119,17 +124,16 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
     const fetchProjectSteps = async () => {
       if (!projectId) return;
 
-      try {
+      const result = await withErrorHandling(async () => {
         setProjectLoading(true);
         const response = await getProjectDetail(projectId);
         if (response.data) {
           setProjectSteps(response.data.steps);
         }
-      } catch (err) {
-        console.error("프로젝트 단계 정보 로드 실패:", err);
-      } finally {
-        setProjectLoading(false);
-      }
+        return response;
+      }, "프로젝트 단계 정보를 불러오는데 실패했습니다.");
+
+      setProjectLoading(false);
     };
 
     if (open) {
@@ -141,7 +145,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
   useEffect(() => {
     if (open && mode === "edit" && postId) {
       const fetchPost = async () => {
-        try {
+        const result = await withErrorHandling(async () => {
           setLoading(true);
           const response = await getPostDetail(postId);
           const post = response.data;
@@ -159,20 +163,17 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
             setExistingFiles(post.files || []);
             setDeletedFileIds([]);
           }
-        } catch (err) {
-          setError("게시글을 불러오는 데 실패했습니다.");
-          console.error("게시글 로드 중 오류:", err);
-        } finally {
-          setLoading(false);
-        }
+          return response;
+        }, "게시글을 불러오는데 실패했습니다.");
+
+        setLoading(false);
       };
       fetchPost();
     } else if (open && mode === "create") {
-      // 생성 모드일 때 폼 초기화
       if (parentId) {
         // 답글 작성 모드일 때 부모 게시글 정보 가져오기
         const fetchParentPost = async () => {
-          try {
+          const result = await withErrorHandling(async () => {
             setLoading(true);
             // const response = await getPostDetail(parentId);
             // const parentPost = response.data;
@@ -185,10 +186,11 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
               status: PostStatus.PENDING,
               stepId: stepId,
             });
-          } catch (err) {
-            setError("부모 게시글을 불러오는 데 실패했습니다.");
-            console.error("부모 게시글 로드 중 오류:", err);
-            // 에러가 발생해도 기본 폼은 설정
+            return null;
+          }, "부모 게시글을 불러오는데 실패했습니다.");
+
+          // 에러가 발생해도 기본 폼은 설정
+          if (!result) {
             setFormData({
               projectId: projectId,
               title: "",
@@ -198,9 +200,8 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
               status: PostStatus.PENDING,
               stepId: stepId,
             });
-          } finally {
-            setLoading(false);
           }
+          setLoading(false);
         };
         fetchParentPost();
       } else {
@@ -316,7 +317,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
     e.preventDefault();
     if (!validateForm()) return;
 
-    try {
+    const result = await withErrorHandling(async () => {
       setLoading(true);
       setError(null);
 
@@ -333,11 +334,13 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
           setExistingFiles([]);
           setDeletedFileIds([]);
           setIsDragOver(false);
+          showSuccessToast("게시글이 성공적으로 생성되었습니다.");
           onSuccess?.();
           onClose();
         } else {
           throw new Error(response.message || "게시글 생성에 실패했습니다.");
         }
+        return response;
       } else if (mode === "edit" && postId) {
         // 게시글 수정
         const requestData = {
@@ -345,7 +348,6 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
           title: formData.title,
           content: formData.content,
           type: formData.type,
-          status: formData.status,
           priority: formData.priority,
           stepId: formData.stepId,
           ...(deletedFileIds.length > 0 && { fileIdsToDelete: deletedFileIds }),
@@ -357,27 +359,17 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
           setExistingFiles([]);
           setDeletedFileIds([]);
           setIsDragOver(false);
+          showSuccessToast("게시글이 성공적으로 수정되었습니다.");
           onSuccess?.();
           onClose();
         } else {
           throw new Error(response.message || "게시글 수정에 실패했습니다.");
         }
+        return response;
       }
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error
-          ? err.message
-          : `게시글 ${
-              mode === "create" ? "생성" : "수정"
-            } 중 오류가 발생했습니다.`;
-      setError(errorMessage);
-      console.error(
-        `게시글 ${mode === "create" ? "생성" : "수정"} 중 오류:`,
-        err
-      );
-    } finally {
-      setLoading(false);
-    }
+    }, `게시글 ${mode === "create" ? "생성" : "수정"}에 실패했습니다.`);
+
+    setLoading(false);
   };
 
   const handleCancel = () => {

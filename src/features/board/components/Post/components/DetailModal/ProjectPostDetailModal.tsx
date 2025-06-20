@@ -52,6 +52,11 @@ import QuestionAnswerModal from "@/features/board/components/Question/components
 import api from "@/api/axios";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import {
+  showErrorToast,
+  showSuccessToast,
+  withErrorHandling,
+} from "@/utils/errorHandler";
 
 import {
   FaReply,
@@ -197,7 +202,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
   const handleCommentSubmit = async () => {
     if (!commentText.trim() || !postId) return;
 
-    try {
+    const result = await withErrorHandling(async () => {
       setSubmittingComment(true);
       await createComment(postId, commentText);
       // 댓글 목록을 다시 불러오기
@@ -206,12 +211,11 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
         setComments(commentsResponse.data);
       }
       setCommentText("");
-    } catch (error) {
-      console.error("댓글 작성 중 오류:", error);
-      alert("댓글 작성 중 오류가 발생했습니다.");
-    } finally {
-      setSubmittingComment(false);
-    }
+      showSuccessToast("댓글이 성공적으로 작성되었습니다.");
+      return commentsResponse;
+    }, "댓글 작성에 실패했습니다.");
+
+    setSubmittingComment(false);
   };
 
   // 대댓글 생성 함수
@@ -225,7 +229,8 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
   // 답글 등록
   const handleReplySubmit = async () => {
     if (!replyText.trim() || !postId || replyingTo === null) return;
-    try {
+
+    const result = await withErrorHandling(async () => {
       setSubmittingReply(true);
       await createComment(postId, replyText, replyingTo);
       // 댓글 목록 새로고침
@@ -233,11 +238,11 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
       setComments(commentsResponse.data || []);
       setReplyText("");
       setReplyingTo(null);
-    } catch {
-      alert("답글 작성 중 오류가 발생했습니다.");
-    } finally {
-      setSubmittingReply(false);
-    }
+      showSuccessToast("답글이 성공적으로 작성되었습니다.");
+      return commentsResponse;
+    }, "답글 작성에 실패했습니다.");
+
+    setSubmittingReply(false);
   };
 
   const handleEditPost = () => {
@@ -256,7 +261,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
 
   const handleDeletePost = async () => {
     if (!postId) {
-      alert("게시글 정보가 올바르지 않습니다.");
+      showErrorToast("게시글 정보가 올바르지 않습니다.");
       return;
     }
 
@@ -264,7 +269,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
       return;
     }
 
-    try {
+    const result = await withErrorHandling(async () => {
       setLoading(true);
       console.log("게시글 삭제 시작 - postId:", postId);
       const response = await deletePost(postId);
@@ -272,7 +277,8 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
 
       // 백엔드 응답 형식에 맞춰 성공 여부 확인
       if (response.status === "OK" || response.message?.includes("완료")) {
-        // 성공 시 바로 모달 닫고 콜백 호출 (alert 제거로 부드러운 UX)
+        // 성공 시 바로 모달 닫고 콜백 호출
+        showSuccessToast("게시글이 성공적으로 삭제되었습니다.");
         onClose();
         if (onPostDelete && postId) {
           onPostDelete(postId);
@@ -280,16 +286,10 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
       } else {
         throw new Error(response.message || "게시글 삭제에 실패했습니다.");
       }
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error
-          ? err.message
-          : "게시글 삭제 중 오류가 발생했습니다.";
-      console.error("게시글 삭제 중 오류:", err);
-      alert(errorMessage);
-    } finally {
-      setLoading(false);
-    }
+      return response;
+    }, "게시글 삭제에 실패했습니다.");
+
+    setLoading(false);
   };
 
   // 우선순위 텍스트 반환 함수
@@ -478,7 +478,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
 
   // 파일 다운로드 함수 수정
   const handleFileDownload = async (file: PostFile, postId: number) => {
-    try {
+    const result = await withErrorHandling(async () => {
       const response = await api.get(`/api/posts/${postId}/files/${file.id}`, {
         responseType: "blob",
       });
@@ -498,10 +498,9 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
-    } catch (err) {
-      alert("파일 다운로드에 실패했습니다.");
-      console.error(err);
-    }
+      showSuccessToast("파일 다운로드가 시작되었습니다.");
+      return response;
+    }, "파일 다운로드에 실패했습니다.");
   };
 
   // 파일 유효성 체크
