@@ -23,7 +23,6 @@ import {
   PaginationNav,
   PaginationButton,
 } from "./DashboardPage.styled";
-import { AiOutlineSearch } from "react-icons/ai";
 import { useState } from "react";
 
 interface Project {

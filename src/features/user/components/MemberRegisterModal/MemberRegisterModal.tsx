@@ -1,147 +1,260 @@
-import React, { useEffect, useState } from "react";
-import api from "@/api/axios";
+import React, { useState } from "react";
+import { IoMdClose } from "react-icons/io";
 import {
-  ModalOverlay,
-  ModalContent,
-  CloseButton,
-  Title,
-  Form,
-  FormGroup,
-  Label,
-  Input,
-  Select,
-  ButtonGroup,
-  Button,
-} from "./MemberRegisterModal.styled";
-import type { MemberFormData } from "../../pages/MemberPage";
+  IoPersonOutline,
+  IoMailOutline,
+  IoCallOutline,
+  IoBusinessOutline,
+  IoKeyOutline,
+  IoEyeOutline,
+  IoEyeOffOutline,
+} from "react-icons/io5";
+import { FaUserPlus } from "react-icons/fa";
+import * as S from "./MemberRegisterModal.styled";
 
-interface Company {
-  id: number;
-  name: string;
-}
-
-interface Props {
+interface MemberRegisterModalProps {
   onClose: () => void;
-  onRegister: (data: MemberFormData) => Promise<void>;
+  onRegister: (memberData: any) => void;
 }
 
-export default function MemberRegisterModal({
+const MemberRegisterModal: React.FC<MemberRegisterModalProps> = ({
   onClose,
   onRegister,
-}: Props) {
-  const [formData, setFormData] = useState<MemberFormData>({
-    username: "",
+}) => {
+  const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
+    company: "",
+    department: "",
     position: "",
-    companyId: 0,
-    role: "Member",
+    password: "",
+    confirmPassword: "",
   });
-  const [companies, setCompanies] = useState<Company[]>([]);
 
-  useEffect(() => {
-    const fetchCompanies = async () => {
-      try {
-        const response = await api.get('/api/companies');
-        setCompanies(response.data.data.content);
-      } catch (error) {
-        console.error('Failed to fetch companies:', error);
-        alert('회사 목록을 불러오는 데 실패했습니다.');
-      }
-    };
-    fetchCompanies();
-  }, []);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === "companyId" ? Number(value) : value,
-      role: name === "role" ? (value as 'Manager' | 'Member') : prev.role,
+      [name]: value,
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    onRegister(formData);
+  };
 
-    const isValidCompany = companies.some(c => c.id === formData.companyId);
-    if (!isValidCompany && formData.companyId !== 0) {
-      alert('선택된 회사가 유효하지 않습니다.');
-      return;
-    }
-
-    try {
-      await onRegister(formData);
-      alert("회원 등록이 완료되었습니다!");
-      onClose();
-    } catch (error) {
-      console.error(error);
-      alert("회원 등록 중 오류가 발생했습니다.");
-    }
+  const handleClose = () => {
+    setFormData({
+      name: "",
+      email: "",
+      phone: "",
+      company: "",
+      department: "",
+      position: "",
+      password: "",
+      confirmPassword: "",
+    });
+    onClose();
   };
 
   return (
-    <ModalOverlay>
-      <ModalContent>
-        <CloseButton onClick={onClose}>×</CloseButton>
-        <Title>회원 등록</Title>
-        <Form onSubmit={handleSubmit}>
-          <FormGroup>
-            <Label>아이디</Label>
-            <Input name="username" required placeholder="아이디를 입력하세요" value={formData.username} onChange={handleChange} />
-          </FormGroup>
-          <FormGroup>
-            <Label>이름</Label>
-            <Input name="name" required placeholder="이름을 입력하세요" value={formData.name} onChange={handleChange} />
-          </FormGroup>
-          <FormGroup>
-            <Label>이메일</Label>
-            <Input name="email" type="email" required placeholder="이메일을 입력하세요" value={formData.email} onChange={handleChange} />
-          </FormGroup>
-          <FormGroup>
-            <Label>전화번호</Label>
-            <Input name="phone" required placeholder="전화번호를 입력하세요" value={formData.phone} onChange={handleChange} />
-          </FormGroup>
-          <FormGroup>
-            <Label>직책</Label>
-            <Input name="position" required placeholder="직책을 입력하세요" value={formData.position} onChange={handleChange} />
-          </FormGroup>
-          <FormGroup>
-            <Label>회사</Label>
-            <Select
-              name="companyId"
-              required
-              value={formData.companyId.toString()}
-              onChange={handleChange}
-            >
-              <option value="">회사 선택</option>
-              {companies.map((company) => (
-                <option key={company.id} value={company.id.toString()}>
-                  {company.name}
-                </option>
-              ))}
-            </Select>
-          </FormGroup>
-          <FormGroup>
-            <Label>권한</Label>
-            <Select name="role" value={formData.role} onChange={handleChange}>
-              <option value="Manager">Manager</option>
-              <option value="Member">Member</option>
-            </Select>
-          </FormGroup>
-          <ButtonGroup>
-            <Button type="button" onClick={onClose} $variant="secondary">
-              취소
-            </Button>
-            <Button type="submit" $variant="primary">
-              등록
-            </Button>
-          </ButtonGroup>
-        </Form>
-      </ModalContent>
-    </ModalOverlay>
+    <S.ModalOverlay onClick={handleClose}>
+      <S.ModalContent onClick={(e) => e.stopPropagation()}>
+        <S.ModalHeader>
+          <S.ModalTitle>
+            <FaUserPlus />
+            회원 등록
+          </S.ModalTitle>
+          <S.CloseButton onClick={handleClose}>
+            <IoMdClose />
+          </S.CloseButton>
+        </S.ModalHeader>
+
+        <S.ModalBody>
+          <S.Form onSubmit={handleSubmit}>
+            {/* 기본 정보 섹션 */}
+            <S.FormSection>
+              <S.SectionTitle>기본 정보</S.SectionTitle>
+              <S.FormRow>
+                <S.FormGroup>
+                  <S.Label>
+                    <IoPersonOutline />
+                    이름
+                  </S.Label>
+                  <S.Input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    placeholder="이름을 입력하세요"
+                    required
+                  />
+                </S.FormGroup>
+
+                <S.FormGroup>
+                  <S.Label>
+                    <IoMailOutline />
+                    이메일
+                  </S.Label>
+                  <S.Input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    placeholder="이메일을 입력하세요"
+                    required
+                  />
+                </S.FormGroup>
+              </S.FormRow>
+            </S.FormSection>
+
+            {/* 연락처 정보 섹션 */}
+            <S.FormSection>
+              <S.SectionTitle>연락처 정보</S.SectionTitle>
+              <S.FormRow>
+                <S.FormGroup>
+                  <S.Label>
+                    <IoCallOutline />
+                    전화번호
+                  </S.Label>
+                  <S.Input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    placeholder="전화번호를 입력하세요"
+                    required
+                  />
+                </S.FormGroup>
+
+                <S.FormGroup>
+                  <S.Label>
+                    <IoBusinessOutline />
+                    회사명
+                  </S.Label>
+                  <S.Input
+                    type="text"
+                    name="company"
+                    value={formData.company}
+                    onChange={handleInputChange}
+                    placeholder="회사명을 입력하세요"
+                    required
+                  />
+                </S.FormGroup>
+              </S.FormRow>
+            </S.FormSection>
+
+            {/* 직장 정보 섹션 */}
+            <S.FormSection>
+              <S.SectionTitle>직장 정보</S.SectionTitle>
+              <S.FormRow>
+                <S.FormGroup>
+                  <S.Label>
+                    <IoBusinessOutline />
+                    부서
+                  </S.Label>
+                  <S.Input
+                    type="text"
+                    name="department"
+                    value={formData.department}
+                    onChange={handleInputChange}
+                    placeholder="부서를 입력하세요"
+                  />
+                </S.FormGroup>
+
+                <S.FormGroup>
+                  <S.Label>
+                    <IoPersonOutline />
+                    직책
+                  </S.Label>
+                  <S.Input
+                    type="text"
+                    name="position"
+                    value={formData.position}
+                    onChange={handleInputChange}
+                    placeholder="직책을 입력하세요"
+                  />
+                </S.FormGroup>
+              </S.FormRow>
+            </S.FormSection>
+
+            {/* 비밀번호 정보 섹션 */}
+            <S.FormSection>
+              <S.SectionTitle>비밀번호 설정</S.SectionTitle>
+              <S.FormRow>
+                <S.FormGroup>
+                  <S.Label>
+                    <IoKeyOutline />
+                    비밀번호
+                  </S.Label>
+                  <S.PasswordContainer>
+                    <S.Input
+                      type={showPassword ? "text" : "password"}
+                      name="password"
+                      value={formData.password}
+                      onChange={handleInputChange}
+                      placeholder="비밀번호를 입력하세요"
+                      required
+                    />
+                    <S.PasswordToggle
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <IoEyeOffOutline /> : <IoEyeOutline />}
+                    </S.PasswordToggle>
+                  </S.PasswordContainer>
+                </S.FormGroup>
+
+                <S.FormGroup>
+                  <S.Label>
+                    <IoKeyOutline />
+                    비밀번호 확인
+                  </S.Label>
+                  <S.PasswordContainer>
+                    <S.Input
+                      type={showConfirmPassword ? "text" : "password"}
+                      name="confirmPassword"
+                      value={formData.confirmPassword}
+                      onChange={handleInputChange}
+                      placeholder="비밀번호를 다시 입력하세요"
+                      required
+                    />
+                    <S.PasswordToggle
+                      type="button"
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
+                    >
+                      {showConfirmPassword ? (
+                        <IoEyeOffOutline />
+                      ) : (
+                        <IoEyeOutline />
+                      )}
+                    </S.PasswordToggle>
+                  </S.PasswordContainer>
+                </S.FormGroup>
+              </S.FormRow>
+            </S.FormSection>
+
+            <S.ButtonGroup>
+              <S.CancelButton type="button" onClick={handleClose}>
+                취소
+              </S.CancelButton>
+              <S.SubmitButton type="submit">
+                <FaUserPlus />
+                등록
+              </S.SubmitButton>
+            </S.ButtonGroup>
+          </S.Form>
+        </S.ModalBody>
+      </S.ModalContent>
+    </S.ModalOverlay>
   );
-} 
+};
+
+export default MemberRegisterModal;
