@@ -3,8 +3,6 @@ import React from "react";
 import { FaBuilding, FaUsers } from "react-icons/fa";
 import {
   FiCalendar,
-  FiPlay,
-  FiGrid,
   FiClock,
   FiCheckCircle,
   FiAlertTriangle,
@@ -17,7 +15,6 @@ import {
   ProjectSubtitle,
   ProjectMeta,
   ProjectPeriod,
-  ProjectStatusBadge,
   BackButton,
 } from "./ProjectHeader.styled";
 import type { ProjectDetailResponse } from "../../services/projectService";

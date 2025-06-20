@@ -50,6 +50,8 @@ import {
 import type { Post, Comment, PostFile } from "@/features/project-d/types/post";
 import QuestionAnswerModal from "@/features/board/components/Question/components/QuestionAnswerModal/QuestionAnswerModal";
 import api from "@/api/axios";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 import {
   FaReply,
@@ -832,7 +834,9 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                   wordBreak: "break-word",
                 }}
               >
-                {post.content}
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {post.content}
+                </ReactMarkdown>
               </div>
             </div>
 
