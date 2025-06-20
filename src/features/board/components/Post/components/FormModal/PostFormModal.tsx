@@ -129,6 +129,19 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
         const response = await getProjectDetail(projectId);
         if (response.data) {
           setProjectSteps(response.data.steps);
+
+          // 생성 모드에서 현재 진행 중인 단계를 기본값으로 설정
+          if (mode === "create") {
+            const currentStep = response.data.steps.find(
+              (step) => step.projectStepStatus === "IN_PROGRESS"
+            );
+            if (currentStep) {
+              setFormData((prev) => ({
+                ...prev,
+                stepId: currentStep.id,
+              }));
+            }
+          }
         }
         return response;
       }, "프로젝트 단계 정보를 불러오는데 실패했습니다.");
@@ -139,7 +152,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
     if (open) {
       fetchProjectSteps();
     }
-  }, [open, projectId]);
+  }, [open, projectId, mode]);
 
   // 수정 모드일 때 기존 게시글 데이터 로드
   useEffect(() => {
@@ -157,7 +170,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
               type: post.type as PostType,
               priority: post.priority as PostPriority,
               status: post.status,
-              stepId: stepId,
+              stepId: post.stepId || stepId, // 기존 게시글의 stepId를 우선 사용
             });
             // 기존 파일 정보 설정
             setExistingFiles(post.files || []);
