@@ -750,7 +750,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
                               ? "#fdb924"
                               : selectedStep?.projectStepStatus === "COMPLETED"
                               ? "#10b981"
-                              : "#6b7280"
+                              : "#3b82f6"
                           }
                           $isOpen={isStepDropdownOpen}
                           onClick={handleStepDropdownToggle}
@@ -790,7 +790,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
                                     ? "#fdb924"
                                     : step.projectStepStatus === "COMPLETED"
                                     ? "#10b981"
-                                    : "#6b7280"
+                                    : "#3b82f6"
                                 }
                                 onClick={() => handleStepSelect(step.id)}
                               >
