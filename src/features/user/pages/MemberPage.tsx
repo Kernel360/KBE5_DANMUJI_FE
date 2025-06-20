@@ -126,46 +126,96 @@ const SearchInput = styled.input`
   }
 `;
 
-const Select = styled.select`
-  padding: 10px 14px;
-  font-size: 0.875rem;
-  border: 2px solid #e5e7eb;
+const SelectButton = styled.button<{
+  $hasValue: boolean;
+  $color?: string;
+}>`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 120px;
+  width: 100%;
+  max-width: 180px;
+  padding: 8px 12px;
+  background: ${({ $hasValue }) => ($hasValue ? "#fef3c7" : "#ffffff")};
+  border: 2px solid
+    ${({ $hasValue, $color }) => ($hasValue ? "#fdb924" : "#e5e7eb")};
   border-radius: 8px;
-  background: #ffffff;
-  color: #374151;
+  color: ${({ $hasValue, $color }) => ($hasValue ? "#a16207" : "#374151")};
+  font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
-  background-position: right 12px center;
-  background-repeat: no-repeat;
-  background-size: 16px;
-  padding-right: 40px;
-  min-width: 140px;
+  text-align: left;
+  min-width: 90px;
+
+  svg {
+    flex-shrink: 0;
+    color: ${({ $hasValue, $color }) => ($hasValue ? "#fdb924" : "#6b7280")};
+    transition: transform 0.2s ease;
+  }
+
+  &.open svg:first-child {
+    transform: rotate(180deg);
+  }
+
+  .select-value {
+    flex: 1;
+    font-weight: ${({ $hasValue }) => ($hasValue ? "600" : "500")};
+  }
 
   &:hover {
-    border-color: #d1d5db;
-    background-color: #f9fafb;
+    background: ${({ $hasValue, $color }) =>
+      $hasValue ? "#fef9c3" : "#f9fafb"};
+    border-color: ${({ $hasValue, $color }) =>
+      $hasValue ? "#fdb924" : "#d1d5db"};
     transform: translateY(-1px);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
   &:focus {
     outline: none;
-    border-color: #fdb924;
     box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.1);
-    background-color: #ffffff;
   }
 
   &:active {
     transform: translateY(0);
   }
+`;
 
-  option {
-    padding: 8px 12px;
-    font-size: 0.875rem;
-    background: #ffffff;
+const SelectDropdown = styled.div<{ $isOpen: boolean }>`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  z-index: 1000;
+  margin-top: 4px;
+  opacity: ${({ $isOpen }) => ($isOpen ? "1" : "0")};
+  visibility: ${({ $isOpen }) => ($isOpen ? "visible" : "hidden")};
+  transform: ${({ $isOpen }) =>
+    $isOpen ? "translateY(0)" : "translateY(-8px)"};
+  transition: all 0.2s ease;
+  max-height: 200px;
+  overflow-y: auto;
+`;
+
+const SelectOption = styled.div<{ $isSelected: boolean }>`
+  padding: 10px 14px;
+  font-size: 0.875rem;
+  color: ${({ $isSelected }) => ($isSelected ? "#2563eb" : "#374151")};
+  background: ${({ $isSelected }) => ($isSelected ? "#f0f9ff" : "#fff")};
+  font-weight: ${({ $isSelected }) => ($isSelected ? 600 : 400)};
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+  &:hover {
+    background: #f3f4f6;
     color: #374151;
   }
 `;
@@ -260,7 +310,7 @@ const TableHead = styled.thead`
 `;
 
 const TableHeader = styled.th`
-  padding: 12px 4px;
+  padding: 12px 12px;
   text-align: left;
   font-weight: 600;
   color: #374151;
@@ -284,7 +334,7 @@ const TableRow = styled.tr`
 `;
 
 const TableCell = styled.td`
-  padding: 10px 4px;
+  padding: 10px 12px;
   text-align: left;
   color: #374151;
   vertical-align: middle;
@@ -370,6 +420,10 @@ export default function MemberPage() {
     keyword: "",
   });
 
+  // 드롭다운 상태 관리
+  const [companyDropdownOpen, setCompanyDropdownOpen] = useState(false);
+  const [positionDropdownOpen, setPositionDropdownOpen] = useState(false);
+
   const navigate = useNavigate();
 
   const fetchMembers = async () => {
@@ -435,6 +489,27 @@ export default function MemberPage() {
       keyword: "",
     });
     setSearch("");
+  };
+
+  // 드롭다운 토글 함수들
+  const handleCompanyDropdownToggle = () => {
+    setCompanyDropdownOpen(!companyDropdownOpen);
+    setPositionDropdownOpen(false);
+  };
+
+  const handlePositionDropdownToggle = () => {
+    setPositionDropdownOpen(!positionDropdownOpen);
+    setCompanyDropdownOpen(false);
+  };
+
+  const handleCompanySelect = (companyId: number) => {
+    setFilters({ ...filters, companyId: companyId.toString() });
+    setCompanyDropdownOpen(false);
+  };
+
+  const handlePositionSelect = (position: string) => {
+    setFilters({ ...filters, position });
+    setPositionDropdownOpen(false);
   };
 
   // 고유한 직책 목록 추출
@@ -552,31 +627,66 @@ export default function MemberPage() {
       <FilterBar>
         <FilterGroup>
           <FilterLabel>회사</FilterLabel>
-          <Select
-            value={filters.companyId}
-            onChange={(e) => handleInputChange("companyId", e.target.value)}
+          <SelectButton
+            $hasValue={filters.companyId !== ""}
+            $color="#fdb924"
+            onClick={handleCompanyDropdownToggle}
+            className={companyDropdownOpen ? "open" : ""}
           >
-            <option value="">모든 회사</option>
+            <span className="select-value">
+              {companies.find((c) => c.id === parseInt(filters.companyId))
+                ?.name || "모든 회사"}
+            </span>
+            <FiChevronDown size={16} />
+          </SelectButton>
+          <SelectDropdown $isOpen={companyDropdownOpen}>
+            <SelectOption
+              $isSelected={filters.companyId === ""}
+              onClick={() => handleCompanySelect(0)}
+            >
+              모든 회사
+            </SelectOption>
             {companies.map((company) => (
-              <option key={company.id} value={company.id}>
+              <SelectOption
+                key={company.id}
+                $isSelected={company.id === parseInt(filters.companyId)}
+                onClick={() => handleCompanySelect(company.id)}
+              >
                 {company.name}
-              </option>
+              </SelectOption>
             ))}
-          </Select>
+          </SelectDropdown>
         </FilterGroup>
         <FilterGroup>
           <FilterLabel>직책</FilterLabel>
-          <Select
-            value={filters.position}
-            onChange={(e) => handleInputChange("position", e.target.value)}
+          <SelectButton
+            $hasValue={filters.position !== ""}
+            $color="#fdb924"
+            onClick={handlePositionDropdownToggle}
+            className={positionDropdownOpen ? "open" : ""}
           >
-            <option value="">모든 직책</option>
+            <span className="select-value">
+              {filters.position || "모든 직책"}
+            </span>
+            <FiChevronDown size={16} />
+          </SelectButton>
+          <SelectDropdown $isOpen={positionDropdownOpen}>
+            <SelectOption
+              $isSelected={filters.position === ""}
+              onClick={() => handlePositionSelect("")}
+            >
+              모든 직책
+            </SelectOption>
             {uniquePositions.map((position) => (
-              <option key={position} value={position}>
+              <SelectOption
+                key={position}
+                $isSelected={position === filters.position}
+                onClick={() => handlePositionSelect(position)}
+              >
                 {position}
-              </option>
+              </SelectOption>
             ))}
-          </Select>
+          </SelectDropdown>
         </FilterGroup>
         <FilterGroup>
           <FilterLabel>이름</FilterLabel>
