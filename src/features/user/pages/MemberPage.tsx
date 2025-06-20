@@ -5,6 +5,7 @@ import MemberRegisterModal from "../components/MemberRegisterModal/MemberRegiste
 import MemberEditModal from "../components/MemberEditModal/MemberEditModal";
 import styled from "styled-components";
 import { FiSearch, FiPlus, FiChevronDown, FiRotateCcw } from "react-icons/fi";
+import { HiBuildingOffice2, HiUsers } from "react-icons/hi2";
 
 export interface Member {
   id: number;
@@ -134,9 +135,7 @@ const SelectButton = styled.button<{
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  min-width: 120px;
-  width: 100%;
-  max-width: 180px;
+  width: 140px;
   padding: 8px 12px;
   background: ${({ $hasValue }) => ($hasValue ? "#fef3c7" : "#ffffff")};
   border: 2px solid
@@ -148,7 +147,6 @@ const SelectButton = styled.button<{
   cursor: pointer;
   transition: all 0.2s ease;
   text-align: left;
-  min-width: 90px;
 
   svg {
     flex-shrink: 0;
@@ -163,6 +161,9 @@ const SelectButton = styled.button<{
   .select-value {
     flex: 1;
     font-weight: ${({ $hasValue }) => ($hasValue ? "600" : "500")};
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   &:hover {
@@ -633,6 +634,7 @@ export default function MemberPage() {
             onClick={handleCompanyDropdownToggle}
             className={companyDropdownOpen ? "open" : ""}
           >
+            <HiBuildingOffice2 size={16} />
             <span className="select-value">
               {companies.find((c) => c.id === parseInt(filters.companyId))
                 ?.name || "모든 회사"}
@@ -665,6 +667,7 @@ export default function MemberPage() {
             onClick={handlePositionDropdownToggle}
             className={positionDropdownOpen ? "open" : ""}
           >
+            <HiUsers size={16} />
             <span className="select-value">
               {filters.position || "모든 직책"}
             </span>
