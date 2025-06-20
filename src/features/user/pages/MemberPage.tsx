@@ -690,18 +690,16 @@ export default function MemberPage() {
         </FilterGroup>
         <FilterGroup>
           <FilterLabel>이름</FilterLabel>
-          <SearchInput
-            type="text"
-            placeholder="회원 이름 검색..."
-            value={filters.keyword}
-            onChange={(e) => handleInputChange("keyword", e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") handleSearch();
-            }}
-          />
-        </FilterGroup>
-        <SearchRight>
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <SearchInput
+              type="text"
+              placeholder="회원 이름 검색..."
+              value={filters.keyword}
+              onChange={(e) => handleInputChange("keyword", e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSearch();
+              }}
+            />
             <NewButton
               style={{
                 minWidth: "auto",
@@ -731,6 +729,8 @@ export default function MemberPage() {
               <FiRotateCcw size={16} />
             </NewButton>
           </div>
+        </FilterGroup>
+        <SearchRight>
           <NewButton onClick={() => setModalOpen(true)}>
             <FiPlus size={16} />
             회원 등록
