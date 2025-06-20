@@ -455,7 +455,6 @@ export default function CompanyPage() {
         <Table>
           <TableHead>
             <TableRow>
-              <TableHeader>번호</TableHeader>
               <TableHeader>회사명</TableHeader>
               <TableHeader>사업자등록번호</TableHeader>
               <TableHeader>주소</TableHeader>
@@ -468,21 +467,21 @@ export default function CompanyPage() {
           <TableBody>
             {loading && (
               <TableRow>
-                <TableCell colSpan={8}>
+                <TableCell colSpan={7}>
                   <LoadingText>로딩 중...</LoadingText>
                 </TableCell>
               </TableRow>
             )}
             {error && (
               <TableRow>
-                <TableCell colSpan={8}>
+                <TableCell colSpan={7}>
                   <ErrorText>오류: {error}</ErrorText>
                 </TableCell>
               </TableRow>
             )}
             {!loading && !error && sortedCompanies.length === 0 && (
               <TableRow>
-                <TableCell colSpan={8}>
+                <TableCell colSpan={7}>
                   <EmptyText>데이터가 없습니다.</EmptyText>
                 </TableCell>
               </TableRow>
@@ -494,7 +493,6 @@ export default function CompanyPage() {
                   key={c.id}
                   onClick={() => handleCompanyClick(c)}
                 >
-                  <TableCell>{c.id}</TableCell>
                   <CompanyNameCell>{c.name}</CompanyNameCell>
                   <TableCell>{formatBizNo(c.bizNo.toString())}</TableCell>
                   <TableCell>{c.address}</TableCell>
