@@ -287,7 +287,7 @@ export const updatePost = async (
       type: postData.type,
       status: postData.status,
       priority: postData.priority,
-      stepId: postData.stepId,
+      stepId: postData.stepId || 1, // stepId가 필수 필드이므로 기본값 1 사용
       ...(postData.fileIdsToDelete &&
         postData.fileIdsToDelete.length > 0 && {
           fileIdsToDelete: postData.fileIdsToDelete,

@@ -130,17 +130,20 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
         if (response.data) {
           setProjectSteps(response.data.steps);
 
-          // 생성 모드에서 현재 진행 중인 단계를 기본값으로 설정
+          // 생성 모드에서 사용자가 현재 위치한 단계를 기본값으로 설정
           if (mode === "create") {
-            const currentStep = response.data.steps.find(
-              (step) => step.projectStepStatus === "IN_PROGRESS"
-            );
-            if (currentStep) {
-              setFormData((prev) => ({
-                ...prev,
-                stepId: currentStep.id,
-              }));
-            }
+            // stepId prop이 있으면 해당 단계를 사용, 없으면 진행중인 단계 사용
+            const targetStepId =
+              stepId ||
+              response.data.steps.find(
+                (step) => step.projectStepStatus === "IN_PROGRESS"
+              )?.id ||
+              1;
+
+            setFormData((prev) => ({
+              ...prev,
+              stepId: targetStepId,
+            }));
           }
         }
         return response;
@@ -152,7 +155,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
     if (open) {
       fetchProjectSteps();
     }
-  }, [open, projectId, mode]);
+  }, [open, projectId, mode, stepId]);
 
   // 수정 모드일 때 기존 게시글 데이터 로드
   useEffect(() => {
@@ -163,6 +166,10 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
           const response = await getPostDetail(postId);
           const post = response.data;
           if (post) {
+            // 기존 게시글의 stepId를 우선적으로 사용
+            // (기존 게시글이 속한 단계가 기본으로 선택되도록)
+            const currentStepId = post.stepId || stepId;
+
             setFormData({
               projectId: projectId,
               title: post.title,
@@ -170,7 +177,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
               type: post.type as PostType,
               priority: post.priority as PostPriority,
               status: post.status,
-              stepId: post.stepId || stepId, // 기존 게시글의 stepId를 우선 사용
+              stepId: currentStepId, // 기존 게시글의 stepId를 우선 사용
             });
             // 기존 파일 정보 설정
             setExistingFiles(post.files || []);
@@ -365,6 +372,11 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
           stepId: formData.stepId,
           ...(deletedFileIds.length > 0 && { fileIdsToDelete: deletedFileIds }),
         };
+
+        // 수정 전 기존 게시글 정보 저장 (단계 변경 확인용)
+        const originalPost = await getPostDetail(postId);
+        const originalStepId = originalPost.data?.stepId;
+
         const response = await updatePost(postId, requestData, files);
         if (response.success || response.message?.includes("완료")) {
           // 상태 초기화
@@ -372,7 +384,25 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
           setExistingFiles([]);
           setDeletedFileIds([]);
           setIsDragOver(false);
-          showSuccessToast("게시글이 성공적으로 수정되었습니다.");
+
+          // 단계가 변경된 경우 특별한 메시지 표시
+          if (originalStepId && originalStepId !== formData.stepId) {
+            const stepNames = projectSteps.reduce((acc, step) => {
+              acc[step.id] = step.name;
+              return acc;
+            }, {} as Record<number, string>);
+
+            const originalStepName =
+              stepNames[originalStepId] || "알 수 없는 단계";
+            const newStepName = stepNames[formData.stepId] || "알 수 없는 단계";
+
+            showSuccessToast(
+              `게시글이 성공적으로 수정되었습니다. (${originalStepName} → ${newStepName})`
+            );
+          } else {
+            showSuccessToast("게시글이 성공적으로 수정되었습니다.");
+          }
+
           onSuccess?.();
           onClose();
         } else {

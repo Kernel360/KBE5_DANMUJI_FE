@@ -49,6 +49,7 @@ import {
 import PostDetailModal from "../components/DetailModal/ProjectPostDetailModal";
 import PostFormModal from "../components/FormModal/PostFormModal";
 import { useParams, useSearchParams } from "react-router-dom";
+import { showSuccessToast } from "@/utils/errorHandler";
 
 const formatDate = (dateString: string) => {
   let date;
@@ -181,6 +182,11 @@ export default function PostListPage() {
   );
   const [formModalPostId, setFormModalPostId] = useState<number | null>(null);
   const [formModalParentId, setFormModalParentId] = useState<number | null>(
+    null
+  );
+
+  // 게시글 수정 전 단계 정보 추적
+  const [editingPostStepId, setEditingPostStepId] = useState<number | null>(
     null
   );
 
@@ -330,6 +336,13 @@ export default function PostListPage() {
     setFormModalMode("edit");
     setFormModalPostId(postId);
     setFormModalParentId(null);
+
+    // 수정할 게시글의 현재 단계 정보 저장
+    const targetPost = posts.find((post) => post.postId === postId);
+    if (targetPost) {
+      setEditingPostStepId(targetPost.stepId || null);
+    }
+
     setIsFormModalOpen(true);
   };
 
@@ -349,6 +362,20 @@ export default function PostListPage() {
   const handleFormModalSuccess = () => {
     // 게시글 목록 새로고침
     fetchPosts();
+
+    // 단계 변경으로 인해 게시글이 사라졌을 수 있음을 안내
+    // (실제로는 백엔드에서 단계별로 게시글을 조회하므로,
+    // 단계가 변경된 게시글은 현재 단계 목록에서 사라짐)
+    if (editingPostStepId !== null && editingPostStepId !== Number(stepId)) {
+      showSuccessToast(
+        "게시글 수정 완료 - 단계가 변경되어 현재 목록에서 사라졌습니다."
+      );
+    } else {
+      showSuccessToast("게시글 수정 완료");
+    }
+
+    // 단계 정보 초기화
+    setEditingPostStepId(null);
   };
 
   const handlePostDelete = () => {

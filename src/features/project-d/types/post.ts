@@ -146,7 +146,7 @@ export type PostUpdateRequest = {
   type?: PostType;
   status?: PostStatus;
   priority?: PostPriority;
-  stepId?: number;
+  stepId: number;
   fileIdsToDelete?: number[];
 };
 

@@ -165,6 +165,12 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
             console.log("프로젝트 정보:", postResponse.data.project);
             console.log("고객사:", postResponse.data.project?.clientCompany);
             console.log("개발사:", postResponse.data.project?.developerCompany);
+            console.log(
+              "우선순위 값:",
+              postResponse.data.priority,
+              "타입:",
+              typeof postResponse.data.priority
+            );
           }
 
           // 댓글 목록 가져오기
@@ -293,55 +299,142 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
   };
 
   // 우선순위 텍스트 반환 함수
-  const getPriorityText = (priority: number) => {
-    switch (priority) {
-      case 1:
-        return "낮음";
-      case 2:
-        return "보통";
-      case 3:
-        return "높음";
-      case 4:
-        return "긴급";
-      default:
-        return "낮음";
+  const getPriorityText = (priority: any) => {
+    // 디버깅을 위한 로그 추가
+    console.log("우선순위 값:", priority, "타입:", typeof priority);
+
+    // 백엔드에서 오는 문자열 우선순위 처리
+    if (typeof priority === "string") {
+      switch (priority) {
+        case "LOW":
+          return "낮음";
+        case "MEDIUM":
+          return "보통";
+        case "HIGH":
+          return "높음";
+        case "URGENT":
+          return "긴급";
+        default:
+          console.warn(
+            "알 수 없는 우선순위 문자열:",
+            priority,
+            "기본값 '낮음' 사용"
+          );
+          return "낮음";
+      }
     }
+
+    // 숫자 우선순위 처리 (기존 호환성)
+    if (typeof priority === "number") {
+      switch (priority) {
+        case 1:
+          return "낮음";
+        case 2:
+          return "보통";
+        case 3:
+          return "높음";
+        case 4:
+          return "긴급";
+        default:
+          console.warn(
+            "알 수 없는 우선순위 숫자:",
+            priority,
+            "기본값 '낮음' 사용"
+          );
+          return "낮음";
+      }
+    }
+
+    console.warn(
+      "알 수 없는 우선순위 타입:",
+      typeof priority,
+      "값:",
+      priority,
+      "기본값 '낮음' 사용"
+    );
+    return "낮음";
   };
 
   // 우선순위별 스타일 반환 함수
-  const getPriorityStyle = (priority: number) => {
-    switch (priority) {
-      case 1:
-        return {
-          backgroundColor: "#dcfce7",
-          color: "#166534",
-          border: "1px solid #bbf7d0",
-        };
-      case 2:
-        return {
-          backgroundColor: "#fef3c7",
-          color: "#92400e",
-          border: "1px solid #fde68a",
-        };
-      case 3:
-        return {
-          backgroundColor: "#f3e8ff",
-          color: "#7c3aed",
-          border: "1px solid #e9d5ff",
-        };
-      case 4:
-        return {
-          backgroundColor: "#fee2e2",
-          color: "#dc2626",
-          border: "1px solid #fecaca",
-        };
-      default:
-        return {
-          backgroundColor: "#dcfce7",
-          color: "#166534",
-          border: "1px solid #bbf7d0",
-        };
+  const getPriorityStyle = (priority: any) => {
+    // 백엔드에서 오는 문자열 우선순위 처리
+    if (typeof priority === "string") {
+      switch (priority) {
+        case "LOW":
+          return {
+            backgroundColor: "#dcfce7",
+            color: "#166534",
+            border: "1px solid #bbf7d0",
+          };
+        case "MEDIUM":
+          return {
+            backgroundColor: "#fef3c7",
+            color: "#92400e",
+            border: "1px solid #fde68a",
+          };
+        case "HIGH":
+          return {
+            backgroundColor: "#f3e8ff",
+            color: "#7c3aed",
+            border: "1px solid #e9d5ff",
+          };
+        case "URGENT":
+          return {
+            backgroundColor: "#fee2e2",
+            color: "#dc2626",
+            border: "1px solid #fecaca",
+          };
+        default:
+          return {
+            backgroundColor: "#dcfce7",
+            color: "#166534",
+            border: "1px solid #bbf7d0",
+          };
+      }
     }
+
+    // 숫자 우선순위 처리 (기존 호환성)
+    if (typeof priority === "number") {
+      switch (priority) {
+        case 1:
+          return {
+            backgroundColor: "#dcfce7",
+            color: "#166534",
+            border: "1px solid #bbf7d0",
+          };
+        case 2:
+          return {
+            backgroundColor: "#fef3c7",
+            color: "#92400e",
+            border: "1px solid #fde68a",
+          };
+        case 3:
+          return {
+            backgroundColor: "#f3e8ff",
+            color: "#7c3aed",
+            border: "1px solid #e9d5ff",
+          };
+        case 4:
+          return {
+            backgroundColor: "#fee2e2",
+            color: "#dc2626",
+            border: "1px solid #fecaca",
+          };
+        default:
+          return {
+            backgroundColor: "#dcfce7",
+            color: "#166534",
+            border: "1px solid #bbf7d0",
+          };
+      }
+    }
+
+    // 기본 스타일
+    return {
+      backgroundColor: "#dcfce7",
+      color: "#166534",
+      border: "1px solid #bbf7d0",
+    };
   };
 
   const formatDate = (dateString: string) => {
