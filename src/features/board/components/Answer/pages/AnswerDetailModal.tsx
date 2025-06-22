@@ -27,6 +27,7 @@ import {
 } from "@/features/project-d/services/questionService";
 import type { Answer } from "@/features/project-d/types/question";
 import { useAuth } from "@/hooks/useAuth";
+import MentionTextArea from "@/components/MentionTextArea";
 
 interface AnswerDetailModalProps {
   open: boolean;
@@ -595,11 +596,11 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
                     댓글 작성
                   </div>
                   <AnswerForm>
-                    <AnswerTextArea
-                      placeholder="댓글을 입력하세요..."
+                    <MentionTextArea
+                      placeholder="댓글을 입력하세요. @를 입력하여 사용자를 언급할 수 있습니다."
                       value={replyText}
-                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                        setReplyText(e.target.value)
+                      onChange={(newContent: string) =>
+                        setReplyText(newContent)
                       }
                       disabled={submittingReply}
                       style={{
@@ -753,12 +754,10 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
               답변 작성
             </h4>
             <AnswerForm>
-              <AnswerTextArea
-                placeholder="답변을 입력하세요..."
+              <MentionTextArea
+                placeholder="답변을 입력하세요. @를 입력하여 사용자를 언급할 수 있습니다."
                 value={answerText}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                  setAnswerText(e.target.value)
-                }
+                onChange={(newContent: string) => setAnswerText(newContent)}
                 disabled={submittingAnswer}
                 style={{
                   border: "1px solid #d1d5db",

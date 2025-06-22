@@ -2,11 +2,8 @@ import React from "react";
 import { FiFileText, FiEdit, FiEye, FiMaximize2 } from "react-icons/fi";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import {
-  FormGroup,
-  Label,
-  TextArea,
-} from "../../../styles/PostFormModal.styled";
+import { FormGroup, Label } from "../../../styles/PostFormModal.styled";
+import MentionTextArea from "@/components/MentionTextArea";
 
 interface ContentEditorSectionProps {
   content: string;
@@ -31,6 +28,19 @@ const ContentEditorSection: React.FC<ContentEditorSectionProps> = ({
   onFullScreenOpen,
   colorTheme,
 }) => {
+  // @ 기능을 위한 content 변경 핸들러
+  const handleContentChange = (newContent: string) => {
+    // 기존 onContentChange와 호환되도록 이벤트 객체를 시뮬레이션
+    const syntheticEvent = {
+      target: {
+        name: "content",
+        value: newContent,
+      },
+    } as React.ChangeEvent<HTMLTextAreaElement>;
+
+    onContentChange(syntheticEvent);
+  };
+
   return (
     <FormGroup>
       <Label>
@@ -290,25 +300,19 @@ const ContentEditorSection: React.FC<ContentEditorSectionProps> = ({
           </ReactMarkdown>
         </div>
       ) : (
-        <TextArea
-          name="content"
+        <MentionTextArea
           value={content}
-          onChange={onContentChange}
+          onChange={handleContentChange}
           placeholder={
             isMarkdownMode
-              ? "마크다운 문법을 사용하여 내용을 작성할 수 있습니다."
-              : "게시글 내용을 입력하세요."
+              ? "마크다운 문법을 사용하여 내용을 작성할 수 있습니다. @를 입력하여 사용자를 언급할 수 있습니다."
+              : "게시글 내용을 입력하세요. @를 입력하여 사용자를 언급할 수 있습니다."
           }
+          rows={8}
           style={{
             fontFamily: isMarkdownMode ? "monospace" : "inherit",
             fontSize: isMarkdownMode ? "14px" : "inherit",
             lineHeight: isMarkdownMode ? "1.4" : "inherit",
-          }}
-          onFocus={(e) => {
-            e.target.style.fontSize = isMarkdownMode ? "14px" : "14px";
-          }}
-          onBlur={(e) => {
-            e.target.style.fontSize = isMarkdownMode ? "14px" : "14px";
           }}
         />
       )}
