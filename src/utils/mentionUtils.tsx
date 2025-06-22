@@ -1,9 +1,17 @@
 import React from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import ClickableUsername from "@/components/ClickableUsername";
 
-// @멘션을 하이라이트하는 함수
-export const highlightMentions = (content: string): React.ReactNode[] => {
+// @멘션을 하이라이트하는 함수 (클릭 가능한 버전)
+export const highlightMentions = (
+  content: string,
+  onUsernameClick?: (
+    event: React.MouseEvent,
+    username: string,
+    userId?: number
+  ) => void
+): React.ReactNode[] => {
   if (!content) return [];
 
   // @로 시작하는 사용자명 패턴 찾기
@@ -12,28 +20,47 @@ export const highlightMentions = (content: string): React.ReactNode[] => {
 
   return parts.map((part, index) => {
     if (part.startsWith("@")) {
-      return (
-        <span
-          key={index}
-          style={{
-            color: "#fdb924",
-            fontWeight: "600",
-            backgroundColor: "rgba(253, 185, 36, 0.1)",
-            padding: "1px 3px",
-            borderRadius: "3px",
-            margin: "0 1px",
-          }}
-        >
-          {part}
-        </span>
-      );
+      const username = part.substring(1); // @ 제거
+
+      if (onUsernameClick) {
+        return (
+          <ClickableUsername
+            key={index}
+            username={username}
+            onClick={onUsernameClick}
+          />
+        );
+      } else {
+        return (
+          <span
+            key={index}
+            style={{
+              color: "#fdb924",
+              fontWeight: "600",
+              backgroundColor: "rgba(253, 185, 36, 0.1)",
+              padding: "1px 3px",
+              borderRadius: "3px",
+              margin: "0 1px",
+            }}
+          >
+            {part}
+          </span>
+        );
+      }
     }
     return part;
   });
 };
 
-// 마크다운 렌더링과 @멘션 하이라이트를 모두 지원하는 함수
-export const renderContentWithMentions = (content: string): React.ReactNode => {
+// 마크다운 렌더링과 @멘션 하이라이트를 모두 지원하는 함수 (클릭 가능한 버전)
+export const renderContentWithMentions = (
+  content: string,
+  onUsernameClick?: (
+    event: React.MouseEvent,
+    username: string,
+    userId?: number
+  ) => void
+): React.ReactNode => {
   if (!content) return null;
 
   return (
@@ -43,44 +70,60 @@ export const renderContentWithMentions = (content: string): React.ReactNode => {
         // 모든 텍스트 노드에서 @멘션을 하이라이트
         p: ({ children, ...props }) => {
           if (typeof children === "string") {
-            return <p {...props}>{highlightMentions(children)}</p>;
+            return (
+              <p {...props}>{highlightMentions(children, onUsernameClick)}</p>
+            );
           }
           return <p {...props}>{children}</p>;
         },
         // 다른 마크다운 요소들도 동일하게 처리
         h1: ({ children, ...props }) => {
           if (typeof children === "string") {
-            return <h1 {...props}>{highlightMentions(children)}</h1>;
+            return (
+              <h1 {...props}>{highlightMentions(children, onUsernameClick)}</h1>
+            );
           }
           return <h1 {...props}>{children}</h1>;
         },
         h2: ({ children, ...props }) => {
           if (typeof children === "string") {
-            return <h2 {...props}>{highlightMentions(children)}</h2>;
+            return (
+              <h2 {...props}>{highlightMentions(children, onUsernameClick)}</h2>
+            );
           }
           return <h2 {...props}>{children}</h2>;
         },
         h3: ({ children, ...props }) => {
           if (typeof children === "string") {
-            return <h3 {...props}>{highlightMentions(children)}</h3>;
+            return (
+              <h3 {...props}>{highlightMentions(children, onUsernameClick)}</h3>
+            );
           }
           return <h3 {...props}>{children}</h3>;
         },
         li: ({ children, ...props }) => {
           if (typeof children === "string") {
-            return <li {...props}>{highlightMentions(children)}</li>;
+            return (
+              <li {...props}>{highlightMentions(children, onUsernameClick)}</li>
+            );
           }
           return <li {...props}>{children}</li>;
         },
         strong: ({ children, ...props }) => {
           if (typeof children === "string") {
-            return <strong {...props}>{highlightMentions(children)}</strong>;
+            return (
+              <strong {...props}>
+                {highlightMentions(children, onUsernameClick)}
+              </strong>
+            );
           }
           return <strong {...props}>{children}</strong>;
         },
         em: ({ children, ...props }) => {
           if (typeof children === "string") {
-            return <em {...props}>{highlightMentions(children)}</em>;
+            return (
+              <em {...props}>{highlightMentions(children, onUsernameClick)}</em>
+            );
           }
           return <em {...props}>{children}</em>;
         },

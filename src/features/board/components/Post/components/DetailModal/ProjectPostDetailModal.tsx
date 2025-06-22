@@ -58,6 +58,9 @@ import {
   withErrorHandling,
 } from "@/utils/errorHandler";
 import { renderContentWithMentions } from "@/utils/mentionUtils";
+import { useUserProfile } from "@/hooks/useUserProfile";
+import UserProfileDropdown from "@/components/UserProfileDropdown";
+import ClickableUsername from "@/components/ClickableUsername";
 
 import {
   FaReply,
@@ -118,6 +121,14 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
   const [editText, setEditText] = useState("");
 
   const [closing, setClosing] = useState(false);
+
+  const {
+    profileState,
+    openUserProfile,
+    closeUserProfile,
+    handleViewProfile,
+    handleSendMessage,
+  } = useUserProfile();
 
   // 모달 닫기 애니메이션 적용
   const handleCloseWithAnimation = () => {
@@ -952,7 +963,9 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                   wordBreak: "break-word",
                 }}
               >
-                <div>{renderContentWithMentions(post.content)}</div>
+                <div>
+                  {renderContentWithMentions(post.content, openUserProfile)}
+                </div>
               </div>
             </div>
 
@@ -1114,9 +1127,18 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                 <>
                                   <CommentMeta>
                                     <CommentAuthor>
-                                      {rootComment.author?.name ||
-                                        rootComment.authorName ||
-                                        "undefined"}
+                                      <ClickableUsername
+                                        username={
+                                          rootComment.author?.name ||
+                                          rootComment.authorName ||
+                                          "undefined"
+                                        }
+                                        userId={
+                                          rootComment.author?.id ||
+                                          rootComment.authorId
+                                        }
+                                        onClick={openUserProfile}
+                                      />
                                       <span
                                         style={{
                                           fontSize: 11,
@@ -1252,15 +1274,11 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                         .split(/(@\S+)/g)
                                         .map((part, idx) =>
                                           part.startsWith("@") ? (
-                                            <span
+                                            <ClickableUsername
                                               key={idx}
-                                              style={{
-                                                color: "#fdb924",
-                                                fontWeight: 500,
-                                              }}
-                                            >
-                                              {part}
-                                            </span>
+                                              username={part.substring(1)}
+                                              onClick={openUserProfile}
+                                            />
                                           ) : (
                                             <span key={idx}>{part}</span>
                                           )
@@ -1366,9 +1384,17 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                 <CommentItem key={reply.id}>
                                   <CommentMeta>
                                     <CommentAuthor>
-                                      {reply.author?.name ||
-                                        reply.authorName ||
-                                        "undefined"}
+                                      <ClickableUsername
+                                        username={
+                                          reply.author?.name ||
+                                          reply.authorName ||
+                                          "undefined"
+                                        }
+                                        userId={
+                                          reply.author?.id || reply.authorId
+                                        }
+                                        onClick={openUserProfile}
+                                      />
                                       <span
                                         style={{
                                           fontSize: 11,
@@ -1511,15 +1537,11 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                         .split(/(@\S+)/g)
                                         .map((part, idx) =>
                                           part.startsWith("@") ? (
-                                            <span
+                                            <ClickableUsername
                                               key={idx}
-                                              style={{
-                                                color: "#fdb924",
-                                                fontWeight: 500,
-                                              }}
-                                            >
-                                              {part}
-                                            </span>
+                                              username={part.substring(1)}
+                                              onClick={openUserProfile}
+                                            />
                                           ) : (
                                             <span key={idx}>{part}</span>
                                           )
@@ -1592,6 +1614,17 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
         onClose={() => setShowQuestionAnswer(false)}
         postId={postId}
       />
+      {/* 사용자 프로필 드롭다운 */}
+      {profileState.isOpen && (
+        <UserProfileDropdown
+          username={profileState.username}
+          userId={profileState.userId}
+          position={profileState.position}
+          onClose={closeUserProfile}
+          onViewProfile={handleViewProfile}
+          onSendMessage={handleSendMessage}
+        />
+      )}
     </>
   );
 };
