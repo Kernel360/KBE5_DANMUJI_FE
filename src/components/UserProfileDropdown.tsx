@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import styled from "styled-components";
-import { FiUser, FiMail, FiEye, FiX } from "react-icons/fi";
+import { FiUser, FiMail, FiEye, FiX, FiMessageCircle } from "react-icons/fi";
 
 interface UserProfileDropdownProps {
   username: string;
@@ -9,6 +9,9 @@ interface UserProfileDropdownProps {
   onClose: () => void;
   onViewProfile?: (userId: number) => void;
   onSendMessage?: (userId: number) => void;
+  onSendInquiry?: (userId: number) => void;
+  userRole?: string;
+  isAdmin?: boolean;
 }
 
 const DropdownOverlay = styled.div`
@@ -146,6 +149,9 @@ const UserProfileDropdown: React.FC<UserProfileDropdownProps> = ({
   onClose,
   onViewProfile,
   onSendMessage,
+  onSendInquiry,
+  userRole,
+  isAdmin,
 }) => {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -188,6 +194,13 @@ const UserProfileDropdown: React.FC<UserProfileDropdownProps> = ({
     onClose();
   };
 
+  const handleSendInquiry = () => {
+    if (userId && onSendInquiry) {
+      onSendInquiry(userId);
+    }
+    onClose();
+  };
+
   const getInitials = (name: string) => {
     return name
       .split(" ")
@@ -206,7 +219,7 @@ const UserProfileDropdown: React.FC<UserProfileDropdownProps> = ({
             <UserAvatar>{getInitials(username)}</UserAvatar>
             <UserDetails>
               <Username>{username}</Username>
-              <UserRole>사용자</UserRole>
+              <UserRole>{userRole}</UserRole>
             </UserDetails>
           </UserInfo>
           <CloseButton onClick={onClose}>
@@ -221,6 +234,10 @@ const UserProfileDropdown: React.FC<UserProfileDropdownProps> = ({
           <MenuItem onClick={handleSendMessage}>
             <FiMail size={16} />
             쪽지 보내기
+          </MenuItem>
+          <MenuItem onClick={handleSendInquiry}>
+            <FiMessageCircle size={16} />
+            문의하기
           </MenuItem>
         </DropdownMenu>
       </DropdownContainer>

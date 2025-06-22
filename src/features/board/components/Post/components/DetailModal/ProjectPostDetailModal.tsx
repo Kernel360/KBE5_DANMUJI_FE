@@ -128,6 +128,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
     closeUserProfile,
     handleViewProfile,
     handleSendMessage,
+    handleSendInquiry,
   } = useUserProfile();
 
   // 모달 닫기 애니메이션 적용
@@ -1634,6 +1635,9 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
           onClose={closeUserProfile}
           onViewProfile={handleViewProfile}
           onSendMessage={handleSendMessage}
+          onSendInquiry={handleSendInquiry}
+          userRole={profileState.userRole}
+          isAdmin={profileState.isAdmin}
         />
       )}
     </>

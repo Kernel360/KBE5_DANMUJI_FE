@@ -44,17 +44,28 @@ const handleApiResponse = async <T>(
   );
 };
 
+// 사용자 정보 타입
+export interface UserInfo {
+  id: number;
+  username: string;
+  name: string;
+  role: string;
+}
+
 // 사용자명 검색
 export const searchUsernames = async (
   username: string
-): Promise<ApiResponse<string[]>> => {
+): Promise<ApiResponse<UserInfo[]>> => {
   try {
-    const response = await api.get<ApiResponse<string[]>>("/api/users/search", {
-      params: {
-        username,
-      },
-    });
-    return handleApiResponse<string[]>(response);
+    const response = await api.get<ApiResponse<UserInfo[]>>(
+      "/api/users/search",
+      {
+        params: {
+          username,
+        },
+      }
+    );
+    return handleApiResponse<UserInfo[]>(response);
   } catch (error) {
     if (error instanceof ApiError) throw error;
     if (error instanceof AxiosError) {
