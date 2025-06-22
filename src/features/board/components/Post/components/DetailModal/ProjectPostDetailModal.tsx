@@ -892,7 +892,16 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                     color: "#111827",
                   }}
                 >
-                  {post.author?.name}
+                  <ClickableUsername
+                    username={
+                      post.author?.name ||
+                      post.authorName ||
+                      "알 수 없는 사용자"
+                    }
+                    userId={post.author?.id || post.authorId}
+                    onClick={openUserProfile}
+                    style={{ color: "#111827" }}
+                  />
                   <span
                     style={{
                       fontSize: 12,
@@ -1138,6 +1147,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                           rootComment.authorId
                                         }
                                         onClick={openUserProfile}
+                                        style={{ color: "#111827" }}
                                       />
                                       <span
                                         style={{
@@ -1394,6 +1404,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                           reply.author?.id || reply.authorId
                                         }
                                         onClick={openUserProfile}
+                                        style={{ color: "#111827" }}
                                       />
                                       <span
                                         style={{
