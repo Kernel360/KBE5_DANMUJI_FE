@@ -370,8 +370,6 @@ export default function PostListPage() {
       showSuccessToast(
         "게시글 수정 완료 - 단계가 변경되어 현재 목록에서 사라졌습니다."
       );
-    } else {
-      showSuccessToast("게시글 수정 완료");
     }
 
     // 단계 정보 초기화

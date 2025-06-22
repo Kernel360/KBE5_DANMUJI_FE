@@ -3,13 +3,13 @@ import {
   FormGroup,
   Label,
   Input,
-  TextArea,
   Select,
   ErrorMessage,
   RelativeTextareaWrapper,
   ResizeGuide,
 } from "@/features/board/components/Post/styles/PostFormModal.styled";
 import { PostType, PostStatus } from "@/features/project-d/types/post";
+import MentionTextArea from "@/components/MentionTextArea";
 
 interface PostFormFieldsProps {
   formData: {
@@ -36,6 +36,19 @@ const PostFormFields: React.FC<PostFormFieldsProps> = ({
   formErrors,
   onChange,
 }) => {
+  // @ 기능을 위한 content 변경 핸들러
+  const handleContentChange = (newContent: string) => {
+    // 기존 onChange와 호환되도록 이벤트 객체를 시뮬레이션
+    const syntheticEvent = {
+      target: {
+        name: "content",
+        value: newContent,
+      },
+    } as React.ChangeEvent<HTMLTextAreaElement>;
+
+    onChange(syntheticEvent);
+  };
+
   return (
     <>
       <FormGroup>
@@ -55,55 +68,74 @@ const PostFormFields: React.FC<PostFormFieldsProps> = ({
       </FormGroup>
 
       <FormGroup>
-        <Label htmlFor="type">유형</Label>
-        <Select id="type" name="type" value={formData.type} onChange={onChange}>
+        <Label htmlFor="type">유형 *</Label>
+        <Select
+          id="type"
+          name="type"
+          value={formData.type}
+          onChange={onChange}
+          required
+        >
+          <option value="">유형을 선택하세요</option>
+          <option value="NOTICE">공지사항</option>
+          <option value="QUESTION">질문</option>
           <option value="GENERAL">일반</option>
-          <option value="NOTICE">공지</option>
-          <option value="REPORT">보고</option>
         </Select>
+        {formErrors.type && <ErrorMessage>{formErrors.type}</ErrorMessage>}
       </FormGroup>
 
       <FormGroup>
-        <Label htmlFor="priority">우선순위</Label>
+        <Label htmlFor="priority">우선순위 *</Label>
         <Select
           id="priority"
           name="priority"
-          value={formData.priority.toString()}
+          value={formData.priority}
           onChange={onChange}
+          required
         >
-          <option value="1">낮음</option>
-          <option value="2">보통</option>
-          <option value="3">높음</option>
+          <option value="">우선순위를 선택하세요</option>
+          <option value={1}>낮음</option>
+          <option value={2}>보통</option>
+          <option value={3}>높음</option>
+          <option value={4}>긴급</option>
         </Select>
+        {formErrors.priority && (
+          <ErrorMessage>{formErrors.priority}</ErrorMessage>
+        )}
       </FormGroup>
 
       {mode === "edit" && (
         <FormGroup>
-          <Label htmlFor="status">상태</Label>
+          <Label htmlFor="status">상태 *</Label>
           <Select
             id="status"
             name="status"
             value={formData.status}
             onChange={onChange}
+            required
           >
-            <option value="PENDING">대기</option>
-            <option value="APPROVED">승인</option>
-            <option value="REJECTED">거부</option>
+            <option value="">상태를 선택하세요</option>
+            <option value="OPEN">열림</option>
+            <option value="IN_PROGRESS">진행중</option>
+            <option value="RESOLVED">해결됨</option>
+            <option value="CLOSED">닫힘</option>
           </Select>
+          {formErrors.status && (
+            <ErrorMessage>{formErrors.status}</ErrorMessage>
+          )}
         </FormGroup>
       )}
 
       <FormGroup>
         <Label htmlFor="content">내용 *</Label>
         <RelativeTextareaWrapper>
-          <TextArea
+          <MentionTextArea
             id="content"
             name="content"
             value={formData.content}
-            onChange={onChange}
-            placeholder="게시글 내용을 입력하세요 (크기 조절 가능)"
+            onChange={handleContentChange}
+            placeholder="게시글 내용을 입력하세요. @를 입력하여 사용자를 언급할 수 있습니다. (크기 조절 가능)"
             rows={8}
-            required
           />
           <ResizeGuide>
             <svg width="16" height="16" viewBox="0 0 18 18">

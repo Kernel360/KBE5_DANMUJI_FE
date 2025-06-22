@@ -57,6 +57,10 @@ import {
   showSuccessToast,
   withErrorHandling,
 } from "@/utils/errorHandler";
+import { renderContentWithMentions } from "@/utils/mentionUtils";
+import { useUserProfile } from "@/hooks/useUserProfile";
+import UserProfileDropdown from "@/components/UserProfileDropdown";
+import ClickableUsername from "@/components/ClickableUsername";
 
 import {
   FaReply,
@@ -80,6 +84,7 @@ import {
   FiFile as FiFileGeneric,
   FiFlag,
 } from "react-icons/fi";
+import MentionTextArea from "@/components/MentionTextArea";
 
 interface PostDetailModalProps {
   open: boolean;
@@ -116,6 +121,15 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
   const [editText, setEditText] = useState("");
 
   const [closing, setClosing] = useState(false);
+
+  const {
+    profileState,
+    openUserProfile,
+    closeUserProfile,
+    handleViewProfile,
+    handleSendMessage,
+    handleSendInquiry,
+  } = useUserProfile();
 
   // 모달 닫기 애니메이션 적용
   const handleCloseWithAnimation = () => {
@@ -217,7 +231,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
         setComments(commentsResponse.data);
       }
       setCommentText("");
-      showSuccessToast("댓글이 성공적으로 작성되었습니다.");
+      // showSuccessToast("댓글이 성공적으로 작성되었습니다.");
       return commentsResponse;
     }, "댓글 작성에 실패했습니다.");
 
@@ -244,7 +258,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
       setComments(commentsResponse.data || []);
       setReplyText("");
       setReplyingTo(null);
-      showSuccessToast("답글이 성공적으로 작성되었습니다.");
+      // showSuccessToast("답글이 성공적으로 작성되었습니다.");
       return commentsResponse;
     }, "답글 작성에 실패했습니다.");
 
@@ -879,7 +893,16 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                     color: "#111827",
                   }}
                 >
-                  {post.author?.name}
+                  <ClickableUsername
+                    username={
+                      post.author?.name ||
+                      post.authorName ||
+                      "알 수 없는 사용자"
+                    }
+                    userId={post.author?.id || post.authorId}
+                    onClick={openUserProfile}
+                    style={{ color: "#111827" }}
+                  />
                   <span
                     style={{
                       fontSize: 12,
@@ -950,9 +973,9 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                   wordBreak: "break-word",
                 }}
               >
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                  {post.content}
-                </ReactMarkdown>
+                <div>
+                  {renderContentWithMentions(post.content, openUserProfile)}
+                </div>
               </div>
             </div>
 
@@ -1014,11 +1037,11 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
 
                 {/* 댓글 입력창을 위로 이동 */}
                 <RelativeTextareaWrapper style={{ marginBottom: "1.5rem" }}>
-                  <CommentTextArea
-                    placeholder="댓글을 입력하세요 (우측 하단 마우스 드래그를 통해 크기 조절 가능)"
+                  <MentionTextArea
+                    placeholder="댓글을 입력하세요. @를 입력하여 사용자를 언급할 수 있습니다. (우측 하단 마우스 드래그를 통해 크기 조절 가능)"
                     value={commentText}
-                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                      setCommentText(e.target.value)
+                    onChange={(newContent: string) =>
+                      setCommentText(newContent)
                     }
                     disabled={submittingComment}
                     style={{
@@ -1114,9 +1137,19 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                 <>
                                   <CommentMeta>
                                     <CommentAuthor>
-                                      {rootComment.author?.name ||
-                                        rootComment.authorName ||
-                                        "undefined"}
+                                      <ClickableUsername
+                                        username={
+                                          rootComment.author?.name ||
+                                          rootComment.authorName ||
+                                          "undefined"
+                                        }
+                                        userId={
+                                          rootComment.author?.id ||
+                                          rootComment.authorId
+                                        }
+                                        onClick={openUserProfile}
+                                        style={{ color: "#111827" }}
+                                      />
                                       <span
                                         style={{
                                           fontSize: 11,
@@ -1204,13 +1237,14 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                   <CommentText>
                                     {editingCommentId === rootComment.id ? (
                                       <div style={{ marginTop: 8 }}>
-                                        <CommentTextArea
+                                        <MentionTextArea
                                           value={editText}
-                                          onChange={(e) =>
-                                            setEditText(e.target.value)
+                                          onChange={(newContent: string) =>
+                                            setEditText(newContent)
                                           }
                                           autoFocus
                                           rows={3}
+                                          placeholder="댓글 내용을 수정하세요. @를 입력하여 사용자를 언급할 수 있습니다."
                                           style={{
                                             width: "100%",
                                             border: "1.5px solid #fdb924",
@@ -1219,7 +1253,6 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                             color: "#222",
                                             fontSize: "0.95em",
                                             padding: "0.75rem",
-                                            resize: "vertical",
                                           }}
                                         />
                                         <div
@@ -1252,15 +1285,11 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                         .split(/(@\S+)/g)
                                         .map((part, idx) =>
                                           part.startsWith("@") ? (
-                                            <span
+                                            <ClickableUsername
                                               key={idx}
-                                              style={{
-                                                color: "#fdb924",
-                                                fontWeight: 500,
-                                              }}
-                                            >
-                                              {part}
-                                            </span>
+                                              username={part.substring(1)}
+                                              onClick={openUserProfile}
+                                            />
                                           ) : (
                                             <span key={idx}>{part}</span>
                                           )
@@ -1270,16 +1299,16 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                   {(replyingTo as number | null) ===
                                     rootComment.id && (
                                     <ReplyInputContainer>
-                                      <CommentTextArea
+                                      <MentionTextArea
                                         value={replyText}
-                                        onChange={(e) =>
-                                          setReplyText(e.target.value)
+                                        onChange={(newContent: string) =>
+                                          setReplyText(newContent)
                                         }
                                         placeholder={`@${
                                           rootComment.authorName ||
                                           rootComment.author?.name ||
                                           "알 수 없는 사용자"
-                                        } 님에게 답글을 입력하세요`}
+                                        } 님에게 답글을 입력하세요. @를 입력하여 사용자를 언급할 수 있습니다.`}
                                         disabled={submittingReply}
                                         rows={3}
                                       />
@@ -1366,9 +1395,18 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                 <CommentItem key={reply.id}>
                                   <CommentMeta>
                                     <CommentAuthor>
-                                      {reply.author?.name ||
-                                        reply.authorName ||
-                                        "undefined"}
+                                      <ClickableUsername
+                                        username={
+                                          reply.author?.name ||
+                                          reply.authorName ||
+                                          "undefined"
+                                        }
+                                        userId={
+                                          reply.author?.id || reply.authorId
+                                        }
+                                        onClick={openUserProfile}
+                                        style={{ color: "#111827" }}
+                                      />
                                       <span
                                         style={{
                                           fontSize: 11,
@@ -1463,13 +1501,14 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                     </span>
                                     {editingCommentId === reply.id ? (
                                       <div style={{ marginTop: 8 }}>
-                                        <CommentTextArea
+                                        <MentionTextArea
                                           value={replyText}
-                                          onChange={(e) =>
-                                            setReplyText(e.target.value)
+                                          onChange={(newContent: string) =>
+                                            setReplyText(newContent)
                                           }
                                           autoFocus
                                           rows={3}
+                                          placeholder="댓글 내용을 수정하세요. @를 입력하여 사용자를 언급할 수 있습니다."
                                           style={{
                                             width: "100%",
                                             border: "1.5px solid #fdb924",
@@ -1478,7 +1517,6 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                             color: "#222",
                                             fontSize: "0.95em",
                                             padding: "0.75rem",
-                                            resize: "vertical",
                                           }}
                                         />
                                         <div
@@ -1511,15 +1549,11 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                         .split(/(@\S+)/g)
                                         .map((part, idx) =>
                                           part.startsWith("@") ? (
-                                            <span
+                                            <ClickableUsername
                                               key={idx}
-                                              style={{
-                                                color: "#fdb924",
-                                                fontWeight: 500,
-                                              }}
-                                            >
-                                              {part}
-                                            </span>
+                                              username={part.substring(1)}
+                                              onClick={openUserProfile}
+                                            />
                                           ) : (
                                             <span key={idx}>{part}</span>
                                           )
@@ -1529,16 +1563,16 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                   {(replyingTo as number | null) ===
                                     reply.id && (
                                     <ReplyInputContainer>
-                                      <CommentTextArea
+                                      <MentionTextArea
                                         value={replyText}
-                                        onChange={(e) =>
-                                          setReplyText(e.target.value)
+                                        onChange={(newContent: string) =>
+                                          setReplyText(newContent)
                                         }
                                         placeholder={`@${
                                           reply.authorName ||
                                           reply.author?.name ||
                                           "알 수 없는 사용자"
-                                        } 님에게 답글을 입력하세요`}
+                                        } 님에게 답글을 입력하세요. @를 입력하여 사용자를 언급할 수 있습니다.`}
                                         disabled={submittingReply}
                                         rows={3}
                                       />
@@ -1592,6 +1626,20 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
         onClose={() => setShowQuestionAnswer(false)}
         postId={postId}
       />
+      {/* 사용자 프로필 드롭다운 */}
+      {profileState.isOpen && (
+        <UserProfileDropdown
+          username={profileState.username}
+          userId={profileState.userId}
+          position={profileState.position}
+          onClose={closeUserProfile}
+          onViewProfile={handleViewProfile}
+          onSendMessage={handleSendMessage}
+          onSendInquiry={handleSendInquiry}
+          userRole={profileState.userRole}
+          isAdmin={profileState.isAdmin}
+        />
+      )}
     </>
   );
 };

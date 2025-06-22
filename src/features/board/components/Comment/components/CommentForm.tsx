@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import {
   CommentFormContainer,
   CommentFormTitle,
-  CommentTextArea,
   CommentFormActions,
   CommentSubmitButton,
   CommentCancelButton,
 } from "../styles/CommentForm.styled";
+import MentionTextArea from "@/components/MentionTextArea";
 
 interface CommentFormProps {
   placeholder?: string;
@@ -39,8 +39,8 @@ const CommentForm: React.FC<CommentFormProps> = ({
     }
   };
 
-  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setContent(e.target.value);
+  const handleContentChange = (newContent: string) => {
+    setContent(newContent);
   };
 
   const handleCancel = () => {
@@ -52,13 +52,12 @@ const CommentForm: React.FC<CommentFormProps> = ({
     <CommentFormContainer>
       {title && <CommentFormTitle>{title}</CommentFormTitle>}
       <form onSubmit={handleSubmit}>
-        <CommentTextArea
+        <MentionTextArea
           value={content}
           onChange={handleContentChange}
           placeholder={placeholder}
           disabled={isSubmitting}
           rows={3}
-          required
         />
         <CommentFormActions>
           <CommentSubmitButton

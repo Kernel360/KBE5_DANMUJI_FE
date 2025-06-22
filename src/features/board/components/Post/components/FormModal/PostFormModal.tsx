@@ -357,10 +357,10 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
           showSuccessToast("게시글이 성공적으로 생성되었습니다.");
           onSuccess?.();
           onClose();
+          return response;
         } else {
           throw new Error(response.message || "게시글 생성에 실패했습니다.");
         }
-        return response;
       } else if (mode === "edit" && postId) {
         // 게시글 수정
         const requestData = {
@@ -405,12 +405,19 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
 
           onSuccess?.();
           onClose();
+          return response;
         } else {
           throw new Error(response.message || "게시글 수정에 실패했습니다.");
         }
-        return response;
       }
-    }, `게시글 ${mode === "create" ? "생성" : "수정"}에 실패했습니다.`);
+    }, null); // 에러 메시지를 null로 설정하여 withErrorHandling에서 토스트를 표시하지 않음
+
+    // withErrorHandling에서 null이 반환되면 에러가 발생한 것이므로 직접 에러 토스트 표시
+    if (result === null) {
+      showErrorToast(
+        `게시글 ${mode === "create" ? "생성" : "수정"}에 실패했습니다.`
+      );
+    }
 
     setLoading(false);
   };
@@ -437,7 +444,20 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
     e.preventDefault();
     setIsDragOver(false);
     const droppedFiles = Array.from(e.dataTransfer.files);
-    setFiles((prev) => [...prev, ...droppedFiles]);
+
+    // 파일 크기 제한 (20MB - 백엔드 설정에 맞춤)
+    const maxFileSize = 20 * 1024 * 1024; // 20MB
+    const validFiles = droppedFiles.filter((file) => {
+      if (file.size > maxFileSize) {
+        showErrorToast(
+          `${file.name} 업로드 가능한 파일 용량을 초과했습니다. (최대 20MB)`
+        );
+        return false;
+      }
+      return true;
+    });
+
+    setFiles((prev) => [...prev, ...validFiles]);
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -456,7 +476,20 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
-    setFiles((prev) => [...prev, ...selectedFiles]);
+
+    // 파일 크기 제한 (20MB - 백엔드 설정에 맞춤)
+    const maxFileSize = 20 * 1024 * 1024; // 20MB
+    const validFiles = selectedFiles.filter((file) => {
+      if (file.size > maxFileSize) {
+        showErrorToast(
+          `${file.name} 업로드 가능한 파일 용량을 초과했습니다. (최대 20MB)`
+        );
+        return false;
+      }
+      return true;
+    });
+
+    setFiles((prev) => [...prev, ...validFiles]);
   };
 
   const handleFileRemove = (index: number) => {
