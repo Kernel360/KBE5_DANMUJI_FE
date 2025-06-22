@@ -230,7 +230,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
         setComments(commentsResponse.data);
       }
       setCommentText("");
-      showSuccessToast("댓글이 성공적으로 작성되었습니다.");
+      // showSuccessToast("댓글이 성공적으로 작성되었습니다.");
       return commentsResponse;
     }, "댓글 작성에 실패했습니다.");
 
@@ -257,7 +257,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
       setComments(commentsResponse.data || []);
       setReplyText("");
       setReplyingTo(null);
-      showSuccessToast("답글이 성공적으로 작성되었습니다.");
+      // showSuccessToast("답글이 성공적으로 작성되었습니다.");
       return commentsResponse;
     }, "답글 작성에 실패했습니다.");
 
