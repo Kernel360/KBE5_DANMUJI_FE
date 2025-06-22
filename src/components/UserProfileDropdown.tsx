@@ -235,10 +235,12 @@ const UserProfileDropdown: React.FC<UserProfileDropdownProps> = ({
             <FiMail size={16} />
             쪽지 보내기
           </MenuItem>
-          <MenuItem onClick={handleSendInquiry}>
-            <FiMessageCircle size={16} />
-            문의하기
-          </MenuItem>
+          {isAdmin && (
+            <MenuItem onClick={handleSendInquiry}>
+              <FiMessageCircle size={16} />
+              문의하기
+            </MenuItem>
+          )}
         </DropdownMenu>
       </DropdownContainer>
     </>
