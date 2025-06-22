@@ -50,6 +50,17 @@ import {
 import type { Post, Comment, PostFile } from "@/features/project-d/types/post";
 import QuestionAnswerModal from "@/features/board/components/Question/components/QuestionAnswerModal/QuestionAnswerModal";
 import api from "@/api/axios";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import {
+  showErrorToast,
+  showSuccessToast,
+  withErrorHandling,
+} from "@/utils/errorHandler";
+import { renderContentWithMentions } from "@/utils/mentionUtils";
+import { useUserProfile } from "@/hooks/useUserProfile";
+import UserProfileDropdown from "@/components/UserProfileDropdown";
+import ClickableUsername from "@/components/ClickableUsername";
 
 import {
   FaReply,
@@ -73,6 +84,7 @@ import {
   FiFile as FiFileGeneric,
   FiFlag,
 } from "react-icons/fi";
+import MentionTextArea from "@/components/MentionTextArea";
 
 interface PostDetailModalProps {
   open: boolean;
@@ -110,6 +122,15 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
 
   const [closing, setClosing] = useState(false);
 
+  const {
+    profileState,
+    openUserProfile,
+    closeUserProfile,
+    handleViewProfile,
+    handleSendMessage,
+    handleSendInquiry,
+  } = useUserProfile();
+
   // 모달 닫기 애니메이션 적용
   const handleCloseWithAnimation = () => {
     setClosing(true);
@@ -117,6 +138,30 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
       setClosing(false);
       onClose();
     }, 320); // 애니메이션 시간과 맞춤
+  };
+
+  // ESC 키 이벤트 처리
+  useEffect(() => {
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && open) {
+        handleCloseWithAnimation();
+      }
+    };
+
+    if (open) {
+      document.addEventListener("keydown", handleEscKey);
+    }
+
+    return () => {
+      document.removeEventListener("keydown", handleEscKey);
+    };
+  }, [open]);
+
+  // 모달 바깥 클릭 처리
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      handleCloseWithAnimation();
+    }
   };
 
   useEffect(() => {
@@ -134,6 +179,12 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
             console.log("프로젝트 정보:", postResponse.data.project);
             console.log("고객사:", postResponse.data.project?.clientCompany);
             console.log("개발사:", postResponse.data.project?.developerCompany);
+            console.log(
+              "우선순위 값:",
+              postResponse.data.priority,
+              "타입:",
+              typeof postResponse.data.priority
+            );
           }
 
           // 댓글 목록 가져오기
@@ -171,7 +222,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
   const handleCommentSubmit = async () => {
     if (!commentText.trim() || !postId) return;
 
-    try {
+    const result = await withErrorHandling(async () => {
       setSubmittingComment(true);
       await createComment(postId, commentText);
       // 댓글 목록을 다시 불러오기
@@ -180,12 +231,11 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
         setComments(commentsResponse.data);
       }
       setCommentText("");
-    } catch (error) {
-      console.error("댓글 작성 중 오류:", error);
-      alert("댓글 작성 중 오류가 발생했습니다.");
-    } finally {
-      setSubmittingComment(false);
-    }
+      // showSuccessToast("댓글이 성공적으로 작성되었습니다.");
+      return commentsResponse;
+    }, "댓글 작성에 실패했습니다.");
+
+    setSubmittingComment(false);
   };
 
   // 대댓글 생성 함수
@@ -199,7 +249,8 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
   // 답글 등록
   const handleReplySubmit = async () => {
     if (!replyText.trim() || !postId || replyingTo === null) return;
-    try {
+
+    const result = await withErrorHandling(async () => {
       setSubmittingReply(true);
       await createComment(postId, replyText, replyingTo);
       // 댓글 목록 새로고침
@@ -207,11 +258,11 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
       setComments(commentsResponse.data || []);
       setReplyText("");
       setReplyingTo(null);
-    } catch {
-      alert("답글 작성 중 오류가 발생했습니다.");
-    } finally {
-      setSubmittingReply(false);
-    }
+      // showSuccessToast("답글이 성공적으로 작성되었습니다.");
+      return commentsResponse;
+    }, "답글 작성에 실패했습니다.");
+
+    setSubmittingReply(false);
   };
 
   const handleEditPost = () => {
@@ -230,7 +281,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
 
   const handleDeletePost = async () => {
     if (!postId) {
-      alert("게시글 정보가 올바르지 않습니다.");
+      showErrorToast("게시글 정보가 올바르지 않습니다.");
       return;
     }
 
@@ -238,7 +289,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
       return;
     }
 
-    try {
+    const result = await withErrorHandling(async () => {
       setLoading(true);
       console.log("게시글 삭제 시작 - postId:", postId);
       const response = await deletePost(postId);
@@ -246,7 +297,8 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
 
       // 백엔드 응답 형식에 맞춰 성공 여부 확인
       if (response.status === "OK" || response.message?.includes("완료")) {
-        // 성공 시 바로 모달 닫고 콜백 호출 (alert 제거로 부드러운 UX)
+        // 성공 시 바로 모달 닫고 콜백 호출
+        showSuccessToast("게시글이 성공적으로 삭제되었습니다.");
         onClose();
         if (onPostDelete && postId) {
           onPostDelete(postId);
@@ -254,68 +306,149 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
       } else {
         throw new Error(response.message || "게시글 삭제에 실패했습니다.");
       }
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error
-          ? err.message
-          : "게시글 삭제 중 오류가 발생했습니다.";
-      console.error("게시글 삭제 중 오류:", err);
-      alert(errorMessage);
-    } finally {
-      setLoading(false);
-    }
+      return response;
+    }, "게시글 삭제에 실패했습니다.");
+
+    setLoading(false);
   };
 
   // 우선순위 텍스트 반환 함수
-  const getPriorityText = (priority: number) => {
-    switch (priority) {
-      case 1:
-        return "낮음";
-      case 2:
-        return "보통";
-      case 3:
-        return "높음";
-      case 4:
-        return "긴급";
-      default:
-        return "낮음";
+  const getPriorityText = (priority: any) => {
+    // 디버깅을 위한 로그 추가
+    console.log("우선순위 값:", priority, "타입:", typeof priority);
+
+    // 백엔드에서 오는 문자열 우선순위 처리
+    if (typeof priority === "string") {
+      switch (priority) {
+        case "LOW":
+          return "낮음";
+        case "MEDIUM":
+          return "보통";
+        case "HIGH":
+          return "높음";
+        case "URGENT":
+          return "긴급";
+        default:
+          console.warn(
+            "알 수 없는 우선순위 문자열:",
+            priority,
+            "기본값 '낮음' 사용"
+          );
+          return "낮음";
+      }
     }
+
+    // 숫자 우선순위 처리 (기존 호환성)
+    if (typeof priority === "number") {
+      switch (priority) {
+        case 1:
+          return "낮음";
+        case 2:
+          return "보통";
+        case 3:
+          return "높음";
+        case 4:
+          return "긴급";
+        default:
+          console.warn(
+            "알 수 없는 우선순위 숫자:",
+            priority,
+            "기본값 '낮음' 사용"
+          );
+          return "낮음";
+      }
+    }
+
+    console.warn(
+      "알 수 없는 우선순위 타입:",
+      typeof priority,
+      "값:",
+      priority,
+      "기본값 '낮음' 사용"
+    );
+    return "낮음";
   };
 
   // 우선순위별 스타일 반환 함수
-  const getPriorityStyle = (priority: number) => {
-    switch (priority) {
-      case 1:
-        return {
-          backgroundColor: "#dcfce7",
-          color: "#166534",
-          border: "1px solid #bbf7d0",
-        };
-      case 2:
-        return {
-          backgroundColor: "#fef3c7",
-          color: "#92400e",
-          border: "1px solid #fde68a",
-        };
-      case 3:
-        return {
-          backgroundColor: "#f3e8ff",
-          color: "#7c3aed",
-          border: "1px solid #e9d5ff",
-        };
-      case 4:
-        return {
-          backgroundColor: "#fee2e2",
-          color: "#dc2626",
-          border: "1px solid #fecaca",
-        };
-      default:
-        return {
-          backgroundColor: "#dcfce7",
-          color: "#166534",
-          border: "1px solid #bbf7d0",
-        };
+  const getPriorityStyle = (priority: any) => {
+    // 백엔드에서 오는 문자열 우선순위 처리
+    if (typeof priority === "string") {
+      switch (priority) {
+        case "LOW":
+          return {
+            backgroundColor: "#dcfce7",
+            color: "#166534",
+            border: "1px solid #bbf7d0",
+          };
+        case "MEDIUM":
+          return {
+            backgroundColor: "#fef3c7",
+            color: "#92400e",
+            border: "1px solid #fde68a",
+          };
+        case "HIGH":
+          return {
+            backgroundColor: "#f3e8ff",
+            color: "#7c3aed",
+            border: "1px solid #e9d5ff",
+          };
+        case "URGENT":
+          return {
+            backgroundColor: "#fee2e2",
+            color: "#dc2626",
+            border: "1px solid #fecaca",
+          };
+        default:
+          return {
+            backgroundColor: "#dcfce7",
+            color: "#166534",
+            border: "1px solid #bbf7d0",
+          };
+      }
     }
+
+    // 숫자 우선순위 처리 (기존 호환성)
+    if (typeof priority === "number") {
+      switch (priority) {
+        case 1:
+          return {
+            backgroundColor: "#dcfce7",
+            color: "#166534",
+            border: "1px solid #bbf7d0",
+          };
+        case 2:
+          return {
+            backgroundColor: "#fef3c7",
+            color: "#92400e",
+            border: "1px solid #fde68a",
+          };
+        case 3:
+          return {
+            backgroundColor: "#f3e8ff",
+            color: "#7c3aed",
+            border: "1px solid #e9d5ff",
+          };
+        case 4:
+          return {
+            backgroundColor: "#fee2e2",
+            color: "#dc2626",
+            border: "1px solid #fecaca",
+          };
+        default:
+          return {
+            backgroundColor: "#dcfce7",
+            color: "#166534",
+            border: "1px solid #bbf7d0",
+          };
+      }
+    }
+
+    // 기본 스타일
+    return {
+      backgroundColor: "#dcfce7",
+      color: "#166534",
+      border: "1px solid #bbf7d0",
+    };
   };
 
   const formatDate = (dateString: string) => {
@@ -452,7 +585,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
 
   // 파일 다운로드 함수 수정
   const handleFileDownload = async (file: PostFile, postId: number) => {
-    try {
+    const result = await withErrorHandling(async () => {
       const response = await api.get(`/api/posts/${postId}/files/${file.id}`, {
         responseType: "blob",
       });
@@ -472,10 +605,9 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
-    } catch (err) {
-      alert("파일 다운로드에 실패했습니다.");
-      console.error(err);
-    }
+      showSuccessToast("파일 다운로드가 시작되었습니다.");
+      return response;
+    }, "파일 다운로드에 실패했습니다.");
   };
 
   // 파일 유효성 체크
@@ -493,7 +625,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
 
   if (loading) {
     return (
-      <ModalOverlay onClick={handleCloseWithAnimation}>
+      <ModalOverlay onClick={handleOverlayClick}>
         <ModalPanel>
           <LoadingSpinner>로딩 중...</LoadingSpinner>
         </ModalPanel>
@@ -503,7 +635,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
 
   if (!post) {
     return (
-      <ModalOverlay onClick={handleCloseWithAnimation}>
+      <ModalOverlay onClick={handleOverlayClick}>
         <ModalPanel>
           <ErrorMessage>게시글을 찾을 수 없습니다.</ErrorMessage>
         </ModalPanel>
@@ -513,7 +645,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
 
   return (
     <>
-      <ModalOverlay onClick={handleCloseWithAnimation}>
+      <ModalOverlay onClick={handleOverlayClick}>
         <ModalPanel
           $closing={closing}
           onClick={(e: React.MouseEvent) => e.stopPropagation()}
@@ -761,7 +893,16 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                     color: "#111827",
                   }}
                 >
-                  {post.author?.name}
+                  <ClickableUsername
+                    username={
+                      post.author?.name ||
+                      post.authorName ||
+                      "알 수 없는 사용자"
+                    }
+                    userId={post.author?.id || post.authorId}
+                    onClick={openUserProfile}
+                    style={{ color: "#111827" }}
+                  />
                   <span
                     style={{
                       fontSize: 12,
@@ -832,7 +973,9 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                   wordBreak: "break-word",
                 }}
               >
-                {post.content}
+                <div>
+                  {renderContentWithMentions(post.content, openUserProfile)}
+                </div>
               </div>
             </div>
 
@@ -894,11 +1037,11 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
 
                 {/* 댓글 입력창을 위로 이동 */}
                 <RelativeTextareaWrapper style={{ marginBottom: "1.5rem" }}>
-                  <CommentTextArea
-                    placeholder="댓글을 입력하세요 (우측 하단 마우스 드래그를 통해 크기 조절 가능)"
+                  <MentionTextArea
+                    placeholder="댓글을 입력하세요. @를 입력하여 사용자를 언급할 수 있습니다. (우측 하단 마우스 드래그를 통해 크기 조절 가능)"
                     value={commentText}
-                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                      setCommentText(e.target.value)
+                    onChange={(newContent: string) =>
+                      setCommentText(newContent)
                     }
                     disabled={submittingComment}
                     style={{
@@ -994,9 +1137,19 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                 <>
                                   <CommentMeta>
                                     <CommentAuthor>
-                                      {rootComment.author?.name ||
-                                        rootComment.authorName ||
-                                        "undefined"}
+                                      <ClickableUsername
+                                        username={
+                                          rootComment.author?.name ||
+                                          rootComment.authorName ||
+                                          "undefined"
+                                        }
+                                        userId={
+                                          rootComment.author?.id ||
+                                          rootComment.authorId
+                                        }
+                                        onClick={openUserProfile}
+                                        style={{ color: "#111827" }}
+                                      />
                                       <span
                                         style={{
                                           fontSize: 11,
@@ -1084,13 +1237,14 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                   <CommentText>
                                     {editingCommentId === rootComment.id ? (
                                       <div style={{ marginTop: 8 }}>
-                                        <CommentTextArea
+                                        <MentionTextArea
                                           value={editText}
-                                          onChange={(e) =>
-                                            setEditText(e.target.value)
+                                          onChange={(newContent: string) =>
+                                            setEditText(newContent)
                                           }
                                           autoFocus
                                           rows={3}
+                                          placeholder="댓글 내용을 수정하세요. @를 입력하여 사용자를 언급할 수 있습니다."
                                           style={{
                                             width: "100%",
                                             border: "1.5px solid #fdb924",
@@ -1099,7 +1253,6 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                             color: "#222",
                                             fontSize: "0.95em",
                                             padding: "0.75rem",
-                                            resize: "vertical",
                                           }}
                                         />
                                         <div
@@ -1132,15 +1285,11 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                         .split(/(@\S+)/g)
                                         .map((part, idx) =>
                                           part.startsWith("@") ? (
-                                            <span
+                                            <ClickableUsername
                                               key={idx}
-                                              style={{
-                                                color: "#fdb924",
-                                                fontWeight: 500,
-                                              }}
-                                            >
-                                              {part}
-                                            </span>
+                                              username={part.substring(1)}
+                                              onClick={openUserProfile}
+                                            />
                                           ) : (
                                             <span key={idx}>{part}</span>
                                           )
@@ -1150,16 +1299,16 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                   {(replyingTo as number | null) ===
                                     rootComment.id && (
                                     <ReplyInputContainer>
-                                      <CommentTextArea
+                                      <MentionTextArea
                                         value={replyText}
-                                        onChange={(e) =>
-                                          setReplyText(e.target.value)
+                                        onChange={(newContent: string) =>
+                                          setReplyText(newContent)
                                         }
                                         placeholder={`@${
                                           rootComment.authorName ||
                                           rootComment.author?.name ||
                                           "알 수 없는 사용자"
-                                        } 님에게 답글을 입력하세요`}
+                                        } 님에게 답글을 입력하세요. @를 입력하여 사용자를 언급할 수 있습니다.`}
                                         disabled={submittingReply}
                                         rows={3}
                                       />
@@ -1246,9 +1395,18 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                 <CommentItem key={reply.id}>
                                   <CommentMeta>
                                     <CommentAuthor>
-                                      {reply.author?.name ||
-                                        reply.authorName ||
-                                        "undefined"}
+                                      <ClickableUsername
+                                        username={
+                                          reply.author?.name ||
+                                          reply.authorName ||
+                                          "undefined"
+                                        }
+                                        userId={
+                                          reply.author?.id || reply.authorId
+                                        }
+                                        onClick={openUserProfile}
+                                        style={{ color: "#111827" }}
+                                      />
                                       <span
                                         style={{
                                           fontSize: 11,
@@ -1343,13 +1501,14 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                     </span>
                                     {editingCommentId === reply.id ? (
                                       <div style={{ marginTop: 8 }}>
-                                        <CommentTextArea
+                                        <MentionTextArea
                                           value={replyText}
-                                          onChange={(e) =>
-                                            setReplyText(e.target.value)
+                                          onChange={(newContent: string) =>
+                                            setReplyText(newContent)
                                           }
                                           autoFocus
                                           rows={3}
+                                          placeholder="댓글 내용을 수정하세요. @를 입력하여 사용자를 언급할 수 있습니다."
                                           style={{
                                             width: "100%",
                                             border: "1.5px solid #fdb924",
@@ -1358,7 +1517,6 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                             color: "#222",
                                             fontSize: "0.95em",
                                             padding: "0.75rem",
-                                            resize: "vertical",
                                           }}
                                         />
                                         <div
@@ -1391,15 +1549,11 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                         .split(/(@\S+)/g)
                                         .map((part, idx) =>
                                           part.startsWith("@") ? (
-                                            <span
+                                            <ClickableUsername
                                               key={idx}
-                                              style={{
-                                                color: "#fdb924",
-                                                fontWeight: 500,
-                                              }}
-                                            >
-                                              {part}
-                                            </span>
+                                              username={part.substring(1)}
+                                              onClick={openUserProfile}
+                                            />
                                           ) : (
                                             <span key={idx}>{part}</span>
                                           )
@@ -1409,16 +1563,16 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                                   {(replyingTo as number | null) ===
                                     reply.id && (
                                     <ReplyInputContainer>
-                                      <CommentTextArea
+                                      <MentionTextArea
                                         value={replyText}
-                                        onChange={(e) =>
-                                          setReplyText(e.target.value)
+                                        onChange={(newContent: string) =>
+                                          setReplyText(newContent)
                                         }
                                         placeholder={`@${
                                           reply.authorName ||
                                           reply.author?.name ||
                                           "알 수 없는 사용자"
-                                        } 님에게 답글을 입력하세요`}
+                                        } 님에게 답글을 입력하세요. @를 입력하여 사용자를 언급할 수 있습니다.`}
                                         disabled={submittingReply}
                                         rows={3}
                                       />
@@ -1472,6 +1626,20 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
         onClose={() => setShowQuestionAnswer(false)}
         postId={postId}
       />
+      {/* 사용자 프로필 드롭다운 */}
+      {profileState.isOpen && (
+        <UserProfileDropdown
+          username={profileState.username}
+          userId={profileState.userId}
+          position={profileState.position}
+          onClose={closeUserProfile}
+          onViewProfile={handleViewProfile}
+          onSendMessage={handleSendMessage}
+          onSendInquiry={handleSendInquiry}
+          userRole={profileState.userRole}
+          isAdmin={profileState.isAdmin}
+        />
+      )}
     </>
   );
 };

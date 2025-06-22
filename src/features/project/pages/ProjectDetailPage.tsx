@@ -145,7 +145,7 @@ const ProjectDetailPage = () => {
 
   return (
     <DetailPageContainer>
-      <PageTitle>{projectDetail.name}</PageTitle>
+      <PageTitle>프로젝트 상세</PageTitle>
       <PageDescription>
         프로젝트의 상세 정보와 진행 상황을 확인하세요.
       </PageDescription>

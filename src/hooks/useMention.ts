@@ -1,0 +1,179 @@
+import { useState, useEffect, useCallback, useRef } from "react";
+import { searchUsernames } from "@/features/user/services/userService";
+
+interface MentionState {
+  isActive: boolean;
+  query: string;
+  startIndex: number;
+  endIndex: number;
+  suggestions: string[];
+  selectedIndex: number;
+}
+
+export const useMention = () => {
+  const [mentionState, setMentionState] = useState<MentionState>({
+    isActive: false,
+    query: "",
+    startIndex: 0,
+    endIndex: 0,
+    suggestions: [],
+    selectedIndex: 0,
+  });
+
+  const [isLoading, setIsLoading] = useState(false);
+  const debounceRef = useRef<NodeJS.Timeout>();
+
+  // @ 검색 로직
+  const searchMentions = useCallback(async (query: string) => {
+    if (!query.trim()) {
+      setMentionState((prev) => ({
+        ...prev,
+        suggestions: [],
+        isActive: false,
+      }));
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await searchUsernames(query);
+      setMentionState((prev) => ({
+        ...prev,
+        suggestions: response.data,
+        isActive: response.data.length > 0,
+        selectedIndex: 0,
+      }));
+    } catch (error) {
+      console.error("Mention search failed:", error);
+      setMentionState((prev) => ({
+        ...prev,
+        suggestions: [],
+        isActive: false,
+      }));
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // 디바운스된 검색
+  const debouncedSearch = useCallback(
+    (query: string) => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+
+      debounceRef.current = setTimeout(() => {
+        searchMentions(query);
+      }, 300);
+    },
+    [searchMentions]
+  );
+
+  // @ 입력 감지 및 처리
+  const handleInputChange = useCallback(
+    (value: string, cursorPosition: number) => {
+      const beforeCursor = value.slice(0, cursorPosition);
+      const afterCursor = value.slice(cursorPosition);
+
+      // @ 패턴 찾기
+      const mentionPattern = /@(\w*)$/;
+      const match = beforeCursor.match(mentionPattern);
+
+      if (match) {
+        const query = match[1];
+        const startIndex = beforeCursor.lastIndexOf("@");
+
+        setMentionState((prev) => ({
+          ...prev,
+          isActive: true,
+          query,
+          startIndex,
+          endIndex: cursorPosition,
+          selectedIndex: 0,
+        }));
+
+        debouncedSearch(query);
+      } else {
+        setMentionState((prev) => ({ ...prev, isActive: false }));
+      }
+    },
+    [debouncedSearch]
+  );
+
+  // 제안 목록에서 선택
+  const selectMention = useCallback((username: string) => {
+    setMentionState((prev) => ({ ...prev, isActive: false }));
+    return username;
+  }, []);
+
+  // 키보드 네비게이션
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (!mentionState.isActive) return;
+
+      switch (e.key) {
+        case "ArrowDown":
+          e.preventDefault();
+          setMentionState((prev) => ({
+            ...prev,
+            selectedIndex: Math.min(
+              prev.selectedIndex + 1,
+              prev.suggestions.length - 1
+            ),
+          }));
+          break;
+        case "ArrowUp":
+          e.preventDefault();
+          setMentionState((prev) => ({
+            ...prev,
+            selectedIndex: Math.max(prev.selectedIndex - 1, 0),
+          }));
+          break;
+        case "Enter":
+          e.preventDefault();
+          if (mentionState.suggestions[mentionState.selectedIndex]) {
+            selectMention(mentionState.suggestions[mentionState.selectedIndex]);
+          }
+          break;
+        case "Escape":
+          e.preventDefault();
+          setMentionState((prev) => ({ ...prev, isActive: false }));
+          break;
+      }
+    },
+    [
+      mentionState.isActive,
+      mentionState.selectedIndex,
+      mentionState.suggestions,
+      selectMention,
+    ]
+  );
+
+  // 텍스트에 @username 삽입
+  const insertMention = useCallback(
+    (text: string, username: string, startIndex: number, endIndex: number) => {
+      const beforeMention = text.slice(0, startIndex);
+      const afterMention = text.slice(endIndex);
+      return beforeMention + "@" + username + afterMention;
+    },
+    []
+  );
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, [handleKeyDown]);
+
+  return {
+    mentionState,
+    isLoading,
+    handleInputChange,
+    selectMention,
+    insertMention,
+  };
+};

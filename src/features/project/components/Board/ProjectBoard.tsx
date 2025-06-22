@@ -49,6 +49,7 @@ import {
 } from "@/features/board/components/Post/styles/PostListPage.styled";
 import ProjectPostDetailModal from "@/features/board/components/Post/components/DetailModal/ProjectPostDetailModal";
 import PostFormModal from "@/features/board/components/Post/components/FormModal/PostFormModal";
+import { showSuccessToast } from "@/utils/errorHandler";
 
 interface ProjectBoardProps {
   projectId: number;
@@ -93,6 +94,11 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
   );
   const [formModalPostId, setFormModalPostId] = useState<number | null>(null);
   const [formModalParentId, setFormModalParentId] = useState<number | null>(
+    null
+  );
+
+  // 게시글 수정 전 단계 정보 추적
+  const [editingPostStepId, setEditingPostStepId] = useState<number | null>(
     null
   );
 
@@ -224,6 +230,13 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
     setFormModalMode("edit");
     setFormModalPostId(postId);
     setFormModalParentId(null);
+
+    // 수정할 게시글의 현재 단계 정보 저장
+    const targetPost = posts.find((post) => post.postId === postId);
+    if (targetPost) {
+      setEditingPostStepId(targetPost.projectStepId || null);
+    }
+
     setIsFormModalOpen(true);
   };
 
@@ -243,6 +256,16 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
   const handleFormModalSuccess = () => {
     // 게시글 목록 새로고침
     fetchPosts();
+
+    // 단계 변경으로 인해 게시글이 사라졌을 수 있음을 안내
+    if (editingPostStepId !== null && editingPostStepId !== selectedStepId) {
+      showSuccessToast(
+        "게시글 수정 완료 - 단계가 변경되어 현재 목록에서 사라졌습니다."
+      );
+    }
+
+    // 단계 정보 초기화
+    setEditingPostStepId(null);
   };
 
   const handlePostDelete = (deletedPostId: number) => {
@@ -689,6 +712,7 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
         mode={formModalMode}
         postId={formModalPostId ?? undefined}
         parentId={formModalParentId ?? undefined}
+        stepId={selectedStepId}
         projectId={projectId}
         onSuccess={handleFormModalSuccess}
         colorTheme={{ main: "#fdb924", sub: "#f59e0b" }}

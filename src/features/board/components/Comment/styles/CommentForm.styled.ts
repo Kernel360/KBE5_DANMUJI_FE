@@ -22,7 +22,7 @@ export const CommentTextArea = styled.textarea`
   border: 1px solid #d1d5db;
   border-radius: 0.375rem;
   font-size: 0.875rem;
-  resize: vertical;
+  resize: none;
   background-color: #ffffff;
   color: #374151;
   font-family: inherit;

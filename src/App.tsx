@@ -1,8 +1,8 @@
 // src/App.tsx
 import { BrowserRouter as Router, useLocation } from "react-router-dom";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { useNotification } from "@/hooks/useNotification";
+import { useNotification, useApiErrorHandler } from "@/hooks/useNotification";
 import AppRoutes from "@/routes/AppRoutes";
 import { Sidebar } from "@/layouts/Sidebar";
 import { Topbar } from "@/layouts/Topbar";
@@ -11,6 +11,7 @@ import { AppContainer, MainContent, PageContent } from "./App.styled";
 import { NotificationList } from "@/features/Notification/NotificationList";
 import { useNotification as useToastNotification } from "@/features/Notification/NotificationContext";
 import type { Notification } from "@/layouts/Topbar/Topbar.types";
+import { setupGlobalErrorHandler } from "@/utils/errorHandler";
 
 const LayoutWrapper = ({
   children,
@@ -56,7 +57,33 @@ function AppContent() {
   const {
     notifications: toastNotifications,
     removeNotification,
+    notify,
   } = useToastNotification();
+
+  // API 에러 핸들러 연결
+  useApiErrorHandler();
+
+  // 전역 에러 핸들러 설정
+  useEffect(() => {
+    setupGlobalErrorHandler();
+  }, []);
+
+  // 토스트 이벤트 리스너
+  useEffect(() => {
+    const handleShowToast = (event: CustomEvent) => {
+      const { message, success } = event.detail;
+      notify(message, success);
+    };
+
+    window.addEventListener("show-toast", handleShowToast as EventListener);
+
+    return () => {
+      window.removeEventListener(
+        "show-toast",
+        handleShowToast as EventListener
+      );
+    };
+  }, [notify]);
 
   useNotification(
     (data) => {
@@ -119,17 +146,17 @@ function AppContent() {
 
   return (
     <>
-    <NotificationList
+      <NotificationList
         notifications={toastNotifications}
         onRemove={removeNotification}
       />
-    <LayoutWrapper
-      notifications={notifications}
-      markAsRead={markAsRead}
-      error={error}
-    >
-      <AppRoutes />
-    </LayoutWrapper>
+      <LayoutWrapper
+        notifications={notifications}
+        markAsRead={markAsRead}
+        error={error}
+      >
+        <AppRoutes />
+      </LayoutWrapper>
     </>
   );
 }
