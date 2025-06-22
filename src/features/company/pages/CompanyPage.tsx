@@ -1,6 +1,7 @@
 import axios from "axios";
 import api from "@/api/axios";
 import { useState, useEffect } from "react";
+import { useNotification } from "@/features/Notification/NotificationContext";
 import CompanyRegisterModal from "../components/CompanyRegisterModal";
 import CompanyEditModal from "../components/CompanyEditModal";
 import CompanyDetailModal from "../components/CompanyDetailModal/CompanyDetailModal";
@@ -237,6 +238,21 @@ const ClickableTableRow = styled(TableRow)`
   }
 `;
 
+interface FieldError {
+  field: string;
+  value: string;
+  reason: string;
+}
+
+interface ErrorResponse {
+  status: string;
+  code: string;
+  message: string;
+  data?: {
+    errors: FieldError[];
+  };
+}
+
 export const formatBizNo = (bizNo: string) => {
   if (bizNo.length !== 10) return bizNo;
   return `${bizNo.slice(0, 3)}-${bizNo.slice(3, 5)}-${bizNo.slice(5)}`;
@@ -248,11 +264,15 @@ export default function CompanyPage() {
     keyword: "",
   });
   const [companies, setCompanies] = useState<Company[]>([]);
+  const [fieldErrors, setFieldErrors] = useState<FieldError[]>([]);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editData, setEditData] = useState<Company | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { notify } = useNotification();
   const [page, setPage] = useState<{
     size: number;
     number: number;
@@ -298,6 +318,12 @@ export default function CompanyPage() {
       ...prev,
       [field]: value,
     }));
+  };
+
+  const handleClose = () => {
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    setFieldErrors([]);
   };
 
   const handleSearch = () => {
@@ -390,10 +416,22 @@ export default function CompanyPage() {
       // 모달 닫기
       setEditModalOpen(false);
       setEditData(null);
-      alert("회사 정보가 성공적으로 수정되었습니다.");
-    } catch (error) {
-      console.error("회사 정보 수정 실패:", error);
-      alert("회사 정보 수정에 실패했습니다.");
+      notify("회사 정보가 성공적으로 수정되었습니다.");
+      handleClose();
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const errorData = err.response?.data as ErrorResponse | undefined;
+        if (errorData?.data?.errors) {
+          setFieldErrors(errorData.data.errors);
+          notify("회사 수정이 실패했습니다!", false);
+        } else {
+          setErrorMessage(
+            errorData?.message || "회사 수정 중 알 수 없는 오류가 발생했습니다."
+          );
+        }
+      } else {
+        setErrorMessage("회사 수정 중 알 수 없는 오류가 발생했습니다.");
+      }
     }
   };
 
@@ -429,6 +467,9 @@ export default function CompanyPage() {
           onClose={() => setEditModalOpen(false)}
           onSave={handleEdit}
           initialData={editData}
+          fieldErrors={fieldErrors}
+          setFieldErrors={setFieldErrors}  // 부모에서 내려줌
+          setErrorMessage={setErrorMessage}
         />
       )}
       <CompanyDetailModal
