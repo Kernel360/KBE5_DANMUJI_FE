@@ -57,6 +57,7 @@ import {
   showSuccessToast,
   withErrorHandling,
 } from "@/utils/errorHandler";
+import { renderContentWithMentions } from "@/utils/mentionUtils";
 
 import {
   FaReply,
@@ -951,9 +952,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                   wordBreak: "break-word",
                 }}
               >
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                  {post.content}
-                </ReactMarkdown>
+                <div>{renderContentWithMentions(post.content)}</div>
               </div>
             </div>
 
