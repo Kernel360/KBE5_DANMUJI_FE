@@ -101,7 +101,7 @@ const FileUploadSection: React.FC<FileUploadSectionProps> = ({
                 color: "#9ca3af",
               }}
             >
-              최대 5개 파일, 각 파일 최대 10MB
+              파일 최대 20MB
             </p>
           </div>
           <input
