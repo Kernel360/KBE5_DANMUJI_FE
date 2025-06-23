@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   PageContainer,
   Header,
@@ -23,6 +23,11 @@ import {
   PaginationButton,
   LoadingSpinner,
   ErrorMessage,
+  Select,
+  SearchRight,
+  SelectButton,
+  SelectDropdown,
+  SelectOption,
 } from "./ActivityLogPage.styled";
 import {
   FiSearch,
@@ -34,6 +39,9 @@ import {
   FiTrash,
   FiPlus,
   FiCalendar,
+  FiChevronDown,
+  FiShield,
+  FiUsers,
 } from "react-icons/fi";
 
 interface ActivityLog {
@@ -59,6 +67,54 @@ export default function ActivityLogPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [actionFilter, setActionFilter] = useState("ALL");
   const [userFilter, setUserFilter] = useState("ALL");
+
+  // 드롭다운 상태
+  const [actionDropdownOpen, setActionDropdownOpen] = useState(false);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const actionDropdownRef = useRef<HTMLDivElement>(null);
+  const userDropdownRef = useRef<HTMLDivElement>(null);
+
+  // 드롭다운 옵션
+  const ACTION_OPTIONS = [
+    { value: "ALL", label: "전체", icon: FiFileText, color: "#6b7280" },
+    { value: "CREATE", label: "생성", icon: FiPlus, color: "#10b981" },
+    { value: "UPDATE", label: "수정", icon: FiEdit, color: "#3b82f6" },
+    { value: "DELETE", label: "삭제", icon: FiTrash, color: "#ef4444" },
+  ];
+
+  const USER_OPTIONS = [
+    { value: "ALL", label: "전체", icon: FiUsers, color: "#6b7280" },
+    { value: "ROLE_ADMIN", label: "관리자", icon: FiShield, color: "#8b5cf6" },
+    {
+      value: "ROLE_USER",
+      label: "일반 사용자",
+      icon: FiUser,
+      color: "#3b82f6",
+    },
+  ];
+
+  // 드롭다운 외부 클릭 감지
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        actionDropdownRef.current &&
+        !actionDropdownRef.current.contains(event.target as Node)
+      ) {
+        setActionDropdownOpen(false);
+      }
+      if (
+        userDropdownRef.current &&
+        !userDropdownRef.current.contains(event.target as Node)
+      ) {
+        setUserDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   // 임시 데이터
   const mockActivityLogs: ActivityLog[] = [
@@ -198,6 +254,42 @@ export default function ActivityLogPage() {
     setCurrentPage(newPage);
   };
 
+  // 드롭다운 토글 함수들
+  const handleActionDropdownToggle = () => {
+    setActionDropdownOpen(!actionDropdownOpen);
+    setUserDropdownOpen(false);
+  };
+
+  const handleUserDropdownToggle = () => {
+    setUserDropdownOpen(!userDropdownOpen);
+    setActionDropdownOpen(false);
+  };
+
+  const handleActionSelect = (value: string) => {
+    setActionFilter(value);
+    setActionDropdownOpen(false);
+  };
+
+  const handleUserSelect = (value: string) => {
+    setUserFilter(value);
+    setUserDropdownOpen(false);
+  };
+
+  // 현재 선택된 옵션 가져오기
+  const getCurrentActionOption = () => {
+    return (
+      ACTION_OPTIONS.find((option) => option.value === actionFilter) ||
+      ACTION_OPTIONS[0]
+    );
+  };
+
+  const getCurrentUserOption = () => {
+    return (
+      USER_OPTIONS.find((option) => option.value === userFilter) ||
+      USER_OPTIONS[0]
+    );
+  };
+
   if (loading) return <LoadingSpinner />;
   if (error) return <ErrorMessage>{error}</ErrorMessage>;
 
@@ -212,57 +304,86 @@ export default function ActivityLogPage() {
 
       <FilterSection>
         <FilterGroup>
-          <FilterLabel>검색</FilterLabel>
+          <FilterLabel>작업 유형</FilterLabel>
+          <div style={{ position: "relative" }} ref={actionDropdownRef}>
+            <SelectButton
+              type="button"
+              onClick={handleActionDropdownToggle}
+              $hasValue={actionFilter !== "ALL"}
+              $color={getCurrentActionOption().color}
+              className={actionDropdownOpen ? "open" : ""}
+            >
+              {React.createElement(getCurrentActionOption().icon, { size: 16 })}
+              <span className="select-value">
+                {getCurrentActionOption().label}
+              </span>
+              <FiChevronDown size={16} />
+            </SelectButton>
+            <SelectDropdown $isOpen={actionDropdownOpen}>
+              {ACTION_OPTIONS.map((option) => (
+                <SelectOption
+                  key={option.value}
+                  $isSelected={actionFilter === option.value}
+                  onClick={() => handleActionSelect(option.value)}
+                >
+                  {React.createElement(option.icon, {
+                    size: 16,
+                    color: option.color,
+                  })}
+                  {option.label}
+                </SelectOption>
+              ))}
+            </SelectDropdown>
+          </div>
+        </FilterGroup>
+        <FilterGroup>
+          <FilterLabel>사용자 유형</FilterLabel>
+          <div style={{ position: "relative" }} ref={userDropdownRef}>
+            <SelectButton
+              type="button"
+              onClick={handleUserDropdownToggle}
+              $hasValue={userFilter !== "ALL"}
+              $color={getCurrentUserOption().color}
+              className={userDropdownOpen ? "open" : ""}
+              style={{ width: "160px" }}
+            >
+              {React.createElement(getCurrentUserOption().icon, { size: 16 })}
+              <span className="select-value">
+                {getCurrentUserOption().label}
+              </span>
+              <FiChevronDown size={16} />
+            </SelectButton>
+            <SelectDropdown $isOpen={userDropdownOpen}>
+              {USER_OPTIONS.map((option) => (
+                <SelectOption
+                  key={option.value}
+                  $isSelected={userFilter === option.value}
+                  onClick={() => handleUserSelect(option.value)}
+                >
+                  {React.createElement(option.icon, {
+                    size: 16,
+                    color: option.color,
+                  })}
+                  {option.label}
+                </SelectOption>
+              ))}
+            </SelectDropdown>
+          </div>
+        </FilterGroup>
+        <SearchRight>
           <SearchInput
             type="text"
             placeholder="사용자명, 대상명, 상세내용으로 검색..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-        </FilterGroup>
-        <FilterGroup>
-          <FilterLabel>작업 유형</FilterLabel>
-          <select
-            value={actionFilter}
-            onChange={(e) => setActionFilter(e.target.value)}
-            style={{
-              padding: "8px 12px",
-              border: "1px solid #d1d5db",
-              borderRadius: "6px",
-              fontSize: "14px",
-            }}
-          >
-            <option value="ALL">전체</option>
-            <option value="CREATE">생성</option>
-            <option value="UPDATE">수정</option>
-            <option value="DELETE">삭제</option>
-          </select>
-        </FilterGroup>
-        <FilterGroup>
-          <FilterLabel>사용자 유형</FilterLabel>
-          <select
-            value={userFilter}
-            onChange={(e) => setUserFilter(e.target.value)}
-            style={{
-              padding: "8px 12px",
-              border: "1px solid #d1d5db",
-              borderRadius: "6px",
-              fontSize: "14px",
-            }}
-          >
-            <option value="ALL">전체</option>
-            <option value="ROLE_ADMIN">관리자</option>
-            <option value="ROLE_USER">일반 사용자</option>
-          </select>
-        </FilterGroup>
-        <FilterButton onClick={handleSearch}>
-          <FiSearch size={16} />
-          검색
-        </FilterButton>
-        <FilterButton onClick={handleReset}>
-          <FiRotateCcw size={16} />
-          초기화
-        </FilterButton>
+          <FilterButton onClick={handleSearch}>
+            <FiSearch size={16} />
+          </FilterButton>
+          <FilterButton onClick={handleReset}>
+            <FiRotateCcw size={16} />
+          </FilterButton>
+        </SearchRight>
       </FilterSection>
 
       <TableContainer>
@@ -378,10 +499,7 @@ export default function ActivityLogPage() {
             <PaginationButton
               key={i}
               onClick={() => handlePageChange(i)}
-              style={{
-                backgroundColor: currentPage === i ? "#fdb924" : "transparent",
-                color: currentPage === i ? "#ffffff" : "#374151",
-              }}
+              className={currentPage === i ? "active" : ""}
             >
               {i + 1}
             </PaginationButton>
