@@ -390,3 +390,19 @@ export const Divider = styled.div`
   background: #f1f3f7;
   margin: 10px 0 14px 0;
 `;
+
+// ViewAllButton은 그대로 두고, 주의 프로젝트 탭에만 적용할 새로운 스타일 추가
+export const WarningTabButton = styled.button<{ selected?: boolean }>`
+  padding: 7px 18px;
+  border: none;
+  border-radius: 0;
+  background: ${({ selected }) => (selected ? '#fff' : '#f4f6fa')};
+  color: ${({ selected }) => (selected ? '#e74c3c' : '#bdbdbd')};
+  font-weight: 700;
+  font-size: 1rem;
+  border-bottom: 3px solid ${({ selected }) => (selected ? '#e74c3c' : 'transparent')};
+  box-shadow: none;
+  transition: background 0.2s, color 0.2s, border-bottom 0.2s;
+  margin-bottom: -2px;
+  cursor: pointer;
+`;
