@@ -90,7 +90,7 @@ export default function ActivityLogPage() {
   ];
 
   const USER_OPTIONS = [
-    { value: "ALL", label: "전체", icon: FiGrid, color: "#6b7280" },
+    { value: "ALL", label: "전체", icon: FiUsers, color: "#6b7280" },
     { value: "ROLE_ADMIN", label: "관리자", icon: FiShield, color: "#8b5cf6" },
     {
       value: "ROLE_DEVELOPER",
