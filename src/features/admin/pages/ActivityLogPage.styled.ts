@@ -265,16 +265,16 @@ export const PaginationNav = styled.nav`
 export const PaginationButton = styled.button<{ $active?: boolean }>`
   padding: 0.32rem 0.6rem;
   border: none;
-  background: none;
+  background: transparent;
   color: ${({ $active }) => ($active ? "#fff" : "#111827")};
   border-radius: 1.2rem;
-  font-size: 1rem;
+  font-size: 0.75rem;
   font-weight: 500;
   box-shadow: none;
   cursor: pointer;
   outline: none;
-  min-width: 32px;
-  min-height: 32px;
+  min-width: 28px;
+  min-height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
