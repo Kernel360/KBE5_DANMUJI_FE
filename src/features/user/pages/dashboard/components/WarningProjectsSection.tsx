@@ -62,63 +62,68 @@ const WarningProjectsSection: React.FC<WarningProjectsSectionProps> = ({
           </S.ProgressListEmpty>
         );
       }
-      return filtered.map((project) => (
-        <S.ProjectCard
-          key={project.id}
-          style={{
-            marginBottom: 12,
-            border: "1.5px solid #ffd6d6",
-            background: "#fff9f9",
-          }}
-        >
-          <div
+      return filtered.map((project) => {
+        const today = new Date();
+        const end = new Date(project.endDate);
+        const diff = Math.ceil((today.getTime() - end.getTime()) / (1000 * 60 * 60 * 24));
+        return (
+          <S.ProjectCard
+            key={project.id}
             style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: 6,
+              marginBottom: 12,
+              border: "1.5px solid #ffd6d6",
+              background: "#fff9f9",
             }}
           >
             <div
-              style={{ fontWeight: 700, fontSize: "1.05rem", color: "#e74c3c" }}
-            >
-              {project.name}
-            </div>
-            <S.StatusBadge status={project.status}>
-              {project.status === "COMPLETED" && "완료"}
-              {project.status === "IN_PROGRESS" && "진행중"}
-              {project.status === "DELAYED" && "지연"}
-              {project.status === "PENDING" && "보류"}
-              {project.status !== "COMPLETED" &&
-                project.status !== "IN_PROGRESS" &&
-                project.status !== "DELAYED" &&
-                project.status !== "PENDING" &&
-                project.status}
-            </S.StatusBadge>
-          </div>
-          <div style={{ color: "#bdbdbd", fontSize: 13, marginBottom: 2 }}>
-            마감일:{" "}
-            <b
               style={{
-                color:
-                  project.status === "DELAYED" ||
-                  ((new Date(project.endDate).getTime() -
-                    new Date().getTime()) /
-                    (1000 * 60 * 60 * 24) <=
-                    7 &&
-                    (new Date(project.endDate).getTime() -
-                      new Date().getTime()) /
-                      (1000 * 60 * 60 * 24) >=
-                      0)
-                    ? "#e74c3c"
-                    : "#222",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: 6,
               }}
             >
-              {project.endDate}
-            </b>
-          </div>
-        </S.ProjectCard>
-      ));
+              <div
+                style={{ fontWeight: 700, fontSize: "1.05rem", color: "#e74c3c" }}
+              >
+                {project.name}
+              </div>
+              <S.StatusBadge status={project.status}>
+                {project.status === "COMPLETED" && "완료"}
+                {project.status === "IN_PROGRESS" && "진행중"}
+                {project.status === "DELAYED" && `${diff > 0 ? `${diff}일 지연` : "지연"}`}
+                {project.status === "PENDING" && "보류"}
+                {project.status !== "COMPLETED" &&
+                  project.status !== "IN_PROGRESS" &&
+                  project.status !== "DELAYED" &&
+                  project.status !== "PENDING" &&
+                  project.status}
+              </S.StatusBadge>
+            </div>
+            <div style={{ color: "#bdbdbd", fontSize: 13, marginBottom: 2 }}>
+              마감일: {" "}
+              <b
+                style={{
+                  color:
+                    project.status === "DELAYED" ||
+                    ((new Date(project.endDate).getTime() -
+                      new Date().getTime()) /
+                      (1000 * 60 * 60 * 24) <=
+                      7 &&
+                      (new Date(project.endDate).getTime() -
+                        new Date().getTime()) /
+                        (1000 * 60 * 60 * 24) >=
+                        0)
+                      ? "#e74c3c"
+                      : "#222",
+                }}
+              >
+                {project.endDate}
+              </b>
+            </div>
+          </S.ProjectCard>
+        );
+      });
     })()}
   </S.Section>
 );
