@@ -5,19 +5,15 @@ import {
   Header,
   Title,
   Description,
-  CardGrid,
-  Card,
-  CardContent,
-  CardValue,
-  CardLabel,
   RecentActivityContainer,
   RecentActivityCard,
   RecentActivityTitle,
   RecentActivityList,
   RecentActivityItem,
   RecentActivityDate,
-  TwoColumnSection,
 } from "./DashboardPage.styled";
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { FaUserFriends, FaBuilding, FaFolderOpen } from 'react-icons/fa';
 
 // Define interfaces for new data types
 interface RecentPost {
@@ -43,10 +39,22 @@ export default function DashboardPage() {
   const [memberCount, setMemberCount] = useState(0);
   const [totalProjectCount, setTotalProjectCount] = useState(0);
   const [inProgressProjectCount, setInProgressProjectCount] = useState(0);
-  const [completedProjectCount, setCompletedProjectCount] = useState(0);
   const [recentPosts, setRecentPosts] = useState<RecentPost[]>([]);
   const [recentCompanies, setRecentCompanies] = useState<RecentCompany[]>([]);
   const [recentProjects, setRecentProjects] = useState<RecentProject[]>([]);
+
+  // 차트용 임시 데이터
+  const projectStatusData = [
+    { name: '진행중', value: 10 },
+    { name: '완료', value: 5 },
+    { name: '지연', value: 2 },
+    { name: '임박', value: 1 },
+  ];
+  const inquiryPieData = [
+    { name: '답변 대기', value: 45 },
+    { name: '답변 완료', value: 88 },
+  ];
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
   useEffect(() => {
     const fetchData = async () => {
@@ -66,11 +74,9 @@ export default function DashboardPage() {
         const content = projectCountsResponse.data?.data || [];
         const total = content.length;
         const inProgressCount = content.filter((p: { status: string; }) => p.status === 'IN_PROGRESS').length;
-        const completedCount = content.filter((p: { status: string; }) => p.status === 'COMPLETED').length;
   
         setTotalProjectCount(total);
         setInProgressProjectCount(inProgressCount);
-        setCompletedProjectCount(completedCount);
   
         // Fetch Recent Posts
         const postsResponse = await api.get('/api/posts/recent-posts');
@@ -100,51 +106,136 @@ export default function DashboardPage() {
         </Description>
       </Header>
 
-      {/* 관리 현황 섹션 */}
-      <TwoColumnSection>
-        <RecentActivityCard>
-          <RecentActivityTitle style={{ marginBottom: '16px' }}>회원 및 회사 통계</RecentActivityTitle>
-          <CardGrid>
-            <Card $bgcolor={"white"}>
-              <CardContent>
-                <CardValue>{companyCount}</CardValue>
-                <CardLabel>전체 회사</CardLabel>
-              </CardContent>
-            </Card>
-            <Card $bgcolor={"white"}>
-              <CardContent>
-                <CardValue>{memberCount}</CardValue>
-                <CardLabel>전체 회원</CardLabel>
-              </CardContent>
-            </Card>
-          </CardGrid>
+      {/* 와이어프레임 스타일: 통계/차트 카드 분리 */}
+      {/* 1행: 통계 카드 3개 한 줄 */}
+      <div style={{ display: 'flex', flexDirection: 'row', gap: 24, marginBottom: 32 }}>
+        {/* 회원 통계 카드 - 이미지 스타일 */}
+        <RecentActivityCard style={{ flex: 1, padding: '24px 24px 18px 24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
+            <div style={{ fontSize: 32, color: '#4F8CFF', background: '#EAF3FF', borderRadius: '12px', padding: 10, marginRight: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <FaUserFriends />
+            </div>
+            <div>
+              <div style={{ fontWeight: 700, fontSize: 17, color: '#222' }}>총 회원 수</div>
+              <div style={{ fontSize: 13, color: '#888' }}>전체 가입 회원</div>
+            </div>
+            <div style={{ flex: 1 }} />
+            <div style={{ fontSize: 32, fontWeight: 700, color: '#4F8CFF' }}>{memberCount}</div>
+          </div>
+          <div style={{ marginTop: 8 }}>
+            <div style={{ textAlign: 'left' }}>
+              <div style={{ fontSize: 13, color: '#888' }}>활성 사용자</div>
+              <div style={{ fontSize: 17, fontWeight: 700, color: '#1DB954' }}>9,234</div>
+            </div>
+          </div>
         </RecentActivityCard>
+        {/* 회사 통계 카드 - 회원 통계와 동일 스타일 */}
+        <RecentActivityCard style={{ flex: 1, padding: '24px 24px 18px 24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
+            <div style={{ fontSize: 32, color: '#34C759', background: '#E6F9ED', borderRadius: '12px', padding: 10, marginRight: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <FaBuilding />
+            </div>
+            <div>
+              <div style={{ fontWeight: 700, fontSize: 17, color: '#222' }}>총 회사 수</div>
+              <div style={{ fontSize: 13, color: '#888' }}>전체 등록 회사</div>
+            </div>
+            <div style={{ flex: 1 }} />
+            <div style={{ fontSize: 32, fontWeight: 700, color: '#34C759' }}>{companyCount}</div>
+          </div>
+          <div style={{ marginTop: 8 }}>
+            <div style={{ textAlign: 'left' }}>
+              <div style={{ fontSize: 13, color: '#888' }}>활성 회사</div>
+              <div style={{ fontSize: 17, fontWeight: 700, color: '#34C759' }}>1,222</div>
+            </div>
+          </div>
+        </RecentActivityCard>
+        {/* 프로젝트 통계 카드 - 회원 통계와 동일 스타일 */}
+        <RecentActivityCard style={{ flex: 1, padding: '24px 24px 18px 24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
+            <div style={{ fontSize: 32, color: '#FF9500', background: '#FFF6E6', borderRadius: '12px', padding: 10, marginRight: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <FaFolderOpen />
+            </div>
+            <div>
+              <div style={{ fontWeight: 700, fontSize: 17, color: '#222' }}>총 프로젝트 수</div>
+              <div style={{ fontSize: 13, color: '#888' }}>전체 등록 프로젝트</div>
+            </div>
+            <div style={{ flex: 1 }} />
+            <div style={{ fontSize: 32, fontWeight: 700, color: '#FF9500' }}>{totalProjectCount}</div>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8 }}>
+            <div style={{ textAlign: 'center', flex: 1 }}>
+              <div style={{ fontSize: 13, color: '#888' }}>활성 프로젝트</div>
+              <div style={{ fontSize: 17, fontWeight: 700, color: '#FF9500' }}>7</div>
+            </div>
+            <div style={{ textAlign: 'center', flex: 1 }}>
+              <div style={{ fontSize: 13, color: '#888' }}>진행 중 프로젝트</div>
+              <div style={{ fontSize: 17, fontWeight: 700, color: '#4F8CFF' }}>{inProgressProjectCount}</div>
+            </div>
+            <div style={{ textAlign: 'center', flex: 1 }}>
+              <div style={{ fontSize: 13, color: '#888' }}>완료 프로젝트</div>
+              <div style={{ fontSize: 17, fontWeight: 700, color: '#34C759' }}>5</div>
+            </div>
+          </div>
+        </RecentActivityCard>
+      </div>
 
-        {/* 프로젝트 현황 섹션 */}
-        <RecentActivityCard>
-          <RecentActivityTitle style={{ marginBottom: '16px' }}>프로젝트 통계</RecentActivityTitle>
-          <CardGrid>
-            <Card $bgcolor={"white"}>
-              <CardContent>
-                <CardValue>{totalProjectCount}</CardValue>
-                <CardLabel>전체 프로젝트</CardLabel>
-              </CardContent>
-            </Card>
-            <Card $bgcolor={"white"}>
-              <CardContent>
-                <CardValue>{inProgressProjectCount}</CardValue>
-                <CardLabel>진행 중 프로젝트</CardLabel>
-              </CardContent>
-            </Card>
-            <Card $bgcolor={"white"}>
-              <CardContent>
-                <CardValue>{completedProjectCount}</CardValue>
-                <CardLabel>완료 프로젝트</CardLabel>
-              </CardContent>
-            </Card>
-          </CardGrid>
+      {/* 2행: 차트 카드 2개 한 줄 */}
+      <div style={{ display: 'flex', flexDirection: 'row', gap: 24, marginBottom: 32 }}>
+        {/* 프로젝트 상태 분포 차트 카드 */}
+        <RecentActivityCard style={{ flex: 1 }}>
+          <RecentActivityTitle style={{ marginBottom: '16px' }}>프로젝트 상태 분포</RecentActivityTitle>
+          <div style={{ width: '100%', minWidth: 250, maxWidth: 400, height: 320, margin: '0 auto' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={projectStatusData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={90}
+                  fill="#8884d8"
+                  label
+                >
+                  {projectStatusData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
         </RecentActivityCard>
-      </TwoColumnSection>
+        {/* 문의 처리 추이 차트 카드 */}
+        <RecentActivityCard style={{ flex: 1 }}>
+          <RecentActivityTitle style={{ marginBottom: '16px' }}>문의 처리 추이</RecentActivityTitle>
+          <div style={{ width: '100%', minWidth: 250, maxWidth: 400, height: 320, margin: '0 auto' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={inquiryPieData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={90}
+                  fill="#8884d8"
+                  label
+                >
+                  {inquiryPieData.map((entry, index) => (
+                    <Cell key={`cell-inquiry-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </RecentActivityCard>
+      </div>
 
       {/* 최근 활동 섹션 (RecentActivityContainer) */}
       <RecentActivityContainer>

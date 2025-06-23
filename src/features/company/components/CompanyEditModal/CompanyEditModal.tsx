@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
+import axios from "axios";
 import styled from "styled-components";
 import {
   FiX,
@@ -196,12 +197,20 @@ const SubmitButton = styled.button`
     transform: none;
   }
 `;
+interface FieldError {
+  field: string;
+  value: string;
+  reason: string;
+}
 
 interface Props {
   open: boolean;
   onClose: () => void;
-  onSave: (data: CompanyFormData) => void;
+  onSave: (data: CompanyFormData) => Promise<void>;
   initialData: Company | null;
+  fieldErrors: FieldError[]; // 👈 추가
+  setFieldErrors: React.Dispatch<React.SetStateAction<FieldError[]>>;
+  setErrorMessage: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 export default function CompanyEditModal({
@@ -209,6 +218,9 @@ export default function CompanyEditModal({
   onClose,
   onSave,
   initialData,
+  fieldErrors, 
+  setFieldErrors,
+  setErrorMessage,
 }: Props) {
   const reg1Ref = useRef<HTMLInputElement>(null);
   const reg2Ref = useRef<HTMLInputElement>(null);
@@ -261,6 +273,7 @@ export default function CompanyEditModal({
       setReg1("");
       setReg2("");
       setReg3("");
+      setFieldErrors([]);
     }
   }, [open, initialData]);
 
@@ -281,21 +294,66 @@ export default function CompanyEditModal({
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+  
+    const bizNo = `${reg1}${reg2}${reg3}`;
+  
     const finalData: CompanyFormData = {
       ...formData,
-      reg1: reg1,
-      reg2: reg2,
-      reg3: reg3,
+      reg1,
+      reg2,
+      reg3,
     };
-    onSave(finalData);
+  
+    // 프론트 유효성 검사
+    const newFieldErrors: FieldError[] = [];
+  
+    if (!formData.name?.trim()) {
+      newFieldErrors.push({ field: "name", value: formData.name, reason: "회사명은 필수입니다." });
+    }
+    if (!formData.ceoName?.trim()) {
+      newFieldErrors.push({ field: "ceoName", value: formData.ceoName, reason: "대표자명은 필수입니다." });
+    }
+    if (!formData.bio?.trim()) {
+      newFieldErrors.push({ field: "bio", value: formData.bio, reason: "회사 소개는 필수입니다." });
+    }
+    if (!/^\d{3}$/.test(reg1) || !/^\d{2}$/.test(reg2) || !/^\d{5}$/.test(reg3)) {
+      newFieldErrors.push({ field: "bizNo", value: bizNo, reason: "사업자등록번호 형식이 올바르지 않습니다." });
+    }
+    if (!formData.address?.trim()) {
+      newFieldErrors.push({ field: "address", value: formData.address, reason: "주소는 필수입니다." });
+    }
+    if (!formData.email?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newFieldErrors.push({ field: "email", value: formData.email, reason: "올바른 이메일 형식이 아닙니다." });
+    }
+    if (!formData.tel?.trim() || !/^(\d{2,3})-(\d{3,4})-(\d{4})$/.test(formData.tel)) {
+      newFieldErrors.push({
+        field: "tel",
+        value: formData.tel,
+        reason: "전화번호 형식이 올바르지 않습니다. 예: 010-1234-5678",
+      });
+    }
+  
+    if (newFieldErrors.length > 0) {
+      setFieldErrors(newFieldErrors);
+      return;
+    }
+  
+    try {
+      await onSave(finalData); // 저장 시도
+      // 성공 시 모달 닫기는 부모에서 처리
+    } catch (err) {
+      // 여기는 비워둬도 되고, 로깅만 해도 됨
+      console.error("회사 수정 중 오류 발생:", err);
+    }
+
   };
 
   return (
@@ -321,6 +379,11 @@ export default function CompanyEditModal({
               value={formData.name || ""}
               onChange={handleChange}
             />
+            {fieldErrors.find((e) => e.field === "name") && (
+              <p style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>
+                {fieldErrors.find((e) => e.field === "name")?.reason}
+              </p>
+            )}
           </FormGroup>
           <FormGroup>
             <Label>
@@ -355,6 +418,11 @@ export default function CompanyEditModal({
                 onInput={(e) => handleRegInput(e, 5, setReg3)}
               />
             </RegNumberRow>
+            {fieldErrors.find((e) => e.field === "bizNo") && (
+              <p style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>
+                {fieldErrors.find((e) => e.field === "bizNo")?.reason}
+              </p>
+            )}
           </FormGroup>
           <FormGroup>
             <Label>
@@ -368,6 +436,11 @@ export default function CompanyEditModal({
               value={formData.address || ""}
               onChange={handleChange}
             />
+            {fieldErrors.find((e) => e.field === "address") && (
+              <p style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>
+                {fieldErrors.find((e) => e.field === "address")?.reason}
+              </p>
+            )}
           </FormGroup>
           <FormGroup>
             <Label>

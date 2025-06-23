@@ -281,6 +281,37 @@ export default function CompanyRegisterModal({
 
     const bizNo = `${data.reg1}${data.reg2}${data.reg3}`;
 
+    // 프론트 유효성 검사
+    const newFieldErrors: FieldError[] = [];
+
+    if (!data.name?.trim()) {
+      newFieldErrors.push({ field: "name", value: data.name, reason: "회사명은 필수입니다." });
+    }
+    if (!data.ceoName?.trim()) {
+      newFieldErrors.push({ field: "ceoName", value: data.ceoName, reason: "대표자명은 필수입니다." });
+    }
+    if (!data.bio?.trim()) {
+      newFieldErrors.push({ field: "bio", value: data.bio, reason: "회사 소개는 필수입니다." });
+    }
+    if (!/^\d{3}$/.test(data.reg1) || !/^\d{2}$/.test(data.reg2) || !/^\d{5}$/.test(data.reg3)) {
+      newFieldErrors.push({ field: "bizNo", value: bizNo, reason: "사업자등록번호 형식이 올바르지 않습니다." });
+    }
+    if (!data.address?.trim()) {
+      newFieldErrors.push({ field: "address", value: data.address, reason: "주소는 필수입니다." });
+    }
+    if (!data.email?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+      newFieldErrors.push({ field: "email", value: data.email, reason: "올바른 이메일 형식이 아닙니다." });
+    }
+    if (!data.tel?.trim() || !/^(\d{2,3})-(\d{3,4})-(\d{4})$/.test(data.tel)) {
+      newFieldErrors.push({ field: "tel", value: data.tel, reason: "전화번호 형식이 올바르지 않습니다. 예: 010-1234-5678" });
+    }
+
+    if (newFieldErrors.length > 0) {
+      setFieldErrors(newFieldErrors);
+      notify("입력값을 확인해주세요.", false);
+      return;
+    }
+
     const requestBody = {
       name: data.name,
       bizNo,
@@ -328,7 +359,7 @@ export default function CompanyRegisterModal({
               <FiHome size={14} />
               회사명
             </Label>
-            <Input name="name" required placeholder="회사명을 입력하세요" />
+            <Input name="name" placeholder="회사명을 입력하세요" />
             {fieldErrors.find((e) => e.field === "name") && (
               <p style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>
                 {fieldErrors.find((e) => e.field === "name")?.reason}
@@ -343,7 +374,6 @@ export default function CompanyRegisterModal({
             <RegNumberRow>
               <RegInput
                 name="reg1"
-                required
                 ref={reg1}
                 maxLength={3}
                 placeholder="000"
@@ -354,7 +384,6 @@ export default function CompanyRegisterModal({
               <span>-</span>
               <RegInput
                 name="reg2"
-                required
                 ref={reg2}
                 maxLength={2}
                 placeholder="00"
@@ -365,7 +394,6 @@ export default function CompanyRegisterModal({
               <span>-</span>
               <RegInput
                 name="reg3"
-                required
                 ref={reg3}
                 maxLength={5}
                 placeholder="00000"
@@ -385,7 +413,7 @@ export default function CompanyRegisterModal({
               <FiMapPin size={14} />
               주소
             </Label>
-            <Input name="address" required placeholder="주소를 입력하세요" />
+            <Input name="address" placeholder="주소를 입력하세요" />
             {fieldErrors.find((e) => e.field === "address") && (
               <p style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>
                 {fieldErrors.find((e) => e.field === "address")?.reason}
@@ -399,7 +427,6 @@ export default function CompanyRegisterModal({
             </Label>
             <Input
               name="ceoName"
-              required
               placeholder="대표자명을 입력하세요"
             />
             {fieldErrors.find((e) => e.field === "ceoName") && (
@@ -416,7 +443,6 @@ export default function CompanyRegisterModal({
             <Input
               name="email"
               type="email"
-              required
               placeholder="이메일을 입력하세요"
             />
             {fieldErrors.find((e) => e.field === "email") && (
@@ -433,7 +459,6 @@ export default function CompanyRegisterModal({
             <Input
               name="tel"
               type="tel"
-              required
               placeholder="전화번호를 입력하세요"
             />
             {fieldErrors.find((e) => e.field === "tel") && (
