@@ -10,7 +10,7 @@ import ResetPasswordPage from "@/features/auth/pages/ResetPasswordPage";
 // dashboard
 import AdminDashboardPage from "@/features/admin/pages/DashboardPage";
 // import UserDashboardPage from "@/features/board/pages/DashboardPage";
-import UserDashboardPage from "@/features/user/pages/userDashboard";
+import UserDashboardPage from "@/features/user/pages/dashboard/UserDashboardPage";
 
 // project
 
@@ -20,7 +20,7 @@ import CompanyPage from "@/features/company/pages/CompanyPage";
 // member
 import MemberPage from "@/features/user/pages/MemberPage";
 import MemberDetailPage from "@/features/user/pages/MemberDetailPage"; // todo : 삭제 예정
-import UserProfilePage from "@/features/user/pages/UserProfilePage"; // todo : 이걸로 변경
+import UserProfilePage from "@/features/user/pages/profile/UserProfilePage"; // todo : 이걸로 변경
 
 import PostListPage from "@/features/board/components/Post/pages/PostListPage";
 

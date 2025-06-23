@@ -1,7 +1,8 @@
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 
+// 전체 컨테이너
 export const Container = styled.div`
-  padding: 32px 32px;
+  padding: 32px;
   min-height: 100vh;
   background: #fafbfc;
 `;
@@ -10,34 +11,109 @@ export const MainContent = styled.div`
   width: 100%;
 `;
 
-export const GreetingSection = styled.div`
-  margin-bottom: 32px;
+// 대시보드 헤더
+export const DashboardHeader = styled.div`
+  margin-bottom: 24px;
 `;
 
-export const GreetingTitle = styled.h2`
-  font-size: 2rem;
+export const DashboardTitle = styled.h1`
+  font-size: 1.5rem;
   font-weight: 700;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
+  padding-left: 16px;
+  position: relative;
   color: #222;
+
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 1.4rem;
+    background: #fdb924;
+    border-radius: 2px;
+  }
 `;
 
-export const GreetingSubtitle = styled.div`
-  font-size: 1.05rem;
+export const DashboardDescription = styled.div`
   color: #8b95a1;
+  font-size: 0.95rem;
+  margin-left: 16px;
 `;
 
+// 레이아웃 구조
+export const LayoutGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 24px;
+  align-items: flex-start;
+`;
+
+export const LeftColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+`;
+
+export const RightColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+`;
+
+// 공통 섹션
 export const Section = styled.section`
   background: #fff;
   border-radius: 16px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  padding: 28px 32px 24px 32px;
-  margin-bottom: 28px;
+  padding: 28px 32px 24px;
 `;
 
-export const SectionTitle = styled.div`
+// 프로젝트 진행률
+export const ProgressSectionTitleRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 22px;
+`;
+
+export const ProgressSectionTitle = styled.div`
   font-size: 1.1rem;
   font-weight: 700;
-  margin-bottom: 18px;
+  color: #1abc7b;
+`;
+
+export const ViewAllButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #e6f9f0;
+  border: none;
+  color: #1abc7b;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+
+  &:hover {
+    background: #1abc7b;
+    color: #fff;
+
+    svg {
+      color: #fff;
+    }
+  }
+`;
+
+export const ViewAllButtonIcon = styled.span`
+  display: flex;
+  align-items: center;
+  font-size: 1.15em;
+  color: inherit;
 `;
 
 export const ProgressList = styled.div`
@@ -63,6 +139,7 @@ export const ProgressPercent = styled.div`
   font-size: 1.05rem;
   font-weight: 600;
   color: #1abc7b;
+  text-align: right;
 `;
 
 export const ProgressBarWrap = styled.div`
@@ -75,28 +152,21 @@ export const ProgressBarWrap = styled.div`
 
 export const ProgressBar = styled.div<{ percent: number }>`
   height: 100%;
-  background: linear-gradient(90deg, #1abc7b 0%, #1abc7b 100%);
   width: ${({ percent }) => percent}%;
+  background: #1abc7b;
   border-radius: 8px;
   transition: width 0.4s;
 `;
 
-export const FlexRow = styled.div`
-  display: flex;
-  gap: 24px;
-`;
-
+// 언급된 게시글
 export const MentionedSection = styled(Section)`
-  flex: 1.1;
-  min-width: 260px;
   padding-bottom: 18px;
 `;
 
 export const MentionedCard = styled.div<{ color: 'yellow' | 'blue' }>`
-  background: ${({ color }) =>
-    color === 'yellow' ? '#fff9db' : '#e6f0fa'};
+  background: ${({ color }) => (color === 'yellow' ? '#fff9db' : '#e6f0fa')};
   border-radius: 10px;
-  padding: 18px 18px 12px 18px;
+  padding: 18px 18px 12px;
   margin-bottom: 12px;
 `;
 
@@ -116,11 +186,17 @@ export const MentionedDesc = styled.div`
 export const MentionedMeta = styled.div`
   font-size: 0.93rem;
   color: #8b95a1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  svg {
+    font-size: 1.1rem;
+  }
 `;
 
+// 우선순위 높은 게시글
 export const PrioritySection = styled(Section)`
-  flex: 1.1;
-  min-width: 320px;
   background: #fff6f6;
   border: 1.5px solid #ffd6d6;
   padding-bottom: 18px;
@@ -137,7 +213,7 @@ export const PriorityCard = styled.div`
   background: #fff;
   border-radius: 10px;
   border: 1.5px solid #ffd6d6;
-  padding: 16px 16px 10px 16px;
+  padding: 16px;
   margin-bottom: 12px;
 `;
 
@@ -152,6 +228,13 @@ export const PriorityLabel = styled.div`
   font-size: 1.05rem;
   font-weight: 700;
   color: #e74c3c;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  svg {
+    font-size: 1.2rem;
+  }
 `;
 
 export const PriorityTag = styled.div<{ type?: 'yellow' }>`
@@ -161,8 +244,6 @@ export const PriorityTag = styled.div<{ type?: 'yellow' }>`
   background: ${({ type }) => (type === 'yellow' ? '#fff3cd' : '#e74c3c')};
   border-radius: 8px;
   padding: 2px 10px;
-  margin-left: 8px;
-  display: inline-block;
 `;
 
 export const PriorityDesc = styled.div`
@@ -175,12 +256,17 @@ export const PriorityMeta = styled.div`
   font-size: 0.93rem;
   color: #8b95a1;
   display: flex;
+  align-items: center;
   gap: 12px;
+
+  svg {
+    font-size: 1rem;
+    margin-right: 4px;
+  }
 `;
 
+// 최신 게시글
 export const LatestSection = styled(Section)`
-  flex: 1.2;
-  min-width: 320px;
   padding-bottom: 18px;
 `;
 
@@ -188,7 +274,7 @@ export const LatestCard = styled.div`
   background: #fff;
   border-radius: 10px;
   border: 1.5px solid #e6eaf3;
-  padding: 16px 16px 10px 16px;
+  padding: 16px;
   margin-bottom: 12px;
 `;
 
@@ -210,6 +296,11 @@ export const LatestMeta = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
+
+  svg {
+    font-size: 1rem;
+    margin-right: 4px;
+  }
 `;
 
 export const LatestTag = styled.div<{ color: 'blue' | 'yellow' | 'green' }>`
@@ -225,92 +316,11 @@ export const LatestTag = styled.div<{ color: 'blue' | 'yellow' | 'green' }>`
       : '#e6f9f0'};
   border-radius: 8px;
   padding: 2px 10px;
-  display: inline-block;
 `;
 
-export const ProjectListSection = styled(Section)`
-  /* Section 스타일 재사용 */
-`;
-
-export const ProjectListTitle = styled(SectionTitle)`
-  /* SectionTitle 스타일 재사용 */
-`;
-
-export const ProjectList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-`;
-
-export const ProjectListItem = styled.div`
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
-  padding: 18px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`;
-
-export const ProjectInfo = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-export const ProjectName = styled.div`
-  font-size: 1.05rem;
+export const SectionTitle = styled.div<{ color?: string }>`
+  font-size: 1.1rem;
   font-weight: 700;
-  color: #222;
-`;
-
-export const ProjectDesc = styled.div`
-  font-size: 0.98rem;
-  color: #888;
-  margin-top: 4px;
-`;
-
-export const ProjectStatus = styled.div<{ status?: 'progress' | 'done' | 'hold' }>`
-  font-size: 0.93rem;
-  font-weight: 600;
-  color: ${({ status }) =>
-    status === 'progress' ? '#1abc7b' : status === 'done' ? '#1976d2' : '#ff9800'};
-  background: ${({ status }) =>
-    status === 'progress'
-      ? '#e6f9f0'
-      : status === 'done'
-      ? '#e3f0fd'
-      : '#fff3cd'};
-  border-radius: 8px;
-  padding: 2px 10px;
-  display: inline-block;
-`;
-
-export const DashboardHeader = styled.div`
-  margin-bottom: 24px;
-`;
-
-export const DashboardTitle = styled.h1`
-  font-size: 1.4rem;
-  font-weight: 700;
-  margin-bottom: 8px;
-  padding-left: 16px;
-  position: relative;
-
-  &::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 4px;
-    height: 1.4rem;
-    background: #fdb924;
-    border-radius: 2px;
-  }
-`;
-
-export const DashboardDescription = styled.div`
-  color: #bdbdbd;
-  font-size: 0.9rem;
   margin-bottom: 18px;
-`; 
+  color: ${({ color }) => color || '#222'};
+`;
