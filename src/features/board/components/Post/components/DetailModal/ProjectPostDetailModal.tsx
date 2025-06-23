@@ -288,12 +288,9 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
   // 파일 다운로드 핸들러
   const handleFileDownload = async (file: PostFile, postId: number) => {
     try {
-      const response = await api.get(
-        `/api/posts/${postId}/files/${file.id}/download`,
-        {
-          responseType: "blob",
-        }
-      );
+      const response = await api.get(`/api/posts/${postId}/files/${file.id}`, {
+        responseType: "blob",
+      });
 
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
