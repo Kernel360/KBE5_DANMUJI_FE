@@ -240,44 +240,50 @@ export const StatusBadge = styled.span`
 
 export const PaginationContainer = styled.div`
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  gap: 8px;
-  margin-top: 24px;
+  margin-top: 32px;
+  gap: 0.7rem;
 `;
 
-export const PaginationButton = styled.button`
-  padding: 8px 12px;
-  border: 1px solid #d1d5db;
-  background: #ffffff;
-  color: #374151;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: all 0.2s ease;
-
-  &:hover:not(:disabled) {
-    background: #fdb924;
-    border-color: #fdb924;
-    color: #ffffff;
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  &.active {
-    background: #fdb924;
-    border-color: #fdb924;
-    color: #ffffff;
-  }
-`;
-
-export const PaginationInfo = styled.span`
+export const PaginationInfo = styled.div`
+  text-align: center;
   color: #6b7280;
-  font-size: 14px;
-  margin: 0 16px;
+  font-size: 0.825rem;
+  margin-top: 0.75rem;
+  margin-bottom: 0.1rem;
+`;
+
+export const PaginationNav = styled.nav`
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+`;
+
+export const PaginationButton = styled.button<{ $active?: boolean }>`
+  padding: 0.32rem 0.6rem;
+  border: none;
+  background: none;
+  color: ${({ $active }) => ($active ? "#fff" : "#111827")};
+  border-radius: 1.2rem;
+  font-size: 1rem;
+  font-weight: 500;
+  box-shadow: none;
+  cursor: pointer;
+  outline: none;
+  min-width: 32px;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  ${({ $active }) =>
+    $active &&
+    `
+      background: #fdb924;
+      color: #fff;
+    `}
 `;
 
 export const EmptyState = styled.div`
@@ -294,12 +300,6 @@ export const EmptyStateText = styled.p`
 export const EmptyStateSubtext = styled.p`
   font-size: 14px;
   color: #9ca3af;
-`;
-
-export const PaginationNav = styled.nav`
-  display: flex;
-  align-items: center;
-  gap: 8px;
 `;
 
 export const LoadingSpinner = styled.div`
