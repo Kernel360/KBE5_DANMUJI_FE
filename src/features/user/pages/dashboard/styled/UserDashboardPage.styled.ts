@@ -119,6 +119,17 @@ export const ProgressList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 18px;
+  min-height: 200px;
+`;
+
+export const ProgressListEmpty = styled.div`
+  color: #bdbdbd;
+  text-align: center;
+  gap: 18px;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 export const ProgressItem = styled.div`

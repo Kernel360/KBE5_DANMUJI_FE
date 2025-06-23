@@ -21,53 +21,101 @@ const WarningProjectsSection: React.FC<WarningProjectsSectionProps> = ({
 }) => (
   <S.Section>
     <S.SectionTitle color="#e74c3c">주의 프로젝트</S.SectionTitle>
-    <div style={{ display: 'flex', gap: 0, marginBottom: 14, borderBottom: '1.5px solid #eee' }}>
+    <div
+      style={{
+        display: "flex",
+        gap: 0,
+        marginBottom: 14,
+        borderBottom: "1.5px solid #eee",
+      }}
+    >
       <S.WarningTabButton
-        selected={selectedWarningTab === 'DELAYED'}
-        onClick={() => setSelectedWarningTab('DELAYED')}
+        selected={selectedWarningTab === "DELAYED"}
+        onClick={() => setSelectedWarningTab("DELAYED")}
       >
         지연 상태
       </S.WarningTabButton>
       <S.WarningTabButton
-        selected={selectedWarningTab === 'DEADLINE'}
-        onClick={() => setSelectedWarningTab('DEADLINE')}
+        selected={selectedWarningTab === "DEADLINE"}
+        onClick={() => setSelectedWarningTab("DEADLINE")}
       >
         마감 7일 이내
       </S.WarningTabButton>
     </div>
     {(() => {
-      const filtered = projectTabs
-        .filter(project => {
-          const today = new Date();
-          const end = new Date(project.endDate);
-          const diff = (end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
-          if (selectedWarningTab === 'DELAYED') {
-            return project.status === 'DELAYED';
-          } else {
-            return project.status !== 'DELAYED' && diff <= 7 && diff >= 0;
-          }
-        });
+      const filtered = projectTabs.filter((project) => {
+        const today = new Date();
+        const end = new Date(project.endDate);
+        const diff = (end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+        if (selectedWarningTab === "DELAYED") {
+          return project.status === "DELAYED";
+        } else {
+          return project.status !== "DELAYED" && diff <= 7 && diff >= 0;
+        }
+      });
       if (filtered.length === 0) {
         return (
-          <div style={{ color: '#e74c3c', fontSize: 15, textAlign: 'center', margin: '24px 0' }}>
-            {selectedWarningTab === 'DELAYED' ? '지연 상태의 주의 프로젝트가 없습니다.' : '마감 7일 이내의 주의 프로젝트가 없습니다.'}
-          </div>
+          <S.ProgressListEmpty>
+            {selectedWarningTab === "DELAYED"
+              ? "지연 상태의 주의 프로젝트가 없습니다."
+              : "마감 7일 이내의 주의 프로젝트가 없습니다."}
+          </S.ProgressListEmpty>
         );
       }
-      return filtered.map(project => (
-        <S.ProjectCard key={project.id} style={{ marginBottom: 12, border: '1.5px solid #ffd6d6', background: '#fff9f9' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-            <div style={{ fontWeight: 700, fontSize: '1.05rem', color: '#e74c3c' }}>{project.name}</div>
+      return filtered.map((project) => (
+        <S.ProjectCard
+          key={project.id}
+          style={{
+            marginBottom: 12,
+            border: "1.5px solid #ffd6d6",
+            background: "#fff9f9",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: 6,
+            }}
+          >
+            <div
+              style={{ fontWeight: 700, fontSize: "1.05rem", color: "#e74c3c" }}
+            >
+              {project.name}
+            </div>
             <S.StatusBadge status={project.status}>
-              {project.status === 'COMPLETED' && '완료'}
-              {project.status === 'IN_PROGRESS' && '진행중'}
-              {project.status === 'DELAYED' && '지연'}
-              {project.status === 'PENDING' && '보류'}
-              {project.status !== 'COMPLETED' && project.status !== 'IN_PROGRESS' && project.status !== 'DELAYED' && project.status !== 'PENDING' && project.status}
+              {project.status === "COMPLETED" && "완료"}
+              {project.status === "IN_PROGRESS" && "진행중"}
+              {project.status === "DELAYED" && "지연"}
+              {project.status === "PENDING" && "보류"}
+              {project.status !== "COMPLETED" &&
+                project.status !== "IN_PROGRESS" &&
+                project.status !== "DELAYED" &&
+                project.status !== "PENDING" &&
+                project.status}
             </S.StatusBadge>
           </div>
-          <div style={{ color: '#bdbdbd', fontSize: 13, marginBottom: 2 }}>
-            마감일: <b style={{ color: project.status === 'DELAYED' || ((new Date(project.endDate).getTime() - new Date().getTime()) / (1000*60*60*24) <= 7 && (new Date(project.endDate).getTime() - new Date().getTime()) / (1000*60*60*24) >= 0) ? '#e74c3c' : '#222' }}>{project.endDate}</b>
+          <div style={{ color: "#bdbdbd", fontSize: 13, marginBottom: 2 }}>
+            마감일:{" "}
+            <b
+              style={{
+                color:
+                  project.status === "DELAYED" ||
+                  ((new Date(project.endDate).getTime() -
+                    new Date().getTime()) /
+                    (1000 * 60 * 60 * 24) <=
+                    7 &&
+                    (new Date(project.endDate).getTime() -
+                      new Date().getTime()) /
+                      (1000 * 60 * 60 * 24) >=
+                      0)
+                    ? "#e74c3c"
+                    : "#222",
+              }}
+            >
+              {project.endDate}
+            </b>
           </div>
         </S.ProjectCard>
       ));
@@ -75,4 +123,4 @@ const WarningProjectsSection: React.FC<WarningProjectsSectionProps> = ({
   </S.Section>
 );
 
-export default WarningProjectsSection; 
+export default WarningProjectsSection;

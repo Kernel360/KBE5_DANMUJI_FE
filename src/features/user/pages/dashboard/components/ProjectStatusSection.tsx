@@ -1,6 +1,7 @@
 import * as S from "../styled/UserDashboardPage.styled";
 import { MdOutlineViewHeadline } from "react-icons/md";
 import React, { useState } from "react";
+import styled from "styled-components";
 
 // 타입 정의 추가
 export type ProjectStep = {
@@ -33,6 +34,24 @@ const STATUS_TABS = [
   { key: "IN_PROGRESS", label: "진행중" },
   { key: "COMPLETED", label: "완료" },
 ];
+
+export const ProgressList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  height: 200px;         // 고정 높이
+  overflow-y: auto;      // 스크롤
+`;
+
+export const ProgressListEmpty = styled.div`
+  color: #bdbdbd;
+  text-align: center;
+  gap: 18px;
+  height: 200px;         // 고정 높이
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
 
 const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
   projectTabs,
@@ -67,6 +86,7 @@ const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
           gap: 0,
           marginBottom: 14,
           borderBottom: "1.5px solid #eee",
+          flex: 1,
         }}
       >
         {STATUS_TABS.map((tab) => (
@@ -80,11 +100,9 @@ const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
         ))}
       </div>
       {filteredProjects.length === 0 ? (
-        <div
-          style={{ color: "#bdbdbd", textAlign: "center", margin: "32px 0" }}
-        >
+        <S.ProgressListEmpty>
           해당 상태의 프로젝트가 없습니다.
-        </div>
+        </S.ProgressListEmpty>
       ) : (
         <S.ProgressList
           style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}
@@ -96,10 +114,8 @@ const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
                 <S.StatusBadge status={project.status}>
                   {project.status === "COMPLETED" && "완료"}
                   {project.status === "IN_PROGRESS" && "진행중"}
-                  {project.status === "DELAYED" && "지연"}
                   {project.status !== "COMPLETED" &&
                     project.status !== "IN_PROGRESS" &&
-                    project.status !== "DELAYED" &&
                     project.status}
                 </S.StatusBadge>
               </S.ProjectHeaderRow>
