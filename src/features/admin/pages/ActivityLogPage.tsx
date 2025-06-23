@@ -41,7 +41,11 @@ import {
   FiChevronDown,
   FiShield,
   FiUsers,
+  FiMessageCircle,
+  FiLayers,
+  FiHelpCircle,
 } from "react-icons/fi";
+import { FaProjectDiagram } from "react-icons/fa";
 
 interface ActivityLog {
   id: number;
@@ -66,12 +70,15 @@ export default function ActivityLogPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [actionFilter, setActionFilter] = useState("ALL");
   const [userFilter, setUserFilter] = useState("ALL");
+  const [logTypeFilter, setLogTypeFilter] = useState("ALL");
+  const [logTypeDropdownOpen, setLogTypeDropdownOpen] = useState(false);
 
   // 드롭다운 상태
   const [actionDropdownOpen, setActionDropdownOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const actionDropdownRef = useRef<HTMLDivElement>(null);
   const userDropdownRef = useRef<HTMLDivElement>(null);
+  const logTypeDropdownRef = useRef<HTMLDivElement>(null);
 
   // 드롭다운 옵션
   const ACTION_OPTIONS = [
@@ -98,20 +105,47 @@ export default function ActivityLogPage() {
     },
   ];
 
+  const LOG_TYPE_OPTIONS = [
+    { value: "ALL", label: "전체", icon: FiFileText, color: "#6b7280" },
+    { value: "USER", label: "회원", icon: FiUser, color: "#8b5cf6" },
+    { value: "COMPANY", label: "회사", icon: FiHome, color: "#f59e0b" },
+    {
+      value: "PROJECT",
+      label: "프로젝트",
+      icon: FaProjectDiagram,
+      color: "#3b82f6",
+    },
+    {
+      value: "PROJECT_STEP",
+      label: "프로젝트 단계",
+      icon: FiLayers,
+      color: "#6366f1",
+    },
+    { value: "POST", label: "게시글", icon: FiFileText, color: "#10b981" },
+    { value: "QUESTION", label: "문의", icon: FiHelpCircle, color: "#f97316" },
+    { value: "CHAT", label: "채팅", icon: FiMessageCircle, color: "#f472b6" },
+  ];
+
   // 드롭다운 외부 클릭 감지
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
-        actionDropdownRef.current &&
-        !actionDropdownRef.current.contains(event.target as Node)
+        logTypeDropdownRef.current &&
+        !logTypeDropdownRef.current.contains(event.target as Node)
       ) {
-        setActionDropdownOpen(false);
+        setLogTypeDropdownOpen(false);
       }
       if (
         userDropdownRef.current &&
         !userDropdownRef.current.contains(event.target as Node)
       ) {
         setUserDropdownOpen(false);
+      }
+      if (
+        actionDropdownRef.current &&
+        !actionDropdownRef.current.contains(event.target as Node)
+      ) {
+        setActionDropdownOpen(false);
       }
     };
 
@@ -253,6 +287,7 @@ export default function ActivityLogPage() {
     setSearchTerm("");
     setActionFilter("ALL");
     setUserFilter("ALL");
+    setLogTypeFilter("ALL");
   };
 
   const handlePageChange = (newPage: number) => {
@@ -280,6 +315,17 @@ export default function ActivityLogPage() {
     setUserDropdownOpen(false);
   };
 
+  const handleLogTypeDropdownToggle = () => {
+    setLogTypeDropdownOpen(!logTypeDropdownOpen);
+    setActionDropdownOpen(false);
+    setUserDropdownOpen(false);
+  };
+
+  const handleLogTypeSelect = (value: string) => {
+    setLogTypeFilter(value);
+    setLogTypeDropdownOpen(false);
+  };
+
   // 현재 선택된 옵션 가져오기
   const getCurrentActionOption = () => {
     return (
@@ -292,6 +338,13 @@ export default function ActivityLogPage() {
     return (
       USER_OPTIONS.find((option) => option.value === userFilter) ||
       USER_OPTIONS[0]
+    );
+  };
+
+  const getCurrentLogTypeOption = () => {
+    return (
+      LOG_TYPE_OPTIONS.find((option) => option.value === logTypeFilter) ||
+      LOG_TYPE_OPTIONS[0]
     );
   };
 
@@ -364,6 +417,42 @@ export default function ActivityLogPage() {
                   key={option.value}
                   $isSelected={userFilter === option.value}
                   onClick={() => handleUserSelect(option.value)}
+                >
+                  {React.createElement(option.icon, {
+                    size: 16,
+                    color: option.color,
+                  })}
+                  {option.label}
+                </SelectOption>
+              ))}
+            </SelectDropdown>
+          </div>
+        </FilterGroup>
+        <FilterGroup>
+          <FilterLabel>이력 유형</FilterLabel>
+          <div style={{ position: "relative" }} ref={logTypeDropdownRef}>
+            <SelectButton
+              type="button"
+              onClick={handleLogTypeDropdownToggle}
+              $hasValue={logTypeFilter !== "ALL"}
+              $color={getCurrentLogTypeOption().color}
+              className={logTypeDropdownOpen ? "open" : ""}
+              style={{ width: "160px" }}
+            >
+              {React.createElement(getCurrentLogTypeOption().icon, {
+                size: 16,
+              })}
+              <span className="select-value">
+                {getCurrentLogTypeOption().label}
+              </span>
+              <FiChevronDown size={16} />
+            </SelectButton>
+            <SelectDropdown $isOpen={logTypeDropdownOpen}>
+              {LOG_TYPE_OPTIONS.map((option) => (
+                <SelectOption
+                  key={option.value}
+                  $isSelected={logTypeFilter === option.value}
+                  onClick={() => handleLogTypeSelect(option.value)}
                 >
                   {React.createElement(option.icon, {
                     size: 16,
