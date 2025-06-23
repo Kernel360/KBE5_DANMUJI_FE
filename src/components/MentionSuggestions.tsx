@@ -39,30 +39,37 @@ const SuggestionsContainer = styled.div<{
   }
 `;
 
-const SuggestionItem = styled.div<{ isSelected: boolean }>`
+const SuggestionItem = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== "isSelected",
+})<{ isSelected: boolean }>`
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
   cursor: pointer;
-  transition: background-color 0.15s;
+  transition: all 0.15s ease;
   font-size: 14px;
   color: #374151;
+  border-radius: 6px;
+  margin: 2px 4px;
 
   background-color: ${(props) =>
     props.isSelected ? "#fdb924" : "transparent"};
   color: ${(props) => (props.isSelected ? "white" : "#374151")};
+  box-shadow: ${(props) =>
+    props.isSelected ? "0 2px 4px rgba(253, 185, 36, 0.3)" : "none"};
 
   &:hover {
     background-color: ${(props) => (props.isSelected ? "#fdb924" : "#f9fafb")};
+    transform: ${(props) => (props.isSelected ? "translateY(-1px)" : "none")};
   }
 
   &:first-child {
-    border-radius: 8px 8px 0 0;
+    border-radius: 6px 6px 0 0;
   }
 
   &:last-child {
-    border-radius: 0 0 8px 8px;
+    border-radius: 0 0 6px 6px;
   }
 `;
 

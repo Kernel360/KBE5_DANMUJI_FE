@@ -468,15 +468,16 @@ export const ModalHeaderActionButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 3px;
   background: none;
   color: #888;
   border: none;
   border-radius: 5px;
-  padding: 0 10px;
+  padding: 0 8px;
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
-  height: 28px;
+  height: 32px;
   min-width: 0;
   box-shadow: none;
   white-space: nowrap;

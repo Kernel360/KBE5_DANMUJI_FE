@@ -25,26 +25,32 @@ export const useMention = () => {
 
   // @ 검색 로직
   const searchMentions = useCallback(async (query: string) => {
-    if (!query.trim()) {
-      setMentionState((prev) => ({
-        ...prev,
-        suggestions: [],
-        isActive: false,
-      }));
-      return;
-    }
-
     setIsLoading(true);
     try {
+      // 빈 쿼리일 때도 API 호출 (모든 사용자 가져오기)
       const response = await searchUsernames(query);
-      setMentionState((prev) => ({
-        ...prev,
-        suggestions: response.data,
-        isActive: response.data.length > 0,
-        selectedIndex: 0,
-      }));
+      // API 응답이 유효한지 확인하고 안전하게 처리
+      const userData = response?.data;
+      if (userData && Array.isArray(userData)) {
+        // UserInfo 객체 배열에서 username만 추출하여 문자열 배열로 변환
+        const usernames = userData.map((user) => user.username);
+        setMentionState((prev) => ({
+          ...prev,
+          suggestions: usernames,
+          isActive: usernames.length > 0,
+          selectedIndex: 0,
+        }));
+      } else {
+        // 유효하지 않은 응답인 경우 빈 배열로 설정
+        setMentionState((prev) => ({
+          ...prev,
+          suggestions: [],
+          isActive: false,
+        }));
+      }
     } catch (error) {
       console.error("Mention search failed:", error);
+      // 에러가 발생해도 빈 배열로 설정하여 UI가 깨지지 않도록 함
       setMentionState((prev) => ({
         ...prev,
         suggestions: [],
@@ -75,7 +81,7 @@ export const useMention = () => {
       const beforeCursor = value.slice(0, cursorPosition);
       const afterCursor = value.slice(cursorPosition);
 
-      // @ 패턴 찾기
+      // @ 패턴 찾기 - @만 입력해도 감지하도록 수정
       const mentionPattern = /@(\w*)$/;
       const match = beforeCursor.match(mentionPattern);
 
@@ -92,12 +98,13 @@ export const useMention = () => {
           selectedIndex: 0,
         }));
 
-        debouncedSearch(query);
+        // @ 입력 시 바로 검색 시작 (빈 쿼리도 허용)
+        searchMentions(query);
       } else {
         setMentionState((prev) => ({ ...prev, isActive: false }));
       }
     },
-    [debouncedSearch]
+    [searchMentions]
   );
 
   // 제안 목록에서 선택
@@ -132,12 +139,26 @@ export const useMention = () => {
         case "Enter":
           e.preventDefault();
           if (mentionState.suggestions[mentionState.selectedIndex]) {
-            selectMention(mentionState.suggestions[mentionState.selectedIndex]);
+            const selectedUsername =
+              mentionState.suggestions[mentionState.selectedIndex];
+            selectMention(selectedUsername);
+            // 상태 즉시 리셋
+            setMentionState((prev) => ({
+              ...prev,
+              isActive: false,
+              suggestions: [],
+              selectedIndex: 0,
+            }));
           }
           break;
         case "Escape":
           e.preventDefault();
-          setMentionState((prev) => ({ ...prev, isActive: false }));
+          setMentionState((prev) => ({
+            ...prev,
+            isActive: false,
+            suggestions: [],
+            selectedIndex: 0,
+          }));
           break;
       }
     },
@@ -175,5 +196,6 @@ export const useMention = () => {
     handleInputChange,
     selectMention,
     insertMention,
+    setMentionState,
   };
 };

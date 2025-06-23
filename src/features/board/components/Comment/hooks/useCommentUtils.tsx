@@ -1,5 +1,16 @@
 import React from "react";
+import styled from "styled-components";
 import type { Comment } from "@/features/project-d/types/post";
+import ClickableMentionedUsername from "@/components/ClickableMentionedUsername";
+
+const MentionSpan = styled.span`
+  color: #fdb924;
+  font-weight: 600;
+  background-color: rgba(253, 185, 36, 0.1);
+  padding: 2px 4px;
+  border-radius: 4px;
+  margin: 0 1px;
+`;
 
 // 날짜 포맷팅 함수
 export const formatCommentDate = (dateString: string) => {
@@ -14,15 +25,30 @@ export const formatCommentDate = (dateString: string) => {
 };
 
 // 댓글 내용에서 @태그와 "답글" 텍스트에 색상을 적용하는 함수
-export const formatCommentContent = (content: string): React.ReactNode[] => {
-  const parts = content.split(/(@\w+|답글)/);
+export const formatCommentContent = (
+  content: string,
+  onUsernameClick?: (
+    event: React.MouseEvent,
+    username: string,
+    userId?: number
+  ) => void
+): React.ReactNode[] => {
+  const parts = content.split(/(@\w+(?=\s|$|[^\w@])|답글)/);
   return parts.map((part, index) => {
     if (part.startsWith("@")) {
-      return (
-        <span key={index} style={{ color: "#fdb924", fontWeight: "600" }}>
-          {part}
-        </span>
-      );
+      const username = part.substring(1); // @ 제거하여 사용자명만 추출
+
+      if (onUsernameClick) {
+        return (
+          <ClickableMentionedUsername
+            key={index}
+            username={username}
+            onClick={onUsernameClick}
+          />
+        );
+      } else {
+        return <MentionSpan key={index}>{part}</MentionSpan>;
+      }
     } else if (part === "답글") {
       return (
         <span key={index} style={{ color: "#9ca3af", fontSize: "0.75rem" }}>
