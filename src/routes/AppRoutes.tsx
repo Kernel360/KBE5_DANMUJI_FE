@@ -21,7 +21,6 @@ import MemberPage from "@/features/user/pages/MemberPage";
 import MemberDetailPage from "@/features/user/pages/MemberDetailPage"; // todo : 삭제 예정
 import UserProfilePage from "@/features/user/pages/UserProfilePage"; // todo : 이걸로 변경
 
-
 import PostListPage from "@/features/board/components/Post/pages/PostListPage";
 
 import ProjectDetailPage from "@/features/project/pages/ProjectDetailPage";
@@ -59,7 +58,10 @@ const AppRoutes = () => {
         element={
           role === "ROLE_ADMIN" ? (
             <AdminDashboardPage />
-          ) : role === "ROLE_USER" ? (
+          ) : role === "ROLE_USER" ||
+            role === "ROLE_MANAGER" ||
+            role === "ROLE_DEV" ||
+            role === "ROLE_CLIENT" ? (
             <UserDashboardPage />
           ) : (
             <Navigate to="/login" replace />

@@ -39,7 +39,9 @@ const SuggestionsContainer = styled.div<{
   }
 `;
 
-const SuggestionItem = styled.div<{ isSelected: boolean }>`
+const SuggestionItem = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== "isSelected",
+})<{ isSelected: boolean }>`
   display: flex;
   align-items: center;
   gap: 8px;

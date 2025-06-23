@@ -37,12 +37,29 @@ export const useMention = () => {
     setIsLoading(true);
     try {
       const response = await searchUsernames(query);
-      setMentionState((prev) => ({
-        ...prev,
-        suggestions: response.data,
-        isActive: response.data.length > 0,
-        selectedIndex: 0,
-      }));
+      console.log("API Response:", response); // 디버깅용 로그
+      // API 응답이 유효한지 확인하고 안전하게 처리
+      const userData = response?.data;
+      console.log("User Data:", userData); // 디버깅용 로그
+      if (userData && Array.isArray(userData)) {
+        // UserInfo 객체 배열에서 username만 추출하여 문자열 배열로 변환
+        const usernames = userData.map((user) => user.username);
+        console.log("Usernames:", usernames); // 디버깅용 로그
+        setMentionState((prev) => ({
+          ...prev,
+          suggestions: usernames,
+          isActive: usernames.length > 0,
+          selectedIndex: 0,
+        }));
+      } else {
+        // 유효하지 않은 응답인 경우 빈 배열로 설정
+        console.log("Invalid response data:", userData); // 디버깅용 로그
+        setMentionState((prev) => ({
+          ...prev,
+          suggestions: [],
+          isActive: false,
+        }));
+      }
     } catch (error) {
       console.error("Mention search failed:", error);
       setMentionState((prev) => ({
