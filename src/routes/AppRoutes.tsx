@@ -9,7 +9,8 @@ import ResetPasswordPage from "@/features/auth/pages/ResetPasswordPage";
 
 // dashboard
 import AdminDashboardPage from "@/features/admin/pages/DashboardPage";
-import UserDashboardPage from "@/features/board/pages/DashboardPage";
+// import UserDashboardPage from "@/features/board/pages/DashboardPage";
+import UserDashboardPage from "@/features/user/pages/userDashboard";
 
 // project
 
