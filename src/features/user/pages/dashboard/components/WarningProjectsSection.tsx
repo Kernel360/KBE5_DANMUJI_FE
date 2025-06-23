@@ -1,7 +1,24 @@
 import * as S from "../styled/UserDashboardPage.styled";
 import React from "react";
 
-const WarningProjectsSection = ({ projectTabs, selectedWarningTab, setSelectedWarningTab }) => (
+interface Project {
+  id: string | number;
+  name: string;
+  status: string;
+  endDate: string;
+}
+
+interface WarningProjectsSectionProps {
+  projectTabs: Project[];
+  selectedWarningTab: "DELAYED" | "DEADLINE";
+  setSelectedWarningTab: (tab: "DELAYED" | "DEADLINE") => void;
+}
+
+const WarningProjectsSection: React.FC<WarningProjectsSectionProps> = ({
+  projectTabs,
+  selectedWarningTab,
+  setSelectedWarningTab,
+}) => (
   <S.Section>
     <S.SectionTitle color="#e74c3c">주의 프로젝트</S.SectionTitle>
     <div style={{ display: 'flex', gap: 0, marginBottom: 14, borderBottom: '1.5px solid #eee' }}>

@@ -1,11 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import * as S from "./styled/UserDashboardPage.styled";
-import {
-  MdOutlineViewHeadline,
-  MdAccessTime,
-  MdWarning,
-  MdAssignment,
-} from "react-icons/md";
 import { useState } from "react";
 import ProjectStatusSection from "./components/ProjectStatusSection";
 import MentionedPostsSection from "./components/MentionedPostsSection";

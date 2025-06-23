@@ -1,6 +1,5 @@
 import * as S from "../styled/UserDashboardPage.styled";
 import { MdWarning, MdAccessTime, MdAssignment } from "react-icons/md";
-import React from "react";
 
 const PriorityPostsSection = () => (
   <S.PrioritySection>

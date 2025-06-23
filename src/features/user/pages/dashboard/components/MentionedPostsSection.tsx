@@ -1,6 +1,5 @@
 import * as S from "../styled/UserDashboardPage.styled";
 import { MdAccessTime } from "react-icons/md";
-import React from "react";
 
 const MentionedPostsSection = () => (
   <S.MentionedSection>

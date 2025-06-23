@@ -2,7 +2,36 @@ import * as S from "../styled/UserDashboardPage.styled";
 import { MdOutlineViewHeadline } from "react-icons/md";
 import React from "react";
 
-const ProjectStatusSection = ({ projectTabs, selectedTab, setSelectedTab, getProgressPercent, navigate }) => (
+// 타입 정의 추가
+export type ProjectStep = {
+  id: number;
+  stepOrder: number;
+  name: string;
+  projectStepStatus: string;
+};
+
+export type Project = {
+  id: number;
+  name: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  status: string;
+  steps: ProjectStep[];
+  clientCompany: string;
+  developerCompany: string;
+  users: any[];
+};
+
+export interface ProjectStatusSectionProps {
+  projectTabs: Project[];
+  selectedTab: number;
+  setSelectedTab: React.Dispatch<React.SetStateAction<number>>;
+  getProgressPercent: (steps: ProjectStep[]) => number;
+  navigate: (path: string) => void;
+}
+
+const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({ projectTabs, selectedTab, setSelectedTab, getProgressPercent, navigate }) => (
   <S.Section>
     <S.ProgressSectionTitleRow>
       <S.SectionTitle color="#1abc7b">진행중인 프로젝트</S.SectionTitle>
