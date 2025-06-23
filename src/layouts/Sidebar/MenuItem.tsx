@@ -1,5 +1,5 @@
 import React from "react";
-import { MenuItemContainer } from './Sidebar.styles';
+import { MenuItemContainer, IconWrapper, MenuText } from './MenuItem.styled';
 // import { useNavigate } from "react-router-dom"; // Remove useNavigate import
 import type { IconType } from "react-icons";
 
@@ -21,11 +21,11 @@ export const MenuItem: React.FC<MenuItemProps> = ({
   };
 
   return (
-    <MenuItemContainer $isActive={isActive} onClick={handleClick}>
-      <span style={{ display: 'flex', alignItems: 'center', width: 20, height: 20 }}>
+    <MenuItemContainer active={isActive} onClick={handleClick}>
+      <IconWrapper>
         <Icon />
-      </span>
-      <span style={{ fontSize: 14, fontWeight: 500 }}>{text}</span>
+      </IconWrapper>
+      <MenuText>{text}</MenuText>
     </MenuItemContainer>
   );
 };

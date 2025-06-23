@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 export const SidebarContainer = styled.div`
   width: 240px;
@@ -49,28 +49,32 @@ export const LogoImage = styled.img`
   /* Add specific styles for the logo if needed, otherwise remove this comment */
 `;
 
-export const MenuItemContainer = styled.div<{ $isActive: boolean }>`
-  padding: 12px 16px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
+export const MenuItemContainer = styled.div<{ active?: boolean }>`
+  padding: 12px 32px;
+  font-size: 1rem;
+  color: #888;
   cursor: pointer;
-  color: ${({ $isActive }) => ($isActive ? '#fff' : '#6b7280')};
-  background-color: ${({ $isActive }) => ($isActive ? '#FFC10A' : 'transparent')};
-  border-radius: 6px;
+  border-left: 4px solid transparent;
+  border-radius: 0 6px 6px 0;
+  background: #fff;
   font-weight: 500;
-  transition: background 0.2s, color 0.2s;
+  transition: background 0.2s, color 0.2s, border-left 0.2s;
+
+  ${({ active }) =>
+    active &&
+    css`
+      color: #ffb300;
+      background: #fffbe6;
+      border-left: 4px solid #ffb300;
+      font-weight: 600;
+    `}
 
   &:hover {
-    background-color: ${({ $isActive }) => ($isActive ? '#FFC10A' : '#f3f4f6')};
-    color: #111827;
-  }
-
-  svg {
-    color: ${({ $isActive }) => ($isActive ? '#fff' : '#6b7280')};
-    transition: color 0.2s;
+    background: #fffbe6;
+    color: #ffb300;
   }
 `;
+
 export const MenuItemSideContainer = styled.div<{ $isActive: boolean }>`
   padding: 8px 24px;
   display: flex;
