@@ -23,12 +23,11 @@ import {
   PaginationButton,
   LoadingSpinner,
   ErrorMessage,
-  Select,
   SearchRight,
   SelectButton,
   SelectDropdown,
   SelectOption,
-} from "./ActivityLogPage.styled";
+} from "@/features/admin/pages/ActivityLogPage.styled";
 import {
   FiSearch,
   FiRotateCcw,
@@ -86,10 +85,16 @@ export default function ActivityLogPage() {
     { value: "ALL", label: "전체", icon: FiUsers, color: "#6b7280" },
     { value: "ROLE_ADMIN", label: "관리자", icon: FiShield, color: "#8b5cf6" },
     {
-      value: "ROLE_USER",
-      label: "일반 사용자",
+      value: "ROLE_DEVELOPER",
+      label: "개발사 직원",
       icon: FiUser,
       color: "#3b82f6",
+    },
+    {
+      value: "ROLE_CLIENT",
+      label: "고객사 직원",
+      icon: FiUser,
+      color: "#10b981",
     },
   ];
 

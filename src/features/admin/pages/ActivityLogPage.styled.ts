@@ -324,6 +324,7 @@ export const ErrorMessage = styled.div`
 export const SelectButton = styled.button<{
   $hasValue: boolean;
   $color?: string;
+  className?: string;
 }>`
   display: flex;
   align-items: center;
@@ -349,7 +350,7 @@ export const SelectButton = styled.button<{
     transition: transform 0.2s ease;
   }
 
-  &.open svg:last-child {
+  &.open svg:first-child {
     transform: rotate(180deg);
   }
 
