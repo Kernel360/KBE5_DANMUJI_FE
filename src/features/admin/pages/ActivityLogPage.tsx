@@ -204,7 +204,7 @@ export default function ActivityLogPage() {
   return (
     <PageContainer>
       <Header>
-        <Title>활동 이력</Title>
+        <Title>변경 이력</Title>
         <Description>
           사용자들의 사이트 활동 내역을 확인할 수 있습니다
         </Description>

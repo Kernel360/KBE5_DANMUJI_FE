@@ -78,9 +78,9 @@ export const Sidebar: React.FC = () => {
             />
             <MenuItem
               icon={FaHistory}
-              text="변경 이력"
+              text="이력 관리"
               isActive={location.pathname === "/activity-log"}
-              onClick={() => handleMenuItemClick("변경 이력", "/activity-log")}
+              onClick={() => handleMenuItemClick("이력 관리", "/activity-log")}
             />
             <MenuItem
               icon={FiHelpCircle}

@@ -14,7 +14,7 @@ export const Header = styled.div`
 export const Title = styled.h1`
   font-size: 1.4rem;
   font-weight: 700;
-  margin-bottom: 8px;
+  margin-bottom: -7px;
   padding-left: 16px;
   position: relative;
   color: #111827;
@@ -33,9 +33,9 @@ export const Title = styled.h1`
 `;
 
 export const Description = styled.p`
-  color: #6b7280;
+  color: #bdbdbd;
   font-size: 0.9rem;
-  margin-bottom: 18px;
+  margin-bottom: 10px;
 `;
 
 export const FilterSection = styled.div`
@@ -163,22 +163,10 @@ export const StatusBadge = styled.span`
 
 export const PaginationContainer = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 16px 24px;
-`;
-
-export const PaginationInfo = styled.span`
-  font-size: 14px;
-  color: #6b7280;
-`;
-
-export const PaginationNav = styled.div`
-  display: flex;
-  gap: 4px;
+  gap: 8px;
+  margin-top: 24px;
 `;
 
 export const PaginationButton = styled.button`
@@ -186,11 +174,10 @@ export const PaginationButton = styled.button`
   border: 1px solid #d1d5db;
   background: #ffffff;
   color: #374151;
-  font-size: 14px;
   border-radius: 6px;
   cursor: pointer;
+  font-size: 14px;
   transition: all 0.2s ease;
-  min-width: 40px;
 
   &:hover:not(:disabled) {
     background: #fdb924;
@@ -203,26 +190,56 @@ export const PaginationButton = styled.button`
     cursor: not-allowed;
   }
 
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.2);
+  &.active {
+    background: #fdb924;
+    border-color: #fdb924;
+    color: #ffffff;
   }
+`;
+
+export const PaginationInfo = styled.span`
+  color: #6b7280;
+  font-size: 14px;
+  margin: 0 16px;
+`;
+
+export const EmptyState = styled.div`
+  text-align: center;
+  padding: 48px 24px;
+  color: #6b7280;
+`;
+
+export const EmptyStateText = styled.p`
+  font-size: 16px;
+  margin-bottom: 8px;
+`;
+
+export const EmptyStateSubtext = styled.p`
+  font-size: 14px;
+  color: #9ca3af;
+`;
+
+export const PaginationNav = styled.nav`
+  display: flex;
+  align-items: center;
+  gap: 8px;
 `;
 
 export const LoadingSpinner = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 200px;
-  font-size: 16px;
+  padding: 48px;
   color: #6b7280;
+  font-size: 14px;
 `;
 
 export const ErrorMessage = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 200px;
-  font-size: 16px;
-  color: #ef4444;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-size: 14px;
 `;
