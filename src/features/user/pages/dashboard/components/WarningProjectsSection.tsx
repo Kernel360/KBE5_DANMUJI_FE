@@ -69,10 +69,12 @@ const WarningProjectsSection: React.FC<WarningProjectsSectionProps> = ({
         return (
           <S.ProjectCard
             key={project.id}
+            onClick={() => window.location.assign(`/projects/${project.id}/detail`)}
             style={{
               marginBottom: 12,
               border: "1.5px solid #ffd6d6",
               background: "#fff9f9",
+              cursor: "pointer"
             }}
           >
             <div

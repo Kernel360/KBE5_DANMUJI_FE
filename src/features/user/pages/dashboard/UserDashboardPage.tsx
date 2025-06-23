@@ -121,7 +121,7 @@ const projectTabs = [
     ],
   },
   {
-    id: 99,
+    id: 10,
     name: "웹사이트 리뉴얼",
     description: "기업 웹사이트 리뉴얼 프로젝트 (지연 예시)",
     startDate: "2024-03-01",
@@ -144,7 +144,7 @@ const projectTabs = [
     ],
   },
   {
-    id: 99,
+    id: 10,
     name: "웹사이트 리뉴얼",
     description: "기업 웹사이트 리뉴얼 프로젝트 (지연 예시)",
     startDate: "2024-03-01",
@@ -167,7 +167,7 @@ const projectTabs = [
     ],
   },
   {
-    id: 99,
+    id: 10,
     name: "웹사이트 리뉴얼",
     description: "기업 웹사이트 리뉴얼 프로젝트 (지연 예시)",
     startDate: "2024-03-01",
@@ -190,7 +190,7 @@ const projectTabs = [
     ],
   },
   {
-    id: 99,
+    id: 10,
     name: "웹사이트 리뉴얼",
     description: "기업 웹사이트 리뉴얼 프로젝트 (지연 예시)",
     startDate: "2024-03-01",
