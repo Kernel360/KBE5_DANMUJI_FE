@@ -493,11 +493,15 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
       {/* 사용자 프로필 드롭다운 */}
       {profileState.isOpen && (
         <UserProfileDropdown
-          profileState={profileState}
+          username={profileState.username}
+          userId={profileState.userId}
+          position={profileState.position}
           onClose={closeUserProfile}
           onViewProfile={handleViewProfile}
           onSendMessage={handleSendMessage}
           onSendInquiry={handleSendInquiry}
+          userRole={profileState.userRole}
+          isAdmin={profileState.isAdmin}
         />
       )}
 
