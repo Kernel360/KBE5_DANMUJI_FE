@@ -1,7 +1,7 @@
 import * as S from "../styled/UserDashboardPage.styled";
 import { MdOutlineViewHeadline } from "react-icons/md";
-import React, { useState } from "react";
-import styled from "styled-components";
+import { IoSearchSharp } from "react-icons/io5";
+import React, { useState, useEffect } from "react";
 
 // 타입 정의 추가
 export type ProjectStep = {
@@ -35,24 +35,6 @@ const STATUS_TABS = [
   { key: "COMPLETED", label: "완료" },
 ];
 
-export const ProgressList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  height: 200px;         // 고정 높이
-  overflow-y: auto;      // 스크롤
-`;
-
-export const ProgressListEmpty = styled.div`
-  color: #bdbdbd;
-  text-align: center;
-  gap: 18px;
-  height: 200px;         // 고정 높이
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
 const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
   projectTabs,
   getProgressPercent,
@@ -68,6 +50,26 @@ const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
     if (statusTab === "COMPLETED") return project.status === "COMPLETED";
     return false;
   });
+
+  // 진행중 탭에서만 animatedPercents 배열 사용
+  const [animatedPercents, setAnimatedPercents] = useState<number[]>([]);
+  useEffect(() => {
+    if (statusTab === "IN_PROGRESS") {
+      const percents = filteredProjects.slice(0, 4).map((project) => 0);
+      setAnimatedPercents(percents);
+      const timeouts = filteredProjects.slice(0, 4).map((project, idx) =>
+        setTimeout(() => {
+          setAnimatedPercents((prev) => {
+            const copy = [...prev];
+            copy[idx] = getProgressPercent(project.steps);
+            return copy;
+          });
+        }, 100)
+      );
+      return () => timeouts.forEach((t) => clearTimeout(t));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [statusTab, filteredProjects.length]);
 
   return (
     <S.Section>
@@ -107,39 +109,63 @@ const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
         <S.ProgressList
           style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}
         >
-          {filteredProjects.slice(0, 4).map((project) => (
-            <S.ProjectCard key={project.id}>
-              <S.ProjectHeaderRow>
-                <S.ProjectTitle>{project.name}</S.ProjectTitle>
-                <S.StatusBadge status={project.status}>
-                  {project.status === "COMPLETED" && "완료"}
-                  {project.status === "IN_PROGRESS" && "진행중"}
-                  {project.status !== "COMPLETED" &&
-                    project.status !== "IN_PROGRESS" &&
-                    project.status}
-                </S.StatusBadge>
-              </S.ProjectHeaderRow>
-              <div
-                style={{
-                  color: "#8b95a1",
-                  fontSize: "0.97rem",
-                  marginBottom: 2,
-                }}
+          {filteredProjects.slice(0, 4).map((project, idx) => {
+            const percent = getProgressPercent(project.steps);
+            return (
+              <S.ProjectCard
+                key={project.id}
+                onClick={() => navigate(`/projects/${project.id}/detail`)}
+                style={{ cursor: 'pointer' }}
               >
-                {project.startDate} ~ {project.endDate}
-              </div>
-              <div
-                style={{
-                  color: "#bdbdbd",
-                  fontSize: "0.93rem",
-                  marginBottom: 2,
-                }}
-              >
-                고객사: {project.clientCompany} / 개발사:{" "}
-                {project.developerCompany}
-              </div>
-            </S.ProjectCard>
-          ))}
+                <S.ProjectHeaderRow>
+                  <S.ProjectTitle>{project.name}</S.ProjectTitle>
+                  {statusTab !== "IN_PROGRESS" && (
+                    <S.StatusBadge status={project.status}>
+                      {project.status === "COMPLETED" && "완료"}
+                      {project.status === "IN_PROGRESS" && "진행중"}
+                      {project.status !== "COMPLETED" &&
+                        project.status !== "IN_PROGRESS" &&
+                        project.status}
+                    </S.StatusBadge>
+                  )}
+                </S.ProjectHeaderRow>
+                <S.ProjectDate>
+                  {project.startDate} ~ {project.endDate}
+                </S.ProjectDate>
+                {statusTab === "IN_PROGRESS" ? (
+                  <S.ProjectProgressInfo>
+                    <div style={{ flex: 1 }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          marginBottom: 4,
+                        }}
+                      >
+                        <S.ProjectProgressStep>
+                          {project.steps.find(
+                            (s) => s.projectStepStatus === "IN_PROGRESS"
+                          )?.name || "진행중"}
+                        </S.ProjectProgressStep>
+                        <S.ProjectProgressPercent percent={percent}>
+                          {percent}%
+                        </S.ProjectProgressPercent>
+                      </div>
+                      <S.ProgressBarWrap style={{ marginTop: 0 }}>
+                        <S.ProgressBar percent={animatedPercents[idx] ?? 0} />
+                      </S.ProgressBarWrap>
+                    </div>
+                  </S.ProjectProgressInfo>
+                ) : (
+                  <S.ProjectMeta>
+                    고객사: {project.clientCompany} / 개발사:{" "}
+                    {project.developerCompany}
+                  </S.ProjectMeta>
+                )}
+              </S.ProjectCard>
+            );
+          })}
         </S.ProgressList>
       )}
     </S.Section>

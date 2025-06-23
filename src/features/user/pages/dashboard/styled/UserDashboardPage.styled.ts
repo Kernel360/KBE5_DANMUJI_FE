@@ -432,3 +432,64 @@ export const ProjectStatusTabButton = styled.button<{ selected?: boolean }>`
   margin-bottom: -2px;
   cursor: pointer;
 `;
+
+export const ProjectGoButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #f4f6fa;
+  color: #444;
+  font-weight: 600;
+  font-size: 0.97rem;
+  padding: 4px 13px 4px 8px;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s, border 0.18s, transform 0.12s;
+  outline: none;
+
+  &:hover, &:focus {
+    background: #444;
+    color: #fff;
+    border: 1px solid #444;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.13);
+    transform: translateY(-1px) scale(1.03);
+  }
+`;
+
+export const ProjectGoButtonWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 0;
+`;
+
+export const ProjectProgressInfo = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+  gap: 12px;
+`;
+
+export const ProjectProgressStep = styled.span`
+  font-size: 0.93rem;
+  color: #8b95a1;
+  font-weight: 500;
+`;
+
+export const ProjectProgressPercent = styled.span<{ percent: number }>`
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: ${({ percent }) =>
+    percent === 100 ? "#10b981" : percent < 50 ? "#fdb924" : "#1abc7b"};
+  min-width: 48px;
+  text-align: right;
+`;
+
+export const ProjectDate = styled.div`
+  color: #8b95a1;
+  font-size: 0.97rem;
+  margin-bottom: 2px;
+`;
