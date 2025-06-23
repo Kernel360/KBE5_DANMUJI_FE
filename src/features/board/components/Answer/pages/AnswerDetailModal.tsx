@@ -28,6 +28,7 @@ import {
 import type { Answer } from "@/features/project-d/types/question";
 import { useAuth } from "@/hooks/useAuth";
 import MentionTextArea from "@/components/MentionTextArea";
+import ClickableMentionedUsername from "@/components/ClickableMentionedUsername";
 
 interface AnswerDetailModalProps {
   open: boolean;
@@ -226,13 +227,19 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
   // 댓글 내용에서 @태그와 "답글" 텍스트에 색상을 적용하는 함수
   const formatAnswerContent = (content: string) => {
     // @태그와 답글 텍스트를 파싱하여 색상을 적용
-    const parts = content.split(/(@\w+|답글)/);
+    const parts = content.split(/(@\w+(?=\s|$|[^\w@])|답글)/);
     return parts.map((part, index) => {
       if (part.startsWith("@")) {
+        const username = part.substring(1); // @ 제거하여 사용자명만 추출
         return (
-          <span key={index} style={{ color: "#fdb924", fontWeight: "600" }}>
-            {part}
-          </span>
+          <ClickableMentionedUsername
+            key={index}
+            username={username}
+            onClick={(event, username) => {
+              // 사용자 프로필 클릭 핸들러
+              console.log("사용자 프로필 클릭:", username);
+            }}
+          />
         );
       } else if (part === "답글") {
         return (

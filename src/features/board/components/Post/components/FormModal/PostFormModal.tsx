@@ -124,7 +124,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
     const fetchProjectSteps = async () => {
       if (!projectId) return;
 
-      const result = await withErrorHandling(async () => {
+      await withErrorHandling(async () => {
         setProjectLoading(true);
         const response = await getProjectDetail(projectId);
         if (response.data) {
@@ -161,7 +161,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
   useEffect(() => {
     if (open && mode === "edit" && postId) {
       const fetchPost = async () => {
-        const result = await withErrorHandling(async () => {
+        await withErrorHandling(async () => {
           setLoading(true);
           const response = await getPostDetail(postId);
           const post = response.data;
@@ -347,6 +347,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
           ...formData,
           ...(parentId && { parentId }),
         };
+
         const response = await createPost(requestData, files);
         if (response.success || response.message?.includes("완료")) {
           // 상태 초기화

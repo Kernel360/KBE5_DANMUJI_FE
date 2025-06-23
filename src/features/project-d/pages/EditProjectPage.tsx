@@ -1,14 +1,20 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-import AsyncSelect from 'react-select/async';
-import Select from 'react-select';
-import * as S from './CreateProjectpage.styled';
-import api from '@/api/axios';
+import React, { useState, useEffect, useMemo } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import AsyncSelect from "react-select/async";
+import Select from "react-select";
+import * as S from "./CreateProjectpage.styled";
+import api from "@/api/axios";
 
-interface Company { id: number; name: string; }
-interface User { id: number; name: string; }
+interface Company {
+  id: number;
+  name: string;
+}
+interface User {
+  id: number;
+  name: string;
+}
 interface UserCompanyResponse {
   id: number;
   name: string;
@@ -41,8 +47,8 @@ export default function ProjectEditPage() {
   const navigate = useNavigate();
 
   // Form state
-  const [name, setName] = useState<string>('');
-  const [overview, setOverview] = useState<string>('');
+  const [name, setName] = useState<string>("");
+  const [overview, setOverview] = useState<string>("");
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
 
@@ -50,15 +56,19 @@ export default function ProjectEditPage() {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [devUsers, setDevUsers] = useState<User[]>([]);
   const [clientUsers, setClientUsers] = useState<User[]>([]);
-  
-  const [developCompanyId, setDevelopCompanyId] = useState<number | ''>('');
-  const [clientCompanyId, setClientCompanyId] = useState<number | ''>('');
-  const [developerId, setDeveloperId] = useState<number | ''>('');
-  const [clientId, setClientId] = useState<number | ''>('');
-  
+
+  const [developCompanyId, setDevelopCompanyId] = useState<number | "">("");
+  const [clientCompanyId, setClientCompanyId] = useState<number | "">("");
+  const [developerId, setDeveloperId] = useState<number | "">("");
+  const [clientId, setClientId] = useState<number | "">("");
+
   // 멤버 선택을 위한 상태 추가
-  const [selectedDevMembers, setSelectedDevMembers] = useState<{ value: number; label: string }[]>([]);
-  const [selectedClientMembers, setSelectedClientMembers] = useState<{ value: number; label: string }[]>([]);
+  const [selectedDevMembers, setSelectedDevMembers] = useState<
+    { value: number; label: string }[]
+  >([]);
+  const [selectedClientMembers, setSelectedClientMembers] = useState<
+    { value: number; label: string }[]
+  >([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -71,16 +81,17 @@ export default function ProjectEditPage() {
   // AsyncSelect에서 사용할 옵션 로더
   const loadCompanyOptions = async (inputValue: string) => {
     try {
-      const url = inputValue && inputValue.trim() !== ''
-        ? `/api/companies/search?name=${encodeURIComponent(inputValue)}`
-        : '/api/companies';
+      const url =
+        inputValue && inputValue.trim() !== ""
+          ? `/api/companies/search?name=${encodeURIComponent(inputValue)}`
+          : "/api/companies";
       const response = await api.get(url);
       const payload = response.data.data ?? response.data;
       const list: Company[] = Array.isArray(payload)
         ? payload
         : Array.isArray(payload.content)
-          ? payload.content
-          : [];
+        ? payload.content
+        : [];
       setCompanies(list); // 회사 목록 저장
       return list.map(companyToOption);
     } catch (err) {
@@ -90,10 +101,11 @@ export default function ProjectEditPage() {
 
   // 기존 프로젝트 데이터 로드
   useEffect(() => {
-    api.get(`/api/projects/${projectId}`)
-      .then(response => {
+    api
+      .get(`/api/projects/${projectId}`)
+      .then((response) => {
         const proj = (response.data.data ?? response.data) as ProjectData;
-        console.log('프로젝트 데이터:', proj);
+        console.log("프로젝트 데이터:", proj);
         setName(proj.name);
         setOverview(proj.description);
         setStartDate(proj.startDate ? new Date(proj.startDate) : null);
@@ -102,32 +114,38 @@ export default function ProjectEditPage() {
         // 회사 정보 설정
         const devCompany = proj.developers[0]?.companyId;
         const clientCompany = proj.clients[0]?.companyId;
-        setDevelopCompanyId(devCompany || '');
-        setClientCompanyId(clientCompany || '');
+        setDevelopCompanyId(devCompany || "");
+        setClientCompanyId(clientCompany || "");
 
         // 회사 정보 로드
         if (devCompany) {
-          api.get(`/api/companies/${devCompany}`)
-            .then(res => {
+          api
+            .get(`/api/companies/${devCompany}`)
+            .then((res) => {
               const company = res.data.data ?? res.data;
-              setCompanies(prev => [...prev, company]);
+              setCompanies((prev) => [...prev, company]);
             })
             .catch(console.error);
         }
         if (clientCompany) {
-          api.get(`/api/companies/${clientCompany}`)
-            .then(res => {
+          api
+            .get(`/api/companies/${clientCompany}`)
+            .then((res) => {
               const company = res.data.data ?? res.data;
-              setCompanies(prev => [...prev, company]);
+              setCompanies((prev) => [...prev, company]);
             })
             .catch(console.error);
         }
-        console.log('개발사담당자:', devCompany);
-        console.log('고객사담당자:', clientCompany);
+        console.log("개발사담당자:", devCompany);
+        console.log("고객사담당자:", clientCompany);
         // 매니저 찾기
-        const devManager = proj.developers.find((d: UserCompanyResponse) => d.userType === 'MANAGER');
-        const clientManager = proj.clients.find((c: UserCompanyResponse) => c.userType === 'MANAGER');
-        
+        const devManager = proj.developers.find(
+          (d: UserCompanyResponse) => d.userType === "MANAGER"
+        );
+        const clientManager = proj.clients.find(
+          (c: UserCompanyResponse) => c.userType === "MANAGER"
+        );
+
         // 담당자 설정
         if (devManager) {
           setDeveloperId(devManager.userId);
@@ -137,68 +155,80 @@ export default function ProjectEditPage() {
         }
 
         // 멤버 설정
-        setSelectedDevMembers(proj.developers
-          .map((d: UserCompanyResponse) => ({ value: d.id, label: d.name })));
-        
-        setSelectedClientMembers(proj.clients
-          .map((c: UserCompanyResponse) => ({ value: c.id, label: c.name })));
+        setSelectedDevMembers(
+          proj.developers.map((d: UserCompanyResponse) => ({
+            value: d.id,
+            label: d.name,
+          }))
+        );
+
+        setSelectedClientMembers(
+          proj.clients.map((c: UserCompanyResponse) => ({
+            value: c.id,
+            label: c.name,
+          }))
+        );
       })
       .catch(console.error);
   }, [projectId]);
 
   // 개발사 회원 목록
   useEffect(() => {
-    if (developCompanyId !== '') {
-      api.get(`/api/companies/${developCompanyId}/users`)
-        .then(response => {
+    if (developCompanyId !== "") {
+      api
+        .get(`/api/companies/${developCompanyId}/users`)
+        .then((response) => {
           const payload = response.data.data ?? response.data;
           const list: User[] = Array.isArray(payload)
             ? payload
             : Array.isArray(payload.content)
-              ? payload.content
-              : [];
-          console.log('개발사 회원 목록:', list);
+            ? payload.content
+            : [];
+          console.log("개발사 회원 목록:", list);
           setDevUsers(list);
         })
-        .catch(err => console.error('Failed to load developers', err));
+        .catch((err) => console.error("Failed to load developers", err));
     } else {
       setDevUsers([]);
-      setDeveloperId('');
+      setDeveloperId("");
       setSelectedDevMembers([]);
     }
   }, [developCompanyId]);
 
   // 고객사 회원 목록
   useEffect(() => {
-    if (clientCompanyId !== '') {
-      api.get(`/api/companies/${clientCompanyId}/users`)
-        .then(response => {
+    if (clientCompanyId !== "") {
+      api
+        .get(`/api/companies/${clientCompanyId}/users`)
+        .then((response) => {
           const payload = response.data.data ?? response.data;
           const list: User[] = Array.isArray(payload)
             ? payload
             : Array.isArray(payload.content)
-              ? payload.content
-              : [];
-          console.log('고객사 회원 목록:', list);
+            ? payload.content
+            : [];
+          console.log("고객사 회원 목록:", list);
           setClientUsers(list);
         })
-        .catch(err => console.error('Failed to load client users', err));
+        .catch((err) => console.error("Failed to load client users", err));
     } else {
       setClientUsers([]);
-      setClientId('');
+      setClientId("");
       setSelectedClientMembers([]);
     }
   }, [clientCompanyId]);
 
   // 개발사 담당자 변경 시
-  const handleDevManagerChange = (option: any) => {
-    setDeveloperId(option ? option.value : '');
+  const handleDevManagerChange = (
+    option: { value: number; label: string } | null
+  ) => {
+    setDeveloperId(option ? option.value : "");
     // 담당자 선택 시 자동으로 멤버에 추가
     if (option) {
       const newMember = { value: option.value, label: option.label };
-      setSelectedDevMembers(prev => {
+      setSelectedDevMembers((prev) => {
         // 이미 멤버에 있는지 확인
-        if (!prev.some(member => member.value === option.value)) {
+        if (!prev.some((member) => member.value === option.value)) {
           return [...prev, newMember];
         }
         return prev;
@@ -207,14 +237,16 @@ export default function ProjectEditPage() {
   };
 
   // 고객사 담당자 변경 시
-  const handleClientManagerChange = (option: any) => {
-    setClientId(option ? option.value : '');
+  const handleClientManagerChange = (
+    option: { value: number; label: string } | null
+  ) => {
+    setClientId(option ? option.value : "");
     // 담당자 선택 시 자동으로 멤버에 추가
     if (option) {
       const newMember = { value: option.value, label: option.label };
-      setSelectedClientMembers(prev => {
+      setSelectedClientMembers((prev) => {
         // 이미 멤버에 있는지 확인
-        if (!prev.some(member => member.value === option.value)) {
+        if (!prev.some((member) => member.value === option.value)) {
           return [...prev, newMember];
         }
         return prev;
@@ -224,13 +256,13 @@ export default function ProjectEditPage() {
 
   // 개발사 멤버 목록 업데이트
   const availableDevMembers = useMemo(
-    () => devUsers.filter(u => u.id !== developerId),
+    () => devUsers.filter((u) => u.id !== developerId),
     [devUsers, developerId]
   );
 
   // 고객사 멤버 목록 업데이트
   const availableClientMembers = useMemo(
-    () => clientUsers.filter(u => u.id !== clientId),
+    () => clientUsers.filter((u) => u.id !== clientId),
     [clientUsers, clientId]
   );
 
@@ -242,37 +274,37 @@ export default function ProjectEditPage() {
 
     // 필수 필드 검증
     if (!name.trim()) {
-      alert('프로젝트명을 입력해주세요.');
+      alert("프로젝트명을 입력해주세요.");
       setLoading(false);
       return;
     }
     if (!overview.trim()) {
-      alert('개요를 입력해주세요.');
+      alert("개요를 입력해주세요.");
       setLoading(false);
       return;
     }
     if (!startDate) {
-      alert('시작일을 선택해주세요.');
+      alert("시작일을 선택해주세요.");
       setLoading(false);
       return;
     }
     if (!developCompanyId) {
-      alert('개발사를 선택해주세요.');
+      alert("개발사를 선택해주세요.");
       setLoading(false);
       return;
     }
     if (!clientCompanyId) {
-      alert('고객사를 선택해주세요.');
+      alert("고객사를 선택해주세요.");
       setLoading(false);
       return;
     }
     if (!developerId) {
-      alert('개발사 담당자를 선택해주세요.');
+      alert("개발사 담당자를 선택해주세요.");
       setLoading(false);
       return;
     }
     if (!clientId) {
-      alert('고객사 담당자를 선택해주세요.');
+      alert("고객사 담당자를 선택해주세요.");
       setLoading(false);
       return;
     }
@@ -286,15 +318,20 @@ export default function ProjectEditPage() {
       clientId: Number(clientId),
       developCompanyId: Number(developCompanyId),
       clientCompanyId: Number(clientCompanyId),
-      developMemberId: selectedDevMembers.map(member => member.value),
-      clientMemberId: selectedClientMembers.map(member => member.value),
+      developMemberId: selectedDevMembers.map((member) => member.value),
+      clientMemberId: selectedClientMembers.map((member) => member.value),
     };
 
     try {
       await api.put(`/api/projects/${projectId}`, payload);
-      navigate('/projects');
-    } catch (err: any) {
-      setError(err.response?.data?.message || '프로젝트 수정에 실패했습니다');
+      navigate("/projects");
+    } catch (err: unknown) {
+      const errorMessage =
+        err && typeof err === "object" && "response" in err
+          ? (err as { response?: { data?: { message?: string } } }).response
+              ?.data?.message
+          : "프로젝트 수정에 실패했습니다";
+      setError(errorMessage || "프로젝트 수정에 실패했습니다");
     } finally {
       setLoading(false);
     }
@@ -317,7 +354,7 @@ export default function ProjectEditPage() {
             id="project-name"
             type="text"
             value={name}
-            onChange={e => setName(e.target.value)}
+            onChange={(e) => setName(e.target.value)}
             placeholder="프로젝트 이름을 입력하세요"
             required
           />
@@ -330,7 +367,7 @@ export default function ProjectEditPage() {
             id="project-overview"
             type="text"
             value={overview}
-            onChange={e => setOverview(e.target.value)}
+            onChange={(e) => setOverview(e.target.value)}
             placeholder="프로젝트 개요를 간략히 입력하세요"
             required
           />
@@ -345,7 +382,7 @@ export default function ProjectEditPage() {
               <DatePicker
                 id="start-date"
                 selected={startDate}
-                onChange={date => {
+                onChange={(date) => {
                   setStartDate(date);
                   // 시작일이 변경되면 마감일이 시작일보다 이전이면 초기화
                   if (endDate && date && endDate < date) {
@@ -356,7 +393,7 @@ export default function ProjectEditPage() {
                 placeholderText="시작일 선택"
                 className="date-input white-bg"
                 required
-                onKeyDown={e => e.preventDefault()}
+                onKeyDown={(e) => e.preventDefault()}
               />
             </div>
             <div>
@@ -364,12 +401,12 @@ export default function ProjectEditPage() {
               <DatePicker
                 id="end-date"
                 selected={endDate}
-                onChange={date => setEndDate(date)}
+                onChange={(date) => setEndDate(date)}
                 dateFormat="yyyy-MM-dd"
                 placeholderText="마감일 선택"
                 className="date-input white-bg"
                 required
-                onKeyDown={e => e.preventDefault()}
+                onKeyDown={(e) => e.preventDefault()}
                 disabled={!startDate} // 시작일이 선택되지 않으면 비활성화
                 minDate={startDate || undefined} // 시작일 이후의 날짜만 선택 가능
               />
@@ -386,24 +423,29 @@ export default function ProjectEditPage() {
             loadOptions={loadCompanyOptions}
             value={
               developCompanyId
-                ? { value: developCompanyId, label: companies.find(c => c.id === developCompanyId)?.name || '' }
+                ? {
+                    value: developCompanyId,
+                    label:
+                      companies.find((c) => c.id === developCompanyId)?.name ||
+                      "",
+                  }
                 : null
             }
-            onChange={option => {
-              setDevelopCompanyId(option ? option.value : '');
+            onChange={(option) => {
+              setDevelopCompanyId(option ? option.value : "");
               setSelectedDevMembers([]); // 개발사 변경 시 멤버 초기화
-              setDeveloperId(''); // 담당자도 초기화
+              setDeveloperId(""); // 담당자도 초기화
             }}
             placeholder="회사 검색/선택"
             isClearable
             inputId="dev-company"
             styles={{
-              container: base => ({ ...base, width: '100%' }),
-              control: base => ({
+              container: (base) => ({ ...base, width: "100%" }),
+              control: (base) => ({
                 ...base,
-                minHeight: '40px',
-                backgroundColor: 'white'
-              })
+                minHeight: "40px",
+                backgroundColor: "white",
+              }),
             }}
           />
         </S.Section>
@@ -412,16 +454,24 @@ export default function ProjectEditPage() {
         <S.Section>
           <S.Label htmlFor="dev-manager">개발사 담당자 *</S.Label>
           <Select
-            value={developerId ? { value: developerId, label: devUsers?.find(u => u.id === developerId)?.name || '' } : null}
+            value={
+              developerId
+                ? {
+                    value: developerId,
+                    label:
+                      devUsers?.find((u) => u.id === developerId)?.name || "",
+                  }
+                : null
+            }
             onChange={handleDevManagerChange}
-            options={devUsers.map(user => ({
+            options={devUsers.map((user) => ({
               value: user.id,
-              label: user.name
+              label: user.name,
             }))}
             placeholder="담당자 선택"
             isDisabled={!devUsers.length}
             styles={{
-              container: base => ({ ...base, width: '100%' }),
+              container: (base) => ({ ...base, width: "100%" }),
             }}
           />
         </S.Section>
@@ -433,16 +483,18 @@ export default function ProjectEditPage() {
             isMulti
             value={selectedDevMembers}
             onChange={(newValue) =>
-              setSelectedDevMembers(newValue as { value: number; label: string }[])
+              setSelectedDevMembers(
+                newValue as { value: number; label: string }[]
+              )
             }
-            options={devUsers.map(user => ({
+            options={devUsers.map((user) => ({
               value: user.id,
-              label: user.name
+              label: user.name,
             }))}
             placeholder="개발사 멤버 선택"
             isDisabled={!developerId}
             styles={{
-              container: base => ({ ...base, width: '100%' }),
+              container: (base) => ({ ...base, width: "100%" }),
             }}
           />
         </S.Section>
@@ -456,24 +508,29 @@ export default function ProjectEditPage() {
             loadOptions={loadCompanyOptions}
             value={
               clientCompanyId
-                ? { value: clientCompanyId, label: companies.find(c => c.id === clientCompanyId)?.name || '' }
+                ? {
+                    value: clientCompanyId,
+                    label:
+                      companies.find((c) => c.id === clientCompanyId)?.name ||
+                      "",
+                  }
                 : null
             }
-            onChange={option => {
-              setClientCompanyId(option ? option.value : '');
+            onChange={(option) => {
+              setClientCompanyId(option ? option.value : "");
               setSelectedClientMembers([]); // 고객사 변경 시 멤버 초기화
-              setClientId(''); // 담당자도 초기화
+              setClientId(""); // 담당자도 초기화
             }}
             placeholder="회사 검색/선택"
             isClearable
             inputId="client-company"
             styles={{
-              container: base => ({ ...base, width: '100%' }),
-              control: base => ({
+              container: (base) => ({ ...base, width: "100%" }),
+              control: (base) => ({
                 ...base,
-                minHeight: '40px',
-                backgroundColor: 'white'
-              })
+                minHeight: "40px",
+                backgroundColor: "white",
+              }),
             }}
           />
         </S.Section>
@@ -482,16 +539,24 @@ export default function ProjectEditPage() {
         <S.Section>
           <S.Label htmlFor="client-manager">고객사 담당자 *</S.Label>
           <Select
-            value={clientId ? { value: clientId, label: clientUsers.find(u => u.id === clientId)?.name || '' } : null}
+            value={
+              clientId
+                ? {
+                    value: clientId,
+                    label:
+                      clientUsers.find((u) => u.id === clientId)?.name || "",
+                  }
+                : null
+            }
             onChange={handleClientManagerChange}
-            options={clientUsers.map(user => ({
+            options={clientUsers.map((user) => ({
               value: user.id,
-              label: user.name
+              label: user.name,
             }))}
             placeholder="담당자 선택"
             isDisabled={!clientUsers.length}
             styles={{
-              container: base => ({ ...base, width: '100%' }),
+              container: (base) => ({ ...base, width: "100%" }),
             }}
           />
         </S.Section>
@@ -503,27 +568,33 @@ export default function ProjectEditPage() {
             isMulti
             value={selectedClientMembers}
             onChange={(newValue) =>
-              setSelectedClientMembers(newValue as { value: number; label: string }[])
+              setSelectedClientMembers(
+                newValue as { value: number; label: string }[]
+              )
             }
-            options={clientUsers.map(user => ({
+            options={clientUsers.map((user) => ({
               value: user.id,
-              label: user.name
+              label: user.name,
             }))}
             placeholder="고객사 멤버 선택"
             isDisabled={!clientId}
             styles={{
-              container: base => ({ ...base, width: '100%' }),
+              container: (base) => ({ ...base, width: "100%" }),
             }}
           />
         </S.Section>
 
         {/* 버튼 */}
         <S.Actions>
-          <S.CancelButton type="button" onClick={() => navigate(-1)} disabled={loading}>
+          <S.CancelButton
+            type="button"
+            onClick={() => navigate(-1)}
+            disabled={loading}
+          >
             취소
           </S.CancelButton>
           <S.CreateButton type="submit" disabled={loading}>
-            {loading ? '수정 중...' : '수정하기'}
+            {loading ? "수정 중..." : "수정하기"}
           </S.CreateButton>
         </S.Actions>
       </S.Form>

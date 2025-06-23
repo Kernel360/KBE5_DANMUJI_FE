@@ -1,7 +1,17 @@
 import React from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import ClickableUsername from "@/components/ClickableUsername";
+import ClickableMentionedUsername from "@/components/ClickableMentionedUsername";
+import styled from "styled-components";
+
+const MentionSpan = styled.span`
+  color: #fdb924;
+  font-weight: 600;
+  background-color: rgba(253, 185, 36, 0.1);
+  padding: 2px 4px;
+  border-radius: 4px;
+  margin: 0 1px;
+`;
 
 // @멘션을 하이라이트하는 함수 (클릭 가능한 버전)
 export const highlightMentions = (
@@ -14,17 +24,17 @@ export const highlightMentions = (
 ): React.ReactNode[] => {
   if (!content) return [];
 
-  // @로 시작하는 사용자명 패턴 찾기
-  const mentionPattern = /(@\w+)/g;
+  // @로 시작하는 사용자명 패턴 찾기 - 공백이나 특수문자로 구분되는 사용자명만
+  const mentionPattern = /(@\w+)(?=\s|$|[^\w@])/g;
   const parts = content.split(mentionPattern);
 
   return parts.map((part, index) => {
     if (part.startsWith("@")) {
-      const username = part.substring(1); // @ 제거
+      const username = part.substring(1); // @ 제거하여 사용자명만 추출
 
       if (onUsernameClick) {
         return (
-          <ClickableUsername
+          <ClickableMentionedUsername
             key={index}
             username={username}
             onClick={onUsernameClick}
@@ -136,13 +146,13 @@ export const renderContentWithMentions = (
 
 // @멘션이 포함되어 있는지 확인하는 함수
 export const hasMentions = (content: string): boolean => {
-  return /@\w+/.test(content);
+  return /(@\w+)(?=\s|$|[^\w@])/.test(content);
 };
 
 // @멘션된 사용자명들을 추출하는 함수
 export const extractMentions = (content: string): string[] => {
   const mentions: string[] = [];
-  const mentionPattern = /@(\w+)/g;
+  const mentionPattern = /@(\w+)(?=\s|$|[^\w@])/g;
   let match;
 
   while ((match = mentionPattern.exec(content)) !== null) {
@@ -150,4 +160,30 @@ export const extractMentions = (content: string): string[] => {
   }
 
   return mentions;
+};
+
+export const renderMentionText = (text: string) => {
+  const mentionRegex = /@(\w+)(?=\s|$|[^\w@])/g;
+  const parts = [];
+  let lastIndex = 0;
+  let match;
+
+  while ((match = mentionRegex.exec(text)) !== null) {
+    // 매치 이전 텍스트 추가
+    if (match.index > lastIndex) {
+      parts.push(text.slice(lastIndex, match.index));
+    }
+
+    // 멘션 텍스트 추가
+    parts.push(<MentionSpan key={match.index}>{match[0]}</MentionSpan>);
+
+    lastIndex = match.index + match[0].length;
+  }
+
+  // 마지막 부분 추가
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex));
+  }
+
+  return parts.length > 0 ? parts : text;
 };

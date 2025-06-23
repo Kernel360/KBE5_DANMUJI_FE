@@ -12,9 +12,21 @@ import {
 import { FaUserPlus } from "react-icons/fa";
 import * as S from "./MemberRegisterModal.styled";
 
+// 멤버 등록 데이터 타입
+interface MemberData {
+  name: string;
+  email: string;
+  phone: string;
+  company: string;
+  department: string;
+  position: string;
+  password: string;
+  confirmPassword: string;
+}
+
 interface MemberRegisterModalProps {
   onClose: () => void;
-  onRegister: (memberData: any) => void;
+  onRegister: (memberData: MemberData) => void;
 }
 
 const MemberRegisterModal: React.FC<MemberRegisterModalProps> = ({

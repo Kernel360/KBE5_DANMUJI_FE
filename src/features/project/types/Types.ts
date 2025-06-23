@@ -1,3 +1,15 @@
+// 사용자 타입 정의
+export interface User {
+  id: number;
+  username: string;
+  name: string;
+  email: string;
+  role: string;
+  companyType?: "DEVELOPER" | "CLIENT";
+  clientCompany?: string;
+  developerCompany?: string;
+}
+
 export type PostPriority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
 export type PostType = "GENERAL" | "QUESTION";
 
@@ -68,7 +80,7 @@ export type Project = {
     id: number;
     projectId: number;
     userId: number | null;
-    user: any | null;
+    user: User | null;
     name: string;
     stepOrder: number;
     projectStepStatus: string;
@@ -89,7 +101,7 @@ export interface ProjectStep {
   projectStepStatus: string;
   projectFeedbackStepStatus: string | null;
   isDeleted: boolean;
-  user: any;
+  user: User;
 }
 
 export type Step = string;

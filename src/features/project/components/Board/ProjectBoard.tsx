@@ -1,4 +1,4 @@
-import React, { useState, useEffect, type JSX } from "react";
+import React, { useState, useEffect, type JSX, useRef } from "react";
 import { getPostsByProjectStep } from "../../../project-d/services/postService";
 import type { PostSummaryReadResponse } from "../../../project-d/types/post";
 import {
@@ -84,6 +84,11 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
   const [isPriorityDropdownOpen, setIsPriorityDropdownOpen] = useState(false);
   const [isKeywordDropdownOpen, setIsKeywordDropdownOpen] = useState(false);
 
+  // 드롭다운 refs
+  const typeDropdownRef = useRef<HTMLDivElement>(null);
+  const priorityDropdownRef = useRef<HTMLDivElement>(null);
+  const keywordDropdownRef = useRef<HTMLDivElement>(null);
+
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
 
@@ -101,6 +106,53 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
   const [editingPostStepId, setEditingPostStepId] = useState<number | null>(
     null
   );
+
+  // 드롭다운 외부 클릭 및 ESC 키 처리
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+
+      if (
+        typeDropdownRef.current &&
+        !typeDropdownRef.current.contains(target) &&
+        isTypeDropdownOpen
+      ) {
+        setIsTypeDropdownOpen(false);
+      }
+
+      if (
+        priorityDropdownRef.current &&
+        !priorityDropdownRef.current.contains(target) &&
+        isPriorityDropdownOpen
+      ) {
+        setIsPriorityDropdownOpen(false);
+      }
+
+      if (
+        keywordDropdownRef.current &&
+        !keywordDropdownRef.current.contains(target) &&
+        isKeywordDropdownOpen
+      ) {
+        setIsKeywordDropdownOpen(false);
+      }
+    };
+
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsTypeDropdownOpen(false);
+        setIsPriorityDropdownOpen(false);
+        setIsKeywordDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscKey);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscKey);
+    };
+  }, [isTypeDropdownOpen, isPriorityDropdownOpen, isKeywordDropdownOpen]);
 
   // fetchPosts 함수를 컴포넌트 레벨로 이동
   const fetchPosts = async () => {
@@ -343,7 +395,10 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
         <FilterLeft>
           <FilterGroup>
             <FilterLabel>게시글 유형</FilterLabel>
-            <DropdownContainer className="dropdown-container">
+            <DropdownContainer
+              ref={typeDropdownRef}
+              className="dropdown-container"
+            >
               <DropdownButton
                 $active={typeFilter !== "ALL"}
                 $color={
@@ -411,7 +466,10 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
           </FilterGroup>
           <FilterGroup>
             <FilterLabel>우선순위</FilterLabel>
-            <DropdownContainer className="dropdown-container">
+            <DropdownContainer
+              ref={priorityDropdownRef}
+              className="dropdown-container"
+            >
               <DropdownButton
                 $active={priorityFilter !== "ALL"}
                 $color={
@@ -513,7 +571,10 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
           </FilterGroup>
           <FilterGroup>
             <FilterLabel>키워드</FilterLabel>
-            <DropdownContainer className="dropdown-container">
+            <DropdownContainer
+              ref={keywordDropdownRef}
+              className="dropdown-container"
+            >
               <DropdownButton
                 $active={true}
                 $color={keywordType === "title" ? "#3b82f6" : "#10b981"}

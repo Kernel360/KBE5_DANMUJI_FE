@@ -45,10 +45,14 @@ export default function ProjectCreatePage() {
   const [clientUsers, setClientUsers] = useState<User[]>([]);
   const [developerId, setDeveloperId] = useState<number | "">("");
   const [clientId, setClientId] = useState<number | "">("");
-  
+
   // 멤버 선택을 위한 상태 추가
-  const [selectedDevMembers, setSelectedDevMembers] = useState<{ value: number; label: string }[]>([]);
-  const [selectedClientMembers, setSelectedClientMembers] = useState<{ value: number; label: string }[]>([]);
+  const [selectedDevMembers, setSelectedDevMembers] = useState<
+    { value: number; label: string }[]
+  >([]);
+  const [selectedClientMembers, setSelectedClientMembers] = useState<
+    { value: number; label: string }[]
+  >([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -57,16 +61,17 @@ export default function ProjectCreatePage() {
   // AsyncSelect에서 사용할 옵션 로더
   const loadCompanyOptions = async (inputValue: string) => {
     try {
-      const url = inputValue && inputValue.trim() !== ""
-        ? `/api/companies/search?name=${encodeURIComponent(inputValue)}`
-        : "/api/companies";
+      const url =
+        inputValue && inputValue.trim() !== ""
+          ? `/api/companies/search?name=${encodeURIComponent(inputValue)}`
+          : "/api/companies";
       const response = await api.get(url);
       const payload = response.data.data ?? response.data;
       const list: Company[] = Array.isArray(payload)
         ? payload
         : Array.isArray(payload.content)
-          ? payload.content
-          : [];
+        ? payload.content
+        : [];
       return list.map(companyToOption);
     } catch (err) {
       return [];
@@ -76,17 +81,18 @@ export default function ProjectCreatePage() {
   // 개발사 회원 목록
   useEffect(() => {
     if (devCompanyId !== "") {
-      api.get(`/api/companies/${devCompanyId}/users`)
-        .then(response => {
+      api
+        .get(`/api/companies/${devCompanyId}/users`)
+        .then((response) => {
           const payload = response.data.data ?? response.data;
           const list: User[] = Array.isArray(payload)
             ? payload
             : Array.isArray(payload.content)
-              ? payload.content
-              : [];
+            ? payload.content
+            : [];
           setDevUsers(list);
         })
-        .catch(err => console.error("Failed to load developers", err));
+        .catch((err) => console.error("Failed to load developers", err));
     } else {
       setDevUsers([]);
       setDeveloperId("");
@@ -97,17 +103,18 @@ export default function ProjectCreatePage() {
   // 고객사 회원 목록
   useEffect(() => {
     if (clientCompanyId !== "") {
-      api.get(`/api/companies/${clientCompanyId}/users`)
-        .then(response => {
+      api
+        .get(`/api/companies/${clientCompanyId}/users`)
+        .then((response) => {
           const payload = response.data.data ?? response.data;
           const list: User[] = Array.isArray(payload)
             ? payload
             : Array.isArray(payload.content)
-              ? payload.content
-              : [];
+            ? payload.content
+            : [];
           setClientUsers(list);
         })
-        .catch(err => console.error("Failed to load client users", err));
+        .catch((err) => console.error("Failed to load client users", err));
     } else {
       setClientUsers([]);
       setClientId("");
@@ -123,37 +130,37 @@ export default function ProjectCreatePage() {
 
     // 필수 필드 검증
     if (!name.trim()) {
-      alert('프로젝트명을 입력해주세요.');
+      alert("프로젝트명을 입력해주세요.");
       setLoading(false);
       return;
     }
     if (!overview.trim()) {
-      alert('개요를 입력해주세요.');
+      alert("개요를 입력해주세요.");
       setLoading(false);
       return;
     }
     if (!startDate) {
-      alert('시작일을 선택해주세요.');
+      alert("시작일을 선택해주세요.");
       setLoading(false);
       return;
     }
     if (!devCompanyId) {
-      alert('개발사를 선택해주세요.');
+      alert("개발사를 선택해주세요.");
       setLoading(false);
       return;
     }
     if (!clientCompanyId) {
-      alert('고객사를 선택해주세요.');
+      alert("고객사를 선택해주세요.");
       setLoading(false);
       return;
     }
     if (!developerId) {
-      alert('개발사 담당자를 선택해주세요.');
+      alert("개발사 담당자를 선택해주세요.");
       setLoading(false);
       return;
     }
     if (!clientId) {
-      alert('고객사 담당자를 선택해주세요.');
+      alert("고객사 담당자를 선택해주세요.");
       setLoading(false);
       return;
     }
@@ -174,9 +181,14 @@ export default function ProjectCreatePage() {
     try {
       await api.post("/api/projects", payload);
       navigate("/projects");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setError(err.response?.data?.message || "프로젝트 생성에 실패했습니다");
+      const errorMessage =
+        err && typeof err === "object" && "response" in err
+          ? (err as { response?: { data?: { message?: string } } }).response
+              ?.data?.message
+          : "프로젝트 생성에 실패했습니다";
+      setError(errorMessage || "프로젝트 생성에 실패했습니다");
     } finally {
       setLoading(false);
     }
@@ -199,7 +211,7 @@ export default function ProjectCreatePage() {
             id="project-name"
             type="text"
             value={name}
-            onChange={e => setName(e.target.value)}
+            onChange={(e) => setName(e.target.value)}
             placeholder="프로젝트 이름을 입력하세요"
             required
           />
@@ -212,7 +224,7 @@ export default function ProjectCreatePage() {
             id="project-overview"
             type="text"
             value={overview}
-            onChange={e => setOverview(e.target.value)}
+            onChange={(e) => setOverview(e.target.value)}
             placeholder="프로젝트 개요를 간략히 입력하세요"
             required
           />
@@ -227,7 +239,7 @@ export default function ProjectCreatePage() {
               <DatePicker
                 id="start-date"
                 selected={startDate}
-                onChange={date => {
+                onChange={(date) => {
                   setStartDate(date);
                   // 시작일이 변경되면 마감일이 시작일보다 이전이면 초기화
                   if (endDate && date && endDate < date) {
@@ -238,7 +250,7 @@ export default function ProjectCreatePage() {
                 placeholderText="시작일 선택"
                 className="date-input white-bg"
                 required
-                onKeyDown={e => e.preventDefault()}
+                onKeyDown={(e) => e.preventDefault()}
               />
             </div>
             <div>
@@ -246,15 +258,15 @@ export default function ProjectCreatePage() {
               <DatePicker
                 id="end-date"
                 selected={endDate}
-                onChange={date => {
-                  console.log('Selected end date:', date);
+                onChange={(date) => {
+                  console.log("Selected end date:", date);
                   setEndDate(date);
                 }}
                 dateFormat="yyyy-MM-dd"
                 placeholderText="마감일 선택"
                 className="date-input white-bg"
                 required
-                onKeyDown={e => e.preventDefault()}
+                onKeyDown={(e) => e.preventDefault()}
                 disabled={!startDate} // 시작일이 선택되지 않으면 비활성화
                 minDate={startDate || undefined} // 시작일 이후의 날짜만 선택 가능
               />
@@ -272,11 +284,11 @@ export default function ProjectCreatePage() {
             value={
               devCompanyId
                 ? companies
-                    .filter(c => c.id === devCompanyId)
+                    .filter((c) => c.id === devCompanyId)
                     .map(companyToOption)[0]
                 : null
             }
-            onChange={option => {
+            onChange={(option) => {
               setDevCompanyId(option ? option.value : "");
               setSelectedDevMembers([]);
               setDeveloperId("");
@@ -285,7 +297,7 @@ export default function ProjectCreatePage() {
             isClearable
             inputId="dev-company"
             styles={{
-              container: base => ({ ...base, width: "100%" }),
+              container: (base) => ({ ...base, width: "100%" }),
             }}
           />
         </S.Section>
@@ -294,29 +306,37 @@ export default function ProjectCreatePage() {
         <S.Section>
           <S.Label htmlFor="dev-manager">개발사 담당자 *</S.Label>
           <Select
-            value={developerId ? { value: developerId, label: devUsers.find(u => u.id === developerId)?.name || '' } : null}
+            value={
+              developerId
+                ? {
+                    value: developerId,
+                    label:
+                      devUsers.find((u) => u.id === developerId)?.name || "",
+                  }
+                : null
+            }
             onChange={(option) => {
-              setDeveloperId(option ? option.value : '');
+              setDeveloperId(option ? option.value : "");
               // 담당자 선택 시 자동으로 멤버에 추가
               if (option) {
                 const newMember = { value: option.value, label: option.label };
-                setSelectedDevMembers(prev => {
+                setSelectedDevMembers((prev) => {
                   // 이미 멤버에 있는지 확인
-                  if (!prev.some(member => member.value === option.value)) {
+                  if (!prev.some((member) => member.value === option.value)) {
                     return [...prev, newMember];
                   }
                   return prev;
                 });
               }
             }}
-            options={devUsers.map(user => ({
+            options={devUsers.map((user) => ({
               value: user.id,
-              label: user.name
+              label: user.name,
             }))}
             placeholder="담당자 선택"
             isDisabled={!devUsers.length}
             styles={{
-              container: base => ({ ...base, width: "100%" }),
+              container: (base) => ({ ...base, width: "100%" }),
             }}
           />
         </S.Section>
@@ -328,16 +348,18 @@ export default function ProjectCreatePage() {
             isMulti
             value={selectedDevMembers}
             onChange={(newValue) =>
-              setSelectedDevMembers(newValue as { value: number; label: string }[])
+              setSelectedDevMembers(
+                newValue as { value: number; label: string }[]
+              )
             }
-            options={devUsers.map(user => ({
+            options={devUsers.map((user) => ({
               value: user.id,
-              label: user.name
+              label: user.name,
             }))}
             placeholder="개발사 멤버 선택"
             isDisabled={!developerId}
             styles={{
-              container: base => ({ ...base, width: "100%" }),
+              container: (base) => ({ ...base, width: "100%" }),
             }}
           />
         </S.Section>
@@ -352,11 +374,11 @@ export default function ProjectCreatePage() {
             value={
               clientCompanyId
                 ? companies
-                    .filter(c => c.id === clientCompanyId)
+                    .filter((c) => c.id === clientCompanyId)
                     .map(companyToOption)[0]
                 : null
             }
-            onChange={option => {
+            onChange={(option) => {
               setClientCompanyId(option ? option.value : "");
               setSelectedClientMembers([]);
               setClientId("");
@@ -365,7 +387,7 @@ export default function ProjectCreatePage() {
             isClearable
             inputId="client-company"
             styles={{
-              container: base => ({ ...base, width: "100%" }),
+              container: (base) => ({ ...base, width: "100%" }),
             }}
           />
         </S.Section>
@@ -374,29 +396,37 @@ export default function ProjectCreatePage() {
         <S.Section>
           <S.Label htmlFor="client-manager">고객사 담당자 *</S.Label>
           <Select
-            value={clientId ? { value: clientId, label: clientUsers.find(u => u.id === clientId)?.name || '' } : null}
+            value={
+              clientId
+                ? {
+                    value: clientId,
+                    label:
+                      clientUsers.find((u) => u.id === clientId)?.name || "",
+                  }
+                : null
+            }
             onChange={(option) => {
-              setClientId(option ? option.value : '');
+              setClientId(option ? option.value : "");
               // 담당자 선택 시 자동으로 멤버에 추가
               if (option) {
                 const newMember = { value: option.value, label: option.label };
-                setSelectedClientMembers(prev => {
+                setSelectedClientMembers((prev) => {
                   // 이미 멤버에 있는지 확인
-                  if (!prev.some(member => member.value === option.value)) {
+                  if (!prev.some((member) => member.value === option.value)) {
                     return [...prev, newMember];
                   }
                   return prev;
                 });
               }
             }}
-            options={clientUsers.map(user => ({
+            options={clientUsers.map((user) => ({
               value: user.id,
-              label: user.name
+              label: user.name,
             }))}
             placeholder="담당자 선택"
             isDisabled={!clientUsers.length}
             styles={{
-              container: base => ({ ...base, width: "100%" }),
+              container: (base) => ({ ...base, width: "100%" }),
             }}
           />
         </S.Section>
@@ -408,27 +438,33 @@ export default function ProjectCreatePage() {
             isMulti
             value={selectedClientMembers}
             onChange={(newValue) =>
-              setSelectedClientMembers(newValue as { value: number; label: string }[])
+              setSelectedClientMembers(
+                newValue as { value: number; label: string }[]
+              )
             }
-            options={clientUsers.map(user => ({
+            options={clientUsers.map((user) => ({
               value: user.id,
-              label: user.name
+              label: user.name,
             }))}
             placeholder="고객사 멤버 선택"
             isDisabled={!clientId}
             styles={{
-              container: base => ({ ...base, width: "100%" }),
+              container: (base) => ({ ...base, width: "100%" }),
             }}
           />
         </S.Section>
 
         {/* 버튼 */}
         <S.Actions>
-          <S.CancelButton type="button" onClick={() => window.history.back()} disabled={loading}>
+          <S.CancelButton
+            type="button"
+            onClick={() => window.history.back()}
+            disabled={loading}
+          >
             취소
           </S.CancelButton>
           <S.CreateButton type="submit" disabled={loading}>
-            {loading ? '생성 중...' : '생성하기'}
+            {loading ? "생성 중..." : "생성하기"}
           </S.CreateButton>
         </S.Actions>
       </S.Form>
