@@ -1,5 +1,6 @@
 import React, { useState, useEffect, type JSX, useRef } from "react";
 import { getPostsByProjectStep } from "../../../project-d/services/postService";
+import { getProjectDetail } from "../../services/projectService";
 import type { PostSummaryReadResponse } from "../../../project-d/types/post";
 import {
   Wrapper,
@@ -105,6 +106,9 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
     null
   );
 
+  // 단계 이름 상태 추가
+  const [stepName, setStepName] = useState<string>("");
+
   // 드롭다운 외부 클릭 및 ESC 키 처리
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -185,6 +189,31 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
   useEffect(() => {
     fetchPosts();
   }, [projectId, selectedStepId, currentPage]);
+
+  // 단계 이름 가져오기
+  const fetchStepName = async () => {
+    if (!selectedStepId) {
+      setStepName("");
+      return;
+    }
+
+    try {
+      const response = await getProjectDetail(projectId);
+      if (response.data) {
+        const step = response.data.steps.find((s) => s.id === selectedStepId);
+        if (step) {
+          setStepName(step.name);
+        }
+      }
+    } catch (err) {
+      console.error("단계 정보 조회 실패:", err);
+      setStepName("");
+    }
+  };
+
+  useEffect(() => {
+    fetchStepName();
+  }, [projectId, selectedStepId]);
 
   // 필터링된 게시글
   const filteredPosts = posts.filter((post) => {
@@ -776,6 +805,7 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
       <ProjectPostDetailModal
         open={detailModalOpen}
         postId={selectedPostId}
+        stepName={stepName}
         onClose={() => setDetailModalOpen(false)}
         onEditPost={handleEditPost}
         onReplyPost={handleReplyPost}

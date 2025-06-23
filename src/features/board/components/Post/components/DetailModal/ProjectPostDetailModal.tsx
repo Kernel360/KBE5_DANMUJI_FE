@@ -43,6 +43,7 @@ interface PostDetailModalProps {
   open: boolean;
   onClose: () => void;
   postId: number | null;
+  stepName?: string;
   onPostDelete?: (deletedPostId: number) => void;
   onEditPost?: (postId: number) => void;
   onReplyPost?: (parentId: number) => void;
@@ -52,6 +53,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
   open,
   onClose,
   postId,
+  stepName,
   onPostDelete,
   onEditPost,
   onReplyPost,
@@ -349,14 +351,14 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                 <span
                   style={{
                     color: "#fdb924",
-                    fontSize: "1.25rem",
-                    fontWeight: "700",
-                    marginRight: "6px",
+                    fontSize: "1.5rem",
+                    fontWeight: "900",
+                    marginRight: "8px",
                   }}
                 >
                   |
                 </span>{" "}
-                게시글상세
+                {stepName || "게시글 상세"}
               </span>
             </div>
             <ModalHeaderButtonGroup>
