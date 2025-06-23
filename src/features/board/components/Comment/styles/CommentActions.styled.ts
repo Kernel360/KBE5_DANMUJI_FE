@@ -9,8 +9,8 @@ export const CommentActionButton = styled.button`
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
-  gap: 0.25rem;
-  padding: 0.25rem 0.5rem;
+  gap: 0.2rem;
+  padding: 0.2rem 0.4rem;
   border-radius: 0.25rem;
   color: #6b7280;
 
@@ -27,6 +27,6 @@ export const CommentActionButton = styled.button`
 
 export const CommentActionButtonGroup = styled.div`
   display: flex;
-  gap: 0.5rem;
+  gap: 0.15rem;
   align-items: center;
 `;

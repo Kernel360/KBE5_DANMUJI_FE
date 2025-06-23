@@ -1,6 +1,7 @@
 import api from "@/api/axios";
 import type { AxiosResponse } from "axios";
 import { AxiosError } from "axios";
+import type { User } from "../types/Types";
 
 // API 에러 타입
 export class ApiError extends Error {
@@ -23,7 +24,7 @@ export type ProjectStep = {
   id: number;
   projectId: number;
   userId: number | null;
-  user: any | null;
+  user: User | null;
   name: string;
   stepOrder: number;
   projectStepStatus: string;
@@ -60,7 +61,7 @@ export type ProjectDetailStep = {
   projectStepStatus: string;
   projectFeedbackStepStatus: string | null;
   isDeleted: boolean;
-  user: any | null;
+  user: User | null;
 };
 
 // 프로젝트 상세 응답 타입

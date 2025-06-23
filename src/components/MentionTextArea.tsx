@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useState } from "react";
 import styled from "styled-components";
 import { useMention } from "@/hooks/useMention";
 import MentionSuggestions from "./MentionSuggestions";
@@ -65,8 +65,8 @@ const MentionTextArea: React.FC<MentionTextAreaProps> = ({
     mentionState,
     isLoading,
     handleInputChange,
-    selectMention,
     insertMention,
+    setMentionState,
   } = useMention();
 
   // 커서 위치 계산
@@ -130,7 +130,15 @@ const MentionTextArea: React.FC<MentionTextAreaProps> = ({
 
     onChange(newText);
 
-    // 커서 위치 조정
+    // 멘션 상태 즉시 리셋
+    setMentionState((prev) => ({
+      ...prev,
+      isActive: false,
+      suggestions: [],
+      selectedIndex: 0,
+    }));
+
+    // 커서 위치 조정 - @username 뒤에 위치하도록
     setTimeout(() => {
       if (textareaRef.current) {
         const newCursorPosition = mentionState.startIndex + username.length + 1; // @ 포함
@@ -146,7 +154,22 @@ const MentionTextArea: React.FC<MentionTextAreaProps> = ({
   // 키보드 이벤트 처리
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (mentionState.isActive) {
-      if (e.key === "Enter" && mentionState.suggestions.length > 0) {
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setMentionState((prev) => ({
+          ...prev,
+          selectedIndex: Math.min(
+            prev.selectedIndex + 1,
+            prev.suggestions.length - 1
+          ),
+        }));
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setMentionState((prev) => ({
+          ...prev,
+          selectedIndex: Math.max(prev.selectedIndex - 1, 0),
+        }));
+      } else if (e.key === "Enter" && mentionState.suggestions.length > 0) {
         e.preventDefault();
         const selectedUsername =
           mentionState.suggestions[mentionState.selectedIndex];
@@ -155,7 +178,13 @@ const MentionTextArea: React.FC<MentionTextAreaProps> = ({
         }
       } else if (e.key === "Escape") {
         e.preventDefault();
-        // mentionState를 리셋하는 로직은 useMention 훅에서 처리됨
+        // 멘션 상태 즉시 리셋
+        setMentionState((prev) => ({
+          ...prev,
+          isActive: false,
+          suggestions: [],
+          selectedIndex: 0,
+        }));
       }
     }
   };
