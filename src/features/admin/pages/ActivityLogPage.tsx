@@ -44,6 +44,7 @@ import {
   FiMessageCircle,
   FiLayers,
   FiHelpCircle,
+  FiGrid,
 } from "react-icons/fi";
 import { FaProjectDiagram } from "react-icons/fa";
 
@@ -82,14 +83,14 @@ export default function ActivityLogPage() {
 
   // 드롭다운 옵션
   const ACTION_OPTIONS = [
-    { value: "ALL", label: "전체", icon: FiFileText, color: "#6b7280" },
+    { value: "ALL", label: "전체", icon: FiGrid, color: "#6b7280" },
     { value: "CREATE", label: "생성", icon: FiPlus, color: "#10b981" },
     { value: "UPDATE", label: "수정", icon: FiEdit, color: "#3b82f6" },
     { value: "DELETE", label: "삭제", icon: FiTrash, color: "#ef4444" },
   ];
 
   const USER_OPTIONS = [
-    { value: "ALL", label: "전체", icon: FiUsers, color: "#6b7280" },
+    { value: "ALL", label: "전체", icon: FiGrid, color: "#6b7280" },
     { value: "ROLE_ADMIN", label: "관리자", icon: FiShield, color: "#8b5cf6" },
     {
       value: "ROLE_DEVELOPER",
@@ -106,7 +107,7 @@ export default function ActivityLogPage() {
   ];
 
   const LOG_TYPE_OPTIONS = [
-    { value: "ALL", label: "전체", icon: FiFileText, color: "#6b7280" },
+    { value: "ALL", label: "전체", icon: FiGrid, color: "#6b7280" },
     { value: "USER", label: "회원", icon: FiUser, color: "#8b5cf6" },
     { value: "COMPANY", label: "회사", icon: FiHome, color: "#f59e0b" },
     {
@@ -246,9 +247,15 @@ export default function ActivityLogPage() {
       case "COMPANY":
         return <FiHome style={{ color: "#f59e0b" }} />;
       case "PROJECT":
-        return <FiFileText style={{ color: "#3b82f6" }} />;
+        return <FaProjectDiagram style={{ color: "#3b82f6" }} />;
+      case "PROJECT_STEP":
+        return <FiLayers style={{ color: "#6366f1" }} />;
       case "POST":
         return <FiFileText style={{ color: "#10b981" }} />;
+      case "QUESTION":
+        return <FiHelpCircle style={{ color: "#f97316" }} />;
+      case "CHAT":
+        return <FiMessageCircle style={{ color: "#f472b6" }} />;
       default:
         return <FiFileText style={{ color: "#6b7280" }} />;
     }
