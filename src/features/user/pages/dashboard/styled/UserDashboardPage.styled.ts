@@ -71,7 +71,6 @@ export const Section = styled.section`
   padding: 28px 32px 24px;
 `;
 
-// 프로젝트 진행률
 export const ProgressSectionTitleRow = styled.div`
   display: flex;
   align-items: center;
@@ -319,8 +318,75 @@ export const LatestTag = styled.div<{ color: 'blue' | 'yellow' | 'green' }>`
 `;
 
 export const SectionTitle = styled.div<{ color?: string }>`
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   font-weight: 700;
   margin-bottom: 18px;
   color: ${({ color }) => color || '#222'};
+`;
+
+// 프로젝트 카드 및 관련 컴포넌트
+export const ProjectCard = styled.div`
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  padding: 28px 32px 24px;
+  margin-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+export const ProjectHeaderRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+`;
+
+export const ProjectTitle = styled.div`
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #222;
+`;
+
+export const StatusBadge = styled.span<{ status: string }>`
+  display: inline-block;
+  font-size: 0.93rem;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 2px 12px;
+  color: #fff;
+  background: ${({ status }) =>
+    status === "COMPLETED"
+      ? "#10b981"
+      : status === "IN_PROGRESS"
+      ? "#1abc7b"
+      : status === "DELAYED"
+      ? "#e74c3c"
+      : "#bdbdbd"};
+`;
+
+export const ProjectMeta = styled.div`
+  display: flex;
+  gap: 18px;
+  font-size: 0.97rem;
+  color: #8b95a1;
+`;
+
+export const CompanyRow = styled.div`
+  display: flex;
+  gap: 18px;
+  font-size: 0.97rem;
+  color: #8b95a1;
+`;
+
+export const CompanyName = styled.span`
+  color: #222;
+  font-weight: 500;
+`;
+
+export const Divider = styled.div`
+  height: 1px;
+  background: #f1f3f7;
+  margin: 10px 0 14px 0;
 `;
