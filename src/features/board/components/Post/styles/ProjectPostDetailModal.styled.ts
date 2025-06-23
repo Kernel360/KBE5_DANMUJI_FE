@@ -53,7 +53,7 @@ export const ModalPanel = styled.div<{
 `;
 
 export const ModalHeader = styled.div`
-  padding: 1rem;
+  padding: 1rem 1rem 0.7rem 1rem;
   border-bottom: 1px solid #e5e7eb;
   display: flex;
   justify-content: space-between;

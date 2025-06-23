@@ -346,18 +346,31 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
       >
         <ModalPanel $closing={closing}>
           <ModalHeader>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <span style={{ fontSize: "1.1rem", fontWeight: "600" }}>
-                <span
-                  style={{
-                    color: "#fdb924",
-                    fontSize: "1.5rem",
-                    fontWeight: "900",
-                    marginRight: "8px",
-                  }}
-                >
-                  |
-                </span>{" "}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+              }}
+            >
+              <span
+                style={{
+                  color: "#fdb924",
+                  fontSize: "1.5rem",
+                  fontWeight: "900",
+                  marginRight: "2px",
+                  marginLeft: "5px",
+                }}
+              >
+                |
+              </span>
+              <span
+                style={{
+                  marginLeft: "-2.5px",
+                  fontSize: "1.1rem",
+                  fontWeight: "600",
+                }}
+              >
                 {stepName || "게시글 상세"}
               </span>
             </div>
