@@ -111,8 +111,9 @@ function getProgressPercent(steps: { projectStepStatus: string }[]) {
 
 const UserDashboardPage = () => {
   const navigate = useNavigate();
-  const [selectedTab, setSelectedTab] = useState(0);
-  const [selectedWarningTab, setSelectedWarningTab] = useState<'DELAYED' | 'DEADLINE'>('DELAYED');
+  const [selectedWarningTab, setSelectedWarningTab] = useState<
+    "DELAYED" | "DEADLINE"
+  >("DELAYED");
 
   return (
     <S.Container>
@@ -128,8 +129,6 @@ const UserDashboardPage = () => {
           <S.LeftColumn>
             <ProjectStatusSection
               projectTabs={projectTabs}
-              selectedTab={selectedTab}
-              setSelectedTab={setSelectedTab}
               getProgressPercent={getProgressPercent}
               navigate={navigate}
             />

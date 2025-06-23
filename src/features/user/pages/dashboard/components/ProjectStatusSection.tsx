@@ -1,6 +1,6 @@
 import * as S from "../styled/UserDashboardPage.styled";
 import { MdOutlineViewHeadline } from "react-icons/md";
-import React from "react";
+import React, { useState } from "react";
 
 // 타입 정의 추가
 export type ProjectStep = {
@@ -25,87 +25,109 @@ export type Project = {
 
 export interface ProjectStatusSectionProps {
   projectTabs: Project[];
-  selectedTab: number;
-  setSelectedTab: React.Dispatch<React.SetStateAction<number>>;
   getProgressPercent: (steps: ProjectStep[]) => number;
   navigate: (path: string) => void;
 }
 
-const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({ projectTabs, selectedTab, setSelectedTab, getProgressPercent, navigate }) => (
-  <S.Section>
-    <S.ProgressSectionTitleRow>
-      <S.SectionTitle color="#1abc7b">진행중인 프로젝트</S.SectionTitle>
-      <S.ViewAllButton onClick={() => navigate("/projects")}>전체 보기
-        <S.ViewAllButtonIcon>
-          <MdOutlineViewHeadline />
-        </S.ViewAllButtonIcon>
-      </S.ViewAllButton>
-    </S.ProgressSectionTitleRow>
-    <div style={{ display: "flex", gap: 8, marginBottom: 18 }}>
-      {projectTabs.map((project, idx) => (
-        <button
-          key={project.name}
-          onClick={() => setSelectedTab(idx)}
-          style={{
-            padding: "6px 16px",
-            borderRadius: 999,
-            border: "none",
-            background: selectedTab === idx ? "#1abc7b" : "#e6f9f0",
-            color: selectedTab === idx ? "#fff" : "#1abc7b",
-            fontWeight: 700,
-            cursor: "pointer",
-            fontSize: "0.97rem",
-            transition: "background 0.2s, color 0.2s",
-          }}
-        >
-          {project.name}
-        </button>
-      ))}
-    </div>
-    <S.ProjectCard>
-      <S.ProjectHeaderRow>
-        <S.ProjectTitle>{projectTabs[selectedTab].name}</S.ProjectTitle>
-        <S.StatusBadge status={projectTabs[selectedTab].status}>
-          {projectTabs[selectedTab].status === "COMPLETED" && "완료"}
-          {projectTabs[selectedTab].status === "IN_PROGRESS" && "진행중"}
-          {projectTabs[selectedTab].status === "DELAYED" && "지연"}
-          {projectTabs[selectedTab].status !== "COMPLETED" &&
-            projectTabs[selectedTab].status !== "IN_PROGRESS" &&
-            projectTabs[selectedTab].status !== "DELAYED" &&
-            projectTabs[selectedTab].status}
-        </S.StatusBadge>
-      </S.ProjectHeaderRow>
-      <div style={{ color: "#8b95a1", fontSize: "0.97rem", marginBottom: 2 }}>
-        {projectTabs[selectedTab].description}
-      </div>
-      <S.ProjectMeta>
-        <div>
-          시작일: <span style={{ color: "#222", fontWeight: 500 }}>{projectTabs[selectedTab].startDate}</span>
-        </div>
-        <div>
-          마감일: <span style={{ color: "#222", fontWeight: 500 }}>{projectTabs[selectedTab].endDate}</span>
-        </div>
-      </S.ProjectMeta>
-      <S.CompanyRow>
-        <div>
-          고객사: <S.CompanyName>{projectTabs[selectedTab].clientCompany}</S.CompanyName>
-        </div>
-        <div>
-          개발사: <S.CompanyName>{projectTabs[selectedTab].developerCompany}</S.CompanyName>
-        </div>
-      </S.CompanyRow>
-      <S.Divider />
-      <S.ProgressItem>
-        <S.ProgressLabel>진행률</S.ProgressLabel>
-        <S.ProgressPercent>
-          {getProgressPercent(projectTabs[selectedTab].steps)}%
-        </S.ProgressPercent>
-        <S.ProgressBarWrap>
-          <S.ProgressBar percent={getProgressPercent(projectTabs[selectedTab].steps)} />
-        </S.ProgressBarWrap>
-      </S.ProgressItem>
-    </S.ProjectCard>
-  </S.Section>
-);
+const STATUS_TABS = [
+  { key: "IN_PROGRESS", label: "진행중" },
+  { key: "COMPLETED", label: "완료" },
+];
 
-export default ProjectStatusSection; 
+const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
+  projectTabs,
+  getProgressPercent,
+  navigate,
+}) => {
+  const [statusTab, setStatusTab] = useState<"IN_PROGRESS" | "COMPLETED">(
+    "IN_PROGRESS"
+  );
+
+  // 필터링 로직
+  const filteredProjects = projectTabs.filter((project) => {
+    if (statusTab === "IN_PROGRESS") return project.status === "IN_PROGRESS";
+    if (statusTab === "COMPLETED") return project.status === "COMPLETED";
+    return false;
+  });
+
+  return (
+    <S.Section>
+      <S.ProgressSectionTitleRow>
+        <S.SectionTitle color="#1abc7b">내 프로젝트</S.SectionTitle>
+        <S.ViewAllButton onClick={() => navigate("/projects")}>
+          전체 보기
+          <S.ViewAllButtonIcon>
+            <MdOutlineViewHeadline />
+          </S.ViewAllButtonIcon>
+        </S.ViewAllButton>
+      </S.ProgressSectionTitleRow>
+      <div
+        style={{
+          display: "flex",
+          gap: 0,
+          marginBottom: 14,
+          borderBottom: "1.5px solid #eee",
+        }}
+      >
+        {STATUS_TABS.map((tab) => (
+          <S.ProjectStatusTabButton
+            key={tab.key}
+            selected={statusTab === tab.key}
+            onClick={() => setStatusTab(tab.key as any)}
+          >
+            {tab.label}
+          </S.ProjectStatusTabButton>
+        ))}
+      </div>
+      {filteredProjects.length === 0 ? (
+        <div
+          style={{ color: "#bdbdbd", textAlign: "center", margin: "32px 0" }}
+        >
+          해당 상태의 프로젝트가 없습니다.
+        </div>
+      ) : (
+        <S.ProgressList
+          style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}
+        >
+          {filteredProjects.slice(0, 4).map((project) => (
+            <S.ProjectCard key={project.id}>
+              <S.ProjectHeaderRow>
+                <S.ProjectTitle>{project.name}</S.ProjectTitle>
+                <S.StatusBadge status={project.status}>
+                  {project.status === "COMPLETED" && "완료"}
+                  {project.status === "IN_PROGRESS" && "진행중"}
+                  {project.status === "DELAYED" && "지연"}
+                  {project.status !== "COMPLETED" &&
+                    project.status !== "IN_PROGRESS" &&
+                    project.status !== "DELAYED" &&
+                    project.status}
+                </S.StatusBadge>
+              </S.ProjectHeaderRow>
+              <div
+                style={{
+                  color: "#8b95a1",
+                  fontSize: "0.97rem",
+                  marginBottom: 2,
+                }}
+              >
+                {project.startDate} ~ {project.endDate}
+              </div>
+              <div
+                style={{
+                  color: "#bdbdbd",
+                  fontSize: "0.93rem",
+                  marginBottom: 2,
+                }}
+              >
+                고객사: {project.clientCompany} / 개발사:{" "}
+                {project.developerCompany}
+              </div>
+            </S.ProjectCard>
+          ))}
+        </S.ProgressList>
+      )}
+    </S.Section>
+  );
+};
+
+export default ProjectStatusSection;

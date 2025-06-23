@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled from "styled-components";
 
 // 전체 컨테이너
 export const Container = styled.div`
@@ -67,7 +67,7 @@ export const RightColumn = styled.div`
 export const Section = styled.section`
   background: #fff;
   border-radius: 16px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   padding: 28px 32px 24px;
 `;
 
@@ -162,8 +162,8 @@ export const MentionedSection = styled(Section)`
   padding-bottom: 18px;
 `;
 
-export const MentionedCard = styled.div<{ color: 'yellow' | 'blue' }>`
-  background: ${({ color }) => (color === 'yellow' ? '#fff9db' : '#e6f0fa')};
+export const MentionedCard = styled.div<{ color: "yellow" | "blue" }>`
+  background: ${({ color }) => (color === "yellow" ? "#fff9db" : "#e6f0fa")};
   border-radius: 10px;
   padding: 18px 18px 12px;
   margin-bottom: 12px;
@@ -236,11 +236,11 @@ export const PriorityLabel = styled.div`
   }
 `;
 
-export const PriorityTag = styled.div<{ type?: 'yellow' }>`
+export const PriorityTag = styled.div<{ type?: "yellow" }>`
   font-size: 0.93rem;
   font-weight: 600;
-  color: ${({ type }) => (type === 'yellow' ? '#ff9800' : '#fff')};
-  background: ${({ type }) => (type === 'yellow' ? '#fff3cd' : '#e74c3c')};
+  color: ${({ type }) => (type === "yellow" ? "#ff9800" : "#fff")};
+  background: ${({ type }) => (type === "yellow" ? "#fff3cd" : "#e74c3c")};
   border-radius: 8px;
   padding: 2px 10px;
 `;
@@ -302,17 +302,13 @@ export const LatestMeta = styled.div`
   }
 `;
 
-export const LatestTag = styled.div<{ color: 'blue' | 'yellow' | 'green' }>`
+export const LatestTag = styled.div<{ color: "blue" | "yellow" | "green" }>`
   font-size: 0.93rem;
   font-weight: 600;
   color: ${({ color }) =>
-    color === 'blue' ? '#1976d2' : color === 'yellow' ? '#ff9800' : '#1abc7b'};
+    color === "blue" ? "#1976d2" : color === "yellow" ? "#ff9800" : "#1abc7b"};
   background: ${({ color }) =>
-    color === 'blue'
-      ? '#e3f0fd'
-      : color === 'yellow'
-      ? '#fff3cd'
-      : '#e6f9f0'};
+    color === "blue" ? "#e3f0fd" : color === "yellow" ? "#fff3cd" : "#e6f9f0"};
   border-radius: 8px;
   padding: 2px 10px;
 `;
@@ -321,30 +317,31 @@ export const SectionTitle = styled.div<{ color?: string }>`
   font-size: 1.15rem;
   font-weight: 700;
   margin-bottom: 18px;
-  color: ${({ color }) => color || '#222'};
+  color: ${({ color }) => color || "#222"};
 `;
 
 // 프로젝트 카드 및 관련 컴포넌트
 export const ProjectCard = styled.div`
   background: #fff;
-  border-radius: 14px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  padding: 28px 32px 24px;
+  border-radius: 10px;
+  border: 2px solid #e0e0e0;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+  padding: 12px 14px 10px;
   margin-bottom: 8px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 6px;
 `;
 
 export const ProjectHeaderRow = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
 `;
 
 export const ProjectTitle = styled.div`
-  font-size: 1.15rem;
+  font-size: 1.02rem;
   font-weight: 700;
   color: #222;
 `;
@@ -396,11 +393,29 @@ export const WarningTabButton = styled.button<{ selected?: boolean }>`
   padding: 7px 18px;
   border: none;
   border-radius: 0;
-  background: ${({ selected }) => (selected ? '#fff' : '#f4f6fa')};
-  color: ${({ selected }) => (selected ? '#e74c3c' : '#bdbdbd')};
+  background: ${({ selected }) => (selected ? "#fff" : "#f4f6fa")};
+  color: ${({ selected }) => (selected ? "#e74c3c" : "#bdbdbd")};
   font-weight: 700;
   font-size: 1rem;
-  border-bottom: 3px solid ${({ selected }) => (selected ? '#e74c3c' : 'transparent')};
+  border-bottom: 3px solid
+    ${({ selected }) => (selected ? "#e74c3c" : "transparent")};
+  box-shadow: none;
+  transition: background 0.2s, color 0.2s, border-bottom 0.2s;
+  margin-bottom: -2px;
+  cursor: pointer;
+`;
+
+// 프로젝트 상태 탭 버튼 (주의 프로젝트 탭과 완전히 동일하게)
+export const ProjectStatusTabButton = styled.button<{ selected?: boolean }>`
+  padding: 7px 18px;
+  border: none;
+  border-radius: 0;
+  background: ${({ selected }) => (selected ? "#fff" : "#f4f6fa")};
+  color: ${({ selected }) => (selected ? "#1abc7b" : "#bdbdbd")};
+  font-weight: 700;
+  font-size: 1rem;
+  border-bottom: 3px solid
+    ${({ selected }) => (selected ? "#1abc7b" : "transparent")};
   box-shadow: none;
   transition: background 0.2s, color 0.2s, border-bottom 0.2s;
   margin-bottom: -2px;
