@@ -72,6 +72,7 @@ export type ProjectDetailResponse = {
   startDate: string;
   endDate: string;
   projectStatus: string;
+  progress : number;
   clients: ProjectCompany[];
   developers: ProjectCompany[];
   steps: ProjectDetailStep[];
@@ -86,6 +87,20 @@ export type ApiResponse<T> = {
   code: string;
   message: string;
   data?: T;
+};
+
+// 프로젝트 응답 타입
+export type ProjectResponse = {
+  id: number;
+  name: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  status: string;
+  progress : number;
+  clientCompany: string;
+  developerCompany: string;
+  steps: ProjectStep[];
 };
 
 // 프로젝트 목록 응답 타입
