@@ -2,7 +2,6 @@ import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { UserProfile } from "../Header/UserProfile";
 import { MenuItem } from "./MenuItem";
-import { MenuItemSide } from "./MenuItemSide";
 
 import {
   SidebarContainer,
@@ -17,11 +16,9 @@ import styled from "styled-components";
 import { MdDashboard } from "react-icons/md";
 import { HiBuildingOffice2 } from "react-icons/hi2";
 import { HiUsers } from "react-icons/hi2";
-import { MdReport } from "react-icons/md";
-import { FaPlay } from "react-icons/fa";
-import { FaAlignLeft } from "react-icons/fa";
 import { FaArchive } from "react-icons/fa";
 import { FiHelpCircle } from "react-icons/fi";
+import { FaHistory } from "react-icons/fa";
 
 import { useAuth } from "@/hooks/useAuth";
 
@@ -78,6 +75,12 @@ export const Sidebar: React.FC = () => {
               text="회원 관리"
               isActive={location.pathname.startsWith("/member")}
               onClick={() => handleMenuItemClick("회원 관리", "/members")}
+            />
+            <MenuItem
+              icon={FaHistory}
+              text="변경 이력"
+              isActive={location.pathname === "/activity-log"}
+              onClick={() => handleMenuItemClick("변경 이력", "/activity-log")}
             />
             <MenuItem
               icon={FiHelpCircle}
