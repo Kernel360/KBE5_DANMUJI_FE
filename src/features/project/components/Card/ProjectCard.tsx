@@ -40,7 +40,7 @@ interface ProjectCardProps {
 }
 
 const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
-  const { name, client, status, startDate, endDate, progress = 0 } = project;
+  const { name, client, status, startDate, endDate, progress } = project;
 
   const { role } = useAuth();
   const navigate = useNavigate();

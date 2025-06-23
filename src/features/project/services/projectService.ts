@@ -72,6 +72,7 @@ export type ProjectDetailResponse = {
   startDate: string;
   endDate: string;
   projectStatus: string;
+  progress : number;
   clients: ProjectCompany[];
   developers: ProjectCompany[];
   steps: ProjectDetailStep[];
@@ -96,6 +97,7 @@ export type ProjectResponse = {
   startDate: string;
   endDate: string;
   status: string;
+  progress : number;
   clientCompany: string;
   developerCompany: string;
   steps: ProjectStep[];
