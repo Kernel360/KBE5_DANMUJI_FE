@@ -87,6 +87,19 @@ export type ApiResponse<T> = {
   data?: T;
 };
 
+// 프로젝트 응답 타입
+export type ProjectResponse = {
+  id: number;
+  name: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  status: string;
+  clientCompany: string;
+  developerCompany: string;
+  steps: ProjectStep[];
+};
+
 // 프로젝트 목록 응답 타입
 export type ProjectListResponse = ApiResponse<{
   content: ProjectResponse[];
