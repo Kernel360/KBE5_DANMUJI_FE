@@ -423,13 +423,29 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString("ko-KR", {
+    const dateStr = date.toLocaleDateString("ko-KR", {
       year: "numeric",
       month: "2-digit",
       day: "2-digit",
+    });
+    const timeStr = date.toLocaleTimeString("ko-KR", {
       hour: "2-digit",
       minute: "2-digit",
+      hour12: true,
     });
+
+    return (
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <div style={{ fontSize: "14px", color: "#6b7280" }}>{dateStr}</div>
+        <div style={{ fontSize: "13px", color: "#9ca3af" }}>{timeStr}</div>
+      </div>
+    );
   };
 
   // 게시글의 단계 이름을 가져오는 헬퍼 함수
