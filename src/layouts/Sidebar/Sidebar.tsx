@@ -19,6 +19,7 @@ import { HiUsers } from "react-icons/hi2";
 import { FaArchive } from "react-icons/fa";
 import { FiHelpCircle } from "react-icons/fi";
 import { FaHistory } from "react-icons/fa";
+import { IoHome } from "react-icons/io5";
 
 import { useAuth } from "@/hooks/useAuth";
 
@@ -51,7 +52,7 @@ export const Sidebar: React.FC = () => {
       <Divider />
       <MainMenu>
         <MenuItem
-          icon={MdDashboard}
+          icon={IoHome}
           text="대시보드"
           isActive={location.pathname === "/dashboard"}
           onClick={() => handleMenuItemClick("대시보드", "/dashboard")}
