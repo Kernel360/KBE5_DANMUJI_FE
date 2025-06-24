@@ -139,6 +139,8 @@ export const Thead = styled.thead`
 export const Tbody = styled.tbody``;
 
 export const Tr = styled.tr`
+  cursor: pointer;
+
   &:hover {
     background-color: #fefdf4;
     transition: background-color 0.2s ease;
@@ -147,7 +149,7 @@ export const Tr = styled.tr`
 
 export const Th = styled.th`
   text-align: left;
-  padding: 12px;
+  padding: 8px 6px;
   color: #6b7280;
   font-weight: 500;
   font-size: 13px;
@@ -155,45 +157,45 @@ export const Th = styled.th`
 
   &:nth-child(1) {
     /* 제목 */
-    width: 300px;
+    width: 200px;
     text-align: left;
   }
   &:nth-child(2) {
     /* 댓글 */
-    width: 50px;
+    width: 12px;
     text-align: center;
   }
   &:nth-child(3) {
     /* 작성자 */
-    width: 100px;
+    width: 5px;
     text-align: center;
   }
   &:nth-child(4) {
     /* 유형 */
-    width: 65px;
+    width: 5px;
     text-align: center;
   }
   &:nth-child(5) {
     /* 우선순위 */
-    width: 65px;
+    width: 5px;
     text-align: center;
   }
   &:nth-child(6) {
     /* 작성일 */
-    width: 150px;
+    width: 120px;
     text-align: center;
   }
 `;
 
 export const Td = styled.td`
-  padding: 12px;
+  padding: 8px 6px;
   color: #374151;
   border-bottom: 1px solid #f3f4f6;
 
   &:nth-child(1) {
     /* 제목 */
-    width: 300px;
-    max-width: 300px;
+    width: 100px;
+    max-width: 100px;
     text-align: left;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -201,27 +203,27 @@ export const Td = styled.td`
   }
   &:nth-child(2) {
     /* 댓글 */
-    width: 50px;
+    width: 12px;
     text-align: center;
   }
   &:nth-child(3) {
     /* 작성자 */
-    width: 100px;
+    width: 5px;
     text-align: center;
   }
   &:nth-child(4) {
     /* 유형 */
-    width: 65px;
+    width: 5px;
     text-align: center;
   }
   &:nth-child(5) {
     /* 우선순위 */
-    width: 65px;
+    width: 5px;
     text-align: center;
   }
   &:nth-child(6) {
     /* 작성일 */
-    width: 150px;
+    width: 120px;
     text-align: center;
   }
 `;

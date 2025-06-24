@@ -544,6 +544,13 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
             </TitleText>
           </Td>
           <Td>
+            {(post.commentCount ?? post.comments?.length ?? 0) > 0 && (
+              <span style={{ color: "#9ca3af", fontSize: "0.9em" }}>
+                댓글 {post.commentCount ?? post.comments?.length}
+              </span>
+            )}
+          </Td>
+          <Td>
             <span>{post.authorName}</span>
           </Td>
           <Td>
@@ -593,6 +600,14 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
                 )}
                 {parentPost.title}
               </TitleText>
+            </Td>
+            <Td>
+              {(parentPost.commentCount ?? parentPost.comments?.length ?? 0) >
+                0 && (
+                <span style={{ color: "#9ca3af", fontSize: "0.9em" }}>
+                  댓글 {parentPost.commentCount ?? parentPost.comments?.length}
+                </span>
+              )}
             </Td>
             <Td>
               <span>{parentPost.authorName}</span>
@@ -656,6 +671,13 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
                 </TitleText>
               </Td>
               <Td>
+                {(child.commentCount ?? child.comments?.length ?? 0) > 0 && (
+                  <span style={{ color: "#9ca3af", fontSize: "0.9em" }}>
+                    댓글 {child.commentCount ?? child.comments?.length}
+                  </span>
+                )}
+              </Td>
+              <Td>
                 <span>{child.authorName}</span>
               </Td>
               <Td>
@@ -711,6 +733,13 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
                 </span>{" "}
                 {orphan.title}
               </TitleText>
+            </Td>
+            <Td>
+              {(orphan.commentCount ?? orphan.comments?.length ?? 0) > 0 && (
+                <span style={{ color: "#9ca3af", fontSize: "0.9em" }}>
+                  댓글 {orphan.commentCount ?? orphan.comments?.length}
+                </span>
+              )}
             </Td>
             <Td>
               <span>{orphan.authorName}</span>
@@ -1066,6 +1095,7 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
         <Thead>
           <Tr>
             <Th>제목</Th>
+            <Th></Th>
             <Th>작성자</Th>
             <Th>유형</Th>
             <Th>우선순위</Th>
