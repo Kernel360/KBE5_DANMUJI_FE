@@ -146,3 +146,25 @@ export const transformHistoryToActivityLog = (
     createdAt: history.changedAt,
   };
 };
+
+// 이력 전체 목록 조회 (최신순 정렬)
+export const getAllActivityLogs = async (
+  page: number = 0,
+  size: number = 10
+): Promise<PageResponse<HistorySimpleResponse>> => {
+  try {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      size: size.toString(),
+    });
+
+    const response = await api.get<
+      ApiResponse<PageResponse<HistorySimpleResponse>>
+    >(`/api/histories?${params.toString()}`);
+
+    return response.data.data;
+  } catch (error) {
+    console.error("이력 전체 목록 조회 실패:", error);
+    throw error;
+  }
+};
