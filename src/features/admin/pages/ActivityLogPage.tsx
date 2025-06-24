@@ -53,8 +53,12 @@ import {
   FiHelpCircle,
   FiGrid,
   FiShield,
+  FiUserCheck,
+  FiAward,
+  FiStar,
 } from "react-icons/fi";
-import { FaProjectDiagram } from "react-icons/fa";
+import { FaProjectDiagram, FaCrown, FaUserShield } from "react-icons/fa";
+import { RiUserSettingsLine } from "react-icons/ri";
 import UserSelectionModal from "../components/UserSelectionModal";
 import UserFilterButton from "../components/UserFilterButton";
 import {
@@ -705,7 +709,10 @@ export default function ActivityLogPage() {
                     }}
                   >
                     {log.userRole === "ROLE_ADMIN" ? (
-                      <FiShield size={14} style={{ color: "#8b5cf6" }} />
+                      <RiUserSettingsLine
+                        size={14}
+                        style={{ color: "#8b5cf6" }}
+                      />
                     ) : (
                       <FiUser size={14} style={{ color: "#6b7280" }} />
                     )}
