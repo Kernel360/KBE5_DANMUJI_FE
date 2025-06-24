@@ -26,7 +26,10 @@ interface HistorySimpleResponse {
   domainType: "POST" | "USER" | "PROJECT" | "COMPANY" | "STEP";
   domainId: number;
   changedAt: string;
-  changedBy: string;
+  changerId: string;
+  changerName: string;
+  changerRole: string;
+  changerIp: string;
 }
 
 interface ActivityLog {
@@ -133,16 +136,19 @@ export const transformHistoryToActivityLog = (
 
   return {
     id: history.id,
-    userId: history.changedBy,
-    userName: userInfo?.name || "알 수 없는 사용자",
-    userRole: userInfo?.role || "사용자",
+    userId: history.changerId,
+    userName:
+      history.changerName !== "null"
+        ? history.changerName
+        : "알 수 없는 사용자",
+    userRole: history.changerRole,
     action: history.historyType,
     targetType: history.domainType,
     targetName: getTargetTypeDisplayName(history.domainType),
     details: `${getTargetTypeDisplayName(
       history.domainType
     )} ${getActionDisplayName(history.historyType)} 작업`,
-    ipAddress: "N/A", // 백엔드에서 제공하지 않는 경우
+    ipAddress: history.changerIp,
     createdAt: history.changedAt,
   };
 };

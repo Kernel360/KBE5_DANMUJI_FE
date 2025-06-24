@@ -52,6 +52,7 @@ import {
   FiLayers,
   FiHelpCircle,
   FiGrid,
+  FiShield,
 } from "react-icons/fi";
 import { FaProjectDiagram } from "react-icons/fa";
 import UserSelectionModal from "../components/UserSelectionModal";
@@ -178,7 +179,7 @@ export default function ActivityLogPage() {
       const filters = customFilters || {
         historyType: actionFilter !== "ALL" ? actionFilter : undefined,
         domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
-        changedBy: selectedUser?.id?.toString(),
+        changerId: selectedUser?.id?.toString(),
         changedFrom: startDate || undefined,
         changedTo: endDate || undefined,
       };
@@ -200,7 +201,7 @@ export default function ActivityLogPage() {
           size: "10",
           ...(filters.historyType && { historyType: filters.historyType }),
           ...(filters.domainType && { domainType: filters.domainType }),
-          ...(filters.changedBy && { changedBy: filters.changedBy }),
+          ...(filters.changerId && { changerId: filters.changerId }),
           ...(filters.changedFrom && { changedFrom: filters.changedFrom }),
           ...(filters.changedTo && { changedTo: filters.changedTo }),
         }).toString()}`
@@ -325,7 +326,7 @@ export default function ActivityLogPage() {
     const filters = {
       historyType: value !== "ALL" ? value : undefined,
       domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
-      changedBy: selectedUser?.id?.toString(),
+      changerId: selectedUser?.id?.toString(),
       changedFrom: startDate || undefined,
       changedTo: endDate || undefined,
     };
@@ -345,7 +346,7 @@ export default function ActivityLogPage() {
     const filters = {
       historyType: actionFilter !== "ALL" ? actionFilter : undefined,
       domainType: value !== "ALL" ? value : undefined,
-      changedBy: selectedUser?.id?.toString(),
+      changerId: selectedUser?.id?.toString(),
       changedFrom: startDate || undefined,
       changedTo: endDate || undefined,
     };
@@ -377,7 +378,7 @@ export default function ActivityLogPage() {
       const filters = {
         historyType: actionFilter !== "ALL" ? actionFilter : undefined,
         domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
-        changedBy: selectedUser?.id?.toString(),
+        changerId: selectedUser?.id?.toString(),
         changedFrom: formattedDate,
         changedTo: endDate || undefined,
       };
@@ -395,7 +396,7 @@ export default function ActivityLogPage() {
       const filters = {
         historyType: actionFilter !== "ALL" ? actionFilter : undefined,
         domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
-        changedBy: selectedUser?.id?.toString(),
+        changerId: selectedUser?.id?.toString(),
         changedFrom: startDate || undefined,
         changedTo: formattedDate,
       };
@@ -431,7 +432,7 @@ export default function ActivityLogPage() {
     const filters = {
       historyType: actionFilter !== "ALL" ? actionFilter : undefined,
       domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
-      changedBy: user.id.toString(),
+      changerId: user.id.toString(),
       changedFrom: startDate || undefined,
       changedTo: endDate || undefined,
     };
@@ -445,7 +446,7 @@ export default function ActivityLogPage() {
     const filters = {
       historyType: actionFilter !== "ALL" ? actionFilter : undefined,
       domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
-      changedBy: undefined,
+      changerId: undefined,
       changedFrom: startDate || undefined,
       changedTo: endDate || undefined,
     };
@@ -702,7 +703,11 @@ export default function ActivityLogPage() {
                       gap: "8px",
                     }}
                   >
-                    <FiUser size={14} style={{ color: "#6b7280" }} />
+                    {log.userRole === "ROLE_ADMIN" ? (
+                      <FiShield size={14} style={{ color: "#8b5cf6" }} />
+                    ) : (
+                      <FiUser size={14} style={{ color: "#6b7280" }} />
+                    )}
                     <span style={{ fontWeight: "500" }}>{log.userName}</span>
                     <span style={{ fontSize: "12px", color: "#6b7280" }}>
                       ({log.userRole === "ROLE_ADMIN" ? "관리자" : "사용자"})
