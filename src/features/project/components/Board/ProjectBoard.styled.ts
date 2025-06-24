@@ -341,12 +341,21 @@ export const DropdownButton = styled.button<{
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  min-width: 120px;
+  width: 140px;
   justify-content: space-between;
+
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+    text-align: left;
+  }
 
   svg {
     transition: transform 0.2s;
     transform: ${({ $isOpen }) => ($isOpen ? "rotate(180deg)" : "none")};
+    flex-shrink: 0;
   }
 
   &:hover {
@@ -365,7 +374,7 @@ export const DropdownMenu = styled.div<{ $isOpen: boolean }>`
   position: absolute;
   top: 100%;
   left: 0;
-  right: 0;
+  width: 140px;
   background: #ffffff;
   border: 2px solid #e5e7eb;
   border-radius: 10px;
@@ -395,20 +404,28 @@ export const DropdownItem = styled.div<{
   cursor: pointer;
   transition: all 0.2s ease;
 
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+  }
+
+  svg {
+    flex-shrink: 0;
+  }
+
   &:hover {
     background: ${({ $active, $color }) =>
       $active ? `${$color}25` : "#f9fafb"};
-    border: none;
   }
 
   &:first-child {
-    border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
+    border-radius: 8px 8px 0 0;
   }
 
   &:last-child {
-    border-bottom-left-radius: 8px;
-    border-bottom-right-radius: 8px;
+    border-radius: 0 0 8px 8px;
   }
 `;
 

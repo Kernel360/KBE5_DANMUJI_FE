@@ -2,6 +2,7 @@ import React, { useState, useEffect, type JSX, useRef } from "react";
 import { getPostsByProjectStep } from "../../../project-d/services/postService";
 import { getProjectDetail } from "../../services/projectService";
 import type { PostSummaryReadResponse } from "../../../project-d/types/post";
+import type { ProjectDetailStep } from "../../services/projectService";
 import {
   Wrapper,
   Filters,
@@ -44,6 +45,7 @@ import {
   FiAlertTriangle,
   FiGrid,
   FiPlus,
+  FiTarget,
 } from "react-icons/fi";
 import { POST_PRIORITY_LABELS } from "../../types/Types";
 import ProjectPostDetailModal from "@/features/board/components/Post/components/DetailModal/ProjectPostDetailModal";
@@ -74,18 +76,25 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
   const [priorityFilter, setPriorityFilter] = useState<
     "ALL" | "LOW" | "MEDIUM" | "HIGH" | "URGENT"
   >("ALL");
+  // 단계별 필터 추가
+  const [stepFilter, setStepFilter] = useState<number | "ALL">("ALL");
   // 키워드 필터
   const [keywordType, setKeywordType] = useState<"title" | "writer">("title");
   const [keyword, setKeyword] = useState("");
 
+  // 프로젝트 단계 정보 상태 추가
+  const [projectSteps, setProjectSteps] = useState<ProjectDetailStep[]>([]);
+
   // 드롭다운 상태
   const [isTypeDropdownOpen, setIsTypeDropdownOpen] = useState(false);
   const [isPriorityDropdownOpen, setIsPriorityDropdownOpen] = useState(false);
+  const [isStepDropdownOpen, setIsStepDropdownOpen] = useState(false);
   const [isKeywordDropdownOpen, setIsKeywordDropdownOpen] = useState(false);
 
   // 드롭다운 refs
   const typeDropdownRef = useRef<HTMLDivElement>(null);
   const priorityDropdownRef = useRef<HTMLDivElement>(null);
+  const stepDropdownRef = useRef<HTMLDivElement>(null);
   const keywordDropdownRef = useRef<HTMLDivElement>(null);
 
   const [detailModalOpen, setDetailModalOpen] = useState(false);
@@ -131,6 +140,14 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
       }
 
       if (
+        stepDropdownRef.current &&
+        !stepDropdownRef.current.contains(target) &&
+        isStepDropdownOpen
+      ) {
+        setIsStepDropdownOpen(false);
+      }
+
+      if (
         keywordDropdownRef.current &&
         !keywordDropdownRef.current.contains(target) &&
         isKeywordDropdownOpen
@@ -143,6 +160,7 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
       if (event.key === "Escape") {
         setIsTypeDropdownOpen(false);
         setIsPriorityDropdownOpen(false);
+        setIsStepDropdownOpen(false);
         setIsKeywordDropdownOpen(false);
       }
     };
@@ -154,7 +172,12 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleEscKey);
     };
-  }, [isTypeDropdownOpen, isPriorityDropdownOpen, isKeywordDropdownOpen]);
+  }, [
+    isTypeDropdownOpen,
+    isPriorityDropdownOpen,
+    isStepDropdownOpen,
+    isKeywordDropdownOpen,
+  ]);
 
   // fetchPosts 함수를 컴포넌트 레벨로 이동
   const fetchPosts = async () => {
@@ -215,6 +238,22 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
     fetchStepName();
   }, [projectId, selectedStepId]);
 
+  // 프로젝트 단계 정보 가져오기
+  const fetchProjectSteps = async () => {
+    try {
+      const response = await getProjectDetail(projectId);
+      if (response.data) {
+        setProjectSteps(response.data.steps);
+      }
+    } catch (err) {
+      console.error("프로젝트 단계 정보 불러오기 실패:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchProjectSteps();
+  }, [projectId]);
+
   // 필터링된 게시글
   const filteredPosts = posts.filter((post) => {
     // 유형 필터
@@ -223,6 +262,9 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
     // 우선순위 필터
     if (priorityFilter !== "ALL" && post.priority !== priorityFilter)
       return false;
+
+    // 단계별 필터 추가
+    if (stepFilter !== "ALL" && post.projectStepId !== stepFilter) return false;
 
     // 키워드 필터
     if (keyword) {
@@ -243,6 +285,7 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
   const handleResetFilters = () => {
     setTypeFilter("ALL");
     setPriorityFilter("ALL");
+    setStepFilter("ALL");
     setKeywordType("title");
     setKeyword("");
   };
@@ -277,6 +320,17 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
       if (!prev) {
         setIsTypeDropdownOpen(false);
         setIsPriorityDropdownOpen(false);
+      }
+      return !prev;
+    });
+  };
+
+  const handleStepDropdownToggle = () => {
+    setIsStepDropdownOpen((prev) => {
+      if (!prev) {
+        setIsTypeDropdownOpen(false);
+        setIsPriorityDropdownOpen(false);
+        setIsKeywordDropdownOpen(false);
       }
       return !prev;
     });
@@ -593,6 +647,59 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
                   <FiAlertTriangle size={16} />
                   <span>긴급</span>
                 </DropdownItem>
+              </DropdownMenu>
+            </DropdownContainer>
+          </FilterGroup>
+          <FilterGroup>
+            <FilterLabel>단계</FilterLabel>
+            <DropdownContainer
+              ref={stepDropdownRef}
+              className="dropdown-container"
+            >
+              <DropdownButton
+                $active={stepFilter !== "ALL"}
+                $color={stepFilter === "ALL" ? "#6b7280" : "#10b981"}
+                $isOpen={isStepDropdownOpen}
+                onClick={handleStepDropdownToggle}
+              >
+                <FiTarget size={16} />
+                <span>
+                  {stepFilter === "ALL"
+                    ? "전체"
+                    : projectSteps.find((step) => step.id === stepFilter)
+                        ?.name || "알 수 없음"}
+                </span>
+                <FiChevronDown size={16} />
+              </DropdownButton>
+              <DropdownMenu $isOpen={isStepDropdownOpen}>
+                <DropdownItem
+                  $active={stepFilter === "ALL"}
+                  $color={"#6b7280"}
+                  onClick={() => {
+                    setStepFilter("ALL");
+                    setIsStepDropdownOpen(false);
+                  }}
+                >
+                  <FiTarget size={16} />
+                  <span>전체</span>
+                </DropdownItem>
+                {projectSteps
+                  .filter((step) => !step.isDeleted)
+                  .sort((a, b) => a.stepOrder - b.stepOrder)
+                  .map((step) => (
+                    <DropdownItem
+                      key={step.id}
+                      $active={stepFilter === step.id}
+                      $color={"#10b981"}
+                      onClick={() => {
+                        setStepFilter(step.id);
+                        setIsStepDropdownOpen(false);
+                      }}
+                    >
+                      <FiTarget size={16} />
+                      <span>{step.name}</span>
+                    </DropdownItem>
+                  ))}
               </DropdownMenu>
             </DropdownContainer>
           </FilterGroup>
