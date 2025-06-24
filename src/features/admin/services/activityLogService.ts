@@ -23,14 +23,7 @@ interface PageResponse<T> {
 interface HistorySimpleResponse {
   id: string;
   historyType: "CREATED" | "UPDATED" | "DELETED";
-  domainType:
-    | "USER"
-    | "COMPANY"
-    | "PROJECT"
-    | "PROJECT_STEP"
-    | "POST"
-    | "QUESTION"
-    | "CHAT";
+  domainType: "POST" | "USER" | "PROJECT" | "COMPANY" | "STEP";
   domainId: number;
   changedAt: string;
   changedBy: string;
@@ -79,16 +72,22 @@ export const getActivityLogs = async (
         params.append("changedBy", filters.changedBy);
       }
       if (filters.changedFrom) {
-        params.append("changedFrom", filters.changedFrom);
+        // 날짜 형식을 LocalDateTime 형식으로 변환 (YYYY-MM-DDTHH:mm:ss)
+        const fromDate = new Date(filters.changedFrom);
+        const formattedFromDate = fromDate.toISOString().slice(0, 19); // YYYY-MM-DDTHH:mm:ss
+        params.append("changedFrom", formattedFromDate);
       }
       if (filters.changedTo) {
-        params.append("changedTo", filters.changedTo);
+        // 날짜 형식을 LocalDateTime 형식으로 변환 (YYYY-MM-DDTHH:mm:ss)
+        const toDate = new Date(filters.changedTo);
+        const formattedToDate = toDate.toISOString().slice(0, 19); // YYYY-MM-DDTHH:mm:ss
+        params.append("changedTo", formattedToDate);
       }
     }
 
     const response = await api.get<
       ApiResponse<PageResponse<HistorySimpleResponse>>
-    >(`/api/histories?${params.toString()}`);
+    >(`/api/histories/search?${params.toString()}`);
 
     return response.data.data;
   } catch (error) {
@@ -123,14 +122,10 @@ export const transformHistoryToActivityLog = (
         return "회사";
       case "PROJECT":
         return "프로젝트";
-      case "PROJECT_STEP":
-        return "프로젝트 단계";
+      case "STEP":
+        return "단계";
       case "POST":
         return "게시글";
-      case "QUESTION":
-        return "문의";
-      case "CHAT":
-        return "채팅";
       default:
         return domainType;
     }
@@ -143,9 +138,7 @@ export const transformHistoryToActivityLog = (
     userRole: userInfo?.role || "사용자",
     action: history.historyType,
     targetType: history.domainType,
-    targetName: `${getTargetTypeDisplayName(history.domainType)} (ID: ${
-      history.domainId
-    })`,
+    targetName: getTargetTypeDisplayName(history.domainType),
     details: `${getTargetTypeDisplayName(
       history.domainType
     )} ${getActionDisplayName(history.historyType)} 작업`,

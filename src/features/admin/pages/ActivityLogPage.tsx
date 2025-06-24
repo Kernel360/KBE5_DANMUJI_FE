@@ -68,7 +68,7 @@ interface ActivityLog {
   userName: string;
   userRole: string;
   action: string;
-  targetType: string;
+  targetType: "POST" | "USER" | "PROJECT" | "COMPANY" | "STEP";
   targetName: string;
   details: string;
   ipAddress: string;
@@ -135,14 +135,12 @@ export default function ActivityLogPage() {
       color: "#3b82f6",
     },
     {
-      value: "PROJECT_STEP",
-      label: "프로젝트 단계",
+      value: "STEP",
+      label: "단계",
       icon: FiLayers,
       color: "#6366f1",
     },
     { value: "POST", label: "게시글", icon: FiFileText, color: "#10b981" },
-    { value: "QUESTION", label: "문의", icon: FiHelpCircle, color: "#f97316" },
-    { value: "CHAT", label: "채팅", icon: FiMessageCircle, color: "#f472b6" },
   ];
 
   // 드롭다운 외부 클릭 감지
@@ -182,6 +180,29 @@ export default function ActivityLogPage() {
         changedTo: endDate || undefined,
       };
 
+      // 디버깅용 로그
+      console.log("필터 값들:", {
+        actionFilter,
+        logTypeFilter,
+        selectedUser,
+        startDate,
+        endDate,
+        filters,
+      });
+
+      console.log(
+        "API 요청 URL:",
+        `/api/histories/search?${new URLSearchParams({
+          page: page.toString(),
+          size: "10",
+          ...(filters.historyType && { historyType: filters.historyType }),
+          ...(filters.domainType && { domainType: filters.domainType }),
+          ...(filters.changedBy && { changedBy: filters.changedBy }),
+          ...(filters.changedFrom && { changedFrom: filters.changedFrom }),
+          ...(filters.changedTo && { changedTo: filters.changedTo }),
+        }).toString()}`
+      );
+
       const response = await getActivityLogs(page, 10, filters);
 
       // 백엔드 응답을 프론트엔드 형식으로 변환
@@ -204,6 +225,15 @@ export default function ActivityLogPage() {
     fetchActivityLogs(0);
   }, []);
 
+  // 필터 상태 변경 시 자동 검색
+  useEffect(() => {
+    // 초기 로드 시에는 실행하지 않음 (위의 useEffect에서 처리)
+    if (activityLogs.length > 0) {
+      setCurrentPage(0);
+      fetchActivityLogs(0);
+    }
+  }, [actionFilter, logTypeFilter, selectedUser, startDate, endDate]);
+
   const getActionIcon = (action: string) => {
     switch (action) {
       case "CREATED":
@@ -225,14 +255,10 @@ export default function ActivityLogPage() {
         return <FiHome style={{ color: "#f59e0b" }} />;
       case "PROJECT":
         return <FaProjectDiagram style={{ color: "#3b82f6" }} />;
-      case "PROJECT_STEP":
+      case "STEP":
         return <FiLayers style={{ color: "#6366f1" }} />;
       case "POST":
         return <FiFileText style={{ color: "#10b981" }} />;
-      case "QUESTION":
-        return <FiHelpCircle style={{ color: "#f97316" }} />;
-      case "CHAT":
-        return <FiMessageCircle style={{ color: "#f472b6" }} />;
       default:
         return <FiFileText style={{ color: "#6b7280" }} />;
     }
@@ -429,7 +455,7 @@ export default function ActivityLogPage() {
           />
         </FilterGroup>
         <FilterGroup>
-          <FilterLabel>이력 유형</FilterLabel>
+          <FilterLabel>대상</FilterLabel>
           <div style={{ position: "relative" }} ref={logTypeDropdownRef}>
             <SelectButton
               type="button"
@@ -575,8 +601,8 @@ export default function ActivityLogPage() {
               <TableHeader>사용자</TableHeader>
               <TableHeader>대상</TableHeader>
               <TableHeader>상세내용</TableHeader>
-              <TableHeader>IP 주소</TableHeader>
-              <TableHeader>작업일시</TableHeader>
+              <TableHeader>변경자 IP</TableHeader>
+              <TableHeader>변경 일시</TableHeader>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -587,6 +613,7 @@ export default function ActivityLogPage() {
                     style={{
                       display: "flex",
                       alignItems: "center",
+                      justifyContent: "center",
                       gap: "8px",
                     }}
                   >
@@ -603,6 +630,7 @@ export default function ActivityLogPage() {
                     style={{
                       display: "flex",
                       alignItems: "center",
+                      justifyContent: "center",
                       gap: "8px",
                     }}
                   >
@@ -618,14 +646,12 @@ export default function ActivityLogPage() {
                     style={{
                       display: "flex",
                       alignItems: "center",
+                      justifyContent: "center",
                       gap: "8px",
                     }}
                   >
                     {getTargetTypeIcon(log.targetType)}
                     <span style={{ fontWeight: "500" }}>{log.targetName}</span>
-                    <span style={{ fontSize: "12px", color: "#6b7280" }}>
-                      ({log.targetType})
-                    </span>
                   </div>
                 </TableCell>
                 <TableCell>
@@ -649,6 +675,7 @@ export default function ActivityLogPage() {
                     style={{
                       display: "flex",
                       alignItems: "center",
+                      justifyContent: "center",
                       gap: "6px",
                     }}
                   >
