@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import {
   PageContainer,
   Header,
@@ -28,6 +30,13 @@ import {
   SelectDropdown,
   SelectOption,
 } from "@/features/admin/pages/ActivityLogPage.styled";
+import {
+  DateRangeGroup,
+  DatePickerWrapper,
+  DateButton,
+  DateSeparator,
+  DatePickerStyles,
+} from "@/features/project/components/List/ProjectFilterBar.styled";
 import {
   FiSearch,
   FiRotateCcw,
@@ -81,6 +90,10 @@ export default function ActivityLogPage() {
   const [logTypeDropdownOpen, setLogTypeDropdownOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [userModalOpen, setUserModalOpen] = useState(false);
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
+  const [startDateOpen, setStartDateOpen] = useState(false);
+  const [endDateOpen, setEndDateOpen] = useState(false);
 
   // 드롭다운 상태
   const [actionDropdownOpen, setActionDropdownOpen] = useState(false);
@@ -268,6 +281,16 @@ export default function ActivityLogPage() {
     });
   };
 
+  const formatDateForDisplay = (dateString: string) => {
+    if (!dateString) return "선택 안함";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("ko-KR", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+  };
+
   const handleSearch = () => {
     // 검색 로직 구현
     console.log("Search:", searchTerm);
@@ -278,6 +301,8 @@ export default function ActivityLogPage() {
     setActionFilter("ALL");
     setLogTypeFilter("ALL");
     setSelectedUser(null);
+    setStartDate("");
+    setEndDate("");
   };
 
   const handlePageChange = (newPage: number) => {
@@ -317,6 +342,33 @@ export default function ActivityLogPage() {
       LOG_TYPE_OPTIONS.find((option) => option.value === logTypeFilter) ||
       LOG_TYPE_OPTIONS[0]
     );
+  };
+
+  // 날짜 관련 핸들러
+  const handleStartDateChange = (date: Date | null) => {
+    if (date) {
+      const formattedDate = date.toISOString().split("T")[0];
+      setStartDate(formattedDate);
+    }
+    setStartDateOpen(false);
+  };
+
+  const handleEndDateChange = (date: Date | null) => {
+    if (date) {
+      const formattedDate = date.toISOString().split("T")[0];
+      setEndDate(formattedDate);
+    }
+    setEndDateOpen(false);
+  };
+
+  const handleStartDateClick = () => {
+    setEndDateOpen(false);
+    setStartDateOpen(!startDateOpen);
+  };
+
+  const handleEndDateClick = () => {
+    setStartDateOpen(false);
+    setEndDateOpen(!endDateOpen);
   };
 
   // 사용자 모달 관련 핸들러
@@ -426,6 +478,93 @@ export default function ActivityLogPage() {
               ))}
             </SelectDropdown>
           </div>
+        </FilterGroup>
+        <FilterGroup>
+          <FilterLabel>변경 기간</FilterLabel>
+          <DateRangeGroup>
+            <DatePickerWrapper>
+              <DateButton
+                type="button"
+                onClick={handleStartDateClick}
+                $hasValue={!!startDate}
+              >
+                <FiCalendar size={16} />
+                <span>시작일</span>
+                <span className="date-value">
+                  {formatDateForDisplay(startDate)}
+                </span>
+              </DateButton>
+              {startDateOpen && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "100%",
+                    left: 0,
+                    zIndex: 1000,
+                    marginTop: "4px",
+                  }}
+                >
+                  <DatePicker
+                    selected={startDate ? new Date(startDate) : null}
+                    onChange={handleStartDateChange}
+                    selectsStart
+                    startDate={startDate ? new Date(startDate) : null}
+                    endDate={endDate ? new Date(endDate) : null}
+                    maxDate={endDate ? new Date(endDate) : null}
+                    dateFormat="yyyy-MM-dd"
+                    placeholderText="시작일 선택"
+                    inline
+                    onClickOutside={() => setStartDateOpen(false)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Escape") setStartDateOpen(false);
+                    }}
+                  />
+                </div>
+              )}
+            </DatePickerWrapper>
+            <DateSeparator>~</DateSeparator>
+            <DatePickerWrapper>
+              <DateButton
+                type="button"
+                onClick={handleEndDateClick}
+                $hasValue={!!endDate}
+              >
+                <FiCalendar size={16} />
+                <span>종료일</span>
+                <span className="date-value">
+                  {formatDateForDisplay(endDate)}
+                </span>
+              </DateButton>
+              {endDateOpen && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "100%",
+                    left: 0,
+                    zIndex: 1000,
+                    marginTop: "4px",
+                  }}
+                >
+                  <DatePicker
+                    selected={endDate ? new Date(endDate) : null}
+                    onChange={handleEndDateChange}
+                    selectsEnd
+                    startDate={startDate ? new Date(startDate) : null}
+                    endDate={endDate ? new Date(endDate) : null}
+                    minDate={startDate ? new Date(startDate) : null}
+                    dateFormat="yyyy-MM-dd"
+                    placeholderText="종료일 선택"
+                    inline
+                    onClickOutside={() => setEndDateOpen(false)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Escape") setEndDateOpen(false);
+                    }}
+                    popperPlacement="bottom-start"
+                  />
+                </div>
+              )}
+            </DatePickerWrapper>
+          </DateRangeGroup>
         </FilterGroup>
         <SearchRight>
           <SearchInput
