@@ -1,6 +1,44 @@
+// 백엔드 API 응답 타입
+export interface ApiResponse<T> {
+  status: string;
+  code: string;
+  message: string;
+  data: T;
+}
+
+export interface PageInfo {
+  size: number;
+  number: number;
+  totalElements: number;
+  totalPages: number;
+}
+
+export interface PageResponse<T> {
+  content: T[];
+  page: PageInfo;
+}
+
+// 백엔드 이력 응답 타입
+export interface HistorySimpleResponse {
+  id: string;
+  historyType: "CREATED" | "UPDATED" | "DELETED";
+  domainType:
+    | "USER"
+    | "COMPANY"
+    | "PROJECT"
+    | "PROJECT_STEP"
+    | "POST"
+    | "QUESTION"
+    | "CHAT";
+  domainId: number;
+  changedAt: string;
+  changedBy: string;
+}
+
+// 프론트엔드에서 사용할 이력 타입 (사용자 정보 포함)
 export interface ActivityLog {
-  id: number;
-  userId: number;
+  id: string;
+  userId: string;
   userName: string;
   userRole: string;
   action: string;
@@ -23,4 +61,6 @@ export interface FilterOptions {
   logTypeFilter: string;
   userFilter: number | null;
   searchTerm: string;
+  startDate: string;
+  endDate: string;
 }

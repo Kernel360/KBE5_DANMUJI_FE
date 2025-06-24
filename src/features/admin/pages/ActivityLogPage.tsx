@@ -56,10 +56,15 @@ import {
 import { FaProjectDiagram } from "react-icons/fa";
 import UserSelectionModal from "../components/UserSelectionModal";
 import UserFilterButton from "../components/UserFilterButton";
+import {
+  getActivityLogs,
+  transformHistoryToActivityLog,
+} from "../services/activityLogService";
 
+// 타입 정의
 interface ActivityLog {
-  id: number;
-  userId: number;
+  id: string;
+  userId: string;
   userName: string;
   userRole: string;
   action: string;
@@ -77,13 +82,24 @@ interface User {
   role: string;
 }
 
+interface PageInfo {
+  size: number;
+  number: number;
+  totalElements: number;
+  totalPages: number;
+}
+
 export default function ActivityLogPage() {
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
-  const [totalElements, setTotalElements] = useState(0);
+  const [pageInfo, setPageInfo] = useState<PageInfo>({
+    size: 10,
+    number: 0,
+    totalElements: 0,
+    totalPages: 0,
+  });
   const [searchTerm, setSearchTerm] = useState("");
   const [actionFilter, setActionFilter] = useState("ALL");
   const [logTypeFilter, setLogTypeFilter] = useState("ALL");
@@ -103,9 +119,9 @@ export default function ActivityLogPage() {
   // 드롭다운 옵션
   const ACTION_OPTIONS = [
     { value: "ALL", label: "전체", icon: FiGrid, color: "#6b7280" },
-    { value: "CREATE", label: "생성", icon: FiPlus, color: "#10b981" },
-    { value: "UPDATE", label: "수정", icon: FiEdit, color: "#3b82f6" },
-    { value: "DELETE", label: "삭제", icon: FiTrash, color: "#ef4444" },
+    { value: "CREATED", label: "생성", icon: FiPlus, color: "#10b981" },
+    { value: "UPDATED", label: "수정", icon: FiEdit, color: "#3b82f6" },
+    { value: "DELETED", label: "삭제", icon: FiTrash, color: "#ef4444" },
   ];
 
   const LOG_TYPE_OPTIONS = [
@@ -152,84 +168,49 @@ export default function ActivityLogPage() {
     };
   }, []);
 
-  // 임시 데이터
-  const mockActivityLogs: ActivityLog[] = [
-    {
-      id: 1,
-      userId: 1,
-      userName: "관리자",
-      userRole: "ROLE_ADMIN",
-      action: "CREATE",
-      targetType: "USER",
-      targetName: "홍길동",
-      details: "새 회원 등록",
-      ipAddress: "192.168.1.100",
-      createdAt: "2024-01-15 14:30:00",
-    },
-    {
-      id: 2,
-      userId: 2,
-      userName: "김개발",
-      userRole: "ROLE_USER",
-      action: "CREATE",
-      targetType: "POST",
-      targetName: "프로젝트 진행상황 보고",
-      details: "새 게시글 작성",
-      ipAddress: "192.168.1.101",
-      createdAt: "2024-01-15 13:45:00",
-    },
-    {
-      id: 3,
-      userId: 1,
-      userName: "관리자",
-      userRole: "ROLE_ADMIN",
-      action: "UPDATE",
-      targetType: "COMPANY",
-      targetName: "ABC기업",
-      details: "회사 정보 수정",
-      ipAddress: "192.168.1.100",
-      createdAt: "2024-01-15 12:20:00",
-    },
-    {
-      id: 4,
-      userId: 3,
-      userName: "박고객",
-      userRole: "ROLE_USER",
-      action: "DELETE",
-      targetType: "POST",
-      targetName: "삭제된 게시글",
-      details: "게시글 삭제",
-      ipAddress: "192.168.1.102",
-      createdAt: "2024-01-15 11:15:00",
-    },
-    {
-      id: 5,
-      userId: 1,
-      userName: "관리자",
-      userRole: "ROLE_ADMIN",
-      action: "CREATE",
-      targetType: "PROJECT",
-      targetName: "웹사이트 리뉴얼 프로젝트",
-      details: "새 프로젝트 생성",
-      ipAddress: "192.168.1.100",
-      createdAt: "2024-01-15 10:00:00",
-    },
-  ];
+  // 이력 데이터 가져오기
+  const fetchActivityLogs = async (page: number = 0) => {
+    setLoading(true);
+    setError(null);
 
+    try {
+      const filters = {
+        historyType: actionFilter !== "ALL" ? actionFilter : undefined,
+        domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
+        changedBy: selectedUser?.id?.toString(),
+        changedFrom: startDate || undefined,
+        changedTo: endDate || undefined,
+      };
+
+      const response = await getActivityLogs(page, 10, filters);
+
+      // 백엔드 응답을 프론트엔드 형식으로 변환
+      const transformedLogs = response.content.map((history) =>
+        transformHistoryToActivityLog(history)
+      );
+
+      setActivityLogs(transformedLogs);
+      setPageInfo(response.page);
+    } catch (err) {
+      console.error("이력 데이터 가져오기 실패:", err);
+      setError("이력 데이터를 불러오는데 실패했습니다.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 초기 데이터 로드
   useEffect(() => {
-    // 임시로 mock 데이터 사용
-    setActivityLogs(mockActivityLogs);
-    setTotalElements(mockActivityLogs.length);
-    setTotalPages(Math.ceil(mockActivityLogs.length / 10));
+    fetchActivityLogs(0);
   }, []);
 
   const getActionIcon = (action: string) => {
     switch (action) {
-      case "CREATE":
+      case "CREATED":
         return <FiPlus style={{ color: "#10b981" }} />;
-      case "UPDATE":
+      case "UPDATED":
         return <FiEdit style={{ color: "#3b82f6" }} />;
-      case "DELETE":
+      case "DELETED":
         return <FiTrash style={{ color: "#ef4444" }} />;
       default:
         return <FiFileText style={{ color: "#6b7280" }} />;
@@ -259,11 +240,11 @@ export default function ActivityLogPage() {
 
   const getActionBadgeStyle = (action: string) => {
     switch (action) {
-      case "CREATE":
+      case "CREATED":
         return { backgroundColor: "#d1fae5", color: "#065f46" };
-      case "UPDATE":
+      case "UPDATED":
         return { backgroundColor: "#dbeafe", color: "#1e40af" };
-      case "DELETE":
+      case "DELETED":
         return { backgroundColor: "#fee2e2", color: "#991b1b" };
       default:
         return { backgroundColor: "#f3f4f6", color: "#374151" };
@@ -292,8 +273,8 @@ export default function ActivityLogPage() {
   };
 
   const handleSearch = () => {
-    // 검색 로직 구현
-    console.log("Search:", searchTerm);
+    setCurrentPage(0);
+    fetchActivityLogs(0);
   };
 
   const handleReset = () => {
@@ -303,10 +284,13 @@ export default function ActivityLogPage() {
     setSelectedUser(null);
     setStartDate("");
     setEndDate("");
+    setCurrentPage(0);
+    fetchActivityLogs(0);
   };
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
+    fetchActivityLogs(newPage);
   };
 
   // 드롭다운 토글 함수들
@@ -389,8 +373,9 @@ export default function ActivityLogPage() {
     setSelectedUser(null);
   };
 
-  if (loading) return <LoadingSpinner />;
-  if (error) return <ErrorMessage>{error}</ErrorMessage>;
+  if (loading && activityLogs.length === 0) return <LoadingSpinner />;
+  if (error && activityLogs.length === 0)
+    return <ErrorMessage>{error}</ErrorMessage>;
 
   return (
     <PageContainer>
@@ -607,9 +592,9 @@ export default function ActivityLogPage() {
                   >
                     {getActionIcon(log.action)}
                     <StatusBadge style={getActionBadgeStyle(log.action)}>
-                      {log.action === "CREATE" && "생성"}
-                      {log.action === "UPDATE" && "수정"}
-                      {log.action === "DELETE" && "삭제"}
+                      {log.action === "CREATED" && "생성"}
+                      {log.action === "UPDATED" && "수정"}
+                      {log.action === "DELETED" && "삭제"}
                     </StatusBadge>
                   </div>
                 </TableCell>
@@ -689,7 +674,7 @@ export default function ActivityLogPage() {
           )}
 
           {/* 페이지 번호 버튼들을 동적으로 생성 */}
-          {Array.from({ length: totalPages }, (_, idx) => (
+          {Array.from({ length: pageInfo.totalPages }, (_, idx) => (
             <PaginationButton
               key={idx}
               $active={currentPage === idx}
@@ -700,15 +685,17 @@ export default function ActivityLogPage() {
           ))}
 
           {/* 마지막 페이지가 아니면 다음 버튼 렌더 */}
-          {currentPage + 1 < totalPages && (
+          {currentPage + 1 < pageInfo.totalPages && (
             <PaginationButton onClick={() => handlePageChange(currentPage + 1)}>
               다음
             </PaginationButton>
           )}
         </PaginationNav>
         <PaginationInfo>
-          총 {totalElements}개 항목 중 {currentPage * 10 + 1}-
-          {Math.min((currentPage + 1) * 10, totalElements)}개 표시
+          총 {pageInfo.totalElements}개 항목 중{" "}
+          {currentPage * pageInfo.size + 1}-
+          {Math.min((currentPage + 1) * pageInfo.size, pageInfo.totalElements)}
+          개 표시
         </PaginationInfo>
       </PaginationContainer>
 
