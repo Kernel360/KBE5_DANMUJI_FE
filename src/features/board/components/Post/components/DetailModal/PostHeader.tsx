@@ -219,7 +219,7 @@ const PostHeader: React.FC<PostHeaderProps> = ({
         >
           <ClickableUsername
             username={
-              post.author?.name || post.authorName || "알 수 없는 사용자"
+              post.authorName || post.author?.name || "알 수 없는 사용자"
             }
             userId={post.author?.id || post.authorId}
             onClick={onUserProfileClick}

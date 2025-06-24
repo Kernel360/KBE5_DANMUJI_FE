@@ -9,7 +9,6 @@ import {
   ErrorMessage,
   ModalHeaderButtonGroup,
   ModalHeaderCloseButton,
-  QuestionAnswerStyledButton,
 } from "@/features/board/components/Post/styles/ProjectPostDetailModal.styled";
 import {
   getPostDetail,
@@ -20,7 +19,6 @@ import {
   createComment,
 } from "@/features/project-d/services/postService";
 import type { Post, Comment, PostFile } from "@/features/project-d/types/post";
-import QuestionAnswerModal from "@/features/board/components/Question/components/QuestionAnswerModal/QuestionAnswerModal";
 import api from "@/api/axios";
 import {
   showErrorToast,
@@ -30,7 +28,7 @@ import {
 import { useUserProfile } from "@/hooks/useUserProfile";
 import UserProfileDropdown from "@/components/UserProfileDropdown";
 import { useAuth } from "@/hooks/useAuth";
-import { FaReply, FaEdit, FaTrash, FaComments } from "react-icons/fa";
+import { FaReply, FaEdit, FaTrash } from "react-icons/fa";
 import { FiX } from "react-icons/fi";
 
 // 분리된 컴포넌트들 import
@@ -64,7 +62,6 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [submittingComment, setSubmittingComment] = useState(false);
-  const [showQuestionAnswer, setShowQuestionAnswer] = useState(false);
 
   // 대댓글 관련 상태 추가
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
@@ -377,15 +374,6 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
             <ModalHeaderButtonGroup>
               {post && (
                 <>
-                  {post.type === "QUESTION" && (
-                    <QuestionAnswerStyledButton
-                      onClick={() => setShowQuestionAnswer(true)}
-                      title="질문 답변"
-                    >
-                      <FaComments />
-                      질문 답변
-                    </QuestionAnswerStyledButton>
-                  )}
                   {isAuthor(post.author?.id || post.authorId) && (
                     <>
                       <ModalHeaderActionButton
@@ -514,16 +502,6 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
           onSendInquiry={handleSendInquiry}
           userRole={profileState.userRole}
           isAdmin={profileState.isAdmin}
-        />
-      )}
-
-      {/* 질문 답변 모달 */}
-      {showQuestionAnswer && post && (
-        <QuestionAnswerModal
-          open={showQuestionAnswer}
-          onClose={() => setShowQuestionAnswer(false)}
-          postId={post.postId}
-          postTitle={post.title}
         />
       )}
     </>

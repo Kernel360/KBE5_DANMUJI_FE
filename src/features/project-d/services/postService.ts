@@ -484,61 +484,6 @@ export const deleteComment = async (
   }
 };
 
-// 게시글 검색
-export const searchPosts = async (
-  stepId: number,
-  searchParams: {
-    title?: string;
-    author?: string;
-    clientCompany?: string;
-    developerCompany?: string;
-    priority?: PostPriority;
-    status?: PostStatus;
-    type?: PostType;
-  },
-  page: number = 0,
-  size: number = 10
-): Promise<PostListResponse> => {
-  try {
-    console.log("=== searchPosts 함수 호출 ===");
-    console.log("stepId:", stepId);
-    console.log("검색 파라미터:", searchParams);
-    console.log("페이지:", page, "크기:", size);
-
-    const response = await api.get<PostListResponse>(`/api/posts/all/search`, {
-      params: {
-        stepId,
-        ...searchParams,
-        page,
-        size,
-      },
-    });
-
-    console.log("API 응답:", response);
-    console.log("응답 데이터:", response.data);
-    console.log("======================");
-
-    return handleApiResponse<PostListResponse["data"]>(response);
-  } catch (error) {
-    console.error("=== searchPosts 에러 ===");
-    console.error("에러:", error);
-
-    if (error instanceof ApiError) throw error;
-    if (error instanceof AxiosError) {
-      console.error(
-        "AxiosError:",
-        error.response?.data,
-        error.response?.status
-      );
-      throw new ApiError(
-        error.response?.data?.message || "게시글 검색 중 오류가 발생했습니다.",
-        error.response?.status
-      );
-    }
-    throw new ApiError("게시글 검색 중 알 수 없는 오류가 발생했습니다.");
-  }
-};
-
 // 단계별 게시글 목록 조회 (댓글 포함)
 export const getPostsByProjectStep = async (
   projectId: number,
@@ -579,5 +524,66 @@ export const getPostsByProjectStep = async (
   } catch (error) {
     console.error("단계별 게시글 조회 실패:", error);
     throw error;
+  }
+};
+
+// 게시글 검색 (백엔드 API)
+export const searchPosts = async (
+  projectId: number,
+  stepId: number | null,
+  searchParams: {
+    title?: string;
+    author?: string;
+    clientCompany?: string;
+    developerCompany?: string;
+    priority?: PostPriority;
+    type?: PostType;
+  },
+  page: number = 0,
+  size: number = 10
+): Promise<ApiResponse<PageResponse<PostDetailReadResponse>>> => {
+  try {
+    console.log("=== searchPosts 함수 호출 ===");
+    console.log("projectId:", projectId);
+    console.log("stepId:", stepId);
+    console.log("검색 파라미터:", searchParams);
+    console.log("페이지:", page, "크기:", size);
+
+    const requestParams = {
+      projectId,
+      stepId,
+      ...searchParams,
+      page,
+      size,
+    };
+
+    const response = await api.get<
+      ApiResponse<PageResponse<PostDetailReadResponse>>
+    >(`/api/posts/search`, {
+      params: requestParams,
+    });
+
+    console.log("API 응답:", response);
+    console.log("응답 데이터:", response.data);
+    console.log("======================");
+
+    return response.data;
+  } catch (error) {
+    console.error("=== searchPosts 에러 ===");
+    console.error("에러:", error);
+
+    if (error instanceof ApiError) throw error;
+    if (error instanceof AxiosError) {
+      console.error(
+        "AxiosError:",
+        error.response?.data,
+        error.response?.status
+      );
+      throw new ApiError(
+        error.response?.data?.message || "게시글 검색 중 오류가 발생했습니다.",
+        error.response?.status
+      );
+    }
+    throw new ApiError("게시글 검색 중 알 수 없는 오류가 발생했습니다.");
   }
 };

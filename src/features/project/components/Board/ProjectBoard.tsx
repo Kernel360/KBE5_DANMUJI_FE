@@ -1,7 +1,14 @@
 import React, { useState, useEffect, type JSX, useRef } from "react";
-import { getPostsByProjectStep } from "../../../project-d/services/postService";
+import {
+  getPostsByProjectStep,
+  searchPosts,
+} from "../../../project-d/services/postService";
 import { getProjectDetail } from "../../services/projectService";
-import type { PostSummaryReadResponse } from "../../../project-d/types/post";
+import type {
+  PostSummaryReadResponse,
+  PostDetailReadResponse,
+} from "../../../project-d/types/post";
+import type { ProjectDetailStep } from "../../services/projectService";
 import {
   Wrapper,
   Filters,
@@ -44,6 +51,7 @@ import {
   FiAlertTriangle,
   FiGrid,
   FiPlus,
+  FiTarget,
 } from "react-icons/fi";
 import { POST_PRIORITY_LABELS } from "../../types/Types";
 import ProjectPostDetailModal from "@/features/board/components/Post/components/DetailModal/ProjectPostDetailModal";
@@ -59,7 +67,7 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
   projectId,
   selectedStepId,
 }) => {
-  const [posts, setPosts] = useState<PostSummaryReadResponse[]>([]);
+  const [posts, setPosts] = useState<PostDetailReadResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
@@ -74,18 +82,25 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
   const [priorityFilter, setPriorityFilter] = useState<
     "ALL" | "LOW" | "MEDIUM" | "HIGH" | "URGENT"
   >("ALL");
+  // 단계별 필터 추가
+  const [stepFilter, setStepFilter] = useState<number | "ALL">("ALL");
   // 키워드 필터
   const [keywordType, setKeywordType] = useState<"title" | "writer">("title");
   const [keyword, setKeyword] = useState("");
 
+  // 프로젝트 단계 정보 상태 추가
+  const [projectSteps, setProjectSteps] = useState<ProjectDetailStep[]>([]);
+
   // 드롭다운 상태
   const [isTypeDropdownOpen, setIsTypeDropdownOpen] = useState(false);
   const [isPriorityDropdownOpen, setIsPriorityDropdownOpen] = useState(false);
+  const [isStepDropdownOpen, setIsStepDropdownOpen] = useState(false);
   const [isKeywordDropdownOpen, setIsKeywordDropdownOpen] = useState(false);
 
   // 드롭다운 refs
   const typeDropdownRef = useRef<HTMLDivElement>(null);
   const priorityDropdownRef = useRef<HTMLDivElement>(null);
+  const stepDropdownRef = useRef<HTMLDivElement>(null);
   const keywordDropdownRef = useRef<HTMLDivElement>(null);
 
   const [detailModalOpen, setDetailModalOpen] = useState(false);
@@ -109,6 +124,38 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
   // 단계 이름 상태 추가
   const [stepName, setStepName] = useState<string>("");
 
+  // 드롭다운 위치 조정 함수
+  const adjustDropdownPosition = (
+    dropdownRef: React.RefObject<HTMLDivElement>
+  ) => {
+    if (!dropdownRef.current) return;
+
+    const rect = dropdownRef.current.getBoundingClientRect();
+    const dropdownMenu = dropdownRef.current.querySelector(
+      "[data-dropdown-menu]"
+    ) as HTMLElement;
+
+    if (!dropdownMenu) return;
+
+    const menuHeight = dropdownMenu.offsetHeight;
+    const windowHeight = window.innerHeight;
+    const spaceBelow = windowHeight - rect.bottom;
+    const spaceAbove = rect.top;
+
+    // 아래쪽 공간이 부족하고 위쪽 공간이 충분하면 위쪽으로 표시
+    if (spaceBelow < menuHeight && spaceAbove > menuHeight) {
+      dropdownMenu.style.top = "auto";
+      dropdownMenu.style.bottom = "100%";
+      dropdownMenu.style.marginTop = "0";
+      dropdownMenu.style.marginBottom = "4px";
+    } else {
+      dropdownMenu.style.top = "100%";
+      dropdownMenu.style.bottom = "auto";
+      dropdownMenu.style.marginTop = "4px";
+      dropdownMenu.style.marginBottom = "0";
+    }
+  };
+
   // 드롭다운 외부 클릭 및 ESC 키 처리
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -131,6 +178,14 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
       }
 
       if (
+        stepDropdownRef.current &&
+        !stepDropdownRef.current.contains(target) &&
+        isStepDropdownOpen
+      ) {
+        setIsStepDropdownOpen(false);
+      }
+
+      if (
         keywordDropdownRef.current &&
         !keywordDropdownRef.current.contains(target) &&
         isKeywordDropdownOpen
@@ -143,6 +198,7 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
       if (event.key === "Escape") {
         setIsTypeDropdownOpen(false);
         setIsPriorityDropdownOpen(false);
+        setIsStepDropdownOpen(false);
         setIsKeywordDropdownOpen(false);
       }
     };
@@ -154,7 +210,12 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleEscKey);
     };
-  }, [isTypeDropdownOpen, isPriorityDropdownOpen, isKeywordDropdownOpen]);
+  }, [
+    isTypeDropdownOpen,
+    isPriorityDropdownOpen,
+    isStepDropdownOpen,
+    isKeywordDropdownOpen,
+  ]);
 
   // fetchPosts 함수를 컴포넌트 레벨로 이동
   const fetchPosts = async () => {
@@ -169,15 +230,64 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
     setError(null);
 
     try {
-      const response = await getPostsByProjectStep(
-        projectId,
-        selectedStepId,
-        currentPage,
-        10
-      );
-      setPosts(response.content);
-      setTotalPages(response.page.totalPages);
-      setTotalElements(response.page.totalElements);
+      // 필터 조건이 있는 경우 검색 API 사용
+      if (
+        typeFilter !== "ALL" ||
+        priorityFilter !== "ALL" ||
+        stepFilter !== "ALL" ||
+        keyword
+      ) {
+        const searchParams: any = {};
+
+        if (typeFilter !== "ALL") {
+          searchParams.type = typeFilter;
+        }
+        if (priorityFilter !== "ALL") {
+          searchParams.priority = priorityFilter;
+        }
+        if (keyword) {
+          if (keywordType === "title") {
+            searchParams.title = keyword;
+          } else {
+            searchParams.author = keyword;
+          }
+        }
+
+        // 단계별 필터링 처리
+        let targetStepId: number | null;
+        if (stepFilter !== "ALL") {
+          // 특정 단계 선택 시
+          targetStepId = stepFilter;
+        } else {
+          // "전체" 선택 시 - 모든 단계에서 검색
+          targetStepId = null;
+        }
+
+        const response = await searchPosts(
+          projectId,
+          targetStepId,
+          searchParams,
+          currentPage,
+          10
+        );
+
+        if (response.data) {
+          setPosts(response.data.content);
+          setTotalPages(response.data.page.totalPages);
+          setTotalElements(response.data.page.totalElements);
+        }
+      } else {
+        // 필터 조건이 없는 경우 기존 API 사용
+        const response = await getPostsByProjectStep(
+          projectId,
+          selectedStepId,
+          currentPage,
+          10
+        );
+        setPosts(response.content);
+        setTotalPages(response.page.totalPages);
+        setTotalElements(response.page.totalElements);
+      }
     } catch (err) {
       setError("게시글을 불러오는데 실패했습니다.");
       console.error("게시글 조회 실패:", err);
@@ -188,7 +298,14 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
 
   useEffect(() => {
     fetchPosts();
-  }, [projectId, selectedStepId, currentPage]);
+  }, [
+    projectId,
+    selectedStepId,
+    currentPage,
+    typeFilter,
+    priorityFilter,
+    stepFilter,
+  ]);
 
   // 단계 이름 가져오기
   const fetchStepName = async () => {
@@ -215,25 +332,24 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
     fetchStepName();
   }, [projectId, selectedStepId]);
 
-  // 필터링된 게시글
-  const filteredPosts = posts.filter((post) => {
-    // 유형 필터
-    if (typeFilter !== "ALL" && post.type !== typeFilter) return false;
-
-    // 우선순위 필터
-    if (priorityFilter !== "ALL" && post.priority !== priorityFilter)
-      return false;
-
-    // 키워드 필터
-    if (keyword) {
-      if (keywordType === "title" && !post.title.includes(keyword))
-        return false;
-      if (keywordType === "writer" && !post.authorName.includes(keyword))
-        return false;
+  // 프로젝트 단계 정보 가져오기
+  const fetchProjectSteps = async () => {
+    try {
+      const response = await getProjectDetail(projectId);
+      if (response.data) {
+        setProjectSteps(response.data.steps);
+      }
+    } catch (err) {
+      console.error("프로젝트 단계 정보 불러오기 실패:", err);
     }
+  };
 
-    return true;
-  });
+  useEffect(() => {
+    fetchProjectSteps();
+  }, [projectId]);
+
+  // 필터링된 게시글 (API에서 처리하므로 클라이언트 필터링 제거)
+  const filteredPosts = posts;
 
   const handleRowClick = (postId: number) => {
     setSelectedPostId(postId);
@@ -243,13 +359,17 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
   const handleResetFilters = () => {
     setTypeFilter("ALL");
     setPriorityFilter("ALL");
+    setStepFilter("ALL");
     setKeywordType("title");
     setKeyword("");
+    setCurrentPage(0); // 첫 페이지로 이동
+    // 필터 리셋 후 API 호출은 useEffect에서 자동으로 트리거됨
   };
 
   const handleSearch = () => {
-    // 실제 검색 요청 로직 작성
-    console.log("검색 요청:", keywordType, keyword);
+    // 검색 버튼 클릭 시 게시글 목록 새로고침
+    setCurrentPage(0); // 첫 페이지로 이동
+    fetchPosts();
   };
 
   const handleTypeDropdownToggle = () => {
@@ -257,6 +377,8 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
       if (!prev) {
         setIsPriorityDropdownOpen(false);
         setIsKeywordDropdownOpen(false);
+        // 드롭다운이 열릴 때 위치 조정
+        setTimeout(() => adjustDropdownPosition(typeDropdownRef), 0);
       }
       return !prev;
     });
@@ -267,6 +389,8 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
       if (!prev) {
         setIsTypeDropdownOpen(false);
         setIsKeywordDropdownOpen(false);
+        // 드롭다운이 열릴 때 위치 조정
+        setTimeout(() => adjustDropdownPosition(priorityDropdownRef), 0);
       }
       return !prev;
     });
@@ -277,6 +401,21 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
       if (!prev) {
         setIsTypeDropdownOpen(false);
         setIsPriorityDropdownOpen(false);
+        // 드롭다운이 열릴 때 위치 조정
+        setTimeout(() => adjustDropdownPosition(keywordDropdownRef), 0);
+      }
+      return !prev;
+    });
+  };
+
+  const handleStepDropdownToggle = () => {
+    setIsStepDropdownOpen((prev) => {
+      if (!prev) {
+        setIsTypeDropdownOpen(false);
+        setIsPriorityDropdownOpen(false);
+        setIsKeywordDropdownOpen(false);
+        // 드롭다운이 열릴 때 위치 조정
+        setTimeout(() => adjustDropdownPosition(stepDropdownRef), 0);
       }
       return !prev;
     });
@@ -284,13 +423,36 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString("ko-KR", {
+    const dateStr = date.toLocaleDateString("ko-KR", {
       year: "numeric",
       month: "2-digit",
       day: "2-digit",
+    });
+    const timeStr = date.toLocaleTimeString("ko-KR", {
       hour: "2-digit",
       minute: "2-digit",
+      hour12: true,
     });
+
+    return (
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <div style={{ fontSize: "14px", color: "#6b7280" }}>{dateStr}</div>
+        <div style={{ fontSize: "13px", color: "#9ca3af" }}>{timeStr}</div>
+      </div>
+    );
+  };
+
+  // 게시글의 단계 이름을 가져오는 헬퍼 함수
+  const getStepName = (stepId: number | null): string => {
+    if (!stepId) return "";
+    const step = projectSteps.find((s) => s.id === stepId);
+    return step ? step.name : "";
   };
 
   const handlePageChange = (newPage: number) => {
@@ -352,46 +514,40 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
     fetchPosts();
   };
 
-  // 게시글 계층 렌더링 함수
-  const renderPosts = (
-    posts: PostSummaryReadResponse[],
-    parentId: number | null = null,
-    depth: number = 0
-  ): JSX.Element[] => {
-    return posts
-      .filter((post) => post.parentId === parentId)
-      .map((post) => [
-        <Tr
-          key={post.postId}
-          style={{
-            cursor: "pointer",
-          }}
-          onClick={() => handleRowClick(post.postId)}
-        >
-          <Td style={depth > 0 ? { paddingLeft: 32 * depth } : {}}>
+  // 게시글 계층 렌더링 함수 (검색 시에는 관계 표시 안함)
+  const renderPosts = (posts: PostDetailReadResponse[]): JSX.Element[] => {
+    // 검색 조건이 있는지 확인
+    const hasSearchConditions =
+      typeFilter !== "ALL" ||
+      priorityFilter !== "ALL" ||
+      stepFilter !== "ALL" ||
+      keyword;
+
+    if (hasSearchConditions) {
+      // 검색 시에는 단순 리스트로 렌더링
+      return posts.map((post) => (
+        <Tr key={post.postId} onClick={() => handleRowClick(post.postId || 0)}>
+          <Td>
             <TitleText>
-              {depth > 0 && (
-                <>
-                  <span
-                    style={{
-                      color: "#fdb924",
-                      fontSize: "0.85em",
-                      fontWeight: 700,
-                      marginRight: 8,
-                    }}
-                  >
-                    ㄴ [답글]
-                  </span>
-                </>
+              {getStepName(post.projectStepId) && (
+                <span
+                  style={{
+                    color: "#9ca3af",
+                    fontSize: "0.85em",
+                    marginRight: "8px",
+                  }}
+                >
+                  {getStepName(post.projectStepId)}
+                </span>
               )}
               {post.title}
             </TitleText>
           </Td>
           <Td>
-            {post.comments && post.comments.length > 0 ? (
-              <CommentInfo>댓글 {post.comments.length}</CommentInfo>
-            ) : (
-              ""
+            {(post.commentCount ?? post.comments?.length ?? 0) > 0 && (
+              <span style={{ color: "#9ca3af", fontSize: "0.9em" }}>
+                댓글 {post.commentCount ?? post.comments?.length}
+              </span>
             )}
           </Td>
           <Td>
@@ -409,11 +565,203 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
             </StatusBadge>
           </Td>
           <Td>{formatDate(post.createdAt)}</Td>
-        </Tr>,
-        // 답글(자식)도 재귀적으로 렌더링
-        ...renderPosts(posts, post.postId, depth + 1),
-      ])
-      .flat();
+        </Tr>
+      ));
+    } else {
+      // 일반 목록 조회 시에는 부모-자식 관계 표시
+      // 부모 게시글들 (parentId가 null인 것들)
+      const parentPosts = posts.filter((post) => post.parentId === null);
+
+      // 답글들 (parentId가 null이 아닌 것들)
+      const replyPosts = posts.filter((post) => post.parentId !== null);
+
+      const result: JSX.Element[] = [];
+
+      // 부모 게시글들을 먼저 렌더링
+      parentPosts.forEach((parentPost) => {
+        // 부모 게시글 추가
+        result.push(
+          <Tr
+            key={parentPost.postId}
+            onClick={() => handleRowClick(parentPost.postId || 0)}
+          >
+            <Td>
+              <TitleText>
+                {getStepName(parentPost.projectStepId) && (
+                  <span
+                    style={{
+                      color: "#9ca3af",
+                      fontSize: "0.85em",
+                      marginRight: "8px",
+                    }}
+                  >
+                    {getStepName(parentPost.projectStepId)}
+                  </span>
+                )}
+                {parentPost.title}
+              </TitleText>
+            </Td>
+            <Td>
+              {(parentPost.commentCount ?? parentPost.comments?.length ?? 0) >
+                0 && (
+                <span style={{ color: "#9ca3af", fontSize: "0.9em" }}>
+                  댓글 {parentPost.commentCount ?? parentPost.comments?.length}
+                </span>
+              )}
+            </Td>
+            <Td>
+              <span>{parentPost.authorName}</span>
+            </Td>
+            <Td>
+              <TypeBadge type={parentPost.type as "GENERAL" | "QUESTION"}>
+                {parentPost.type === "GENERAL" ? "일반" : "질문"}
+              </TypeBadge>
+            </Td>
+            <Td>
+              <StatusBadge priority={parentPost.priority as PostPriority}>
+                {POST_PRIORITY_LABELS[parentPost.priority as PostPriority] ??
+                  parentPost.priority}
+              </StatusBadge>
+            </Td>
+            <Td>{formatDate(parentPost.createdAt)}</Td>
+          </Tr>
+        );
+
+        // 이 부모에 대한 답글들을 찾아서 바로 아래에 렌더링
+        const children = replyPosts.filter(
+          (reply) => reply.parentId === parentPost.postId
+        );
+        children.forEach((child) => {
+          result.push(
+            <Tr
+              key={child.postId}
+              onClick={() => handleRowClick(child.postId || 0)}
+            >
+              <Td style={{ paddingLeft: 32 }}>
+                <TitleText>
+                  {getStepName(child.projectStepId) && (
+                    <span
+                      style={{
+                        color: "#9ca3af",
+                        fontSize: "0.85em",
+                        marginRight: "8px",
+                      }}
+                    >
+                      {getStepName(child.projectStepId)}
+                    </span>
+                  )}
+                  <span
+                    style={{
+                      color: "#fdb924",
+                      fontSize: "0.85em",
+                      fontWeight: 600,
+                    }}
+                  >
+                    [답글]
+                  </span>{" "}
+                  <span
+                    style={{
+                      color: "#6b7280",
+                      fontSize: "0.85em",
+                    }}
+                  >
+                    @{parentPost.title}
+                  </span>{" "}
+                  {child.title}
+                </TitleText>
+              </Td>
+              <Td>
+                {(child.commentCount ?? child.comments?.length ?? 0) > 0 && (
+                  <span style={{ color: "#9ca3af", fontSize: "0.9em" }}>
+                    댓글 {child.commentCount ?? child.comments?.length}
+                  </span>
+                )}
+              </Td>
+              <Td>
+                <span>{child.authorName}</span>
+              </Td>
+              <Td>
+                <TypeBadge type={child.type as "GENERAL" | "QUESTION"}>
+                  {child.type === "GENERAL" ? "일반" : "질문"}
+                </TypeBadge>
+              </Td>
+              <Td>
+                <StatusBadge priority={child.priority as PostPriority}>
+                  {POST_PRIORITY_LABELS[child.priority as PostPriority] ??
+                    child.priority}
+                </StatusBadge>
+              </Td>
+              <Td>{formatDate(child.createdAt)}</Td>
+            </Tr>
+          );
+        });
+      });
+
+      // 부모가 검색 결과에 없는 답글들 (고아 답글)을 마지막에 렌더링
+      const orphanReplies = replyPosts.filter(
+        (reply) =>
+          !parentPosts.some((parent) => parent.postId === reply.parentId)
+      );
+
+      orphanReplies.forEach((orphan) => {
+        result.push(
+          <Tr
+            key={orphan.postId}
+            onClick={() => handleRowClick(orphan.postId || 0)}
+          >
+            <Td>
+              <TitleText>
+                {getStepName(orphan.projectStepId) && (
+                  <span
+                    style={{
+                      color: "#9ca3af",
+                      fontSize: "0.85em",
+                      marginRight: "8px",
+                    }}
+                  >
+                    {getStepName(orphan.projectStepId)}
+                  </span>
+                )}
+                <span
+                  style={{
+                    color: "#fdb924",
+                    fontSize: "0.85em",
+                    fontWeight: 600,
+                  }}
+                >
+                  [답글]
+                </span>{" "}
+                {orphan.title}
+              </TitleText>
+            </Td>
+            <Td>
+              {(orphan.commentCount ?? orphan.comments?.length ?? 0) > 0 && (
+                <span style={{ color: "#9ca3af", fontSize: "0.9em" }}>
+                  댓글 {orphan.commentCount ?? orphan.comments?.length}
+                </span>
+              )}
+            </Td>
+            <Td>
+              <span>{orphan.authorName}</span>
+            </Td>
+            <Td>
+              <TypeBadge type={orphan.type as "GENERAL" | "QUESTION"}>
+                {orphan.type === "GENERAL" ? "일반" : "질문"}
+              </TypeBadge>
+            </Td>
+            <Td>
+              <StatusBadge priority={orphan.priority as PostPriority}>
+                {POST_PRIORITY_LABELS[orphan.priority as PostPriority] ??
+                  orphan.priority}
+              </StatusBadge>
+            </Td>
+            <Td>{formatDate(orphan.createdAt)}</Td>
+          </Tr>
+        );
+      });
+
+      return result;
+    }
   };
 
   return (
@@ -454,7 +802,7 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
                 </span>
                 <FiChevronDown size={16} />
               </DropdownButton>
-              <DropdownMenu $isOpen={isTypeDropdownOpen}>
+              <DropdownMenu $isOpen={isTypeDropdownOpen} data-dropdown-menu>
                 <DropdownItem
                   $active={typeFilter === "ALL"}
                   $color={"#6b7280"}
@@ -537,7 +885,7 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
                 </span>
                 <FiChevronDown size={16} />
               </DropdownButton>
-              <DropdownMenu $isOpen={isPriorityDropdownOpen}>
+              <DropdownMenu $isOpen={isPriorityDropdownOpen} data-dropdown-menu>
                 <DropdownItem
                   $active={priorityFilter === "ALL"}
                   $color={"#6b7280"}
@@ -597,6 +945,59 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
             </DropdownContainer>
           </FilterGroup>
           <FilterGroup>
+            <FilterLabel>단계</FilterLabel>
+            <DropdownContainer
+              ref={stepDropdownRef}
+              className="dropdown-container"
+            >
+              <DropdownButton
+                $active={stepFilter !== "ALL"}
+                $color={stepFilter === "ALL" ? "#6b7280" : "#10b981"}
+                $isOpen={isStepDropdownOpen}
+                onClick={handleStepDropdownToggle}
+              >
+                <FiTarget size={16} />
+                <span>
+                  {stepFilter === "ALL"
+                    ? "전체"
+                    : projectSteps.find((step) => step.id === stepFilter)
+                        ?.name || "알 수 없음"}
+                </span>
+                <FiChevronDown size={16} />
+              </DropdownButton>
+              <DropdownMenu $isOpen={isStepDropdownOpen} data-dropdown-menu>
+                <DropdownItem
+                  $active={stepFilter === "ALL"}
+                  $color={"#6b7280"}
+                  onClick={() => {
+                    setStepFilter("ALL");
+                    setIsStepDropdownOpen(false);
+                  }}
+                >
+                  <FiTarget size={16} />
+                  <span>전체</span>
+                </DropdownItem>
+                {projectSteps
+                  .filter((step) => !step.isDeleted)
+                  .sort((a, b) => a.stepOrder - b.stepOrder)
+                  .map((step) => (
+                    <DropdownItem
+                      key={step.id}
+                      $active={stepFilter === step.id}
+                      $color={"#10b981"}
+                      onClick={() => {
+                        setStepFilter(step.id);
+                        setIsStepDropdownOpen(false);
+                      }}
+                    >
+                      <FiTarget size={16} />
+                      <span>{step.name}</span>
+                    </DropdownItem>
+                  ))}
+              </DropdownMenu>
+            </DropdownContainer>
+          </FilterGroup>
+          <FilterGroup>
             <FilterLabel>키워드</FilterLabel>
             <DropdownContainer
               ref={keywordDropdownRef}
@@ -616,7 +1017,7 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
                 <span>{keywordType === "title" ? "제목" : "작성자"}</span>
                 <FiChevronDown size={16} />
               </DropdownButton>
-              <DropdownMenu $isOpen={isKeywordDropdownOpen}>
+              <DropdownMenu $isOpen={isKeywordDropdownOpen} data-dropdown-menu>
                 <DropdownItem
                   $active={keywordType === "title"}
                   $color={"#3b82f6"}
