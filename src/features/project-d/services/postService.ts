@@ -530,7 +530,7 @@ export const getPostsByProjectStep = async (
 // 게시글 검색 (백엔드 API)
 export const searchPosts = async (
   projectId: number,
-  stepId: number,
+  stepId: number | null,
   searchParams: {
     title?: string;
     author?: string;

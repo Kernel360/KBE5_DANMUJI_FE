@@ -379,13 +379,21 @@ export const DropdownMenu = styled.div<{ $isOpen: boolean }>`
   border: 2px solid #e5e7eb;
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
+  z-index: 9999;
   opacity: ${({ $isOpen }) => ($isOpen ? 1 : 0)};
   visibility: ${({ $isOpen }) => ($isOpen ? "visible" : "hidden")};
   transform: ${({ $isOpen }) =>
     $isOpen ? "translateY(0)" : "translateY(-10px)"};
   transition: all 0.2s ease;
   margin-top: 4px;
+
+  /* 화면 아래쪽에 가까울 때 위쪽으로 나타나도록 조정 */
+  @media (max-height: 600px) {
+    top: auto;
+    bottom: 100%;
+    margin-top: 0;
+    margin-bottom: 4px;
+  }
 `;
 
 export const DropdownItem = styled.div<{

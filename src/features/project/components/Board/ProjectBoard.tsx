@@ -124,6 +124,38 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
   // 단계 이름 상태 추가
   const [stepName, setStepName] = useState<string>("");
 
+  // 드롭다운 위치 조정 함수
+  const adjustDropdownPosition = (
+    dropdownRef: React.RefObject<HTMLDivElement>
+  ) => {
+    if (!dropdownRef.current) return;
+
+    const rect = dropdownRef.current.getBoundingClientRect();
+    const dropdownMenu = dropdownRef.current.querySelector(
+      "[data-dropdown-menu]"
+    ) as HTMLElement;
+
+    if (!dropdownMenu) return;
+
+    const menuHeight = dropdownMenu.offsetHeight;
+    const windowHeight = window.innerHeight;
+    const spaceBelow = windowHeight - rect.bottom;
+    const spaceAbove = rect.top;
+
+    // 아래쪽 공간이 부족하고 위쪽 공간이 충분하면 위쪽으로 표시
+    if (spaceBelow < menuHeight && spaceAbove > menuHeight) {
+      dropdownMenu.style.top = "auto";
+      dropdownMenu.style.bottom = "100%";
+      dropdownMenu.style.marginTop = "0";
+      dropdownMenu.style.marginBottom = "4px";
+    } else {
+      dropdownMenu.style.top = "100%";
+      dropdownMenu.style.bottom = "auto";
+      dropdownMenu.style.marginTop = "4px";
+      dropdownMenu.style.marginBottom = "0";
+    }
+  };
+
   // 드롭다운 외부 클릭 및 ESC 키 처리
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -220,8 +252,16 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
             searchParams.author = keyword;
           }
         }
-        // 단계별 필터링은 서버에서 처리하므로 stepId를 변경
-        const targetStepId = stepFilter !== "ALL" ? stepFilter : selectedStepId;
+
+        // 단계별 필터링 처리
+        let targetStepId: number | null;
+        if (stepFilter !== "ALL") {
+          // 특정 단계 선택 시
+          targetStepId = stepFilter;
+        } else {
+          // "전체" 선택 시 - 모든 단계에서 검색
+          targetStepId = null;
+        }
 
         const response = await searchPosts(
           projectId,
@@ -265,8 +305,6 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
     typeFilter,
     priorityFilter,
     stepFilter,
-    keyword,
-    keywordType,
   ]);
 
   // 단계 이름 가져오기
@@ -339,6 +377,8 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
       if (!prev) {
         setIsPriorityDropdownOpen(false);
         setIsKeywordDropdownOpen(false);
+        // 드롭다운이 열릴 때 위치 조정
+        setTimeout(() => adjustDropdownPosition(typeDropdownRef), 0);
       }
       return !prev;
     });
@@ -349,6 +389,8 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
       if (!prev) {
         setIsTypeDropdownOpen(false);
         setIsKeywordDropdownOpen(false);
+        // 드롭다운이 열릴 때 위치 조정
+        setTimeout(() => adjustDropdownPosition(priorityDropdownRef), 0);
       }
       return !prev;
     });
@@ -359,6 +401,8 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
       if (!prev) {
         setIsTypeDropdownOpen(false);
         setIsPriorityDropdownOpen(false);
+        // 드롭다운이 열릴 때 위치 조정
+        setTimeout(() => adjustDropdownPosition(keywordDropdownRef), 0);
       }
       return !prev;
     });
@@ -370,6 +414,8 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
         setIsTypeDropdownOpen(false);
         setIsPriorityDropdownOpen(false);
         setIsKeywordDropdownOpen(false);
+        // 드롭다운이 열릴 때 위치 조정
+        setTimeout(() => adjustDropdownPosition(stepDropdownRef), 0);
       }
       return !prev;
     });
@@ -384,6 +430,13 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
       hour: "2-digit",
       minute: "2-digit",
     });
+  };
+
+  // 게시글의 단계 이름을 가져오는 헬퍼 함수
+  const getStepName = (stepId: number | null): string => {
+    if (!stepId) return "";
+    const step = projectSteps.find((s) => s.id === stepId);
+    return step ? step.name : "";
   };
 
   const handlePageChange = (newPage: number) => {
@@ -459,7 +512,20 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
       return posts.map((post) => (
         <Tr key={post.postId} onClick={() => handleRowClick(post.postId || 0)}>
           <Td>
-            <TitleText>{post.title}</TitleText>
+            <TitleText>
+              {getStepName(post.projectStepId) && (
+                <span
+                  style={{
+                    color: "#9ca3af",
+                    fontSize: "0.85em",
+                    marginRight: "8px",
+                  }}
+                >
+                  {getStepName(post.projectStepId)}
+                </span>
+              )}
+              {post.title}
+            </TitleText>
           </Td>
           <Td>
             <span>{post.authorName}</span>
@@ -497,7 +563,20 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
             onClick={() => handleRowClick(parentPost.postId || 0)}
           >
             <Td>
-              <TitleText>{parentPost.title}</TitleText>
+              <TitleText>
+                {getStepName(parentPost.projectStepId) && (
+                  <span
+                    style={{
+                      color: "#9ca3af",
+                      fontSize: "0.85em",
+                      marginRight: "8px",
+                    }}
+                  >
+                    {getStepName(parentPost.projectStepId)}
+                  </span>
+                )}
+                {parentPost.title}
+              </TitleText>
             </Td>
             <Td>
               <span>{parentPost.authorName}</span>
@@ -529,6 +608,17 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
             >
               <Td style={{ paddingLeft: 32 }}>
                 <TitleText>
+                  {getStepName(child.projectStepId) && (
+                    <span
+                      style={{
+                        color: "#9ca3af",
+                        fontSize: "0.85em",
+                        marginRight: "8px",
+                      }}
+                    >
+                      {getStepName(child.projectStepId)}
+                    </span>
+                  )}
                   <span
                     style={{
                       color: "#fdb924",
@@ -583,6 +673,17 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
           >
             <Td>
               <TitleText>
+                {getStepName(orphan.projectStepId) && (
+                  <span
+                    style={{
+                      color: "#9ca3af",
+                      fontSize: "0.85em",
+                      marginRight: "8px",
+                    }}
+                  >
+                    {getStepName(orphan.projectStepId)}
+                  </span>
+                )}
                 <span
                   style={{
                     color: "#fdb924",
@@ -656,7 +757,7 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
                 </span>
                 <FiChevronDown size={16} />
               </DropdownButton>
-              <DropdownMenu $isOpen={isTypeDropdownOpen}>
+              <DropdownMenu $isOpen={isTypeDropdownOpen} data-dropdown-menu>
                 <DropdownItem
                   $active={typeFilter === "ALL"}
                   $color={"#6b7280"}
@@ -739,7 +840,7 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
                 </span>
                 <FiChevronDown size={16} />
               </DropdownButton>
-              <DropdownMenu $isOpen={isPriorityDropdownOpen}>
+              <DropdownMenu $isOpen={isPriorityDropdownOpen} data-dropdown-menu>
                 <DropdownItem
                   $active={priorityFilter === "ALL"}
                   $color={"#6b7280"}
@@ -819,7 +920,7 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
                 </span>
                 <FiChevronDown size={16} />
               </DropdownButton>
-              <DropdownMenu $isOpen={isStepDropdownOpen}>
+              <DropdownMenu $isOpen={isStepDropdownOpen} data-dropdown-menu>
                 <DropdownItem
                   $active={stepFilter === "ALL"}
                   $color={"#6b7280"}
@@ -871,7 +972,7 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
                 <span>{keywordType === "title" ? "제목" : "작성자"}</span>
                 <FiChevronDown size={16} />
               </DropdownButton>
-              <DropdownMenu $isOpen={isKeywordDropdownOpen}>
+              <DropdownMenu $isOpen={isKeywordDropdownOpen} data-dropdown-menu>
                 <DropdownItem
                   $active={keywordType === "title"}
                   $color={"#3b82f6"}
