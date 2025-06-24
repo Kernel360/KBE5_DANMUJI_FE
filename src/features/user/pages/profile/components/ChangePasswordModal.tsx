@@ -24,6 +24,7 @@ export default function ChangePasswordModal({ open, onClose }: ChangePasswordMod
     if (value.length < 8) return "8자 이상 입력해주세요.";
     if (!/[A-Z]/.test(value)) return "대문자를 포함해야 합니다.";
     if (!/[0-9]/.test(value)) return "숫자를 포함해야 합니다.";
+    if (!/[@$!%*#?&]/.test(value)) return "특수문자를 포함해야 합니다.";
     return "";
   };
 
@@ -70,7 +71,7 @@ export default function ChangePasswordModal({ open, onClose }: ChangePasswordMod
         throw { response: { data: res.data } };
       }
 
-      showSuccessToast("비밀번호가 성공적으로 변경되었습니다. 다시 로그인 해주세요.");
+      alert("비밀번호가 성공적으로 변경되었습니다.\n다시 로그인 해주세요.");
       localStorage.removeItem("accessToken");
       window.location.href = "/login";
       onClose();
@@ -138,6 +139,7 @@ const PasswordRequirements = ({ password }: { password: string }) => {
     { label: "최소 8자 이상", valid: password.length >= 8 },
     { label: "최소 1자의 대문자 사용", valid: /[A-Z]/.test(password) },
     { label: "최소 1자의 숫자 사용", valid: /[0-9]/.test(password) },
+    { label: "최소 1자의 특수문자(@$!%*#?&) 사용", valid: /[@$!%*#?&]/.test(password) },
   ];
   return (
     <div style={{ marginTop: "0.5rem" }}>
