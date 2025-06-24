@@ -4,9 +4,9 @@ import { useState, useEffect } from "react";
 import { useNotification } from "@/features/Notification/NotificationContext";
 import CompanyRegisterModal from "../components/CompanyRegisterModal";
 import CompanyEditModal from "../components/CompanyEditModal";
-import CompanyDetailModal from "../components/CompanyDetailModal/CompanyDetailModal";
 import CompanyFilterBar from "../components/CompanyFilterBar";
 import styled from "styled-components";
+import { useNavigate } from "react-router-dom";
 
 export interface Company {
   id: number;
@@ -121,6 +121,11 @@ const TableCell = styled.td`
 const CompanyNameCell = styled(TableCell)`
   color: #374151;
   font-weight: 500;
+  transition: color 0.2s ease;
+  
+  &:hover {
+    color: #3b82f6;
+  }
 `;
 
 const ActionButton = styled.button`
@@ -238,7 +243,7 @@ const ClickableTableRow = styled(TableRow)`
   }
 `;
 
-interface FieldError {
+export interface FieldError {
   field: string;
   value: string;
   reason: string;
@@ -258,15 +263,52 @@ export const formatBizNo = (bizNo: string) => {
   return `${bizNo.slice(0, 3)}-${bizNo.slice(3, 5)}-${bizNo.slice(5)}`;
 };
 
+export const formatTelNo = (telNo: string) => {
+  if (!telNo) return telNo;
+  const cleaned = ("" + telNo).replace(/\D/g, "");
+  // 11자리(휴대폰) 01012345678 -> 010-1234-5678
+  if (cleaned.length === 11) {
+    const match = cleaned.match(/^(\d{3})(\d{4})(\d{4})$/);
+    if (match) {
+      return `${match[1]}-${match[2]}-${match[3]}`;
+    }
+  }
+  // 10자리(지역번호) 02, 031, 032 등
+  if (cleaned.length === 10) {
+    // 02로 시작하는 경우 (서울)
+    if (cleaned.startsWith("02")) {
+      const match = cleaned.match(/^(02)(\d{4})(\d{4})$/);
+      if (match) {
+        return `${match[1]}-${match[2]}-${match[3]}`;
+      }
+    } else {
+      // 그 외 3자리 지역번호
+      const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
+      if (match) {
+        return `${match[1]}-${match[2]}-${match[3]}`;
+      }
+    }
+  }
+  // 9자리(서울) 02-123-4567
+  if (cleaned.length === 9 && cleaned.startsWith("02")) {
+    const match = cleaned.match(/^(02)(\d{3})(\d{4})$/);
+    if (match) {
+      return `${match[1]}-${match[2]}-${match[3]}`;
+    }
+  }
+  return telNo;
+};
+
 export default function CompanyPage() {
+  const navigate = useNavigate();
   const [filters, setFilters] = useState({
     sort: "latest",
     keyword: "",
+    client: "",
+    companyId: null,
   });
   const [companies, setCompanies] = useState<Company[]>([]);
   const [fieldErrors, setFieldErrors] = useState<FieldError[]>([]);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editData, setEditData] = useState<Company | null>(null);
@@ -279,10 +321,6 @@ export default function CompanyPage() {
     totalElements: number;
     totalPages: number;
   } | null>(null);
-  const [isCompanyDetailModalOpen, setIsCompanyDetailModalOpen] =
-    useState(false);
-  const [selectedCompanyForDetail, setSelectedCompanyForDetail] =
-    useState<Company | null>(null);
 
   const handlePageChange = (newPage: number) => {
     fetchCompanies(newPage);
@@ -321,20 +359,15 @@ export default function CompanyPage() {
   };
 
   const handleClose = () => {
-    setErrorMessage(null);
-    setSuccessMessage(null);
     setFieldErrors([]);
-  };
-
-  const handleSearch = () => {
-    // 필터링된 결과를 클라이언트 사이드에서 처리
-    fetchCompanies();
   };
 
   const handleResetFilters = () => {
     setFilters({
       sort: "latest",
       keyword: "",
+      client: "",
+      companyId: null,
     });
     fetchCompanies();
   };
@@ -345,9 +378,7 @@ export default function CompanyPage() {
 
     const keyword = filters.keyword.toLowerCase();
     return (
-      company.name.toLowerCase().includes(keyword) ||
-      company.ceoName.toLowerCase().includes(keyword) ||
-      company.email.toLowerCase().includes(keyword)
+      company.name.toLowerCase().includes(keyword)
     );
   });
 
@@ -423,20 +454,19 @@ export default function CompanyPage() {
         const errorData = err.response?.data as ErrorResponse | undefined;
         if (errorData?.data?.errors) {
           setFieldErrors(errorData.data.errors);
-          notify("회사 수정이 실패했습니다!", false);
         } else {
-          setErrorMessage(
+          setError(
             errorData?.message || "회사 수정 중 알 수 없는 오류가 발생했습니다."
           );
         }
       } else {
-        setErrorMessage("회사 수정 중 알 수 없는 오류가 발생했습니다.");
+        setError("회사 수정 중 알 수 없는 오류가 발생했습니다.");
       }
     }
   };
 
   const handleDelete = async (companyId: number) => {
-    if (!window.confirm("정말 삭제하시겠습니까?")) return;
+    if (window.confirm("정말 삭제하시겠습니까?")) return;
 
     try {
       await api.delete(`/api/companies/${companyId}`);
@@ -450,8 +480,7 @@ export default function CompanyPage() {
   };
 
   const handleCompanyClick = (company: Company) => {
-    setSelectedCompanyForDetail(company);
-    setIsCompanyDetailModalOpen(true);
+    navigate(`/company/${company.id}`);
   };
 
   return (
@@ -468,15 +497,10 @@ export default function CompanyPage() {
           onSave={handleEdit}
           initialData={editData}
           fieldErrors={fieldErrors}
-          setFieldErrors={setFieldErrors}  // 부모에서 내려줌
-          setErrorMessage={setErrorMessage}
+          setFieldErrors={setFieldErrors}
+          setErrorMessage={setError}
         />
       )}
-      <CompanyDetailModal
-        open={isCompanyDetailModalOpen}
-        onClose={() => setIsCompanyDetailModalOpen(false)}
-        company={selectedCompanyForDetail}
-      />
       <HeaderSection>
         <Title>회사 관리</Title>
         <Subtitle>
@@ -487,7 +511,6 @@ export default function CompanyPage() {
       <CompanyFilterBar
         filters={filters}
         onInputChange={handleFilterChange}
-        onSearch={handleSearch}
         onReset={handleResetFilters}
         onRegisterClick={() => setModalOpen(true)}
       />
@@ -539,7 +562,7 @@ export default function CompanyPage() {
                   <TableCell>{c.address}</TableCell>
                   <TableCell>{c.ceoName}</TableCell>
                   <TableCell>{c.email}</TableCell>
-                  <TableCell>{c.tel}</TableCell>
+                  <TableCell>{formatTelNo(c.tel)}</TableCell>
                   <TableCell onClick={(e) => e.stopPropagation()}>
                     <ActionButton
                       onClick={() => {

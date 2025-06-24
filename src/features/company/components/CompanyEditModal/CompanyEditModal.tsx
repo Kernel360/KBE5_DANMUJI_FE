@@ -1,5 +1,4 @@
 import React, { useRef, useEffect, useState } from "react";
-import axios from "axios";
 import styled from "styled-components";
 import {
   FiX,
@@ -220,7 +219,6 @@ export default function CompanyEditModal({
   initialData,
   fieldErrors, 
   setFieldErrors,
-  setErrorMessage,
 }: Props) {
   const reg1Ref = useRef<HTMLInputElement>(null);
   const reg2Ref = useRef<HTMLInputElement>(null);
@@ -275,7 +273,7 @@ export default function CompanyEditModal({
       setReg3("");
       setFieldErrors([]);
     }
-  }, [open, initialData]);
+  }, [open, initialData, setFieldErrors]);
 
   if (!open) return null;
 
@@ -333,11 +331,13 @@ export default function CompanyEditModal({
     if (!formData.email?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newFieldErrors.push({ field: "email", value: formData.email, reason: "올바른 이메일 형식이 아닙니다." });
     }
-    if (!formData.tel?.trim() || !/^(\d{2,3})-(\d{3,4})-(\d{4})$/.test(formData.tel)) {
+    const telRegex = /^\d{9,11}$/;
+    const formattedTel = formData.tel?.replace(/-/g, "");
+    if (!formattedTel || !telRegex.test(formattedTel)) {
       newFieldErrors.push({
         field: "tel",
         value: formData.tel,
-        reason: "전화번호 형식이 올바르지 않습니다. 예: 010-1234-5678",
+        reason: "전화번호는 9~11자리의 숫자로 입력해주세요.",
       });
     }
   
