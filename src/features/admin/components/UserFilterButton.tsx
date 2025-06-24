@@ -1,5 +1,5 @@
 import React from "react";
-import { FiUser, FiChevronDown } from "react-icons/fi";
+import { FiUser, FiSettings } from "react-icons/fi";
 import { SelectButton } from "@/features/admin/pages/ActivityLogPage.styled";
 import type { User } from "@/features/admin/types/activityLog";
 
@@ -27,7 +27,7 @@ const UserFilterButton: React.FC<UserFilterButtonProps> = ({
         <span className="select-value">
           {selectedUser?.name || "사용자 선택"}
         </span>
-        <FiChevronDown size={16} />
+        <FiSettings size={16} />
       </SelectButton>
       {selectedUser && (
         <button
