@@ -181,6 +181,10 @@ export const Input = styled.input`
   &:hover {
     border-color: #d1d5db;
   }
+
+  &.half-width {
+    width: 50%;
+  }
 `;
 
 export const Select = styled.select`
@@ -214,6 +218,10 @@ export const Select = styled.select`
     font-size: 0.875rem;
     background: #ffffff;
     color: #374151;
+  }
+
+  &.half-width {
+    width: 50%;
   }
 `;
 
