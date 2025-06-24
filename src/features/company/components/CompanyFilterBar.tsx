@@ -38,6 +38,8 @@ import {
   EmptyState,
 } from "@/features/project/components/List/ProjectFilterBar.styled";
 import api from "@/api/axios";
+import { formatTelNo } from "../../user/pages/MemberPage";
+import type { Company } from "../pages/CompanyPage";
 
 const SORT_OPTIONS = [
   { value: "latest", label: "최근 등록 순" },
@@ -60,7 +62,6 @@ interface CompanyFilterBarProps {
 const CompanyFilterBar: React.FC<CompanyFilterBarProps> = ({
   filters,
   onInputChange,
-
   onRegisterClick,
 }) => {
   const [addressModalOpen, setAddressModalOpen] = useState(false);
@@ -69,7 +70,7 @@ const CompanyFilterBar: React.FC<CompanyFilterBarProps> = ({
   );
   const [companyModalOpen, setCompanyModalOpen] = useState(false);
   const [companySearchTerm, setCompanySearchTerm] = useState("");
-  const [companies, setCompanies] = useState<any[]>([]);
+  const [companies, setCompanies] = useState<Company[]>([]);
   const [companyLoading, setCompanyLoading] = useState(false);
   const [companyError, setCompanyError] = useState<string | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
@@ -328,6 +329,8 @@ const CompanyFilterBar: React.FC<CompanyFilterBarProps> = ({
                         사업자등록번호: {company.bizNo}
                         <br />
                         대표자: {company.ceoName}
+                        <br />
+                        연락처: {formatTelNo(String(company.tel))}
                       </CompanyDescription>
                     </CompanyInfo>
                     <CheckIcon $isSelected={selectedCompany === company.id}>

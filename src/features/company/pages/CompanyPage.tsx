@@ -258,15 +258,51 @@ export const formatBizNo = (bizNo: string) => {
   return `${bizNo.slice(0, 3)}-${bizNo.slice(3, 5)}-${bizNo.slice(5)}`;
 };
 
+export const formatTelNo = (telNo: string) => {
+  if (!telNo) return telNo;
+  const cleaned = ("" + telNo).replace(/\D/g, "");
+  // 11자리(휴대폰) 01012345678 -> 010-1234-5678
+  if (cleaned.length === 11) {
+    const match = cleaned.match(/^(\d{3})(\d{4})(\d{4})$/);
+    if (match) {
+      return `${match[1]}-${match[2]}-${match[3]}`;
+    }
+  }
+  // 10자리(지역번호) 02, 031, 032 등
+  if (cleaned.length === 10) {
+    // 02로 시작하는 경우 (서울)
+    if (cleaned.startsWith("02")) {
+      const match = cleaned.match(/^(02)(\d{4})(\d{4})$/);
+      if (match) {
+        return `${match[1]}-${match[2]}-${match[3]}`;
+      }
+    } else {
+      // 그 외 3자리 지역번호
+      const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
+      if (match) {
+        return `${match[1]}-${match[2]}-${match[3]}`;
+      }
+    }
+  }
+  // 9자리(서울) 02-123-4567
+  if (cleaned.length === 9 && cleaned.startsWith("02")) {
+    const match = cleaned.match(/^(02)(\d{3})(\d{4})$/);
+    if (match) {
+      return `${match[1]}-${match[2]}-${match[3]}`;
+    }
+  }
+  return telNo;
+};
+
 export default function CompanyPage() {
   const [filters, setFilters] = useState({
     sort: "latest",
     keyword: "",
+    client: "",
+    companyId: null,
   });
   const [companies, setCompanies] = useState<Company[]>([]);
   const [fieldErrors, setFieldErrors] = useState<FieldError[]>([]);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editData, setEditData] = useState<Company | null>(null);
@@ -321,8 +357,6 @@ export default function CompanyPage() {
   };
 
   const handleClose = () => {
-    setErrorMessage(null);
-    setSuccessMessage(null);
     setFieldErrors([]);
   };
 
@@ -335,6 +369,8 @@ export default function CompanyPage() {
     setFilters({
       sort: "latest",
       keyword: "",
+      client: "",
+      companyId: null,
     });
     fetchCompanies();
   };
@@ -424,12 +460,12 @@ export default function CompanyPage() {
         if (errorData?.data?.errors) {
           setFieldErrors(errorData.data.errors);
         } else {
-          setErrorMessage(
+          setError(
             errorData?.message || "회사 수정 중 알 수 없는 오류가 발생했습니다."
           );
         }
       } else {
-        setErrorMessage("회사 수정 중 알 수 없는 오류가 발생했습니다.");
+        setError("회사 수정 중 알 수 없는 오류가 발생했습니다.");
       }
     }
   };
@@ -468,7 +504,7 @@ export default function CompanyPage() {
           initialData={editData}
           fieldErrors={fieldErrors}
           setFieldErrors={setFieldErrors}  // 부모에서 내려줌
-          setErrorMessage={setErrorMessage}
+          setErrorMessage={setError}
         />
       )}
       <CompanyDetailModal
@@ -538,7 +574,7 @@ export default function CompanyPage() {
                   <TableCell>{c.address}</TableCell>
                   <TableCell>{c.ceoName}</TableCell>
                   <TableCell>{c.email}</TableCell>
-                  <TableCell>{c.tel}</TableCell>
+                  <TableCell>{formatTelNo(c.tel)}</TableCell>
                   <TableCell onClick={(e) => e.stopPropagation()}>
                     <ActionButton
                       onClick={() => {

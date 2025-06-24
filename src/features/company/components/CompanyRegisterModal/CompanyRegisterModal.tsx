@@ -300,8 +300,8 @@ export default function CompanyRegisterModal({
     if (!data.email?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
       newFieldErrors.push({ field: "email", value: data.email, reason: "올바른 이메일 형식이 아닙니다." });
     }
-    if (!data.tel?.trim() || !/^(\d{2,3})-(\d{3,4})-(\d{4})$/.test(data.tel)) {
-      newFieldErrors.push({ field: "tel", value: data.tel, reason: "전화번호 형식이 올바르지 않습니다. 예: 010-1234-5678" });
+    if (!data.tel?.trim() || !/^\d{9,11}$/.test(data.tel.replace(/-/g, ""))) {
+      newFieldErrors.push({ field: "tel", value: data.tel, reason: "전화번호는 숫자만 입력하세요. 예: 021231234, 01012345678" });
     }
 
     if (newFieldErrors.length > 0) {
@@ -316,7 +316,7 @@ export default function CompanyRegisterModal({
       address: data.address,
       ceoName: data.ceoName,
       email: data.email,
-      tel: data.tel,
+      tel: data.tel.replace(/\D/g, ""),
       bio: data.bio,
     };
 
@@ -464,7 +464,9 @@ export default function CompanyRegisterModal({
             <Input
               name="tel"
               type="tel"
-              placeholder="전화번호를 입력하세요"
+              placeholder="전화번호를 입력하세요 (숫자만 입력)"
+              pattern="[0-9]*"
+              inputMode="numeric"
             />
             {fieldErrors.find((e) => e.field === "tel") && (
               <p style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>
