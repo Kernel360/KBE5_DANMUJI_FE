@@ -29,7 +29,8 @@ interface HistorySimpleResponse {
   changerId: string;
   changerName: string;
   changerRole: string;
-  changerIp: string;
+  changerUsername: string;
+  message: string;
 }
 
 interface ActivityLog {
@@ -43,6 +44,7 @@ interface ActivityLog {
   details: string;
   ipAddress: string;
   createdAt: string;
+  changerUsername: string;
 }
 
 // 이력 목록 조회
@@ -145,11 +147,14 @@ export const transformHistoryToActivityLog = (
     action: history.historyType,
     targetType: history.domainType,
     targetName: getTargetTypeDisplayName(history.domainType),
-    details: `${getTargetTypeDisplayName(
-      history.domainType
-    )} ${getActionDisplayName(history.historyType)} 작업`,
-    ipAddress: history.changerIp,
+    details:
+      history.message ||
+      `${getTargetTypeDisplayName(history.domainType)} ${getActionDisplayName(
+        history.historyType
+      )} 작업`,
+    ipAddress: history.changerUsername,
     createdAt: history.changedAt,
+    changerUsername: history.changerUsername,
   };
 };
 

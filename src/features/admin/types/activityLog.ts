@@ -33,6 +33,11 @@ export interface HistorySimpleResponse {
   domainId: number;
   changedAt: string;
   changedBy: string;
+  changerId: string;
+  changerName: string;
+  changerRole: string;
+  changerUsername: string;
+  message: string;
 }
 
 // 프론트엔드에서 사용할 이력 타입 (사용자 정보 포함)
@@ -47,6 +52,7 @@ export interface ActivityLog {
   details: string;
   ipAddress: string;
   createdAt: string;
+  changerUsername: string;
 }
 
 export interface User {

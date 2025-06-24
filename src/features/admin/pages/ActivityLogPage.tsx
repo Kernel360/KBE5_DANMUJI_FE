@@ -74,6 +74,8 @@ interface ActivityLog {
   details: string;
   ipAddress: string;
   createdAt: string;
+  changerUsername: string;
+  message: string;
 }
 
 interface User {
@@ -669,11 +671,10 @@ export default function ActivityLogPage() {
           <TableHead>
             <TableRow>
               <TableHeader>작업</TableHeader>
-              <TableHeader>사용자</TableHeader>
+              <TableHeader>변경자</TableHeader>
               <TableHeader>대상</TableHeader>
               <TableHeader>상세내용</TableHeader>
-              <TableHeader>변경자 IP</TableHeader>
-              <TableHeader>변경 일시</TableHeader>
+              <TableHeader>변경 발생 일시</TableHeader>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -709,6 +710,11 @@ export default function ActivityLogPage() {
                       <FiUser size={14} style={{ color: "#6b7280" }} />
                     )}
                     <span style={{ fontWeight: "500" }}>{log.userName}</span>
+                    {log.changerUsername && (
+                      <span style={{ fontSize: "12px", color: "#6b7280" }}>
+                        ({log.changerUsername})
+                      </span>
+                    )}
                     <span style={{ fontSize: "12px", color: "#6b7280" }}>
                       ({log.userRole === "ROLE_ADMIN" ? "관리자" : "사용자"})
                     </span>
@@ -729,17 +735,6 @@ export default function ActivityLogPage() {
                 <TableCell>
                   <span style={{ fontSize: "14px", color: "#374151" }}>
                     {log.details}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <span
-                    style={{
-                      fontSize: "12px",
-                      color: "#6b7280",
-                      fontFamily: "monospace",
-                    }}
-                  >
-                    {log.ipAddress}
                   </span>
                 </TableCell>
                 <TableCell>
