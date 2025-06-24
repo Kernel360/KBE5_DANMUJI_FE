@@ -580,48 +580,48 @@ export const EmptyContainer = styled.div`
 
 export const PaginationContainer = styled.div`
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 20px;
-  border-top: 1px solid #e5e7eb;
-  background: #f9fafb;
+  margin-top: 32px;
+  gap: 0.7rem;
 `;
 
-export const PaginationButton = styled.button<{ $disabled?: boolean }>`
+export const PaginationInfo = styled.div`
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.825rem;
+  margin-top: 0.75rem;
+  margin-bottom: 0.1rem;
+`;
+
+export const PaginationNav = styled.nav`
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 12px;
-  background: ${({ $disabled }) => ($disabled ? "#f3f4f6" : "#ffffff")};
-  color: ${({ $disabled }) => ($disabled ? "#9ca3af" : "#374151")};
-  font-size: 14px;
-  font-weight: 500;
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
-  cursor: ${({ $disabled }) => ($disabled ? "not-allowed" : "pointer")};
-  transition: all 0.2s ease;
-
-  &:hover:not(:disabled) {
-    background: #f9fafb;
-    border-color: #d1d5db;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-
-  &:active:not(:disabled) {
-    transform: translateY(0);
-  }
-
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.1);
-  }
+  gap: 1.2rem;
+  flex-wrap: wrap;
+  justify-content: center;
 `;
 
-export const PaginationInfo = styled.span`
-  padding: 8px 12px;
-  color: #6b7280;
-  font-size: 14px;
+export const PaginationButton = styled.button<{ $active?: boolean }>`
+  padding: 0.32rem 0.6rem;
+  border: none;
+  background: transparent;
+  color: ${({ $active }) => ($active ? "#fff" : "#111827")};
+  border-radius: 1.2rem;
+  font-size: 0.75rem;
   font-weight: 500;
+  box-shadow: none;
+  cursor: pointer;
+  outline: none;
+  min-width: 28px;
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  ${({ $active }) =>
+    $active &&
+    `
+      background: #fdb924;
+      color: #fff;
+    `}
 `;

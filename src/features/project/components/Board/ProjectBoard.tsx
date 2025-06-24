@@ -1,5 +1,6 @@
 import React, { useState, useEffect, type JSX, useRef } from "react";
 import { getPostsByProjectStep } from "../../../project-d/services/postService";
+import { getProjectDetail } from "../../services/projectService";
 import type { PostSummaryReadResponse } from "../../../project-d/types/post";
 import {
   Wrapper,
@@ -24,6 +25,10 @@ import {
   DropdownButton,
   DropdownMenu,
   DropdownItem,
+  PaginationContainer,
+  PaginationInfo,
+  PaginationNav,
+  PaginationButton,
 } from "./ProjectBoard.styled";
 import {
   FiFileText,
@@ -41,12 +46,6 @@ import {
   FiPlus,
 } from "react-icons/fi";
 import { POST_PRIORITY_LABELS } from "../../types/Types";
-import {
-  PaginationContainer,
-  PaginationInfo,
-  PaginationNav,
-  PaginationButton,
-} from "@/features/board/components/Post/styles/PostListPage.styled";
 import ProjectPostDetailModal from "@/features/board/components/Post/components/DetailModal/ProjectPostDetailModal";
 import PostFormModal from "@/features/board/components/Post/components/FormModal/PostFormModal";
 import { showSuccessToast } from "@/utils/errorHandler";
@@ -106,6 +105,9 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
   const [editingPostStepId, setEditingPostStepId] = useState<number | null>(
     null
   );
+
+  // 단계 이름 상태 추가
+  const [stepName, setStepName] = useState<string>("");
 
   // 드롭다운 외부 클릭 및 ESC 키 처리
   useEffect(() => {
@@ -187,6 +189,31 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
   useEffect(() => {
     fetchPosts();
   }, [projectId, selectedStepId, currentPage]);
+
+  // 단계 이름 가져오기
+  const fetchStepName = async () => {
+    if (!selectedStepId) {
+      setStepName("");
+      return;
+    }
+
+    try {
+      const response = await getProjectDetail(projectId);
+      if (response.data) {
+        const step = response.data.steps.find((s) => s.id === selectedStepId);
+        if (step) {
+          setStepName(step.name);
+        }
+      }
+    } catch (err) {
+      console.error("단계 정보 조회 실패:", err);
+      setStepName("");
+    }
+  };
+
+  useEffect(() => {
+    fetchStepName();
+  }, [projectId, selectedStepId]);
 
   // 필터링된 게시글
   const filteredPosts = posts.filter((post) => {
@@ -738,29 +765,47 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
       {/* 페이지네이션 */}
       {totalPages > 1 && (
         <PaginationContainer>
-          <PaginationInfo>
-            {currentPage + 1} / {totalPages} 페이지
-          </PaginationInfo>
           <PaginationNav>
-            <PaginationButton
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 0}
-            >
-              이전
-            </PaginationButton>
-            <PaginationButton
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages - 1}
-            >
-              다음
-            </PaginationButton>
+            {/* 첫 페이지가 아니면 이전 버튼 렌더 */}
+            {currentPage > 0 && (
+              <PaginationButton
+                onClick={() => handlePageChange(currentPage - 1)}
+              >
+                이전
+              </PaginationButton>
+            )}
+
+            {/* 페이지 번호 버튼들을 동적으로 생성 */}
+            {Array.from({ length: totalPages }, (_, idx) => (
+              <PaginationButton
+                key={idx}
+                $active={currentPage === idx}
+                onClick={() => handlePageChange(idx)}
+              >
+                {idx + 1}
+              </PaginationButton>
+            ))}
+
+            {/* 마지막 페이지가 아니면 다음 버튼 렌더 */}
+            {currentPage + 1 < totalPages && (
+              <PaginationButton
+                onClick={() => handlePageChange(currentPage + 1)}
+              >
+                다음
+              </PaginationButton>
+            )}
           </PaginationNav>
+          <PaginationInfo>
+            총 {totalElements}개 항목 중 {currentPage * 10 + 1}-
+            {Math.min((currentPage + 1) * 10, totalElements)}개 표시
+          </PaginationInfo>
         </PaginationContainer>
       )}
 
       <ProjectPostDetailModal
         open={detailModalOpen}
         postId={selectedPostId}
+        stepName={stepName}
         onClose={() => setDetailModalOpen(false)}
         onEditPost={handleEditPost}
         onReplyPost={handleReplyPost}

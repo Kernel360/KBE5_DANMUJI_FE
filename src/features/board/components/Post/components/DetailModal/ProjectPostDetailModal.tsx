@@ -43,6 +43,7 @@ interface PostDetailModalProps {
   open: boolean;
   onClose: () => void;
   postId: number | null;
+  stepName?: string;
   onPostDelete?: (deletedPostId: number) => void;
   onEditPost?: (postId: number) => void;
   onReplyPost?: (parentId: number) => void;
@@ -52,6 +53,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
   open,
   onClose,
   postId,
+  stepName,
   onPostDelete,
   onEditPost,
   onReplyPost,
@@ -288,12 +290,9 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
   // 파일 다운로드 핸들러
   const handleFileDownload = async (file: PostFile, postId: number) => {
     try {
-      const response = await api.get(
-        `/api/posts/${postId}/files/${file.id}/download`,
-        {
-          responseType: "blob",
-        }
-      );
+      const response = await api.get(`/api/posts/${postId}/files/${file.id}`, {
+        responseType: "blob",
+      });
 
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
@@ -347,19 +346,32 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
       >
         <ModalPanel $closing={closing}>
           <ModalHeader>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <span style={{ fontSize: "1.1rem", fontWeight: "600" }}>
-                <span
-                  style={{
-                    color: "#fdb924",
-                    fontSize: "1.25rem",
-                    fontWeight: "700",
-                    marginRight: "6px",
-                  }}
-                >
-                  |
-                </span>{" "}
-                게시글상세
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+              }}
+            >
+              <span
+                style={{
+                  color: "#fdb924",
+                  fontSize: "1.5rem",
+                  fontWeight: "900",
+                  marginRight: "2px",
+                  marginLeft: "5px",
+                }}
+              >
+                |
+              </span>
+              <span
+                style={{
+                  marginLeft: "-2.5px",
+                  fontSize: "1.1rem",
+                  fontWeight: "600",
+                }}
+              >
+                {stepName || "게시글 상세"}
               </span>
             </div>
             <ModalHeaderButtonGroup>
