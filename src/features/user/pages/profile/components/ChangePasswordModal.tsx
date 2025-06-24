@@ -43,9 +43,9 @@ export default function ChangePasswordModal({ open, onClose }: ChangePasswordMod
     e.preventDefault();
     const error = validatePassword(newPassword);
     const mismatch = newPassword !== newPasswordConfirm;
+
     if (error || mismatch) {
       if (error) {
-        showErrorToast(error);
         setPasswordError(error);
       }
       if (mismatch) {
@@ -54,18 +54,27 @@ export default function ChangePasswordModal({ open, onClose }: ChangePasswordMod
       }
       return;
     }
+
     setLoading(true);
     await withErrorHandling(async () => {
-      const res = await api.post("/api/users/password/change", {
+      const res = await api.put("/api/users/password/change", {
         currentPassword,
         newPassword,
       });
-      if (res.data.status !== "ok") {
-        throw new Error(res.data.message || "비밀번호 변경에 실패했습니다.");
+
+      const isSuccess =
+        (res.data.status && res.data.status.toLowerCase() === "ok") ||
+        res.data.message?.includes("비밀번호 변경 완료");
+
+      if (!isSuccess) {
+        throw { response: { data: res.data } };
       }
-      showSuccessToast("비밀번호가 성공적으로 변경되었습니다.");
+
+      showSuccessToast("비밀번호가 성공적으로 변경되었습니다. 다시 로그인 해주세요.");
+      localStorage.removeItem("accessToken");
+      window.location.href = "/login";
       onClose();
-    }, "비밀번호 변경에 실패했습니다.");
+    });
     setLoading(false);
   };
 
