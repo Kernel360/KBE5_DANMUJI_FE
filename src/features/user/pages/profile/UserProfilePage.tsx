@@ -11,7 +11,7 @@ import {
   Value,
   ActivityCard,
   ActivityRow,
-} from "./styles/UserProfilePage.styled";
+} from "./styled/UserProfilePage.styled";
 import {
   FiUser,
   FiMail,

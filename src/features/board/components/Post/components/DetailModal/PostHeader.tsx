@@ -208,6 +208,7 @@ const PostHeader: React.FC<PostHeaderProps> = ({
         </InfoKey>
         <InfoValue
           style={{
+            marginLeft: "-4.5px",
             fontWeight: 600,
             fontSize: "0.95rem",
             color: "#111827",
@@ -260,32 +261,32 @@ const PostHeader: React.FC<PostHeaderProps> = ({
           {formatDate(post.createdAt)}
         </InfoValue>
       </InfoRow>
-      {post.updatedAt && post.updatedAt !== post.createdAt && (
-        <InfoRow style={{ justifyContent: "flex-start" }}>
-          <InfoKey
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              color: "#6b7280",
-              fontWeight: 500,
-              fontSize: "0.95rem",
-              minWidth: "80px",
-            }}
-          >
-            <FiEdit style={{ color: "#fdb924" }} /> 수정일
-          </InfoKey>
-          <InfoValue
-            style={{
-              fontWeight: 600,
-              fontSize: "0.95rem",
-              color: "#111827",
-            }}
-          >
-            {formatDate(post.updatedAt)}
-          </InfoValue>
-        </InfoRow>
-      )}
+      <InfoRow style={{ justifyContent: "flex-start" }}>
+        <InfoKey
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            color: "#6b7280",
+            fontWeight: 500,
+            fontSize: "0.95rem",
+            minWidth: "80px",
+          }}
+        >
+          <FiEdit style={{ color: "#fdb924" }} /> 수정일
+        </InfoKey>
+        <InfoValue
+          style={{
+            fontWeight: 600,
+            fontSize: "0.95rem",
+            color: "#111827",
+          }}
+        >
+          {post.updatedAt && post.updatedAt !== post.createdAt
+            ? formatDate(post.updatedAt)
+            : "-"}
+        </InfoValue>
+      </InfoRow>
       <InfoRow style={{ justifyContent: "flex-start" }}>
         <InfoKey
           style={{

@@ -12,8 +12,30 @@ import {
   RecentActivityItem,
   RecentActivityDate,
 } from "./DashboardPage.styled";
-import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { FaUserFriends, FaBuilding, FaFolderOpen } from 'react-icons/fa';
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+} from "recharts";
+import {
+  FaUsers,
+  FaBuilding,
+  FaProjectDiagram,
+  FaFileAlt,
+  FaCalendarAlt,
+  FaChartLine,
+  FaChartPie,
+  FaClipboardList,
+  FaQuestionCircle,
+} from "react-icons/fa";
 
 // Define interfaces for new data types
 interface RecentPost {
@@ -34,157 +56,433 @@ interface RecentProject {
   createdAt: string;
 }
 
+// 커스텀 라벨 컴포넌트
+const CustomLabel = ({
+  cx,
+  cy,
+  midAngle,
+  innerRadius,
+  outerRadius,
+  percent,
+  name,
+  value,
+}: any) => {
+  const RADIAN = Math.PI / 180;
+  const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+  const x = cx + radius * Math.cos(-midAngle * RADIAN);
+  const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+  return (
+    <text
+      x={x}
+      y={y}
+      fill="#374151"
+      textAnchor={x > cx ? "start" : "end"}
+      dominantBaseline="central"
+      style={{
+        fontSize: "12px",
+        fontWeight: "600",
+        textShadow: "0 0 3px white, 0 0 3px white, 0 0 3px white",
+      }}
+    >
+      {`${name}: ${value}`}
+    </text>
+  );
+};
+
 export default function DashboardPage() {
   const [companyCount, setCompanyCount] = useState(0);
   const [memberCount, setMemberCount] = useState(0);
   const [totalProjectCount, setTotalProjectCount] = useState(0);
   const [inProgressProjectCount, setInProgressProjectCount] = useState(0);
+  const [inquiryCount, setInquiryCount] = useState(0);
   const [recentPosts, setRecentPosts] = useState<RecentPost[]>([]);
   const [recentCompanies, setRecentCompanies] = useState<RecentCompany[]>([]);
   const [recentProjects, setRecentProjects] = useState<RecentProject[]>([]);
 
-  // 차트용 임시 데이터
+  // 차트용 데이터
   const projectStatusData = [
-    { name: '진행중', value: 10 },
-    { name: '완료', value: 5 },
-    { name: '지연', value: 2 },
-    { name: '임박', value: 1 },
+    {
+      name: "진행중",
+      value: inProgressProjectCount,
+      fill: "#dbeafe",
+      stroke: "#3b82f6",
+    },
+    { name: "완료", value: 5, fill: "#d1fae5", stroke: "#10b981" },
+    { name: "지연", value: 2, fill: "#fef3c7", stroke: "#f59e0b" },
+    { name: "임박", value: 1, fill: "#fee2e2", stroke: "#ef4444" },
   ];
-  const inquiryPieData = [
-    { name: '답변 대기', value: 45 },
-    { name: '답변 완료', value: 88 },
+
+  const monthlyData = [
+    { month: "1월", posts: 12, projects: 3 },
+    { month: "2월", posts: 19, projects: 5 },
+    { month: "3월", posts: 15, projects: 4 },
+    { month: "4월", posts: 22, projects: 7 },
+    { month: "5월", posts: 18, projects: 6 },
+    { month: "6월", posts: 25, projects: 8 },
   ];
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         // Fetch Company Count
-        const companyResponse = await api.get('/api/companies/all');
+        const companyResponse = await api.get("/api/companies/all");
         const companies = companyResponse.data?.data || [];
         setCompanyCount(companies.length);
-  
+
         // Fetch Member Count
-        const memberResponse = await api.get('/api/admin/allUsers');
+        const memberResponse = await api.get("/api/admin/allUsers");
         const members = memberResponse.data?.data?.page?.totalElements || 0;
         setMemberCount(members);
-  
+
         // Fetch Project Counts
-        const projectCountsResponse = await api.get('/api/projects/all');
+        const projectCountsResponse = await api.get("/api/projects/all");
         const content = projectCountsResponse.data?.data || [];
         const total = content.length;
-        const inProgressCount = content.filter((p: { status: string; }) => p.status === 'IN_PROGRESS').length;
-  
+        const inProgressCount = content.filter(
+          (p: { status: string }) => p.status === "IN_PROGRESS"
+        ).length;
+
         setTotalProjectCount(total);
         setInProgressProjectCount(inProgressCount);
-  
+
         // Fetch Recent Posts
-        const postsResponse = await api.get('/api/posts/recent-posts');
+        const postsResponse = await api.get("/api/posts/recent-posts");
         setRecentPosts(postsResponse.data?.data || []);
-  
+
         // Fetch Recent Companies
-        const recentCompaniesResponse = await api.get('/api/companies/recent-companies');
+        const recentCompaniesResponse = await api.get(
+          "/api/companies/recent-companies"
+        );
         setRecentCompanies(recentCompaniesResponse.data?.data || []);
-  
+
         // Fetch Recent Projects
-        const recentProjectsResponse = await api.get('/api/projects/recent-projects');
+        const recentProjectsResponse = await api.get(
+          "/api/projects/recent-projects"
+        );
         setRecentProjects(recentProjectsResponse.data?.data || []);
+
+        // Fetch Inquiry Count (임시 데이터)
+        setInquiryCount(45);
       } catch (error) {
-        console.error('Failed to fetch dashboard data:', error);
+        console.error("Failed to fetch dashboard data:", error);
       }
     };
-  
+
     fetchData();
   }, []);
 
   return (
     <DashboardContainer>
       <Header>
-        <Title>대시보드</Title>
+        <Title>관리자 대시보드</Title>
         <Description>
-          관리자용 프로젝트 관리 시스템 현황을 한눈에 확인하세요
+          단무지 프로젝트 관리 시스템의 전체 현황을 확인하세요
         </Description>
       </Header>
 
-      {/* 와이어프레임 스타일: 통계/차트 카드 분리 */}
-      {/* 1행: 통계 카드 3개 한 줄 */}
-      <div style={{ display: 'flex', flexDirection: 'row', gap: 24, marginBottom: 32 }}>
-        {/* 회원 통계 카드 - 이미지 스타일 */}
-        <RecentActivityCard style={{ flex: 1, padding: '24px 24px 18px 24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
-            <div style={{ fontSize: 32, color: '#4F8CFF', background: '#EAF3FF', borderRadius: '12px', padding: 10, marginRight: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <FaUserFriends />
+      {/* 통계 카드 섹션 */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(4, 1fr)",
+          gap: "20px",
+          marginBottom: "32px",
+        }}
+      >
+        {/* 회원 통계 카드 */}
+        <RecentActivityCard
+          style={{
+            padding: "24px",
+            border: "1px solid #e5e7eb",
+            borderRadius: "12px",
+            background: "linear-gradient(135deg, #ffffff 0%, #fefdf4 100%)",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginBottom: "16px",
+            }}
+          >
+            <div
+              style={{
+                fontSize: "24px",
+                color: "#fdb924",
+                background: "#fef3c7",
+                borderRadius: "10px",
+                padding: "12px",
+                marginRight: "16px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <FaUsers />
             </div>
             <div>
-              <div style={{ fontWeight: 700, fontSize: 17, color: '#222' }}>총 회원 수</div>
-              <div style={{ fontSize: 13, color: '#888' }}>전체 가입 회원</div>
+              <div
+                style={{ fontWeight: 600, fontSize: "16px", color: "#374151" }}
+              >
+                총 회원 수
+              </div>
+              <div style={{ fontSize: "14px", color: "#6b7280" }}>
+                전체 가입 회원
+              </div>
             </div>
-            <div style={{ flex: 1 }} />
-            <div style={{ fontSize: 32, fontWeight: 700, color: '#4F8CFF' }}>{memberCount}</div>
           </div>
-          <div style={{ marginTop: 8 }}>
-            <div style={{ textAlign: 'left' }}>
-              <div style={{ fontSize: 13, color: '#888' }}>활성 사용자</div>
-              <div style={{ fontSize: 17, fontWeight: 700, color: '#1DB954' }}>9,234</div>
-            </div>
+          <div
+            style={{
+              fontSize: "32px",
+              fontWeight: 700,
+              color: "#fdb924",
+              marginBottom: "8px",
+            }}
+          >
+            {memberCount.toLocaleString()}
+          </div>
+          <div style={{ fontSize: "14px", color: "#6b7280" }}>
+            활성 사용자:{" "}
+            <span style={{ color: "#10b981", fontWeight: 600 }}>9,234</span>
           </div>
         </RecentActivityCard>
-        {/* 회사 통계 카드 - 회원 통계와 동일 스타일 */}
-        <RecentActivityCard style={{ flex: 1, padding: '24px 24px 18px 24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
-            <div style={{ fontSize: 32, color: '#34C759', background: '#E6F9ED', borderRadius: '12px', padding: 10, marginRight: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+
+        {/* 회사 통계 카드 */}
+        <RecentActivityCard
+          style={{
+            padding: "24px",
+            border: "1px solid #e5e7eb",
+            borderRadius: "12px",
+            background: "linear-gradient(135deg, #ffffff 0%, #fefdf4 100%)",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginBottom: "16px",
+            }}
+          >
+            <div
+              style={{
+                fontSize: "24px",
+                color: "#fdb924",
+                background: "#fef3c7",
+                borderRadius: "10px",
+                padding: "12px",
+                marginRight: "16px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
               <FaBuilding />
             </div>
             <div>
-              <div style={{ fontWeight: 700, fontSize: 17, color: '#222' }}>총 회사 수</div>
-              <div style={{ fontSize: 13, color: '#888' }}>전체 등록 회사</div>
+              <div
+                style={{ fontWeight: 600, fontSize: "16px", color: "#374151" }}
+              >
+                총 회사 수
+              </div>
+              <div style={{ fontSize: "14px", color: "#6b7280" }}>
+                전체 등록 회사
+              </div>
             </div>
-            <div style={{ flex: 1 }} />
-            <div style={{ fontSize: 32, fontWeight: 700, color: '#34C759' }}>{companyCount}</div>
           </div>
-          <div style={{ marginTop: 8 }}>
-            <div style={{ textAlign: 'left' }}>
-              <div style={{ fontSize: 13, color: '#888' }}>활성 회사</div>
-              <div style={{ fontSize: 17, fontWeight: 700, color: '#34C759' }}>1,222</div>
-            </div>
+          <div
+            style={{
+              fontSize: "32px",
+              fontWeight: 700,
+              color: "#fdb924",
+              marginBottom: "8px",
+            }}
+          >
+            {companyCount.toLocaleString()}
+          </div>
+          <div style={{ fontSize: "14px", color: "#6b7280" }}>
+            활성 회사:{" "}
+            <span style={{ color: "#10b981", fontWeight: 600 }}>1,222</span>
           </div>
         </RecentActivityCard>
-        {/* 프로젝트 통계 카드 - 회원 통계와 동일 스타일 */}
-        <RecentActivityCard style={{ flex: 1, padding: '24px 24px 18px 24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
-            <div style={{ fontSize: 32, color: '#FF9500', background: '#FFF6E6', borderRadius: '12px', padding: 10, marginRight: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <FaFolderOpen />
+
+        {/* 프로젝트 통계 카드 */}
+        <RecentActivityCard
+          style={{
+            padding: "24px",
+            border: "1px solid #e5e7eb",
+            borderRadius: "12px",
+            background: "linear-gradient(135deg, #ffffff 0%, #fefdf4 100%)",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginBottom: "16px",
+            }}
+          >
+            <div
+              style={{
+                fontSize: "24px",
+                color: "#fdb924",
+                background: "#fef3c7",
+                borderRadius: "10px",
+                padding: "12px",
+                marginRight: "16px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <FaProjectDiagram />
             </div>
             <div>
-              <div style={{ fontWeight: 700, fontSize: 17, color: '#222' }}>총 프로젝트 수</div>
-              <div style={{ fontSize: 13, color: '#888' }}>전체 등록 프로젝트</div>
+              <div
+                style={{ fontWeight: 600, fontSize: "16px", color: "#374151" }}
+              >
+                총 프로젝트 수
+              </div>
+              <div style={{ fontSize: "14px", color: "#6b7280" }}>
+                전체 등록 프로젝트
+              </div>
             </div>
-            <div style={{ flex: 1 }} />
-            <div style={{ fontSize: 32, fontWeight: 700, color: '#FF9500' }}>{totalProjectCount}</div>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8 }}>
-            <div style={{ textAlign: 'center', flex: 1 }}>
-              <div style={{ fontSize: 13, color: '#888' }}>활성 프로젝트</div>
-              <div style={{ fontSize: 17, fontWeight: 700, color: '#FF9500' }}>7</div>
+          <div
+            style={{
+              fontSize: "32px",
+              fontWeight: 700,
+              color: "#fdb924",
+              marginBottom: "8px",
+            }}
+          >
+            {totalProjectCount.toLocaleString()}
+          </div>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              fontSize: "14px",
+              color: "#6b7280",
+            }}
+          >
+            <span>
+              진행 중:{" "}
+              <span style={{ color: "#3b82f6", fontWeight: 600 }}>
+                {inProgressProjectCount}
+              </span>
+            </span>
+            <span>
+              완료: <span style={{ color: "#10b981", fontWeight: 600 }}>5</span>
+            </span>
+          </div>
+        </RecentActivityCard>
+
+        {/* 문의내역 통계 카드 */}
+        <RecentActivityCard
+          style={{
+            padding: "24px",
+            border: "1px solid #e5e7eb",
+            borderRadius: "12px",
+            background: "linear-gradient(135deg, #ffffff 0%, #fefdf4 100%)",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginBottom: "16px",
+            }}
+          >
+            <div
+              style={{
+                fontSize: "24px",
+                color: "#fdb924",
+                background: "#fef3c7",
+                borderRadius: "10px",
+                padding: "12px",
+                marginRight: "16px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <FaQuestionCircle />
             </div>
-            <div style={{ textAlign: 'center', flex: 1 }}>
-              <div style={{ fontSize: 13, color: '#888' }}>진행 중 프로젝트</div>
-              <div style={{ fontSize: 17, fontWeight: 700, color: '#4F8CFF' }}>{inProgressProjectCount}</div>
+            <div>
+              <div
+                style={{ fontWeight: 600, fontSize: "16px", color: "#374151" }}
+              >
+                총 문의내역
+              </div>
+              <div style={{ fontSize: "14px", color: "#6b7280" }}>
+                전체 문의 건수
+              </div>
             </div>
-            <div style={{ textAlign: 'center', flex: 1 }}>
-              <div style={{ fontSize: 13, color: '#888' }}>완료 프로젝트</div>
-              <div style={{ fontSize: 17, fontWeight: 700, color: '#34C759' }}>5</div>
-            </div>
+          </div>
+          <div
+            style={{
+              fontSize: "32px",
+              fontWeight: 700,
+              color: "#fdb924",
+              marginBottom: "8px",
+            }}
+          >
+            {inquiryCount.toLocaleString()}
+          </div>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              fontSize: "14px",
+              color: "#6b7280",
+            }}
+          >
+            <span>
+              답변 대기:{" "}
+              <span style={{ color: "#ef4444", fontWeight: 600 }}>12</span>
+            </span>
+            <span>
+              답변 완료:{" "}
+              <span style={{ color: "#10b981", fontWeight: 600 }}>33</span>
+            </span>
           </div>
         </RecentActivityCard>
       </div>
 
-      {/* 2행: 차트 카드 2개 한 줄 */}
-      <div style={{ display: 'flex', flexDirection: 'row', gap: 24, marginBottom: 32 }}>
-        {/* 프로젝트 상태 분포 차트 카드 */}
-        <RecentActivityCard style={{ flex: 1 }}>
-          <RecentActivityTitle style={{ marginBottom: '16px' }}>프로젝트 상태 분포</RecentActivityTitle>
-          <div style={{ width: '100%', minWidth: 250, maxWidth: 400, height: 320, margin: '0 auto' }}>
+      {/* 차트 섹션 */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
+          gap: "24px",
+          marginBottom: "32px",
+        }}
+      >
+        {/* 프로젝트 상태 분포 차트 */}
+        <RecentActivityCard
+          style={{
+            border: "1px solid #e5e7eb",
+            borderRadius: "12px",
+            background: "#ffffff",
+            padding: "24px",
+          }}
+        >
+          <RecentActivityTitle
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              color: "#374151",
+              borderBottom: "1px solid #e5e7eb",
+              paddingBottom: "12px",
+              marginBottom: "20px",
+            }}
+          >
+            <FaChartPie style={{ color: "#fdb924" }} />
+            프로젝트 상태 분포
+          </RecentActivityTitle>
+          <div style={{ height: "300px" }}>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -194,103 +492,246 @@ export default function DashboardPage() {
                   cx="50%"
                   cy="50%"
                   innerRadius={60}
-                  outerRadius={90}
-                  fill="#8884d8"
-                  label
+                  outerRadius={100}
+                  label={<CustomLabel />}
+                  stroke="#ffffff"
+                  strokeWidth={1}
+                  labelLine={false}
                 >
                   {projectStatusData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={entry.fill}
+                      stroke={entry.stroke}
+                      strokeWidth={1}
+                    />
                   ))}
                 </Pie>
-                <Tooltip />
-                <Legend />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#ffffff",
+                    border: "1px solid #e5e7eb",
+                    borderRadius: "8px",
+                    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                    fontSize: "14px",
+                    fontWeight: "600",
+                  }}
+                  labelStyle={{
+                    color: "#374151",
+                    fontWeight: "600",
+                  }}
+                />
               </PieChart>
             </ResponsiveContainer>
           </div>
         </RecentActivityCard>
-        {/* 문의 처리 추이 차트 카드 */}
-        <RecentActivityCard style={{ flex: 1 }}>
-          <RecentActivityTitle style={{ marginBottom: '16px' }}>문의 처리 추이</RecentActivityTitle>
-          <div style={{ width: '100%', minWidth: 250, maxWidth: 400, height: 320, margin: '0 auto' }}>
+
+        {/* 월별 활동 추이 차트 */}
+        <RecentActivityCard
+          style={{
+            border: "1px solid #e5e7eb",
+            borderRadius: "12px",
+            background: "#ffffff",
+            padding: "24px",
+          }}
+        >
+          <RecentActivityTitle
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              color: "#374151",
+              borderBottom: "1px solid #e5e7eb",
+              paddingBottom: "12px",
+              marginBottom: "20px",
+            }}
+          >
+            <FaChartLine style={{ color: "#fdb924" }} />
+            월별 활동 추이
+          </RecentActivityTitle>
+          <div style={{ height: "300px" }}>
             <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={inquiryPieData}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={90}
-                  fill="#8884d8"
-                  label
-                >
-                  {inquiryPieData.map((entry, index) => (
-                    <Cell key={`cell-inquiry-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
+              <BarChart data={monthlyData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+                <XAxis dataKey="month" stroke="#6b7280" fontSize={12} />
+                <YAxis stroke="#6b7280" fontSize={12} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#ffffff",
+                    border: "1px solid #e5e7eb",
+                    borderRadius: "8px",
+                    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                  }}
+                />
+                <Bar
+                  dataKey="posts"
+                  fill="#fef3c7"
+                  stroke="#fdb924"
+                  strokeWidth={2}
+                  name="게시물"
+                  radius={[4, 4, 0, 0]}
+                />
+                <Bar
+                  dataKey="projects"
+                  fill="#dbeafe"
+                  stroke="#3b82f6"
+                  strokeWidth={2}
+                  name="프로젝트"
+                  radius={[4, 4, 0, 0]}
+                />
+              </BarChart>
             </ResponsiveContainer>
           </div>
         </RecentActivityCard>
       </div>
 
-      {/* 최근 활동 섹션 (RecentActivityContainer) */}
+      {/* 최근 활동 섹션 */}
       <RecentActivityContainer>
         {/* 최근 등록된 게시물 */}
-        <RecentActivityCard>
-          <RecentActivityTitle>최근 등록된 게시물</RecentActivityTitle>
+        <RecentActivityCard
+          style={{
+            border: "1px solid #e5e7eb",
+            borderRadius: "12px",
+            background: "#ffffff",
+          }}
+        >
+          <RecentActivityTitle
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              color: "#374151",
+              borderBottom: "1px solid #e5e7eb",
+              paddingBottom: "12px",
+              marginBottom: "16px",
+            }}
+          >
+            <FaFileAlt style={{ color: "#fdb924" }} />
+            최근 등록된 게시물
+          </RecentActivityTitle>
           <RecentActivityList>
             {recentPosts.length > 0 ? (
-              recentPosts.map((post) => (
-                <RecentActivityItem key={post.id}>
-                  <span>{post.title}</span>
-                  <RecentActivityDate>{new Date(post.createdAt).toLocaleDateString()}</RecentActivityDate>
+              recentPosts.slice(0, 5).map((post) => (
+                <RecentActivityItem
+                  key={post.id}
+                  style={{
+                    padding: "8px 0",
+                    borderBottom: "1px solid #f3f4f6",
+                  }}
+                >
+                  <span style={{ fontSize: "14px", color: "#374151" }}>
+                    {post.title}
+                  </span>
+                  <RecentActivityDate style={{ fontSize: "12px" }}>
+                    {new Date(post.createdAt).toLocaleDateString()}
+                  </RecentActivityDate>
                 </RecentActivityItem>
               ))
             ) : (
-              <RecentActivityItem>
-                <span>게시물이 없습니다.</span>
+              <RecentActivityItem style={{ padding: "8px 0" }}>
+                <span style={{ fontSize: "14px", color: "#6b7280" }}>
+                  게시물이 없습니다.
+                </span>
               </RecentActivityItem>
             )}
           </RecentActivityList>
         </RecentActivityCard>
 
         {/* 최근 등록된 회사 */}
-        <RecentActivityCard>
-          <RecentActivityTitle>최근 등록된 회사</RecentActivityTitle>
+        <RecentActivityCard
+          style={{
+            border: "1px solid #e5e7eb",
+            borderRadius: "12px",
+            background: "#ffffff",
+          }}
+        >
+          <RecentActivityTitle
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              color: "#374151",
+              borderBottom: "1px solid #e5e7eb",
+              paddingBottom: "12px",
+              marginBottom: "16px",
+            }}
+          >
+            <FaBuilding style={{ color: "#fdb924" }} />
+            최근 등록된 회사
+          </RecentActivityTitle>
           <RecentActivityList>
             {recentCompanies.length > 0 ? (
-              recentCompanies.map((company) => (
-                <RecentActivityItem key={company.id}>
-                  <span>{company.name}</span>
-                  <RecentActivityDate>{new Date(company.createdAt).toLocaleDateString()}</RecentActivityDate>
+              recentCompanies.slice(0, 5).map((company) => (
+                <RecentActivityItem
+                  key={company.id}
+                  style={{
+                    padding: "8px 0",
+                    borderBottom: "1px solid #f3f4f6",
+                  }}
+                >
+                  <span style={{ fontSize: "14px", color: "#374151" }}>
+                    {company.name}
+                  </span>
+                  <RecentActivityDate style={{ fontSize: "12px" }}>
+                    {new Date(company.createdAt).toLocaleDateString()}
+                  </RecentActivityDate>
                 </RecentActivityItem>
               ))
             ) : (
-              <RecentActivityItem>
-                <span>회사가 없습니다.</span>
+              <RecentActivityItem style={{ padding: "8px 0" }}>
+                <span style={{ fontSize: "14px", color: "#6b7280" }}>
+                  회사가 없습니다.
+                </span>
               </RecentActivityItem>
             )}
           </RecentActivityList>
         </RecentActivityCard>
 
         {/* 최근 등록된 프로젝트 */}
-        <RecentActivityCard>
-          <RecentActivityTitle>최근 등록된 프로젝트</RecentActivityTitle>
+        <RecentActivityCard
+          style={{
+            border: "1px solid #e5e7eb",
+            borderRadius: "12px",
+            background: "#ffffff",
+          }}
+        >
+          <RecentActivityTitle
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              color: "#374151",
+              borderBottom: "1px solid #e5e7eb",
+              paddingBottom: "12px",
+              marginBottom: "16px",
+            }}
+          >
+            <FaProjectDiagram style={{ color: "#fdb924" }} />
+            최근 등록된 프로젝트
+          </RecentActivityTitle>
           <RecentActivityList>
             {recentProjects.length > 0 ? (
-              recentProjects.map((project) => (
-                <RecentActivityItem key={project.id}>
-                  <span>{project.name}</span>
-                  <RecentActivityDate>{new Date(project.createdAt).toLocaleDateString()}</RecentActivityDate>
+              recentProjects.slice(0, 5).map((project) => (
+                <RecentActivityItem
+                  key={project.id}
+                  style={{
+                    padding: "8px 0",
+                    borderBottom: "1px solid #f3f4f6",
+                  }}
+                >
+                  <span style={{ fontSize: "14px", color: "#374151" }}>
+                    {project.name}
+                  </span>
+                  <RecentActivityDate style={{ fontSize: "12px" }}>
+                    {new Date(project.createdAt).toLocaleDateString()}
+                  </RecentActivityDate>
                 </RecentActivityItem>
               ))
             ) : (
-              <RecentActivityItem>
-                <span>프로젝트가 없습니다.</span>
+              <RecentActivityItem style={{ padding: "8px 0" }}>
+                <span style={{ fontSize: "14px", color: "#6b7280" }}>
+                  프로젝트가 없습니다.
+                </span>
               </RecentActivityItem>
             )}
           </RecentActivityList>
