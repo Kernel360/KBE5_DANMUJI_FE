@@ -1,5 +1,8 @@
 import React, { useState, useEffect, type JSX, useRef } from "react";
-import { getPostsByProjectStep } from "../../../project-d/services/postService";
+import {
+  getPostsByProjectStep,
+  searchPostsWithFilters,
+} from "../../../project-d/services/postService";
 import { getProjectDetail } from "../../services/projectService";
 import type { PostSummaryReadResponse } from "../../../project-d/types/post";
 import type { ProjectDetailStep } from "../../services/projectService";
@@ -192,15 +195,62 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
     setError(null);
 
     try {
-      const response = await getPostsByProjectStep(
-        projectId,
-        selectedStepId,
-        currentPage,
-        10
-      );
-      setPosts(response.content);
-      setTotalPages(response.page.totalPages);
-      setTotalElements(response.page.totalElements);
+      // 필터 조건이 있는 경우 새로운 검색 API 사용
+      if (
+        typeFilter !== "ALL" ||
+        priorityFilter !== "ALL" ||
+        stepFilter !== "ALL" ||
+        keyword
+      ) {
+        const searchParams: any = {};
+
+        if (typeFilter !== "ALL") {
+          searchParams.type = typeFilter;
+        }
+        if (priorityFilter !== "ALL") {
+          searchParams.priority = priorityFilter;
+        }
+        if (keyword) {
+          if (keywordType === "title") {
+            searchParams.title = keyword;
+          } else {
+            searchParams.author = keyword;
+          }
+        }
+
+        const response = await searchPostsWithFilters(
+          projectId,
+          selectedStepId,
+          searchParams,
+          currentPage,
+          10
+        );
+
+        if (response.data) {
+          // 단계별 필터링이 필요한 경우 클라이언트에서 추가 필터링
+          let filteredContent = response.data.content;
+          if (stepFilter !== "ALL") {
+            filteredContent = filteredContent.filter(
+              (post) => post.projectStepId === stepFilter
+            );
+          }
+
+          setPosts(filteredContent);
+          setTotalPages(response.data.page.totalPages);
+          setTotalElements(response.data.page.totalElements);
+        }
+      } else {
+        // 필터 조건이 없는 경우 기존 API 사용
+        const response = await getPostsByProjectStep(
+          projectId,
+          selectedStepId,
+          currentPage,
+          10
+        );
+        setPosts(response.content);
+        setTotalPages(response.page.totalPages);
+        setTotalElements(response.page.totalElements);
+      }
     } catch (err) {
       setError("게시글을 불러오는데 실패했습니다.");
       console.error("게시글 조회 실패:", err);
@@ -211,7 +261,16 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
 
   useEffect(() => {
     fetchPosts();
-  }, [projectId, selectedStepId, currentPage]);
+  }, [
+    projectId,
+    selectedStepId,
+    currentPage,
+    typeFilter,
+    priorityFilter,
+    stepFilter,
+    keyword,
+    keywordType,
+  ]);
 
   // 단계 이름 가져오기
   const fetchStepName = async () => {
@@ -254,28 +313,8 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
     fetchProjectSteps();
   }, [projectId]);
 
-  // 필터링된 게시글
-  const filteredPosts = posts.filter((post) => {
-    // 유형 필터
-    if (typeFilter !== "ALL" && post.type !== typeFilter) return false;
-
-    // 우선순위 필터
-    if (priorityFilter !== "ALL" && post.priority !== priorityFilter)
-      return false;
-
-    // 단계별 필터 추가
-    if (stepFilter !== "ALL" && post.projectStepId !== stepFilter) return false;
-
-    // 키워드 필터
-    if (keyword) {
-      if (keywordType === "title" && !post.title.includes(keyword))
-        return false;
-      if (keywordType === "writer" && !post.authorName.includes(keyword))
-        return false;
-    }
-
-    return true;
-  });
+  // 필터링된 게시글 (API에서 처리하므로 클라이언트 필터링 제거)
+  const filteredPosts = posts;
 
   const handleRowClick = (postId: number) => {
     setSelectedPostId(postId);
@@ -288,11 +327,14 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
     setStepFilter("ALL");
     setKeywordType("title");
     setKeyword("");
+    setCurrentPage(0); // 첫 페이지로 이동
+    // 필터 리셋 후 API 호출은 useEffect에서 자동으로 트리거됨
   };
 
   const handleSearch = () => {
-    // 실제 검색 요청 로직 작성
-    console.log("검색 요청:", keywordType, keyword);
+    // 검색 버튼 클릭 시 게시글 목록 새로고침
+    setCurrentPage(0); // 첫 페이지로 이동
+    fetchPosts();
   };
 
   const handleTypeDropdownToggle = () => {

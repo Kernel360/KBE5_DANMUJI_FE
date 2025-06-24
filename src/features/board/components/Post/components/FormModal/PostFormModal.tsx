@@ -47,6 +47,7 @@ import {
   FiAlertTriangle,
   FiTarget,
   FiPlus,
+  FiFileText,
 } from "react-icons/fi";
 import FullScreenContentEditor from "./FullScreenContentEditor";
 import FileUploadSection from "./components/FileUploadSection";
@@ -646,9 +647,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
                           $color={
                             formData.type === PostType.GENERAL
                               ? "#3b82f6"
-                              : formData.type === PostType.NOTICE
-                              ? "#f59e0b"
-                              : "#3b82f6"
+                              : "#f59e0b"
                           }
                           $isOpen={isTypeDropdownOpen}
                           onClick={handleTypeDropdownToggle}
@@ -680,9 +679,9 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
                             <span>일반</span>
                           </DropdownItem>
                           <DropdownItem
-                            $active={formData.type === PostType.NOTICE}
+                            $active={formData.type === PostType.QUESTION}
                             $color={"#f59e0b"}
-                            onClick={() => handleTypeSelect(PostType.NOTICE)}
+                            onClick={() => handleTypeSelect(PostType.QUESTION)}
                           >
                             <FiFlag size={16} />
                             <span>질문</span>

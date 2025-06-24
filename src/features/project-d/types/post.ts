@@ -8,8 +8,7 @@ export enum PostStatus {
 // 게시글 유형 enum
 export enum PostType {
   GENERAL = "GENERAL",
-  NOTICE = "NOTICE",
-  REPORT = "REPORT",
+  QUESTION = "QUESTION",
 }
 
 // 우선순위 enum

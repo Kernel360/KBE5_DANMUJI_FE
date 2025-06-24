@@ -77,7 +77,6 @@ const PostFormFields: React.FC<PostFormFieldsProps> = ({
           required
         >
           <option value="">유형을 선택하세요</option>
-          <option value="NOTICE">공지사항</option>
           <option value="QUESTION">질문</option>
           <option value="GENERAL">일반</option>
         </Select>

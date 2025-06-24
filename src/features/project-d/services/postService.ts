@@ -581,3 +581,64 @@ export const getPostsByProjectStep = async (
     throw error;
   }
 };
+
+// 게시글 검색 (새로운 백엔드 API)
+export const searchPostsWithFilters = async (
+  projectId: number,
+  stepId: number,
+  searchParams: {
+    title?: string;
+    author?: string;
+    clientCompany?: string;
+    developerCompany?: string;
+    priority?: PostPriority;
+    type?: PostType;
+  },
+  page: number = 0,
+  size: number = 10
+): Promise<ApiResponse<PageResponse<PostDetailReadResponse>>> => {
+  try {
+    console.log("=== searchPostsWithFilters 함수 호출 ===");
+    console.log("projectId:", projectId);
+    console.log("stepId:", stepId);
+    console.log("검색 파라미터:", searchParams);
+    console.log("페이지:", page, "크기:", size);
+
+    const requestParams = {
+      projectId,
+      stepId,
+      ...searchParams,
+      page,
+      size,
+    };
+
+    const response = await api.get<
+      ApiResponse<PageResponse<PostDetailReadResponse>>
+    >(`/api/posts/search`, {
+      params: requestParams,
+    });
+
+    console.log("API 응답:", response);
+    console.log("응답 데이터:", response.data);
+    console.log("======================");
+
+    return response.data;
+  } catch (error) {
+    console.error("=== searchPostsWithFilters 에러 ===");
+    console.error("에러:", error);
+
+    if (error instanceof ApiError) throw error;
+    if (error instanceof AxiosError) {
+      console.error(
+        "AxiosError:",
+        error.response?.data,
+        error.response?.status
+      );
+      throw new ApiError(
+        error.response?.data?.message || "게시글 검색 중 오류가 발생했습니다.",
+        error.response?.status
+      );
+    }
+    throw new ApiError("게시글 검색 중 알 수 없는 오류가 발생했습니다.");
+  }
+};
