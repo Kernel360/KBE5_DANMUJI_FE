@@ -360,11 +360,6 @@ export default function CompanyPage() {
     setFieldErrors([]);
   };
 
-  const handleSearch = () => {
-    // 필터링된 결과를 클라이언트 사이드에서 처리
-    fetchCompanies();
-  };
-
   const handleResetFilters = () => {
     setFilters({
       sort: "latest",
@@ -381,9 +376,7 @@ export default function CompanyPage() {
 
     const keyword = filters.keyword.toLowerCase();
     return (
-      company.name.toLowerCase().includes(keyword) ||
-      company.ceoName.toLowerCase().includes(keyword) ||
-      company.email.toLowerCase().includes(keyword)
+      company.name.toLowerCase().includes(keyword)
     );
   });
 
@@ -522,7 +515,6 @@ export default function CompanyPage() {
       <CompanyFilterBar
         filters={filters}
         onInputChange={handleFilterChange}
-        onSearch={handleSearch}
         onReset={handleResetFilters}
         onRegisterClick={() => setModalOpen(true)}
       />
