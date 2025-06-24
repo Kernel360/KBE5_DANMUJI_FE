@@ -445,30 +445,177 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
     fetchPosts();
   };
 
-  // 게시글 리스트 렌더링 함수 (트리 구조 X)
+  // 게시글 계층 렌더링 함수 (검색 시에는 관계 표시 안함)
   const renderPosts = (posts: PostDetailReadResponse[]): JSX.Element[] => {
-    return posts.map((post) => (
-      <Tr key={post.postId} onClick={() => handleRowClick(post.postId || 0)}>
-        <Td>
-          <TitleText>{post.title}</TitleText>
-        </Td>
-        <Td>
-          <span>{post.authorName}</span>
-        </Td>
-        <Td>
-          <TypeBadge type={post.type as "GENERAL" | "QUESTION"}>
-            {post.type === "GENERAL" ? "일반" : "질문"}
-          </TypeBadge>
-        </Td>
-        <Td>
-          <StatusBadge priority={post.priority as PostPriority}>
-            {POST_PRIORITY_LABELS[post.priority as PostPriority] ??
-              post.priority}
-          </StatusBadge>
-        </Td>
-        <Td>{formatDate(post.createdAt)}</Td>
-      </Tr>
-    ));
+    // 검색 조건이 있는지 확인
+    const hasSearchConditions =
+      typeFilter !== "ALL" ||
+      priorityFilter !== "ALL" ||
+      stepFilter !== "ALL" ||
+      keyword;
+
+    if (hasSearchConditions) {
+      // 검색 시에는 단순 리스트로 렌더링
+      return posts.map((post) => (
+        <Tr key={post.postId} onClick={() => handleRowClick(post.postId || 0)}>
+          <Td>
+            <TitleText>{post.title}</TitleText>
+          </Td>
+          <Td>
+            <span>{post.authorName}</span>
+          </Td>
+          <Td>
+            <TypeBadge type={post.type as "GENERAL" | "QUESTION"}>
+              {post.type === "GENERAL" ? "일반" : "질문"}
+            </TypeBadge>
+          </Td>
+          <Td>
+            <StatusBadge priority={post.priority as PostPriority}>
+              {POST_PRIORITY_LABELS[post.priority as PostPriority] ??
+                post.priority}
+            </StatusBadge>
+          </Td>
+          <Td>{formatDate(post.createdAt)}</Td>
+        </Tr>
+      ));
+    } else {
+      // 일반 목록 조회 시에는 부모-자식 관계 표시
+      // 부모 게시글들 (parentId가 null인 것들)
+      const parentPosts = posts.filter((post) => post.parentId === null);
+
+      // 답글들 (parentId가 null이 아닌 것들)
+      const replyPosts = posts.filter((post) => post.parentId !== null);
+
+      const result: JSX.Element[] = [];
+
+      // 부모 게시글들을 먼저 렌더링
+      parentPosts.forEach((parentPost) => {
+        // 부모 게시글 추가
+        result.push(
+          <Tr
+            key={parentPost.postId}
+            onClick={() => handleRowClick(parentPost.postId || 0)}
+          >
+            <Td>
+              <TitleText>{parentPost.title}</TitleText>
+            </Td>
+            <Td>
+              <span>{parentPost.authorName}</span>
+            </Td>
+            <Td>
+              <TypeBadge type={parentPost.type as "GENERAL" | "QUESTION"}>
+                {parentPost.type === "GENERAL" ? "일반" : "질문"}
+              </TypeBadge>
+            </Td>
+            <Td>
+              <StatusBadge priority={parentPost.priority as PostPriority}>
+                {POST_PRIORITY_LABELS[parentPost.priority as PostPriority] ??
+                  parentPost.priority}
+              </StatusBadge>
+            </Td>
+            <Td>{formatDate(parentPost.createdAt)}</Td>
+          </Tr>
+        );
+
+        // 이 부모에 대한 답글들을 찾아서 바로 아래에 렌더링
+        const children = replyPosts.filter(
+          (reply) => reply.parentId === parentPost.postId
+        );
+        children.forEach((child) => {
+          result.push(
+            <Tr
+              key={child.postId}
+              onClick={() => handleRowClick(child.postId || 0)}
+            >
+              <Td style={{ paddingLeft: 32 }}>
+                <TitleText>
+                  <span
+                    style={{
+                      color: "#fdb924",
+                      fontSize: "0.85em",
+                      fontWeight: 600,
+                    }}
+                  >
+                    [답글]
+                  </span>{" "}
+                  <span
+                    style={{
+                      color: "#6b7280",
+                      fontSize: "0.85em",
+                    }}
+                  >
+                    @{parentPost.title}
+                  </span>{" "}
+                  {child.title}
+                </TitleText>
+              </Td>
+              <Td>
+                <span>{child.authorName}</span>
+              </Td>
+              <Td>
+                <TypeBadge type={child.type as "GENERAL" | "QUESTION"}>
+                  {child.type === "GENERAL" ? "일반" : "질문"}
+                </TypeBadge>
+              </Td>
+              <Td>
+                <StatusBadge priority={child.priority as PostPriority}>
+                  {POST_PRIORITY_LABELS[child.priority as PostPriority] ??
+                    child.priority}
+                </StatusBadge>
+              </Td>
+              <Td>{formatDate(child.createdAt)}</Td>
+            </Tr>
+          );
+        });
+      });
+
+      // 부모가 검색 결과에 없는 답글들 (고아 답글)을 마지막에 렌더링
+      const orphanReplies = replyPosts.filter(
+        (reply) =>
+          !parentPosts.some((parent) => parent.postId === reply.parentId)
+      );
+
+      orphanReplies.forEach((orphan) => {
+        result.push(
+          <Tr
+            key={orphan.postId}
+            onClick={() => handleRowClick(orphan.postId || 0)}
+          >
+            <Td>
+              <TitleText>
+                <span
+                  style={{
+                    color: "#fdb924",
+                    fontSize: "0.85em",
+                    fontWeight: 600,
+                  }}
+                >
+                  [답글]
+                </span>{" "}
+                {orphan.title}
+              </TitleText>
+            </Td>
+            <Td>
+              <span>{orphan.authorName}</span>
+            </Td>
+            <Td>
+              <TypeBadge type={orphan.type as "GENERAL" | "QUESTION"}>
+                {orphan.type === "GENERAL" ? "일반" : "질문"}
+              </TypeBadge>
+            </Td>
+            <Td>
+              <StatusBadge priority={orphan.priority as PostPriority}>
+                {POST_PRIORITY_LABELS[orphan.priority as PostPriority] ??
+                  orphan.priority}
+              </StatusBadge>
+            </Td>
+            <Td>{formatDate(orphan.createdAt)}</Td>
+          </Tr>
+        );
+      });
+
+      return result;
+    }
   };
 
   return (
