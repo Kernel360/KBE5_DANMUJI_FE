@@ -1,5 +1,4 @@
 import React, { useRef, useEffect, useState } from "react";
-import axios from "axios";
 import styled from "styled-components";
 import {
   FiX,
@@ -220,7 +219,6 @@ export default function CompanyEditModal({
   initialData,
   fieldErrors, 
   setFieldErrors,
-  setErrorMessage,
 }: Props) {
   const reg1Ref = useRef<HTMLInputElement>(null);
   const reg2Ref = useRef<HTMLInputElement>(null);

@@ -15,9 +15,7 @@ import {
 import { useNotification } from "@/features/Notification/NotificationContext";
 import styled from "styled-components";
 import {
-  showErrorToast,
   showSuccessToast,
-  withErrorHandling,
 } from "@/utils/errorHandler";
 
 const ModalOverlay = styled.div`
@@ -322,19 +320,26 @@ export default function CompanyRegisterModal({
       bio: data.bio,
     };
 
-    const result = await withErrorHandling(async () => {
+    try {
       await api.post("/api/companies", requestBody);
       showSuccessToast("회사 등록이 완료되었습니다!");
       onRegisterSuccess?.();
       handleClose();
-      return null;
-    }, "회사 등록에 실패했습니다.");
-
-    if (!result) {
-      // 에러가 발생한 경우 필드 에러 처리
-      setFieldErrors([
-        { field: "general", reason: "회사 등록 중 오류가 발생했습니다." },
-      ]);
+    } catch (err: any) {
+      console.error(err);
+  
+      if (axios.isAxiosError(err) && err.response?.data) {
+        const errorData = err.response.data as ErrorResponse;
+  
+        // 🔽 필드 에러가 있으면 세팅
+        if (errorData?.data?.errors) {
+          setFieldErrors(errorData.data.errors);
+        } else {
+          setErrorMessage(errorData.message || "회사 등록 중 오류가 발생했습니다.");
+        }
+      } else {
+        setErrorMessage("예상치 못한 오류가 발생했습니다.");
+      }
     }
   };
 

@@ -423,7 +423,6 @@ export default function CompanyPage() {
         const errorData = err.response?.data as ErrorResponse | undefined;
         if (errorData?.data?.errors) {
           setFieldErrors(errorData.data.errors);
-          notify("회사 수정이 실패했습니다!", false);
         } else {
           setErrorMessage(
             errorData?.message || "회사 수정 중 알 수 없는 오류가 발생했습니다."
