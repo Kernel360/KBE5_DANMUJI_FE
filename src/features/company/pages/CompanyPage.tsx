@@ -4,9 +4,9 @@ import { useState, useEffect } from "react";
 import { useNotification } from "@/features/Notification/NotificationContext";
 import CompanyRegisterModal from "../components/CompanyRegisterModal";
 import CompanyEditModal from "../components/CompanyEditModal";
-import CompanyDetailModal from "../components/CompanyDetailModal/CompanyDetailModal";
 import CompanyFilterBar from "../components/CompanyFilterBar";
 import styled from "styled-components";
+import { useNavigate } from "react-router-dom";
 
 export interface Company {
   id: number;
@@ -121,6 +121,11 @@ const TableCell = styled.td`
 const CompanyNameCell = styled(TableCell)`
   color: #374151;
   font-weight: 500;
+  transition: color 0.2s ease;
+  
+  &:hover {
+    color: #3b82f6;
+  }
 `;
 
 const ActionButton = styled.button`
@@ -238,7 +243,7 @@ const ClickableTableRow = styled(TableRow)`
   }
 `;
 
-interface FieldError {
+export interface FieldError {
   field: string;
   value: string;
   reason: string;
@@ -295,6 +300,7 @@ export const formatTelNo = (telNo: string) => {
 };
 
 export default function CompanyPage() {
+  const navigate = useNavigate();
   const [filters, setFilters] = useState({
     sort: "latest",
     keyword: "",
@@ -315,10 +321,6 @@ export default function CompanyPage() {
     totalElements: number;
     totalPages: number;
   } | null>(null);
-  const [isCompanyDetailModalOpen, setIsCompanyDetailModalOpen] =
-    useState(false);
-  const [selectedCompanyForDetail, setSelectedCompanyForDetail] =
-    useState<Company | null>(null);
 
   const handlePageChange = (newPage: number) => {
     fetchCompanies(newPage);
@@ -464,7 +466,7 @@ export default function CompanyPage() {
   };
 
   const handleDelete = async (companyId: number) => {
-    if (!window.confirm("정말 삭제하시겠습니까?")) return;
+    if (window.confirm("정말 삭제하시겠습니까?")) return;
 
     try {
       await api.delete(`/api/companies/${companyId}`);
@@ -478,8 +480,7 @@ export default function CompanyPage() {
   };
 
   const handleCompanyClick = (company: Company) => {
-    setSelectedCompanyForDetail(company);
-    setIsCompanyDetailModalOpen(true);
+    navigate(`/company/${company.id}`);
   };
 
   return (
@@ -496,15 +497,10 @@ export default function CompanyPage() {
           onSave={handleEdit}
           initialData={editData}
           fieldErrors={fieldErrors}
-          setFieldErrors={setFieldErrors}  // 부모에서 내려줌
+          setFieldErrors={setFieldErrors}
           setErrorMessage={setError}
         />
       )}
-      <CompanyDetailModal
-        open={isCompanyDetailModalOpen}
-        onClose={() => setIsCompanyDetailModalOpen(false)}
-        company={selectedCompanyForDetail}
-      />
       <HeaderSection>
         <Title>회사 관리</Title>
         <Subtitle>
