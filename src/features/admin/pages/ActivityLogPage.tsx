@@ -167,12 +167,15 @@ export default function ActivityLogPage() {
   }, []);
 
   // 이력 데이터 가져오기
-  const fetchActivityLogs = async (page: number = 0) => {
-    setLoading(true);
+  const fetchActivityLogs = async (page: number = 0, customFilters?: any) => {
+    // 첫 페이지가 아니거나 초기 로드가 아닌 경우에만 로딩 표시
+    if (page === 0 && activityLogs.length > 0) {
+      setLoading(true);
+    }
     setError(null);
 
     try {
-      const filters = {
+      const filters = customFilters || {
         historyType: actionFilter !== "ALL" ? actionFilter : undefined,
         domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
         changedBy: selectedUser?.id?.toString(),
@@ -224,15 +227,6 @@ export default function ActivityLogPage() {
   useEffect(() => {
     fetchActivityLogs(0);
   }, []);
-
-  // 필터 상태 변경 시 자동 검색
-  useEffect(() => {
-    // 초기 로드 시에는 실행하지 않음 (위의 useEffect에서 처리)
-    if (activityLogs.length > 0) {
-      setCurrentPage(0);
-      fetchActivityLogs(0);
-    }
-  }, [actionFilter, logTypeFilter, selectedUser, startDate, endDate]);
 
   const getActionIcon = (action: string) => {
     switch (action) {
@@ -327,6 +321,16 @@ export default function ActivityLogPage() {
   const handleActionSelect = (value: string) => {
     setActionFilter(value);
     setActionDropdownOpen(false);
+    // 바로 검색 실행 (최신 필터 값 사용)
+    const filters = {
+      historyType: value !== "ALL" ? value : undefined,
+      domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
+      changedBy: selectedUser?.id?.toString(),
+      changedFrom: startDate || undefined,
+      changedTo: endDate || undefined,
+    };
+    setCurrentPage(0);
+    fetchActivityLogs(0, filters);
   };
 
   const handleLogTypeDropdownToggle = () => {
@@ -337,6 +341,16 @@ export default function ActivityLogPage() {
   const handleLogTypeSelect = (value: string) => {
     setLogTypeFilter(value);
     setLogTypeDropdownOpen(false);
+    // 바로 검색 실행 (최신 필터 값 사용)
+    const filters = {
+      historyType: actionFilter !== "ALL" ? actionFilter : undefined,
+      domainType: value !== "ALL" ? value : undefined,
+      changedBy: selectedUser?.id?.toString(),
+      changedFrom: startDate || undefined,
+      changedTo: endDate || undefined,
+    };
+    setCurrentPage(0);
+    fetchActivityLogs(0, filters);
   };
 
   // 현재 선택된 옵션 가져오기
@@ -359,6 +373,16 @@ export default function ActivityLogPage() {
     if (date) {
       const formattedDate = date.toISOString().split("T")[0];
       setStartDate(formattedDate);
+      // 바로 검색 실행
+      const filters = {
+        historyType: actionFilter !== "ALL" ? actionFilter : undefined,
+        domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
+        changedBy: selectedUser?.id?.toString(),
+        changedFrom: formattedDate,
+        changedTo: endDate || undefined,
+      };
+      setCurrentPage(0);
+      fetchActivityLogs(0, filters);
     }
     setStartDateOpen(false);
   };
@@ -367,6 +391,16 @@ export default function ActivityLogPage() {
     if (date) {
       const formattedDate = date.toISOString().split("T")[0];
       setEndDate(formattedDate);
+      // 바로 검색 실행
+      const filters = {
+        historyType: actionFilter !== "ALL" ? actionFilter : undefined,
+        domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
+        changedBy: selectedUser?.id?.toString(),
+        changedFrom: startDate || undefined,
+        changedTo: formattedDate,
+      };
+      setCurrentPage(0);
+      fetchActivityLogs(0, filters);
     }
     setEndDateOpen(false);
   };
@@ -393,10 +427,30 @@ export default function ActivityLogPage() {
   const handleUserSelect = (user: User) => {
     setSelectedUser(user);
     setUserModalOpen(false);
+    // 바로 검색 실행
+    const filters = {
+      historyType: actionFilter !== "ALL" ? actionFilter : undefined,
+      domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
+      changedBy: user.id.toString(),
+      changedFrom: startDate || undefined,
+      changedTo: endDate || undefined,
+    };
+    setCurrentPage(0);
+    fetchActivityLogs(0, filters);
   };
 
   const handleUserClear = () => {
     setSelectedUser(null);
+    // 바로 검색 실행
+    const filters = {
+      historyType: actionFilter !== "ALL" ? actionFilter : undefined,
+      domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
+      changedBy: undefined,
+      changedFrom: startDate || undefined,
+      changedTo: endDate || undefined,
+    };
+    setCurrentPage(0);
+    fetchActivityLogs(0, filters);
   };
 
   if (loading && activityLogs.length === 0) return <LoadingSpinner />;
@@ -593,6 +647,22 @@ export default function ActivityLogPage() {
         </SearchRight>
       </FilterSection>
 
+      {loading && activityLogs.length > 0 && (
+        <div
+          style={{
+            textAlign: "center",
+            padding: "8px",
+            color: "#6b7280",
+            fontSize: "14px",
+            backgroundColor: "#f9fafb",
+            borderRadius: "8px",
+            marginBottom: "16px",
+          }}
+        >
+          데이터를 불러오는 중...
+        </div>
+      )}
+
       <TableContainer>
         <Table>
           <TableHead>
@@ -613,7 +683,6 @@ export default function ActivityLogPage() {
                     style={{
                       display: "flex",
                       alignItems: "center",
-                      justifyContent: "center",
                       gap: "8px",
                     }}
                   >
@@ -630,7 +699,6 @@ export default function ActivityLogPage() {
                     style={{
                       display: "flex",
                       alignItems: "center",
-                      justifyContent: "center",
                       gap: "8px",
                     }}
                   >
@@ -646,7 +714,6 @@ export default function ActivityLogPage() {
                     style={{
                       display: "flex",
                       alignItems: "center",
-                      justifyContent: "center",
                       gap: "8px",
                     }}
                   >
@@ -675,7 +742,6 @@ export default function ActivityLogPage() {
                     style={{
                       display: "flex",
                       alignItems: "center",
-                      justifyContent: "center",
                       gap: "6px",
                     }}
                   >

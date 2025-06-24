@@ -203,7 +203,7 @@ export const TableHead = styled.thead`
 `;
 
 export const TableHeader = styled.th`
-  text-align: center;
+  text-align: left;
   padding: 12px 16px;
   color: #374151;
   font-weight: 600;
@@ -228,7 +228,7 @@ export const TableCell = styled.td`
   padding: 12px 16px;
   color: #374151;
   vertical-align: middle;
-  text-align: center;
+  text-align: left;
 `;
 
 export const StatusBadge = styled.span`
