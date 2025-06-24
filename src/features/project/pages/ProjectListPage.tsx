@@ -624,16 +624,6 @@ export default function ProjectListPage() {
         // 백엔드 응답을 기존 Project 타입으로 변환
         const convertedProjects: Project[] = response.data.content.map(
           (project: ProjectResponse) => {
-            // 진행률 계산 (완료된 스텝 수 / 전체 스텝 수)
-            const totalSteps = project.steps.length;
-            const completedSteps = project.steps.filter(
-              (step) => step.projectStepStatus === "COMPLETED"
-            ).length;
-            const progress =
-              totalSteps > 0
-                ? Math.round((completedSteps / totalSteps) * 100)
-                : 0;
-
             // 상태 매핑
             const statusMapping: Record<
               string,
@@ -654,7 +644,7 @@ export default function ProjectListPage() {
               status: statusMapping[project.status] || "IN_PROGRESS",
               startDate: project.startDate,
               endDate: project.endDate,
-              progress: progress,
+              progress: project.progress,
               // 백엔드 API 응답 필드들
               description: project.description,
               clientCompany: project.clientCompany,
