@@ -39,14 +39,14 @@ import {
   FiPlus,
   FiCalendar,
   FiChevronDown,
-  FiShield,
-  FiUsers,
   FiMessageCircle,
   FiLayers,
   FiHelpCircle,
   FiGrid,
 } from "react-icons/fi";
 import { FaProjectDiagram } from "react-icons/fa";
+import UserSelectionModal from "../components/UserSelectionModal";
+import UserFilterButton from "../components/UserFilterButton";
 
 interface ActivityLog {
   id: number;
@@ -61,6 +61,13 @@ interface ActivityLog {
   createdAt: string;
 }
 
+interface User {
+  id: number;
+  username: string;
+  name: string;
+  role: string;
+}
+
 export default function ActivityLogPage() {
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
   const [loading, setLoading] = useState(false);
@@ -70,15 +77,14 @@ export default function ActivityLogPage() {
   const [totalElements, setTotalElements] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [actionFilter, setActionFilter] = useState("ALL");
-  const [userFilter, setUserFilter] = useState("ALL");
   const [logTypeFilter, setLogTypeFilter] = useState("ALL");
   const [logTypeDropdownOpen, setLogTypeDropdownOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [userModalOpen, setUserModalOpen] = useState(false);
 
   // 드롭다운 상태
   const [actionDropdownOpen, setActionDropdownOpen] = useState(false);
-  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const actionDropdownRef = useRef<HTMLDivElement>(null);
-  const userDropdownRef = useRef<HTMLDivElement>(null);
   const logTypeDropdownRef = useRef<HTMLDivElement>(null);
 
   // 드롭다운 옵션
@@ -87,23 +93,6 @@ export default function ActivityLogPage() {
     { value: "CREATE", label: "생성", icon: FiPlus, color: "#10b981" },
     { value: "UPDATE", label: "수정", icon: FiEdit, color: "#3b82f6" },
     { value: "DELETE", label: "삭제", icon: FiTrash, color: "#ef4444" },
-  ];
-
-  const USER_OPTIONS = [
-    { value: "ALL", label: "전체", icon: FiUsers, color: "#6b7280" },
-    { value: "ROLE_ADMIN", label: "관리자", icon: FiShield, color: "#8b5cf6" },
-    {
-      value: "ROLE_DEVELOPER",
-      label: "개발사 직원",
-      icon: FiUser,
-      color: "#3b82f6",
-    },
-    {
-      value: "ROLE_CLIENT",
-      label: "고객사 직원",
-      icon: FiUser,
-      color: "#10b981",
-    },
   ];
 
   const LOG_TYPE_OPTIONS = [
@@ -135,12 +124,6 @@ export default function ActivityLogPage() {
         !logTypeDropdownRef.current.contains(event.target as Node)
       ) {
         setLogTypeDropdownOpen(false);
-      }
-      if (
-        userDropdownRef.current &&
-        !userDropdownRef.current.contains(event.target as Node)
-      ) {
-        setUserDropdownOpen(false);
       }
       if (
         actionDropdownRef.current &&
@@ -293,8 +276,8 @@ export default function ActivityLogPage() {
   const handleReset = () => {
     setSearchTerm("");
     setActionFilter("ALL");
-    setUserFilter("ALL");
     setLogTypeFilter("ALL");
+    setSelectedUser(null);
   };
 
   const handlePageChange = (newPage: number) => {
@@ -304,12 +287,6 @@ export default function ActivityLogPage() {
   // 드롭다운 토글 함수들
   const handleActionDropdownToggle = () => {
     setActionDropdownOpen(!actionDropdownOpen);
-    setUserDropdownOpen(false);
-  };
-
-  const handleUserDropdownToggle = () => {
-    setUserDropdownOpen(!userDropdownOpen);
-    setActionDropdownOpen(false);
   };
 
   const handleActionSelect = (value: string) => {
@@ -317,15 +294,9 @@ export default function ActivityLogPage() {
     setActionDropdownOpen(false);
   };
 
-  const handleUserSelect = (value: string) => {
-    setUserFilter(value);
-    setUserDropdownOpen(false);
-  };
-
   const handleLogTypeDropdownToggle = () => {
     setLogTypeDropdownOpen(!logTypeDropdownOpen);
     setActionDropdownOpen(false);
-    setUserDropdownOpen(false);
   };
 
   const handleLogTypeSelect = (value: string) => {
@@ -341,18 +312,29 @@ export default function ActivityLogPage() {
     );
   };
 
-  const getCurrentUserOption = () => {
-    return (
-      USER_OPTIONS.find((option) => option.value === userFilter) ||
-      USER_OPTIONS[0]
-    );
-  };
-
   const getCurrentLogTypeOption = () => {
     return (
       LOG_TYPE_OPTIONS.find((option) => option.value === logTypeFilter) ||
       LOG_TYPE_OPTIONS[0]
     );
+  };
+
+  // 사용자 모달 관련 핸들러
+  const handleUserModalOpen = () => {
+    setUserModalOpen(true);
+  };
+
+  const handleUserModalClose = () => {
+    setUserModalOpen(false);
+  };
+
+  const handleUserSelect = (user: User) => {
+    setSelectedUser(user);
+    setUserModalOpen(false);
+  };
+
+  const handleUserClear = () => {
+    setSelectedUser(null);
   };
 
   if (loading) return <LoadingSpinner />;
@@ -402,38 +384,12 @@ export default function ActivityLogPage() {
           </div>
         </FilterGroup>
         <FilterGroup>
-          <FilterLabel>사용자 유형</FilterLabel>
-          <div style={{ position: "relative" }} ref={userDropdownRef}>
-            <SelectButton
-              type="button"
-              onClick={handleUserDropdownToggle}
-              $hasValue={userFilter !== "ALL"}
-              $color={getCurrentUserOption().color}
-              className={userDropdownOpen ? "open" : ""}
-              style={{ width: "160px" }}
-            >
-              {React.createElement(getCurrentUserOption().icon, { size: 16 })}
-              <span className="select-value">
-                {getCurrentUserOption().label}
-              </span>
-              <FiChevronDown size={16} />
-            </SelectButton>
-            <SelectDropdown $isOpen={userDropdownOpen}>
-              {USER_OPTIONS.map((option) => (
-                <SelectOption
-                  key={option.value}
-                  $isSelected={userFilter === option.value}
-                  onClick={() => handleUserSelect(option.value)}
-                >
-                  {React.createElement(option.icon, {
-                    size: 16,
-                    color: option.color,
-                  })}
-                  {option.label}
-                </SelectOption>
-              ))}
-            </SelectDropdown>
-          </div>
+          <FilterLabel>변경한 사용자</FilterLabel>
+          <UserFilterButton
+            selectedUser={selectedUser}
+            onOpenModal={handleUserModalOpen}
+            onClear={handleUserClear}
+          />
         </FilterGroup>
         <FilterGroup>
           <FilterLabel>이력 유형</FilterLabel>
@@ -616,6 +572,13 @@ export default function ActivityLogPage() {
           {Math.min((currentPage + 1) * 10, totalElements)}개 표시
         </PaginationInfo>
       </PaginationContainer>
+
+      {/* 사용자 선택 모달 */}
+      <UserSelectionModal
+        isOpen={userModalOpen}
+        onClose={handleUserModalClose}
+        onSelect={handleUserSelect}
+      />
     </PageContainer>
   );
 }
