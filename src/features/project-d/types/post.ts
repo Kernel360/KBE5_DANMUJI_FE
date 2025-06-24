@@ -173,20 +173,20 @@ export interface PostFile {
 }
 
 export interface PostDetailReadResponse {
-  postId: number;
+  postId: number | null;
   parentId: number | null;
-  projectId: number;
-  projectStepId: number;
-  authorIp: string;
-  authorId: number;
+  projectId: number | null;
+  projectStepId: number | null;
+  authorIp: string | null;
+  authorId: number | null;
   authorName: string;
   title: string;
-  content: string;
-  type: string;
-  priority: string;
+  content: string | null;
+  type: PostType;
+  priority: PostPriority;
   createdAt: string;
-  updatedAt: string;
-  files: PostFile[];
+  updatedAt: string | null;
+  files: PostFile[] | null;
   delete: boolean;
 }
 

@@ -1,10 +1,13 @@
 import React, { useState, useEffect, type JSX, useRef } from "react";
 import {
   getPostsByProjectStep,
-  searchPostsWithFilters,
+  searchPosts,
 } from "../../../project-d/services/postService";
 import { getProjectDetail } from "../../services/projectService";
-import type { PostSummaryReadResponse } from "../../../project-d/types/post";
+import type {
+  PostSummaryReadResponse,
+  PostDetailReadResponse,
+} from "../../../project-d/types/post";
 import type { ProjectDetailStep } from "../../services/projectService";
 import {
   Wrapper,
@@ -64,7 +67,7 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
   projectId,
   selectedStepId,
 }) => {
-  const [posts, setPosts] = useState<PostSummaryReadResponse[]>([]);
+  const [posts, setPosts] = useState<PostDetailReadResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
@@ -195,7 +198,7 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
     setError(null);
 
     try {
-      // 필터 조건이 있는 경우 새로운 검색 API 사용
+      // 필터 조건이 있는 경우 검색 API 사용
       if (
         typeFilter !== "ALL" ||
         priorityFilter !== "ALL" ||
@@ -217,25 +220,19 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
             searchParams.author = keyword;
           }
         }
+        // 단계별 필터링은 서버에서 처리하므로 stepId를 변경
+        const targetStepId = stepFilter !== "ALL" ? stepFilter : selectedStepId;
 
-        const response = await searchPostsWithFilters(
+        const response = await searchPosts(
           projectId,
-          selectedStepId,
+          targetStepId,
           searchParams,
           currentPage,
           10
         );
 
         if (response.data) {
-          // 단계별 필터링이 필요한 경우 클라이언트에서 추가 필터링
-          let filteredContent = response.data.content;
-          if (stepFilter !== "ALL") {
-            filteredContent = filteredContent.filter(
-              (post) => post.projectStepId === stepFilter
-            );
-          }
-
-          setPosts(filteredContent);
+          setPosts(response.data.content);
           setTotalPages(response.data.page.totalPages);
           setTotalElements(response.data.page.totalElements);
         }
@@ -448,68 +445,30 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
     fetchPosts();
   };
 
-  // 게시글 계층 렌더링 함수
-  const renderPosts = (
-    posts: PostSummaryReadResponse[],
-    parentId: number | null = null,
-    depth: number = 0
-  ): JSX.Element[] => {
-    return posts
-      .filter((post) => post.parentId === parentId)
-      .map((post) => [
-        <Tr
-          key={post.postId}
-          style={{
-            cursor: "pointer",
-          }}
-          onClick={() => handleRowClick(post.postId)}
-        >
-          <Td style={depth > 0 ? { paddingLeft: 32 * depth } : {}}>
-            <TitleText>
-              {depth > 0 && (
-                <>
-                  <span
-                    style={{
-                      color: "#fdb924",
-                      fontSize: "0.85em",
-                      fontWeight: 700,
-                      marginRight: 8,
-                    }}
-                  >
-                    ㄴ [답글]
-                  </span>
-                </>
-              )}
-              {post.title}
-            </TitleText>
-          </Td>
-          <Td>
-            {post.comments && post.comments.length > 0 ? (
-              <CommentInfo>댓글 {post.comments.length}</CommentInfo>
-            ) : (
-              ""
-            )}
-          </Td>
-          <Td>
-            <span>{post.authorName}</span>
-          </Td>
-          <Td>
-            <TypeBadge type={post.type as "GENERAL" | "QUESTION"}>
-              {post.type === "GENERAL" ? "일반" : "질문"}
-            </TypeBadge>
-          </Td>
-          <Td>
-            <StatusBadge priority={post.priority as PostPriority}>
-              {POST_PRIORITY_LABELS[post.priority as PostPriority] ??
-                post.priority}
-            </StatusBadge>
-          </Td>
-          <Td>{formatDate(post.createdAt)}</Td>
-        </Tr>,
-        // 답글(자식)도 재귀적으로 렌더링
-        ...renderPosts(posts, post.postId, depth + 1),
-      ])
-      .flat();
+  // 게시글 리스트 렌더링 함수 (트리 구조 X)
+  const renderPosts = (posts: PostDetailReadResponse[]): JSX.Element[] => {
+    return posts.map((post) => (
+      <Tr key={post.postId} onClick={() => handleRowClick(post.postId || 0)}>
+        <Td>
+          <TitleText>{post.title}</TitleText>
+        </Td>
+        <Td>
+          <span>{post.authorName}</span>
+        </Td>
+        <Td>
+          <TypeBadge type={post.type as "GENERAL" | "QUESTION"}>
+            {post.type === "GENERAL" ? "일반" : "질문"}
+          </TypeBadge>
+        </Td>
+        <Td>
+          <StatusBadge priority={post.priority as PostPriority}>
+            {POST_PRIORITY_LABELS[post.priority as PostPriority] ??
+              post.priority}
+          </StatusBadge>
+        </Td>
+        <Td>{formatDate(post.createdAt)}</Td>
+      </Tr>
+    ));
   };
 
   return (
@@ -843,7 +802,6 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
         <Thead>
           <Tr>
             <Th>제목</Th>
-            <Th></Th>
             <Th>작성자</Th>
             <Th>유형</Th>
             <Th>우선순위</Th>
