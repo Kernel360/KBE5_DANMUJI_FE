@@ -26,7 +26,8 @@
     "react-toastify": "^11.0.5",
     "recharts": "^2.15.3",
     "remark-gfm": "^4.0.1",
-    "styled-components": "^6.1.18"
+    "styled-components": "^6.1.18",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",
