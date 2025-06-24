@@ -27,12 +27,21 @@ import {
   CancelButton,
   SubmitButton,
 } from "./MemberEditModal.styled";
-import type { MemberFormData } from "../../pages/MemberPage";
 import type { Member } from "../../pages/MemberPage";
 
 interface Company {
   id: number;
   name: string;
+}
+
+interface MemberFormData {
+  username: string;
+  name: string;
+  companyId?: number;
+  role: string;
+  position: string;
+  phone: string;
+  email: string;
 }
 
 interface Props {
@@ -46,10 +55,12 @@ export default function MemberEditModal({
   onEdit,
   initialData,
 }: Props) {
-  const [formData, setFormData] = useState<MemberFormData>({
+  const [formData, setFormData] = useState<
+    Omit<MemberFormData, "companyId"> & { companyId: number | "" }
+  >({
     username: "",
     name: "",
-    companyId: 0,
+    companyId: "",
     role: "Member",
     position: "",
     phone: "",
@@ -59,16 +70,18 @@ export default function MemberEditModal({
 
   useEffect(() => {
     if (initialData) {
-      const mappedData: MemberFormData = {
+      setFormData({
         username: initialData.username,
         name: initialData.name,
-        companyId: Number(initialData.companyId),
+        companyId:
+          initialData.companyId === undefined || initialData.companyId === null
+            ? ""
+            : Number(initialData.companyId),
         role: initialData.role,
         position: initialData.position,
         phone: initialData.phone,
         email: initialData.email,
-      };
-      setFormData(mappedData);
+      });
     }
   }, [initialData]);
 
@@ -91,7 +104,7 @@ export default function MemberEditModal({
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === "companyId" ? Number(value) : value,
+      [name]: name === "companyId" ? (value === "" ? "" : Number(value)) : value,
       role: name === "role" ? (value as "Manager" | "Member") : prev.role,
     }));
   };
@@ -99,13 +112,24 @@ export default function MemberEditModal({
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    if (formData.companyId === "" || formData.companyId === 0 || formData.companyId === undefined) {
+      onEdit({
+        ...formData,
+        companyId: undefined,
+      });
+      return;
+    }
+
     const isValidCompany = companies.some((c) => c.id === formData.companyId);
-    if (!isValidCompany && formData.companyId !== 0) {
+    if (!isValidCompany) {
       alert("선택된 회사가 유효하지 않습니다.");
       return;
     }
 
-    onEdit(formData);
+    onEdit({
+      ...formData,
+      companyId: typeof formData.companyId === "number" ? formData.companyId : undefined,
+    });
   };
 
   const handleClose = () => {
@@ -127,7 +151,7 @@ export default function MemberEditModal({
 
         <ModalBody>
           <Form onSubmit={handleSubmit}>
-            {/* 기본 정보 섹션 */}
+            {/* 아이디 */}
             <FormSection>
               <FormRow>
                 <FormGroup>
@@ -143,7 +167,50 @@ export default function MemberEditModal({
                     onChange={handleChange}
                   />
                 </FormGroup>
+                <FormGroup />
+              </FormRow>
+            </FormSection>
 
+            {/* 회사 + 직책 */}
+            <FormSection>
+              <FormRow>
+                <FormGroup>
+                  <Label>
+                    <IoBusinessOutline />
+                    회사
+                  </Label>
+                  <Select
+                    name="companyId"
+                    value={formData.companyId.toString() || ""}
+                    onChange={handleChange}
+                  >
+                    <option value="">회사 선택</option>
+                    {companies.map((company) => (
+                      <option key={company.id} value={company.id.toString()}>
+                        {company.name}
+                      </option>
+                    ))}
+                  </Select>
+                </FormGroup>
+                <FormGroup>
+                  <Label>
+                    <IoPersonOutline />
+                    직책
+                  </Label>
+                  <Input
+                    name="position"
+                    required
+                    placeholder="직책을 입력하세요"
+                    value={formData.position || ""}
+                    onChange={handleChange}
+                  />
+                </FormGroup>
+              </FormRow>
+            </FormSection>
+
+            {/* 이름 + 권한 */}
+            <FormSection>
+              <FormRow>
                 <FormGroup>
                   <Label>
                     <IoPersonOutline />
@@ -157,32 +224,6 @@ export default function MemberEditModal({
                     onChange={handleChange}
                   />
                 </FormGroup>
-              </FormRow>
-            </FormSection>
-
-            {/* 회사 정보 섹션 */}
-            <FormSection>
-              <FormRow>
-                <FormGroup>
-                  <Label>
-                    <IoBusinessOutline />
-                    회사
-                  </Label>
-                  <Select
-                    name="companyId"
-                    required
-                    value={formData.companyId.toString() || ""}
-                    onChange={handleChange}
-                  >
-                    <option value="">회사 선택</option>
-                    {companies.map((company) => (
-                      <option key={company.id} value={company.id.toString()}>
-                        {company.name}
-                      </option>
-                    ))}
-                  </Select>
-                </FormGroup>
-
                 <FormGroup>
                   <Label>
                     <IoShieldOutline />
@@ -200,23 +241,9 @@ export default function MemberEditModal({
               </FormRow>
             </FormSection>
 
-            {/* 연락처 정보 섹션 */}
+            {/* 이메일 + 전화번호 */}
             <FormSection>
               <FormRow>
-                <FormGroup>
-                  <Label>
-                    <IoCallOutline />
-                    전화번호
-                  </Label>
-                  <Input
-                    name="phone"
-                    required
-                    placeholder="전화번호를 입력하세요"
-                    value={formData.phone || ""}
-                    onChange={handleChange}
-                  />
-                </FormGroup>
-
                 <FormGroup>
                   <Label>
                     <IoMailOutline />
@@ -231,22 +258,16 @@ export default function MemberEditModal({
                     onChange={handleChange}
                   />
                 </FormGroup>
-              </FormRow>
-            </FormSection>
-
-            {/* 직장 정보 섹션 */}
-            <FormSection>
-              <FormRow>
                 <FormGroup>
                   <Label>
-                    <IoPersonOutline />
-                    직책
+                    <IoCallOutline />
+                    전화번호
                   </Label>
                   <Input
-                    name="position"
+                    name="phone"
                     required
-                    placeholder="직책을 입력하세요"
-                    value={formData.position || ""}
+                    placeholder="전화번호를 입력하세요"
+                    value={formData.phone || ""}
                     onChange={handleChange}
                   />
                 </FormGroup>

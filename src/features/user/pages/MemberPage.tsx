@@ -404,9 +404,35 @@ const ActionButtonGroup = styled.div`
 export const formatTelNo = (telNo: string) => {
   if (!telNo) return telNo;
   const cleaned = ("" + telNo).replace(/\D/g, "");
-  const match = cleaned.match(/^(\d{3})(\d{4})(\d{4})$/);
-  if (match) {
-    return `${match[1]}-${match[2]}-${match[3]}`;
+  // 11자리(휴대폰) 01012345678 -> 010-1234-5678
+  if (cleaned.length === 11) {
+    const match = cleaned.match(/^(\d{3})(\d{4})(\d{4})$/);
+    if (match) {
+      return `${match[1]}-${match[2]}-${match[3]}`;
+    }
+  }
+  // 10자리(지역번호) 02, 031, 032 등
+  if (cleaned.length === 10) {
+    // 02로 시작하는 경우 (서울)
+    if (cleaned.startsWith("02")) {
+      const match = cleaned.match(/^(02)(\d{4})(\d{4})$/);
+      if (match) {
+        return `${match[1]}-${match[2]}-${match[3]}`;
+      }
+    } else {
+      // 그 외 3자리 지역번호
+      const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
+      if (match) {
+        return `${match[1]}-${match[2]}-${match[3]}`;
+      }
+    }
+  }
+  // 9자리(서울) 02-123-4567
+  if (cleaned.length === 9 && cleaned.startsWith("02")) {
+    const match = cleaned.match(/^(02)(\d{3})(\d{4})$/);
+    if (match) {
+      return `${match[1]}-${match[2]}-${match[3]}`;
+    }
   }
   return telNo;
 };
@@ -420,6 +446,7 @@ export default function MemberPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [companies, setCompanies] = useState<Company[]>([]);
+  const [companyError, setCompanyError] = useState<string | null>(null);
 
   // 필터 상태 추가
   const [filters, setFilters] = useState({
@@ -456,11 +483,11 @@ export default function MemberPage() {
   const fetchCompanies = async () => {
     try {
       const response = await api.get("/api/companies/all"); // 충분한 크기로 모든 회사 데이터를 가져옴
-      console.log("API Response for companies:", response.data);
-      console.log("Companies content:", response.data.data);
-      setCompanies(response.data.data);
-      console.log("Current companies:", response.data.data);
+      setCompanies(Array.isArray(response.data.data) ? response.data.data : []);
+      setCompanyError(null);
     } catch (err: unknown) {
+      setCompanies([]); // 회사가 없을 때도 빈 배열로
+      setCompanyError("회사를 불러오지 못했습니다. 회사가 등록되어 있지 않을 수 있습니다.");
       console.error("Failed to fetch companies:", err);
     }
   };
@@ -631,6 +658,9 @@ export default function MemberPage() {
         <Subtitle>
           프로젝트 관리 시스템의 회원 정보를 한눈에 확인하세요.
         </Subtitle>
+        {companyError && (
+          <div style={{ color: "#ef4444", marginBottom: "12px" }}>{companyError}</div>
+        )}
       </HeaderSection>
       <FilterBar>
         <FilterGroup>
@@ -643,8 +673,9 @@ export default function MemberPage() {
           >
             <FiHome size={16} />
             <span className="select-value">
-              {companies.find((c) => c.id === parseInt(filters.companyId))
-                ?.name || "모든 회사"}
+              {(Array.isArray(companies) &&
+                companies.find((c) => c.id === parseInt(filters.companyId))?.name) ||
+                "모든 회사"}
             </span>
             <FiChevronDown size={16} />
           </SelectButton>
@@ -655,15 +686,21 @@ export default function MemberPage() {
             >
               모든 회사
             </SelectOption>
-            {companies.map((company) => (
-              <SelectOption
-                key={company.id}
-                $isSelected={company.id === parseInt(filters.companyId)}
-                onClick={() => handleCompanySelect(company.id)}
-              >
-                {company.name}
+            {Array.isArray(companies) && companies.length === 0 ? (
+              <SelectOption $isSelected={false} style={{ color: "#bdbdbd" }}>
+                등록된 회사가 없습니다
               </SelectOption>
-            ))}
+            ) : (
+              (Array.isArray(companies) ? companies : []).map((company) => (
+                <SelectOption
+                  key={company.id}
+                  $isSelected={company.id === parseInt(filters.companyId)}
+                  onClick={() => handleCompanySelect(company.id)}
+                >
+                  {company.name}
+                </SelectOption>
+              ))
+            )}
           </SelectDropdown>
         </FilterGroup>
         <FilterGroup>
