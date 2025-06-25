@@ -12,6 +12,7 @@ export const SidebarContainer = styled.div`
 export const ProfileArea = styled.div`
   align-items: left;
   margin-left: 20px;
+  cursor: pointer;
 `;
 
 export const LogoArea = styled.div`
