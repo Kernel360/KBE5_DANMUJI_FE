@@ -7,9 +7,13 @@ import {
   FiEdit,
   FiTrash,
   FiPlus,
+  FiInfo,
+  FiMessageSquare,
+  FiTrash2,
 } from "react-icons/fi";
 import { getActivityLogDetail } from "../services/activityLogService";
 import type { ActivityLogDetail } from "../types/activityLog";
+import { LoadingSpinner } from "../../../styles/common/LoadingSpinner.styled";
 
 interface ActivityLogDetailModalProps {
   isOpen: boolean;
@@ -99,31 +103,6 @@ const SectionTitle = styled.h3`
   display: flex;
   align-items: center;
   gap: 6px;
-`;
-
-const SectionTitleWithIcon = styled.h3`
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: #374151;
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding-left: 20px;
-  position: relative;
-
-  &::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 12px;
-    height: 12px;
-    border: 2px solid #fdb924;
-    border-radius: 50%;
-    background: transparent;
-  }
 `;
 
 const InfoGrid = styled.div`
@@ -240,15 +219,6 @@ const ChangeValue = styled.span`
   color: #111827;
   word-break: break-word;
   line-height: 1.3;
-`;
-
-const LoadingSpinner = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 30px;
-  color: #6b7280;
-  font-size: 0.875rem;
 `;
 
 const ErrorMessage = styled.div`
@@ -393,7 +363,10 @@ export default function ActivityLogDetailModal({
 
       return (
         <ChangesSection>
-          <SectionTitle>생성된 데이터</SectionTitle>
+          <SectionTitle>
+            <FiPlus style={{ color: "#fdb924" }} />
+            생성된 데이터
+          </SectionTitle>
           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
             {Object.entries(afterData)
               .filter(
@@ -422,7 +395,10 @@ export default function ActivityLogDetailModal({
 
       return (
         <ChangesSection>
-          <SectionTitle>삭제된 데이터</SectionTitle>
+          <SectionTitle>
+            <FiTrash2 style={{ color: "#fdb924" }} />
+            삭제된 데이터
+          </SectionTitle>
           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
             {Object.entries(beforeData)
               .filter(
@@ -475,7 +451,10 @@ export default function ActivityLogDetailModal({
 
       return (
         <ChangesSection>
-          <SectionTitle>변경된 내용</SectionTitle>
+          <SectionTitle>
+            <FiEdit style={{ color: "#fdb924" }} />
+            변경된 내용
+          </SectionTitle>
           <ChangesGrid>
             <ChangeColumn>
               <ChangeTitle>변경 전</ChangeTitle>
@@ -600,7 +579,10 @@ export default function ActivityLogDetailModal({
         {detail && (
           <>
             <ContentSection>
-              <SectionTitle>기본 정보</SectionTitle>
+              <SectionTitle>
+                <FiInfo style={{ color: "#fdb924" }} />
+                기본 정보
+              </SectionTitle>
               <InfoGrid>
                 <InfoItem>
                   <InfoLabel>이력 ID</InfoLabel>
@@ -628,7 +610,7 @@ export default function ActivityLogDetailModal({
 
             <ContentSection>
               <SectionTitle>
-                <FiUser />
+                <FiUser style={{ color: "#fdb924" }} />
                 작업자 정보
               </SectionTitle>
               <InfoGrid>
@@ -649,7 +631,7 @@ export default function ActivityLogDetailModal({
 
             <ContentSection>
               <SectionTitle>
-                <FiCalendar />
+                <FiCalendar style={{ color: "#fdb924" }} />
                 시간 정보
               </SectionTitle>
               <InfoGrid>
@@ -666,7 +648,10 @@ export default function ActivityLogDetailModal({
 
             {detail.message && (
               <ContentSection>
-                <SectionTitle>메시지</SectionTitle>
+                <SectionTitle>
+                  <FiMessageSquare style={{ color: "#fdb924" }} />
+                  메시지
+                </SectionTitle>
                 <MessageSection>
                   <MessageText>{detail.message}</MessageText>
                 </MessageSection>
