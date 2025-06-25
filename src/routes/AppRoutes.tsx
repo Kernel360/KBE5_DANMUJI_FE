@@ -17,6 +17,7 @@ import UserDashboardPage from "@/features/user/pages/dashboard/UserDashboardPage
 // company
 import CompanyPage from "@/features/company/pages/CompanyPage";
 import CompanyDetailPage from "@/features/company/pages/CompanyDetailPage";
+import InquiryPage from "@/features/company/pages/InquiryPage";
 
 // member
 import MemberPage from "@/features/user/pages/MemberPage";
@@ -82,6 +83,7 @@ const AppRoutes = () => {
           <Route path="/members" element={<MemberPage />} />
           <Route path="/member/:id" element={<MemberDetailPage />} />
           <Route path="/activity-log" element={<ActivityLogPage />} />
+          <Route path="/inquiry" element={<InquiryPage />} />
           {/* <Route path="/projects/create" element={<CreateProjectPage />} /> */}
           {/* <Route
             path="/projects/:projectId/edit"
