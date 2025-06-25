@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
-import { FiSearch, FiRotateCcw, FiChevronDown } from "react-icons/fi";
+import { FiSearch, FiRotateCcw, FiChevronDown, FiPlus } from "react-icons/fi";
 import {
   SelectButton,
   SelectDropdown,
@@ -193,6 +193,10 @@ const SEARCH_FIELD_OPTIONS = [
   { value: "title", label: "제목" },
   { value: "author", label: "작성자" },
 ];
+
+const ActionButtons = styled.div`
+  margin-left: auto;
+`;
 
 interface Inquiry {
   id: number;
@@ -486,6 +490,14 @@ function InquiryFilterBar({ filters, onChange, onSearch, onReset, onKeyDown }: I
             <FiRotateCcw size={16} />
           </NewButton>
         </div>
+        <ActionButtons>
+          <NewButton
+              style={{ height: '45px', display: 'flex', alignItems: 'center', gap: '8px', padding: '0 16px' }}
+          >
+              <FiPlus size={16} />
+              <span>문의하기</span>
+          </NewButton>
+        </ActionButtons>
       </FilterBar>
     </DatePickerStyles>
   );
