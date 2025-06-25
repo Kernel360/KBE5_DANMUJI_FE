@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "@/api/axios";
@@ -229,30 +229,31 @@ const CompanyDetailPage: React.FC = () => {
   const [fieldErrors, setFieldErrors] = useState<FieldError[]>([]);
   const [, setErrorMessage] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchCompanyDetail = async () => {
-      if (!id) {
-        setError("회사 ID가 누락되었습니다.");
-        setLoading(false);
-        return;
+  const fetchCompanyDetail = useCallback(async () => {
+    if (!id) {
+      setError("회사 ID가 누락되었습니다.");
+      setLoading(false);
+      return;
+    }
+    try {
+      setLoading(true);
+      const response = await api.get(`/api/companies/${id}`);
+      setCompany(response.data.data);
+    } catch (err: unknown) {
+      let message = "회사 상세 정보를 가져오는 중 알 수 없는 오류가 발생했습니다.";
+      if (err instanceof Error) {
+        message = err.message;
       }
-      try {
-        setLoading(true);
-        const response = await api.get(`/api/companies/${id}`);
-        setCompany(response.data.data);
-      } catch (err: unknown) {
-        let message = "회사 상세 정보를 가져오는 중 알 수 없는 오류가 발생했습니다.";
-        if (err instanceof Error) {
-          message = err.message;
-        }
-        setError(message);
-        console.error("회사 상세 정보 가져오기 실패:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchCompanyDetail();
+      setError(message);
+      console.error("회사 상세 정보 가져오기 실패:", err);
+    } finally {
+      setLoading(false);
+    }
   }, [id]);
+
+  useEffect(() => {
+    fetchCompanyDetail();
+  }, [fetchCompanyDetail]);
 
   const handleEdit = () => {
     if (company) {
@@ -288,11 +289,11 @@ const CompanyDetailPage: React.FC = () => {
         bio: data.bio,
         tel: data.tel,
       };
-      const response = await api.put(`/api/companies/${editData.id}`, companyUpdateData);
-      setCompany(response.data.data);
+      await api.put(`/api/companies/${editData.id}`, companyUpdateData);
       setEditModalOpen(false);
       setEditData(null);
       showSuccessToast("회사 정보가 성공적으로 수정되었습니다.");
+      fetchCompanyDetail();
     } catch {
       showErrorToast("회사 정보 수정에 실패했습니다.");
     }

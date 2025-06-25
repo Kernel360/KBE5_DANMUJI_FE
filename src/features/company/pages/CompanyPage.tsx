@@ -128,43 +128,6 @@ const CompanyNameCell = styled(TableCell)`
   }
 `;
 
-const ActionButton = styled.button`
-  background: #ffffff;
-  color: #374151;
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 500;
-  border: 1px solid #e5e7eb;
-  cursor: pointer;
-  margin-right: 8px;
-  transition: all 0.15s ease-in-out;
-
-  &:hover {
-    background: #fdb924;
-    color: #ffffff;
-    border-color: transparent;
-  }
-`;
-
-const DeleteButton = styled.button`
-  background: #ffffff;
-  color: #ef4444;
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 500;
-  border: 1px solid #fecaca;
-  cursor: pointer;
-  transition: all 0.15s ease-in-out;
-
-  &:hover {
-    background: #ef4444;
-    color: #ffffff;
-    border-color: transparent;
-  }
-`;
-
 const PaginationContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -420,7 +383,7 @@ export default function CompanyPage() {
         ceoName: data.ceoName,
         email: data.email,
         bio: data.bio,
-        tel: data.tel,
+        tel: data.tel.replace(/\D/g, ""),
       };
 
       // PUT 요청 보내기
@@ -462,20 +425,6 @@ export default function CompanyPage() {
       } else {
         setError("회사 수정 중 알 수 없는 오류가 발생했습니다.");
       }
-    }
-  };
-
-  const handleDelete = async (companyId: number) => {
-    if (window.confirm("정말 삭제하시겠습니까?")) return;
-
-    try {
-      await api.delete(`/api/companies/${companyId}`);
-      alert("삭제되었습니다.");
-      // 회사 목록을 다시 불러오거나, 상태에서 제거
-      fetchCompanies();
-    } catch (error) {
-      console.error("삭제 실패:", error);
-      alert("삭제에 실패했습니다.");
     }
   };
 
@@ -525,27 +474,26 @@ export default function CompanyPage() {
               <TableHeader>사업자 명</TableHeader>
               <TableHeader>이메일</TableHeader>
               <TableHeader>연락처</TableHeader>
-              <TableHeader>관리</TableHeader>
             </TableRow>
           </TableHead>
           <TableBody>
             {loading && (
               <TableRow>
-                <TableCell colSpan={7}>
+                <TableCell colSpan={6}>
                   <LoadingText>로딩 중...</LoadingText>
                 </TableCell>
               </TableRow>
             )}
             {error && (
               <TableRow>
-                <TableCell colSpan={7}>
+                <TableCell colSpan={6}>
                   <ErrorText>오류: {error}</ErrorText>
                 </TableCell>
               </TableRow>
             )}
             {!loading && !error && sortedCompanies.length === 0 && (
               <TableRow>
-                <TableCell colSpan={7}>
+                <TableCell colSpan={6}>
                   <EmptyText>데이터가 없습니다.</EmptyText>
                 </TableCell>
               </TableRow>
@@ -563,19 +511,6 @@ export default function CompanyPage() {
                   <TableCell>{c.ceoName}</TableCell>
                   <TableCell>{c.email}</TableCell>
                   <TableCell>{formatTelNo(c.tel)}</TableCell>
-                  <TableCell onClick={(e) => e.stopPropagation()}>
-                    <ActionButton
-                      onClick={() => {
-                        setEditModalOpen(true);
-                        setEditData(c);
-                      }}
-                    >
-                      수정
-                    </ActionButton>
-                    <DeleteButton onClick={() => handleDelete(c.id)}>
-                      삭제
-                    </DeleteButton>
-                  </TableCell>
                 </ClickableTableRow>
               ))}
           </TableBody>

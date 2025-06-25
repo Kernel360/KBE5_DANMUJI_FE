@@ -303,11 +303,15 @@ export default function CompanyEditModal({
   
     const bizNo = `${reg1}${reg2}${reg3}`;
   
+    // 전화번호 숫자만 필터링
+    const cleanedTel = formData.tel.replace(/\D/g, "");
+  
     const finalData: CompanyFormData = {
       ...formData,
       reg1,
       reg2,
       reg3,
+      tel: cleanedTel,
     };
   
     // 프론트 유효성 검사
@@ -332,8 +336,7 @@ export default function CompanyEditModal({
       newFieldErrors.push({ field: "email", value: formData.email, reason: "올바른 이메일 형식이 아닙니다." });
     }
     const telRegex = /^\d{9,11}$/;
-    const formattedTel = formData.tel?.replace(/-/g, "");
-    if (!formattedTel || !telRegex.test(formattedTel)) {
+    if (!cleanedTel || !telRegex.test(cleanedTel)) {
       newFieldErrors.push({
         field: "tel",
         value: formData.tel,

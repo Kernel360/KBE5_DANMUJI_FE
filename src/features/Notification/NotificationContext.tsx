@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, useCallback } from "react";
+import { v4 as uuidv4 } from "uuid";
 
 interface NotificationItem {
-  id: number;
+  id: string;
   message: string;
   success?: boolean;
 }
@@ -9,7 +10,7 @@ interface NotificationItem {
 interface NotificationContextProps {
   notifications: NotificationItem[];
   notify: (message: string, success?: boolean) => void;
-  removeNotification: (id: number) => void;
+  removeNotification: (id: string) => void;
 }
 
 const NotificationContext = createContext<NotificationContextProps | undefined>(undefined);
@@ -18,11 +19,11 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
 
   const notify = useCallback((message: string, success = true) => {
-    const id = Date.now();
+    const id = uuidv4();
     setNotifications((prev) => [...prev, { id, message, success }]);
   }, []);
 
-  const removeNotification = useCallback((id: number) => {
+  const removeNotification = useCallback((id: string) => {
     setNotifications((prev) => prev.filter((n) => n.id !== id));
   }, []);
 

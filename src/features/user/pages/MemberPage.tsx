@@ -1,8 +1,7 @@
 import api from "@/api/axios";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import MemberRegisterModal from "../components/MemberRegisterModal/MemberRegisterModal";
-import MemberEditModal from "../components/MemberEditModal/MemberEditModal";
 import styled from "styled-components";
 import {
   FiSearch,
@@ -26,19 +25,19 @@ export interface Member {
   createdAt: string;
 }
 
-export interface MemberFormData {
-  username: string;
-  name: string;
-  role: string;
-  companyId: number;
-  position: string;
-  phone: string;
-  email: string;
-}
-
 interface Company {
   id: number;
   name: string;
+}
+
+// MemberData 타입 정의 (파일 상단에 위치)
+interface MemberData {
+  username: string;
+  name: string;
+  email: string;
+  phone: string;
+  position: string;
+  companyId?: number;
 }
 
 // styled-components
@@ -236,69 +235,6 @@ const SearchRight = styled.div`
   flex: 1;
 `;
 
-const ActionButton = styled.button<{ $primary?: boolean }>`
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.5rem 1rem;
-  height: 40px;
-  background: ${({ $primary }) => ($primary ? "#fdb924" : "#f3f4f6")};
-  color: ${({ $primary }) => ($primary ? "#fff" : "#374151")};
-  border: ${({ $primary }) => ($primary ? "none" : "1px solid #d1d5db")};
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: none;
-
-  &:hover {
-    background: ${({ $primary }) => ($primary ? "#f59e0b" : "#e5e7eb")};
-    color: ${({ $primary }) => ($primary ? "#fff" : "#111827")};
-    border-color: #9ca3af;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1);
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-`;
-
-const NewButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 20px;
-  background: #f9fafb;
-  color: #374151;
-  font-size: 14px;
-  font-weight: 600;
-  border: 2px solid #e5e7eb;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: background 0.25s, border 0.25s, box-shadow 0.25s;
-  box-shadow: 0 2px 4px rgba(107, 114, 128, 0.2);
-
-  &:hover {
-    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-    border-color: #fef3c7;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(251, 191, 36, 0.3);
-    color: #fff;
-  }
-
-  &:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 4px rgba(251, 191, 36, 0.2);
-  }
-
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2);
-  }
-`;
-
 const TableContainer = styled.div`
   background: #fff;
   border-radius: 12px;
@@ -359,24 +295,6 @@ const MemberNameCell = styled(TableCell)`
   }
 `;
 
-const DeleteButton = styled.button`
-  background: #ffffff;
-  color: #ef4444;
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 500;
-  border: 1px solid #fecaca;
-  cursor: pointer;
-  transition: all 0.15s ease-in-out;
-
-  &:hover {
-    background: #ef4444;
-    color: #ffffff;
-    border-color: transparent;
-  }
-`;
-
 const LoadingContainer = styled.div`
   display: flex;
   justify-content: center;
@@ -395,10 +313,38 @@ const ErrorContainer = styled.div`
   font-size: 0.9rem;
 `;
 
-const ActionButtonGroup = styled.div`
+const NewButton = styled.button`
   display: flex;
-  gap: 4px;
   align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: #f9fafb;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.25s, border 0.25s, box-shadow 0.25s;
+  box-shadow: 0 2px 4px rgba(107, 114, 128, 0.2);
+
+  &:hover {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    border-color: #fef3c7;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(251, 191, 36, 0.3);
+    color: #fff;
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(251, 191, 36, 0.2);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2);
+  }
 `;
 
 export const formatTelNo = (telNo: string) => {
@@ -441,8 +387,6 @@ export default function MemberPage() {
   const [search, setSearch] = useState("");
   const [members, setMembers] = useState<Member[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [editData, setEditData] = useState<Member | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -552,45 +496,23 @@ export default function MemberPage() {
     ...new Set(members.map((member) => member.position)),
   ].filter(Boolean);
 
-  const handleEdit = async (data: MemberFormData) => {
-    try {
-      const memberToUpdate = {
-        id: editData?.id,
-        username: data.username,
-        name: data.name,
-        companyId: data.companyId,
-        position: data.position,
-        phone: data.phone,
-        email: data.email,
-      };
-      // TODO: Replace with actual API call to update member
-      await api.put(`/api/admin/${editData?.id}`, memberToUpdate);
-      fetchMembers();
-      alert("회원 정보가 성공적으로 수정되었습니다!");
-      setEditModalOpen(false);
-    } catch (error: unknown) {
-      console.error("Error updating member:", error);
-      alert("회원 정보 수정 중 오류가 발생했습니다.");
-    }
+  const handleMemberClick = (member: Member) => {
+    navigate(`/member/${member.id}`);
   };
 
-  const handleRegister = async (data: MemberFormData) => {
+  const handleRegister = useCallback(async (data: MemberData) => {
     try {
       const newMember = {
         ...data,
+        role: "user", // API에만 추가
       };
-      // API 호출
       const response = await api.post("/api/admin", newMember);
 
-      // API 응답에서 username과 password 추출
       const { username, password } = response.data.data;
-
-      // 텍스트 파일 생성 및 저장
       const fileContent = `Username: ${username}\nPassword: ${password}`;
       const blob = new Blob([fileContent], { type: "text/plain" });
       const fileUrl = URL.createObjectURL(blob);
 
-      // 파일 다운로드 트리거
       const link = document.createElement("a");
       link.href = fileUrl;
       link.download = "member_credentials.txt";
@@ -605,25 +527,7 @@ export default function MemberPage() {
       console.error("Error registering member:", error);
       alert("회원 등록 중 오류가 발생했습니다.");
     }
-  };
-
-  const handleDelete = async (memberId: number) => {
-    if (window.confirm("정말로 이 회원을 삭제하시겠습니까?")) {
-      try {
-        // TODO: Replace with actual API call to delete member
-        await api.delete(`/api/admin/${memberId}`);
-        fetchMembers();
-        alert("회원 삭제가 완료되었습니다!");
-      } catch (error: unknown) {
-        console.error("Error deleting member:", error);
-        alert("회원 삭제 중 오류가 발생했습니다.");
-      }
-    }
-  };
-
-  const handleMemberClick = (member: Member) => {
-    navigate(`/member/${member.id}`);
-  };
+  }, [fetchMembers]);
 
   if (loading)
     return (
@@ -793,7 +697,6 @@ export default function MemberPage() {
               <TableHeader>회사</TableHeader>
               <TableHeader>직책</TableHeader>
               <TableHeader>전화번호</TableHeader>
-              <TableHeader>관리</TableHeader>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -810,28 +713,6 @@ export default function MemberPage() {
                 </TableCell>
                 <TableCell>{member.position}</TableCell>
                 <TableCell>{formatTelNo(member.phone)}</TableCell>
-                <TableCell>
-                  <ActionButtonGroup>
-                    <ActionButton
-                      onClick={() => {
-                        setEditData(member);
-                        setEditModalOpen(true);
-                      }}
-                    >
-                      수정
-                    </ActionButton>
-                    <ActionButton
-                      onClick={() => handleDelete(member.id)}
-                      style={{
-                        background: "#fee2e2",
-                        color: "#ef4444",
-                        border: "1px solid #fecaca",
-                      }}
-                    >
-                      삭제
-                    </ActionButton>
-                  </ActionButtonGroup>
-                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -842,14 +723,6 @@ export default function MemberPage() {
         <MemberRegisterModal
           onClose={() => setModalOpen(false)}
           onRegister={handleRegister}
-        />
-      )}
-
-      {editModalOpen && editData && (
-        <MemberEditModal
-          onClose={() => setEditModalOpen(false)}
-          onEdit={handleEdit}
-          initialData={editData}
         />
       )}
     </Container>
