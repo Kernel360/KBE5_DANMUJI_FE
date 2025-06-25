@@ -10,7 +10,10 @@ import {
   FiInfo,
   FiMessageSquare,
   FiTrash2,
+  FiShield,
+  FiUsers,
 } from "react-icons/fi";
+import { RiUserSettingsLine } from "react-icons/ri";
 import { getActivityLogDetail } from "../services/activityLogService";
 import type { ActivityLogDetail } from "../types/activityLog";
 import { LoadingSpinner } from "../../../styles/common/LoadingSpinner.styled";
@@ -128,6 +131,9 @@ const InfoValue = styled.span`
   font-size: 0.875rem;
   color: #111827;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 `;
 
 const StatusBadge = styled.span<{ type: string }>`
@@ -165,60 +171,42 @@ const StatusBadge = styled.span<{ type: string }>`
 `;
 
 const ChangesSection = styled.div`
+  margin-top: 12px;
+`;
+
+const DataContainer = styled.div`
   background: #f9fafb;
   border-radius: 8px;
   padding: 12px;
   margin-top: 12px;
 `;
 
-const ChangesGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-`;
-
-const ChangeColumn = styled.div`
+const DataDisplay = styled.div`
   display: flex;
   flex-direction: column;
   gap: 6px;
 `;
 
-const ChangeTitle = styled.h4`
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #374151;
-  margin-bottom: 6px;
-  padding: 6px 10px;
-  background: ${({ children }) =>
-    children === "변경 전" ? "#fee2e2" : "#dcfce7"};
-  color: ${({ children }) => (children === "변경 전" ? "#991b1b" : "#166534")};
-  border-radius: 4px;
-  text-align: center;
-  border: 1px solid
-    ${({ children }) => (children === "변경 전" ? "#fecaca" : "#bbf7d0")};
+const DataRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 0;
 `;
 
-const ChangeItem = styled.div`
-  background: white;
-  border-radius: 4px;
-  padding: 6px 10px;
-  border: 1px solid #e5e7eb;
-  margin-bottom: 3px;
-`;
-
-const ChangeKey = styled.span`
-  font-size: 0.7rem;
+const DataLabel = styled.span`
+  font-size: 0.75rem;
   font-weight: 600;
   color: #6b7280;
-  display: block;
-  margin-bottom: 3px;
+  min-width: 80px;
+  flex-shrink: 0;
 `;
 
-const ChangeValue = styled.span`
+const DataValue = styled.span`
   font-size: 0.8rem;
   color: #111827;
-  word-break: break-word;
-  line-height: 1.3;
+  font-weight: 500;
+  flex: 1;
 `;
 
 const ErrorMessage = styled.div`
@@ -241,6 +229,25 @@ const MessageText = styled.p`
   color: #0c4a6e;
   font-size: 0.8rem;
   line-height: 1.4;
+`;
+
+const ChangesGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+`;
+
+const ChangeColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+`;
+
+const ChangeTitle = styled.h4`
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 10px;
 `;
 
 export default function ActivityLogDetailModal({
@@ -337,14 +344,19 @@ export default function ActivityLogDetailModal({
     }
 
     // MongoDB 데이터 구조에 맞게 before/after 데이터 추출
-    const getActualData = (data: any) => {
+    const getActualData = (
+      data: Record<string, string | number | boolean | null> | null
+    ) => {
       if (typeof data === "object" && data !== null) {
         // before/after가 객체이고 실제 데이터가 그 안에 있는 경우
         if (data.before && typeof data.before === "object") {
-          return data.before;
+          return data.before as Record<
+            string,
+            string | number | boolean | null
+          >;
         }
         if (data.after && typeof data.after === "object") {
-          return data.after;
+          return data.after as Record<string, string | number | boolean | null>;
         }
         // 직접 데이터가 있는 경우
         return data;
@@ -367,29 +379,31 @@ export default function ActivityLogDetailModal({
             <FiPlus style={{ color: "#fdb924" }} />
             생성된 데이터
           </SectionTitle>
-          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-            {Object.entries(afterData)
-              .filter(
-                ([key]) =>
-                  !key.startsWith("_") &&
-                  key !== "delete" &&
-                  key !== "deletedAt" &&
-                  key !== "updatedAt"
-              )
-              .map(([key, value]) => (
-                <ChangeItem key={key}>
-                  <ChangeKey>{getFieldDisplayName(key)}</ChangeKey>
-                  <ChangeValue>{formatFieldValue(key, value)}</ChangeValue>
-                </ChangeItem>
-              ))}
-          </div>
+          <DataContainer>
+            <DataDisplay>
+              {Object.entries(afterData)
+                .filter(
+                  ([key]) =>
+                    !key.startsWith("_") &&
+                    key !== "delete" &&
+                    key !== "deletedAt" &&
+                    key !== "updatedAt"
+                )
+                .map(([key, value]) => (
+                  <DataRow key={key}>
+                    <DataLabel>{getFieldDisplayName(key)}</DataLabel>
+                    <DataValue>{formatFieldValue(key, value)}</DataValue>
+                  </DataRow>
+                ))}
+            </DataDisplay>
+          </DataContainer>
         </ChangesSection>
       );
     }
 
-    // 삭제 작업인 경우 before 데이터만 표시
+    // 삭제 작업인 경우 after 데이터만 표시 (before 텍스트로 표시)
     if (detail.historyType === "DELETED") {
-      if (!beforeData || Object.keys(beforeData).length === 0) {
+      if (!afterData || Object.keys(afterData).length === 0) {
         return null;
       }
 
@@ -399,22 +413,24 @@ export default function ActivityLogDetailModal({
             <FiTrash2 style={{ color: "#fdb924" }} />
             삭제된 데이터
           </SectionTitle>
-          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-            {Object.entries(beforeData)
-              .filter(
-                ([key]) =>
-                  !key.startsWith("_") &&
-                  key !== "delete" &&
-                  key !== "deletedAt" &&
-                  key !== "updatedAt"
-              )
-              .map(([key, value]) => (
-                <ChangeItem key={key}>
-                  <ChangeKey>{getFieldDisplayName(key)}</ChangeKey>
-                  <ChangeValue>{formatFieldValue(key, value)}</ChangeValue>
-                </ChangeItem>
-              ))}
-          </div>
+          <DataContainer>
+            <DataDisplay>
+              {Object.entries(afterData)
+                .filter(
+                  ([key]) =>
+                    !key.startsWith("_") &&
+                    key !== "delete" &&
+                    key !== "deletedAt" &&
+                    key !== "updatedAt"
+                )
+                .map(([key, value]) => (
+                  <DataRow key={key}>
+                    <DataLabel>{getFieldDisplayName(key)}</DataLabel>
+                    <DataValue>{formatFieldValue(key, value)}</DataValue>
+                  </DataRow>
+                ))}
+            </DataDisplay>
+          </DataContainer>
         </ChangesSection>
       );
     }
@@ -455,34 +471,36 @@ export default function ActivityLogDetailModal({
             <FiEdit style={{ color: "#fdb924" }} />
             변경된 내용
           </SectionTitle>
-          <ChangesGrid>
-            <ChangeColumn>
-              <ChangeTitle>변경 전</ChangeTitle>
-              {changedKeys.map((key) => (
-                <ChangeItem key={`before-${key}`}>
-                  <ChangeKey>{getFieldDisplayName(key)}</ChangeKey>
-                  <ChangeValue>
-                    {beforeData[key] !== undefined
-                      ? formatFieldValue(key, beforeData[key])
-                      : "-"}
-                  </ChangeValue>
-                </ChangeItem>
-              ))}
-            </ChangeColumn>
-            <ChangeColumn>
-              <ChangeTitle>변경 후</ChangeTitle>
-              {changedKeys.map((key) => (
-                <ChangeItem key={`after-${key}`}>
-                  <ChangeKey>{getFieldDisplayName(key)}</ChangeKey>
-                  <ChangeValue>
-                    {afterData[key] !== undefined
-                      ? formatFieldValue(key, afterData[key])
-                      : "-"}
-                  </ChangeValue>
-                </ChangeItem>
-              ))}
-            </ChangeColumn>
-          </ChangesGrid>
+          <DataContainer>
+            <ChangesGrid>
+              <ChangeColumn>
+                <ChangeTitle>변경 전</ChangeTitle>
+                {changedKeys.map((key) => (
+                  <DataRow key={`before-${key}`}>
+                    <DataLabel>{getFieldDisplayName(key)}</DataLabel>
+                    <DataValue>
+                      {beforeData[key] !== undefined
+                        ? formatFieldValue(key, beforeData[key])
+                        : "-"}
+                    </DataValue>
+                  </DataRow>
+                ))}
+              </ChangeColumn>
+              <ChangeColumn>
+                <ChangeTitle>변경 후</ChangeTitle>
+                {changedKeys.map((key) => (
+                  <DataRow key={`after-${key}`}>
+                    <DataLabel>{getFieldDisplayName(key)}</DataLabel>
+                    <DataValue>
+                      {afterData[key] !== undefined
+                        ? formatFieldValue(key, afterData[key])
+                        : "-"}
+                    </DataValue>
+                  </DataRow>
+                ))}
+              </ChangeColumn>
+            </ChangesGrid>
+          </DataContainer>
         </ChangesSection>
       );
     }
@@ -560,6 +578,27 @@ export default function ActivityLogDetailModal({
     return String(value);
   };
 
+  // 역할을 한글로 변환하는 함수
+  const getRoleDisplayName = (role: string) => {
+    const roleMap: Record<string, string> = {
+      ROLE_ADMIN: "관리자",
+      ROLE_DEV_EMPLOYEE: "개발사 직원",
+      ROLE_CLIENT_EMPLOYEE: "고객사 직원",
+      ROLE_CLIENT_MANAGER: "고객사 담당자",
+      ROLE_DEV_MANAGER: "개발사 담당자",
+    };
+    return roleMap[role] || role;
+  };
+
+  // 역할에 따른 아이콘 반환
+  const getRoleIcon = (role: string) => {
+    if (role === "ROLE_ADMIN") {
+      return <RiUserSettingsLine size={14} style={{ color: "#8b5cf6" }} />;
+    } else {
+      return <FiUser size={14} style={{ color: "#6b7280" }} />;
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -611,20 +650,25 @@ export default function ActivityLogDetailModal({
             <ContentSection>
               <SectionTitle>
                 <FiUser style={{ color: "#fdb924" }} />
-                작업자 정보
+                변경자 정보
               </SectionTitle>
               <InfoGrid>
                 <InfoItem>
-                  <InfoLabel>작업자 ID</InfoLabel>
+                  <InfoLabel>변경자 ID</InfoLabel>
                   <InfoValue>{detail.changerId}</InfoValue>
                 </InfoItem>
                 <InfoItem>
-                  <InfoLabel>작업자 이름</InfoLabel>
-                  <InfoValue>{detail.changerName}</InfoValue>
+                  <InfoLabel>변경자 이름</InfoLabel>
+                  <InfoValue>
+                    {detail.changerName} ({detail.changerUsername})
+                  </InfoValue>
                 </InfoItem>
                 <InfoItem>
-                  <InfoLabel>작업자 역할</InfoLabel>
-                  <InfoValue>{detail.changerRole}</InfoValue>
+                  <InfoLabel>변경자 역할</InfoLabel>
+                  <InfoValue>
+                    {getRoleIcon(detail.changerRole)}
+                    {getRoleDisplayName(detail.changerRole)}
+                  </InfoValue>
                 </InfoItem>
               </InfoGrid>
             </ContentSection>

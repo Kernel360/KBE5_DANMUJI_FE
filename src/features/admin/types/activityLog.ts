@@ -56,9 +56,10 @@ export interface HistoryDetailResponse {
   changedAt: string;
   changerId: string;
   changerName: string;
+  changerUsername: string;
   changerRole: string;
-  before: Record<string, any>;
-  after: Record<string, any>;
+  before: Record<string, string | number | boolean | null>;
+  after: Record<string, string | number | boolean | null>;
   createdAt: string;
   message: string;
 }
@@ -87,9 +88,10 @@ export interface ActivityLogDetail {
   changedAt: string;
   changerId: string;
   changerName: string;
+  changerUsername: string;
   changerRole: string;
-  before: Record<string, any>;
-  after: Record<string, any>;
+  before: Record<string, string | number | boolean | null>;
+  after: Record<string, string | number | boolean | null>;
   createdAt: string;
   message: string;
 }

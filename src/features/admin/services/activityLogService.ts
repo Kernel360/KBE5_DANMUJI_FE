@@ -203,6 +203,7 @@ export const getActivityLogDetail = async (
       changedAt: historyDetail.changedAt,
       changerId: historyDetail.changerId,
       changerName: historyDetail.changerName,
+      changerUsername: historyDetail.changerUsername,
       changerRole: historyDetail.changerRole,
       before: historyDetail.before,
       after: historyDetail.after,
