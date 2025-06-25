@@ -176,6 +176,8 @@ const ChangeTitle = styled.h4`
   color: ${({ children }) => (children === "변경 전" ? "#991b1b" : "#166534")};
   border-radius: 6px;
   text-align: center;
+  border: 1px solid
+    ${({ children }) => (children === "변경 전" ? "#fecaca" : "#bbf7d0")};
 `;
 
 const ChangeItem = styled.div`
@@ -183,6 +185,7 @@ const ChangeItem = styled.div`
   border-radius: 6px;
   padding: 8px 12px;
   border: 1px solid #e5e7eb;
+  margin-bottom: 4px;
 `;
 
 const ChangeKey = styled.span`
@@ -190,13 +193,14 @@ const ChangeKey = styled.span`
   font-weight: 600;
   color: #6b7280;
   display: block;
-  margin-bottom: 2px;
+  margin-bottom: 4px;
 `;
 
 const ChangeValue = styled.span`
   font-size: 0.875rem;
   color: #111827;
   word-break: break-word;
+  line-height: 1.4;
 `;
 
 const LoadingSpinner = styled.div`
@@ -317,48 +321,223 @@ export default function ActivityLogDetailModal({
   };
 
   const renderChanges = () => {
-    if (!detail || !detail.before || !detail.after) {
+    if (!detail) {
       return null;
     }
 
-    const allKeys = new Set([
-      ...Object.keys(detail.before),
-      ...Object.keys(detail.after),
-    ]);
+    // MongoDB 데이터 구조에 맞게 before/after 데이터 추출
+    const getActualData = (data: any) => {
+      if (typeof data === "object" && data !== null) {
+        // before/after가 객체이고 실제 데이터가 그 안에 있는 경우
+        if (data.before && typeof data.before === "object") {
+          return data.before;
+        }
+        if (data.after && typeof data.after === "object") {
+          return data.after;
+        }
+        // 직접 데이터가 있는 경우
+        return data;
+      }
+      return data;
+    };
 
-    return (
-      <ChangesSection>
-        <SectionTitle>변경 내용</SectionTitle>
-        <ChangesGrid>
-          <ChangeColumn>
-            <ChangeTitle>변경 전</ChangeTitle>
-            {Array.from(allKeys).map((key) => (
-              <ChangeItem key={`before-${key}`}>
-                <ChangeKey>{key}</ChangeKey>
-                <ChangeValue>
-                  {detail.before[key] !== undefined
-                    ? String(detail.before[key])
-                    : "-"}
-                </ChangeValue>
-              </ChangeItem>
-            ))}
-          </ChangeColumn>
-          <ChangeColumn>
-            <ChangeTitle>변경 후</ChangeTitle>
-            {Array.from(allKeys).map((key) => (
-              <ChangeItem key={`after-${key}`}>
-                <ChangeKey>{key}</ChangeKey>
-                <ChangeValue>
-                  {detail.after[key] !== undefined
-                    ? String(detail.after[key])
-                    : "-"}
-                </ChangeValue>
-              </ChangeItem>
-            ))}
-          </ChangeColumn>
-        </ChangesGrid>
-      </ChangesSection>
-    );
+    const beforeData = getActualData(detail.before);
+    const afterData = getActualData(detail.after);
+
+    // 생성 작업인 경우 after 데이터만 표시
+    if (detail.historyType === "CREATED") {
+      if (!afterData || Object.keys(afterData).length === 0) {
+        return null;
+      }
+
+      return (
+        <ChangesSection>
+          <SectionTitle>생성된 데이터</SectionTitle>
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+            {Object.entries(afterData)
+              .filter(
+                ([key]) =>
+                  !key.startsWith("_") &&
+                  key !== "delete" &&
+                  key !== "deletedAt" &&
+                  key !== "updatedAt"
+              )
+              .map(([key, value]) => (
+                <ChangeItem key={key}>
+                  <ChangeKey>{getFieldDisplayName(key)}</ChangeKey>
+                  <ChangeValue>{formatFieldValue(key, value)}</ChangeValue>
+                </ChangeItem>
+              ))}
+          </div>
+        </ChangesSection>
+      );
+    }
+
+    // 삭제 작업인 경우 before 데이터만 표시
+    if (detail.historyType === "DELETED") {
+      if (!beforeData || Object.keys(beforeData).length === 0) {
+        return null;
+      }
+
+      return (
+        <ChangesSection>
+          <SectionTitle>삭제된 데이터</SectionTitle>
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+            {Object.entries(beforeData)
+              .filter(
+                ([key]) =>
+                  !key.startsWith("_") &&
+                  key !== "delete" &&
+                  key !== "deletedAt" &&
+                  key !== "updatedAt"
+              )
+              .map(([key, value]) => (
+                <ChangeItem key={key}>
+                  <ChangeKey>{getFieldDisplayName(key)}</ChangeKey>
+                  <ChangeValue>{formatFieldValue(key, value)}</ChangeValue>
+                </ChangeItem>
+              ))}
+          </div>
+        </ChangesSection>
+      );
+    }
+
+    // 수정 작업인 경우 before/after 비교 표시
+    if (detail.historyType === "UPDATED") {
+      if (!beforeData || !afterData) {
+        return null;
+      }
+
+      const allKeys = new Set([
+        ...Object.keys(beforeData),
+        ...Object.keys(afterData),
+      ]);
+
+      // 변경된 필드만 필터링 (시스템 필드 제외)
+      const changedKeys = Array.from(allKeys).filter((key) => {
+        if (
+          key.startsWith("_") ||
+          key === "delete" ||
+          key === "deletedAt" ||
+          key === "updatedAt"
+        ) {
+          return false;
+        }
+        const beforeValue = beforeData[key];
+        const afterValue = afterData[key];
+        return beforeValue !== afterValue;
+      });
+
+      if (changedKeys.length === 0) {
+        return null;
+      }
+
+      return (
+        <ChangesSection>
+          <SectionTitle>변경된 내용</SectionTitle>
+          <ChangesGrid>
+            <ChangeColumn>
+              <ChangeTitle>변경 전</ChangeTitle>
+              {changedKeys.map((key) => (
+                <ChangeItem key={`before-${key}`}>
+                  <ChangeKey>{getFieldDisplayName(key)}</ChangeKey>
+                  <ChangeValue>
+                    {beforeData[key] !== undefined
+                      ? formatFieldValue(key, beforeData[key])
+                      : "-"}
+                  </ChangeValue>
+                </ChangeItem>
+              ))}
+            </ChangeColumn>
+            <ChangeColumn>
+              <ChangeTitle>변경 후</ChangeTitle>
+              {changedKeys.map((key) => (
+                <ChangeItem key={`after-${key}`}>
+                  <ChangeKey>{getFieldDisplayName(key)}</ChangeKey>
+                  <ChangeValue>
+                    {afterData[key] !== undefined
+                      ? formatFieldValue(key, afterData[key])
+                      : "-"}
+                  </ChangeValue>
+                </ChangeItem>
+              ))}
+            </ChangeColumn>
+          </ChangesGrid>
+        </ChangesSection>
+      );
+    }
+
+    return null;
+  };
+
+  // 필드명을 사용자 친화적으로 변환
+  const getFieldDisplayName = (fieldName: string) => {
+    const fieldMap: Record<string, string> = {
+      _id: "ID",
+      id: "ID",
+      name: "이름",
+      ceoName: "대표자명",
+      bio: "소개",
+      bizNo: "사업자번호",
+      address: "주소",
+      email: "이메일",
+      tel: "전화번호",
+      createdAt: "생성일",
+      isDelete: "삭제여부",
+      _class: "클래스명",
+      history_created_at: "이력 생성일",
+      message: "메시지",
+      // 다른 도메인 타입에 대한 필드들도 추가 가능
+    };
+
+    return fieldMap[fieldName] || fieldName;
+  };
+
+  // 필드값을 적절한 형식으로 변환
+  const formatFieldValue = (fieldName: string, value: any) => {
+    if (value === null || value === undefined) {
+      return "-";
+    }
+
+    // 문자열 "empty" 처리
+    if (value === "empty") {
+      return "-";
+    }
+
+    // 날짜 필드 처리
+    if (
+      fieldName.includes("createdAt") ||
+      fieldName.includes("changedAt") ||
+      fieldName.includes("updatedAt") ||
+      fieldName.includes("deletedAt")
+    ) {
+      try {
+        const date = new Date(value);
+        return date.toLocaleString("ko-KR", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        });
+      } catch {
+        return String(value);
+      }
+    }
+
+    // 불린 값 처리
+    if (typeof value === "boolean") {
+      return value ? "예" : "아니오";
+    }
+
+    // 숫자 필드 처리 (사업자번호 등)
+    if (typeof value === "number") {
+      return value.toLocaleString();
+    }
+
+    // 문자열 그대로 반환
+    return String(value);
   };
 
   if (!isOpen) return null;
