@@ -13,7 +13,6 @@ import {
 import styled from "styled-components";
 
 // Import necessary icons from react-icons
-import { MdDashboard } from "react-icons/md";
 import { HiBuildingOffice2 } from "react-icons/hi2";
 import { HiUsers } from "react-icons/hi2";
 import { FaArchive } from "react-icons/fa";
@@ -68,7 +67,7 @@ export const Sidebar: React.FC = () => {
             <MenuItem
               icon={HiBuildingOffice2}
               text="회사 관리"
-              isActive={location.pathname === "/company"}
+              isActive={location.pathname.startsWith("/company")}
               onClick={() => handleMenuItemClick("회사 관리", "/company")}
             />
             <MenuItem

@@ -15,9 +15,7 @@ import {
 import { useNotification } from "@/features/Notification/NotificationContext";
 import styled from "styled-components";
 import {
-  showErrorToast,
   showSuccessToast,
-  withErrorHandling,
 } from "@/utils/errorHandler";
 
 const ModalOverlay = styled.div`
@@ -281,6 +279,9 @@ export default function CompanyRegisterModal({
 
     const bizNo = `${data.reg1}${data.reg2}${data.reg3}`;
 
+    // 전화번호 숫자만 필터링
+    const cleanedTel = data.tel.replace(/\D/g, "");
+
     // 프론트 유효성 검사
     const newFieldErrors: FieldError[] = [];
 
@@ -302,8 +303,8 @@ export default function CompanyRegisterModal({
     if (!data.email?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
       newFieldErrors.push({ field: "email", value: data.email, reason: "올바른 이메일 형식이 아닙니다." });
     }
-    if (!data.tel?.trim() || !/^(\d{2,3})-(\d{3,4})-(\d{4})$/.test(data.tel)) {
-      newFieldErrors.push({ field: "tel", value: data.tel, reason: "전화번호 형식이 올바르지 않습니다. 예: 010-1234-5678" });
+    if (!cleanedTel || !/^\d{9,11}$/.test(cleanedTel)) {
+      newFieldErrors.push({ field: "tel", value: data.tel, reason: "전화번호는 9~11자리의 숫자로 입력하세요. 예: 021231234, 01012345678" });
     }
 
     if (newFieldErrors.length > 0) {
@@ -318,23 +319,30 @@ export default function CompanyRegisterModal({
       address: data.address,
       ceoName: data.ceoName,
       email: data.email,
-      tel: data.tel,
+      tel: cleanedTel,
       bio: data.bio,
     };
 
-    const result = await withErrorHandling(async () => {
+    try {
       await api.post("/api/companies", requestBody);
       showSuccessToast("회사 등록이 완료되었습니다!");
       onRegisterSuccess?.();
       handleClose();
-      return null;
-    }, "회사 등록에 실패했습니다.");
-
-    if (!result) {
-      // 에러가 발생한 경우 필드 에러 처리
-      setFieldErrors([
-        { field: "general", reason: "회사 등록 중 오류가 발생했습니다." },
-      ]);
+    } catch (err: any) {
+      console.error(err);
+  
+      if (axios.isAxiosError(err) && err.response?.data) {
+        const errorData = err.response.data as ErrorResponse;
+  
+        // 🔽 필드 에러가 있으면 세팅
+        if (errorData?.data?.errors) {
+          setFieldErrors(errorData.data.errors);
+        } else {
+          setErrorMessage(errorData.message || "회사 등록 중 오류가 발생했습니다.");
+        }
+      } else {
+        setErrorMessage("예상치 못한 오류가 발생했습니다.");
+      }
     }
   };
 
@@ -460,6 +468,7 @@ export default function CompanyRegisterModal({
               name="tel"
               type="tel"
               placeholder="전화번호를 입력하세요"
+              inputMode="numeric"
             />
             {fieldErrors.find((e) => e.field === "tel") && (
               <p style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>

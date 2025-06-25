@@ -133,11 +133,13 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
   const sortDropdownRef = useRef<HTMLDivElement>(null);
 
   const handleSearch = () => {
+    onInputChange("keyword", keyword);
     onSearch();
   };
 
   const handleResetFilters = () => {
     setKeyword("");
+    onInputChange("keyword", "");
     onReset();
   };
 
@@ -306,6 +308,8 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
     };
   }, []);
 
+  const getStatusMap = (status: string) => STATUS_MAP[status as keyof typeof STATUS_MAP] || STATUS_MAP[""];
+
   return (
     <DatePickerStyles>
       <FilterBar
@@ -352,17 +356,17 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
               <StatusDropdownButton
                 type="button"
                 $active={!!filters.status}
-                $color={STATUS_MAP[filters.status || ""].color}
+                $color={getStatusMap(filters.status).color}
                 $isOpen={statusDropdownOpen}
                 onClick={handleStatusDropdownToggle}
               >
-                {STATUS_MAP[filters.status || ""].icon &&
-                  React.createElement(STATUS_MAP[filters.status || ""].icon, {
+                {getStatusMap(filters.status).icon &&
+                  React.createElement(getStatusMap(filters.status).icon, {
                     size: 16,
-                    color: STATUS_MAP[filters.status || ""].color,
+                    color: getStatusMap(filters.status).color,
                     style: { marginRight: 4 },
                   })}
-                <span>{STATUS_MAP[filters.status || ""].label}</span>
+                <span>{getStatusMap(filters.status).label}</span>
                 <FiChevronDown size={16} />
               </StatusDropdownButton>
               <StatusDropdownMenu $isOpen={statusDropdownOpen}>
@@ -443,9 +447,8 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
                       endDate={
                         filters.endDate ? new Date(filters.endDate) : null
                       }
-                      maxDate={
-                        filters.endDate ? new Date(filters.endDate) : null
-                      }
+                      maxDate={filters.endDate ? new Date(filters.endDate) : undefined}
+                      minDate={filters.startDate ? new Date(filters.startDate) : undefined}
                       dateFormat="yyyy-MM-dd"
                       placeholderText="시작일 선택"
                       inline
@@ -493,9 +496,8 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
                       endDate={
                         filters.endDate ? new Date(filters.endDate) : null
                       }
-                      minDate={
-                        filters.startDate ? new Date(filters.startDate) : null
-                      }
+                      maxDate={filters.endDate ? new Date(filters.endDate) : undefined}
+                      minDate={filters.startDate ? new Date(filters.startDate) : undefined}
                       dateFormat="yyyy-MM-dd"
                       placeholderText="종료일 선택"
                       inline

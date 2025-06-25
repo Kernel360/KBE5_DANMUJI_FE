@@ -2,36 +2,23 @@ import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "@/api/axios";
-import { type Member, formatTelNo } from "../pages/MemberPage";
-import MemberEditModal from "../components/MemberEditModal/MemberEditModal";
 import {
-  showErrorToast,
-  showSuccessToast,
-} from "@/utils/errorHandler";
+  type Company,
+  formatBizNo,
+  formatTelNo,
+  type FieldError,
+} from "./CompanyPage";
+import CompanyEditModal from "../components/CompanyEditModal";
+import { type CompanyFormData } from "./CompanyPage";
+import { showErrorToast, showSuccessToast } from "@/utils/errorHandler";
 import {
   FiUser,
+  FiBriefcase,
+  FiMapPin,
   FiMail,
   FiPhone,
-  FiBriefcase,
-  FiTag,
 } from "react-icons/fi";
 
-interface Company {
-  id: number;
-  name: string;
-}
-
-interface MemberUpdateFormData {
-  username: string;
-  name: string;
-  role: string;
-  companyId?: number;
-  position: string;
-  phone: string;
-  email: string;
-}
-
-// 스타일 컴포넌트들 (CompanyDetailPage와 유사하게)
 const PageContainer = styled.div`
   padding: 32px;
   background-color: #f9fafb;
@@ -42,7 +29,7 @@ const PageContainer = styled.div`
 `;
 
 const PageHeaderSection = styled.div`
-  margin-bottom: 0px;
+  margin-bottom: 0px; /* Adjusted */
 `;
 
 const PageTitle = styled.h1`
@@ -106,7 +93,7 @@ const ActionButton = styled.button`
   font-weight: 600;
   border: none;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.2s;
 `;
 
 const DeleteButton = styled(ActionButton)`
@@ -122,7 +109,8 @@ const EditButton = styled(ActionButton)`
   color: #374151;
   border: 2px solid #e5e7eb;
   box-shadow: 0 2px 4px rgba(107, 114, 128, 0.2);
-  
+  transition: all 0.25s ease;
+
   &:hover {
     background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
     border-color: #fef3c7;
@@ -150,7 +138,7 @@ const BackButton = styled(ActionButton)`
   }
 `;
 
-const MemberHeader = styled.div`
+const CompanyHeader = styled.div`
   padding: 24px;
   background-color: #fdfbf5;
   border-radius: 8px;
@@ -158,7 +146,7 @@ const MemberHeader = styled.div`
   border: 1px solid #fdecc8;
 `;
 
-const MemberName = styled.h1`
+const CompanyName = styled.h1`
   font-size: 28px;
   font-weight: 700;
   color: #111827;
@@ -168,10 +156,10 @@ const MemberName = styled.h1`
   margin-bottom: 8px;
 `;
 
-const MemberInfo = styled.p`
+const CompanyBio = styled.p`
   font-size: 15px;
   color: #6b7280;
-  padding-left: 40px;
+  padding-left: 40px; /* Align with company name text, after icon */
 `;
 
 const InfoGrid = styled.div`
@@ -230,180 +218,169 @@ const DetailValue = styled.span`
   word-break: break-all;
 `;
 
-const ResetPasswordLink = styled.a`
-  color: #3b82f6;
-  text-decoration: none;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  &:hover {
-    text-decoration: underline;
-  }
-`;
-
-const MemberDetailPage: React.FC = () => {
+const CompanyDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [member, setMember] = useState<Member | null>(null);
+  const [company, setCompany] = useState<Company | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [editData, setEditData] = useState<Member | null>(null);
-  const [companies, setCompanies] = useState<Company[]>([]);
+  const [editData, setEditData] = useState<Company | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<FieldError[]>([]);
+  const [, setErrorMessage] = useState<string | null>(null);
 
-  const fetchMemberDetail = useCallback(async () => {
+  const fetchCompanyDetail = useCallback(async () => {
     if (!id) {
-      setError("회원 ID가 누락되었습니다.");
+      setError("회사 ID가 누락되었습니다.");
       setLoading(false);
       return;
     }
     try {
       setLoading(true);
-      const response = await api.get(`/api/admin/${id}`);
-      setMember(response.data.data);
+      const response = await api.get(`/api/companies/${id}`);
+      setCompany(response.data.data);
     } catch (err: unknown) {
-      let errorMessage = "회원 정보를 가져오는 중 오류가 발생했습니다.";
-      if (err instanceof Error) errorMessage = err.message;
-      setError(errorMessage);
-      console.error("회원 정보 가져오기 실패:", err);
+      let message = "회사 상세 정보를 가져오는 중 알 수 없는 오류가 발생했습니다.";
+      if (err instanceof Error) {
+        message = err.message;
+      }
+      setError(message);
+      console.error("회사 상세 정보 가져오기 실패:", err);
     } finally {
       setLoading(false);
     }
   }, [id]);
 
   useEffect(() => {
-    fetchMemberDetail();
-  }, [fetchMemberDetail]);
+    fetchCompanyDetail();
+  }, [fetchCompanyDetail]);
 
-  useEffect(() => {
-    const fetchCompanies = async () => {
-      try {
-        const response = await api.get("/api/companies?size=1000"); // Fetch all companies
-        setCompanies(response.data.data.content);
-      } catch (error) {
-        console.error("회사 목록을 불러오는 데 실패했습니다.:", error);
-      }
-    };
-    fetchCompanies();
-  }, []);
-
-  const handleEditMember = () => {
-    if (member) {
-      setEditData(member);
+  const handleEdit = () => {
+    if (company) {
+      setEditData(company);
       setEditModalOpen(true);
     }
   };
 
-  const handleDeleteMember = async () => {
-    if (!member) return;
-    if (window.confirm("정말 이 회원을 삭제하시겠습니까?")) {
+  const handleDelete = async () => {
+    if (!company) return;
+    if (window.confirm("정말 이 회사를 삭제하시겠습니까?")) {
       try {
-        await api.delete(`/api/admin/${member.id}`);
-        showSuccessToast("회원이 성공적으로 삭제되었습니다.");
-        navigate("/members");
+        await api.delete(`/api/companies/${company.id}`);
+        showSuccessToast("회사가 성공적으로 삭제되었습니다.");
+        navigate("/company");
       } catch (error) {
-        showErrorToast("회원 삭제에 실패했습니다.");
+        showErrorToast("회사 삭제에 실패했습니다.");
         console.error("삭제 실패:", error);
       }
     }
   };
 
-  const handleUpdateMember = async (data: MemberUpdateFormData) => {
+  const handleUpdate = async (data: CompanyFormData) => {
     if (!editData) return;
     try {
-      await api.put(`/api/admin/${editData.id}`, {
-        ...data,
-        phone: data.phone.replace(/\D/g, ""),
-      });
+      const bizNoCombined = parseInt(`${data.reg1}${data.reg2}${data.reg3}`, 10);
+      const companyUpdateData = {
+        name: data.name,
+        bizNo: bizNoCombined,
+        address: data.address,
+        ceoName: data.ceoName,
+        email: data.email,
+        bio: data.bio,
+        tel: data.tel,
+      };
+      await api.put(`/api/companies/${editData.id}`, companyUpdateData);
       setEditModalOpen(false);
       setEditData(null);
-      showSuccessToast("회원 정보가 성공적으로 수정되었습니다.");
-      fetchMemberDetail(); // Re-fetch data
+      showSuccessToast("회사 정보가 성공적으로 수정되었습니다.");
+      fetchCompanyDetail();
     } catch {
-      showErrorToast("회원 정보 수정에 실패했습니다.");
+      showErrorToast("회사 정보 수정에 실패했습니다.");
     }
-  };
-
-  const handleResetPassword = () => {
-    // 비밀번호 재설정 로직 (미구현)
-    alert("비밀번호 재설정 기능은 현재 준비 중입니다.");
   };
 
   if (loading) return <PageContainer>로딩 중...</PageContainer>;
   if (error) return <PageContainer>오류: {error}</PageContainer>;
-  if (!member) return <PageContainer>회원을 찾을 수 없습니다.</PageContainer>;
-
-  const companyName = companies.find(c => c.id === member.companyId)?.name || '소속 없음';
+  if (!company) return <PageContainer>회사를 찾을 수 없습니다.</PageContainer>;
 
   return (
     <PageContainer>
-      {editModalOpen && editData && (
-        <MemberEditModal
+      {editData && (
+        <CompanyEditModal
+          open={editModalOpen}
           onClose={() => setEditModalOpen(false)}
-          onEdit={handleUpdateMember}
+          onSave={handleUpdate}
           initialData={editData}
+          fieldErrors={fieldErrors}
+          setFieldErrors={setFieldErrors}
+          setErrorMessage={setErrorMessage}
         />
       )}
       <PageHeaderSection>
-        <PageTitle>회원 상세 정보</PageTitle>
+        <PageTitle>회사 상세 정보</PageTitle>
         <PageSubtitle>
-          해당 회원의 상세 정보를 한 눈에 확인하세요
+          해당 회사의 상세 정보를 한 눈에 확인하세요
         </PageSubtitle>
       </PageHeaderSection>
 
       <MainContentArea>
         <ProfileHeader>
-          <ProfileTitle>회원 프로필</ProfileTitle>
+          <ProfileTitle>회사 프로필</ProfileTitle>
           <ButtonGroup>
             <BackButton onClick={() => navigate(-1)}>뒤로가기</BackButton>
-            <DeleteButton onClick={handleDeleteMember}>회원 삭제</DeleteButton>
-            <EditButton onClick={handleEditMember}>회원 정보 수정</EditButton>
+            <DeleteButton onClick={handleDelete}>회사 삭제</DeleteButton>
+            <EditButton onClick={handleEdit}>회사 정보 수정</EditButton>
           </ButtonGroup>
         </ProfileHeader>
 
-        <MemberHeader>
-          <MemberName>
-            <FiUser size={26} />
-            {member.name}
-          </MemberName>
-          <MemberInfo>
-            {companyName} / {member.position}
-          </MemberInfo>
-        </MemberHeader>
+        <CompanyHeader>
+          <CompanyName>
+            <FiBriefcase size={26} />
+            {company.name}
+          </CompanyName>
+          {company.bio && <CompanyBio>{company.bio}</CompanyBio>}
+        </CompanyHeader>
 
         <InfoGrid>
           <InfoCard>
             <CardTitle>기본 정보</CardTitle>
             <DetailItem>
-              <DetailIcon><FiBriefcase size={18} /></DetailIcon>
-              <DetailLabel>소속 회사</DetailLabel>
-              <DetailValue>{companyName}</DetailValue>
+              <DetailIcon>
+                <FiUser size={18} />
+              </DetailIcon>
+              <DetailLabel>대표자명</DetailLabel>
+              <DetailValue>{company.ceoName}</DetailValue>
             </DetailItem>
             <DetailItem>
-              <DetailIcon><FiTag size={18} /></DetailIcon>
-              <DetailLabel>직책</DetailLabel>
-              <DetailValue>{member.position}</DetailValue>
+              <DetailIcon>
+                <FiBriefcase size={18} />
+              </DetailIcon>
+              <DetailLabel>사업자등록번호</DetailLabel>
+              <DetailValue>{formatBizNo(company.bizNo.toString())}</DetailValue>
+            </DetailItem>
+            <DetailItem>
+              <DetailIcon>
+                <FiMapPin size={18} />
+              </DetailIcon>
+              <DetailLabel>주소</DetailLabel>
+              <DetailValue>{company.address}</DetailValue>
             </DetailItem>
           </InfoCard>
           <InfoCard>
             <CardTitle>연락처 정보</CardTitle>
             <DetailItem>
-              <DetailIcon><FiMail size={18} /></DetailIcon>
+              <DetailIcon>
+                <FiMail size={18} />
+              </DetailIcon>
               <DetailLabel>이메일</DetailLabel>
-              <DetailValue>{member.email}</DetailValue>
+              <DetailValue>{company.email}</DetailValue>
             </DetailItem>
             <DetailItem>
-              <DetailIcon><FiPhone size={18} /></DetailIcon>
+              <DetailIcon>
+                <FiPhone size={18} />
+              </DetailIcon>
               <DetailLabel>연락처</DetailLabel>
-              <DetailValue>{formatTelNo(member.phone)}</DetailValue>
-            </DetailItem>
-             <DetailItem>
-              <DetailLabel>비밀번호 재설정</DetailLabel>
-              <DetailValue>
-                <ResetPasswordLink onClick={handleResetPassword}>
-                  재설정 링크 보내기
-                </ResetPasswordLink>
-              </DetailValue>
+              <DetailValue>{formatTelNo(company.tel)}</DetailValue>
             </DetailItem>
           </InfoCard>
         </InfoGrid>
@@ -412,4 +389,4 @@ const MemberDetailPage: React.FC = () => {
   );
 };
 
-export default MemberDetailPage;
+export default CompanyDetailPage; 
