@@ -1,4 +1,8 @@
 import api from "@/api/axios";
+import type {
+  HistoryDetailResponse,
+  ActivityLogDetail,
+} from "../types/activityLog";
 
 // 임시 타입 정의 (모듈 import 문제 해결을 위해)
 interface ApiResponse<T> {
@@ -176,6 +180,37 @@ export const getAllActivityLogs = async (
     return response.data.data;
   } catch (error) {
     console.error("이력 전체 목록 조회 실패:", error);
+    throw error;
+  }
+};
+
+// 이력 상세 조회
+export const getActivityLogDetail = async (
+  historyId: string
+): Promise<ActivityLogDetail> => {
+  try {
+    const response = await api.get<ApiResponse<HistoryDetailResponse>>(
+      `/api/histories/${historyId}`
+    );
+
+    const historyDetail = response.data.data;
+
+    return {
+      id: historyDetail.id,
+      historyType: historyDetail.historyType,
+      domainType: historyDetail.domainType,
+      domainId: historyDetail.domainId,
+      changedAt: historyDetail.changedAt,
+      changerId: historyDetail.changerId,
+      changerName: historyDetail.changerName,
+      changerRole: historyDetail.changerRole,
+      before: historyDetail.before,
+      after: historyDetail.after,
+      createdAt: historyDetail.createdAt,
+      message: historyDetail.message,
+    };
+  } catch (error) {
+    console.error("이력 상세 조회 실패:", error);
     throw error;
   }
 };

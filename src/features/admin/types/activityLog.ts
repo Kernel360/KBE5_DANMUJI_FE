@@ -40,6 +40,29 @@ export interface HistorySimpleResponse {
   message: string;
 }
 
+// 백엔드 이력 상세 응답 타입
+export interface HistoryDetailResponse {
+  id: string;
+  historyType: "CREATED" | "UPDATED" | "DELETED";
+  domainType:
+    | "USER"
+    | "COMPANY"
+    | "PROJECT"
+    | "PROJECT_STEP"
+    | "POST"
+    | "QUESTION"
+    | "CHAT";
+  domainId: number;
+  changedAt: string;
+  changerId: string;
+  changerName: string;
+  changerRole: string;
+  before: Record<string, any>;
+  after: Record<string, any>;
+  createdAt: string;
+  message: string;
+}
+
 // 프론트엔드에서 사용할 이력 타입 (사용자 정보 포함)
 export interface ActivityLog {
   id: string;
@@ -53,6 +76,22 @@ export interface ActivityLog {
   ipAddress: string;
   createdAt: string;
   changerUsername: string;
+}
+
+// 프론트엔드에서 사용할 이력 상세 타입
+export interface ActivityLogDetail {
+  id: string;
+  historyType: "CREATED" | "UPDATED" | "DELETED";
+  domainType: string;
+  domainId: number;
+  changedAt: string;
+  changerId: string;
+  changerName: string;
+  changerRole: string;
+  before: Record<string, any>;
+  after: Record<string, any>;
+  createdAt: string;
+  message: string;
 }
 
 export interface User {

@@ -61,6 +61,7 @@ import { FaProjectDiagram, FaCrown, FaUserShield } from "react-icons/fa";
 import { RiUserSettingsLine } from "react-icons/ri";
 import UserSelectionModal from "../components/UserSelectionModal";
 import UserFilterButton from "../components/UserFilterButton";
+import ActivityLogDetailModal from "../components/ActivityLogDetailModal";
 import {
   getActivityLogs,
   transformHistoryToActivityLog,
@@ -117,6 +118,10 @@ export default function ActivityLogPage() {
   const [endDate, setEndDate] = useState<string>("");
   const [startDateOpen, setStartDateOpen] = useState(false);
   const [endDateOpen, setEndDateOpen] = useState(false);
+
+  // 상세조회 모달 상태
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [selectedHistoryId, setSelectedHistoryId] = useState<string>("");
 
   // 드롭다운 상태
   const [actionDropdownOpen, setActionDropdownOpen] = useState(false);
@@ -244,7 +249,7 @@ export default function ActivityLogPage() {
       case "DELETED":
         return <FiTrash style={{ color: "#ef4444" }} />;
       default:
-        return <FiFileText style={{ color: "#6b7280" }} />;
+        return <FiEdit style={{ color: "#6b7280" }} />;
     }
   };
 
@@ -261,20 +266,32 @@ export default function ActivityLogPage() {
       case "POST":
         return <FiFileText style={{ color: "#10b981" }} />;
       default:
-        return <FiFileText style={{ color: "#6b7280" }} />;
+        return <FiGrid style={{ color: "#6b7280" }} />;
     }
   };
 
   const getActionBadgeStyle = (action: string) => {
     switch (action) {
       case "CREATED":
-        return { backgroundColor: "#d1fae5", color: "#065f46" };
+        return {
+          backgroundColor: "#dcfce7",
+          color: "#166534",
+        };
       case "UPDATED":
-        return { backgroundColor: "#dbeafe", color: "#1e40af" };
+        return {
+          backgroundColor: "#dbeafe",
+          color: "#1e40af",
+        };
       case "DELETED":
-        return { backgroundColor: "#fee2e2", color: "#991b1b" };
+        return {
+          backgroundColor: "#fee2e2",
+          color: "#991b1b",
+        };
       default:
-        return { backgroundColor: "#f3f4f6", color: "#374151" };
+        return {
+          backgroundColor: "#f3f4f6",
+          color: "#374151",
+        };
     }
   };
 
@@ -290,7 +307,7 @@ export default function ActivityLogPage() {
   };
 
   const formatDateForDisplay = (dateString: string) => {
-    if (!dateString) return "선택 안함";
+    if (!dateString) return "선택";
     const date = new Date(dateString);
     return date.toLocaleDateString("ko-KR", {
       year: "numeric",
@@ -328,7 +345,7 @@ export default function ActivityLogPage() {
   const handleActionSelect = (value: string) => {
     setActionFilter(value);
     setActionDropdownOpen(false);
-    // 바로 검색 실행 (최신 필터 값 사용)
+    setCurrentPage(0);
     const filters = {
       historyType: value !== "ALL" ? value : undefined,
       domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
@@ -336,19 +353,17 @@ export default function ActivityLogPage() {
       changedFrom: startDate || undefined,
       changedTo: endDate || undefined,
     };
-    setCurrentPage(0);
     fetchActivityLogs(0, filters);
   };
 
   const handleLogTypeDropdownToggle = () => {
     setLogTypeDropdownOpen(!logTypeDropdownOpen);
-    setActionDropdownOpen(false);
   };
 
   const handleLogTypeSelect = (value: string) => {
     setLogTypeFilter(value);
     setLogTypeDropdownOpen(false);
-    // 바로 검색 실행 (최신 필터 값 사용)
+    setCurrentPage(0);
     const filters = {
       historyType: actionFilter !== "ALL" ? actionFilter : undefined,
       domainType: value !== "ALL" ? value : undefined,
@@ -356,7 +371,6 @@ export default function ActivityLogPage() {
       changedFrom: startDate || undefined,
       changedTo: endDate || undefined,
     };
-    setCurrentPage(0);
     fetchActivityLogs(0, filters);
   };
 
@@ -378,9 +392,10 @@ export default function ActivityLogPage() {
   // 날짜 관련 핸들러
   const handleStartDateChange = (date: Date | null) => {
     if (date) {
-      const formattedDate = date.toISOString().split("T")[0];
+      const formattedDate = date.toISOString().slice(0, 19); // YYYY-MM-DDTHH:mm:ss
       setStartDate(formattedDate);
-      // 바로 검색 실행
+      setStartDateOpen(false);
+      setCurrentPage(0);
       const filters = {
         historyType: actionFilter !== "ALL" ? actionFilter : undefined,
         domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
@@ -388,17 +403,16 @@ export default function ActivityLogPage() {
         changedFrom: formattedDate,
         changedTo: endDate || undefined,
       };
-      setCurrentPage(0);
       fetchActivityLogs(0, filters);
     }
-    setStartDateOpen(false);
   };
 
   const handleEndDateChange = (date: Date | null) => {
     if (date) {
-      const formattedDate = date.toISOString().split("T")[0];
+      const formattedDate = date.toISOString().slice(0, 19); // YYYY-MM-DDTHH:mm:ss
       setEndDate(formattedDate);
-      // 바로 검색 실행
+      setEndDateOpen(false);
+      setCurrentPage(0);
       const filters = {
         historyType: actionFilter !== "ALL" ? actionFilter : undefined,
         domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
@@ -406,20 +420,18 @@ export default function ActivityLogPage() {
         changedFrom: startDate || undefined,
         changedTo: formattedDate,
       };
-      setCurrentPage(0);
       fetchActivityLogs(0, filters);
     }
-    setEndDateOpen(false);
   };
 
   const handleStartDateClick = () => {
-    setEndDateOpen(false);
     setStartDateOpen(!startDateOpen);
+    setEndDateOpen(false);
   };
 
   const handleEndDateClick = () => {
-    setStartDateOpen(false);
     setEndDateOpen(!endDateOpen);
+    setStartDateOpen(false);
   };
 
   // 사용자 모달 관련 핸들러
@@ -434,7 +446,7 @@ export default function ActivityLogPage() {
   const handleUserSelect = (user: User) => {
     setSelectedUser(user);
     setUserModalOpen(false);
-    // 바로 검색 실행
+    setCurrentPage(0);
     const filters = {
       historyType: actionFilter !== "ALL" ? actionFilter : undefined,
       domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
@@ -442,7 +454,6 @@ export default function ActivityLogPage() {
       changedFrom: startDate || undefined,
       changedTo: endDate || undefined,
     };
-    setCurrentPage(0);
     fetchActivityLogs(0, filters);
   };
 
@@ -458,6 +469,17 @@ export default function ActivityLogPage() {
     };
     setCurrentPage(0);
     fetchActivityLogs(0, filters);
+  };
+
+  // 상세조회 모달 핸들러
+  const handleDetailModalOpen = (historyId: string) => {
+    setSelectedHistoryId(historyId);
+    setDetailModalOpen(true);
+  };
+
+  const handleDetailModalClose = () => {
+    setDetailModalOpen(false);
+    setSelectedHistoryId("");
   };
 
   if (loading && activityLogs.length === 0) return <LoadingSpinner />;
@@ -683,7 +705,17 @@ export default function ActivityLogPage() {
           </TableHead>
           <TableBody>
             {activityLogs.map((log) => (
-              <TableRow key={log.id}>
+              <TableRow
+                key={log.id}
+                onClick={() => handleDetailModalOpen(log.id)}
+                style={{ cursor: "pointer" }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "#fefdf4";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "transparent";
+                }}
+              >
                 <TableCell>
                   <div
                     style={{
@@ -804,6 +836,13 @@ export default function ActivityLogPage() {
         isOpen={userModalOpen}
         onClose={handleUserModalClose}
         onSelect={handleUserSelect}
+      />
+
+      {/* 이력 상세조회 모달 */}
+      <ActivityLogDetailModal
+        isOpen={detailModalOpen}
+        onClose={handleDetailModalClose}
+        historyId={selectedHistoryId}
       />
     </PageContainer>
   );
