@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import {
   PageContainer,
   Header,
@@ -29,6 +31,12 @@ import {
   SelectOption,
 } from "@/features/admin/pages/ActivityLogPage.styled";
 import {
+  DateRangeGroup,
+  DatePickerWrapper,
+  DateButton,
+  DateSeparator,
+} from "@/features/project/components/List/ProjectFilterBar.styled";
+import {
   FiSearch,
   FiRotateCcw,
   FiUser,
@@ -36,29 +44,50 @@ import {
   FiFileText,
   FiEdit,
   FiTrash,
-  FiPlus,
+  FiPlusCircle,
   FiCalendar,
   FiChevronDown,
-  FiShield,
-  FiUsers,
-  FiMessageCircle,
   FiLayers,
-  FiHelpCircle,
   FiGrid,
 } from "react-icons/fi";
 import { FaProjectDiagram } from "react-icons/fa";
+import { RiUserSettingsLine } from "react-icons/ri";
+import UserSelectionModal from "../components/UserSelectionModal";
+import UserFilterButton from "../components/UserFilterButton";
+import ActivityLogDetailModal from "../components/ActivityLogDetailModal";
+import {
+  getActivityLogs,
+  transformHistoryToActivityLog,
+} from "../services/activityLogService";
 
+// 타입 정의
 interface ActivityLog {
-  id: number;
-  userId: number;
+  id: string;
+  userId: string;
   userName: string;
   userRole: string;
   action: string;
-  targetType: string;
+  targetType: "POST" | "USER" | "PROJECT" | "COMPANY" | "STEP";
   targetName: string;
   details: string;
   ipAddress: string;
   createdAt: string;
+  changerUsername: string;
+  message: string;
+}
+
+interface User {
+  id: number;
+  username: string;
+  name: string;
+  role: string;
+}
+
+interface PageInfo {
+  size: number;
+  number: number;
+  totalElements: number;
+  totalPages: number;
 }
 
 export default function ActivityLogPage() {
@@ -66,44 +95,38 @@ export default function ActivityLogPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
-  const [totalElements, setTotalElements] = useState(0);
+  const [pageInfo, setPageInfo] = useState<PageInfo>({
+    size: 10,
+    number: 0,
+    totalElements: 0,
+    totalPages: 0,
+  });
   const [searchTerm, setSearchTerm] = useState("");
   const [actionFilter, setActionFilter] = useState("ALL");
-  const [userFilter, setUserFilter] = useState("ALL");
   const [logTypeFilter, setLogTypeFilter] = useState("ALL");
   const [logTypeDropdownOpen, setLogTypeDropdownOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [userModalOpen, setUserModalOpen] = useState(false);
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
+  const [startDateOpen, setStartDateOpen] = useState(false);
+  const [endDateOpen, setEndDateOpen] = useState(false);
+
+  // 상세조회 모달 상태
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [selectedHistoryId, setSelectedHistoryId] = useState<string>("");
 
   // 드롭다운 상태
   const [actionDropdownOpen, setActionDropdownOpen] = useState(false);
-  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const actionDropdownRef = useRef<HTMLDivElement>(null);
-  const userDropdownRef = useRef<HTMLDivElement>(null);
   const logTypeDropdownRef = useRef<HTMLDivElement>(null);
 
   // 드롭다운 옵션
   const ACTION_OPTIONS = [
     { value: "ALL", label: "전체", icon: FiGrid, color: "#6b7280" },
-    { value: "CREATE", label: "생성", icon: FiPlus, color: "#10b981" },
-    { value: "UPDATE", label: "수정", icon: FiEdit, color: "#3b82f6" },
-    { value: "DELETE", label: "삭제", icon: FiTrash, color: "#ef4444" },
-  ];
-
-  const USER_OPTIONS = [
-    { value: "ALL", label: "전체", icon: FiUsers, color: "#6b7280" },
-    { value: "ROLE_ADMIN", label: "관리자", icon: FiShield, color: "#8b5cf6" },
-    {
-      value: "ROLE_DEVELOPER",
-      label: "개발사 직원",
-      icon: FiUser,
-      color: "#3b82f6",
-    },
-    {
-      value: "ROLE_CLIENT",
-      label: "고객사 직원",
-      icon: FiUser,
-      color: "#10b981",
-    },
+    { value: "CREATED", label: "생성", icon: FiPlusCircle, color: "#10b981" },
+    { value: "UPDATED", label: "수정", icon: FiEdit, color: "#3b82f6" },
+    { value: "DELETED", label: "삭제", icon: FiTrash, color: "#ef4444" },
   ];
 
   const LOG_TYPE_OPTIONS = [
@@ -117,14 +140,12 @@ export default function ActivityLogPage() {
       color: "#3b82f6",
     },
     {
-      value: "PROJECT_STEP",
+      value: "STEP",
       label: "프로젝트 단계",
       icon: FiLayers,
       color: "#6366f1",
     },
     { value: "POST", label: "게시글", icon: FiFileText, color: "#10b981" },
-    { value: "QUESTION", label: "문의", icon: FiHelpCircle, color: "#f97316" },
-    { value: "CHAT", label: "채팅", icon: FiMessageCircle, color: "#f472b6" },
   ];
 
   // 드롭다운 외부 클릭 감지
@@ -135,12 +156,6 @@ export default function ActivityLogPage() {
         !logTypeDropdownRef.current.contains(event.target as Node)
       ) {
         setLogTypeDropdownOpen(false);
-      }
-      if (
-        userDropdownRef.current &&
-        !userDropdownRef.current.contains(event.target as Node)
-      ) {
-        setUserDropdownOpen(false);
       }
       if (
         actionDropdownRef.current &&
@@ -156,87 +171,78 @@ export default function ActivityLogPage() {
     };
   }, []);
 
-  // 임시 데이터
-  const mockActivityLogs: ActivityLog[] = [
-    {
-      id: 1,
-      userId: 1,
-      userName: "관리자",
-      userRole: "ROLE_ADMIN",
-      action: "CREATE",
-      targetType: "USER",
-      targetName: "홍길동",
-      details: "새 회원 등록",
-      ipAddress: "192.168.1.100",
-      createdAt: "2024-01-15 14:30:00",
-    },
-    {
-      id: 2,
-      userId: 2,
-      userName: "김개발",
-      userRole: "ROLE_USER",
-      action: "CREATE",
-      targetType: "POST",
-      targetName: "프로젝트 진행상황 보고",
-      details: "새 게시글 작성",
-      ipAddress: "192.168.1.101",
-      createdAt: "2024-01-15 13:45:00",
-    },
-    {
-      id: 3,
-      userId: 1,
-      userName: "관리자",
-      userRole: "ROLE_ADMIN",
-      action: "UPDATE",
-      targetType: "COMPANY",
-      targetName: "ABC기업",
-      details: "회사 정보 수정",
-      ipAddress: "192.168.1.100",
-      createdAt: "2024-01-15 12:20:00",
-    },
-    {
-      id: 4,
-      userId: 3,
-      userName: "박고객",
-      userRole: "ROLE_USER",
-      action: "DELETE",
-      targetType: "POST",
-      targetName: "삭제된 게시글",
-      details: "게시글 삭제",
-      ipAddress: "192.168.1.102",
-      createdAt: "2024-01-15 11:15:00",
-    },
-    {
-      id: 5,
-      userId: 1,
-      userName: "관리자",
-      userRole: "ROLE_ADMIN",
-      action: "CREATE",
-      targetType: "PROJECT",
-      targetName: "웹사이트 리뉴얼 프로젝트",
-      details: "새 프로젝트 생성",
-      ipAddress: "192.168.1.100",
-      createdAt: "2024-01-15 10:00:00",
-    },
-  ];
+  // 이력 데이터 가져오기
+  const fetchActivityLogs = async (page: number = 0, customFilters?: any) => {
+    // 첫 페이지가 아니거나 초기 로드가 아닌 경우에만 로딩 표시
+    if (page === 0 && activityLogs.length > 0) {
+      setLoading(true);
+    }
+    setError(null);
 
+    try {
+      const filters = customFilters || {
+        historyType: actionFilter !== "ALL" ? actionFilter : undefined,
+        domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
+        changerId: selectedUser?.id?.toString(),
+        changedFrom: startDate || undefined,
+        changedTo: endDate || undefined,
+      };
+
+      // 디버깅용 로그
+      console.log("필터 값들:", {
+        actionFilter,
+        logTypeFilter,
+        selectedUser,
+        startDate,
+        endDate,
+        filters,
+      });
+
+      console.log(
+        "API 요청 URL:",
+        `/api/histories/search?${new URLSearchParams({
+          page: page.toString(),
+          size: "10",
+          ...(filters.historyType && { historyType: filters.historyType }),
+          ...(filters.domainType && { domainType: filters.domainType }),
+          ...(filters.changerId && { changerId: filters.changerId }),
+          ...(filters.changedFrom && { changedFrom: filters.changedFrom }),
+          ...(filters.changedTo && { changedTo: filters.changedTo }),
+        }).toString()}`
+      );
+
+      const response = await getActivityLogs(page, 10, filters);
+
+      // 백엔드 응답을 프론트엔드 형식으로 변환
+      const transformedLogs = response.content.map((history) =>
+        transformHistoryToActivityLog(history)
+      );
+
+      setActivityLogs(transformedLogs);
+      setPageInfo(response.page);
+    } catch (err) {
+      console.error("이력 데이터 가져오기 실패:", err);
+      setError("이력 데이터를 불러오는데 실패했습니다.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 초기 데이터 로드
   useEffect(() => {
-    // 임시로 mock 데이터 사용
-    setActivityLogs(mockActivityLogs);
-    setTotalElements(mockActivityLogs.length);
-    setTotalPages(Math.ceil(mockActivityLogs.length / 10));
+    fetchActivityLogs(0);
   }, []);
 
   const getActionIcon = (action: string) => {
     switch (action) {
-      case "CREATE":
-        return <FiPlus style={{ color: "#10b981" }} />;
-      case "UPDATE":
+      case "CREATED":
+        return <FiPlusCircle style={{ color: "#10b981" }} />;
+      case "UPDATED":
         return <FiEdit style={{ color: "#3b82f6" }} />;
-      case "DELETE":
+      case "DELETED":
         return <FiTrash style={{ color: "#ef4444" }} />;
       default:
-        return <FiFileText style={{ color: "#6b7280" }} />;
+        return <FiEdit style={{ color: "#6b7280" }} />;
     }
   };
 
@@ -248,29 +254,53 @@ export default function ActivityLogPage() {
         return <FiHome style={{ color: "#f59e0b" }} />;
       case "PROJECT":
         return <FaProjectDiagram style={{ color: "#3b82f6" }} />;
-      case "PROJECT_STEP":
+      case "STEP":
         return <FiLayers style={{ color: "#6366f1" }} />;
       case "POST":
         return <FiFileText style={{ color: "#10b981" }} />;
-      case "QUESTION":
-        return <FiHelpCircle style={{ color: "#f97316" }} />;
-      case "CHAT":
-        return <FiMessageCircle style={{ color: "#f472b6" }} />;
       default:
-        return <FiFileText style={{ color: "#6b7280" }} />;
+        return <FiGrid style={{ color: "#6b7280" }} />;
     }
   };
 
   const getActionBadgeStyle = (action: string) => {
     switch (action) {
-      case "CREATE":
-        return { backgroundColor: "#d1fae5", color: "#065f46" };
-      case "UPDATE":
-        return { backgroundColor: "#dbeafe", color: "#1e40af" };
-      case "DELETE":
-        return { backgroundColor: "#fee2e2", color: "#991b1b" };
+      case "CREATED":
+        return {
+          backgroundColor: "#dcfce7",
+          color: "#166534",
+          fontWeight: "600",
+          padding: "2px 8px",
+          borderRadius: "12px",
+          fontSize: "0.7rem",
+        };
+      case "UPDATED":
+        return {
+          backgroundColor: "#dbeafe",
+          color: "#1e40af",
+          fontWeight: "600",
+          padding: "2px 8px",
+          borderRadius: "12px",
+          fontSize: "0.7rem",
+        };
+      case "DELETED":
+        return {
+          backgroundColor: "#fee2e2",
+          color: "#991b1b",
+          fontWeight: "600",
+          padding: "2px 8px",
+          borderRadius: "12px",
+          fontSize: "0.7rem",
+        };
       default:
-        return { backgroundColor: "#f3f4f6", color: "#374151" };
+        return {
+          backgroundColor: "#f3f4f6",
+          color: "#374151",
+          fontWeight: "600",
+          padding: "2px 8px",
+          borderRadius: "12px",
+          fontSize: "0.7rem",
+        };
     }
   };
 
@@ -285,52 +315,89 @@ export default function ActivityLogPage() {
     });
   };
 
+  const formatDateOnly = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("ko-KR", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+  };
+
+  const formatTimeOnly = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleTimeString("ko-KR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  const formatDateForDisplay = (dateString: string) => {
+    if (!dateString) return "선택";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("ko-KR", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+  };
+
   const handleSearch = () => {
-    // 검색 로직 구현
-    console.log("Search:", searchTerm);
+    setCurrentPage(0);
+    fetchActivityLogs(0);
   };
 
   const handleReset = () => {
     setSearchTerm("");
     setActionFilter("ALL");
-    setUserFilter("ALL");
     setLogTypeFilter("ALL");
+    setSelectedUser(null);
+    setStartDate("");
+    setEndDate("");
+    setCurrentPage(0);
+    fetchActivityLogs(0);
   };
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
+    fetchActivityLogs(newPage);
   };
 
   // 드롭다운 토글 함수들
   const handleActionDropdownToggle = () => {
     setActionDropdownOpen(!actionDropdownOpen);
-    setUserDropdownOpen(false);
-  };
-
-  const handleUserDropdownToggle = () => {
-    setUserDropdownOpen(!userDropdownOpen);
-    setActionDropdownOpen(false);
   };
 
   const handleActionSelect = (value: string) => {
     setActionFilter(value);
     setActionDropdownOpen(false);
-  };
-
-  const handleUserSelect = (value: string) => {
-    setUserFilter(value);
-    setUserDropdownOpen(false);
+    setCurrentPage(0);
+    const filters = {
+      historyType: value !== "ALL" ? value : undefined,
+      domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
+      changerId: selectedUser?.id?.toString(),
+      changedFrom: startDate || undefined,
+      changedTo: endDate || undefined,
+    };
+    fetchActivityLogs(0, filters);
   };
 
   const handleLogTypeDropdownToggle = () => {
     setLogTypeDropdownOpen(!logTypeDropdownOpen);
-    setActionDropdownOpen(false);
-    setUserDropdownOpen(false);
   };
 
   const handleLogTypeSelect = (value: string) => {
     setLogTypeFilter(value);
     setLogTypeDropdownOpen(false);
+    setCurrentPage(0);
+    const filters = {
+      historyType: actionFilter !== "ALL" ? actionFilter : undefined,
+      domainType: value !== "ALL" ? value : undefined,
+      changerId: selectedUser?.id?.toString(),
+      changedFrom: startDate || undefined,
+      changedTo: endDate || undefined,
+    };
+    fetchActivityLogs(0, filters);
   };
 
   // 현재 선택된 옵션 가져오기
@@ -341,13 +408,6 @@ export default function ActivityLogPage() {
     );
   };
 
-  const getCurrentUserOption = () => {
-    return (
-      USER_OPTIONS.find((option) => option.value === userFilter) ||
-      USER_OPTIONS[0]
-    );
-  };
-
   const getCurrentLogTypeOption = () => {
     return (
       LOG_TYPE_OPTIONS.find((option) => option.value === logTypeFilter) ||
@@ -355,8 +415,102 @@ export default function ActivityLogPage() {
     );
   };
 
-  if (loading) return <LoadingSpinner />;
-  if (error) return <ErrorMessage>{error}</ErrorMessage>;
+  // 날짜 관련 핸들러
+  const handleStartDateChange = (date: Date | null) => {
+    if (date) {
+      const formattedDate = date.toISOString().slice(0, 19); // YYYY-MM-DDTHH:mm:ss
+      setStartDate(formattedDate);
+      setStartDateOpen(false);
+      setCurrentPage(0);
+      const filters = {
+        historyType: actionFilter !== "ALL" ? actionFilter : undefined,
+        domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
+        changerId: selectedUser?.id?.toString(),
+        changedFrom: formattedDate,
+        changedTo: endDate || undefined,
+      };
+      fetchActivityLogs(0, filters);
+    }
+  };
+
+  const handleEndDateChange = (date: Date | null) => {
+    if (date) {
+      const formattedDate = date.toISOString().slice(0, 19); // YYYY-MM-DDTHH:mm:ss
+      setEndDate(formattedDate);
+      setEndDateOpen(false);
+      setCurrentPage(0);
+      const filters = {
+        historyType: actionFilter !== "ALL" ? actionFilter : undefined,
+        domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
+        changerId: selectedUser?.id?.toString(),
+        changedFrom: startDate || undefined,
+        changedTo: formattedDate,
+      };
+      fetchActivityLogs(0, filters);
+    }
+  };
+
+  const handleStartDateClick = () => {
+    setStartDateOpen(!startDateOpen);
+    setEndDateOpen(false);
+  };
+
+  const handleEndDateClick = () => {
+    setEndDateOpen(!endDateOpen);
+    setStartDateOpen(false);
+  };
+
+  // 사용자 모달 관련 핸들러
+  const handleUserModalOpen = () => {
+    setUserModalOpen(true);
+  };
+
+  const handleUserModalClose = () => {
+    setUserModalOpen(false);
+  };
+
+  const handleUserSelect = (user: User) => {
+    setSelectedUser(user);
+    setUserModalOpen(false);
+    setCurrentPage(0);
+    const filters = {
+      historyType: actionFilter !== "ALL" ? actionFilter : undefined,
+      domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
+      changerId: user.id.toString(),
+      changedFrom: startDate || undefined,
+      changedTo: endDate || undefined,
+    };
+    fetchActivityLogs(0, filters);
+  };
+
+  const handleUserClear = () => {
+    setSelectedUser(null);
+    // 바로 검색 실행
+    const filters = {
+      historyType: actionFilter !== "ALL" ? actionFilter : undefined,
+      domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
+      changerId: undefined,
+      changedFrom: startDate || undefined,
+      changedTo: endDate || undefined,
+    };
+    setCurrentPage(0);
+    fetchActivityLogs(0, filters);
+  };
+
+  // 상세조회 모달 핸들러
+  const handleDetailModalOpen = (historyId: string) => {
+    setSelectedHistoryId(historyId);
+    setDetailModalOpen(true);
+  };
+
+  const handleDetailModalClose = () => {
+    setDetailModalOpen(false);
+    setSelectedHistoryId("");
+  };
+
+  if (loading && activityLogs.length === 0) return <LoadingSpinner />;
+  if (error && activityLogs.length === 0)
+    return <ErrorMessage>{error}</ErrorMessage>;
 
   return (
     <PageContainer>
@@ -402,41 +556,15 @@ export default function ActivityLogPage() {
           </div>
         </FilterGroup>
         <FilterGroup>
-          <FilterLabel>사용자 유형</FilterLabel>
-          <div style={{ position: "relative" }} ref={userDropdownRef}>
-            <SelectButton
-              type="button"
-              onClick={handleUserDropdownToggle}
-              $hasValue={userFilter !== "ALL"}
-              $color={getCurrentUserOption().color}
-              className={userDropdownOpen ? "open" : ""}
-              style={{ width: "160px" }}
-            >
-              {React.createElement(getCurrentUserOption().icon, { size: 16 })}
-              <span className="select-value">
-                {getCurrentUserOption().label}
-              </span>
-              <FiChevronDown size={16} />
-            </SelectButton>
-            <SelectDropdown $isOpen={userDropdownOpen}>
-              {USER_OPTIONS.map((option) => (
-                <SelectOption
-                  key={option.value}
-                  $isSelected={userFilter === option.value}
-                  onClick={() => handleUserSelect(option.value)}
-                >
-                  {React.createElement(option.icon, {
-                    size: 16,
-                    color: option.color,
-                  })}
-                  {option.label}
-                </SelectOption>
-              ))}
-            </SelectDropdown>
-          </div>
+          <FilterLabel>변경한 사용자</FilterLabel>
+          <UserFilterButton
+            selectedUser={selectedUser}
+            onOpenModal={handleUserModalOpen}
+            onClear={handleUserClear}
+          />
         </FilterGroup>
         <FilterGroup>
-          <FilterLabel>이력 유형</FilterLabel>
+          <FilterLabel>대상</FilterLabel>
           <div style={{ position: "relative" }} ref={logTypeDropdownRef}>
             <SelectButton
               type="button"
@@ -471,6 +599,93 @@ export default function ActivityLogPage() {
             </SelectDropdown>
           </div>
         </FilterGroup>
+        <FilterGroup>
+          <FilterLabel>변경 기간</FilterLabel>
+          <DateRangeGroup>
+            <DatePickerWrapper>
+              <DateButton
+                type="button"
+                onClick={handleStartDateClick}
+                $hasValue={!!startDate}
+              >
+                <FiCalendar size={16} />
+                <span>시작일</span>
+                <span className="date-value">
+                  {formatDateForDisplay(startDate)}
+                </span>
+              </DateButton>
+              {startDateOpen && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "100%",
+                    left: 0,
+                    zIndex: 1000,
+                    marginTop: "4px",
+                  }}
+                >
+                  <DatePicker
+                    selected={startDate ? new Date(startDate) : null}
+                    onChange={handleStartDateChange}
+                    selectsStart
+                    startDate={startDate ? new Date(startDate) : null}
+                    endDate={endDate ? new Date(endDate) : null}
+                    maxDate={endDate ? new Date(endDate) : null}
+                    dateFormat="yyyy-MM-dd"
+                    placeholderText="시작일 선택"
+                    inline
+                    onClickOutside={() => setStartDateOpen(false)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Escape") setStartDateOpen(false);
+                    }}
+                  />
+                </div>
+              )}
+            </DatePickerWrapper>
+            <DateSeparator>~</DateSeparator>
+            <DatePickerWrapper>
+              <DateButton
+                type="button"
+                onClick={handleEndDateClick}
+                $hasValue={!!endDate}
+              >
+                <FiCalendar size={16} />
+                <span>종료일</span>
+                <span className="date-value">
+                  {formatDateForDisplay(endDate)}
+                </span>
+              </DateButton>
+              {endDateOpen && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "100%",
+                    left: 0,
+                    zIndex: 1000,
+                    marginTop: "4px",
+                  }}
+                >
+                  <DatePicker
+                    selected={endDate ? new Date(endDate) : null}
+                    onChange={handleEndDateChange}
+                    selectsEnd
+                    startDate={startDate ? new Date(startDate) : null}
+                    endDate={endDate ? new Date(endDate) : null}
+                    minDate={startDate ? new Date(startDate) : null}
+                    dateFormat="yyyy-MM-dd"
+                    placeholderText="종료일 선택"
+                    inline
+                    onClickOutside={() => setEndDateOpen(false)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Escape") setEndDateOpen(false);
+                    }}
+                    popperPlacement="bottom-start"
+                  />
+                </div>
+              )}
+            </DatePickerWrapper>
+          </DateRangeGroup>
+        </FilterGroup>
         <SearchRight>
           <SearchInput
             type="text"
@@ -487,36 +702,52 @@ export default function ActivityLogPage() {
         </SearchRight>
       </FilterSection>
 
+      {loading && activityLogs.length > 0 && (
+        <div
+          style={{
+            textAlign: "center",
+            padding: "8px",
+            color: "#6b7280",
+            fontSize: "14px",
+            backgroundColor: "#f9fafb",
+            borderRadius: "8px",
+            marginBottom: "16px",
+          }}
+        >
+          데이터를 불러오는 중...
+        </div>
+      )}
+
       <TableContainer>
         <Table>
           <TableHead>
             <TableRow>
               <TableHeader>작업</TableHeader>
-              <TableHeader>사용자</TableHeader>
+              <TableHeader>변경자</TableHeader>
               <TableHeader>대상</TableHeader>
               <TableHeader>상세내용</TableHeader>
-              <TableHeader>IP 주소</TableHeader>
-              <TableHeader>작업일시</TableHeader>
+              <TableHeader>변경 발생 일시</TableHeader>
             </TableRow>
           </TableHead>
           <TableBody>
             {activityLogs.map((log) => (
-              <TableRow key={log.id}>
+              <TableRow
+                key={log.id}
+                onClick={() => handleDetailModalOpen(log.id)}
+                style={{ cursor: "pointer" }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "#fefdf4";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "transparent";
+                }}
+              >
                 <TableCell>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                    }}
-                  >
-                    {getActionIcon(log.action)}
-                    <StatusBadge style={getActionBadgeStyle(log.action)}>
-                      {log.action === "CREATE" && "생성"}
-                      {log.action === "UPDATE" && "수정"}
-                      {log.action === "DELETE" && "삭제"}
-                    </StatusBadge>
-                  </div>
+                  <StatusBadge style={getActionBadgeStyle(log.action)}>
+                    {log.action === "CREATED" && "생성"}
+                    {log.action === "UPDATED" && "수정"}
+                    {log.action === "DELETED" && "삭제"}
+                  </StatusBadge>
                 </TableCell>
                 <TableCell>
                   <div
@@ -526,8 +757,20 @@ export default function ActivityLogPage() {
                       gap: "8px",
                     }}
                   >
-                    <FiUser size={14} style={{ color: "#6b7280" }} />
+                    {log.userRole === "ROLE_ADMIN" ? (
+                      <RiUserSettingsLine
+                        size={14}
+                        style={{ color: "#8b5cf6" }}
+                      />
+                    ) : (
+                      <FiUser size={14} style={{ color: "#6b7280" }} />
+                    )}
                     <span style={{ fontWeight: "500" }}>{log.userName}</span>
+                    {log.changerUsername && (
+                      <span style={{ fontSize: "12px", color: "#6b7280" }}>
+                        ({log.changerUsername})
+                      </span>
+                    )}
                     <span style={{ fontSize: "12px", color: "#6b7280" }}>
                       ({log.userRole === "ROLE_ADMIN" ? "관리자" : "사용자"})
                     </span>
@@ -543,25 +786,11 @@ export default function ActivityLogPage() {
                   >
                     {getTargetTypeIcon(log.targetType)}
                     <span style={{ fontWeight: "500" }}>{log.targetName}</span>
-                    <span style={{ fontSize: "12px", color: "#6b7280" }}>
-                      ({log.targetType})
-                    </span>
                   </div>
                 </TableCell>
                 <TableCell>
                   <span style={{ fontSize: "14px", color: "#374151" }}>
                     {log.details}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <span
-                    style={{
-                      fontSize: "12px",
-                      color: "#6b7280",
-                      fontFamily: "monospace",
-                    }}
-                  >
-                    {log.ipAddress}
                   </span>
                 </TableCell>
                 <TableCell>
@@ -574,7 +803,10 @@ export default function ActivityLogPage() {
                   >
                     <FiCalendar size={14} style={{ color: "#6b7280" }} />
                     <span style={{ fontSize: "14px", color: "#374151" }}>
-                      {formatDate(log.createdAt)}
+                      {formatDateOnly(log.createdAt)}
+                    </span>
+                    <span style={{ fontSize: "12px", color: "#6b7280" }}>
+                      {formatTimeOnly(log.createdAt)}
                     </span>
                   </div>
                 </TableCell>
@@ -586,36 +818,126 @@ export default function ActivityLogPage() {
 
       <PaginationContainer>
         <PaginationNav>
-          {/* 첫 페이지가 아니면 이전 버튼 렌더 */}
+          {/* 첫 페이지로 이동 버튼 */}
+          {currentPage > 0 && (
+            <PaginationButton onClick={() => handlePageChange(0)}>
+              맨 처음
+            </PaginationButton>
+          )}
+
+          {/* 이전 버튼 */}
           {currentPage > 0 && (
             <PaginationButton onClick={() => handlePageChange(currentPage - 1)}>
               이전
             </PaginationButton>
           )}
 
-          {/* 페이지 번호 버튼들을 동적으로 생성 */}
-          {Array.from({ length: totalPages }, (_, idx) => (
-            <PaginationButton
-              key={idx}
-              $active={currentPage === idx}
-              onClick={() => handlePageChange(idx)}
-            >
-              {idx + 1}
-            </PaginationButton>
-          ))}
+          {/* 페이지 번호 버튼들을 스마트하게 생성 */}
+          {(() => {
+            const totalPages = pageInfo.totalPages;
+            const current = currentPage;
+            const pages: (number | string)[] = [];
 
-          {/* 마지막 페이지가 아니면 다음 버튼 렌더 */}
-          {currentPage + 1 < totalPages && (
+            if (totalPages <= 7) {
+              // 총 페이지가 7개 이하면 모든 페이지 표시
+              for (let i = 0; i < totalPages; i++) {
+                pages.push(i);
+              }
+            } else {
+              // 총 페이지가 8개 이상이면 스마트 페이지네이션
+              if (current <= 3) {
+                // 현재 페이지가 앞쪽에 있는 경우
+                for (let i = 0; i <= 4; i++) {
+                  pages.push(i);
+                }
+                pages.push("...");
+                pages.push(totalPages - 1);
+              } else if (current >= totalPages - 4) {
+                // 현재 페이지가 뒤쪽에 있는 경우
+                pages.push(0);
+                pages.push("...");
+                for (let i = totalPages - 5; i < totalPages; i++) {
+                  pages.push(i);
+                }
+              } else {
+                // 현재 페이지가 중간에 있는 경우
+                pages.push(0);
+                pages.push("...");
+                for (let i = current - 1; i <= current + 1; i++) {
+                  pages.push(i);
+                }
+                pages.push("...");
+                pages.push(totalPages - 1);
+              }
+            }
+
+            return pages.map((page, idx) => {
+              if (page === "...") {
+                return (
+                  <span
+                    key={`ellipsis-${idx}`}
+                    style={{
+                      padding: "8px 12px",
+                      color: "#6b7280",
+                      fontSize: "14px",
+                      fontWeight: "500",
+                    }}
+                  >
+                    ...
+                  </span>
+                );
+              }
+
+              const pageNum = page as number;
+              return (
+                <PaginationButton
+                  key={pageNum}
+                  $active={currentPage === pageNum}
+                  onClick={() => handlePageChange(pageNum)}
+                >
+                  {pageNum + 1}
+                </PaginationButton>
+              );
+            });
+          })()}
+
+          {/* 다음 버튼 */}
+          {currentPage + 1 < pageInfo.totalPages && (
             <PaginationButton onClick={() => handlePageChange(currentPage + 1)}>
               다음
             </PaginationButton>
           )}
+
+          {/* 마지막 페이지로 이동 버튼 */}
+          {currentPage + 1 < pageInfo.totalPages && (
+            <PaginationButton
+              onClick={() => handlePageChange(pageInfo.totalPages - 1)}
+            >
+              맨 마지막
+            </PaginationButton>
+          )}
         </PaginationNav>
         <PaginationInfo>
-          총 {totalElements}개 항목 중 {currentPage * 10 + 1}-
-          {Math.min((currentPage + 1) * 10, totalElements)}개 표시
+          총 {pageInfo.totalElements}개 항목 중{" "}
+          {currentPage * pageInfo.size + 1}-
+          {Math.min((currentPage + 1) * pageInfo.size, pageInfo.totalElements)}
+          개 표시
         </PaginationInfo>
       </PaginationContainer>
+
+      {/* 사용자 선택 모달 */}
+      <UserSelectionModal
+        isOpen={userModalOpen}
+        onClose={handleUserModalClose}
+        onSelect={handleUserSelect}
+      />
+
+      {/* 이력 상세조회 모달 */}
+      <ActivityLogDetailModal
+        isOpen={detailModalOpen}
+        onClose={handleDetailModalClose}
+        historyId={selectedHistoryId}
+      />
     </PageContainer>
   );
 }
