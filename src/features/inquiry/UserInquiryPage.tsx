@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { FiSearch, FiRotateCcw, FiChevronDown, FiPlus } from "react-icons/fi";
@@ -16,6 +16,7 @@ import {
   DatePickerStyles,
 } from "../project/components/List/ProjectFilterBar.styled";
 import api from "../../api/axios";
+import InquiryRegisterModal from "./components/InquiryRegisterModal/InquiryRegisterModal";
 
 const Container = styled.div`
   padding: 32px 32px;
@@ -218,9 +219,10 @@ interface InquiryFilterBarProps {
   onSearch: () => void;
   onReset: () => void;
   onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  onRegisterClick: () => void;
 }
 
-function InquiryFilterBar({ filters, onChange, onSearch, onReset, onKeyDown }: InquiryFilterBarProps) {
+function InquiryFilterBar({ filters, onChange, onSearch, onReset, onKeyDown, onRegisterClick }: InquiryFilterBarProps) {
   const [searchFieldDropdownOpen, setSearchFieldDropdownOpen] = React.useState(false);
   const searchFieldDropdownRef = React.useRef<HTMLDivElement>(null);
   const [statusDropdownOpen, setStatusDropdownOpen] = React.useState(false);
@@ -493,6 +495,7 @@ function InquiryFilterBar({ filters, onChange, onSearch, onReset, onKeyDown }: I
         <ActionButtons>
           <NewButton
               style={{ height: '45px', display: 'flex', alignItems: 'center', gap: '8px', padding: '0 16px' }}
+              onClick={onRegisterClick}
           >
               <FiPlus size={16} />
               <span>문의하기</span>
@@ -551,7 +554,7 @@ const PaginationButton = styled.button<{ $active?: boolean }>`
     `}
 `;
 
-export default function InquiryPage() {
+export default function UserInquiryPage() {
   const [allInquiries, setAllInquiries] = useState<Inquiry[]>([]);
   const [filteredInquiries, setFilteredInquiries] = useState<Inquiry[]>([]);
   const [filters, setFilters] = useState({
@@ -564,22 +567,24 @@ export default function InquiryPage() {
   const [page, setPage] = useState(1);
   const pageSize = 10;
   const navigate = useNavigate();
+  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
+
+  const fetchInquiries = useCallback(async () => {
+    try {
+      const response = await api.get('/api/inquiries/all');
+      if (response.data && response.data.data) {
+        const inquiriesData = response.data.data;
+        setAllInquiries(inquiriesData);
+        setFilteredInquiries(inquiriesData);
+      }
+    } catch (error) {
+      console.error("문의사항 목록을 불러오는데 실패했습니다.", error);
+    }
+  }, []);
 
   useEffect(() => {
-    const fetchInquiries = async () => {
-      try {
-        const response = await api.get('/api/inquiries/all');
-        if (response.data && response.data.data) {
-          const inquiriesData = response.data.data;
-          setAllInquiries(inquiriesData);
-          setFilteredInquiries(inquiriesData);
-        }
-      } catch (error) {
-        console.error("문의사항 목록을 불러오는데 실패했습니다.", error);
-      }
-    };
     fetchInquiries();
-  }, []);
+  }, [fetchInquiries]);
 
   const handleTitleClick = (id: number) => {
     navigate(`/inquiry/${id}`);
@@ -659,6 +664,7 @@ export default function InquiryPage() {
               handleSearch();
             }
         }}
+        onRegisterClick={() => setIsRegisterModalOpen(true)}
       />
       <TableContainer>
         <Table>
@@ -702,6 +708,17 @@ export default function InquiryPage() {
           </TableBody>
         </Table>
       </TableContainer>
+
+      {isRegisterModalOpen && (
+        <InquiryRegisterModal
+          onClose={() => setIsRegisterModalOpen(false)}
+          onSuccess={() => {
+            setIsRegisterModalOpen(false);
+            fetchInquiries();
+          }}
+        />
+      )}
+
       <PaginationContainer>
         {filteredInquiries.length > 0 && (
           <PaginationNav>
