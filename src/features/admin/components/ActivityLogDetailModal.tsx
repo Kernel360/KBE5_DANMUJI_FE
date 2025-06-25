@@ -12,8 +12,12 @@ import {
   FiTrash2,
   FiShield,
   FiUsers,
+  FiHome,
+  FiFileText,
+  FiLayers,
 } from "react-icons/fi";
 import { RiUserSettingsLine } from "react-icons/ri";
+import { FaProjectDiagram } from "react-icons/fa";
 import { getActivityLogDetail } from "../services/activityLogService";
 import type { ActivityLogDetail } from "../types/activityLog";
 import { LoadingSpinner } from "../../../styles/common/LoadingSpinner.styled";
@@ -602,6 +606,24 @@ export default function ActivityLogDetailModal({
     }
   };
 
+  // 대상 유형에 따른 아이콘 반환
+  const getDomainTypeIcon = (domainType: string) => {
+    switch (domainType) {
+      case "USER":
+        return <FiUser size={14} style={{ color: "#8b5cf6" }} />;
+      case "COMPANY":
+        return <FiHome size={14} style={{ color: "#f59e0b" }} />;
+      case "PROJECT":
+        return <FaProjectDiagram size={14} style={{ color: "#3b82f6" }} />;
+      case "STEP":
+        return <FiLayers size={14} style={{ color: "#6366f1" }} />;
+      case "POST":
+        return <FiFileText size={14} style={{ color: "#10b981" }} />;
+      default:
+        return <FiUser size={14} style={{ color: "#6b7280" }} />;
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -640,6 +662,7 @@ export default function ActivityLogDetailModal({
                 <InfoItem>
                   <InfoLabel>대상 유형</InfoLabel>
                   <InfoValue>
+                    {getDomainTypeIcon(detail.domainType)}
                     {getDomainTypeDisplayName(detail.domainType)}
                   </InfoValue>
                 </InfoItem>
