@@ -53,6 +53,12 @@ export type ProjectCompany = {
   assignUsers: AssignUser[];
 };
 
+// 회사 요약 응답 타입
+export type CompanySummaryResponse = {
+  companyId: number;
+  companyName: string;
+};
+
 // 프로젝트 상세 조회용 스텝 타입
 export type ProjectDetailStep = {
   id: number;
@@ -68,7 +74,6 @@ export type ProjectDetailStep = {
 export type ProjectDetailResponse = {
   id: number;
   name: string;
-  description: string;
   startDate: string;
   endDate: string;
   projectStatus: string;
@@ -91,16 +96,14 @@ export type ApiResponse<T> = {
 
 // 프로젝트 응답 타입
 export type ProjectResponse = {
-  id: number;
+  projectId: number;
   name: string;
-  description: string;
   startDate: string;
   endDate: string;
-  status: string;
+  projectStatus: string;
   progress : number;
-  clientCompany: string;
-  developerCompany: string;
-  steps: ProjectStep[];
+  assignClientCompanies: CompanySummaryResponse[];
+  assignDevCompanies: CompanySummaryResponse[];
 };
 
 // 프로젝트 목록 응답 타입
