@@ -532,7 +532,10 @@ export default function ActivityLogDetailModal({
   };
 
   // 필드값을 적절한 형식으로 변환
-  const formatFieldValue = (fieldName: string, value: any) => {
+  const formatFieldValue = (
+    fieldName: string,
+    value: string | number | boolean | null
+  ) => {
     if (value === null || value === undefined) {
       return "-";
     }
@@ -550,7 +553,7 @@ export default function ActivityLogDetailModal({
       fieldName.includes("deletedAt")
     ) {
       try {
-        const date = new Date(value);
+        const date = new Date(value as string);
         return date.toLocaleString("ko-KR", {
           year: "numeric",
           month: "2-digit",
