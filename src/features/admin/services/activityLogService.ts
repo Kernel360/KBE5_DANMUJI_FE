@@ -132,7 +132,7 @@ export const transformHistoryToActivityLog = (
       case "PROJECT":
         return "프로젝트";
       case "STEP":
-        return "단계";
+        return "프로젝트 단계";
       case "POST":
         return "게시글";
       default:

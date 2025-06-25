@@ -216,7 +216,7 @@ const HighlightedValue = styled.span`
   color: #111827;
   font-weight: 500;
   flex: 1;
-  background-color: #fef3c7;
+  background-color: #fefbd0;
   padding: 2px 4px;
   border-radius: 3px;
 `;
@@ -318,10 +318,14 @@ export default function ActivityLogDetailModal({
         return "프로젝트";
       case "PROJECT_STEP":
         return "프로젝트 단계";
+      case "STEP":
+        return "프로젝트 단계";
       case "POST":
         return "게시글";
       case "QUESTION":
-        return "질문";
+        return "문의";
+      case "INQUIRY":
+        return "문의";
       case "CHAT":
         return "채팅";
       default:
@@ -476,7 +480,23 @@ export default function ActivityLogDetailModal({
                 {displayKeys.map((key) => {
                   const beforeValue = beforeData[key];
                   const afterValue = afterData[key];
-                  const isChanged = beforeValue !== afterValue;
+
+                  // 변경되지 않는 필드들 (수정 시에도 값이 유지되어야 하는 필드)
+                  const unchangedFields = [
+                    "authorName",
+                    "authorRole",
+                    "authorId",
+                    "authorIp",
+                    "createdAt",
+                    "_id",
+                    "projectId",
+                    "projectStepId",
+                  ];
+
+                  // 변경되지 않는 필드는 실제 변경으로 감지하지 않음
+                  const isChanged = unchangedFields.includes(key)
+                    ? false
+                    : beforeValue !== afterValue;
 
                   return (
                     <DataRow key={`before-${key}`}>
@@ -505,21 +525,46 @@ export default function ActivityLogDetailModal({
                 {displayKeys.map((key) => {
                   const beforeValue = beforeData[key];
                   const afterValue = afterData[key];
-                  const isChanged = beforeValue !== afterValue;
+
+                  // 변경되지 않는 필드들 (수정 시에도 값이 유지되어야 하는 필드)
+                  const unchangedFields = [
+                    "authorName",
+                    "authorRole",
+                    "authorId",
+                    "authorIp",
+                    "createdAt",
+                    "_id",
+                    "projectId",
+                    "projectStepId",
+                  ];
+
+                  // 변경되지 않는 필드이고 afterValue가 없으면 beforeValue 사용
+                  const displayValue =
+                    unchangedFields.includes(key) &&
+                    (afterValue === undefined ||
+                      afterValue === null ||
+                      afterValue === "")
+                      ? beforeValue
+                      : afterValue;
+
+                  // 변경되지 않는 필드는 실제 변경으로 감지하지 않음
+                  const isChanged = unchangedFields.includes(key)
+                    ? false
+                    : beforeValue !== afterValue;
 
                   return (
                     <DataRow key={`after-${key}`}>
                       <DataLabel>{getFieldDisplayName(key)}</DataLabel>
                       {isChanged ? (
                         <HighlightedValue>
-                          {afterValue !== undefined
-                            ? formatFieldValue(key, afterValue)
+                          {displayValue !== undefined
+                            ? formatFieldValue(key, displayValue)
                             : "-"}
                         </HighlightedValue>
                       ) : (
                         <DataValue>
-                          {afterValue !== undefined
-                            ? formatFieldValue(key, afterValue)
+                          {displayValue !== undefined
+                            ? formatFieldValue(key, displayValue)
                             : "-"}
                         </DataValue>
                       )}
@@ -539,21 +584,84 @@ export default function ActivityLogDetailModal({
   // 필드명을 사용자 친화적으로 변환
   const getFieldDisplayName = (fieldName: string) => {
     const fieldMap: Record<string, string> = {
+      // 공통 필드
       _id: "ID",
       id: "ID",
-      name: "이름",
-      ceoName: "대표자명",
-      bio: "소개",
-      bizNo: "사업자번호",
-      address: "주소",
-      email: "이메일",
-      tel: "전화번호",
-      createdAt: "생성일",
-      isDelete: "삭제여부",
       _class: "클래스명",
       history_created_at: "이력 생성일",
       message: "메시지",
-      // 다른 도메인 타입에 대한 필드들도 추가 가능
+      isDelete: "삭제여부",
+      deletedAt: "삭제일",
+      updatedAt: "수정일",
+      createdAt: "생성일",
+
+      // 사용자 관련 필드
+      name: "이름",
+      username: "사용자명",
+      email: "이메일",
+      tel: "전화번호",
+      role: "역할",
+      bio: "소개",
+
+      // 회사 관련 필드
+      companyName: "회사명",
+      ceoName: "대표자명",
+      bizNo: "사업자번호",
+      address: "주소",
+
+      // 게시글 관련 필드
+      authorName: "작성자",
+      authorRole: "작성자 역할",
+      authorId: "작성자 ID",
+      authorIp: "작성자 IP",
+      title: "제목",
+      content: "내용",
+      type: "타입",
+      priority: "우선순위",
+      projectId: "프로젝트 ID",
+      projectStepId: "프로젝트 단계 ID",
+      files: "첨부파일",
+
+      // 프로젝트 관련 필드
+      projectName: "프로젝트명",
+      description: "설명",
+      startDate: "시작일",
+      endDate: "종료일",
+      projectStatus: "프로젝트 상태",
+      progress: "진행률",
+
+      // 프로젝트 단계 관련 필드
+      stepName: "단계명",
+      stepOrder: "단계 순서",
+      projectStepStatus: "단계 상태",
+      projectFeedbackStepStatus: "피드백 단계 상태",
+
+      // 질문/답변 관련 필드
+      question: "질문",
+      answer: "답변",
+      questionType: "질문 타입",
+
+      // 채팅 관련 필드
+      chatMessage: "채팅 메시지",
+      chatType: "채팅 타입",
+      roomId: "방 ID",
+
+      // 기타 필드
+      status: "상태",
+      category: "카테고리",
+      tag: "태그",
+      note: "메모",
+      comment: "댓글",
+      attachment: "첨부파일",
+      file: "파일",
+      image: "이미지",
+      document: "문서",
+      link: "링크",
+      url: "URL",
+      password: "비밀번호",
+      confirmPassword: "비밀번호 확인",
+      oldPassword: "기존 비밀번호",
+      newPassword: "새 비밀번호",
     };
 
     return fieldMap[fieldName] || fieldName;
@@ -570,6 +678,130 @@ export default function ActivityLogDetailModal({
 
     // 문자열 "empty" 처리
     if (value === "empty") {
+      return "-";
+    }
+
+    // 게시글 타입 한글 변환
+    if (fieldName === "type") {
+      const typeMap: Record<string, string> = {
+        GENERAL: "일반",
+        NOTICE: "공지",
+        QUESTION: "질문",
+        ANSWER: "답변",
+      };
+      return typeMap[value as string] || value;
+    }
+
+    // 우선순위 한글 변환
+    if (fieldName === "priority") {
+      const priorityMap: Record<string, string> = {
+        LOW: "낮음",
+        MEDIUM: "보통",
+        HIGH: "높음",
+        URGENT: "긴급",
+      };
+      return priorityMap[value as string] || value;
+    }
+
+    // 작성자 역할 한글 변환
+    if (fieldName === "authorRole") {
+      const roleMap: Record<string, string> = {
+        ROLE_ADMIN: "관리자",
+        ROLE_DEV_EMPLOYEE: "개발사 직원",
+        ROLE_CLIENT_EMPLOYEE: "고객사 직원",
+        ROLE_CLIENT_MANAGER: "고객사 담당자",
+        ROLE_DEV_MANAGER: "개발사 담당자",
+        ADMIN: "관리자",
+        DEV_EMPLOYEE: "개발사 직원",
+        CLIENT_EMPLOYEE: "고객사 직원",
+        CLIENT_MANAGER: "고객사 담당자",
+        DEV_MANAGER: "개발사 담당자",
+      };
+      return roleMap[value as string] || value;
+    }
+
+    // 역할 한글 변환 (일반적인 role 필드)
+    if (fieldName === "role") {
+      const roleMap: Record<string, string> = {
+        ROLE_ADMIN: "관리자",
+        ROLE_DEV_EMPLOYEE: "개발사 직원",
+        ROLE_CLIENT_EMPLOYEE: "고객사 직원",
+        ROLE_CLIENT_MANAGER: "고객사 담당자",
+        ROLE_DEV_MANAGER: "개발사 담당자",
+        ADMIN: "관리자",
+        DEV_EMPLOYEE: "개발사 직원",
+        CLIENT_EMPLOYEE: "고객사 직원",
+        CLIENT_MANAGER: "고객사 담당자",
+        DEV_MANAGER: "개발사 담당자",
+      };
+      return roleMap[value as string] || value;
+    }
+
+    // 프로젝트 상태 한글 변환
+    if (fieldName === "projectStatus") {
+      const statusMap: Record<string, string> = {
+        IN_PROGRESS: "진행중",
+        COMPLETED: "완료",
+        DELAY: "지연",
+        DUE_SOON: "마감임박",
+        NOT_STARTED: "시작전",
+        ON_HOLD: "보류",
+      };
+      return statusMap[value as string] || value;
+    }
+
+    // 프로젝트 단계 상태 한글 변환
+    if (fieldName === "projectStepStatus") {
+      const statusMap: Record<string, string> = {
+        IN_PROGRESS: "진행중",
+        COMPLETED: "완료",
+        NOT_STARTED: "시작전",
+        ON_HOLD: "보류",
+        REVIEW: "검토중",
+        APPROVED: "승인됨",
+        REJECTED: "거부됨",
+      };
+      return statusMap[value as string] || value;
+    }
+
+    // 일반 상태 한글 변환
+    if (fieldName === "status") {
+      const statusMap: Record<string, string> = {
+        ACTIVE: "활성",
+        INACTIVE: "비활성",
+        PENDING: "대기중",
+        APPROVED: "승인됨",
+        REJECTED: "거부됨",
+        SUSPENDED: "정지됨",
+        DELETED: "삭제됨",
+      };
+      return statusMap[value as string] || value;
+    }
+
+    // 파일 객체 처리 (fileName 추출)
+    if (typeof value === "object" && value !== null) {
+      // 파일 배열 처리
+      if (Array.isArray(value)) {
+        if (value.length === 0) {
+          return "-";
+        }
+        // 배열의 첫 번째 파일 객체에서 fileName 추출
+        const firstFile = value[0];
+        if (
+          firstFile &&
+          typeof firstFile === "object" &&
+          "fileName" in firstFile
+        ) {
+          return firstFile.fileName || "-";
+        }
+        return "-";
+      }
+
+      // 단일 파일 객체 처리
+      if ("fileName" in value) {
+        return (value as any).fileName || "-";
+      }
+      // 다른 객체 타입의 경우 JSON 문자열로 변환하지 않고 "-" 반환
       return "-";
     }
 

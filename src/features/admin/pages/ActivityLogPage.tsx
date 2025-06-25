@@ -141,7 +141,7 @@ export default function ActivityLogPage() {
     },
     {
       value: "STEP",
-      label: "단계",
+      label: "프로젝트 단계",
       icon: FiLayers,
       color: "#6366f1",
     },
