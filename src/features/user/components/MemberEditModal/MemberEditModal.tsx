@@ -128,6 +128,7 @@ export default function MemberEditModal({
 
     onEdit({
       ...formData,
+      phone: formData.phone.replace(/\D/g, ""),
       companyId: typeof formData.companyId === "number" ? formData.companyId : undefined,
     });
   };
@@ -269,6 +270,8 @@ export default function MemberEditModal({
                     placeholder="전화번호를 입력하세요"
                     value={formData.phone || ""}
                     onChange={handleChange}
+                    type="tel"
+                    inputMode="numeric"
                   />
                 </FormGroup>
               </FormRow>

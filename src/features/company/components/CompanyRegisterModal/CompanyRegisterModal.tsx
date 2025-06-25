@@ -279,6 +279,9 @@ export default function CompanyRegisterModal({
 
     const bizNo = `${data.reg1}${data.reg2}${data.reg3}`;
 
+    // 전화번호 숫자만 필터링
+    const cleanedTel = data.tel.replace(/\D/g, "");
+
     // 프론트 유효성 검사
     const newFieldErrors: FieldError[] = [];
 
@@ -300,8 +303,8 @@ export default function CompanyRegisterModal({
     if (!data.email?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
       newFieldErrors.push({ field: "email", value: data.email, reason: "올바른 이메일 형식이 아닙니다." });
     }
-    if (!data.tel?.trim() || !/^\d{9,11}$/.test(data.tel.replace(/-/g, ""))) {
-      newFieldErrors.push({ field: "tel", value: data.tel, reason: "전화번호는 숫자만 입력하세요. 예: 021231234, 01012345678" });
+    if (!cleanedTel || !/^\d{9,11}$/.test(cleanedTel)) {
+      newFieldErrors.push({ field: "tel", value: data.tel, reason: "전화번호는 9~11자리의 숫자로 입력하세요. 예: 021231234, 01012345678" });
     }
 
     if (newFieldErrors.length > 0) {
@@ -316,7 +319,7 @@ export default function CompanyRegisterModal({
       address: data.address,
       ceoName: data.ceoName,
       email: data.email,
-      tel: data.tel.replace(/\D/g, ""),
+      tel: cleanedTel,
       bio: data.bio,
     };
 
@@ -464,8 +467,7 @@ export default function CompanyRegisterModal({
             <Input
               name="tel"
               type="tel"
-              placeholder="전화번호를 입력하세요 (숫자만 입력)"
-              pattern="[0-9]*"
+              placeholder="전화번호를 입력하세요"
               inputMode="numeric"
             />
             {fieldErrors.find((e) => e.field === "tel") && (

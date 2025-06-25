@@ -128,43 +128,6 @@ const CompanyNameCell = styled(TableCell)`
   }
 `;
 
-const ActionButton = styled.button`
-  background: #ffffff;
-  color: #374151;
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 500;
-  border: 1px solid #e5e7eb;
-  cursor: pointer;
-  margin-right: 8px;
-  transition: all 0.15s ease-in-out;
-
-  &:hover {
-    background: #fdb924;
-    color: #ffffff;
-    border-color: transparent;
-  }
-`;
-
-const DeleteButton = styled.button`
-  background: #ffffff;
-  color: #ef4444;
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 500;
-  border: 1px solid #fecaca;
-  cursor: pointer;
-  transition: all 0.15s ease-in-out;
-
-  &:hover {
-    background: #ef4444;
-    color: #ffffff;
-    border-color: transparent;
-  }
-`;
-
 const PaginationContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -420,7 +383,7 @@ export default function CompanyPage() {
         ceoName: data.ceoName,
         email: data.email,
         bio: data.bio,
-        tel: data.tel,
+        tel: data.tel.replace(/\D/g, ""),
       };
 
       // PUT 요청 보내기

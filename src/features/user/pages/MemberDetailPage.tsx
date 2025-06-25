@@ -311,7 +311,10 @@ const MemberDetailPage: React.FC = () => {
   const handleUpdateMember = async (data: MemberUpdateFormData) => {
     if (!editData) return;
     try {
-      await api.put(`/api/admin/${editData.id}`, data);
+      await api.put(`/api/admin/${editData.id}`, {
+        ...data,
+        phone: data.phone.replace(/\D/g, ""),
+      });
       setEditModalOpen(false);
       setEditData(null);
       showSuccessToast("회원 정보가 성공적으로 수정되었습니다.");
