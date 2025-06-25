@@ -18,6 +18,7 @@ import UserDashboardPage from "@/features/user/pages/dashboard/UserDashboardPage
 import CompanyPage from "@/features/company/pages/CompanyPage";
 import CompanyDetailPage from "@/features/company/pages/CompanyDetailPage";
 import InquiryPage from "@/features/inquiry/InquiryPage";
+import UserInquiryPage from "@/features/inquiry/UserInquiryPage";
 
 // member
 import MemberPage from "@/features/user/pages/MemberPage";
@@ -105,6 +106,7 @@ const AppRoutes = () => {
       <Route path="/projects/inprogress" element={<InProgressProject />} />
       <Route path="/projects/active" element={<InProgressProject />} /> */}
       <Route path="/my" element={<UserProfilePage />} />
+      <Route path="/my-inquiry" element={<UserInquiryPage />} />
     </Routes>
   );
 };
