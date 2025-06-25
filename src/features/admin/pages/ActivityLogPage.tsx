@@ -46,6 +46,7 @@ import {
   FiEdit,
   FiTrash,
   FiPlus,
+  FiPlusCircle,
   FiCalendar,
   FiChevronDown,
   FiMessageCircle,
@@ -131,7 +132,7 @@ export default function ActivityLogPage() {
   // 드롭다운 옵션
   const ACTION_OPTIONS = [
     { value: "ALL", label: "전체", icon: FiGrid, color: "#6b7280" },
-    { value: "CREATED", label: "생성", icon: FiPlus, color: "#10b981" },
+    { value: "CREATED", label: "생성", icon: FiPlusCircle, color: "#10b981" },
     { value: "UPDATED", label: "수정", icon: FiEdit, color: "#3b82f6" },
     { value: "DELETED", label: "삭제", icon: FiTrash, color: "#ef4444" },
   ];
@@ -243,7 +244,7 @@ export default function ActivityLogPage() {
   const getActionIcon = (action: string) => {
     switch (action) {
       case "CREATED":
-        return <FiPlus style={{ color: "#10b981" }} />;
+        return <FiPlusCircle style={{ color: "#10b981" }} />;
       case "UPDATED":
         return <FiEdit style={{ color: "#3b82f6" }} />;
       case "DELETED":
