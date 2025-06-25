@@ -700,33 +700,41 @@ export default function ActivityLogDetailModal({
             </ContentSection>
 
             <ContentSection>
-              <SectionTitle>
-                <FiCalendar style={{ color: "#fdb924" }} />
-                시간 정보
-              </SectionTitle>
-              <InfoGrid>
-                <InfoItem>
-                  <InfoLabel>변경 시간</InfoLabel>
-                  <InfoValue>{formatDate(detail.changedAt)}</InfoValue>
-                </InfoItem>
-                <InfoItem>
-                  <InfoLabel>생성 시간</InfoLabel>
-                  <InfoValue>{formatDate(detail.createdAt)}</InfoValue>
-                </InfoItem>
-              </InfoGrid>
-            </ContentSection>
+              <div style={{ display: "flex", gap: "20px" }}>
+                <div style={{ flex: "1" }}>
+                  <SectionTitle>
+                    <FiCalendar style={{ color: "#fdb924" }} />
+                    시간 정보
+                  </SectionTitle>
+                  <InfoGrid>
+                    <InfoItem>
+                      <InfoLabel>변경 발생 시간</InfoLabel>
+                      <InfoValue>{formatDate(detail.changedAt)}</InfoValue>
+                    </InfoItem>
+                  </InfoGrid>
+                </div>
 
-            {detail.message && (
-              <ContentSection>
-                <SectionTitle>
-                  <FiMessageSquare style={{ color: "#fdb924" }} />
-                  메시지
-                </SectionTitle>
-                <MessageSection>
-                  <MessageText>{detail.message}</MessageText>
-                </MessageSection>
-              </ContentSection>
-            )}
+                {detail.message && (
+                  <div style={{ flex: "1" }}>
+                    <SectionTitle>
+                      <FiMessageSquare style={{ color: "#fdb924" }} />
+                      작업상세
+                    </SectionTitle>
+                    <div style={{ padding: "8px 0" }}>
+                      <span
+                        style={{
+                          fontSize: "0.875rem",
+                          color: "#111827",
+                          lineHeight: "1.5",
+                        }}
+                      >
+                        {detail.message}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </ContentSection>
 
             {renderChanges()}
           </>
