@@ -33,10 +33,10 @@ const ModalOverlay = styled.div<{ isOpen: boolean }>`
 const ModalContent = styled.div`
   background: white;
   border-radius: 12px;
-  padding: 24px;
+  padding: 20px;
   width: 90%;
-  max-width: 800px;
-  max-height: 90vh;
+  max-width: 700px;
+  max-height: 85vh;
   overflow-y: auto;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
     0 10px 10px -5px rgba(0, 0, 0, 0.04);
@@ -46,22 +46,36 @@ const ModalHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
-  padding-bottom: 16px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
   border-bottom: 1px solid #e5e7eb;
 `;
 
 const ModalTitle = styled.h2`
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #111827;
+  font-size: 1.2rem;
+  font-weight: 700;
   margin: 0;
+  padding-left: 16px;
+  position: relative;
+  color: #111827;
+
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 1.2rem;
+    background: #fdb924;
+    border-radius: 1.5px;
+  }
 `;
 
 const CloseButton = styled.button`
   background: none;
   border: none;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   cursor: pointer;
   color: #6b7280;
   padding: 4px;
@@ -74,40 +88,65 @@ const CloseButton = styled.button`
 `;
 
 const ContentSection = styled.div`
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 `;
 
 const SectionTitle = styled.h3`
-  font-size: 1.1rem;
+  font-size: 0.95rem;
   font-weight: 600;
   color: #374151;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`;
+
+const SectionTitleWithIcon = styled.h3`
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 10px;
   display: flex;
   align-items: center;
   gap: 8px;
+  padding-left: 20px;
+  position: relative;
+
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 12px;
+    border: 2px solid #fdb924;
+    border-radius: 50%;
+    background: transparent;
+  }
 `;
 
 const InfoGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-  margin-bottom: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
 `;
 
 const InfoItem = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 `;
 
 const InfoLabel = styled.span`
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   font-weight: 500;
   color: #6b7280;
 `;
 
 const InfoValue = styled.span`
-  font-size: 1rem;
+  font-size: 0.875rem;
   color: #111827;
   font-weight: 500;
 `;
@@ -115,10 +154,10 @@ const InfoValue = styled.span`
 const StatusBadge = styled.span<{ type: string }>`
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.875rem;
+  gap: 3px;
+  padding: 3px 10px;
+  border-radius: 16px;
+  font-size: 0.75rem;
   font-weight: 500;
   background-color: ${({ type }) => {
     switch (type) {
@@ -149,32 +188,32 @@ const StatusBadge = styled.span<{ type: string }>`
 const ChangesSection = styled.div`
   background: #f9fafb;
   border-radius: 8px;
-  padding: 16px;
-  margin-top: 16px;
+  padding: 12px;
+  margin-top: 12px;
 `;
 
 const ChangesGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: 12px;
 `;
 
 const ChangeColumn = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 `;
 
 const ChangeTitle = styled.h4`
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: #374151;
-  margin-bottom: 8px;
-  padding: 8px 12px;
+  margin-bottom: 6px;
+  padding: 6px 10px;
   background: ${({ children }) =>
     children === "변경 전" ? "#fee2e2" : "#dcfce7"};
   color: ${({ children }) => (children === "변경 전" ? "#991b1b" : "#166534")};
-  border-radius: 6px;
+  border-radius: 4px;
   text-align: center;
   border: 1px solid
     ${({ children }) => (children === "변경 전" ? "#fecaca" : "#bbf7d0")};
@@ -182,54 +221,56 @@ const ChangeTitle = styled.h4`
 
 const ChangeItem = styled.div`
   background: white;
-  border-radius: 6px;
-  padding: 8px 12px;
+  border-radius: 4px;
+  padding: 6px 10px;
   border: 1px solid #e5e7eb;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 `;
 
 const ChangeKey = styled.span`
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 600;
   color: #6b7280;
   display: block;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 `;
 
 const ChangeValue = styled.span`
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   color: #111827;
   word-break: break-word;
-  line-height: 1.4;
+  line-height: 1.3;
 `;
 
 const LoadingSpinner = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 40px;
+  padding: 30px;
   color: #6b7280;
+  font-size: 0.875rem;
 `;
 
 const ErrorMessage = styled.div`
   color: #ef4444;
   text-align: center;
-  padding: 20px;
+  padding: 16px;
+  font-size: 0.875rem;
 `;
 
 const MessageSection = styled.div`
   background: #f0f9ff;
   border: 1px solid #bae6fd;
-  border-radius: 8px;
-  padding: 16px;
-  margin-top: 16px;
+  border-radius: 6px;
+  padding: 12px;
+  margin-top: 12px;
 `;
 
 const MessageText = styled.p`
   margin: 0;
   color: #0c4a6e;
-  font-size: 0.875rem;
-  line-height: 1.5;
+  font-size: 0.8rem;
+  line-height: 1.4;
 `;
 
 export default function ActivityLogDetailModal({

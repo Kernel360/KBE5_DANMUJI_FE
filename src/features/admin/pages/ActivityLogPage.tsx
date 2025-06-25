@@ -274,23 +274,23 @@ export default function ActivityLogPage() {
     switch (action) {
       case "CREATED":
         return {
-          backgroundColor: "#dcfce7",
           color: "#166534",
+          fontWeight: "600",
         };
       case "UPDATED":
         return {
-          backgroundColor: "#dbeafe",
           color: "#1e40af",
+          fontWeight: "600",
         };
       case "DELETED":
         return {
-          backgroundColor: "#fee2e2",
           color: "#991b1b",
+          fontWeight: "600",
         };
       default:
         return {
-          backgroundColor: "#f3f4f6",
           color: "#374151",
+          fontWeight: "600",
         };
     }
   };
@@ -721,7 +721,7 @@ export default function ActivityLogPage() {
                     style={{
                       display: "flex",
                       alignItems: "center",
-                      gap: "8px",
+                      gap: "4px",
                     }}
                   >
                     {getActionIcon(log.action)}
