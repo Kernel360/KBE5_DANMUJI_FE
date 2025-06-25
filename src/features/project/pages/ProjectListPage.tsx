@@ -69,14 +69,9 @@ function ProjectCreateModal({ open, onClose, fetchProjects }: { open: boolean; o
     }));
   }, [selectedDevCompanies, selectedClientCompanies]);
 
-  // devManagerId, devUserId, clientManagerId, clientUserId 콘솔 출력
   useEffect(() => {
     const allDevMembers = selectedDevCompanies.flatMap(c => c.members);
     const allClientMembers = selectedClientCompanies.flatMap(c => c.members);
-    console.log('devManagerId:', allDevMembers.filter(m => m.type === 'manager').map(m => m.id));
-    console.log('devUserId:', allDevMembers.map(m => m.id));
-    console.log('clientManagerId:', allClientMembers.filter(m => m.type === 'manager').map(m => m.id));
-    console.log('clientUserId:', allClientMembers.map(m => m.id));
   }, [selectedDevCompanies, selectedClientCompanies]);
 
   // 개발사 추가 모달에서 선택된 회사/멤버 반영
@@ -618,7 +613,11 @@ export default function ProjectListPage() {
     try {
       setLoading(true);
       setError(null);
-      const response = await getProjects(page, PAGE_SIZE);
+      // 기간 필터 추가
+      const params: any = {};
+      if (filters.startDate) params.startDate = filters.startDate;
+      if (filters.endDate) params.endDate = filters.endDate;
+      const response = await getProjects(page, PAGE_SIZE, params);
 
       if (response.data) {
         // 백엔드 응답을 기존 Project 타입으로 변환
