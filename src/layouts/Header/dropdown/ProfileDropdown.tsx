@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { UserProfile } from "./UserProfile";
+import { UserProfile } from "@/layouts/Header/profile/UserProfile";
 import {
   DropdownContainer,
   ProfileButton,
@@ -61,7 +61,7 @@ export const ProfileDropdown: React.FC = () => {
           <UserProfile />
           <Divider />
           <MenuList>
-            <MenuItem onClick={ () => navigate("/my")}>
+            <MenuItem onClick={() => {toggleDropdown(); navigate("/my")}}>
               프로필
             </MenuItem>
             <Divider />

@@ -16,6 +16,7 @@ import UserDashboardPage from "@/features/user/pages/dashboard/UserDashboardPage
 
 // company
 import CompanyPage from "@/features/company/pages/CompanyPage";
+import CompanyDetailPage from "@/features/company/pages/CompanyDetailPage";
 
 // member
 import MemberPage from "@/features/user/pages/MemberPage";
@@ -77,6 +78,7 @@ const AppRoutes = () => {
       {role === "ROLE_ADMIN" && (
         <>
           <Route path="/company" element={<CompanyPage />} />
+          <Route path="/company/:id" element={<CompanyDetailPage />} />
           <Route path="/members" element={<MemberPage />} />
           <Route path="/member/:id" element={<MemberDetailPage />} />
           <Route path="/activity-log" element={<ActivityLogPage />} />
