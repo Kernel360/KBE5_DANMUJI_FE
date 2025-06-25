@@ -239,6 +239,8 @@ const ChangesGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
+  padding-bottom: 12px;
+  margin-top: -18px;
 `;
 
 const ChangeColumn = styled.div`
@@ -248,10 +250,20 @@ const ChangeColumn = styled.div`
 `;
 
 const ChangeTitle = styled.h4`
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #374151;
-  margin-bottom: 10px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6b7280;
+  margin-bottom: 4px;
+`;
+
+const ChangeColumnBox = styled.div`
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px 10px 10px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 `;
 
 export default function ActivityLogDetailModal({
@@ -475,10 +487,10 @@ export default function ActivityLogDetailModal({
             <FiEdit style={{ color: "#fdb924" }} />
             변경된 내용
           </SectionTitle>
-          <DataContainer>
-            <ChangesGrid>
-              <ChangeColumn>
-                <ChangeTitle>변경 전</ChangeTitle>
+          <ChangesGrid>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <ChangeTitle>변경 전</ChangeTitle>
+              <ChangeColumnBox>
                 {changedKeys.map((key) => (
                   <DataRow key={`before-${key}`}>
                     <DataLabel>{getFieldDisplayName(key)}</DataLabel>
@@ -489,9 +501,11 @@ export default function ActivityLogDetailModal({
                     </DataValue>
                   </DataRow>
                 ))}
-              </ChangeColumn>
-              <ChangeColumn>
-                <ChangeTitle>변경 후</ChangeTitle>
+              </ChangeColumnBox>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <ChangeTitle>변경 후</ChangeTitle>
+              <ChangeColumnBox>
                 {changedKeys.map((key) => (
                   <DataRow key={`after-${key}`}>
                     <DataLabel>{getFieldDisplayName(key)}</DataLabel>
@@ -502,9 +516,9 @@ export default function ActivityLogDetailModal({
                     </DataValue>
                   </DataRow>
                 ))}
-              </ChangeColumn>
-            </ChangesGrid>
-          </DataContainer>
+              </ChangeColumnBox>
+            </div>
+          </ChangesGrid>
         </ChangesSection>
       );
     }
