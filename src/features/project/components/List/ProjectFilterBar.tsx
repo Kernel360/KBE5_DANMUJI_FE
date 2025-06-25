@@ -174,6 +174,17 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
     }
   }, [clientModalOpen]);
 
+  // 모달 열릴 때 body 스크롤 방지
+  useEffect(() => {
+    if (clientModalOpen) {
+      const originalStyle = window.getComputedStyle(document.body).overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = originalStyle;
+      };
+    }
+  }, [clientModalOpen]);
+
   const formatDate = (dateString: string) => {
     if (!dateString) return "선택 안함";
     const date = new Date(dateString);

@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { UserProfile } from "../Header/UserProfile";
+import { UserProfile } from "@/layouts/Header/profile/UserProfile";
 import { MenuItem } from "./MenuItem";
 
 import {
@@ -45,7 +45,7 @@ export const Sidebar: React.FC = () => {
         <LogoImage src="/danmuji_logo.png" alt="Danmuji Logo" />
       </LogoArea>
       <Divider />
-      <ProfileArea>
+      <ProfileArea onClick={() => handleMenuItemClick("프로필", "/my")}>
         <UserProfile />
       </ProfileArea>
       <Divider />
