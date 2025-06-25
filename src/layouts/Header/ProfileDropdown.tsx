@@ -61,7 +61,7 @@ export const ProfileDropdown: React.FC = () => {
           <UserProfile />
           <Divider />
           <MenuList>
-            <MenuItem onClick={ () => navigate("/my")}>
+            <MenuItem onClick={() => {toggleDropdown(); navigate("/my")}}>
               프로필
             </MenuItem>
             <Divider />
