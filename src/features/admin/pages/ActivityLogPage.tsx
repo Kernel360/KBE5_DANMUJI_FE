@@ -323,6 +323,23 @@ export default function ActivityLogPage() {
     });
   };
 
+  const formatDateOnly = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("ko-KR", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+  };
+
+  const formatTimeOnly = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleTimeString("ko-KR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
   const formatDateForDisplay = (dateString: string) => {
     if (!dateString) return "선택";
     const date = new Date(dateString);
@@ -794,7 +811,10 @@ export default function ActivityLogPage() {
                   >
                     <FiCalendar size={14} style={{ color: "#6b7280" }} />
                     <span style={{ fontSize: "14px", color: "#374151" }}>
-                      {formatDate(log.createdAt)}
+                      {formatDateOnly(log.createdAt)}
+                    </span>
+                    <span style={{ fontSize: "12px", color: "#6b7280" }}>
+                      {formatTimeOnly(log.createdAt)}
                     </span>
                   </div>
                 </TableCell>
