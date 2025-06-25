@@ -17,7 +17,7 @@ import UserDashboardPage from "@/features/user/pages/dashboard/UserDashboardPage
 // company
 import CompanyPage from "@/features/company/pages/CompanyPage";
 import CompanyDetailPage from "@/features/company/pages/CompanyDetailPage";
-import InquiryPage from "@/features/company/pages/InquiryPage";
+import InquiryPage from "@/features/inquiry/InquiryPage";
 
 // member
 import MemberPage from "@/features/user/pages/MemberPage";

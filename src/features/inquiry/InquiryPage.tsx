@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { FiSearch, FiRotateCcw, FiChevronDown } from "react-icons/fi";
@@ -7,14 +7,15 @@ import {
   SelectDropdown,
   SelectOption,
   NewButton,
-} from "../../company/components/CompanyFilterBar.styled";
+} from "../company/components/CompanyFilterBar.styled";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import {
   DateButton,
   DateRangeGroup,
   DatePickerStyles,
-} from "../../project/components/List/ProjectFilterBar.styled";
+} from "../project/components/List/ProjectFilterBar.styled";
+import api from "../../api/axios";
 
 const Container = styled.div`
   padding: 32px 32px;
@@ -193,28 +194,13 @@ const SEARCH_FIELD_OPTIONS = [
   { value: "author", label: "작성자" },
 ];
 
-// 더미 데이터 (19개)
-const dummyInquiries = [
-  { id: 1, title: "로그인 오류가 발생합니다.", author: "홍길동", createdAt: "2024-05-01", status: "답변대기" },
-  { id: 2, title: "회사 정보 수정이 안돼요.", author: "김철수", createdAt: "2024-05-02", status: "답변완료" },
-  { id: 3, title: "비밀번호 재설정 문의", author: "이영희", createdAt: "2024-05-03", status: "답변대기" },
-  { id: 4, title: "서비스 속도가 느려요.", author: "박민수", createdAt: "2024-05-04", status: "답변완료" },
-  { id: 5, title: "회원가입이 안됩니다.", author: "최지우", createdAt: "2024-05-05", status: "답변대기" },
-  { id: 6, title: "이메일 인증이 안와요.", author: "정유진", createdAt: "2024-05-06", status: "답변완료" },
-  { id: 7, title: "비밀번호 변경 문의", author: "한상훈", createdAt: "2024-05-07", status: "답변대기" },
-  { id: 8, title: "프로필 사진이 안올라가요.", author: "오세훈", createdAt: "2024-05-08", status: "답변완료" },
-  { id: 9, title: "알림이 오지 않습니다.", author: "이수빈", createdAt: "2024-05-09", status: "답변대기" },
-  { id: 10, title: "로그아웃이 안돼요.", author: "김하늘", createdAt: "2024-05-10", status: "답변완료" },
-  { id: 11, title: "문의 테스트 1", author: "테스터1", createdAt: "2024-05-11", status: "답변대기" },
-  { id: 12, title: "문의 테스트 2", author: "테스터2", createdAt: "2024-05-12", status: "답변완료" },
-  { id: 13, title: "문의 테스트 3", author: "테스터3", createdAt: "2024-05-13", status: "답변대기" },
-  { id: 14, title: "문의 테스트 4", author: "테스터4", createdAt: "2024-05-14", status: "답변완료" },
-  { id: 15, title: "문의 테스트 5", author: "테스터5", createdAt: "2024-05-15", status: "답변대기" },
-  { id: 16, title: "문의 테스트 6", author: "테스터6", createdAt: "2024-05-16", status: "답변대기" },
-  { id: 17, title: "문의 테스트 7", author: "테스터7", createdAt: "2024-05-17", status: "답변완료" },
-  { id: 18, title: "문의 테스트 8", author: "테스터8", createdAt: "2024-05-18", status: "답변대기" },
-  { id: 19, title: "문의 테스트 9", author: "테스터9", createdAt: "2024-05-19", status: "답변완료" },
-];
+interface Inquiry {
+  id: number;
+  authorName: string;
+  title: string;
+  inquiryStatus: string;
+  createdAt: string;
+}
 
 interface InquiryFilterBarProps {
   filters: {
@@ -227,9 +213,10 @@ interface InquiryFilterBarProps {
   onChange: (field: string, value: string) => void;
   onSearch: () => void;
   onReset: () => void;
+  onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 }
 
-function InquiryFilterBar({ filters, onChange, onSearch, onReset }: InquiryFilterBarProps) {
+function InquiryFilterBar({ filters, onChange, onSearch, onReset, onKeyDown }: InquiryFilterBarProps) {
   const [searchFieldDropdownOpen, setSearchFieldDropdownOpen] = React.useState(false);
   const searchFieldDropdownRef = React.useRef<HTMLDivElement>(null);
   const [statusDropdownOpen, setStatusDropdownOpen] = React.useState(false);
@@ -349,6 +336,7 @@ function InquiryFilterBar({ filters, onChange, onSearch, onReset }: InquiryFilte
               placeholder={filters.searchField === 'title' ? '제목을 입력하세요' : '작성자를 입력하세요'}
               value={filters.searchValue}
               onChange={e => onChange("searchValue", e.target.value)}
+              onKeyDown={onKeyDown}
             />
           </div>
         </FilterGroup>
@@ -552,7 +540,8 @@ const PaginationButton = styled.button<{ $active?: boolean }>`
 `;
 
 export default function InquiryPage() {
-  const [inquiries] = useState(dummyInquiries);
+  const [allInquiries, setAllInquiries] = useState<Inquiry[]>([]);
+  const [filteredInquiries, setFilteredInquiries] = useState<Inquiry[]>([]);
   const [filters, setFilters] = useState({
     searchField: "title",
     searchValue: "",
@@ -560,12 +549,25 @@ export default function InquiryPage() {
     endDate: "",
     status: "",
   });
-  const [filtered, setFiltered] = useState(dummyInquiries);
   const [page, setPage] = useState(1);
   const pageSize = 10;
-  const pageCount = Math.ceil(filtered.length / pageSize);
-  const pagedData = filtered.slice((page - 1) * pageSize, page * pageSize);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchInquiries = async () => {
+      try {
+        const response = await api.get('/api/inquiries/all');
+        if (response.data && response.data.data) {
+          const inquiriesData = response.data.data;
+          setAllInquiries(inquiriesData);
+          setFilteredInquiries(inquiriesData);
+        }
+      } catch (error) {
+        console.error("문의사항 목록을 불러오는데 실패했습니다.", error);
+      }
+    };
+    fetchInquiries();
+  }, []);
 
   const handleTitleClick = (id: number) => {
     navigate(`/inquiry/${id}`);
@@ -576,24 +578,34 @@ export default function InquiryPage() {
   };
 
   const handleSearch = () => {
-    let result = inquiries;
+    let result = allInquiries;
+
     if (filters.searchValue) {
       if (filters.searchField === 'title') {
         result = result.filter(i => i.title.includes(filters.searchValue));
       } else if (filters.searchField === 'author') {
-        result = result.filter(i => i.author.includes(filters.searchValue));
+        result = result.filter(i => i.authorName.includes(filters.searchValue));
       }
     }
+
     if (filters.status) {
-      result = result.filter(i => i.status === filters.status);
+        result = result.filter(i => {
+            const statusText = i.inquiryStatus === 'WAITING' ? '답변대기' : '답변완료';
+            return statusText === filters.status;
+        });
     }
+
     if (filters.startDate) {
-      result = result.filter(i => i.createdAt >= filters.startDate);
+      result = result.filter(i => new Date(i.createdAt) >= new Date(filters.startDate));
     }
+
     if (filters.endDate) {
-      result = result.filter(i => i.createdAt <= filters.endDate);
+        const endDate = new Date(filters.endDate);
+        endDate.setHours(23, 59, 59, 999);
+        result = result.filter(i => new Date(i.createdAt) <= endDate);
     }
-    setFiltered(result);
+    
+    setFilteredInquiries(result);
     setPage(1);
   };
 
@@ -605,28 +617,36 @@ export default function InquiryPage() {
       endDate: "",
       status: "",
     });
-    setFiltered(inquiries);
+    setFilteredInquiries(allInquiries);
     setPage(1);
   };
 
   const getPaginationInfo = () => {
-    if (filtered.length === 0) return "";
+    if (filteredInquiries.length === 0) return "표시할 문의가 없습니다.";
     const start = (page - 1) * pageSize + 1;
-    const end = Math.min(page * pageSize, filtered.length);
-    return `총 ${filtered.length}개의 문의 중 ${start}-${end}개 표시`;
+    const end = Math.min(page * pageSize, filteredInquiries.length);
+    return `총 ${filteredInquiries.length}개의 문의 중 ${start}-${end}개 표시`;
   };
+
+  const pageCount = Math.ceil(filteredInquiries.length / pageSize);
+  const pagedData = filteredInquiries.slice((page - 1) * pageSize, page * pageSize);
 
   return (
     <Container>
       <HeaderSection>
         <Title>문의사항 관리</Title>
-        <Subtitle>문의사항을 한 눈에 확인하세요</Subtitle>
+        <Subtitle>문의사항을 한눈에 확인하세요</Subtitle>
       </HeaderSection>
       <InquiryFilterBar
         filters={filters}
         onChange={handleFilterChange}
         onSearch={handleSearch}
         onReset={handleReset}
+        onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              handleSearch();
+            }
+        }}
       />
       <TableContainer>
         <Table>
@@ -639,18 +659,22 @@ export default function InquiryPage() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {pagedData.map((inq) => (
-              <TableRow key={inq.id}>
-                <InquiryTitleCell onClick={() => handleTitleClick(inq.id)}>
-                  {inq.title}
-                </InquiryTitleCell>
-                <TableCell>{inq.author}</TableCell>
-                <TableCell>{inq.createdAt}</TableCell>
-                <TableCell>
-                  <StatusBadge status={inq.status}>{inq.status}</StatusBadge>
-                </TableCell>
-              </TableRow>
-            ))}
+            {pagedData.map((inq) => {
+                const statusText = inq.inquiryStatus === 'WAITING' ? '답변대기' : '답변완료';
+                const formattedDate = new Date(inq.createdAt).toLocaleDateString('ko-KR');
+                return (
+                  <TableRow key={inq.id}>
+                    <InquiryTitleCell onClick={() => handleTitleClick(inq.id)}>
+                      {inq.title}
+                    </InquiryTitleCell>
+                    <TableCell>{inq.authorName}</TableCell>
+                    <TableCell>{formattedDate}</TableCell>
+                    <TableCell>
+                      <StatusBadge status={statusText}>{statusText}</StatusBadge>
+                    </TableCell>
+                  </TableRow>
+                );
+            })}
             {Array.from({ length: pageSize - pagedData.length }).map((_, idx) => (
               <TableRow key={`empty-${idx}`}>
                 <TableCell
@@ -666,8 +690,8 @@ export default function InquiryPage() {
           </TableBody>
         </Table>
       </TableContainer>
-      {pageCount > 1 && (
-        <PaginationContainer>
+      <PaginationContainer>
+        {filteredInquiries.length > 0 && (
           <PaginationNav>
             {page > 1 && (
               <PaginationButton onClick={() => setPage(page - 1)}>
@@ -680,7 +704,10 @@ export default function InquiryPage() {
                   {idx + 1}
                 </PaginationButton>
               ) : (
-                <PaginationButton key={idx + 1} onClick={() => setPage(idx + 1)}>
+                <PaginationButton
+                  key={idx + 1}
+                  onClick={() => setPage(idx + 1)}
+                >
                   {idx + 1}
                 </PaginationButton>
               )
@@ -691,9 +718,9 @@ export default function InquiryPage() {
               </PaginationButton>
             )}
           </PaginationNav>
-          <PaginationInfo>{getPaginationInfo()}</PaginationInfo>
-        </PaginationContainer>
-      )}
+        )}
+        <PaginationInfo>{getPaginationInfo()}</PaginationInfo>
+      </PaginationContainer>
     </Container>
   );
 } 
