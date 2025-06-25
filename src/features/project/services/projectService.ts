@@ -138,16 +138,25 @@ const handleApiResponse = async <T>(
 // 프로젝트 목록 조회
 export const getProjects = async (
   page: number = 0,
-  size: number = 10
-): Promise<ProjectListResponse> => {
+  size: number = 10,
+  params: {
+    status?: string;
+    client?: string;
+    startDate?: string;
+    endDate?: string;
+    keyword?: string;
+    sort?: string;
+  } = {}
+): Promise<ApiResponse<{ content: ProjectResponse[]; page: PageMetadata; }>> => {
   try {
-    const response = await api.get<ProjectListResponse>("/api/projects", {
+    const response = await api.get<ApiResponse<{ content: ProjectResponse[]; page: PageMetadata; }>>("/api/projects", {
       params: {
         page,
         size,
+        ...params,
       },
     });
-    return handleApiResponse<ProjectListResponse["data"]>(response);
+    return handleApiResponse<{ content: ProjectResponse[]; page: PageMetadata; }>(response);
   } catch (error) {
     if (error instanceof ApiError) throw error;
     if (error instanceof AxiosError) {
@@ -180,5 +189,33 @@ export const getProjectDetail = async (
       );
     }
     throw new ApiError("프로젝트 상세 조회 중 알 수 없는 오류가 발생했습니다.");
+  }
+};
+
+// 프로젝트 검색
+export const searchProjects = async (
+  keyword: string,
+  page: number = 0,
+  size: number = 10
+): Promise<ApiResponse<{ content: ProjectResponse[]; page: PageMetadata; }>> => {
+  try {
+    const response = await api.get<ApiResponse<{ content: ProjectResponse[]; page: PageMetadata; }>>("/api/projects/search", {
+      params: {
+        keyword,
+        page,
+        size,
+      },
+    });
+    return handleApiResponse<{ content: ProjectResponse[]; page: PageMetadata; }>(response);
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
+    if (error instanceof AxiosError) {
+      throw new ApiError(
+        error.response?.data?.message ||
+          "프로젝트 검색 중 오류가 발생했습니다.",
+        error.response?.status
+      );
+    }
+    throw new ApiError("프로젝트 검색 중 알 수 없는 오류가 발생했습니다.");
   }
 };
