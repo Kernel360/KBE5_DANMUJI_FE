@@ -12,10 +12,12 @@ export const SidebarContainer = styled.div`
 export const ProfileArea = styled.div`
   align-items: left;
   margin-left: 20px;
+  cursor: pointer;
 `;
 
 export const LogoArea = styled.div`
-  margin-bottom: 20px;
+  margin: 20px 0;
+  cursor: pointer;
 `;
 
 export const Divider = styled.hr`
@@ -83,8 +85,9 @@ export const MenuItemSideContainer = styled.div<{ $isActive: boolean }>`
   gap: 8px;
   cursor: pointer;
   font-size: 13px;
-  color: ${({ $isActive }) => ($isActive ? '#374151' : '#9ca3af')};
-  background-color: ${({ $isActive }) => ($isActive ? '#fef3c7' : 'transparent')};
+  color: ${({ $isActive }) => ($isActive ? "#374151" : "#9ca3af")};
+  background-color: ${({ $isActive }) =>
+    $isActive ? "#fef3c7" : "transparent"};
   border-radius: 4px;
 
   &:hover {

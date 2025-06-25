@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import {
   Container,
@@ -11,6 +11,7 @@ import {
   Value,
   ActivityCard,
   ActivityRow,
+  EditButton,
 } from "./styled/UserProfilePage.styled";
 import {
   FiUser,
@@ -22,9 +23,11 @@ import {
   FiClock,
 } from "react-icons/fi";
 import { HiOfficeBuilding } from "react-icons/hi";
+import ChangePasswordModal from "@/features/user/pages/profile/components/ChangePasswordModal";
 
 export default function UserProfilePage() {
   const { user, refreshUser } = useAuth();
+  const [openChangePassword, setOpenChangePassword] = useState(false);
 
   useEffect(() => {
     if (!user) refreshUser();
@@ -37,7 +40,7 @@ export default function UserProfilePage() {
 
   const formatDateTime = (date: string) => {
     const d = new Date(date);
-    const kstDate = new Date(d.getTime() + 9 * 60 * 60 * 1000); 
+    const kstDate = new Date(d.getTime() + 9 * 60 * 60 * 1000);
     return `${kstDate.getFullYear()}년 ${kstDate.getMonth() + 1}월 ${kstDate.getDate()}일 `
       + `${kstDate.getHours()}시 ${kstDate.getMinutes()}분`;
   };
@@ -85,6 +88,11 @@ export default function UserProfilePage() {
             </Label>
             <Value>{user.phone}</Value>
           </InfoItem>
+          <div style={{ textAlign: "right" }}>
+            <EditButton type="button" onClick={() => setOpenChangePassword(true)}>
+              비밀번호 변경
+            </EditButton>
+          </div>
         </InfoGrid>
       </Card>
 
@@ -111,6 +119,7 @@ export default function UserProfilePage() {
           <Value>{user.lastLoginAt ? formatDateTime(user.lastLoginAt) : "정보 없음"}</Value>
         </ActivityRow>
       </ActivityCard>
+      <ChangePasswordModal open={openChangePassword} onClose={() => setOpenChangePassword(false)} />
     </Container>
   );
 }
