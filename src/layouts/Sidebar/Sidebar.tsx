@@ -93,7 +93,7 @@ export const Sidebar: React.FC = () => {
           <MenuItem
             icon={FiHelpCircle}
             text="관리자에게 문의하기"
-            isActive={location.pathname === "/my-inquiry"}
+            isActive={location.pathname.startsWith("/my-inquiry") || location.pathname.startsWith("/inquiry/")}
             onClick={() =>
               handleMenuItemClick("관리자에게 문의하기", "/my-inquiry")
             }
