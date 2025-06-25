@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import * as S from "./styled/UserDashboardPage.styled";
+import * as H from "@/styles/common/Header.styled";
 import { useState } from "react";
 import ProjectStatusSection from "./components/ProjectStatusSection";
 import MentionedPostsSection from "./components/MentionedPostsSection";
@@ -231,12 +232,12 @@ const UserDashboardPage = () => {
   return (
     <S.Container>
       <S.MainContent>
-        <S.DashboardHeader>
-          <S.DashboardTitle>대시보드</S.DashboardTitle>
-          <S.DashboardDescription>
+        <H.Header>
+          <H.Title>대시보드</H.Title>
+          <H.Description>
             오늘의 프로젝트 현황과 주요 알림을 한눈에 확인하세요
-          </S.DashboardDescription>
-        </S.DashboardHeader>
+          </H.Description>
+        </H.Header>
 
         <S.LayoutGrid>
           <S.LeftColumn>

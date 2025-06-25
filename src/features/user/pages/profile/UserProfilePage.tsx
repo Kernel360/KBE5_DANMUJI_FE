@@ -13,6 +13,7 @@ import {
   ActivityRow,
   EditButton,
 } from "./styled/UserProfilePage.styled";
+import * as H from "@/styles/common/Header.styled";
 import {
   FiUser,
   FiMail,
@@ -47,6 +48,10 @@ export default function UserProfilePage() {
 
   return (
     <Container>
+      <H.Header>
+        <H.Title>내 정보</H.Title>
+        <H.Description>내 정보와 활동을 한눈에 확인하세요.</H.Description>
+      </H.Header>
       <Card>
         <CardHeader>
           <IconCircle>
