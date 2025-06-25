@@ -258,7 +258,7 @@ export const PaginationInfo = styled.div`
 export const PaginationNav = styled.nav`
   display: flex;
   align-items: center;
-  gap: 1.2rem;
+  gap: 0.5rem;
   flex-wrap: wrap;
   justify-content: center;
 `;
@@ -279,12 +279,18 @@ export const PaginationButton = styled.button<{ $active?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background-color 0.2s ease;
+
   ${({ $active }) =>
     $active &&
     `
       background: #fdb924;
       color: #fff;
     `}
+
+  &:hover {
+    background-color: ${({ $active }) => ($active ? "#fdb924" : "#e5e7eb")};
+  }
 `;
 
 export const EmptyState = styled.div`
