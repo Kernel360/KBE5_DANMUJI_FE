@@ -40,13 +40,12 @@ interface ProjectCardProps {
 }
 
 const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
-  const { name, client, status, startDate, endDate, progress } = project;
+  const { name , client, status, startDate, endDate, progress } = project;
 
   const { role } = useAuth();
   const navigate = useNavigate();
 
-  const handleStageClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleCardClick = () => {
     navigate(`/projects/${project.id}/detail`);
   };
 
@@ -84,7 +83,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
   const statusInfo = getStatus();
 
   return (
-    <Card $status={status}>
+    <Card $status={status} onClick={handleCardClick} style={{ cursor: 'pointer' }}>
       <CardHeader>
         <CardTitle>{name}</CardTitle>
         <CardBadges>
@@ -120,12 +119,6 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
           <progress value={progress} max={100} />
         </CardProgress>
       </CardBody>
-      <CardFooter>
-        <StageButton onClick={handleStageClick}>
-          <AiOutlineSelect size={14} />
-          보기
-        </StageButton>
-      </CardFooter>
     </Card>
   );
 };
