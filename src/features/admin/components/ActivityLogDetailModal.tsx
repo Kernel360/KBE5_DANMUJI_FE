@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import styled from "styled-components";
 import {
   FiX,
@@ -10,8 +10,6 @@ import {
   FiInfo,
   FiMessageSquare,
   FiTrash2,
-  FiShield,
-  FiUsers,
   FiHome,
   FiFileText,
   FiLayers,
@@ -213,26 +211,21 @@ const DataValue = styled.span`
   flex: 1;
 `;
 
+const HighlightedValue = styled.span`
+  font-size: 0.8rem;
+  color: #111827;
+  font-weight: 500;
+  flex: 1;
+  background-color: #fef3c7;
+  padding: 2px 4px;
+  border-radius: 3px;
+`;
+
 const ErrorMessage = styled.div`
   color: #ef4444;
   text-align: center;
   padding: 16px;
   font-size: 0.875rem;
-`;
-
-const MessageSection = styled.div`
-  background: #f0f9ff;
-  border: 1px solid #bae6fd;
-  border-radius: 6px;
-  padding: 12px;
-  margin-top: 12px;
-`;
-
-const MessageText = styled.p`
-  margin: 0;
-  color: #0c4a6e;
-  font-size: 0.8rem;
-  line-height: 1.4;
 `;
 
 const ChangesGrid = styled.div`
@@ -241,12 +234,6 @@ const ChangesGrid = styled.div`
   gap: 12px;
   padding-bottom: 12px;
   margin-top: -18px;
-`;
-
-const ChangeColumn = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
 `;
 
 const ChangeTitle = styled.h4`
@@ -462,22 +449,17 @@ export default function ActivityLogDetailModal({
         ...Object.keys(afterData),
       ]);
 
-      // 변경된 필드만 필터링 (시스템 필드 제외)
-      const changedKeys = Array.from(allKeys).filter((key) => {
-        if (
+      // 모든 필드를 표시하되 시스템 필드는 제외
+      const displayKeys = Array.from(allKeys).filter((key) => {
+        return !(
           key.startsWith("_") ||
           key === "delete" ||
           key === "deletedAt" ||
           key === "updatedAt"
-        ) {
-          return false;
-        }
-        const beforeValue = beforeData[key];
-        const afterValue = afterData[key];
-        return beforeValue !== afterValue;
+        );
       });
 
-      if (changedKeys.length === 0) {
+      if (displayKeys.length === 0) {
         return null;
       }
 
@@ -491,31 +473,59 @@ export default function ActivityLogDetailModal({
             <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
               <ChangeTitle>변경 전</ChangeTitle>
               <ChangeColumnBox>
-                {changedKeys.map((key) => (
-                  <DataRow key={`before-${key}`}>
-                    <DataLabel>{getFieldDisplayName(key)}</DataLabel>
-                    <DataValue>
-                      {beforeData[key] !== undefined
-                        ? formatFieldValue(key, beforeData[key])
-                        : "-"}
-                    </DataValue>
-                  </DataRow>
-                ))}
+                {displayKeys.map((key) => {
+                  const beforeValue = beforeData[key];
+                  const afterValue = afterData[key];
+                  const isChanged = beforeValue !== afterValue;
+
+                  return (
+                    <DataRow key={`before-${key}`}>
+                      <DataLabel>{getFieldDisplayName(key)}</DataLabel>
+                      {isChanged ? (
+                        <HighlightedValue>
+                          {beforeValue !== undefined
+                            ? formatFieldValue(key, beforeValue)
+                            : "-"}
+                        </HighlightedValue>
+                      ) : (
+                        <DataValue>
+                          {beforeValue !== undefined
+                            ? formatFieldValue(key, beforeValue)
+                            : "-"}
+                        </DataValue>
+                      )}
+                    </DataRow>
+                  );
+                })}
               </ChangeColumnBox>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
               <ChangeTitle>변경 후</ChangeTitle>
               <ChangeColumnBox>
-                {changedKeys.map((key) => (
-                  <DataRow key={`after-${key}`}>
-                    <DataLabel>{getFieldDisplayName(key)}</DataLabel>
-                    <DataValue>
-                      {afterData[key] !== undefined
-                        ? formatFieldValue(key, afterData[key])
-                        : "-"}
-                    </DataValue>
-                  </DataRow>
-                ))}
+                {displayKeys.map((key) => {
+                  const beforeValue = beforeData[key];
+                  const afterValue = afterData[key];
+                  const isChanged = beforeValue !== afterValue;
+
+                  return (
+                    <DataRow key={`after-${key}`}>
+                      <DataLabel>{getFieldDisplayName(key)}</DataLabel>
+                      {isChanged ? (
+                        <HighlightedValue>
+                          {afterValue !== undefined
+                            ? formatFieldValue(key, afterValue)
+                            : "-"}
+                        </HighlightedValue>
+                      ) : (
+                        <DataValue>
+                          {afterValue !== undefined
+                            ? formatFieldValue(key, afterValue)
+                            : "-"}
+                        </DataValue>
+                      )}
+                    </DataRow>
+                  );
+                })}
               </ChangeColumnBox>
             </div>
           </ChangesGrid>

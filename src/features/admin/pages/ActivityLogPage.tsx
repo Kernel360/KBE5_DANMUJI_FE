@@ -35,7 +35,6 @@ import {
   DatePickerWrapper,
   DateButton,
   DateSeparator,
-  DatePickerStyles,
 } from "@/features/project/components/List/ProjectFilterBar.styled";
 import {
   FiSearch,
@@ -45,20 +44,13 @@ import {
   FiFileText,
   FiEdit,
   FiTrash,
-  FiPlus,
   FiPlusCircle,
   FiCalendar,
   FiChevronDown,
-  FiMessageCircle,
   FiLayers,
-  FiHelpCircle,
   FiGrid,
-  FiShield,
-  FiUserCheck,
-  FiAward,
-  FiStar,
 } from "react-icons/fi";
-import { FaProjectDiagram, FaCrown, FaUserShield } from "react-icons/fa";
+import { FaProjectDiagram } from "react-icons/fa";
 import { RiUserSettingsLine } from "react-icons/ri";
 import UserSelectionModal from "../components/UserSelectionModal";
 import UserFilterButton from "../components/UserFilterButton";
