@@ -9,6 +9,7 @@ import {
 import { FaBuilding } from "react-icons/fa";
 import { useAuth } from "@/hooks/useAuth";
 import { IoPersonSharp } from "react-icons/io5";
+
 export const UserProfile: React.FC = () => {
   const { user } = useAuth();
   const { role } = useAuth();

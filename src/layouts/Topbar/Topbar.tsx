@@ -1,7 +1,7 @@
 import React from "react";
 // import { useLocation } from "react-router-dom";
-import NotificationDropdown from "../Header/NotificationDropdown";
-import { ProfileDropdown } from "../Header/ProfileDropdown";
+import NotificationDropdown from "../Header/notification/NotificationDropdown";
+import { ProfileDropdown } from "../Header/dropdown/ProfileDropdown";
 
 import {
   TopbarContainer,

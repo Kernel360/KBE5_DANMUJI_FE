@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { UserProfile } from "../Header/UserProfile";
+import { UserProfile } from "@/layouts/Header/profile/UserProfile";
 import { MenuItem } from "./MenuItem";
 
 import {

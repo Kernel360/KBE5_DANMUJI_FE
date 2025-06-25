@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { UserProfile } from "./UserProfile";
+import { UserProfile } from "@/layouts/Header/profile/UserProfile";
 import {
   DropdownContainer,
   ProfileButton,
