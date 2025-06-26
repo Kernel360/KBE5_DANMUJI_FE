@@ -352,8 +352,12 @@ export default function InquiryDetailPage() {
     if (!window.confirm("정말로 이 문의사항을 삭제하시겠습니까?")) return;
     try {
       await api.delete(`/api/inquiries/${inquiryId}`);
-      // 삭제 후 목록 페이지로 이동 (예: /inquiry)
-      navigate("/inquiry");
+      // 일반 유저는 my-inquiry로, 관리자는 inquiry로 이동
+      if (role === 'ROLE_USER') {
+        navigate("/my-inquiry");
+      } else {
+        navigate("/inquiry");
+      }
     } catch {
       alert("문의사항 삭제에 실패했습니다.");
     }

@@ -129,9 +129,18 @@ const StatusBadge = styled.span<{ status: string }>`
   border-radius: 8px;
   font-size: 12px;
   font-weight: 600;
-  color: ${({ status }) => (status === "답변완료" ? "#059669" : "#b91c1c")};
-  background: ${({ status }) =>
-    status === "답변완료" ? "#d1fae5" : "#fee2e2"};
+  color: ${({ status }: { status: string }) =>
+    status === "답변완료"
+      ? "#16a34a"
+      : status === "답변대기"
+      ? "#d97706"
+      : "#4b5565"};
+  background-color: ${({ status }: { status: string }) =>
+    status === "답변완료"
+      ? "#dcfce7"
+      : status === "답변대기"
+      ? "#fef3c7"
+      : "#fff"};
 `;
 
 const FilterBar = styled.div`
@@ -571,14 +580,14 @@ export default function UserInquiryPage() {
 
   const fetchInquiries = useCallback(async () => {
     try {
-      const response = await api.get('/api/inquiries/all');
-      if (response.data && response.data.data) {
-        const inquiriesData = response.data.data;
+      const response = await api.get('/api/inquiries/my');
+      if (response.data && response.data.data && response.data.data.content) {
+        const inquiriesData = response.data.data.content;
         setAllInquiries(inquiriesData);
         setFilteredInquiries(inquiriesData);
       }
     } catch (error) {
-      console.error("문의사항 목록을 불러오는데 실패했습니다.", error);
+      console.error("Failed to fetch inquiries:", error);
     }
   }, []);
 
