@@ -17,6 +17,8 @@ import UserDashboardPage from "@/features/user/pages/dashboard/UserDashboardPage
 // company
 import CompanyPage from "@/features/company/pages/CompanyPage";
 import CompanyDetailPage from "@/features/company/pages/CompanyDetailPage";
+import InquiryPage from "@/features/inquiry/InquiryPage";
+import UserInquiryPage from "@/features/inquiry/UserInquiryPage";
 
 // member
 import MemberPage from "@/features/user/pages/MemberPage";
@@ -32,13 +34,13 @@ import ProjectDetailPage from "@/features/project/pages/ProjectDetailPage";
 import ProjectListPage from "@/features/project/pages/ProjectListPage";
 
 // project-d
-// import EditProjectPage from "@/features/project-d/pages/EditProjectPage";
-// import AdminProjectPage from "@/features/project-d/pages/AdminProjectPage";
-// import CreateProjectPage from "@/features/project-d/pages/CreateProjectPage";
-// import ProjectDetailPage from "@/features/project-d/pages/ProjectDetailPage";
-// import CompletedProject from "@/features/project-d/pages/CompletedProject";
-// import InProgressProject from "@/features/project-d/pages/InProgressProject";
-// import MemberProjectPage from "@/features/project-d/pages/MemberProjectPage";
+import EditProjectPage from "@/features/project-d/pages/EditProjectPage";
+import AdminProjectPage from "@/features/project-d/pages/AdminProjectPage";
+import CreateProjectPage from "@/features/project-d/pages/CreateProjectPage";
+import CompletedProject from "@/features/project-d/pages/CompletedProject";
+import InProgressProject from "@/features/project-d/pages/InProgressProject";
+import MemberProjectPage from "@/features/project-d/pages/MemberProjectPage";
+import InquiryDetailPage from "@/features/inquiry/pages/InquiryDetailPage";
 
 const AppRoutes = () => {
   const { role } = useAuth();
@@ -82,27 +84,30 @@ const AppRoutes = () => {
           <Route path="/members" element={<MemberPage />} />
           <Route path="/member/:id" element={<MemberDetailPage />} />
           <Route path="/activity-log" element={<ActivityLogPage />} />
-          {/* <Route path="/projects/create" element={<CreateProjectPage />} /> */}
-          {/* <Route
+          <Route path="/inquiry" element={<InquiryPage />} />
+          <Route path="/projects/create" element={<CreateProjectPage />} />
+          <Route
             path="/projects/:projectId/edit"
             element={<EditProjectPage />}
           />
-          <Route path="/projects" element={<AdminProjectPage />} /> */}
+          <Route path="/projects" element={<AdminProjectPage />} />
         </>
       )}
 
       {/* 공용 페이지 */}
       <Route path="/posts/:stepId" element={<PostListPage />} />
-      {/* <Route path="/projects/all" element={<MemberProjectPage />} /> */}
+      <Route path="/projects/all" element={<MemberProjectPage />} />
       <Route
         path="/projects/:projectId/detail"
         element={<ProjectDetailPage />}
       />
       <Route path="/projects" element={<ProjectListPage />} />
-      {/* <Route path="/projects/completed" element={<CompletedProject />} />
+      <Route path="/projects/completed" element={<CompletedProject />} />
       <Route path="/projects/inprogress" element={<InProgressProject />} />
-      <Route path="/projects/active" element={<InProgressProject />} /> */}
+      <Route path="/projects/active" element={<InProgressProject />} />
       <Route path="/my" element={<UserProfilePage />} />
+      <Route path="/my-inquiry" element={<UserInquiryPage />} />
+      <Route path="/inquiry/:inquiryId" element={<InquiryDetailPage />} />
     </Routes>
   );
 };
