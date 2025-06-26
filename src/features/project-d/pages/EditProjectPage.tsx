@@ -72,7 +72,7 @@ export default function ProjectEditPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  // 회사 옵션을 react-select 형식으로 변환
+  // 업체 옵션을 react-select 형식으로 변환
   const companyToOption = (company: Company) => ({
     value: company.id,
     label: company.name,
@@ -92,7 +92,7 @@ export default function ProjectEditPage() {
         : Array.isArray(payload.content)
         ? payload.content
         : [];
-      setCompanies(list); // 회사 목록 저장
+      setCompanies(list); // 업체 목록 저장
       return list.map(companyToOption);
     } catch (err) {
       return [];
@@ -111,13 +111,13 @@ export default function ProjectEditPage() {
         setStartDate(proj.startDate ? new Date(proj.startDate) : null);
         setEndDate(proj.endDate ? new Date(proj.endDate) : null);
 
-        // 회사 정보 설정
+        // 업체 정보 설정
         const devCompany = proj.developers[0]?.companyId;
         const clientCompany = proj.clients[0]?.companyId;
         setDevelopCompanyId(devCompany || "");
         setClientCompanyId(clientCompany || "");
 
-        // 회사 정보 로드
+        // 업체 정보 로드
         if (devCompany) {
           api
             .get(`/api/companies/${devCompany}`)
@@ -436,7 +436,7 @@ export default function ProjectEditPage() {
               setSelectedDevMembers([]); // 개발사 변경 시 멤버 초기화
               setDeveloperId(""); // 담당자도 초기화
             }}
-            placeholder="회사 검색/선택"
+            placeholder="업체 검색/선택"
             isClearable
             inputId="dev-company"
             styles={{
@@ -521,7 +521,7 @@ export default function ProjectEditPage() {
               setSelectedClientMembers([]); // 고객사 변경 시 멤버 초기화
               setClientId(""); // 담당자도 초기화
             }}
-            placeholder="회사 검색/선택"
+            placeholder="업체 검색/선택"
             isClearable
             inputId="client-company"
             styles={{
