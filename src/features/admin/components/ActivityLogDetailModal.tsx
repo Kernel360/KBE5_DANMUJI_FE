@@ -14,6 +14,7 @@ import {
   FiFileText,
   FiLayers,
   FiCheckSquare,
+  FiRotateCcw,
 } from "react-icons/fi";
 import { RiUserSettingsLine } from "react-icons/ri";
 import { FaProjectDiagram } from "react-icons/fa";
@@ -106,6 +107,12 @@ const SectionTitle = styled.h3`
   font-weight: 600;
   color: #374151;
   margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const SectionTitleContent = styled.div`
   display: flex;
   align-items: center;
   gap: 6px;
@@ -222,11 +229,43 @@ const HighlightedValue = styled.span`
   border-radius: 3px;
 `;
 
+const RestoreButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background-color: #6b7280;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #4b5563;
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    background-color: #d1d5db;
+    cursor: not-allowed;
+    transform: none;
+  }
+`;
+
 const ErrorMessage = styled.div`
   color: #ef4444;
-  text-align: center;
-  padding: 16px;
   font-size: 0.875rem;
+  margin-top: 8px;
+  padding: 8px 12px;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
 `;
 
 const ChangesGrid = styled.div`
@@ -262,6 +301,8 @@ export default function ActivityLogDetailModal({
   const [detail, setDetail] = useState<ActivityLogDetail | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [restoring, setRestoring] = useState(false);
+  const [restoreError, setRestoreError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen && historyId) {
@@ -297,6 +338,29 @@ export default function ActivityLogDetailModal({
       setError("이력 상세 정보를 불러오는데 실패했습니다.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleRestore = async () => {
+    if (!detail) return;
+
+    setRestoring(true);
+    setRestoreError(null);
+
+    try {
+      // TODO: 실제 복구 API 호출
+      // const response = await restoreData(detail.id);
+
+      // 임시로 성공 메시지 표시
+      console.log("데이터 복구 요청:", detail.id);
+
+      // 성공 시 모달 닫기
+      onClose();
+    } catch (err) {
+      console.error("데이터 복구 실패:", err);
+      setRestoreError("데이터 복구에 실패했습니다. 다시 시도해주세요.");
+    } finally {
+      setRestoring(false);
     }
   };
 
@@ -403,8 +467,10 @@ export default function ActivityLogDetailModal({
       return (
         <ChangesSection>
           <SectionTitle>
-            <FiPlus style={{ color: "#fdb924" }} />
-            생성된 데이터
+            <SectionTitleContent>
+              <FiPlus style={{ color: "#fdb924" }} />
+              생성된 데이터
+            </SectionTitleContent>
           </SectionTitle>
           <DataContainer>
             <DataDisplay>
@@ -441,8 +507,14 @@ export default function ActivityLogDetailModal({
       return (
         <ChangesSection>
           <SectionTitle>
-            <FiTrash2 style={{ color: "#fdb924" }} />
-            삭제된 데이터
+            <SectionTitleContent>
+              <FiTrash2 style={{ color: "#fdb924" }} />
+              삭제된 데이터
+            </SectionTitleContent>
+            <RestoreButton onClick={handleRestore} disabled={restoring}>
+              <FiRotateCcw />
+              {restoring ? "복구 중..." : "복구"}
+            </RestoreButton>
           </SectionTitle>
           <DataContainer>
             <DataDisplay>
@@ -502,8 +574,14 @@ export default function ActivityLogDetailModal({
       return (
         <ChangesSection>
           <SectionTitle>
-            <FiEdit style={{ color: "#fdb924" }} />
-            변경된 내용
+            <SectionTitleContent>
+              <FiEdit style={{ color: "#fdb924" }} />
+              변경된 내용
+            </SectionTitleContent>
+            <RestoreButton onClick={handleRestore} disabled={restoring}>
+              <FiRotateCcw />
+              {restoring ? "복구 중..." : "복구"}
+            </RestoreButton>
           </SectionTitle>
           <ChangesGrid>
             <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
@@ -1062,6 +1140,12 @@ export default function ActivityLogDetailModal({
             </ContentSection>
 
             {renderChanges()}
+
+            {/* 수정/삭제 작업에만 복구 버튼 표시 */}
+            {(detail.historyType === "UPDATED" ||
+              detail.historyType === "DELETED") && (
+              <>{restoreError && <ErrorMessage>{restoreError}</ErrorMessage>}</>
+            )}
           </>
         )}
       </ModalContent>
