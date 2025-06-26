@@ -11,11 +11,11 @@ interface MentionSuggestionsProps {
 }
 
 const SuggestionsContainer = styled.div<{
-  position: { top: number; left: number } | null;
+  $position: { top: number; left: number } | null;
 }>`
   position: absolute;
-  top: ${(props) => props.position?.top ?? 0}px;
-  left: ${(props) => props.position?.left ?? 0}px;
+  top: ${(props) => props.$position?.top ?? 0}px;
+  left: ${(props) => props.$position?.left ?? 0}px;
   background: white;
   border-radius: 8px;
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
@@ -115,7 +115,7 @@ const MentionSuggestions: React.FC<MentionSuggestionsProps> = ({
   }
 
   return (
-    <SuggestionsContainer position={position}>
+    <SuggestionsContainer $position={position}>
       {isLoading ? (
         <LoadingItem>
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>

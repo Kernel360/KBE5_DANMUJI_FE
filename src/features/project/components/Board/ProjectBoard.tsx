@@ -573,7 +573,7 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
             </TypeBadge>
           </Td>
           <Td>
-            <StatusBadge priority={post.priority as PostPriority}>
+            <StatusBadge $priority={post.priority as PostPriority}>
               {POST_PRIORITY_LABELS[post.priority as PostPriority] ??
                 post.priority}
             </StatusBadge>
@@ -648,7 +648,7 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
               </TypeBadge>
             </Td>
             <Td>
-              <StatusBadge priority={parentPost.priority as PostPriority}>
+              <StatusBadge $priority={parentPost.priority as PostPriority}>
                 {POST_PRIORITY_LABELS[parentPost.priority as PostPriority] ??
                   parentPost.priority}
               </StatusBadge>
@@ -732,7 +732,7 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
                 </TypeBadge>
               </Td>
               <Td>
-                <StatusBadge priority={child.priority as PostPriority}>
+                <StatusBadge $priority={child.priority as PostPriority}>
                   {POST_PRIORITY_LABELS[child.priority as PostPriority] ??
                     child.priority}
                 </StatusBadge>
@@ -812,7 +812,7 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
               </TypeBadge>
             </Td>
             <Td>
-              <StatusBadge priority={orphan.priority as PostPriority}>
+              <StatusBadge $priority={orphan.priority as PostPriority}>
                 {POST_PRIORITY_LABELS[orphan.priority as PostPriority] ??
                   orphan.priority}
               </StatusBadge>
