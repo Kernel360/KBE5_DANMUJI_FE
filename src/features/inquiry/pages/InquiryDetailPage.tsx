@@ -183,6 +183,10 @@ export default function InquiryDetailPage() {
   const answerListRef = useRef<HTMLDivElement | null>(null);
   const answerFormRef = useRef<HTMLFormElement | null>(null);
   
+  // 답변 수정 상태
+  const [editingAnswerId, setEditingAnswerId] = useState<number | null>(null);
+  const [editedAnswerContent, setEditedAnswerContent] = useState<string>("");
+  
   // 답변 목록 조회
   const fetchAnswers = async (page = 0) => {
     try {
@@ -300,6 +304,47 @@ export default function InquiryDetailPage() {
     }
   };
 
+  // 답변 수정 시작
+  const handleEditAnswer = (answerId: number, currentContent: string) => {
+    setEditingAnswerId(answerId);
+    setEditedAnswerContent(currentContent);
+  };
+
+  // 답변 수정 저장
+  const handleSaveAnswer = async (answerId: number) => {
+    try {
+      await api.put(`/api/answers/${answerId}`, { content: editedAnswerContent });
+      setEditingAnswerId(null);
+      setEditedAnswerContent("");
+      fetchAnswers(answerPage.number); // 현재 페이지 새로고침
+    } catch {
+      alert("답변 수정에 실패했습니다.");
+    }
+  };
+
+  // 답변 수정 취소
+  const handleCancelEditAnswer = () => {
+    setEditingAnswerId(null);
+    setEditedAnswerContent("");
+  };
+
+  // 답변 다시하기 (관리자만)
+  const handleReopenInquiry = async () => {
+    try {
+      await api.put(`/api/inquiries/${inquiryId}/admin`, { status: 'WAITING' });
+      // 상태 변경 후 상세 정보 갱신
+      if (inquiryId) {
+        const res = await api.get(`/api/inquiries/${inquiryId}`);
+        const data = res.data.data;
+        setInquiry(data);
+        setEditedTitle(data.title);
+        setEditedContent(data.content);
+      }
+    } catch {
+      alert('답변 다시하기 처리에 실패했습니다.');
+    }
+  };
+
   if (!inquiry) {
     return <PageContainer>문의사항을 찾을 수 없습니다.</PageContainer>;
   }
@@ -350,8 +395,12 @@ export default function InquiryDetailPage() {
             </>
           ) : (
             <>
+              {/* 답변 대기 상태: 답변 완료하기, 답변완료 상태: 답변 다시하기 */}
               {isAdmin && isWaiting && (
                 <ActionButton variant="primary" onClick={handleCompleteInquiry}>답변 완료하기</ActionButton>
+              )}
+              {isAdmin && !isWaiting && (
+                <ActionButton variant="default" onClick={handleReopenInquiry}>답변 다시하기</ActionButton>
               )}
               {/* 일반 사용자만 수정 버튼 노출 */}
               {!isAdmin && (
@@ -392,18 +441,43 @@ export default function InquiryDetailPage() {
                     <span>{answer.authorName}</span>
                     <span>{formatDate(answer.createdAt)}</span>
                   </AnswerMeta>
-                  {isAdmin && (
+                  {/* 답변완료 상태가 아니고, 관리자일 때만 수정/삭제 버튼 노출 */}
+                  {isAdmin && isWaiting && (
                     <div style={{ display: 'flex', gap: '8px' }}>
-                      <ActionButton variant="default" style={{ padding: '6px 10px', fontSize: '13px' }}>
-                        <FiEdit /> 수정
-                      </ActionButton>
+                      {editingAnswerId === answer.id ? null : (
+                        <ActionButton
+                          variant="default"
+                          style={{ padding: '6px 10px', fontSize: '13px' }}
+                          onClick={() => handleEditAnswer(answer.id, answer.content)}
+                        >
+                          <FiEdit /> 수정
+                        </ActionButton>
+                      )}
                       <ActionButton variant="danger" style={{ padding: '6px 10px', fontSize: '13px' }}>
                         <FiTrash2 /> 삭제
                       </ActionButton>
                     </div>
                   )}
                 </AnswerHeader>
-                <AnswerContent>{answer.content}</AnswerContent>
+                {editingAnswerId === answer.id ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <TextArea
+                      value={editedAnswerContent}
+                      onChange={e => setEditedAnswerContent(e.target.value)}
+                      rows={4}
+                    />
+                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                      <ActionButton variant="primary" onClick={() => handleSaveAnswer(answer.id)}>
+                        저장
+                      </ActionButton>
+                      <ActionButton variant="default" onClick={handleCancelEditAnswer}>
+                        취소
+                      </ActionButton>
+                    </div>
+                  </div>
+                ) : (
+                  <AnswerContent>{answer.content}</AnswerContent>
+                )}
               </AnswerItem>
             ))
           )}
