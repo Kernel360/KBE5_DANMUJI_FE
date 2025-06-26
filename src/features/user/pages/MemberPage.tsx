@@ -18,7 +18,7 @@ import {
   FiCalendar,
 } from "react-icons/fi";
 import { IoBusinessOutline, IoPeopleOutline } from "react-icons/io5";
-import { LuUserRoundCog } from "react-icons/lu";
+import { LuUserRoundCog, LuUserRoundCheck } from "react-icons/lu";
 
 export interface Member {
   id: number;
@@ -861,10 +861,16 @@ export default function MemberPage() {
                       }}
                       onClick={() => handleMemberClick(member)}
                     >
-                      {member.position === "admin" ? (
+                      {member.position === "admin" ||
+                      member.position === "시스템관리자" ? (
                         <LuUserRoundCog
                           size={14}
                           style={{ color: "#8b5cf6" }}
+                        />
+                      ) : member.position === "팀장" ? (
+                        <LuUserRoundCheck
+                          size={14}
+                          style={{ color: "#3b82f6" }}
                         />
                       ) : member.position === "developer" ||
                         member.position === "개발자" ? (
@@ -923,10 +929,16 @@ export default function MemberPage() {
                       }}
                       onClick={() => handleMemberClick(member)}
                     >
-                      {member.position === "admin" ? (
+                      {member.position === "admin" ||
+                      member.position === "시스템관리자" ? (
                         <LuUserRoundCog
                           size={14}
                           style={{ color: "#8b5cf6" }}
+                        />
+                      ) : member.position === "팀장" ? (
+                        <LuUserRoundCheck
+                          size={14}
+                          style={{ color: "#3b82f6" }}
                         />
                       ) : member.position === "developer" ||
                         member.position === "개발자" ? (
