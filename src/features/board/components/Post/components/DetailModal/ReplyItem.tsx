@@ -71,21 +71,21 @@ const ReplyItem: React.FC<ReplyItemProps> = ({
       <CommentMeta>
         <CommentAuthor>
           <ClickableUsername
-            username={reply.author?.name || reply.authorName || "undefined"}
+            username={reply.authorName || reply.author?.name || "undefined"}
             userId={reply.author?.id || reply.authorId}
             onClick={onUserProfileClick}
             style={{ color: "#111827" }}
           />
-          {reply.author?.username && (
+          {reply.authorUsername && (
             <span
               style={{
                 fontSize: 11,
                 color: "#6b7280",
-                marginLeft: 4,
+                marginLeft: -3,
                 fontWeight: 400,
               }}
             >
-              ({reply.author.username})
+              ({reply.authorUsername})
             </span>
           )}
           <span

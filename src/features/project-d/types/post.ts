@@ -50,6 +50,7 @@ export type Comment = {
   authorIp: string;
   authorId?: number;
   authorName?: string;
+  authorUsername?: string;
   author?: Author;
   content: string;
   createdAt: string;

@@ -72,21 +72,21 @@ const CommentItem: React.FC<CommentItemProps> = ({
       <CommentMeta>
         <CommentAuthor>
           <ClickableUsername
-            username={comment.author?.name || comment.authorName || "undefined"}
+            username={comment.authorName || comment.author?.name || "undefined"}
             userId={comment.author?.id || comment.authorId}
             onClick={onUserProfileClick}
             style={{ color: "#111827" }}
           />
-          {comment.author?.username && (
+          {comment.authorUsername && (
             <span
               style={{
                 fontSize: 11,
                 color: "#6b7280",
-                marginLeft: 4,
+                marginLeft: -3,
                 fontWeight: 400,
               }}
             >
-              ({comment.author.username})
+              ({comment.authorUsername})
             </span>
           )}
           <span
