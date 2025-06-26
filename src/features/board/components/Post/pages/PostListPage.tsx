@@ -304,13 +304,6 @@ export default function PostListPage() {
 
   const handleSearch = () => {
     setCurrentPage(0);
-    setActiveSearchTerm(searchTerm);
-    setActiveSearchType(searchType);
-    setActiveStatusFilter(statusFilter);
-    setActiveTypeFilter(typeFilter);
-    setActivePriorityFilter(priorityFilter);
-    setActiveAssigneeFilter(assigneeFilter);
-    setActiveClientFilter(clientFilter);
   };
 
   const handleStatusFilterChange = (

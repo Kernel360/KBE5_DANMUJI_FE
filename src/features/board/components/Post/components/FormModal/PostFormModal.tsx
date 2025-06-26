@@ -538,7 +538,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
       case "COMPLETED":
         return "완료";
       case "PENDING":
-        return "대기";
+        return "";
       default:
         return status;
     }
