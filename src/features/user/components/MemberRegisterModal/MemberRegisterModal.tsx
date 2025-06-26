@@ -57,7 +57,9 @@ const MemberRegisterModal: React.FC<MemberRegisterModalProps> = ({
     fetchCompanies();
   }, []);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -77,7 +79,8 @@ const MemberRegisterModal: React.FC<MemberRegisterModalProps> = ({
       email: formData.email,
       phone: cleanedPhone,
       position: formData.position,
-      companyId: formData.companyId === "" ? undefined : Number(formData.companyId),
+      companyId:
+        formData.companyId === "" ? undefined : Number(formData.companyId),
     });
   };
 
@@ -135,7 +138,7 @@ const MemberRegisterModal: React.FC<MemberRegisterModalProps> = ({
                 <S.FormGroup>
                   <S.Label>
                     <IoBusinessOutline />
-                    회사
+                    업체
                   </S.Label>
                   <Select
                     options={companies.map((company) => ({
@@ -144,12 +147,18 @@ const MemberRegisterModal: React.FC<MemberRegisterModalProps> = ({
                     }))}
                     isClearable
                     isSearchable
-                    placeholder="회사 선택"
+                    placeholder="업체 선택"
                     value={
                       companies && formData.companyId
                         ? companies
-                            .map((company) => ({ value: company.id, label: company.name }))
-                            .find((option) => option.value === Number(formData.companyId)) || null
+                            .map((company) => ({
+                              value: company.id,
+                              label: company.name,
+                            }))
+                            .find(
+                              (option) =>
+                                option.value === Number(formData.companyId)
+                            ) || null
                         : null
                     }
                     onChange={(selected) => {

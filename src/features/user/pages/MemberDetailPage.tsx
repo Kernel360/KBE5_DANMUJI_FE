@@ -4,17 +4,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import api from "@/api/axios";
 import { type Member, formatTelNo } from "../pages/MemberPage";
 import MemberEditModal from "../components/MemberEditModal/MemberEditModal";
-import {
-  showErrorToast,
-  showSuccessToast,
-} from "@/utils/errorHandler";
-import {
-  FiUser,
-  FiMail,
-  FiPhone,
-  FiBriefcase,
-  FiTag,
-} from "react-icons/fi";
+import { showErrorToast, showSuccessToast } from "@/utils/errorHandler";
+import { FiUser, FiMail, FiPhone, FiBriefcase, FiTag } from "react-icons/fi";
 
 interface Company {
   id: number;
@@ -122,7 +113,7 @@ const EditButton = styled(ActionButton)`
   color: #374151;
   border: 2px solid #e5e7eb;
   box-shadow: 0 2px 4px rgba(107, 114, 128, 0.2);
-  
+
   &:hover {
     background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
     border-color: #fef3c7;
@@ -333,7 +324,8 @@ const MemberDetailPage: React.FC = () => {
   if (error) return <PageContainer>오류: {error}</PageContainer>;
   if (!member) return <PageContainer>회원을 찾을 수 없습니다.</PageContainer>;
 
-  const companyName = companies.find(c => c.id === member.companyId)?.name || '소속 없음';
+  const companyName =
+    companies.find((c) => c.id === member.companyId)?.name || "소속 없음";
 
   return (
     <PageContainer>
@@ -346,9 +338,7 @@ const MemberDetailPage: React.FC = () => {
       )}
       <PageHeaderSection>
         <PageTitle>회원 상세 정보</PageTitle>
-        <PageSubtitle>
-          해당 회원의 상세 정보를 한 눈에 확인하세요
-        </PageSubtitle>
+        <PageSubtitle>해당 회원의 상세 정보를 한 눈에 확인하세요</PageSubtitle>
       </PageHeaderSection>
 
       <MainContentArea>
@@ -375,12 +365,16 @@ const MemberDetailPage: React.FC = () => {
           <InfoCard>
             <CardTitle>기본 정보</CardTitle>
             <DetailItem>
-              <DetailIcon><FiBriefcase size={18} /></DetailIcon>
-              <DetailLabel>소속 회사</DetailLabel>
+              <DetailIcon>
+                <FiBriefcase size={18} />
+              </DetailIcon>
+              <DetailLabel>소속 업체</DetailLabel>
               <DetailValue>{companyName}</DetailValue>
             </DetailItem>
             <DetailItem>
-              <DetailIcon><FiTag size={18} /></DetailIcon>
+              <DetailIcon>
+                <FiTag size={18} />
+              </DetailIcon>
               <DetailLabel>직책</DetailLabel>
               <DetailValue>{member.position}</DetailValue>
             </DetailItem>
@@ -388,16 +382,20 @@ const MemberDetailPage: React.FC = () => {
           <InfoCard>
             <CardTitle>연락처 정보</CardTitle>
             <DetailItem>
-              <DetailIcon><FiMail size={18} /></DetailIcon>
+              <DetailIcon>
+                <FiMail size={18} />
+              </DetailIcon>
               <DetailLabel>이메일</DetailLabel>
               <DetailValue>{member.email}</DetailValue>
             </DetailItem>
             <DetailItem>
-              <DetailIcon><FiPhone size={18} /></DetailIcon>
+              <DetailIcon>
+                <FiPhone size={18} />
+              </DetailIcon>
               <DetailLabel>연락처</DetailLabel>
               <DetailValue>{formatTelNo(member.phone)}</DetailValue>
             </DetailItem>
-             <DetailItem>
+            <DetailItem>
               <DetailLabel>비밀번호 재설정</DetailLabel>
               <DetailValue>
                 <ResetPasswordLink onClick={handleResetPassword}>

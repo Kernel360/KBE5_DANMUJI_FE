@@ -431,7 +431,9 @@ export default function MemberPage() {
       setCompanyError(null);
     } catch (err: unknown) {
       setCompanies([]); // 회사가 없을 때도 빈 배열로
-      setCompanyError("회사를 불러오지 못했습니다. 회사가 등록되어 있지 않을 수 있습니다.");
+      setCompanyError(
+        "회사를 불러오지 못했습니다. 회사가 등록되어 있지 않을 수 있습니다."
+      );
       console.error("Failed to fetch companies:", err);
     }
   };
@@ -500,34 +502,37 @@ export default function MemberPage() {
     navigate(`/member/${member.id}`);
   };
 
-  const handleRegister = useCallback(async (data: MemberData) => {
-    try {
-      const newMember = {
-        ...data,
-        role: "user", // API에만 추가
-      };
-      const response = await api.post("/api/admin", newMember);
+  const handleRegister = useCallback(
+    async (data: MemberData) => {
+      try {
+        const newMember = {
+          ...data,
+          role: "user", // API에만 추가
+        };
+        const response = await api.post("/api/admin", newMember);
 
-      const { username, password } = response.data.data;
-      const fileContent = `Username: ${username}\nPassword: ${password}`;
-      const blob = new Blob([fileContent], { type: "text/plain" });
-      const fileUrl = URL.createObjectURL(blob);
+        const { username, password } = response.data.data;
+        const fileContent = `Username: ${username}\nPassword: ${password}`;
+        const blob = new Blob([fileContent], { type: "text/plain" });
+        const fileUrl = URL.createObjectURL(blob);
 
-      const link = document.createElement("a");
-      link.href = fileUrl;
-      link.download = "member_credentials.txt";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+        const link = document.createElement("a");
+        link.href = fileUrl;
+        link.download = "member_credentials.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
 
-      fetchMembers();
-      alert("회원 등록이 완료되었습니다!");
-      setModalOpen(false);
-    } catch (error: unknown) {
-      console.error("Error registering member:", error);
-      alert("회원 등록 중 오류가 발생했습니다.");
-    }
-  }, [fetchMembers]);
+        fetchMembers();
+        alert("회원 등록이 완료되었습니다!");
+        setModalOpen(false);
+      } catch (error: unknown) {
+        console.error("Error registering member:", error);
+        alert("회원 등록 중 오류가 발생했습니다.");
+      }
+    },
+    [fetchMembers]
+  );
 
   if (loading)
     return (
@@ -563,12 +568,14 @@ export default function MemberPage() {
           프로젝트 관리 시스템의 회원 정보를 한눈에 확인하세요.
         </Subtitle>
         {companyError && (
-          <div style={{ color: "#ef4444", marginBottom: "12px" }}>{companyError}</div>
+          <div style={{ color: "#ef4444", marginBottom: "12px" }}>
+            {companyError}
+          </div>
         )}
       </HeaderSection>
       <FilterBar>
         <FilterGroup>
-          <FilterLabel>회사</FilterLabel>
+          <FilterLabel>업체</FilterLabel>
           <SelectButton
             $hasValue={filters.companyId !== ""}
             $color="#fdb924"
@@ -578,8 +585,9 @@ export default function MemberPage() {
             <FiHome size={16} />
             <span className="select-value">
               {(Array.isArray(companies) &&
-                companies.find((c) => c.id === parseInt(filters.companyId))?.name) ||
-                "모든 회사"}
+                companies.find((c) => c.id === parseInt(filters.companyId))
+                  ?.name) ||
+                "모든 업체"}
             </span>
             <FiChevronDown size={16} />
           </SelectButton>
@@ -588,11 +596,11 @@ export default function MemberPage() {
               $isSelected={filters.companyId === ""}
               onClick={() => handleCompanySelect(0)}
             >
-              모든 회사
+              모든 업체
             </SelectOption>
             {Array.isArray(companies) && companies.length === 0 ? (
               <SelectOption $isSelected={false} style={{ color: "#bdbdbd" }}>
-                등록된 회사가 없습니다
+                등록된 업체가 없습니다
               </SelectOption>
             ) : (
               (Array.isArray(companies) ? companies : []).map((company) => (
@@ -694,7 +702,7 @@ export default function MemberPage() {
             <TableRow>
               <TableHeader>이름</TableHeader>
               <TableHeader>아이디</TableHeader>
-              <TableHeader>회사</TableHeader>
+              <TableHeader>업체</TableHeader>
               <TableHeader>직책</TableHeader>
               <TableHeader>전화번호</TableHeader>
             </TableRow>

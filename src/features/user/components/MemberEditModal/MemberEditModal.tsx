@@ -104,7 +104,8 @@ export default function MemberEditModal({
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === "companyId" ? (value === "" ? "" : Number(value)) : value,
+      [name]:
+        name === "companyId" ? (value === "" ? "" : Number(value)) : value,
       role: name === "role" ? (value as "Manager" | "Member") : prev.role,
     }));
   };
@@ -112,7 +113,11 @@ export default function MemberEditModal({
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (formData.companyId === "" || formData.companyId === 0 || formData.companyId === undefined) {
+    if (
+      formData.companyId === "" ||
+      formData.companyId === 0 ||
+      formData.companyId === undefined
+    ) {
       onEdit({
         ...formData,
         companyId: undefined,
@@ -129,7 +134,8 @@ export default function MemberEditModal({
     onEdit({
       ...formData,
       phone: formData.phone.replace(/\D/g, ""),
-      companyId: typeof formData.companyId === "number" ? formData.companyId : undefined,
+      companyId:
+        typeof formData.companyId === "number" ? formData.companyId : undefined,
     });
   };
 
@@ -172,20 +178,20 @@ export default function MemberEditModal({
               </FormRow>
             </FormSection>
 
-            {/* 회사 + 직책 */}
+            {/* 업체 + 직책 */}
             <FormSection>
               <FormRow>
                 <FormGroup>
                   <Label>
                     <IoBusinessOutline />
-                    회사
+                    업체
                   </Label>
                   <Select
                     name="companyId"
                     value={formData.companyId.toString() || ""}
                     onChange={handleChange}
                   >
-                    <option value="">회사 선택</option>
+                    <option value="">업체 선택</option>
                     {companies.map((company) => (
                       <option key={company.id} value={company.id.toString()}>
                         {company.name}
