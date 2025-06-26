@@ -15,6 +15,7 @@ import {
   FiPhone,
   FiChevronLeft,
   FiChevronRight,
+  FiCalendar,
 } from "react-icons/fi";
 import { IoBusinessOutline, IoPeopleOutline } from "react-icons/io5";
 import { LuUserRoundCog } from "react-icons/lu";
@@ -29,6 +30,7 @@ export interface Member {
   phone: string;
   email: string;
   createdAt: string;
+  lastLoginAt?: string;
 }
 
 interface Company {
@@ -841,6 +843,7 @@ export default function MemberPage() {
               <TableHeader>업체</TableHeader>
               <TableHeader>직책</TableHeader>
               <TableHeader>연락처</TableHeader>
+              <TableHeader>가입일</TableHeader>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -877,7 +880,17 @@ export default function MemberPage() {
                         ({member.username})
                       </span>
                       <span style={{ fontSize: "12px", color: "#6b7280" }}>
-                        ({member.role === "ROLE_ADMIN" ? "관리자" : "사용자"})
+                        (
+                        {member.position === "admin"
+                          ? "관리자"
+                          : member.position === "developer" ||
+                            member.position === "개발자"
+                          ? "개발사 직원"
+                          : member.position === "client" ||
+                            member.position === "고객"
+                          ? "고객사 직원"
+                          : "사용자"}
+                        )
                       </span>
                     </div>
                   </TableCell>
@@ -887,7 +900,9 @@ export default function MemberPage() {
                         display: "flex",
                         alignItems: "center",
                         gap: "8px",
+                        cursor: "pointer",
                       }}
+                      onClick={() => handleMemberClick(member)}
                     >
                       <FiHome size={14} style={{ color: "#f59e0b" }} />
                       <span style={{ fontWeight: "500" }}>
@@ -904,9 +919,24 @@ export default function MemberPage() {
                         display: "flex",
                         alignItems: "center",
                         gap: "8px",
+                        cursor: "pointer",
                       }}
+                      onClick={() => handleMemberClick(member)}
                     >
-                      <FiUsers size={14} style={{ color: "#3b82f6" }} />
+                      {member.position === "admin" ? (
+                        <LuUserRoundCog
+                          size={14}
+                          style={{ color: "#8b5cf6" }}
+                        />
+                      ) : member.position === "developer" ||
+                        member.position === "개발자" ? (
+                        <FiUser size={14} style={{ color: "#3b82f6" }} />
+                      ) : member.position === "client" ||
+                        member.position === "고객" ? (
+                        <FiUser size={14} style={{ color: "#10b981" }} />
+                      ) : (
+                        <FiUser size={14} style={{ color: "#6b7280" }} />
+                      )}
                       <span style={{ fontWeight: "500" }}>
                         {member.position}
                       </span>
@@ -918,12 +948,54 @@ export default function MemberPage() {
                         display: "flex",
                         alignItems: "center",
                         gap: "8px",
+                        cursor: "pointer",
                       }}
+                      onClick={() => handleMemberClick(member)}
                     >
                       <FiPhone size={14} style={{ color: "#10b981" }} />
                       <span style={{ fontSize: "14px", color: "#374151" }}>
                         {formatTelNo(member.phone)}
                       </span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        cursor: "pointer",
+                      }}
+                      onClick={() => handleMemberClick(member)}
+                    >
+                      <FiCalendar size={14} style={{ color: "#8b5cf6" }} />
+                      <div style={{ display: "flex", flexDirection: "column" }}>
+                        <span style={{ fontSize: "14px", color: "#374151" }}>
+                          {member.createdAt
+                            ? new Date(member.createdAt).toLocaleDateString(
+                                "ko-KR"
+                              )
+                            : "N/A"}
+                          {member.createdAt && (
+                            <span
+                              style={{
+                                fontSize: "11px",
+                                color: "#9ca3af",
+                                marginLeft: "4px",
+                              }}
+                            >
+                              {new Date(member.createdAt).toLocaleTimeString(
+                                "ko-KR",
+                                {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                  hour12: true,
+                                }
+                              )}
+                            </span>
+                          )}
+                        </span>
+                      </div>
                     </div>
                   </TableCell>
                 </TableRow>

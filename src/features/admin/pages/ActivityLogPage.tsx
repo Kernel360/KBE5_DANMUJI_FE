@@ -798,7 +798,7 @@ export default function ActivityLogPage() {
                       gap: "6px",
                     }}
                   >
-                    <FiCalendar size={14} style={{ color: "#6b7280" }} />
+                    <FiCalendar size={14} style={{ color: "#8b5cf6" }} />
                     <span style={{ fontSize: "14px", color: "#374151" }}>
                       {formatDateOnly(log.createdAt)}
                     </span>
