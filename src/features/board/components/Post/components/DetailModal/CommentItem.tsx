@@ -77,6 +77,18 @@ const CommentItem: React.FC<CommentItemProps> = ({
             onClick={onUserProfileClick}
             style={{ color: "#111827" }}
           />
+          {comment.author?.username && (
+            <span
+              style={{
+                fontSize: 11,
+                color: "#6b7280",
+                marginLeft: 4,
+                fontWeight: 400,
+              }}
+            >
+              ({comment.author.username})
+            </span>
+          )}
           <span
             style={{
               fontSize: 11,

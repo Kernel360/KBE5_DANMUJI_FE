@@ -561,8 +561,15 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
               </span>
             )}
           </Td>
-          <Td>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <Td style={{ textAlign: "left" }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                marginLeft: "-13px",
+              }}
+            >
               <FiUser size={14} style={{ color: "#3b82f6" }} />
               <span>{post.authorName}</span>
             </div>
@@ -634,7 +641,7 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
                 </span>
               )}
             </Td>
-            <Td>
+            <Td style={{ textAlign: "left" }}>
               <div
                 style={{ display: "flex", alignItems: "center", gap: "8px" }}
               >
@@ -718,7 +725,7 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
                   </span>
                 )}
               </Td>
-              <Td>
+              <Td style={{ textAlign: "left" }}>
                 <div
                   style={{ display: "flex", alignItems: "center", gap: "8px" }}
                 >
@@ -798,7 +805,7 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
                 </span>
               )}
             </Td>
-            <Td>
+            <Td style={{ textAlign: "left" }}>
               <div
                 style={{ display: "flex", alignItems: "center", gap: "8px" }}
               >

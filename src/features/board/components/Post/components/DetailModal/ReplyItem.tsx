@@ -76,6 +76,18 @@ const ReplyItem: React.FC<ReplyItemProps> = ({
             onClick={onUserProfileClick}
             style={{ color: "#111827" }}
           />
+          {reply.author?.username && (
+            <span
+              style={{
+                fontSize: 11,
+                color: "#6b7280",
+                marginLeft: 4,
+                fontWeight: 400,
+              }}
+            >
+              ({reply.author.username})
+            </span>
+          )}
           <span
             style={{
               fontSize: 11,

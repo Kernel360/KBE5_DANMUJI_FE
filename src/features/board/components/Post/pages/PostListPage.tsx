@@ -647,7 +647,20 @@ export default function PostListPage() {
                             ) : null}
                           </div>
                         </TableCell>
-                        <TableCell>{post.author.name}</TableCell>
+                        <TableCell style={{ textAlign: "left" }}>
+                          {post.author.name}
+                          {post.author.username && (
+                            <span
+                              style={{
+                                color: "#6b7280",
+                                fontSize: "0.85em",
+                                marginLeft: 4,
+                              }}
+                            >
+                              ({post.author.username})
+                            </span>
+                          )}
+                        </TableCell>
                         <TableCell $align="center">
                           <StatusBadge $status={getStatusText(post.status)}>
                             {getStatusText(post.status)}
@@ -771,7 +784,9 @@ export default function PostListPage() {
                                 </div>
                               </div>
                             </TableCell>
-                            <TableCell>{reply.author.name}</TableCell>
+                            <TableCell style={{ textAlign: "left" }}>
+                              {reply.author.name}
+                            </TableCell>
                             <TableCell $align="center">
                               <StatusBadge
                                 $status={getStatusText(reply.status)}
@@ -895,7 +910,9 @@ export default function PostListPage() {
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell>{post.author.name}</TableCell>
+                      <TableCell style={{ textAlign: "left" }}>
+                        {post.author.name}
+                      </TableCell>
                       <TableCell $align="center">
                         <StatusBadge $status={getStatusText(post.status)}>
                           {getStatusText(post.status)}

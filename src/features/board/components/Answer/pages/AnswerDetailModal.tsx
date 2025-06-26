@@ -328,6 +328,18 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
                   >
                     <FaUser style={{ marginRight: "0.5rem" }} />
                     {answer.author?.name || "알 수 없는 사용자"}
+                    {answer.author?.username && (
+                      <span
+                        style={{
+                          fontSize: "0.75rem",
+                          color: "#6b7280",
+                          marginLeft: "0.5rem",
+                          fontWeight: "400",
+                        }}
+                      >
+                        ({answer.author.username})
+                      </span>
+                    )}
                     <span
                       style={{
                         fontSize: "0.75rem",

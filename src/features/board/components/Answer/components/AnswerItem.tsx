@@ -112,10 +112,29 @@ const AnswerItem: React.FC<AnswerItemProps> = ({
       <AnswerMeta>
         <AnswerAuthor>
           <FaUser style={{ marginRight: "0.5rem" }} />
-          <AnswerAuthorName>
-            {answer.author?.name || "알 수 없는 사용자"}
-          </AnswerAuthorName>
-          <AnswerAuthorIp>{answer.authorIp}</AnswerAuthorIp>
+          {answer.author?.name || "알 수 없는 사용자"}
+          {answer.author?.username && (
+            <span
+              style={{
+                fontSize: "0.75rem",
+                color: "#6b7280",
+                marginLeft: "0.5rem",
+                fontWeight: "400",
+              }}
+            >
+              ({answer.author.username})
+            </span>
+          )}
+          <span
+            style={{
+              fontSize: "0.75rem",
+              color: "#6b7280",
+              marginLeft: "0.5rem",
+              fontWeight: "400",
+            }}
+          >
+            {answer.authorIp}
+          </span>
           {depth > 0 && <ReplyBadge>답글</ReplyBadge>}
           {answer.isBestAnswer && (
             <BestAnswerBadge>베스트 답변</BestAnswerBadge>

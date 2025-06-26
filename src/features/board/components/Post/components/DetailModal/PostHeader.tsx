@@ -225,11 +225,23 @@ const PostHeader: React.FC<PostHeaderProps> = ({
             onClick={onUserProfileClick}
             style={{ color: "#111827" }}
           />
+          {post.authorUsername && (
+            <span
+              style={{
+                fontSize: 12,
+                color: "#6b7280",
+                marginLeft: -9,
+                fontWeight: 400,
+              }}
+            >
+              ({post.authorUsername})
+            </span>
+          )}
           <span
             style={{
               fontSize: 12,
               color: "#b0b0b0",
-              marginLeft: 8,
+              marginLeft: 1,
               fontWeight: 400,
             }}
           >

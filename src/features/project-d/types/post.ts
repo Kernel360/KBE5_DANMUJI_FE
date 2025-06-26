@@ -23,6 +23,7 @@ export enum PostPriority {
 export type Author = {
   id: number;
   name: string;
+  username?: string;
   email?: string;
   role?: string;
 };
@@ -77,6 +78,8 @@ export type Post = {
   projectStepId: number;
   authorIp: string;
   authorId: number;
+  authorName?: string;
+  authorUsername?: string;
   author: Author;
   approver?: Author;
   project?: Project;
@@ -190,6 +193,7 @@ export interface PostDetailReadResponse {
   authorIp: string | null;
   authorId: number | null;
   authorName: string;
+  authorUsername?: string;
   title: string;
   content: string | null;
   type: PostType;
