@@ -321,6 +321,8 @@ export const updatePost = async (
     console.log("요청 데이터:", jsonData);
     console.log("새로 추가된 파일 개수:", files?.length || 0);
     console.log("삭제할 파일 ID:", postData.fileIdsToDelete);
+    console.log("삭제할 링크 ID:", postData.linkIdsToDelete);
+    console.log("새로 추가할 링크:", postData.newLinks);
 
     const response = await api.put<ApiResponse<Post>>(
       `/api/posts/${postId}`,

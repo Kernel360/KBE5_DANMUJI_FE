@@ -53,8 +53,15 @@ const LinkInputSection: React.FC<LinkInputSectionProps> = ({
 
   // 기존 링크 삭제
   const handleRemoveExistingLink = (id: number) => {
+    console.log("=== 기존 링크 삭제 ===");
+    console.log("삭제할 링크 ID:", id);
+    console.log("삭제 전 deletedLinkIds:", deletedLinkIds);
+
     setDeletedLinkIds([...deletedLinkIds, id]);
     setExistingLinks(existingLinks.filter((l) => l.id !== id));
+
+    console.log("삭제 후 deletedLinkIds:", [...deletedLinkIds, id]);
+    console.log("=========================");
   };
 
   return (
