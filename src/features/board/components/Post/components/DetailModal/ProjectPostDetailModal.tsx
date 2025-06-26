@@ -446,6 +446,40 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                   onFileDownload={handleFileDownload}
                   postId={post.postId}
                 />
+                {post.links && post.links.length > 0 && (
+                  <div style={{ margin: "16px 0" }}>
+                    <h4
+                      style={{
+                        fontSize: "15px",
+                        fontWeight: 600,
+                        marginBottom: "6px",
+                      }}
+                    >
+                      첨부 링크
+                    </h4>
+                    <ul style={{ paddingLeft: 0, margin: 0 }}>
+                      {post.links.map((link) => (
+                        <li
+                          key={link.id}
+                          style={{ listStyle: "none", marginBottom: "4px" }}
+                        >
+                          <a
+                            href={link.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              color: "#2563eb",
+                              textDecoration: "underline",
+                              wordBreak: "break-all",
+                            }}
+                          >
+                            {link.url}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
                 <CommentSection
                   comments={comments}
                   commentText={commentText}

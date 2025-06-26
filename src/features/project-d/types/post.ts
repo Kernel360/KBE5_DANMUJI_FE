@@ -66,6 +66,7 @@ export type PostCreateData = {
   priority: PostPriority;
   stepId: number;
   parentId?: number | null;
+  newLinks?: string[];
 };
 
 // 게시글 타입 (기존 Post와 PostDetail 통합)
@@ -94,6 +95,7 @@ export type Post = {
   isDeleted?: boolean;
   delete?: boolean;
   files?: PostFile[];
+  links?: PostLink[];
 };
 
 // API 응답 타입
@@ -147,6 +149,8 @@ export type PostUpdateRequest = {
   priority?: PostPriority;
   stepId: number;
   fileIdsToDelete?: number[];
+  linkIdsToDelete?: number[];
+  newLinks?: string[];
 };
 
 // 게시글 검색 요청 데이터 타입
@@ -172,6 +176,12 @@ export interface PostFile {
   fileSize: string;
 }
 
+export interface PostLink {
+  id: number;
+  postId: number;
+  url: string;
+}
+
 export interface PostDetailReadResponse {
   postId: number | null;
   parentId: number | null;
@@ -188,6 +198,7 @@ export interface PostDetailReadResponse {
   updatedAt: string | null;
   files: PostFile[] | null;
   delete: boolean;
+  links?: PostLink[];
 }
 
 export interface PostSummaryReadResponse {
