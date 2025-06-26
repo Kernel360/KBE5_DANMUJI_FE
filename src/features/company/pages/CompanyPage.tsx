@@ -122,7 +122,7 @@ const CompanyNameCell = styled(TableCell)`
   color: #374151;
   font-weight: 500;
   transition: color 0.2s ease;
-  
+
   &:hover {
     color: #3b82f6;
   }
@@ -335,17 +335,15 @@ export default function CompanyPage() {
     fetchCompanies();
   };
 
-  // 필터링된 회사 목록
+  // 필터링된 업체 목록
   const filteredCompanies = companies.filter((company) => {
     if (!filters.keyword) return true;
 
     const keyword = filters.keyword.toLowerCase();
-    return (
-      company.name.toLowerCase().includes(keyword)
-    );
+    return company.name.toLowerCase().includes(keyword);
   });
 
-  // 정렬된 회사 목록
+  // 정렬된 업체 목록
   const sortedCompanies = [...filteredCompanies].sort((a, b) => {
     switch (filters.sort) {
       case "name":
@@ -363,7 +361,7 @@ export default function CompanyPage() {
     if (!page) return "";
     const start = page.number * page.size + 1;
     const end = Math.min((page.number + 1) * page.size, page.totalElements);
-    return `총 ${page.totalElements}개의 회사 중 ${start}-${end}개 표시`;
+    return `총 ${page.totalElements}개의 업체 중 ${start}-${end}개 표시`;
   };
 
   const handleEdit = async (data: CompanyFormData) => {
@@ -410,7 +408,7 @@ export default function CompanyPage() {
       // 모달 닫기
       setEditModalOpen(false);
       setEditData(null);
-      notify("회사 정보가 성공적으로 수정되었습니다.");
+      notify("업체 정보가 성공적으로 수정되었습니다.");
       handleClose();
     } catch (err) {
       if (axios.isAxiosError(err)) {
@@ -419,11 +417,11 @@ export default function CompanyPage() {
           setFieldErrors(errorData.data.errors);
         } else {
           setError(
-            errorData?.message || "회사 수정 중 알 수 없는 오류가 발생했습니다."
+            errorData?.message || "업체 수정 중 알 수 없는 오류가 발생했습니다."
           );
         }
       } else {
-        setError("회사 수정 중 알 수 없는 오류가 발생했습니다.");
+        setError("업체 수정 중 알 수 없는 오류가 발생했습니다.");
       }
     }
   };
@@ -451,9 +449,9 @@ export default function CompanyPage() {
         />
       )}
       <HeaderSection>
-        <Title>회사 관리</Title>
+        <Title>업체 관리</Title>
         <Subtitle>
-          프로젝트 관리 시스템의 회사 정보를 한눈에 확인하세요
+          프로젝트 관리 시스템의 업체 정보를 한눈에 확인하세요
         </Subtitle>
       </HeaderSection>
 
@@ -468,7 +466,7 @@ export default function CompanyPage() {
         <Table>
           <TableHead>
             <TableRow>
-              <TableHeader>회사명</TableHeader>
+              <TableHeader>업체명</TableHeader>
               <TableHeader>사업자등록번호</TableHeader>
               <TableHeader>주소</TableHeader>
               <TableHeader>사업자 명</TableHeader>

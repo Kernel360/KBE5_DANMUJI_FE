@@ -31,7 +31,7 @@ export default function ProjectCreatePage() {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
 
-  // 회사 옵션을 react-select 형식으로 변환
+  // 업체 옵션을 react-select 형식으로 변환
   const companyToOption = (company: Company) => ({
     value: company.id,
     label: company.name,
@@ -293,11 +293,16 @@ export default function ProjectCreatePage() {
               setSelectedDevMembers([]);
               setDeveloperId("");
             }}
-            placeholder="회사 검색/선택"
+            placeholder="업체 검색/선택"
             isClearable
             inputId="dev-company"
             styles={{
               container: (base) => ({ ...base, width: "100%" }),
+              control: (base) => ({
+                ...base,
+                minHeight: "40px",
+                backgroundColor: "white",
+              }),
             }}
           />
         </S.Section>
@@ -383,7 +388,7 @@ export default function ProjectCreatePage() {
               setSelectedClientMembers([]);
               setClientId("");
             }}
-            placeholder="회사 검색/선택"
+            placeholder="업체 검색/선택"
             isClearable
             inputId="client-company"
             styles={{

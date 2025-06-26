@@ -90,7 +90,7 @@ const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
         <Section>
           <SectionTitle>
             <FiFileText size={16} />
-            회사 소개
+            업체 소개
           </SectionTitle>
           <DetailItem>
             <DetailValue>{company.bio || "N/A"}</DetailValue>

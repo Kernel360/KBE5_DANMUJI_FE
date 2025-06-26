@@ -272,7 +272,7 @@ const MemberDetailPage: React.FC = () => {
         const response = await api.get("/api/companies?size=1000"); // Fetch all companies
         setCompanies(response.data.data.content);
       } catch (error) {
-        console.error("회사 목록을 불러오는 데 실패했습니다.:", error);
+        console.error("업체 목록을 불러오는 데 실패했습니다.:", error);
       }
     };
     fetchCompanies();

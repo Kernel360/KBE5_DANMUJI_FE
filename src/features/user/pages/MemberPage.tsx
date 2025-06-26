@@ -426,13 +426,13 @@ export default function MemberPage() {
 
   const fetchCompanies = async () => {
     try {
-      const response = await api.get("/api/companies/all"); // 충분한 크기로 모든 회사 데이터를 가져옴
+      const response = await api.get("/api/companies/all"); // 충분한 크기로 모든 업체 데이터를 가져옴
       setCompanies(Array.isArray(response.data.data) ? response.data.data : []);
       setCompanyError(null);
     } catch (err: unknown) {
-      setCompanies([]); // 회사가 없을 때도 빈 배열로
+      setCompanies([]); // 업체가 없을 때도 빈 배열로
       setCompanyError(
-        "회사를 불러오지 못했습니다. 회사가 등록되어 있지 않을 수 있습니다."
+        "업체를 불러오지 못했습니다. 업체가 등록되어 있지 않을 수 있습니다."
       );
       console.error("Failed to fetch companies:", err);
     }

@@ -14,9 +14,8 @@ import {
 } from "react-icons/fi";
 import { useNotification } from "@/features/Notification/NotificationContext";
 import styled from "styled-components";
-import {
-  showSuccessToast,
-} from "@/utils/errorHandler";
+import { showSuccessToast } from "@/utils/errorHandler";
+import { IoMdClose } from "react-icons/io";
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -285,26 +284,59 @@ export default function CompanyRegisterModal({
     // 프론트 유효성 검사
     const newFieldErrors: FieldError[] = [];
 
-    if (!data.name?.trim()) {
-      newFieldErrors.push({ field: "name", value: data.name, reason: "회사명은 필수입니다." });
+    if (!data.name.trim()) {
+      newFieldErrors.push({
+        field: "name",
+        value: data.name,
+        reason: "업체명은 필수입니다.",
+      });
     }
     if (!data.ceoName?.trim()) {
-      newFieldErrors.push({ field: "ceoName", value: data.ceoName, reason: "대표자명은 필수입니다." });
+      newFieldErrors.push({
+        field: "ceoName",
+        value: data.ceoName,
+        reason: "대표자명은 필수입니다.",
+      });
     }
-    if (!data.bio?.trim()) {
-      newFieldErrors.push({ field: "bio", value: data.bio, reason: "회사 소개는 필수입니다." });
+    if (!data.bio.trim()) {
+      newFieldErrors.push({
+        field: "bio",
+        value: data.bio,
+        reason: "업체 소개는 필수입니다.",
+      });
     }
-    if (!/^\d{3}$/.test(data.reg1) || !/^\d{2}$/.test(data.reg2) || !/^\d{5}$/.test(data.reg3)) {
-      newFieldErrors.push({ field: "bizNo", value: bizNo, reason: "사업자등록번호 형식이 올바르지 않습니다." });
+    if (
+      !/^\d{3}$/.test(data.reg1) ||
+      !/^\d{2}$/.test(data.reg2) ||
+      !/^\d{5}$/.test(data.reg3)
+    ) {
+      newFieldErrors.push({
+        field: "bizNo",
+        value: bizNo,
+        reason: "사업자등록번호 형식이 올바르지 않습니다.",
+      });
     }
     if (!data.address?.trim()) {
-      newFieldErrors.push({ field: "address", value: data.address, reason: "주소는 필수입니다." });
+      newFieldErrors.push({
+        field: "address",
+        value: data.address,
+        reason: "주소는 필수입니다.",
+      });
     }
     if (!data.email?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
-      newFieldErrors.push({ field: "email", value: data.email, reason: "올바른 이메일 형식이 아닙니다." });
+      newFieldErrors.push({
+        field: "email",
+        value: data.email,
+        reason: "올바른 이메일 형식이 아닙니다.",
+      });
     }
     if (!cleanedTel || !/^\d{9,11}$/.test(cleanedTel)) {
-      newFieldErrors.push({ field: "tel", value: data.tel, reason: "전화번호는 9~11자리의 숫자로 입력하세요. 예: 021231234, 01012345678" });
+      newFieldErrors.push({
+        field: "tel",
+        value: data.tel,
+        reason:
+          "전화번호는 9~11자리의 숫자로 입력하세요. 예: 021231234, 01012345678",
+      });
     }
 
     if (newFieldErrors.length > 0) {
@@ -325,23 +357,25 @@ export default function CompanyRegisterModal({
 
     try {
       await api.post("/api/companies", requestBody);
-      showSuccessToast("회사 등록이 완료되었습니다!");
+      showSuccessToast("업체 등록이 완료되었습니다!");
       onRegisterSuccess?.();
       handleClose();
     } catch (err: any) {
       console.error(err);
-  
+
       if (axios.isAxiosError(err) && err.response?.data) {
         const errorData = err.response.data as ErrorResponse;
-  
+
         // 🔽 필드 에러가 있으면 세팅
         if (errorData?.data?.errors) {
           setFieldErrors(errorData.data.errors);
         } else {
-          setErrorMessage(errorData.message || "회사 등록 중 오류가 발생했습니다.");
+          setErrorMessage(
+            errorData.message || "업체 등록 중 오류가 발생했습니다."
+          );
         }
       } else {
-        setErrorMessage("예상치 못한 오류가 발생했습니다.");
+        setErrorMessage("업체 등록 중 오류가 발생했습니다.");
       }
     }
   };
@@ -354,7 +388,7 @@ export default function CompanyRegisterModal({
         </CloseButton>
         <Title>
           <FiPlus size={20} />
-          회사 등록
+          업체 등록
         </Title>
 
         {/* 성공 / 에러 메시지 표시 */}
@@ -365,9 +399,9 @@ export default function CompanyRegisterModal({
           <FormGroup>
             <Label>
               <FiHome size={14} />
-              회사명
+              업체명
             </Label>
-            <Input name="name" placeholder="회사명을 입력하세요" />
+            <Input name="name" placeholder="업체명을 입력하세요" />
             {fieldErrors.find((e) => e.field === "name") && (
               <p style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>
                 {fieldErrors.find((e) => e.field === "name")?.reason}
@@ -433,10 +467,7 @@ export default function CompanyRegisterModal({
               <FiUser size={14} />
               대표자명
             </Label>
-            <Input
-              name="ceoName"
-              placeholder="대표자명을 입력하세요"
-            />
+            <Input name="ceoName" placeholder="대표자명을 입력하세요" />
             {fieldErrors.find((e) => e.field === "ceoName") && (
               <p style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>
                 {fieldErrors.find((e) => e.field === "ceoName")?.reason}
@@ -479,7 +510,7 @@ export default function CompanyRegisterModal({
           <FormGroup>
             <Label>
               <FiFileText size={14} />
-              회사 소개
+              업체 소개
             </Label>
             <TextArea
               name="bio"

@@ -51,7 +51,7 @@ const MemberRegisterModal: React.FC<MemberRegisterModalProps> = ({
         const res = await api.get("/api/companies");
         setCompanies(res.data.data.content); // 응답 구조에 따라 조정
       } catch (error) {
-        console.error("회사 목록을 불러오는 데 실패했습니다", error);
+        console.error("업체 목록을 불러오는 데 실패했습니다", error);
       }
     };
     fetchCompanies();
@@ -133,7 +133,7 @@ const MemberRegisterModal: React.FC<MemberRegisterModalProps> = ({
                 <S.FormGroup />
               </S.FormRow>
 
-              {/* 회사 + 직책 */}
+              {/* 업체 + 직책 */}
               <S.FormRow>
                 <S.FormGroup>
                   <S.Label>

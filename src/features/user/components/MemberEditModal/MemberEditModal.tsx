@@ -92,7 +92,7 @@ export default function MemberEditModal({
         setCompanies(response.data.data.content);
       } catch (error) {
         console.error("Failed to fetch companies:", error);
-        alert("회사 목록을 불러오는 데 실패했습니다.");
+        alert("업체 목록을 불러오는 데 실패했습니다.");
       }
     };
     fetchCompanies();
@@ -127,7 +127,7 @@ export default function MemberEditModal({
 
     const isValidCompany = companies.some((c) => c.id === formData.companyId);
     if (!isValidCompany) {
-      alert("선택된 회사가 유효하지 않습니다.");
+      alert("선택된 업체가 유효하지 않습니다.");
       return;
     }
 
