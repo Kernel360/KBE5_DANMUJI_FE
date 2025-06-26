@@ -13,6 +13,7 @@ import {
   FiHome,
   FiFileText,
   FiLayers,
+  FiCheckSquare,
 } from "react-icons/fi";
 import { RiUserSettingsLine } from "react-icons/ri";
 import { FaProjectDiagram } from "react-icons/fa";
@@ -345,6 +346,8 @@ export default function ActivityLogDetailModal({
         return "문의";
       case "CHAT":
         return "채팅";
+      case "CHECK_LIST":
+        return "체크리스트";
       default:
         return domainType;
     }
@@ -925,6 +928,10 @@ export default function ActivityLogDetailModal({
         return <FiLayers size={14} style={{ color: "#6366f1" }} />;
       case "POST":
         return <FiFileText size={14} style={{ color: "#10b981" }} />;
+      case "INQUIRY":
+        return <FiMessageSquare size={14} style={{ color: "#06b6d4" }} />;
+      case "CHECK_LIST":
+        return <FiCheckSquare size={14} style={{ color: "#ec4899" }} />;
       default:
         return <FiUser size={14} style={{ color: "#6b7280" }} />;
     }

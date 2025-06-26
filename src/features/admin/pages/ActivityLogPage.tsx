@@ -49,6 +49,8 @@ import {
   FiChevronDown,
   FiLayers,
   FiGrid,
+  FiMessageSquare,
+  FiCheckSquare,
 } from "react-icons/fi";
 import { FaProjectDiagram } from "react-icons/fa";
 import { LuUserRoundCog } from "react-icons/lu";
@@ -67,7 +69,14 @@ interface ActivityLog {
   userName: string;
   userRole: string;
   action: string;
-  targetType: "POST" | "USER" | "PROJECT" | "COMPANY" | "STEP";
+  targetType:
+    | "POST"
+    | "USER"
+    | "PROJECT"
+    | "COMPANY"
+    | "STEP"
+    | "INQUIRY"
+    | "CHECK_LIST";
   targetName: string;
   details: string;
   ipAddress: string;
@@ -146,6 +155,18 @@ export default function ActivityLogPage() {
       color: "#6366f1",
     },
     { value: "POST", label: "게시글", icon: FiFileText, color: "#10b981" },
+    {
+      value: "INQUIRY",
+      label: "문의",
+      icon: FiMessageSquare,
+      color: "#06b6d4",
+    },
+    {
+      value: "CHECK_LIST",
+      label: "체크리스트",
+      icon: FiCheckSquare,
+      color: "#ec4899",
+    },
   ];
 
   // 드롭다운 외부 클릭 감지
@@ -258,6 +279,10 @@ export default function ActivityLogPage() {
         return <FiLayers style={{ color: "#6366f1" }} />;
       case "POST":
         return <FiFileText style={{ color: "#10b981" }} />;
+      case "INQUIRY":
+        return <FiMessageSquare style={{ color: "#06b6d4" }} />;
+      case "CHECK_LIST":
+        return <FiCheckSquare style={{ color: "#ec4899" }} />;
       default:
         return <FiGrid style={{ color: "#6b7280" }} />;
     }
@@ -515,7 +540,7 @@ export default function ActivityLogPage() {
   return (
     <PageContainer>
       <Header>
-        <Title>변경 이력</Title>
+        <Title>이력 관리</Title>
         <Description>
           사용자들의 사이트 활동 내역을 확인할 수 있습니다
         </Description>
