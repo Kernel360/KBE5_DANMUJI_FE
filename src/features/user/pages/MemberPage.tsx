@@ -862,7 +862,7 @@ export default function MemberPage() {
                       onClick={() => handleMemberClick(member)}
                     >
                       {member.position === "admin" ||
-                      member.position === "시스템관리자" ? (
+                      member.position === "시스템 관리자" ? (
                         <LuUserRoundCog
                           size={14}
                           style={{ color: "#8b5cf6" }}
@@ -873,7 +873,9 @@ export default function MemberPage() {
                           style={{ color: "#3b82f6" }}
                         />
                       ) : member.position === "developer" ||
-                        member.position === "개발자" ? (
+                        member.position === "개발자" ||
+                        member.position === "백엔드 개발자" ||
+                        member.position === "프론트엔드 개발자" ? (
                         <FiUser size={14} style={{ color: "#3b82f6" }} />
                       ) : member.position === "client" ||
                         member.position === "고객" ? (
@@ -887,10 +889,13 @@ export default function MemberPage() {
                       </span>
                       <span style={{ fontSize: "12px", color: "#6b7280" }}>
                         (
-                        {member.position === "admin"
+                        {member.position === "admin" ||
+                        member.position === "시스템 관리자"
                           ? "관리자"
                           : member.position === "developer" ||
-                            member.position === "개발자"
+                            member.position === "개발자" ||
+                            member.position === "백엔드 개발자" ||
+                            member.position === "프론트엔드 개발자"
                           ? "개발사 직원"
                           : member.position === "client" ||
                             member.position === "고객"
@@ -930,7 +935,7 @@ export default function MemberPage() {
                       onClick={() => handleMemberClick(member)}
                     >
                       {member.position === "admin" ||
-                      member.position === "시스템관리자" ? (
+                      member.position === "시스템 관리자" ? (
                         <LuUserRoundCog
                           size={14}
                           style={{ color: "#8b5cf6" }}
@@ -941,7 +946,9 @@ export default function MemberPage() {
                           style={{ color: "#3b82f6" }}
                         />
                       ) : member.position === "developer" ||
-                        member.position === "개발자" ? (
+                        member.position === "개발자" ||
+                        member.position === "백엔드 개발자" ||
+                        member.position === "프론트엔드 개발자" ? (
                         <FiUser size={14} style={{ color: "#3b82f6" }} />
                       ) : member.position === "client" ||
                         member.position === "고객" ? (
