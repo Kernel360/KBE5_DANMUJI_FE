@@ -2,6 +2,14 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { searchUsernames } from "@/features/user/services/userService";
 
+// UserSummaryResponse 타입을 직접 정의
+interface UserSummaryResponse {
+  id: number;
+  username: string;
+  name: string;
+  role: string;
+}
+
 interface MentionState {
   isActive: boolean;
   query: string;
@@ -41,8 +49,10 @@ export const useMention = () => {
         // API 응답이 유효한지 확인하고 안전하게 처리
         const userData = response?.data;
         if (userData && Array.isArray(userData)) {
-          // UserInfo 객체 배열에서 username만 추출하여 문자열 배열로 변환
-          const usernames = userData.map((user) => user.username);
+          // UserSummaryResponse 객체 배열에서 username만 추출하여 문자열 배열로 변환
+          const usernames = userData.map(
+            (user: UserSummaryResponse) => user.username
+          );
 
           setMentionState((prev) => ({
             ...prev,

@@ -1,6 +1,14 @@
 import { useState, useCallback } from "react";
 import { searchUsernames } from "@/features/user/services/userService";
 
+// UserSummaryResponse 타입을 직접 정의
+interface UserSummaryResponse {
+  id: number;
+  username: string;
+  name: string;
+  role: string;
+}
+
 interface UserProfileState {
   isOpen: boolean;
   username: string;
@@ -36,11 +44,13 @@ export const useUserProfile = () => {
       let isAdmin = false;
 
       try {
-        const response = await searchUsernames(username);
+        // projectId가 필요하므로 현재 URL에서 가져오거나 기본값 사용
+        const currentProjectId = 1; // 기본값 또는 URL에서 추출
+        const response = await searchUsernames(username, currentProjectId);
         if (response.data && response.data.length > 0) {
           // 정확한 사용자명 매칭을 위해 필터링
           const exactMatch = response.data.find(
-            (user) => user.username === username
+            (user: UserSummaryResponse) => user.username === username
           );
           const userInfo = exactMatch || response.data[0]; // 정확한 매칭이 없으면 첫 번째 결과 사용
 
