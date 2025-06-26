@@ -313,7 +313,7 @@ export default function ActivityLogDetailModal({
       case "USER":
         return "회원";
       case "COMPANY":
-        return "회사";
+        return "업체";
       case "PROJECT":
         return "프로젝트";
       case "PROJECT_STEP":
@@ -604,7 +604,7 @@ export default function ActivityLogDetailModal({
       bio: "소개",
 
       // 회사 관련 필드
-      companyName: "회사명",
+      companyName: "업체명",
       ceoName: "대표자명",
       bizNo: "사업자번호",
       address: "주소",

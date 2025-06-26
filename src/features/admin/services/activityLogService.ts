@@ -128,7 +128,7 @@ export const transformHistoryToActivityLog = (
       case "USER":
         return "회원";
       case "COMPANY":
-        return "회사";
+        return "업체";
       case "PROJECT":
         return "프로젝트";
       case "STEP":

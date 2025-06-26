@@ -132,7 +132,7 @@ export default function ActivityLogPage() {
   const LOG_TYPE_OPTIONS = [
     { value: "ALL", label: "전체", icon: FiGrid, color: "#6b7280" },
     { value: "USER", label: "회원", icon: FiUser, color: "#8b5cf6" },
-    { value: "COMPANY", label: "회사", icon: FiHome, color: "#f59e0b" },
+    { value: "COMPANY", label: "업체", icon: FiHome, color: "#f59e0b" },
     {
       value: "PROJECT",
       label: "프로젝트",
