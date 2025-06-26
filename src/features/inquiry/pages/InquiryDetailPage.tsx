@@ -218,11 +218,32 @@ export default function InquiryDetailPage() {
     setIsEditing(!isEditing);
   };
 
-  const handleSaveChanges = () => {
-    console.log("Saving changes:", { title: editedTitle, content: editedContent });
-    // API call to update inquiry
+  // 문의사항 수정 저장
+  const handleSaveChanges = async () => {
+    try {
+      await api.put(`/api/inquiries/${inquiryId}/user`, {
+        title: editedTitle,
+        content: editedContent,
+      });
+      setIsEditing(false);
+      // 저장 후 상세 정보 갱신
+      if (inquiryId) {
+        const res = await api.get(`/api/inquiries/${inquiryId}`);
+        const data = res.data.data;
+        setInquiry(data);
+        setEditedTitle(data.title);
+        setEditedContent(data.content);
+      }
+    } catch {
+      alert("문의사항 수정에 실패했습니다.");
+    }
+  };
+
+  // 문의사항 수정 취소
+  const handleCancelEdit = () => {
     setIsEditing(false);
-    // setInquiry(prev => ({...prev, title: editedTitle, content: editedContent}));
+    setEditedTitle(inquiry?.title || "");
+    setEditedContent(inquiry?.content || "");
   };
   
   // 답변 등록 핸들러
@@ -243,7 +264,7 @@ export default function InquiryDetailPage() {
     }
   };
 
-  // 답변 작성 textarea에서 엔터키로 등록
+  // 문의사항 수정 취소
   const handleAnswerKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -262,6 +283,23 @@ export default function InquiryDetailPage() {
     }, 100);
   };
   
+  // 답변 완료 처리 (관리자만)
+  const handleCompleteInquiry = async () => {
+    try {
+      await api.put(`/api/inquiries/${inquiryId}/admin`, { status: 'ANSWERED' });
+      // 완료 후 상세 정보 갱신
+      if (inquiryId) {
+        const res = await api.get(`/api/inquiries/${inquiryId}`);
+        const data = res.data.data;
+        setInquiry(data);
+        setEditedTitle(data.title);
+        setEditedContent(data.content);
+      }
+    } catch {
+      alert('답변 완료 처리에 실패했습니다.');
+    }
+  };
+
   if (!inquiry) {
     return <PageContainer>문의사항을 찾을 수 없습니다.</PageContainer>;
   }
@@ -306,16 +344,22 @@ export default function InquiryDetailPage() {
         </HeaderInfo>
         <HeaderActions>
           {isEditing ? (
-            <ActionButton variant="primary" onClick={handleSaveChanges}>저장하기</ActionButton>
+            <>
+              <ActionButton variant="primary" onClick={handleSaveChanges}>저장하기</ActionButton>
+              <ActionButton variant="default" onClick={handleCancelEdit}>취소</ActionButton>
+            </>
           ) : (
             <>
               {isAdmin && isWaiting && (
-                <ActionButton variant="primary">답변 완료하기</ActionButton>
+                <ActionButton variant="primary" onClick={handleCompleteInquiry}>답변 완료하기</ActionButton>
               )}
-              <ActionButton variant="default" onClick={handleEditToggle}>
-                <FiEdit />
-                문의사항 수정
-              </ActionButton>
+              {/* 일반 사용자만 수정 버튼 노출 */}
+              {!isAdmin && (
+                <ActionButton variant="default" onClick={handleEditToggle}>
+                  <FiEdit />
+                  문의사항 수정
+                </ActionButton>
+              )}
               <ActionButton variant="danger">
                 <FiTrash2 />
                 문의사항 삭제
@@ -348,6 +392,16 @@ export default function InquiryDetailPage() {
                     <span>{answer.authorName}</span>
                     <span>{formatDate(answer.createdAt)}</span>
                   </AnswerMeta>
+                  {isAdmin && (
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <ActionButton variant="default" style={{ padding: '6px 10px', fontSize: '13px' }}>
+                        <FiEdit /> 수정
+                      </ActionButton>
+                      <ActionButton variant="danger" style={{ padding: '6px 10px', fontSize: '13px' }}>
+                        <FiTrash2 /> 삭제
+                      </ActionButton>
+                    </div>
+                  )}
                 </AnswerHeader>
                 <AnswerContent>{answer.content}</AnswerContent>
               </AnswerItem>
