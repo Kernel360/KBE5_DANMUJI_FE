@@ -56,9 +56,10 @@ const PageTitle = styled.h1`
 `;
 
 const PageSubtitle = styled.p`
-  color: #6b7280;
-  font-size: 14px;
-  padding-left: 16px;
+  color: #bdbdbd;
+  font-size: 0.9rem;
+  margin-top: 6.6px;
+  margin-bottom: 18px;
 `;
 
 const MainContentArea = styled.div`
@@ -338,7 +339,9 @@ const MemberDetailPage: React.FC = () => {
       )}
       <PageHeaderSection>
         <PageTitle>회원 상세 정보</PageTitle>
-        <PageSubtitle>해당 회원의 상세 정보를 한 눈에 확인하세요</PageSubtitle>
+        <PageSubtitle>
+          프로젝트 관리 시스템의 회원 정보를 한눈에 확인하세요
+        </PageSubtitle>
       </PageHeaderSection>
 
       <MainContentArea>
