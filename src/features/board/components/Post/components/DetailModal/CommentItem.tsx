@@ -152,19 +152,23 @@ const CommentItem: React.FC<CommentItemProps> = ({
             </div>
           </div>
         ) : (
-          comment.content
-            .split(/(@\S+)/g)
-            .map((part, idx) =>
-              part.startsWith("@") ? (
-                <ClickableMentionedUsername
-                  key={idx}
-                  username={part.substring(1)}
-                  onClick={onUserProfileClick}
-                />
-              ) : (
-                <span key={idx}>{part}</span>
-              )
+          comment.content.split(/(@\S+)/g).map((part, idx) =>
+            part.startsWith("@") ? (
+              <span
+                key={idx}
+                style={{
+                  color: "#fdb924",
+                  fontWeight: "500",
+                  cursor: "pointer",
+                }}
+                onClick={(e) => onUserProfileClick(e, part.substring(1))}
+              >
+                {part}
+              </span>
+            ) : (
+              <span key={idx}>{part}</span>
             )
+          )
         )}
       </CommentText>
     </StyledCommentItem>

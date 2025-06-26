@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import styled from "styled-components";
 import { useMention } from "@/hooks/useMention";
 import MentionSuggestions from "./MentionSuggestions";
@@ -16,6 +16,7 @@ interface MentionTextAreaProps {
 const TextAreaContainer = styled.div`
   position: relative;
   width: 100%;
+  z-index: 1;
 `;
 
 const StyledTextArea = styled.textarea`
@@ -26,9 +27,12 @@ const StyledTextArea = styled.textarea`
   font-size: 0.875rem;
   background-color: white;
   color: #374151;
+  caret-color: #374151;
   resize: vertical;
   font-family: inherit;
   line-height: 1.5;
+  position: relative;
+  z-index: 2;
 
   &:focus {
     outline: none;
@@ -100,6 +104,16 @@ const MentionTextArea: React.FC<MentionTextAreaProps> = ({
     return { top, left };
   };
 
+  // mentionState가 변경될 때마다 위치 업데이트
+  useEffect(() => {
+    if (mentionState.isActive) {
+      const position = calculateCursorPosition();
+      setSuggestionPosition(position);
+    } else {
+      setSuggestionPosition(null);
+    }
+  }, [mentionState.isActive, mentionState.suggestions, value]);
+
   // 입력 변경 처리
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
@@ -107,14 +121,6 @@ const MentionTextArea: React.FC<MentionTextAreaProps> = ({
 
     // @ 검색 처리
     handleInputChange(newValue, e.target.selectionStart);
-
-    // 제안 위치 업데이트
-    if (mentionState.isActive) {
-      const position = calculateCursorPosition();
-      setSuggestionPosition(position);
-    } else {
-      setSuggestionPosition(null);
-    }
   };
 
   // 제안 선택 처리
@@ -220,7 +226,6 @@ const MentionTextArea: React.FC<MentionTextAreaProps> = ({
         className={className}
         style={style}
       />
-
       <MentionSuggestions
         suggestions={mentionState.suggestions}
         selectedIndex={mentionState.selectedIndex}

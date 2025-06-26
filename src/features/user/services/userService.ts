@@ -54,7 +54,8 @@ export interface UserInfo {
 
 // 사용자명 검색
 export const searchUsernames = async (
-  username: string
+  username: string,
+  projectId: number
 ): Promise<ApiResponse<UserInfo[]>> => {
   try {
     const response = await api.get<ApiResponse<UserInfo[]>>(
@@ -62,6 +63,7 @@ export const searchUsernames = async (
       {
         params: {
           username,
+          projectId,
         },
       }
     );

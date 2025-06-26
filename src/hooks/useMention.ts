@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useParams } from "react-router-dom";
 import { searchUsernames } from "@/features/user/services/userService";
 
 interface MentionState {
@@ -11,6 +12,7 @@ interface MentionState {
 }
 
 export const useMention = () => {
+  const { projectId } = useParams<{ projectId: string }>();
   const [mentionState, setMentionState] = useState<MentionState>({
     isActive: false,
     query: "",
@@ -24,42 +26,52 @@ export const useMention = () => {
   const debounceRef = useRef<NodeJS.Timeout>();
 
   // @ 검색 로직
-  const searchMentions = useCallback(async (query: string) => {
-    setIsLoading(true);
-    try {
-      // 빈 쿼리일 때도 API 호출 (모든 사용자 가져오기)
-      const response = await searchUsernames(query);
-      // API 응답이 유효한지 확인하고 안전하게 처리
-      const userData = response?.data;
-      if (userData && Array.isArray(userData)) {
-        // UserInfo 객체 배열에서 username만 추출하여 문자열 배열로 변환
-        const usernames = userData.map((user) => user.username);
-        setMentionState((prev) => ({
-          ...prev,
-          suggestions: usernames,
-          isActive: usernames.length > 0,
-          selectedIndex: 0,
-        }));
-      } else {
-        // 유효하지 않은 응답인 경우 빈 배열로 설정
+  const searchMentions = useCallback(
+    async (query: string) => {
+      if (!projectId) {
+        console.warn("projectId가 없어서 멘션 검색을 건너뜁니다.");
+        return;
+      }
+
+      setIsLoading(true);
+      try {
+        // 빈 쿼리일 때도 API 호출 (모든 사용자 가져오기)
+        const response = await searchUsernames(query, parseInt(projectId));
+
+        // API 응답이 유효한지 확인하고 안전하게 처리
+        const userData = response?.data;
+        if (userData && Array.isArray(userData)) {
+          // UserInfo 객체 배열에서 username만 추출하여 문자열 배열로 변환
+          const usernames = userData.map((user) => user.username);
+
+          setMentionState((prev) => ({
+            ...prev,
+            suggestions: usernames,
+            isActive: usernames.length > 0,
+            selectedIndex: 0,
+          }));
+        } else {
+          // 유효하지 않은 응답인 경우 빈 배열로 설정
+          setMentionState((prev) => ({
+            ...prev,
+            suggestions: [],
+            isActive: false,
+          }));
+        }
+      } catch (error) {
+        console.error("Mention search failed:", error);
+        // 에러가 발생해도 빈 배열로 설정하여 UI가 깨지지 않도록 함
         setMentionState((prev) => ({
           ...prev,
           suggestions: [],
           isActive: false,
         }));
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error("Mention search failed:", error);
-      // 에러가 발생해도 빈 배열로 설정하여 UI가 깨지지 않도록 함
-      setMentionState((prev) => ({
-        ...prev,
-        suggestions: [],
-        isActive: false,
-      }));
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+    },
+    [projectId]
+  );
 
   // 디바운스된 검색
   const debouncedSearch = useCallback(
@@ -104,7 +116,7 @@ export const useMention = () => {
         setMentionState((prev) => ({ ...prev, isActive: false }));
       }
     },
-    [searchMentions]
+    [searchMentions, mentionState.isActive]
   );
 
   // 제안 목록에서 선택
