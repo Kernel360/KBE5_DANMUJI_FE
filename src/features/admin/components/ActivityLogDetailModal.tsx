@@ -414,7 +414,11 @@ export default function ActivityLogDetailModal({
                     !key.startsWith("_") &&
                     key !== "delete" &&
                     key !== "deletedAt" &&
-                    key !== "updatedAt"
+                    key !== "updatedAt" &&
+                    key !== "password" &&
+                    key !== "confirmPassword" &&
+                    key !== "oldPassword" &&
+                    key !== "newPassword"
                 )
                 .map(([key, value]) => (
                   <DataRow key={key}>
@@ -448,7 +452,11 @@ export default function ActivityLogDetailModal({
                     !key.startsWith("_") &&
                     key !== "delete" &&
                     key !== "deletedAt" &&
-                    key !== "updatedAt"
+                    key !== "updatedAt" &&
+                    key !== "password" &&
+                    key !== "confirmPassword" &&
+                    key !== "oldPassword" &&
+                    key !== "newPassword"
                 )
                 .map(([key, value]) => (
                   <DataRow key={key}>
@@ -479,7 +487,11 @@ export default function ActivityLogDetailModal({
           key.startsWith("_") ||
           key === "delete" ||
           key === "deletedAt" ||
-          key === "updatedAt"
+          key === "updatedAt" ||
+          key === "password" ||
+          key === "confirmPassword" ||
+          key === "oldPassword" ||
+          key === "newPassword"
         );
       });
 
