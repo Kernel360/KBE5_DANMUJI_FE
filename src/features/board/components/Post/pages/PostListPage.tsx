@@ -132,7 +132,6 @@ const getPriorityStyle = (priority: number) => {
 };
 
 export default function PostListPage() {
-  const { stepId } = useParams();
   const [searchParams] = useSearchParams();
   const stepName = searchParams.get("stepName") || "알 수 없는 단계";
   const [posts, setPosts] = useState<Post[]>([]);
@@ -547,7 +546,9 @@ export default function PostListPage() {
           <FilterGroup>
             <FilterLabel>단계</FilterLabel>
             <FilterSelect
-              value={stepFilter ?? ""}
+              value={
+                stepFilter !== null ? stepFilter : projectSteps[0]?.id || ""
+              }
               onChange={(e) => setStepFilter(Number(e.target.value))}
               style={{ minWidth: 120 }}
             >

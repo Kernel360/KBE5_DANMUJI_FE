@@ -344,6 +344,18 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
       const response = await getProjectDetail(projectId);
       if (response.data) {
         setProjectSteps(response.data.steps);
+        // 진행중(IN_PROGRESS) 단계가 있으면 id가 가장 작은 단계로 stepFilter 설정
+        const inProgressSteps = response.data.steps.filter(
+          (s) => s.projectStepStatus === "IN_PROGRESS"
+        );
+        if (inProgressSteps.length > 0) {
+          const minIdStep = inProgressSteps.reduce((prev, curr) =>
+            prev.id < curr.id ? prev : curr
+          );
+          setStepFilter(minIdStep.id);
+        } else {
+          setStepFilter("ALL");
+        }
       }
     } catch (err) {
       console.error("프로젝트 단계 정보 불러오기 실패:", err);
@@ -1013,7 +1025,27 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
             >
               <DropdownButton
                 $active={stepFilter !== "ALL"}
-                $color={stepFilter === "ALL" ? "#6b7280" : "#10b981"}
+                $color={
+                  stepFilter === "ALL"
+                    ? "#6b7280"
+                    : (() => {
+                        const selectedStep = projectSteps.find(
+                          (step) => step.id === stepFilter
+                        );
+                        if (!selectedStep) return "#6b7280";
+
+                        switch (selectedStep.projectStepStatus) {
+                          case "IN_PROGRESS":
+                            return "#fdb924"; // 진행중 - 주황색
+                          case "COMPLETED":
+                            return "#10b981"; // 완료 - 초록색
+                          case "PENDING":
+                            return "#6b7280"; // 대기 - 회색
+                          default:
+                            return "#6b7280"; // 기본 - 회색
+                        }
+                      })()
+                }
                 $isOpen={isStepDropdownOpen}
                 onClick={handleStepDropdownToggle}
               >
