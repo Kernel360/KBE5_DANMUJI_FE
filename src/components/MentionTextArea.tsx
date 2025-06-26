@@ -134,7 +134,10 @@ const MentionTextArea: React.FC<MentionTextAreaProps> = ({
       mentionState.endIndex
     );
 
-    onChange(newText);
+    // 멘션 선택 후 자동으로 스페이스바 공백 추가
+    const textWithSpace = newText + " ";
+
+    onChange(textWithSpace);
 
     // 멘션 상태 즉시 리셋
     setMentionState((prev) => ({
@@ -147,7 +150,7 @@ const MentionTextArea: React.FC<MentionTextAreaProps> = ({
     // 커서 위치 조정 - @username 뒤에 위치하도록
     setTimeout(() => {
       if (textareaRef.current) {
-        const newCursorPosition = mentionState.startIndex + username.length + 1; // @ 포함
+        const newCursorPosition = mentionState.startIndex + username.length + 2; // @ + username + space
         textareaRef.current.setSelectionRange(
           newCursorPosition,
           newCursorPosition
