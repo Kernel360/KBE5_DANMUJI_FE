@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { searchUsernames } from "@/features/user/services/userService";
 
 // UserSummaryResponse 타입을 직접 정의
@@ -19,6 +20,7 @@ interface UserProfileState {
 }
 
 export const useUserProfile = () => {
+  const navigate = useNavigate();
   const [profileState, setProfileState] = useState<UserProfileState>({
     isOpen: false,
     username: "",
@@ -95,11 +97,13 @@ export const useUserProfile = () => {
     }));
   }, []);
 
-  const handleViewProfile = useCallback((userId: number) => {
-    // 프로필 보기 로직 구현
-    console.log("프로필 보기:", userId);
-    // 예: navigate(`/user/${userId}`);
-  }, []);
+  const handleViewProfile = useCallback(
+    (userId: number) => {
+      // 프로필 보기 페이지로 이동
+      navigate("/my");
+    },
+    [navigate]
+  );
 
   const handleSendMessage = useCallback((userId: number) => {
     // 쪽지 보내기 로직 구현
