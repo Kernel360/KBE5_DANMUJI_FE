@@ -268,6 +268,23 @@ export default function ActivityLogDetailModal({
     }
   }, [isOpen, historyId]);
 
+  // ESC 키 이벤트 처리
+  useEffect(() => {
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && isOpen) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("keydown", handleEscapeKey);
+    }
+
+    return () => {
+      document.removeEventListener("keydown", handleEscapeKey);
+    };
+  }, [isOpen, onClose]);
+
   const fetchDetail = async () => {
     setLoading(true);
     setError(null);
