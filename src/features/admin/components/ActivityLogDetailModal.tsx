@@ -83,6 +83,14 @@ const ModalTitle = styled.h2`
   }
 `;
 
+const ModalSubtitle = styled.div`
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-top: 4px;
+  padding-left: 16px;
+  font-weight: 500;
+`;
+
 const CloseButton = styled.button`
   background: none;
   border: none;
@@ -1046,7 +1054,10 @@ export default function ActivityLogDetailModal({
     <ModalOverlay isOpen={isOpen} onClick={onClose}>
       <ModalContent onClick={(e) => e.stopPropagation()}>
         <ModalHeader>
-          <ModalTitle>이력 상세 정보</ModalTitle>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <ModalTitle>이력 상세 정보</ModalTitle>
+            {detail && <ModalSubtitle>ID: {detail.id}</ModalSubtitle>}
+          </div>
           <CloseButton onClick={onClose}>
             <FiX />
           </CloseButton>
@@ -1082,10 +1093,6 @@ export default function ActivityLogDetailModal({
                 <InfoItem>
                   <InfoLabel>대상 ID</InfoLabel>
                   <InfoValue>{detail.domainId}</InfoValue>
-                </InfoItem>
-                <InfoItem>
-                  <InfoLabel>이력 ID</InfoLabel>
-                  <InfoValue>{detail.id}</InfoValue>
                 </InfoItem>
               </InfoGrid>
             </ContentSection>
