@@ -51,7 +51,7 @@ const ProjectProgress: React.FC<ProjectProgressProps> = ({
       case "IN_PROGRESS":
         return "진행중";
       case "PENDING":
-        return "대기";
+        return "";
       default:
         return status;
     }
@@ -90,13 +90,6 @@ const ProjectProgress: React.FC<ProjectProgressProps> = ({
                 active={isActive || isSelected}
                 complete={isComplete}
                 selected={isSelected}
-                onClick={() => handleStepClick(step.id)}
-                style={{
-                  cursor: onStepSelect ? "pointer" : "default",
-                  border: "none",
-                  background: "transparent",
-                  boxShadow: "none",
-                }}
               >
                 <StepIcon active={isActive || isSelected} complete={isComplete}>
                   <Icon size={18} />

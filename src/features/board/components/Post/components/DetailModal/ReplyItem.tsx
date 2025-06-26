@@ -71,11 +71,23 @@ const ReplyItem: React.FC<ReplyItemProps> = ({
       <CommentMeta>
         <CommentAuthor>
           <ClickableUsername
-            username={reply.author?.name || reply.authorName || "undefined"}
+            username={reply.authorName || reply.author?.name || "undefined"}
             userId={reply.author?.id || reply.authorId}
             onClick={onUserProfileClick}
             style={{ color: "#111827" }}
           />
+          {reply.authorUsername && (
+            <span
+              style={{
+                fontSize: 11,
+                color: "#6b7280",
+                marginLeft: -3,
+                fontWeight: 400,
+              }}
+            >
+              ({reply.authorUsername})
+            </span>
+          )}
           <span
             style={{
               fontSize: 11,
@@ -165,19 +177,23 @@ const ReplyItem: React.FC<ReplyItemProps> = ({
             </div>
           </div>
         ) : (
-          reply.content
-            .split(/(@\S+)/g)
-            .map((part, idx) =>
-              part.startsWith("@") ? (
-                <ClickableMentionedUsername
-                  key={idx}
-                  username={part.substring(1)}
-                  onClick={onUserProfileClick}
-                />
-              ) : (
-                <span key={idx}>{part}</span>
-              )
+          reply.content.split(/(@\S+)/g).map((part, idx) =>
+            part.startsWith("@") ? (
+              <span
+                key={idx}
+                style={{
+                  color: "#fdb924",
+                  fontWeight: "500",
+                  cursor: "pointer",
+                }}
+                onClick={(e) => onUserProfileClick(e, part.substring(1))}
+              >
+                {part}
+              </span>
+            ) : (
+              <span key={idx}>{part}</span>
             )
+          )
         )}
       </CommentText>
     </StyledCommentItem>

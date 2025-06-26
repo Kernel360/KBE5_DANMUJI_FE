@@ -638,6 +638,9 @@ export default function ActivityLogDetailModal({
       projectId: "프로젝트 ID",
       projectStepId: "프로젝트 단계 ID",
       files: "첨부파일",
+      links: "첨부 링크",
+      newLinks: "새로 추가된 링크",
+      linkIdsToDelete: "삭제된 링크 ID",
 
       // 프로젝트 관련 필드
       projectName: "프로젝트명",
@@ -802,6 +805,30 @@ export default function ActivityLogDetailModal({
         if (value.length === 0) {
           return "-";
         }
+
+        // 링크 배열 처리
+        if (fieldName === "links" || fieldName === "newLinks") {
+          if (value.length === 0) return "-";
+
+          // 링크 객체 배열인 경우 (기존 링크)
+          if (value[0] && typeof value[0] === "object" && "url" in value[0]) {
+            return value.map((link: any) => link.url).join(", ");
+          }
+
+          // 문자열 배열인 경우 (새 링크)
+          if (typeof value[0] === "string") {
+            return value.join(", ");
+          }
+
+          return value.join(", ");
+        }
+
+        // 링크 ID 배열 처리 (삭제된 링크)
+        if (fieldName === "linkIdsToDelete") {
+          if (value.length === 0) return "-";
+          return value.join(", ");
+        }
+
         // 배열의 첫 번째 파일 객체에서 fileName 추출
         const firstFile = value[0];
         if (
@@ -818,6 +845,12 @@ export default function ActivityLogDetailModal({
       if ("fileName" in value) {
         return (value as any).fileName || "-";
       }
+
+      // 단일 링크 객체 처리
+      if ("url" in value) {
+        return (value as any).url || "-";
+      }
+
       // 다른 객체 타입의 경우 JSON 문자열로 변환하지 않고 "-" 반환
       return "-";
     }

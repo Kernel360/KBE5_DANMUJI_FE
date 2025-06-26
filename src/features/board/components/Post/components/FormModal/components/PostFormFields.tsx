@@ -133,7 +133,7 @@ const PostFormFields: React.FC<PostFormFieldsProps> = ({
             name="content"
             value={formData.content}
             onChange={handleContentChange}
-            placeholder="게시글 내용을 입력하세요. @를 입력하여 사용자를 언급할 수 있습니다. (크기 조절 가능)"
+            placeholder="게시글 내용을 입력하세요. @를 입력하여 사용자를 언급할 수 있습니다."
             rows={8}
           />
           <ResizeGuide>

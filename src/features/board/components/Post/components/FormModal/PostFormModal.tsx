@@ -57,6 +57,7 @@ import {
   showSuccessToast,
   withErrorHandling,
 } from "@/utils/errorHandler";
+import LinkInputSection from "./components/LinkInputSection";
 
 interface PostFormModalProps {
   open: boolean;
@@ -101,6 +102,13 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
   // 기존 파일 관련 상태 (수정 모드용)
   const [existingFiles, setExistingFiles] = useState<PostFile[]>([]);
   const [deletedFileIds, setDeletedFileIds] = useState<number[]>([]);
+
+  // 링크 관련 상태
+  const [existingLinks, setExistingLinks] = useState<
+    { id: number; url: string }[]
+  >([]);
+  const [newLinks, setNewLinks] = useState<string[]>([]);
+  const [deletedLinkIds, setDeletedLinkIds] = useState<number[]>([]);
 
   // 드롭다운 상태
   const [isTypeDropdownOpen, setIsTypeDropdownOpen] = useState(false);
@@ -183,6 +191,10 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
             // 기존 파일 정보 설정
             setExistingFiles(post.files || []);
             setDeletedFileIds([]);
+            // 기존 링크 정보 설정
+            setExistingLinks(post.links || []);
+            setNewLinks([]);
+            setDeletedLinkIds([]);
           }
           return response;
         }, "게시글을 불러오는데 실패했습니다.");
@@ -242,6 +254,10 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
       // 생성 모드에서는 기존 파일 초기화
       setExistingFiles([]);
       setDeletedFileIds([]);
+      // 생성 모드에서는 기존 링크 초기화
+      setExistingLinks([]);
+      setNewLinks([]);
+      setDeletedLinkIds([]);
     }
   }, [open, mode, postId, parentId, stepId, projectId]);
 
@@ -347,6 +363,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
         const requestData = {
           ...formData,
           ...(parentId && { parentId }),
+          ...(newLinks.length > 0 && { newLinks }),
         };
 
         const response = await createPost(requestData, files);
@@ -355,6 +372,9 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
           setFiles([]);
           setExistingFiles([]);
           setDeletedFileIds([]);
+          setExistingLinks([]);
+          setNewLinks([]);
+          setDeletedLinkIds([]);
           setIsDragOver(false);
           showSuccessToast("게시글이 성공적으로 생성되었습니다.");
           onSuccess?.();
@@ -373,6 +393,8 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
           priority: formData.priority,
           stepId: formData.stepId,
           ...(deletedFileIds.length > 0 && { fileIdsToDelete: deletedFileIds }),
+          ...(deletedLinkIds.length > 0 && { linkIdsToDelete: deletedLinkIds }),
+          ...(newLinks.length > 0 && { newLinks }),
         };
 
         // 수정 전 기존 게시글 정보 저장 (단계 변경 확인용)
@@ -385,6 +407,9 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
           setFiles([]);
           setExistingFiles([]);
           setDeletedFileIds([]);
+          setExistingLinks([]);
+          setNewLinks([]);
+          setDeletedLinkIds([]);
           setIsDragOver(false);
 
           // 단계가 변경된 경우 특별한 메시지 표시
@@ -437,6 +462,9 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
     setFiles([]);
     setExistingFiles([]);
     setDeletedFileIds([]);
+    setExistingLinks([]);
+    setNewLinks([]);
+    setDeletedLinkIds([]);
     setFormErrors({});
     setError(null);
     onClose();
@@ -510,7 +538,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
       case "COMPLETED":
         return "완료";
       case "PENDING":
-        return "대기";
+        return "";
       default:
         return status;
     }
@@ -920,6 +948,16 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
                     handleFileRemove={handleFileRemove}
                     handleExistingFileRemove={handleExistingFileRemove}
                     colorTheme={colorTheme}
+                  />
+
+                  <LinkInputSection
+                    mode={mode}
+                    existingLinks={existingLinks}
+                    setExistingLinks={setExistingLinks}
+                    newLinks={newLinks}
+                    setNewLinks={setNewLinks}
+                    deletedLinkIds={deletedLinkIds}
+                    setDeletedLinkIds={setDeletedLinkIds}
                   />
 
                   {error && <ErrorMessage>{error}</ErrorMessage>}

@@ -335,22 +335,14 @@ export default function ProjectDetailPage() {
                 const isActive =
                   selectedStepId === step.id ||
                   step.projectStepStatus === "IN_PROGRESS";
-                const isWaiting = !isDone && !isActive;
+
                 return (
-                  <button
+                  <div
                     key={step.id}
-                    type="button"
                     aria-label={
                       step.name +
                       (isDone ? " 완료" : isActive ? " 진행중" : " 대기")
                     }
-                    onClick={() => {
-                      navigate(
-                        `/posts/${step.id}?stepName=${encodeURIComponent(
-                          step.name
-                        )}`
-                      );
-                    }}
                     style={{
                       display: "flex",
                       flexDirection: "column",
@@ -359,42 +351,10 @@ export default function ProjectDetailPage() {
                       minWidth: 70,
                       background: "none",
                       border: "none",
-                      cursor: "pointer",
+                      cursor: "not-allowed",
                       outline: "none",
                       padding: 0,
                       margin: 0,
-                    }}
-                    onMouseOver={(e) => {
-                      if (!isDone && !isActive) {
-                        (
-                          e.currentTarget.children[0] as HTMLElement
-                        ).style.background = "#f9fafb";
-                        (
-                          e.currentTarget.children[0] as HTMLElement
-                        ).style.border = "1.5px solid #fdb924";
-                        (
-                          e.currentTarget.children[1] as HTMLElement
-                        ).style.color = "#fdb924";
-                        (
-                          e.currentTarget.children[2] as HTMLElement
-                        ).style.color = "#fdb924";
-                      }
-                    }}
-                    onMouseOut={(e) => {
-                      if (!isDone && !isActive) {
-                        (
-                          e.currentTarget.children[0] as HTMLElement
-                        ).style.background = "#f5f5f5";
-                        (
-                          e.currentTarget.children[0] as HTMLElement
-                        ).style.border = "1.5px solid #e5e7eb";
-                        (
-                          e.currentTarget.children[1] as HTMLElement
-                        ).style.color = "#888";
-                        (
-                          e.currentTarget.children[2] as HTMLElement
-                        ).style.color = "#888";
-                      }
                     }}
                   >
                     <div
@@ -479,9 +439,9 @@ export default function ProjectDetailPage() {
                         transition: "color 0.2s",
                       }}
                     >
-                      {isDone ? "완료" : isActive ? "진행중" : "대기"}
+                      {isDone ? "완료" : isActive ? "진행중" : ""}
                     </div>
-                  </button>
+                  </div>
                 );
               })}
             </S.StepsList>

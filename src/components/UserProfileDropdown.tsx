@@ -24,11 +24,11 @@ const DropdownOverlay = styled.div`
 `;
 
 const DropdownContainer = styled.div<{
-  position: { top: number; left: number };
+  $position: { top: number; left: number };
 }>`
   position: absolute;
-  top: ${(props) => props.position.top}px;
-  left: ${(props) => props.position.left}px;
+  top: ${(props) => props.$position.top}px;
+  left: ${(props) => props.$position.left}px;
   background: white;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
@@ -217,7 +217,7 @@ const UserProfileDropdown: React.FC<UserProfileDropdownProps> = ({
   return (
     <>
       <DropdownOverlay />
-      <DropdownContainer ref={dropdownRef} position={position}>
+      <DropdownContainer ref={dropdownRef} $position={position}>
         <DropdownHeader>
           <UserInfo>
             <UserAvatar>{getInitials(username)}</UserAvatar>

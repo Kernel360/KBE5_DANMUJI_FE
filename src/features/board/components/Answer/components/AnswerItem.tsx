@@ -16,6 +16,7 @@ import {
   ReplyBadge,
   BestAnswerBadge,
 } from "../styles/AnswerItem.styled";
+import ClickableUsername from "../../../../components/ClickableUsername";
 
 interface AnswerItemProps {
   answer: Answer;
@@ -112,10 +113,34 @@ const AnswerItem: React.FC<AnswerItemProps> = ({
       <AnswerMeta>
         <AnswerAuthor>
           <FaUser style={{ marginRight: "0.5rem" }} />
-          <AnswerAuthorName>
-            {answer.author?.name || "알 수 없는 사용자"}
-          </AnswerAuthorName>
-          <AnswerAuthorIp>{answer.authorIp}</AnswerAuthorIp>
+          <ClickableUsername
+            username={answer.authorName || answer.author?.name || "undefined"}
+            userId={answer.author?.id || answer.authorId}
+            onClick={onUserProfileClick}
+            style={{ color: "#111827" }}
+          />
+          {answer.authorUsername && (
+            <span
+              style={{
+                fontSize: 11,
+                color: "#6b7280",
+                marginLeft: 1,
+                fontWeight: 400,
+              }}
+            >
+              ({answer.authorUsername})
+            </span>
+          )}
+          <span
+            style={{
+              fontSize: 11,
+              color: "#b0b0b0",
+              marginLeft: 6,
+              fontWeight: 400,
+            }}
+          >
+            {answer.authorIp}
+          </span>
           {depth > 0 && <ReplyBadge>답글</ReplyBadge>}
           {answer.isBestAnswer && (
             <BestAnswerBadge>베스트 답변</BestAnswerBadge>

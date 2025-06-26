@@ -1,5 +1,14 @@
 import { useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { searchUsernames } from "@/features/user/services/userService";
+
+// UserSummaryResponse 타입을 직접 정의
+interface UserSummaryResponse {
+  id: number;
+  username: string;
+  name: string;
+  role: string;
+}
 
 interface UserProfileState {
   isOpen: boolean;
@@ -11,6 +20,7 @@ interface UserProfileState {
 }
 
 export const useUserProfile = () => {
+  const navigate = useNavigate();
   const [profileState, setProfileState] = useState<UserProfileState>({
     isOpen: false,
     username: "",
@@ -36,11 +46,13 @@ export const useUserProfile = () => {
       let isAdmin = false;
 
       try {
-        const response = await searchUsernames(username);
+        // projectId가 필요하므로 현재 URL에서 가져오거나 기본값 사용
+        const currentProjectId = 1; // 기본값 또는 URL에서 추출
+        const response = await searchUsernames(username, currentProjectId);
         if (response.data && response.data.length > 0) {
           // 정확한 사용자명 매칭을 위해 필터링
           const exactMatch = response.data.find(
-            (user) => user.username === username
+            (user: UserSummaryResponse) => user.username === username
           );
           const userInfo = exactMatch || response.data[0]; // 정확한 매칭이 없으면 첫 번째 결과 사용
 
@@ -85,11 +97,13 @@ export const useUserProfile = () => {
     }));
   }, []);
 
-  const handleViewProfile = useCallback((userId: number) => {
-    // 프로필 보기 로직 구현
-    console.log("프로필 보기:", userId);
-    // 예: navigate(`/user/${userId}`);
-  }, []);
+  const handleViewProfile = useCallback(
+    (userId: number) => {
+      // 프로필 보기 페이지로 이동
+      navigate("/my");
+    },
+    [navigate]
+  );
 
   const handleSendMessage = useCallback((userId: number) => {
     // 쪽지 보내기 로직 구현
