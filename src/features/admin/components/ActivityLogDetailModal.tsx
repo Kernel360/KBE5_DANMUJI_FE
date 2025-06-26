@@ -1047,8 +1047,10 @@ export default function ActivityLogDetailModal({
           <>
             <ContentSection>
               <SectionTitle>
-                <FiInfo style={{ color: "#fdb924" }} />
-                기본 정보
+                <SectionTitleContent>
+                  <FiInfo style={{ color: "#fdb924" }} />
+                  기본 정보
+                </SectionTitleContent>
               </SectionTitle>
               <InfoGrid>
                 <InfoItem>
@@ -1078,8 +1080,10 @@ export default function ActivityLogDetailModal({
 
             <ContentSection>
               <SectionTitle>
-                <FiUser style={{ color: "#fdb924" }} />
-                변경자 정보
+                <SectionTitleContent>
+                  <FiUser style={{ color: "#fdb924" }} />
+                  변경자 정보
+                </SectionTitleContent>
               </SectionTitle>
               <InfoGrid>
                 <InfoItem>
@@ -1106,8 +1110,10 @@ export default function ActivityLogDetailModal({
               <div style={{ display: "flex", gap: "20px" }}>
                 <div style={{ flex: "1" }}>
                   <SectionTitle>
-                    <FiCalendar style={{ color: "#fdb924" }} />
-                    시간 정보
+                    <SectionTitleContent>
+                      <FiCalendar style={{ color: "#fdb924" }} />
+                      시간 정보
+                    </SectionTitleContent>
                   </SectionTitle>
                   <InfoGrid>
                     <InfoItem>
@@ -1120,8 +1126,10 @@ export default function ActivityLogDetailModal({
                 {detail.message && (
                   <div style={{ flex: "1" }}>
                     <SectionTitle>
-                      <FiMessageSquare style={{ color: "#fdb924" }} />
-                      작업상세
+                      <SectionTitleContent>
+                        <FiMessageSquare style={{ color: "#fdb924" }} />
+                        작업상세
+                      </SectionTitleContent>
                     </SectionTitle>
                     <div style={{ padding: "8px 0" }}>
                       <span
