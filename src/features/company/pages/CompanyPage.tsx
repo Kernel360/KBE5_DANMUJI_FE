@@ -14,6 +14,7 @@ import {
   FiPhone,
   FiMapPin,
   FiHash,
+  FiCalendar,
 } from "react-icons/fi";
 
 export interface Company {
@@ -25,6 +26,7 @@ export interface Company {
   email: string;
   bio: string;
   tel: string;
+  createdAt?: string;
 }
 
 export interface CompanyFormData {
@@ -461,12 +463,11 @@ export default function CompanyPage() {
         <Table>
           <TableHead>
             <TableRow>
-              <TableHeader style={{ width: "20%" }}>업체명</TableHeader>
-              <TableHeader style={{ width: "15%" }}>사업자등록번호</TableHeader>
-              <TableHeader style={{ width: "25%" }}>주소</TableHeader>
-              <TableHeader style={{ width: "12%" }}>사업자 명</TableHeader>
-              <TableHeader style={{ width: "15%" }}>이메일</TableHeader>
-              <TableHeader style={{ width: "13%" }}>연락처</TableHeader>
+              <TableHeader>업체명</TableHeader>
+              <TableHeader>사업자등록번호</TableHeader>
+              <TableHeader>대표자</TableHeader>
+              <TableHeader>연락처</TableHeader>
+              <TableHeader>생성일</TableHeader>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -543,21 +544,6 @@ export default function CompanyPage() {
                         cursor: "pointer",
                       }}
                     >
-                      <FiMapPin size={14} style={{ color: "#10b981" }} />
-                      <span style={{ fontSize: "14px", color: "#374151" }}>
-                        {c.address}
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                        cursor: "pointer",
-                      }}
-                    >
                       <FiUser size={14} style={{ color: "#3b82f6" }} />
                       <span
                         style={{
@@ -579,9 +565,9 @@ export default function CompanyPage() {
                         cursor: "pointer",
                       }}
                     >
-                      <FiMail size={14} style={{ color: "#8b5cf6" }} />
+                      <FiPhone size={14} style={{ color: "#f59e0b" }} />
                       <span style={{ fontSize: "14px", color: "#374151" }}>
-                        {c.email}
+                        {formatTelNo(c.tel)}
                       </span>
                     </div>
                   </TableCell>
@@ -594,10 +580,29 @@ export default function CompanyPage() {
                         cursor: "pointer",
                       }}
                     >
-                      <FiPhone size={14} style={{ color: "#f59e0b" }} />
-                      <span style={{ fontSize: "14px", color: "#374151" }}>
-                        {formatTelNo(c.tel)}
-                      </span>
+                      <FiCalendar size={14} style={{ color: "#8b5cf6" }} />
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "4px",
+                        }}
+                      >
+                        <span style={{ fontSize: "14px", color: "#374151" }}>
+                          {c.createdAt
+                            ? new Date(c.createdAt).toLocaleDateString("ko-KR")
+                            : "N/A"}
+                        </span>
+                        {c.createdAt && (
+                          <span style={{ fontSize: "11px", color: "#9ca3af" }}>
+                            {new Date(c.createdAt).toLocaleTimeString("ko-KR", {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: true,
+                            })}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </TableCell>
                 </ClickableTableRow>
