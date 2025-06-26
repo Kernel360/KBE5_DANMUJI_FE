@@ -397,12 +397,6 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
           ...(newLinks.length > 0 && { newLinks }),
         };
 
-        console.log("=== 게시글 수정 요청 데이터 ===");
-        console.log("deletedLinkIds:", deletedLinkIds);
-        console.log("newLinks:", newLinks);
-        console.log("requestData:", requestData);
-        console.log("================================");
-
         // 수정 전 기존 게시글 정보 저장 (단계 변경 확인용)
         const originalPost = await getPostDetail(postId);
         const originalStepId = originalPost.data?.stepId;
