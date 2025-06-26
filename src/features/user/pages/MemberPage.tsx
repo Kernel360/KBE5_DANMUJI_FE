@@ -753,7 +753,7 @@ export default function MemberPage() {
           </SelectDropdown>
         </FilterGroup>
         <FilterGroup>
-          <FilterLabel>권한</FilterLabel>
+          <FilterLabel>직책</FilterLabel>
           <SelectButton
             $hasValue={filters.position !== ""}
             $color="#fdb924"
@@ -762,7 +762,7 @@ export default function MemberPage() {
           >
             <FiUsers size={16} />
             <span className="select-value">
-              {filters.position || "모든 권한"}
+              {filters.position || "모든 직책"}
             </span>
             <FiChevronDown size={16} />
           </SelectButton>
@@ -771,7 +771,7 @@ export default function MemberPage() {
               $isSelected={filters.position === ""}
               onClick={() => handlePositionSelect("")}
             >
-              모든 권한
+              모든 직책
             </SelectOption>
             {uniquePositions.map((position) => (
               <SelectOption
@@ -839,7 +839,7 @@ export default function MemberPage() {
             <TableRow>
               <TableHeader>회원</TableHeader>
               <TableHeader>업체</TableHeader>
-              <TableHeader>권한</TableHeader>
+              <TableHeader>직책</TableHeader>
               <TableHeader>연락처</TableHeader>
             </TableRow>
           </TableHead>
@@ -858,11 +858,17 @@ export default function MemberPage() {
                       }}
                       onClick={() => handleMemberClick(member)}
                     >
-                      {member.role === "ROLE_ADMIN" ? (
+                      {member.position === "admin" ? (
                         <LuUserRoundCog
                           size={14}
                           style={{ color: "#8b5cf6" }}
                         />
+                      ) : member.position === "developer" ||
+                        member.position === "개발자" ? (
+                        <FiUser size={14} style={{ color: "#3b82f6" }} />
+                      ) : member.position === "client" ||
+                        member.position === "고객" ? (
+                        <FiUser size={14} style={{ color: "#10b981" }} />
                       ) : (
                         <FiUser size={14} style={{ color: "#6b7280" }} />
                       )}
@@ -900,7 +906,7 @@ export default function MemberPage() {
                         gap: "8px",
                       }}
                     >
-                      <IoPeopleOutline size={14} style={{ color: "#3b82f6" }} />
+                      <FiUsers size={14} style={{ color: "#3b82f6" }} />
                       <span style={{ fontWeight: "500" }}>
                         {member.position}
                       </span>
