@@ -10,8 +10,14 @@ import {
   FiRotateCcw,
   FiHome,
   FiUsers,
+  FiUser,
+  FiMail,
+  FiPhone,
+  FiChevronLeft,
+  FiChevronRight,
 } from "react-icons/fi";
 import { IoBusinessOutline, IoPeopleOutline } from "react-icons/io5";
+import { LuUserRoundCog } from "react-icons/lu";
 
 export interface Member {
   id: number;
@@ -236,64 +242,62 @@ const SearchRight = styled.div`
 `;
 
 const TableContainer = styled.div`
-  background: #fff;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   overflow: hidden;
+  margin-bottom: 24px;
 `;
 
 const Table = styled.table`
   width: 100%;
-  font-size: 14px;
   border-collapse: collapse;
+  font-size: 14px;
 `;
 
 const TableHead = styled.thead`
   background-color: #f9fafb;
-  border-bottom: 1px solid #e5e7eb;
 `;
 
 const TableHeader = styled.th`
-  padding: 12px 12px;
   text-align: left;
-  font-weight: 600;
+  padding: 12px 16px;
   color: #374151;
-  white-space: nowrap;
+  font-weight: 600;
   font-size: 13px;
+  border-bottom: 1px solid #e5e7eb;
 `;
 
 const TableBody = styled.tbody``;
 
 const TableRow = styled.tr`
-  border-bottom: 1px solid #f3f4f6;
-  transition: background-color 0.2s ease;
-
-  &:last-child {
-    border-bottom: none;
+  &:hover {
+    background-color: #fefdf4;
+    transition: background-color 0.2s ease;
   }
 
-  &:hover {
-    background-color: #f9fafb;
+  &:not(:last-child) {
+    border-bottom: 1px solid #f3f4f6;
   }
 `;
 
 const TableCell = styled.td`
-  padding: 10px 12px;
-  text-align: left;
+  padding: 12px 16px;
   color: #374151;
   vertical-align: middle;
-  font-size: 14px;
+  text-align: left;
 `;
 
-const MemberNameCell = styled(TableCell)`
-  color: #374151;
-  font-weight: 500;
-  cursor: pointer;
+// const MemberNameCell = styled(TableCell)`
+//   color: #374151;
+//   font-weight: 500;
+//   cursor: pointer;
+//   transition: color 0.2s ease;
 
-  &:hover {
-    color: #3b82f6;
-  }
-`;
+//   &:hover {
+//     color: #3b82f6;
+//   }
+// `;
 
 const LoadingContainer = styled.div`
   display: flex;
@@ -344,6 +348,60 @@ const NewButton = styled.button`
   &:focus {
     outline: none;
     box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2);
+  }
+`;
+
+const PaginationContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 32px;
+  gap: 0.7rem;
+`;
+
+const PaginationInfo = styled.div`
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.825rem;
+  margin-top: 0.75rem;
+  margin-bottom: 0.1rem;
+`;
+
+const PaginationNav = styled.nav`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+`;
+
+const PaginationButton = styled.button<{ $active?: boolean }>`
+  padding: 0.32rem 0.6rem;
+  border: none;
+  background: transparent;
+  color: ${({ $active }) => ($active ? "#fff" : "#111827")};
+  border-radius: 1.2rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  box-shadow: none;
+  cursor: pointer;
+  outline: none;
+  min-width: 28px;
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+
+  ${({ $active }) =>
+    $active &&
+    `
+      background: #fdb924;
+      color: #fff;
+    `}
+
+  &:hover {
+    background-color: ${({ $active }) => ($active ? "#fdb924" : "#e5e7eb")};
   }
 `;
 
@@ -403,6 +461,11 @@ export default function MemberPage() {
   const [companyDropdownOpen, setCompanyDropdownOpen] = useState(false);
   const [positionDropdownOpen, setPositionDropdownOpen] = useState(false);
 
+  // 페이지네이션 상태 추가
+  const [currentPage, setCurrentPage] = useState(0);
+  const [pageSize] = useState(10);
+  const [totalMembers, setTotalMembers] = useState(0);
+
   const navigate = useNavigate();
 
   const fetchMembers = async () => {
@@ -411,6 +474,9 @@ export default function MemberPage() {
       // TODO: Replace with actual API call to fetch members
       const response = await api.get(`/api/admin/allUsers`);
       setMembers(response.data.data.content);
+      setTotalMembers(
+        response.data.data.totalElements || response.data.data.content.length
+      );
       console.log("Current members:", response.data.data.content);
     } catch (err: unknown) {
       let errorMessage = "An unknown error occurred";
@@ -443,17 +509,31 @@ export default function MemberPage() {
     fetchCompanies();
   }, []);
 
-  const filtered = members.filter((m) => {
-    const matchesKeyword =
-      m.name.toLowerCase().includes(filters.keyword.toLowerCase()) ||
-      m.username.toLowerCase().includes(filters.keyword.toLowerCase());
+  // 필터링된 회원 목록
+  const filtered = members.filter((member) => {
     const matchesCompany =
-      !filters.companyId || m.companyId === parseInt(filters.companyId);
+      filters.companyId === "" ||
+      member.companyId === parseInt(filters.companyId);
     const matchesPosition =
-      !filters.position || m.position === filters.position;
+      filters.position === "" || member.position === filters.position;
+    const matchesKeyword =
+      filters.keyword === "" ||
+      member.name.toLowerCase().includes(filters.keyword.toLowerCase()) ||
+      member.username.toLowerCase().includes(filters.keyword.toLowerCase());
 
-    return matchesKeyword && matchesCompany && matchesPosition;
+    return matchesCompany && matchesPosition && matchesKeyword;
   });
+
+  // 필터링된 결과에 대한 totalMembers 업데이트
+  useEffect(() => {
+    setTotalMembers(filtered.length);
+    setCurrentPage(0); // 필터 변경 시 첫 페이지로 이동
+  }, [filtered.length]);
+
+  // 고유한 직책 목록 계산
+  const uniquePositions = Array.from(
+    new Set(members.map((member) => member.position).filter(Boolean))
+  ).sort();
 
   const handleInputChange = (field: string, value: string) => {
     setFilters({ ...filters, [field]: value });
@@ -493,13 +573,70 @@ export default function MemberPage() {
     setPositionDropdownOpen(false);
   };
 
-  // 고유한 직책 목록 추출
-  const uniquePositions = [
-    ...new Set(members.map((member) => member.position)),
-  ].filter(Boolean);
-
   const handleMemberClick = (member: Member) => {
     navigate(`/member/${member.id}`);
+  };
+
+  // 페이지네이션 함수들
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
+  const getPaginationInfo = () => {
+    const start = currentPage * pageSize + 1;
+    const end = Math.min((currentPage + 1) * pageSize, totalMembers);
+    return `총 ${totalMembers}명의 회원 중 ${start}-${end}명 표시`;
+  };
+
+  const renderPagination = () => {
+    const totalPages = Math.ceil(totalMembers / pageSize);
+    const pages = [];
+
+    // 현재 페이지 주변의 페이지들 표시
+    const startPage = Math.max(0, currentPage - 2);
+    const endPage = Math.min(totalPages - 1, currentPage + 2);
+
+    // 첫 페이지
+    if (startPage > 0) {
+      pages.push(
+        <PaginationButton key="first" onClick={() => handlePageChange(0)}>
+          처음
+        </PaginationButton>
+      );
+      if (startPage > 1) {
+        pages.push(<span key="dots1">...</span>);
+      }
+    }
+
+    // 페이지 번호들
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(
+        <PaginationButton
+          key={i}
+          $active={i === currentPage}
+          onClick={() => handlePageChange(i)}
+        >
+          {i + 1}
+        </PaginationButton>
+      );
+    }
+
+    // 마지막 페이지
+    if (endPage < totalPages - 1) {
+      if (endPage < totalPages - 2) {
+        pages.push(<span key="dots2">...</span>);
+      }
+      pages.push(
+        <PaginationButton
+          key="last"
+          onClick={() => handlePageChange(totalPages - 1)}
+        >
+          마지막
+        </PaginationButton>
+      );
+    }
+
+    return pages;
   };
 
   const handleRegister = useCallback(
@@ -616,7 +753,7 @@ export default function MemberPage() {
           </SelectDropdown>
         </FilterGroup>
         <FilterGroup>
-          <FilterLabel>직책</FilterLabel>
+          <FilterLabel>권한</FilterLabel>
           <SelectButton
             $hasValue={filters.position !== ""}
             $color="#fdb924"
@@ -625,7 +762,7 @@ export default function MemberPage() {
           >
             <FiUsers size={16} />
             <span className="select-value">
-              {filters.position || "모든 직책"}
+              {filters.position || "모든 권한"}
             </span>
             <FiChevronDown size={16} />
           </SelectButton>
@@ -634,7 +771,7 @@ export default function MemberPage() {
               $isSelected={filters.position === ""}
               onClick={() => handlePositionSelect("")}
             >
-              모든 직책
+              모든 권한
             </SelectOption>
             {uniquePositions.map((position) => (
               <SelectOption
@@ -700,32 +837,118 @@ export default function MemberPage() {
         <Table>
           <TableHead>
             <TableRow>
-              <TableHeader>이름</TableHeader>
-              <TableHeader>아이디</TableHeader>
+              <TableHeader>회원</TableHeader>
               <TableHeader>업체</TableHeader>
-              <TableHeader>직책</TableHeader>
-              <TableHeader>전화번호</TableHeader>
+              <TableHeader>권한</TableHeader>
+              <TableHeader>연락처</TableHeader>
             </TableRow>
           </TableHead>
           <TableBody>
-            {filtered.map((member) => (
-              <TableRow key={member.id}>
-                <MemberNameCell onClick={() => handleMemberClick(member)}>
-                  {member.name}
-                </MemberNameCell>
-                <TableCell>{member.username}</TableCell>
-                <TableCell>
-                  {(companies &&
-                    companies.find((c) => c.id === member.companyId)?.name) ||
-                    "N/A"}
-                </TableCell>
-                <TableCell>{member.position}</TableCell>
-                <TableCell>{formatTelNo(member.phone)}</TableCell>
-              </TableRow>
-            ))}
+            {filtered
+              .slice(currentPage * pageSize, (currentPage + 1) * pageSize)
+              .map((member) => (
+                <TableRow key={member.id}>
+                  <TableCell>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        cursor: "pointer",
+                      }}
+                      onClick={() => handleMemberClick(member)}
+                    >
+                      {member.role === "ROLE_ADMIN" ? (
+                        <LuUserRoundCog
+                          size={14}
+                          style={{ color: "#8b5cf6" }}
+                        />
+                      ) : (
+                        <FiUser size={14} style={{ color: "#6b7280" }} />
+                      )}
+                      <span style={{ fontWeight: "500" }}>{member.name}</span>
+                      <span style={{ fontSize: "12px", color: "#6b7280" }}>
+                        ({member.username})
+                      </span>
+                      <span style={{ fontSize: "12px", color: "#6b7280" }}>
+                        ({member.role === "ROLE_ADMIN" ? "관리자" : "사용자"})
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                      }}
+                    >
+                      <FiHome size={14} style={{ color: "#f59e0b" }} />
+                      <span style={{ fontWeight: "500" }}>
+                        {(companies &&
+                          companies.find((c) => c.id === member.companyId)
+                            ?.name) ||
+                          "N/A"}
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                      }}
+                    >
+                      <IoPeopleOutline size={14} style={{ color: "#3b82f6" }} />
+                      <span style={{ fontWeight: "500" }}>
+                        {member.position}
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                      }}
+                    >
+                      <FiPhone size={14} style={{ color: "#10b981" }} />
+                      <span style={{ fontSize: "14px", color: "#374151" }}>
+                        {formatTelNo(member.phone)}
+                      </span>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       </TableContainer>
+
+      <PaginationContainer>
+        <PaginationNav>
+          <PaginationButton
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 0}
+            style={{ opacity: currentPage === 0 ? 0.5 : 1 }}
+          >
+            이전
+          </PaginationButton>
+          {renderPagination()}
+          <PaginationButton
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage >= Math.ceil(totalMembers / pageSize) - 1}
+            style={{
+              opacity:
+                currentPage >= Math.ceil(totalMembers / pageSize) - 1 ? 0.5 : 1,
+            }}
+          >
+            다음
+          </PaginationButton>
+        </PaginationNav>
+        <PaginationInfo>{getPaginationInfo()}</PaginationInfo>
+      </PaginationContainer>
 
       {modalOpen && (
         <MemberRegisterModal

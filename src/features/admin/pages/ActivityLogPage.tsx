@@ -51,7 +51,7 @@ import {
   FiGrid,
 } from "react-icons/fi";
 import { FaProjectDiagram } from "react-icons/fa";
-import { RiUserSettingsLine } from "react-icons/ri";
+import { LuUserRoundCog } from "react-icons/lu";
 import UserSelectionModal from "../components/UserSelectionModal";
 import UserFilterButton from "../components/UserFilterButton";
 import ActivityLogDetailModal from "../components/ActivityLogDetailModal";
@@ -131,7 +131,7 @@ export default function ActivityLogPage() {
 
   const LOG_TYPE_OPTIONS = [
     { value: "ALL", label: "전체", icon: FiGrid, color: "#6b7280" },
-    { value: "USER", label: "회원", icon: FiUser, color: "#8b5cf6" },
+    { value: "USER", label: "회원", icon: FiUser, color: "#6366f1" },
     { value: "COMPANY", label: "업체", icon: FiHome, color: "#f59e0b" },
     {
       value: "PROJECT",
@@ -249,7 +249,7 @@ export default function ActivityLogPage() {
   const getTargetTypeIcon = (targetType: string) => {
     switch (targetType) {
       case "USER":
-        return <FiUser style={{ color: "#8b5cf6" }} />;
+        return <FiUser style={{ color: "#6366f1" }} />;
       case "COMPANY":
         return <FiHome style={{ color: "#f59e0b" }} />;
       case "PROJECT":
@@ -758,10 +758,7 @@ export default function ActivityLogPage() {
                     }}
                   >
                     {log.userRole === "ROLE_ADMIN" ? (
-                      <RiUserSettingsLine
-                        size={14}
-                        style={{ color: "#8b5cf6" }}
-                      />
+                      <LuUserRoundCog size={14} style={{ color: "#8b5cf6" }} />
                     ) : (
                       <FiUser size={14} style={{ color: "#6b7280" }} />
                     )}
