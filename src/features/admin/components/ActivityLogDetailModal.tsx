@@ -1015,7 +1015,7 @@ export default function ActivityLogDetailModal({
                   </InfoValue>
                 </InfoItem>
                 <InfoItem>
-                  <InfoLabel>변경자 역할</InfoLabel>
+                  <InfoLabel>변경자 권한</InfoLabel>
                   <InfoValue>
                     {getRoleIcon(detail.changerRole)}
                     {getRoleDisplayName(detail.changerRole)}
