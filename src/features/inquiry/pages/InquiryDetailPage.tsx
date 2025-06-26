@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
 import { useAuth } from "@/hooks/useAuth";
 import api from "@/api/axios";
@@ -187,6 +187,8 @@ export default function InquiryDetailPage() {
   const [editingAnswerId, setEditingAnswerId] = useState<number | null>(null);
   const [editedAnswerContent, setEditedAnswerContent] = useState<string>("");
   
+  const navigate = useNavigate();
+  
   // 답변 목록 조회
   const fetchAnswers = async (page = 0) => {
     try {
@@ -345,6 +347,36 @@ export default function InquiryDetailPage() {
     }
   };
 
+  // 문의사항 삭제
+  const handleDeleteInquiry = async () => {
+    if (!window.confirm("정말로 이 문의사항을 삭제하시겠습니까?")) return;
+    try {
+      await api.delete(`/api/inquiries/${inquiryId}`);
+      // 삭제 후 목록 페이지로 이동 (예: /inquiry)
+      navigate("/inquiry");
+    } catch {
+      alert("문의사항 삭제에 실패했습니다.");
+    }
+  };
+
+  // 답변 삭제
+  const handleDeleteAnswer = async (answerId: number) => {
+    if (!window.confirm("정말로 이 답변을 삭제하시겠습니까?")) return;
+    try {
+      await api.delete(`/api/answers/${answerId}`);
+      // 현재 페이지의 마지막 답변을 삭제하고, 현재 페이지가 첫 페이지가 아닐 경우
+      if (answers.length === 1 && answerPage.number > 0) {
+        // 이전 페이지로 이동
+        fetchAnswers(answerPage.number - 1);
+      } else {
+        // 현재 페이지 새로고침
+        fetchAnswers(answerPage.number);
+      }
+    } catch {
+      alert("답변 삭제에 실패했습니다.");
+    }
+  };
+
   if (!inquiry) {
     return <PageContainer>문의사항을 찾을 수 없습니다.</PageContainer>;
   }
@@ -409,10 +441,13 @@ export default function InquiryDetailPage() {
                   문의사항 수정
                 </ActionButton>
               )}
-              <ActionButton variant="danger">
-                <FiTrash2 />
-                문의사항 삭제
-              </ActionButton>
+              {/* 일반 사용자만 삭제 버튼 노출 */}
+              {!isAdmin && (
+                <ActionButton variant="danger" onClick={handleDeleteInquiry}>
+                  <FiTrash2 />
+                  문의사항 삭제
+                </ActionButton>
+              )}
             </>
           )}
         </HeaderActions>
@@ -453,7 +488,7 @@ export default function InquiryDetailPage() {
                           <FiEdit /> 수정
                         </ActionButton>
                       )}
-                      <ActionButton variant="danger" style={{ padding: '6px 10px', fontSize: '13px' }}>
+                      <ActionButton variant="danger" style={{ padding: '6px 10px', fontSize: '13px' }} onClick={() => handleDeleteAnswer(answer.id)}>
                         <FiTrash2 /> 삭제
                       </ActionButton>
                     </div>
