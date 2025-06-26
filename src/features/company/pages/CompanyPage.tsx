@@ -590,15 +590,21 @@ export default function CompanyPage() {
                       >
                         <span style={{ fontSize: "14px", color: "#374151" }}>
                           {c.createdAt
-                            ? new Date(c.createdAt).toLocaleDateString("ko-KR")
+                            ? new Date(c.createdAt).toLocaleDateString(
+                                "ko-KR",
+                                {
+                                  year: "numeric",
+                                  month: "2-digit",
+                                  day: "2-digit",
+                                }
+                              )
                             : "N/A"}
                         </span>
                         {c.createdAt && (
-                          <span style={{ fontSize: "11px", color: "#9ca3af" }}>
+                          <span style={{ fontSize: "12px", color: "#6b7280" }}>
                             {new Date(c.createdAt).toLocaleTimeString("ko-KR", {
                               hour: "2-digit",
                               minute: "2-digit",
-                              hour12: true,
                             })}
                           </span>
                         )}

@@ -969,32 +969,36 @@ export default function MemberPage() {
                       onClick={() => handleMemberClick(member)}
                     >
                       <FiCalendar size={14} style={{ color: "#8b5cf6" }} />
-                      <div style={{ display: "flex", flexDirection: "column" }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "4px",
+                        }}
+                      >
                         <span style={{ fontSize: "14px", color: "#374151" }}>
                           {member.createdAt
                             ? new Date(member.createdAt).toLocaleDateString(
-                                "ko-KR"
-                              )
-                            : "N/A"}
-                          {member.createdAt && (
-                            <span
-                              style={{
-                                fontSize: "11px",
-                                color: "#9ca3af",
-                                marginLeft: "4px",
-                              }}
-                            >
-                              {new Date(member.createdAt).toLocaleTimeString(
                                 "ko-KR",
                                 {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                  hour12: true,
+                                  year: "numeric",
+                                  month: "2-digit",
+                                  day: "2-digit",
                                 }
-                              )}
-                            </span>
-                          )}
+                              )
+                            : "N/A"}
                         </span>
+                        {member.createdAt && (
+                          <span style={{ fontSize: "12px", color: "#6b7280" }}>
+                            {new Date(member.createdAt).toLocaleTimeString(
+                              "ko-KR",
+                              {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              }
+                            )}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </TableCell>
