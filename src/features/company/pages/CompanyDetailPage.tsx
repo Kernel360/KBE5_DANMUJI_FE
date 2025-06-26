@@ -11,13 +11,7 @@ import {
 import CompanyEditModal from "../components/CompanyEditModal";
 import { type CompanyFormData } from "./CompanyPage";
 import { showErrorToast, showSuccessToast } from "@/utils/errorHandler";
-import {
-  FiUser,
-  FiBriefcase,
-  FiMapPin,
-  FiMail,
-  FiPhone,
-} from "react-icons/fi";
+import { FiUser, FiBriefcase, FiMapPin, FiMail, FiPhone } from "react-icons/fi";
 
 const PageContainer = styled.div`
   padding: 32px;
@@ -52,9 +46,10 @@ const PageTitle = styled.h1`
 `;
 
 const PageSubtitle = styled.p`
-  color: #6b7280;
-  font-size: 14px;
-  padding-left: 16px;
+  color: #bdbdbd;
+  font-size: 0.9rem;
+  margin-top: 6.6px;
+  margin-bottom: 18px;
 `;
 
 const MainContentArea = styled.div`
@@ -231,7 +226,7 @@ const CompanyDetailPage: React.FC = () => {
 
   const fetchCompanyDetail = useCallback(async () => {
     if (!id) {
-      setError("회사 ID가 누락되었습니다.");
+      setError("업체 ID가 누락되었습니다.");
       setLoading(false);
       return;
     }
@@ -240,12 +235,13 @@ const CompanyDetailPage: React.FC = () => {
       const response = await api.get(`/api/companies/${id}`);
       setCompany(response.data.data);
     } catch (err: unknown) {
-      let message = "회사 상세 정보를 가져오는 중 알 수 없는 오류가 발생했습니다.";
+      let message =
+        "업체 상세 정보를 가져오는 중 알 수 없는 오류가 발생했습니다.";
       if (err instanceof Error) {
         message = err.message;
       }
       setError(message);
-      console.error("회사 상세 정보 가져오기 실패:", err);
+      console.error("업체 상세 정보 가져오기 실패:", err);
     } finally {
       setLoading(false);
     }
@@ -264,13 +260,13 @@ const CompanyDetailPage: React.FC = () => {
 
   const handleDelete = async () => {
     if (!company) return;
-    if (window.confirm("정말 이 회사를 삭제하시겠습니까?")) {
+    if (window.confirm("정말 이 업체를 삭제하시겠습니까?")) {
       try {
         await api.delete(`/api/companies/${company.id}`);
-        showSuccessToast("회사가 성공적으로 삭제되었습니다.");
+        showSuccessToast("업체가 성공적으로 삭제되었습니다.");
         navigate("/company");
       } catch (error) {
-        showErrorToast("회사 삭제에 실패했습니다.");
+        showErrorToast("업체 삭제에 실패했습니다.");
         console.error("삭제 실패:", error);
       }
     }
@@ -279,7 +275,10 @@ const CompanyDetailPage: React.FC = () => {
   const handleUpdate = async (data: CompanyFormData) => {
     if (!editData) return;
     try {
-      const bizNoCombined = parseInt(`${data.reg1}${data.reg2}${data.reg3}`, 10);
+      const bizNoCombined = parseInt(
+        `${data.reg1}${data.reg2}${data.reg3}`,
+        10
+      );
       const companyUpdateData = {
         name: data.name,
         bizNo: bizNoCombined,
@@ -292,16 +291,16 @@ const CompanyDetailPage: React.FC = () => {
       await api.put(`/api/companies/${editData.id}`, companyUpdateData);
       setEditModalOpen(false);
       setEditData(null);
-      showSuccessToast("회사 정보가 성공적으로 수정되었습니다.");
+      showSuccessToast("업체 정보가 성공적으로 수정되었습니다.");
       fetchCompanyDetail();
     } catch {
-      showErrorToast("회사 정보 수정에 실패했습니다.");
+      showErrorToast("업체 정보 수정에 실패했습니다.");
     }
   };
 
   if (loading) return <PageContainer>로딩 중...</PageContainer>;
   if (error) return <PageContainer>오류: {error}</PageContainer>;
-  if (!company) return <PageContainer>회사를 찾을 수 없습니다.</PageContainer>;
+  if (!company) return <PageContainer>업체를 찾을 수 없습니다.</PageContainer>;
 
   return (
     <PageContainer>
@@ -317,19 +316,19 @@ const CompanyDetailPage: React.FC = () => {
         />
       )}
       <PageHeaderSection>
-        <PageTitle>회사 상세 정보</PageTitle>
+        <PageTitle>업체 상세 정보</PageTitle>
         <PageSubtitle>
-          해당 회사의 상세 정보를 한 눈에 확인하세요
+          프로젝트 관리 시스템의 업체 정보를 한눈에 확인하세요
         </PageSubtitle>
       </PageHeaderSection>
 
       <MainContentArea>
         <ProfileHeader>
-          <ProfileTitle>회사 프로필</ProfileTitle>
+          <ProfileTitle>업체 프로필</ProfileTitle>
           <ButtonGroup>
             <BackButton onClick={() => navigate(-1)}>뒤로가기</BackButton>
-            <DeleteButton onClick={handleDelete}>회사 삭제</DeleteButton>
-            <EditButton onClick={handleEdit}>회사 정보 수정</EditButton>
+            <DeleteButton onClick={handleDelete}>업체 삭제</DeleteButton>
+            <EditButton onClick={handleEdit}>업체 정보 수정</EditButton>
           </ButtonGroup>
         </ProfileHeader>
 
@@ -389,4 +388,4 @@ const CompanyDetailPage: React.FC = () => {
   );
 };
 
-export default CompanyDetailPage; 
+export default CompanyDetailPage;

@@ -248,7 +248,7 @@ export default function DashboardPage() {
           </div>
         </RecentActivityCard>
 
-        {/* 회사 통계 카드 */}
+        {/* 업체 통계 카드 */}
         <RecentActivityCard
           style={{
             padding: "24px",
@@ -283,10 +283,10 @@ export default function DashboardPage() {
               <div
                 style={{ fontWeight: 600, fontSize: "16px", color: "#374151" }}
               >
-                총 회사 수
+                총 업체 수
               </div>
               <div style={{ fontSize: "14px", color: "#6b7280" }}>
-                전체 등록 회사
+                전체 등록 업체
               </div>
             </div>
           </div>
@@ -301,7 +301,7 @@ export default function DashboardPage() {
             {companyCount.toLocaleString()}
           </div>
           <div style={{ fontSize: "14px", color: "#6b7280" }}>
-            활성 회사:{" "}
+            활성 업체:{" "}
             <span style={{ color: "#10b981", fontWeight: 600 }}>1,222</span>
           </div>
         </RecentActivityCard>
@@ -637,7 +637,7 @@ export default function DashboardPage() {
           </RecentActivityList>
         </RecentActivityCard>
 
-        {/* 최근 등록된 회사 */}
+        {/* 최근 등록된 업체 */}
         <RecentActivityCard
           style={{
             border: "1px solid #e5e7eb",
@@ -657,7 +657,7 @@ export default function DashboardPage() {
             }}
           >
             <FaBuilding style={{ color: "#fdb924" }} />
-            최근 등록된 회사
+            최근 등록된 업체
           </RecentActivityTitle>
           <RecentActivityList>
             {recentCompanies.length > 0 ? (
@@ -680,7 +680,7 @@ export default function DashboardPage() {
             ) : (
               <RecentActivityItem style={{ padding: "8px 0" }}>
                 <span style={{ fontSize: "14px", color: "#6b7280" }}>
-                  회사가 없습니다.
+                  업체가 없습니다.
                 </span>
               </RecentActivityItem>
             )}

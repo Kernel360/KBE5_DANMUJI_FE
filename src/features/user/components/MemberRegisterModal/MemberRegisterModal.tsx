@@ -51,13 +51,15 @@ const MemberRegisterModal: React.FC<MemberRegisterModalProps> = ({
         const res = await api.get("/api/companies");
         setCompanies(res.data.data.content); // 응답 구조에 따라 조정
       } catch (error) {
-        console.error("회사 목록을 불러오는 데 실패했습니다", error);
+        console.error("업체 목록을 불러오는 데 실패했습니다", error);
       }
     };
     fetchCompanies();
   }, []);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -77,7 +79,8 @@ const MemberRegisterModal: React.FC<MemberRegisterModalProps> = ({
       email: formData.email,
       phone: cleanedPhone,
       position: formData.position,
-      companyId: formData.companyId === "" ? undefined : Number(formData.companyId),
+      companyId:
+        formData.companyId === "" ? undefined : Number(formData.companyId),
     });
   };
 
@@ -130,12 +133,12 @@ const MemberRegisterModal: React.FC<MemberRegisterModalProps> = ({
                 <S.FormGroup />
               </S.FormRow>
 
-              {/* 회사 + 직책 */}
+              {/* 업체 + 직책 */}
               <S.FormRow>
                 <S.FormGroup>
                   <S.Label>
                     <IoBusinessOutline />
-                    회사
+                    업체
                   </S.Label>
                   <Select
                     options={companies.map((company) => ({
@@ -144,12 +147,18 @@ const MemberRegisterModal: React.FC<MemberRegisterModalProps> = ({
                     }))}
                     isClearable
                     isSearchable
-                    placeholder="회사 선택"
+                    placeholder="업체 선택"
                     value={
                       companies && formData.companyId
                         ? companies
-                            .map((company) => ({ value: company.id, label: company.name }))
-                            .find((option) => option.value === Number(formData.companyId)) || null
+                            .map((company) => ({
+                              value: company.id,
+                              label: company.name,
+                            }))
+                            .find(
+                              (option) =>
+                                option.value === Number(formData.companyId)
+                            ) || null
                         : null
                     }
                     onChange={(selected) => {

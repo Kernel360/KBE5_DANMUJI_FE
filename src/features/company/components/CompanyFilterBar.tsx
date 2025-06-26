@@ -1,9 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import {
-  FiPlus,
-  FiChevronDown,
-  FiArrowUp,
-} from "react-icons/fi";
+import { FiPlus, FiChevronDown, FiArrowUp } from "react-icons/fi";
 import {
   FilterBar,
   FilterGroup,
@@ -143,10 +139,10 @@ const CompanyFilterBar: React.FC<CompanyFilterBarProps> = ({
           </div>
         </FilterGroup>
         <FilterGroup style={{ marginBottom: 0 }}>
-          <FilterLabel>회사명 검색</FilterLabel>
+          <FilterLabel>업체명 검색</FilterLabel>
           <SearchInput
             type="text"
-            placeholder="회사명을 입력하세요"
+            placeholder="업체명을 입력하세요"
             value={filters.keyword}
             onChange={(e) => onInputChange("keyword", e.target.value)}
           />
@@ -155,7 +151,8 @@ const CompanyFilterBar: React.FC<CompanyFilterBarProps> = ({
       <div style={{ display: "flex", gap: "10px", alignItems: "flex-end" }}>
         {onRegisterClick && (
           <NewButton onClick={onRegisterClick}>
-            <FiPlus />새 회사 등록
+            <FiPlus />
+            업체 등록
           </NewButton>
         )}
       </div>

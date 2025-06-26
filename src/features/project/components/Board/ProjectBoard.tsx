@@ -52,7 +52,13 @@ import {
   FiGrid,
   FiPlus,
   FiTarget,
+  FiCalendar,
+  FiTag,
+  FiStar,
+  FiCheckCircle,
+  FiAlertCircle,
 } from "react-icons/fi";
+import { LuUserRoundCog } from "react-icons/lu";
 import { POST_PRIORITY_LABELS } from "../../types/Types";
 import ProjectPostDetailModal from "@/features/board/components/Post/components/DetailModal/ProjectPostDetailModal";
 import PostFormModal from "@/features/board/components/Post/components/FormModal/PostFormModal";
@@ -431,19 +437,12 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
     const timeStr = date.toLocaleTimeString("ko-KR", {
       hour: "2-digit",
       minute: "2-digit",
-      hour12: true,
     });
 
     return (
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        <div style={{ fontSize: "14px", color: "#6b7280" }}>{dateStr}</div>
-        <div style={{ fontSize: "13px", color: "#9ca3af" }}>{timeStr}</div>
+      <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+        <span style={{ fontSize: "14px", color: "#374151" }}>{dateStr}</span>
+        <span style={{ fontSize: "12px", color: "#6b7280" }}>{timeStr}</span>
       </div>
     );
   };
@@ -551,7 +550,10 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
             )}
           </Td>
           <Td>
-            <span>{post.authorName}</span>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <FiUser size={14} style={{ color: "#3b82f6" }} />
+              <span>{post.authorName}</span>
+            </div>
           </Td>
           <Td>
             <TypeBadge type={post.type as "GENERAL" | "QUESTION"}>
@@ -564,7 +566,18 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
                 post.priority}
             </StatusBadge>
           </Td>
-          <Td>{formatDate(post.createdAt)}</Td>
+          <Td style={{ textAlign: "center" }}>
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "12px",
+              }}
+            >
+              <FiCalendar size={14} style={{ color: "#8b5cf6" }} />
+              {formatDate(post.createdAt)}
+            </div>
+          </Td>
         </Tr>
       ));
     } else {
@@ -610,7 +623,12 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
               )}
             </Td>
             <Td>
-              <span>{parentPost.authorName}</span>
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "8px" }}
+              >
+                <FiUser size={14} style={{ color: "#3b82f6" }} />
+                <span>{parentPost.authorName}</span>
+              </div>
             </Td>
             <Td>
               <TypeBadge type={parentPost.type as "GENERAL" | "QUESTION"}>
@@ -623,7 +641,18 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
                   parentPost.priority}
               </StatusBadge>
             </Td>
-            <Td>{formatDate(parentPost.createdAt)}</Td>
+            <Td style={{ textAlign: "center" }}>
+              <div
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "12px",
+                }}
+              >
+                <FiCalendar size={14} style={{ color: "#8b5cf6" }} />
+                {formatDate(parentPost.createdAt)}
+              </div>
+            </Td>
           </Tr>
         );
 
@@ -678,7 +707,12 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
                 )}
               </Td>
               <Td>
-                <span>{child.authorName}</span>
+                <div
+                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                >
+                  <FiUser size={14} style={{ color: "#3b82f6" }} />
+                  <span>{child.authorName}</span>
+                </div>
               </Td>
               <Td>
                 <TypeBadge type={child.type as "GENERAL" | "QUESTION"}>
@@ -691,7 +725,18 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
                     child.priority}
                 </StatusBadge>
               </Td>
-              <Td>{formatDate(child.createdAt)}</Td>
+              <Td style={{ textAlign: "center" }}>
+                <div
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "12px",
+                  }}
+                >
+                  <FiCalendar size={14} style={{ color: "#8b5cf6" }} />
+                  {formatDate(child.createdAt)}
+                </div>
+              </Td>
             </Tr>
           );
         });
@@ -742,7 +787,12 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
               )}
             </Td>
             <Td>
-              <span>{orphan.authorName}</span>
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "8px" }}
+              >
+                <FiUser size={14} style={{ color: "#3b82f6" }} />
+                <span>{orphan.authorName}</span>
+              </div>
             </Td>
             <Td>
               <TypeBadge type={orphan.type as "GENERAL" | "QUESTION"}>
@@ -755,7 +805,18 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
                   orphan.priority}
               </StatusBadge>
             </Td>
-            <Td>{formatDate(orphan.createdAt)}</Td>
+            <Td style={{ textAlign: "center" }}>
+              <div
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "12px",
+                }}
+              >
+                <FiCalendar size={14} style={{ color: "#8b5cf6" }} />
+                {formatDate(orphan.createdAt)}
+              </div>
+            </Td>
           </Tr>
         );
       });
@@ -1094,12 +1155,12 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
       <Table>
         <Thead>
           <Tr>
-            <Th>제목</Th>
-            <Th></Th>
-            <Th>작성자</Th>
-            <Th>유형</Th>
-            <Th>우선순위</Th>
-            <Th>작성일</Th>
+            <Th style={{ width: "20%" }}>제목</Th>
+            <Th style={{ width: "5%" }}></Th>
+            <Th style={{ textAlign: "left", width: "5%" }}>작성자</Th>
+            <Th style={{ width: "5%" }}>유형</Th>
+            <Th style={{ width: "5%" }}>우선순위</Th>
+            <Th style={{ textAlign: "center", width: "10%" }}>작성일</Th>
           </Tr>
         </Thead>
         <Tbody>
