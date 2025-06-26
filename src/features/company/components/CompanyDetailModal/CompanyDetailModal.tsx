@@ -23,6 +23,8 @@ import {
 } from "./CompanyDetailModal.styled";
 import type { Company } from "../../pages/CompanyPage";
 import { formatBizNo } from "../../pages/CompanyPage";
+import MemberRegisterModal from "@/features/user/components/MemberRegisterModal/MemberRegisterModal";
+import { useState } from "react";
 
 interface CompanyDetailModalProps {
   open: boolean;
@@ -35,11 +37,18 @@ const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
   onClose,
   company,
 }) => {
+  const [registerOpen, setRegisterOpen] = useState(false);
+  const dummyMembers = [
+    { id: 1, name: "홍길동", position: "팀장" },
+    { id: 2, name: "김철수", position: "매니저" },
+    { id: 3, name: "이영희", position: "사원" },
+  ];
+
   if (!open || !company) return null;
 
   return (
-    <ModalOverlay>
-      <ModalPanel>
+    <ModalOverlay onClick={onClose}>
+      <ModalPanel onClick={e => e.stopPropagation()}>
         <CloseButton onClick={onClose}>
           <FiX size={20} />
         </CloseButton>
@@ -96,6 +105,44 @@ const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
             <DetailValue>{company.bio || "N/A"}</DetailValue>
           </DetailItem>
         </Section>
+
+        <Section>
+          <SectionTitle>
+            <FiUser size={16} />
+            회사 구성원
+            <button
+              style={{
+                marginLeft: "auto",
+                fontSize: 13,
+                background: "#fbbf24",
+                color: "#fff",
+                border: "none",
+                borderRadius: 6,
+                padding: "4px 12px",
+                cursor: "pointer",
+              }}
+              onClick={() => setRegisterOpen(true)}
+              type="button"
+            >
+              회원 등록
+            </button>
+          </SectionTitle>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 8 }}>
+            {dummyMembers.map((member) => (
+              <div key={member.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "6px 0" }}>
+                <span style={{ fontWeight: 500, color: "#1f2937" }}>{member.name}</span>
+                <span style={{ fontSize: 12, color: "#6b7280", background: "#f3f4f6", borderRadius: 12, padding: "2px 8px" }}>{member.position}</span>
+              </div>
+            ))}
+          </div>
+        </Section>
+
+        {registerOpen && (
+          <MemberRegisterModal
+            onClose={() => setRegisterOpen(false)}
+            onRegister={() => setRegisterOpen(false)}
+          />
+        )}
       </ModalPanel>
     </ModalOverlay>
   );
