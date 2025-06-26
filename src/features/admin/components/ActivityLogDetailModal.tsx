@@ -1178,7 +1178,7 @@ export default function ActivityLogDetailModal({
                   <InfoValue>{formatDate(detail.changedAt)}</InfoValue>
                 </InfoItem>
                 {detail.message && (
-                  <InfoItem>
+                  <InfoItem style={{ marginLeft: "115px" }}>
                     <InfoLabel>작업상세</InfoLabel>
                     <InfoValue
                       style={{ fontSize: "0.8rem", lineHeight: "1.4" }}
