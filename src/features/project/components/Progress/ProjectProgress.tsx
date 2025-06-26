@@ -90,12 +90,6 @@ const ProjectProgress: React.FC<ProjectProgressProps> = ({
                 active={isActive || isSelected}
                 complete={isComplete}
                 selected={isSelected}
-                style={{
-                  cursor: "not-allowed",
-                  border: "none",
-                  background: "transparent",
-                  boxShadow: "none",
-                }}
               >
                 <StepIcon active={isActive || isSelected} complete={isComplete}>
                   <Icon size={18} />
