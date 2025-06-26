@@ -921,7 +921,7 @@ export default function ActivityLogDetailModal({
       case "USER":
         return <FiUser size={14} style={{ color: "#8b5cf6" }} />;
       case "COMPANY":
-        return <FiHome size={14} style={{ color: "#f59e0b" }} />;
+        return <FiHome size={14} style={{ color: "#8b5cf6" }} />;
       case "PROJECT":
         return <FaProjectDiagram size={14} style={{ color: "#3b82f6" }} />;
       case "STEP":
@@ -929,7 +929,7 @@ export default function ActivityLogDetailModal({
       case "POST":
         return <FiFileText size={14} style={{ color: "#10b981" }} />;
       case "INQUIRY":
-        return <FiMessageSquare size={14} style={{ color: "#06b6d4" }} />;
+        return <FiMessageSquare size={14} style={{ color: "#f59e0b" }} />;
       case "CHECK_LIST":
         return <FiCheckSquare size={14} style={{ color: "#ec4899" }} />;
       default:

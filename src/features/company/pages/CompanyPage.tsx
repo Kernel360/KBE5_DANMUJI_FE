@@ -508,7 +508,7 @@ export default function CompanyPage() {
                         cursor: "pointer",
                       }}
                     >
-                      <FiHome size={14} style={{ color: "#f59e0b" }} />
+                      <FiHome size={14} style={{ color: "#8b5cf6" }} />
                       <span
                         style={{
                           fontSize: "14px",

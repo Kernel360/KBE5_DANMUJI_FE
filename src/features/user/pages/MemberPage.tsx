@@ -904,7 +904,7 @@ export default function MemberPage() {
                       }}
                       onClick={() => handleMemberClick(member)}
                     >
-                      <FiHome size={14} style={{ color: "#f59e0b" }} />
+                      <FiHome size={14} style={{ color: "#8b5cf6" }} />
                       <span style={{ fontWeight: "500" }}>
                         {(companies &&
                           companies.find((c) => c.id === member.companyId)

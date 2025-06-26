@@ -141,7 +141,7 @@ export default function ActivityLogPage() {
   const LOG_TYPE_OPTIONS = [
     { value: "ALL", label: "전체", icon: FiGrid, color: "#6b7280" },
     { value: "USER", label: "회원", icon: FiUser, color: "#6366f1" },
-    { value: "COMPANY", label: "업체", icon: FiHome, color: "#f59e0b" },
+    { value: "COMPANY", label: "업체", icon: FiHome, color: "#8b5cf6" },
     {
       value: "PROJECT",
       label: "프로젝트",
@@ -159,7 +159,7 @@ export default function ActivityLogPage() {
       value: "INQUIRY",
       label: "문의",
       icon: FiMessageSquare,
-      color: "#06b6d4",
+      color: "#f59e0b",
     },
     {
       value: "CHECK_LIST",
@@ -272,7 +272,7 @@ export default function ActivityLogPage() {
       case "USER":
         return <FiUser style={{ color: "#6366f1" }} />;
       case "COMPANY":
-        return <FiHome style={{ color: "#f59e0b" }} />;
+        return <FiHome style={{ color: "#8b5cf6" }} />;
       case "PROJECT":
         return <FaProjectDiagram style={{ color: "#3b82f6" }} />;
       case "STEP":
@@ -280,7 +280,7 @@ export default function ActivityLogPage() {
       case "POST":
         return <FiFileText style={{ color: "#10b981" }} />;
       case "INQUIRY":
-        return <FiMessageSquare style={{ color: "#06b6d4" }} />;
+        return <FiMessageSquare style={{ color: "#f59e0b" }} />;
       case "CHECK_LIST":
         return <FiCheckSquare style={{ color: "#ec4899" }} />;
       default:
