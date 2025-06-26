@@ -7,6 +7,15 @@ import CompanyEditModal from "../components/CompanyEditModal";
 import CompanyFilterBar from "../components/CompanyFilterBar";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
+import {
+  FiHome,
+  FiUser,
+  FiMail,
+  FiPhone,
+  FiMapPin,
+  FiHash,
+  FiCalendar,
+} from "react-icons/fi";
 
 export interface Company {
   id: number;
@@ -17,6 +26,7 @@ export interface Company {
   email: string;
   bio: string;
   tel: string;
+  createdAt?: string;
 }
 
 export interface CompanyFormData {
@@ -69,63 +79,50 @@ const Subtitle = styled.p`
 `;
 
 const TableContainer = styled.div`
-  background: #fff;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   overflow: hidden;
+  margin-bottom: 24px;
 `;
 
 const Table = styled.table`
   width: 100%;
-  font-size: 14px;
   border-collapse: collapse;
+  font-size: 14px;
 `;
 
 const TableHead = styled.thead`
   background-color: #f9fafb;
-  border-bottom: 1px solid #e5e7eb;
 `;
 
 const TableHeader = styled.th`
-  padding: 16px;
   text-align: left;
-  font-weight: 600;
+  padding: 12px 16px;
   color: #374151;
-  white-space: nowrap;
+  font-weight: 600;
   font-size: 13px;
+  border-bottom: 1px solid #e5e7eb;
 `;
 
 const TableBody = styled.tbody``;
 
 const TableRow = styled.tr`
-  border-bottom: 1px solid #f3f4f6;
-  transition: background-color 0.2s ease;
-
-  &:last-child {
-    border-bottom: none;
+  &:hover {
+    background-color: #fefdf4;
+    transition: background-color 0.2s ease;
   }
 
-  &:hover {
-    background-color: #f9fafb;
+  &:not(:last-child) {
+    border-bottom: 1px solid #f3f4f6;
   }
 `;
 
 const TableCell = styled.td`
-  padding: 16px;
-  text-align: left;
+  padding: 12px 16px;
   color: #374151;
   vertical-align: middle;
-  font-size: 14px;
-`;
-
-const CompanyNameCell = styled(TableCell)`
-  color: #374151;
-  font-weight: 500;
-  transition: color 0.2s ease;
-  
-  &:hover {
-    color: #3b82f6;
-  }
+  text-align: left;
 `;
 
 const PaginationContainer = styled.div`
@@ -335,17 +332,15 @@ export default function CompanyPage() {
     fetchCompanies();
   };
 
-  // 필터링된 회사 목록
+  // 필터링된 업체 목록
   const filteredCompanies = companies.filter((company) => {
     if (!filters.keyword) return true;
 
     const keyword = filters.keyword.toLowerCase();
-    return (
-      company.name.toLowerCase().includes(keyword)
-    );
+    return company.name.toLowerCase().includes(keyword);
   });
 
-  // 정렬된 회사 목록
+  // 정렬된 업체 목록
   const sortedCompanies = [...filteredCompanies].sort((a, b) => {
     switch (filters.sort) {
       case "name":
@@ -363,7 +358,7 @@ export default function CompanyPage() {
     if (!page) return "";
     const start = page.number * page.size + 1;
     const end = Math.min((page.number + 1) * page.size, page.totalElements);
-    return `총 ${page.totalElements}개의 회사 중 ${start}-${end}개 표시`;
+    return `총 ${page.totalElements}개의 업체 중 ${start}-${end}개 표시`;
   };
 
   const handleEdit = async (data: CompanyFormData) => {
@@ -410,7 +405,7 @@ export default function CompanyPage() {
       // 모달 닫기
       setEditModalOpen(false);
       setEditData(null);
-      notify("회사 정보가 성공적으로 수정되었습니다.");
+      notify("업체 정보가 성공적으로 수정되었습니다.");
       handleClose();
     } catch (err) {
       if (axios.isAxiosError(err)) {
@@ -419,11 +414,11 @@ export default function CompanyPage() {
           setFieldErrors(errorData.data.errors);
         } else {
           setError(
-            errorData?.message || "회사 수정 중 알 수 없는 오류가 발생했습니다."
+            errorData?.message || "업체 수정 중 알 수 없는 오류가 발생했습니다."
           );
         }
       } else {
-        setError("회사 수정 중 알 수 없는 오류가 발생했습니다.");
+        setError("업체 수정 중 알 수 없는 오류가 발생했습니다.");
       }
     }
   };
@@ -451,9 +446,9 @@ export default function CompanyPage() {
         />
       )}
       <HeaderSection>
-        <Title>회사 관리</Title>
+        <Title>업체 관리</Title>
         <Subtitle>
-          프로젝트 관리 시스템의 회사 정보를 한눈에 확인하세요
+          프로젝트 관리 시스템의 업체 정보를 한눈에 확인하세요
         </Subtitle>
       </HeaderSection>
 
@@ -468,12 +463,11 @@ export default function CompanyPage() {
         <Table>
           <TableHead>
             <TableRow>
-              <TableHeader>회사명</TableHeader>
+              <TableHeader>업체명</TableHeader>
               <TableHeader>사업자등록번호</TableHeader>
-              <TableHeader>주소</TableHeader>
-              <TableHeader>사업자 명</TableHeader>
-              <TableHeader>이메일</TableHeader>
+              <TableHeader>대표자</TableHeader>
               <TableHeader>연락처</TableHeader>
+              <TableHeader>생성일</TableHeader>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -505,12 +499,118 @@ export default function CompanyPage() {
                   key={c.id}
                   onClick={() => handleCompanyClick(c)}
                 >
-                  <CompanyNameCell>{c.name}</CompanyNameCell>
-                  <TableCell>{formatBizNo(c.bizNo.toString())}</TableCell>
-                  <TableCell>{c.address}</TableCell>
-                  <TableCell>{c.ceoName}</TableCell>
-                  <TableCell>{c.email}</TableCell>
-                  <TableCell>{formatTelNo(c.tel)}</TableCell>
+                  <TableCell>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <FiHome size={14} style={{ color: "#f59e0b" }} />
+                      <span
+                        style={{
+                          fontSize: "14px",
+                          color: "#374151",
+                          fontWeight: "500",
+                        }}
+                      >
+                        {c.name}
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <FiHash size={14} style={{ color: "#6366f1" }} />
+                      <span style={{ fontSize: "14px", color: "#374151" }}>
+                        {formatBizNo(c.bizNo.toString())}
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <FiUser size={14} style={{ color: "#3b82f6" }} />
+                      <span
+                        style={{
+                          fontSize: "14px",
+                          color: "#374151",
+                          fontWeight: "500",
+                        }}
+                      >
+                        {c.ceoName}
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <FiPhone size={14} style={{ color: "#f59e0b" }} />
+                      <span style={{ fontSize: "14px", color: "#374151" }}>
+                        {formatTelNo(c.tel)}
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <FiCalendar size={14} style={{ color: "#8b5cf6" }} />
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "4px",
+                        }}
+                      >
+                        <span style={{ fontSize: "14px", color: "#374151" }}>
+                          {c.createdAt
+                            ? new Date(c.createdAt).toLocaleDateString(
+                                "ko-KR",
+                                {
+                                  year: "numeric",
+                                  month: "2-digit",
+                                  day: "2-digit",
+                                }
+                              )
+                            : "N/A"}
+                        </span>
+                        {c.createdAt && (
+                          <span style={{ fontSize: "12px", color: "#6b7280" }}>
+                            {new Date(c.createdAt).toLocaleTimeString("ko-KR", {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </TableCell>
                 </ClickableTableRow>
               ))}
           </TableBody>

@@ -268,6 +268,23 @@ export default function ActivityLogDetailModal({
     }
   }, [isOpen, historyId]);
 
+  // ESC 키 이벤트 처리
+  useEffect(() => {
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && isOpen) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("keydown", handleEscapeKey);
+    }
+
+    return () => {
+      document.removeEventListener("keydown", handleEscapeKey);
+    };
+  }, [isOpen, onClose]);
+
   const fetchDetail = async () => {
     setLoading(true);
     setError(null);
@@ -313,7 +330,7 @@ export default function ActivityLogDetailModal({
       case "USER":
         return "회원";
       case "COMPANY":
-        return "회사";
+        return "업체";
       case "PROJECT":
         return "프로젝트";
       case "PROJECT_STEP":
@@ -604,7 +621,7 @@ export default function ActivityLogDetailModal({
       bio: "소개",
 
       // 회사 관련 필드
-      companyName: "회사명",
+      companyName: "업체명",
       ceoName: "대표자명",
       bizNo: "사업자번호",
       address: "주소",

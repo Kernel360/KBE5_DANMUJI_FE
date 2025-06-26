@@ -35,14 +35,21 @@ export default function UserProfilePage() {
 
   if (!user) return <Container>불러오는 중...</Container>;
   const formatDate = (date: string) =>
-    new Intl.DateTimeFormat("ko-KR", { year: "numeric", month: "long", day: "numeric" }).format(new Date(date));
-
+    new Intl.DateTimeFormat("ko-KR", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }).format(new Date(date));
 
   const formatDateTime = (date: string) => {
     const d = new Date(date);
     const kstDate = new Date(d.getTime() + 9 * 60 * 60 * 1000);
-    return `${kstDate.getFullYear()}년 ${kstDate.getMonth() + 1}월 ${kstDate.getDate()}일 `
-      + `${kstDate.getHours()}시 ${kstDate.getMinutes()}분`;
+    return (
+      `${kstDate.getFullYear()}년 ${
+        kstDate.getMonth() + 1
+      }월 ${kstDate.getDate()}일 ` +
+      `${kstDate.getHours()}시 ${kstDate.getMinutes()}분`
+    );
   };
 
   return (
@@ -54,7 +61,7 @@ export default function UserProfilePage() {
           </IconCircle>
           <div>
             <h3>내 정보</h3>
-            <span>개인 및 회사 정보</span>
+            <span>개인 및 업체 정보</span>
           </div>
         </CardHeader>
         <InfoGrid>
@@ -66,7 +73,7 @@ export default function UserProfilePage() {
           </InfoItem>
           <InfoItem>
             <Label>
-              <HiOfficeBuilding /> 회사
+              <HiOfficeBuilding /> 업체
             </Label>
             <Value>{user.companyName}</Value>
           </InfoItem>
@@ -89,7 +96,10 @@ export default function UserProfilePage() {
             <Value>{user.phone}</Value>
           </InfoItem>
           <div style={{ textAlign: "right" }}>
-            <EditButton type="button" onClick={() => setOpenChangePassword(true)}>
+            <EditButton
+              type="button"
+              onClick={() => setOpenChangePassword(true)}
+            >
               비밀번호 변경
             </EditButton>
           </div>
@@ -116,10 +126,15 @@ export default function UserProfilePage() {
           <Label>
             <FiLogIn /> 마지막 로그인
           </Label>
-          <Value>{user.lastLoginAt ? formatDateTime(user.lastLoginAt) : "정보 없음"}</Value>
+          <Value>
+            {user.lastLoginAt ? formatDateTime(user.lastLoginAt) : "정보 없음"}
+          </Value>
         </ActivityRow>
       </ActivityCard>
-      <ChangePasswordModal open={openChangePassword} onClose={() => setOpenChangePassword(false)} />
+      <ChangePasswordModal
+        open={openChangePassword}
+        onClose={() => setOpenChangePassword(false)}
+      />
     </Container>
   );
 }
