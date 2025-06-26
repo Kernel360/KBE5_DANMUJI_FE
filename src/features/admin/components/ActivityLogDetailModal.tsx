@@ -989,20 +989,32 @@ export default function ActivityLogDetailModal({
   const getRoleDisplayName = (role: string) => {
     const roleMap: Record<string, string> = {
       ROLE_ADMIN: "관리자",
+      ROLE_USER: "사용자",
       ROLE_DEV_EMPLOYEE: "개발사 직원",
       ROLE_CLIENT_EMPLOYEE: "고객사 직원",
       ROLE_CLIENT_MANAGER: "고객사 담당자",
       ROLE_DEV_MANAGER: "개발사 담당자",
+      ROLE_SYSTEM_ADMIN: "시스템 관리자",
+      ROLE_TEAM_LEADER: "팀장",
     };
     return roleMap[role] || role;
   };
 
   // 역할에 따른 아이콘 반환
   const getRoleIcon = (role: string) => {
-    if (role === "ROLE_ADMIN") {
-      return <RiUserSettingsLine size={14} style={{ color: "#8b5cf6" }} />;
-    } else {
-      return <FiUser size={14} style={{ color: "#6b7280" }} />;
+    switch (role) {
+      case "ROLE_ADMIN":
+      case "ROLE_SYSTEM_ADMIN":
+        return <RiUserSettingsLine size={14} style={{ color: "#8b5cf6" }} />;
+      case "ROLE_TEAM_LEADER":
+        return <FiUser size={14} style={{ color: "#3b82f6" }} />;
+      case "ROLE_USER":
+      case "ROLE_DEV_EMPLOYEE":
+      case "ROLE_CLIENT_EMPLOYEE":
+      case "ROLE_CLIENT_MANAGER":
+      case "ROLE_DEV_MANAGER":
+      default:
+        return <FiUser size={14} style={{ color: "#6b7280" }} />;
     }
   };
 
