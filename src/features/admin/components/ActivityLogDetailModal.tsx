@@ -15,6 +15,8 @@ import {
   FiLayers,
   FiCheckSquare,
   FiRotateCcw,
+  FiCopy,
+  FiCheck,
 } from "react-icons/fi";
 import { RiUserSettingsLine } from "react-icons/ri";
 import { FaProjectDiagram } from "react-icons/fa";
@@ -302,6 +304,26 @@ const ChangeColumnBox = styled.div`
   gap: 6px;
 `;
 
+const CopyButton = styled.button<{ copied: boolean }>`
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  color: ${({ copied }) => (copied ? "#10b981" : "#6b7280")};
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+
+  &:hover {
+    background-color: #f3f4f6;
+    color: ${({ copied }) => (copied ? "#10b981" : "#374151")};
+  }
+`;
+
 export default function ActivityLogDetailModal({
   isOpen,
   onClose,
@@ -312,6 +334,7 @@ export default function ActivityLogDetailModal({
   const [error, setError] = useState<string | null>(null);
   const [restoring, setRestoring] = useState(false);
   const [restoreError, setRestoreError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (isOpen && historyId) {
@@ -370,6 +393,18 @@ export default function ActivityLogDetailModal({
       setRestoreError("데이터 복구에 실패했습니다. 다시 시도해주세요.");
     } finally {
       setRestoring(false);
+    }
+  };
+
+  const handleCopyId = async () => {
+    if (!detail) return;
+
+    try {
+      await navigator.clipboard.writeText(detail.id);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("클립보드 복사 실패:", err);
     }
   };
 
@@ -1056,7 +1091,12 @@ export default function ActivityLogDetailModal({
         <ModalHeader>
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <ModalTitle>이력 상세 정보</ModalTitle>
-            {detail && <ModalSubtitle>ID: {detail.id}</ModalSubtitle>}
+            {detail && (
+              <CopyButton copied={copied} onClick={handleCopyId}>
+                ID: {detail.id}
+                {copied ? <FiCheck size={14} /> : <FiCopy size={14} />}
+              </CopyButton>
+            )}
           </div>
           <CloseButton onClick={onClose}>
             <FiX />
