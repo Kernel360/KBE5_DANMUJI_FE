@@ -29,8 +29,19 @@ const LinkInputSection: React.FC<LinkInputSectionProps> = ({
 
   // 새 링크 추가
   const handleAddLink = () => {
-    if (linkInput.trim() && !newLinks.includes(linkInput.trim())) {
-      setNewLinks([...newLinks, linkInput.trim()]);
+    const trimmedUrl = linkInput.trim();
+    if (trimmedUrl) {
+      // URL 형식 검증 (http:// 또는 https://로 시작하는지 확인)
+      if (
+        !trimmedUrl.startsWith("http://") &&
+        !trimmedUrl.startsWith("https://")
+      ) {
+        alert("올바른 URL 형식으로 입력해주세요. (예: https://example.com)");
+        return;
+      }
+
+      // 중복 체크 제거 - 같은 URL이라도 여러 번 추가 가능하도록
+      setNewLinks([...newLinks, trimmedUrl]);
       setLinkInput("");
     }
   };
@@ -63,9 +74,12 @@ const LinkInputSection: React.FC<LinkInputSectionProps> = ({
               fontWeight: 600,
               color: "#374151",
               marginBottom: 4,
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
             }}
           >
-            기존 링크
+            기존 링크 ({existingLinks.length}개)
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             {existingLinks.map((link) => (
@@ -120,9 +134,12 @@ const LinkInputSection: React.FC<LinkInputSectionProps> = ({
               fontWeight: 600,
               color: "#374151",
               marginBottom: 4,
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
             }}
           >
-            새로 추가할 링크
+            새로 추가할 링크 ({newLinks.length}개)
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             {newLinks.map((url, idx) => (
@@ -172,16 +189,20 @@ const LinkInputSection: React.FC<LinkInputSectionProps> = ({
       <div style={{ display: "flex", gap: 8 }}>
         <Input
           type="url"
-          placeholder="https://example.com/"
+          placeholder="https://example.com (여러 개 추가 가능)"
           value={linkInput}
           onChange={(e) => setLinkInput(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === "Enter") handleAddLink();
+            if (e.key === "Enter") {
+              e.preventDefault();
+              handleAddLink();
+            }
           }}
         />
         <button
           type="button"
           onClick={handleAddLink}
+          title="링크 추가 (여러 개 추가 가능)"
           style={{
             background: "#fdb924",
             border: "none",
@@ -193,6 +214,13 @@ const LinkInputSection: React.FC<LinkInputSectionProps> = ({
             alignItems: "center",
             gap: 4,
             cursor: "pointer",
+            transition: "background-color 0.2s ease",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = "#f59e0b";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = "#fdb924";
           }}
         >
           <FiPlus size={16} /> 추가
