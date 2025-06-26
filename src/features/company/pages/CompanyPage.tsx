@@ -565,7 +565,7 @@ export default function CompanyPage() {
                         cursor: "pointer",
                       }}
                     >
-                      <FiPhone size={14} style={{ color: "#f59e0b" }} />
+                      <FiPhone size={14} style={{ color: "#10b981" }} />
                       <span style={{ fontSize: "14px", color: "#374151" }}>
                         {formatTelNo(c.tel)}
                       </span>

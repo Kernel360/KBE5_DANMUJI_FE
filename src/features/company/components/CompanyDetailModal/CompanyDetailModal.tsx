@@ -80,7 +80,7 @@ const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
           </DetailItem>
           <DetailItem>
             <DetailIcon>
-              <FiPhone size={14} />
+              <FiPhone size={14} style={{ color: "#10b981" }} />
             </DetailIcon>
             <DetailLabel>연락처:</DetailLabel>
             <DetailValue>{company.tel}</DetailValue>
