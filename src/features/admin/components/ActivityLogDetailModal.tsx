@@ -149,11 +149,12 @@ const InfoValue = styled.span`
 const StatusBadge = styled.span<{ type: string }>`
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  justify-content: center;
   padding: 3px 10px;
   border-radius: 16px;
   font-size: 0.75rem;
   font-weight: 500;
+  width: 50px;
   background-color: ${({ type }) => {
     switch (type) {
       case "CREATED":
@@ -1049,18 +1050,13 @@ export default function ActivityLogDetailModal({
               <SectionTitle>
                 <SectionTitleContent>
                   <FiInfo style={{ color: "#fdb924" }} />
-                  기본 정보
+                  작업 정보
                 </SectionTitleContent>
               </SectionTitle>
               <InfoGrid>
                 <InfoItem>
-                  <InfoLabel>이력 ID</InfoLabel>
-                  <InfoValue>{detail.id}</InfoValue>
-                </InfoItem>
-                <InfoItem>
                   <InfoLabel>작업 유형</InfoLabel>
                   <StatusBadge type={detail.historyType}>
-                    {getActionIcon(detail.historyType)}
                     {getActionDisplayName(detail.historyType)}
                   </StatusBadge>
                 </InfoItem>
@@ -1075,6 +1071,10 @@ export default function ActivityLogDetailModal({
                   <InfoLabel>대상 ID</InfoLabel>
                   <InfoValue>{detail.domainId}</InfoValue>
                 </InfoItem>
+                <InfoItem>
+                  <InfoLabel>이력 ID</InfoLabel>
+                  <InfoValue>{detail.id}</InfoValue>
+                </InfoItem>
               </InfoGrid>
             </ContentSection>
 
@@ -1086,10 +1086,6 @@ export default function ActivityLogDetailModal({
                 </SectionTitleContent>
               </SectionTitle>
               <InfoGrid>
-                <InfoItem>
-                  <InfoLabel>변경자 ID</InfoLabel>
-                  <InfoValue>{detail.changerId}</InfoValue>
-                </InfoItem>
                 <InfoItem>
                   <InfoLabel>변경자 이름</InfoLabel>
                   <InfoValue>
@@ -1103,48 +1099,36 @@ export default function ActivityLogDetailModal({
                     {getRoleDisplayName(detail.changerRole)}
                   </InfoValue>
                 </InfoItem>
+                <InfoItem>
+                  <InfoLabel>변경자 ID</InfoLabel>
+                  <InfoValue>{detail.changerId}</InfoValue>
+                </InfoItem>
               </InfoGrid>
             </ContentSection>
 
             <ContentSection>
-              <div style={{ display: "flex", gap: "20px" }}>
-                <div style={{ flex: "1" }}>
-                  <SectionTitle>
-                    <SectionTitleContent>
-                      <FiCalendar style={{ color: "#fdb924" }} />
-                      시간 정보
-                    </SectionTitleContent>
-                  </SectionTitle>
-                  <InfoGrid>
-                    <InfoItem>
-                      <InfoLabel>변경 발생 시간</InfoLabel>
-                      <InfoValue>{formatDate(detail.changedAt)}</InfoValue>
-                    </InfoItem>
-                  </InfoGrid>
-                </div>
-
+              <SectionTitle>
+                <SectionTitleContent>
+                  <FiCalendar style={{ color: "#fdb924" }} />
+                  시간 정보
+                </SectionTitleContent>
+              </SectionTitle>
+              <InfoGrid>
+                <InfoItem>
+                  <InfoLabel>변경 발생 시간</InfoLabel>
+                  <InfoValue>{formatDate(detail.changedAt)}</InfoValue>
+                </InfoItem>
                 {detail.message && (
-                  <div style={{ flex: "1" }}>
-                    <SectionTitle>
-                      <SectionTitleContent>
-                        <FiMessageSquare style={{ color: "#fdb924" }} />
-                        작업상세
-                      </SectionTitleContent>
-                    </SectionTitle>
-                    <div style={{ padding: "8px 0" }}>
-                      <span
-                        style={{
-                          fontSize: "0.875rem",
-                          color: "#111827",
-                          lineHeight: "1.5",
-                        }}
-                      >
-                        {detail.message}
-                      </span>
-                    </div>
-                  </div>
+                  <InfoItem>
+                    <InfoLabel>작업상세</InfoLabel>
+                    <InfoValue
+                      style={{ fontSize: "0.8rem", lineHeight: "1.4" }}
+                    >
+                      {detail.message}
+                    </InfoValue>
+                  </InfoItem>
                 )}
-              </div>
+              </InfoGrid>
             </ContentSection>
 
             {renderChanges()}
