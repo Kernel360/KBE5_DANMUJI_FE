@@ -536,7 +536,13 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
               {parentPost.title}
             </TitleText>
           </Td>
-          <Td>{/* 댓글 개수 표시 제거 */}</Td>
+          <Td>
+            {parentPost.commentCount > 0 && (
+              <span style={{ color: "#9ca3af", fontSize: "0.9em" }}>
+                댓글 {parentPost.commentCount}
+              </span>
+            )}
+          </Td>
           <Td style={{ textAlign: "left" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <FiUser size={14} style={{ color: "#3b82f6" }} />
@@ -612,7 +618,13 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
                 {child.title}
               </TitleText>
             </Td>
-            <Td>{/* 댓글 개수 표시 제거 */}</Td>
+            <Td>
+              {child.commentCount > 0 && (
+                <span style={{ color: "#9ca3af", fontSize: "0.9em" }}>
+                  댓글 {child.commentCount}
+                </span>
+              )}
+            </Td>
             <Td style={{ textAlign: "left" }}>
               <div
                 style={{ display: "flex", alignItems: "center", gap: "8px" }}
