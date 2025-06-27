@@ -218,3 +218,18 @@ export interface PageResponse<T> {
   content: T[];
   page: PageInfo;
 }
+
+export interface PostSummaryReadResponse {
+  postId: number;
+  parentId: number | null;
+  projectId: number;
+  projectStepId: number;
+  authorId: number;
+  authorName: string;
+  authorUsername: string;
+  title: string;
+  type: PostType;
+  priority: PostPriority;
+  createdAt: string;
+  commentCount: number;
+}

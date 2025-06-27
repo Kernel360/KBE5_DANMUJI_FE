@@ -1,7 +1,7 @@
 import React, { useState, useEffect, type JSX, useRef } from "react";
 import { searchPosts } from "../../../project-d/services/postService";
 import { getProjectDetail } from "../../services/projectService";
-import type { PostDetailReadResponse } from "../../../project-d/types/post";
+import type { PostSummaryReadResponse } from "../../../project-d/types/post";
 import type { ProjectDetailStep } from "../../services/projectService";
 import {
   Wrapper,
@@ -67,7 +67,7 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
   projectId,
   selectedStepId,
 }) => {
-  const [posts, setPosts] = useState<PostDetailReadResponse[]>([]);
+  const [posts, setPosts] = useState<PostSummaryReadResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
@@ -502,7 +502,7 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
   };
 
   // 게시글 계층 렌더링 함수 (검색 시에는 관계 표시 안함)
-  const renderPosts = (posts: PostDetailReadResponse[]): JSX.Element[] => {
+  const renderPosts = (posts: PostSummaryReadResponse[]): JSX.Element[] => {
     // 모든 경우에 부모-자식 관계 표시
     // 부모 게시글들 (parentId가 null인 것들)
     const parentPosts = posts.filter((post) => post.parentId === null);

@@ -12,7 +12,7 @@ import type {
   PostType,
   PostPriority,
   PostUpdateRequest,
-  PostDetailReadResponse,
+  PostSummaryReadResponse,
   PageResponse,
   PostFile,
 } from "../types/post";
@@ -506,7 +506,7 @@ export const searchPosts = async (
   },
   page: number = 0,
   size: number = 10
-): Promise<ApiResponse<PageResponse<PostDetailReadResponse>>> => {
+): Promise<ApiResponse<PageResponse<PostSummaryReadResponse>>> => {
   try {
     console.log("=== searchPosts 함수 호출 ===");
     console.log("projectId:", projectId);
@@ -523,7 +523,7 @@ export const searchPosts = async (
     };
 
     const response = await api.get<
-      ApiResponse<PageResponse<PostDetailReadResponse>>
+      ApiResponse<PageResponse<PostSummaryReadResponse>>
     >(`/api/posts/search`, {
       params: requestParams,
     });
