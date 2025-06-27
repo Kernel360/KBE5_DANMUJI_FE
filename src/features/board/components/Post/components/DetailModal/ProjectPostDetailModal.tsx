@@ -37,10 +37,7 @@ import PostContent from "./PostContent";
 import PostAttachments from "./PostAttachments";
 import PostLinks from "./PostLinks";
 import CommentSection from "./CommentSection";
-import {
-  searchUsernames,
-  getUsersByProject,
-} from "@/features/user/services/userService";
+import { getUsersByProject } from "@/features/user/services/userService";
 import { extractCompletedMentions } from "@/utils/mentionUtils";
 
 interface PostDetailModalProps {

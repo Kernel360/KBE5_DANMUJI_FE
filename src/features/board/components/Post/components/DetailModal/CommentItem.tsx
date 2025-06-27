@@ -174,19 +174,17 @@ const CommentItem: React.FC<CommentItemProps> = ({
             </div>
           </div>
         ) : (
-          comment.content.split(/(@\w+)(?=\s|$|[^\w@])/g).map((part, idx) => {
-            if (part.startsWith("@")) {
-              const username = part.substring(1);
-              const isExistingUser = allUsernames.includes(username);
-              const isCompletedMention = completedMentions.includes(username);
-
-              if (isExistingUser && isCompletedMention) {
+          comment.content
+            .split(/(@[a-zA-Z0-9._]+)(?=\s|$|[^a-zA-Z0-9._@])/g)
+            .map((part, idx) => {
+              if (part.startsWith("@")) {
+                const username = part.substring(1);
                 return (
                   <span
                     key={idx}
                     style={{
                       color: "#fdb924",
-                      fontWeight: "500",
+                      fontWeight: "600",
                       cursor: "pointer",
                     }}
                     onClick={(e) => onUserProfileClick(e, username)}
@@ -197,10 +195,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
               } else {
                 return <span key={idx}>{part}</span>;
               }
-            } else {
-              return <span key={idx}>{part}</span>;
-            }
-          })
+            })
         )}
       </CommentText>
     </StyledCommentItem>

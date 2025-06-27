@@ -1,9 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams } from "react-router-dom";
-import {
-  searchUsernames,
-  getUsersByProject,
-} from "@/features/user/services/userService";
+import { getUsersByProject } from "@/features/user/services/userService";
 
 // UserSummaryResponse 타입을 직접 정의
 interface UserSummaryResponse {
@@ -62,7 +59,7 @@ export const useMention = () => {
     loadAllProjectUsers();
   }, [loadAllProjectUsers]);
 
-  // @ 검색 로직
+  // @ 검색 로직 - 프로젝트 사용자 중에서 필터링
   const searchMentions = useCallback(
     async (query: string) => {
       if (!projectId) {
@@ -72,26 +69,15 @@ export const useMention = () => {
 
       setIsLoading(true);
       try {
-        let usernames: string[] = [];
-
-        if (query.trim() === "") {
-          // 빈 쿼리일 때는 이미 로드된 프로젝트 사용자들 사용
-          usernames = allProjectUsers;
-        } else {
-          // 검색어가 있을 때는 LIKE 쿼리로 수정된 API 사용
-          const response = await searchUsernames(query, parseInt(projectId));
-          const userData = response?.data;
-          if (userData && Array.isArray(userData)) {
-            usernames = userData.map(
-              (user: UserSummaryResponse) => user.username
-            );
-          }
-        }
+        // 프로젝트 사용자 중에서 쿼리와 일치하는 사용자들 필터링
+        const filteredUsernames = allProjectUsers.filter((username) =>
+          username.toLowerCase().includes(query.toLowerCase())
+        );
 
         setMentionState((prev) => ({
           ...prev,
-          suggestions: usernames,
-          isActive: usernames.length > 0,
+          suggestions: filteredUsernames,
+          isActive: filteredUsernames.length > 0,
           selectedIndex: 0,
         }));
       } catch (error) {

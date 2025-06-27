@@ -60,34 +60,6 @@ export interface UserSummaryResponse {
   role: string;
 }
 
-// 사용자명 검색
-export const searchUsernames = async (
-  username: string,
-  projectId: number
-): Promise<ApiResponse<UserSummaryResponse[]>> => {
-  try {
-    const response = await api.get<ApiResponse<UserSummaryResponse[]>>(
-      "/api/users/search",
-      {
-        params: {
-          projectId,
-          username,
-        },
-      }
-    );
-    return handleApiResponse<UserSummaryResponse[]>(response);
-  } catch (error) {
-    if (error instanceof ApiError) throw error;
-    if (error instanceof AxiosError) {
-      throw new ApiError(
-        error.response?.data?.message || "사용자 검색 중 오류가 발생했습니다.",
-        error.response?.status
-      );
-    }
-    throw new ApiError("사용자 검색 중 알 수 없는 오류가 발생했습니다.");
-  }
-};
-
 // 프로젝트의 모든 사용자 조회
 export const getUsersByProject = async (
   projectId: number

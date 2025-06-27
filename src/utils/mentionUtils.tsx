@@ -25,7 +25,7 @@ export const highlightMentions = (
   if (!content) return [];
 
   // @로 시작하는 사용자명 패턴 찾기 - 공백이나 특수문자로 구분되는 사용자명만
-  const mentionPattern = /(@\w+)(?=\s|$|[^\w@])/g;
+  const mentionPattern = /(@[a-zA-Z0-9._]+)(?=\s|$|[^a-zA-Z0-9._@])/g;
   const parts = content.split(mentionPattern);
 
   return parts.map((part, index) => {
@@ -146,24 +146,24 @@ export const renderContentWithMentions = (
 
 // @멘션이 포함되어 있는지 확인하는 함수
 export const hasMentions = (content: string): boolean => {
-  return /(@\w+)(?=\s|$|[^\w@])/.test(content);
+  return /(@[a-zA-Z0-9._]+)(?=\s|$|[^a-zA-Z0-9._@])/.test(content);
 };
 
 // @멘션된 사용자명들을 추출하는 함수
 export const extractMentions = (content: string): string[] => {
   const mentions: string[] = [];
-  const mentionPattern = /@(\w+)(?=\s|$|[^\w@])/g;
+  const mentionPattern = /@[a-zA-Z0-9._]+(?=\s|$|[^a-zA-Z0-9._@])/g;
   let match;
 
   while ((match = mentionPattern.exec(content)) !== null) {
-    mentions.push(match[1]); // @ 제외하고 사용자명만 추출
+    mentions.push(match[0]); // 멘션 전체 추출
   }
 
   return mentions;
 };
 
 export const renderMentionText = (text: string) => {
-  const mentionRegex = /@(\w+)(?=\s|$|[^\w@])/g;
+  const mentionRegex = /@[a-zA-Z0-9._]+(?=\s|$|[^a-zA-Z0-9._@])/g;
   const parts = [];
   let lastIndex = 0;
   let match;
@@ -192,11 +192,11 @@ export const renderMentionText = (text: string) => {
 export const extractCompletedMentions = (content: string): string[] => {
   const mentions: string[] = [];
   // @username 형태로 완료된 멘션만 추출 (공백이나 특수문자로 구분)
-  const mentionPattern = /@(\w+)(?=\s|$|[^\w@])/g;
+  const mentionPattern = /@[a-zA-Z0-9._]+(?=\s|$|[^a-zA-Z0-9._@])/g;
   let match;
 
   while ((match = mentionPattern.exec(content)) !== null) {
-    mentions.push(match[1]); // @ 제외하고 사용자명만 추출
+    mentions.push(match[0]); // 멘션 전체 추출
   }
 
   return mentions;

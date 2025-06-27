@@ -163,7 +163,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
                     onCancelEdit={onCancelEdit}
                     onReply={() => onReply(rootComment)}
                     isAuthor={isAuthor(
-                      rootComment.author?.id || rootComment.authorId
+                      rootComment.author?.id || rootComment.authorId || 0
                     )}
                     formatDate={formatDate}
                     onUserProfileClick={onUserProfileClick}
@@ -223,7 +223,9 @@ const CommentSection: React.FC<CommentSectionProps> = ({
                         onSaveEdit={() => onSaveEdit(reply.id)}
                         onCancelEdit={onCancelEdit}
                         onReply={() => onReply(reply)}
-                        isAuthor={isAuthor(reply.author?.id || reply.authorId)}
+                        isAuthor={isAuthor(
+                          reply.author?.id || reply.authorId || 0
+                        )}
                         formatDate={formatDate}
                         onUserProfileClick={onUserProfileClick}
                         allUsernames={allUsernames}
