@@ -6,6 +6,13 @@ import {
   FiDownload,
   FiTrash2,
 } from "react-icons/fi";
+import { FaRegFilePdf, FaRegFileWord } from "react-icons/fa";
+import { LuFileText } from "react-icons/lu";
+import {
+  RiFileExcel2Fill,
+  RiFilePpt2Fill,
+  RiFileHwpLine,
+} from "react-icons/ri";
 import {
   FormGroup,
   Label,
@@ -43,9 +50,56 @@ const FileUploadSection: React.FC<FileUploadSectionProps> = ({
   colorTheme,
 }) => {
   const getFileIcon = (file: File) => {
-    if (file.type.startsWith("image/")) {
-      return <FiImage size={16} />;
+    const fileName = file.name.toLowerCase();
+    const extension = fileName.split(".").pop() || "";
+
+    // 텍스트 파일 (.txt)
+    if (extension === "txt" || file.type === "text/plain") {
+      return <LuFileText size={16} style={{ color: "#6b7280" }} />;
     }
+
+    // PDF 파일
+    if (extension === "pdf" || file.type === "application/pdf") {
+      return <FaRegFilePdf size={16} style={{ color: "#dc2626" }} />;
+    }
+
+    // Word 파일 (.doc, .docx)
+    if (
+      extension === "doc" ||
+      extension === "docx" ||
+      file.type.includes("word")
+    ) {
+      return <FaRegFileWord size={16} style={{ color: "#2563eb" }} />;
+    }
+
+    // Excel 파일 (.xls, .xlsx)
+    if (
+      extension === "xls" ||
+      extension === "xlsx" ||
+      file.type.includes("excel")
+    ) {
+      return <RiFileExcel2Fill size={16} style={{ color: "#16a34a" }} />;
+    }
+
+    // PowerPoint 파일 (.ppt, .pptx)
+    if (
+      extension === "ppt" ||
+      extension === "pptx" ||
+      file.type.includes("powerpoint")
+    ) {
+      return <RiFilePpt2Fill size={16} style={{ color: "#dc2626" }} />;
+    }
+
+    // HWP 파일 (.hwp)
+    if (extension === "hwp") {
+      return <RiFileHwpLine size={16} style={{ color: "#0ea5e9" }} />;
+    }
+
+    // 이미지 파일들 (ico 포함)
+    if (extension === "ico" || file.type.startsWith("image/")) {
+      return <FiImage size={16} style={{ color: "#0ea5e9" }} />;
+    }
+
     return <FiFile size={16} />;
   };
 
@@ -53,14 +107,44 @@ const FileUploadSection: React.FC<FileUploadSectionProps> = ({
     const fileName = file.fileName.toLowerCase();
     const extension = fileName.split(".").pop() || "";
 
-    // 아이콘 파일 (.ico)
-    if (extension === "ico") {
-      return <FiFile size={16} />;
+    // 텍스트 파일 (.txt)
+    if (extension === "txt") {
+      return <LuFileText size={16} style={{ color: "#6b7280" }} />;
     }
 
-    if (fileName.match(/\.(jpg|jpeg|png|gif|svg|webp)$/i)) {
-      return <FiImage size={16} />;
+    // PDF 파일
+    if (extension === "pdf") {
+      return <FaRegFilePdf size={16} style={{ color: "#dc2626" }} />;
     }
+
+    // Word 파일 (.doc, .docx)
+    if (extension === "doc" || extension === "docx") {
+      return <FaRegFileWord size={16} style={{ color: "#2563eb" }} />;
+    }
+
+    // Excel 파일 (.xls, .xlsx)
+    if (extension === "xls" || extension === "xlsx") {
+      return <RiFileExcel2Fill size={16} style={{ color: "#16a34a" }} />;
+    }
+
+    // PowerPoint 파일 (.ppt, .pptx)
+    if (extension === "ppt" || extension === "pptx") {
+      return <RiFilePpt2Fill size={16} style={{ color: "#dc2626" }} />;
+    }
+
+    // HWP 파일 (.hwp)
+    if (extension === "hwp") {
+      return <RiFileHwpLine size={16} style={{ color: "#0ea5e9" }} />;
+    }
+
+    // 이미지 파일들 (ico 포함)
+    if (
+      extension === "ico" ||
+      fileName.match(/\.(jpg|jpeg|png|gif|svg|webp)$/i)
+    ) {
+      return <FiImage size={16} style={{ color: "#0ea5e9" }} />;
+    }
+
     return <FiFile size={16} />;
   };
 
@@ -109,7 +193,7 @@ const FileUploadSection: React.FC<FileUploadSectionProps> = ({
                 color: "#9ca3af",
               }}
             >
-              파일 최대 20MB
+              파일 최대 30MB
             </p>
           </div>
           <input

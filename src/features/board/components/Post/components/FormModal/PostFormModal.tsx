@@ -475,12 +475,12 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
     setIsDragOver(false);
     const droppedFiles = Array.from(e.dataTransfer.files);
 
-    // 파일 크기 제한 (20MB - 백엔드 설정에 맞춤)
-    const maxFileSize = 20 * 1024 * 1024; // 20MB
+    // 파일 크기 제한 (50MB - 백엔드 설정에 맞춤)
+    const maxFileSize = 50 * 1024 * 1024; // 50MB
     const validFiles = droppedFiles.filter((file) => {
       if (file.size > maxFileSize) {
         showErrorToast(
-          `${file.name} 업로드 가능한 파일 용량을 초과했습니다. (최대 20MB)`
+          `${file.name} 업로드 가능한 파일 용량을 초과했습니다. (최대 50MB)`
         );
         return false;
       }
@@ -507,12 +507,12 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
 
-    // 파일 크기 제한 (20MB - 백엔드 설정에 맞춤)
-    const maxFileSize = 20 * 1024 * 1024; // 20MB
+    // 파일 크기 제한 (30MB - 백엔드 설정에 맞춤)
+    const maxFileSize = 30 * 1024 * 1024; // 30MB
     const validFiles = selectedFiles.filter((file) => {
       if (file.size > maxFileSize) {
         showErrorToast(
-          `${file.name} 업로드 가능한 파일 용량을 초과했습니다. (최대 20MB)`
+          `${file.name} 업로드 가능한 파일 용량을 초과했습니다. (최대 30MB)`
         );
         return false;
       }

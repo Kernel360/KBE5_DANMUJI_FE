@@ -1,13 +1,17 @@
 import React from "react";
 import {
-  FaFileWord,
-  FaFileExcel,
-  FaFilePowerpoint,
   FaFileArchive,
   FaFileAlt,
+  FaRegFilePdf,
+  FaRegFileWord,
 } from "react-icons/fa";
-import { FiDownload, FiFile } from "react-icons/fi";
-import { LuImage } from "react-icons/lu";
+import { FiDownload, FiFile, FiImage } from "react-icons/fi";
+import { LuFileText } from "react-icons/lu";
+import {
+  RiFileExcel2Fill,
+  RiFilePpt2Fill,
+  RiFileHwpLine,
+} from "react-icons/ri";
 import {
   AttachmentsSection,
   FileList,
@@ -39,34 +43,71 @@ const PostAttachments: React.FC<PostAttachmentsProps> = ({
     const fileName = file.fileName.toLowerCase();
     const extension = fileName.split(".").pop() || "";
 
-    // 아이콘 파일 (.ico)
-    if (extension === "ico") {
-      return <FiFile style={{ color: "#fbbf24" }} />;
+    // 텍스트 파일 (.txt)
+    if (extension === "txt" || fileType.includes("text/plain")) {
+      return <LuFileText style={{ color: "#6b7280" }} />;
     }
 
-    if (fileType.includes("word") || fileType.includes("doc")) {
-      return <FaFileWord style={{ color: "#2b579a" }} />;
-    } else if (fileType.includes("excel") || fileType.includes("xls")) {
-      return <FaFileExcel style={{ color: "#217346" }} />;
-    } else if (fileType.includes("powerpoint") || fileType.includes("ppt")) {
-      return <FaFilePowerpoint style={{ color: "#d24726" }} />;
-    } else if (
-      fileType.includes("zip") ||
-      fileType.includes("rar") ||
-      fileType.includes("7z")
+    // PDF 파일
+    if (extension === "pdf" || fileType.includes("pdf")) {
+      return <FaRegFilePdf style={{ color: "#dc2626" }} />;
+    }
+
+    // Word 파일 (.doc, .docx)
+    if (
+      extension === "doc" ||
+      extension === "docx" ||
+      fileType.includes("word") ||
+      fileType.includes("doc")
     ) {
-      return <FaFileArchive style={{ color: "#ff6b35" }} />;
-    } else if (fileType.includes("pdf")) {
-      return <FaFileAlt style={{ color: "#dc3545" }} />;
-    } else if (
+      return <FaRegFileWord style={{ color: "#2563eb" }} />;
+    }
+
+    // Excel 파일 (.xls, .xlsx)
+    if (
+      extension === "xls" ||
+      extension === "xlsx" ||
+      fileType.includes("excel") ||
+      fileType.includes("xls")
+    ) {
+      return <RiFileExcel2Fill style={{ color: "#16a34a" }} />;
+    }
+
+    // PowerPoint 파일 (.ppt, .pptx)
+    if (
+      extension === "ppt" ||
+      extension === "pptx" ||
+      fileType.includes("powerpoint") ||
+      fileType.includes("ppt")
+    ) {
+      return <RiFilePpt2Fill style={{ color: "#dc2626" }} />;
+    }
+
+    // HWP 파일 (.hwp)
+    if (extension === "hwp" || fileType.includes("hwp")) {
+      return <RiFileHwpLine style={{ color: "#0ea5e9" }} />;
+    }
+
+    // 이미지 파일들 (ico 포함)
+    if (
+      extension === "ico" ||
       fileType.includes("image") ||
       fileType.includes("jpg") ||
+      fileType.includes("jpeg") ||
       fileType.includes("png") ||
       fileType.includes("gif") ||
       fileType.includes("webp") ||
       extension === "webp"
     ) {
-      return <LuImage style={{ color: "#10b981" }} />;
+      return <FiImage style={{ color: "#0ea5e9" }} />;
+    }
+
+    if (
+      fileType.includes("zip") ||
+      fileType.includes("rar") ||
+      fileType.includes("7z")
+    ) {
+      return <FaFileArchive style={{ color: "#ff6b35" }} />;
     } else {
       return <FiFile style={{ color: "#6c757d" }} />;
     }
