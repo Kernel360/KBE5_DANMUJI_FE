@@ -114,7 +114,13 @@ const CommentItem: React.FC<CommentItemProps> = ({
           <ClickableUsername
             username={comment.authorName || comment.author?.name || "undefined"}
             userId={comment.author?.id || comment.authorId}
-            onClick={onUserProfileClick}
+            onClick={(e) =>
+              onUserProfileClick(
+                e,
+                comment.authorUsername || comment.authorName || "undefined",
+                comment.author?.id || comment.authorId
+              )
+            }
             style={{ color: "#111827" }}
           />
           {comment.authorUsername && (

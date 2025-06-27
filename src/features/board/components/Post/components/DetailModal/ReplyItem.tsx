@@ -113,7 +113,13 @@ const ReplyItem: React.FC<ReplyItemProps> = ({
           <ClickableUsername
             username={reply.authorName || reply.author?.name || "undefined"}
             userId={reply.author?.id || reply.authorId}
-            onClick={onUserProfileClick}
+            onClick={(e) =>
+              onUserProfileClick(
+                e,
+                reply.authorUsername || reply.authorName || "undefined",
+                reply.author?.id || reply.authorId
+              )
+            }
             style={{ color: "#111827" }}
           />
           {reply.authorUsername && (

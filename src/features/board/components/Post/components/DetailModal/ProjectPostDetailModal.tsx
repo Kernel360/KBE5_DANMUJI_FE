@@ -84,6 +84,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
     handleViewProfile,
     handleSendMessage,
     handleSendInquiry,
+    setProfileState,
   } = useUserProfile();
 
   const [allUsernames, setAllUsernames] = useState<string[]>([]);
@@ -492,7 +493,52 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                   onReply={handleReplyClick}
                   isAuthor={isAuthor}
                   formatDate={formatDate}
-                  onUserProfileClick={openUserProfile}
+                  onUserProfileClick={(e, username, userId) => {
+                    // 댓글에서 해당 사용자의 role 정보 찾기
+                    const comment = comments.find(
+                      (c) =>
+                        c.authorUsername === username ||
+                        c.authorName === username
+                    );
+                    const role = comment?.role;
+
+                    // 역할에 따른 한글 표시
+                    let roleDisplay = "사용자";
+                    let isAdmin = false;
+
+                    switch (role) {
+                      case "ROLE_ADMIN":
+                        roleDisplay = "관리자";
+                        isAdmin = true;
+                        break;
+                      case "ROLE_DEV":
+                        roleDisplay = "개발자";
+                        break;
+                      case "ROLE_CLIENT":
+                        roleDisplay = "고객";
+                        break;
+                      case "ROLE_USER":
+                      default:
+                        roleDisplay = "사용자";
+                        break;
+                    }
+
+                    // 프로필 상태 업데이트
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const position = {
+                      top: rect.bottom + window.scrollY + 5,
+                      left: rect.left + window.scrollX,
+                    };
+
+                    setProfileState({
+                      isOpen: true,
+                      username,
+                      userId,
+                      position,
+                      userRole: roleDisplay,
+                      isAdmin,
+                    });
+                  }}
                   allUsernames={allUsernames}
                   completedMentions={extractCompletedMentions(
                     comments.map((c) => c.content).join(" ")

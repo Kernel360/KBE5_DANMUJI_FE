@@ -119,5 +119,6 @@ export const useUserProfile = () => {
     handleViewProfile,
     handleSendMessage,
     handleSendInquiry,
+    setProfileState,
   };
 };
