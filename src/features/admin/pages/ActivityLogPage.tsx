@@ -49,6 +49,8 @@ import {
   FiChevronDown,
   FiLayers,
   FiGrid,
+  FiMessageSquare,
+  FiCheckSquare,
 } from "react-icons/fi";
 import { FaProjectDiagram } from "react-icons/fa";
 import { LuUserRoundCog } from "react-icons/lu";
@@ -67,7 +69,14 @@ interface ActivityLog {
   userName: string;
   userRole: string;
   action: string;
-  targetType: "POST" | "USER" | "PROJECT" | "COMPANY" | "STEP";
+  targetType:
+    | "POST"
+    | "USER"
+    | "PROJECT"
+    | "COMPANY"
+    | "STEP"
+    | "INQUIRY"
+    | "CHECK_LIST";
   targetName: string;
   details: string;
   ipAddress: string;
@@ -132,7 +141,7 @@ export default function ActivityLogPage() {
   const LOG_TYPE_OPTIONS = [
     { value: "ALL", label: "전체", icon: FiGrid, color: "#6b7280" },
     { value: "USER", label: "회원", icon: FiUser, color: "#6366f1" },
-    { value: "COMPANY", label: "업체", icon: FiHome, color: "#f59e0b" },
+    { value: "COMPANY", label: "업체", icon: FiHome, color: "#8b5cf6" },
     {
       value: "PROJECT",
       label: "프로젝트",
@@ -146,6 +155,18 @@ export default function ActivityLogPage() {
       color: "#6366f1",
     },
     { value: "POST", label: "게시글", icon: FiFileText, color: "#10b981" },
+    {
+      value: "INQUIRY",
+      label: "문의",
+      icon: FiMessageSquare,
+      color: "#f59e0b",
+    },
+    {
+      value: "CHECK_LIST",
+      label: "체크리스트",
+      icon: FiCheckSquare,
+      color: "#ec4899",
+    },
   ];
 
   // 드롭다운 외부 클릭 감지
@@ -251,13 +272,17 @@ export default function ActivityLogPage() {
       case "USER":
         return <FiUser style={{ color: "#6366f1" }} />;
       case "COMPANY":
-        return <FiHome style={{ color: "#f59e0b" }} />;
+        return <FiHome style={{ color: "#8b5cf6" }} />;
       case "PROJECT":
         return <FaProjectDiagram style={{ color: "#3b82f6" }} />;
       case "STEP":
         return <FiLayers style={{ color: "#6366f1" }} />;
       case "POST":
         return <FiFileText style={{ color: "#10b981" }} />;
+      case "INQUIRY":
+        return <FiMessageSquare style={{ color: "#f59e0b" }} />;
+      case "CHECK_LIST":
+        return <FiCheckSquare style={{ color: "#ec4899" }} />;
       default:
         return <FiGrid style={{ color: "#6b7280" }} />;
     }
@@ -515,7 +540,7 @@ export default function ActivityLogPage() {
   return (
     <PageContainer>
       <Header>
-        <Title>변경 이력</Title>
+        <Title>이력 관리</Title>
         <Description>
           사용자들의 사이트 활동 내역을 확인할 수 있습니다
         </Description>

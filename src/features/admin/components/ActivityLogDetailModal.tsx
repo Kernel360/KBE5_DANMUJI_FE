@@ -13,6 +13,10 @@ import {
   FiHome,
   FiFileText,
   FiLayers,
+  FiCheckSquare,
+  FiRotateCcw,
+  FiCopy,
+  FiCheck,
 } from "react-icons/fi";
 import { RiUserSettingsLine } from "react-icons/ri";
 import { FaProjectDiagram } from "react-icons/fa";
@@ -81,6 +85,14 @@ const ModalTitle = styled.h2`
   }
 `;
 
+const ModalSubtitle = styled.div`
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-top: 4px;
+  padding-left: 16px;
+  font-weight: 500;
+`;
+
 const CloseButton = styled.button`
   background: none;
   border: none;
@@ -105,6 +117,12 @@ const SectionTitle = styled.h3`
   font-weight: 600;
   color: #374151;
   margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const SectionTitleContent = styled.div`
   display: flex;
   align-items: center;
   gap: 6px;
@@ -141,11 +159,12 @@ const InfoValue = styled.span`
 const StatusBadge = styled.span<{ type: string }>`
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  justify-content: center;
   padding: 3px 10px;
   border-radius: 16px;
   font-size: 0.75rem;
   font-weight: 500;
+  width: 50px;
   background-color: ${({ type }) => {
     switch (type) {
       case "CREATED":
@@ -221,11 +240,43 @@ const HighlightedValue = styled.span`
   border-radius: 3px;
 `;
 
+const RestoreButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background-color: #6b7280;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #4b5563;
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    background-color: #d1d5db;
+    cursor: not-allowed;
+    transform: none;
+  }
+`;
+
 const ErrorMessage = styled.div`
   color: #ef4444;
-  text-align: center;
-  padding: 16px;
   font-size: 0.875rem;
+  margin-top: 8px;
+  padding: 8px 12px;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
 `;
 
 const ChangesGrid = styled.div`
@@ -253,6 +304,26 @@ const ChangeColumnBox = styled.div`
   gap: 6px;
 `;
 
+const CopyButton = styled.button<{ copied: boolean }>`
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  color: ${({ copied }) => (copied ? "#10b981" : "#6b7280")};
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+
+  &:hover {
+    background-color: #f3f4f6;
+    color: ${({ copied }) => (copied ? "#10b981" : "#374151")};
+  }
+`;
+
 export default function ActivityLogDetailModal({
   isOpen,
   onClose,
@@ -261,6 +332,9 @@ export default function ActivityLogDetailModal({
   const [detail, setDetail] = useState<ActivityLogDetail | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [restoring, setRestoring] = useState(false);
+  const [restoreError, setRestoreError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (isOpen && historyId) {
@@ -296,6 +370,41 @@ export default function ActivityLogDetailModal({
       setError("이력 상세 정보를 불러오는데 실패했습니다.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleRestore = async () => {
+    if (!detail) return;
+
+    setRestoring(true);
+    setRestoreError(null);
+
+    try {
+      // TODO: 실제 복구 API 호출
+      // const response = await restoreData(detail.id);
+
+      // 임시로 성공 메시지 표시
+      console.log("데이터 복구 요청:", detail.id);
+
+      // 성공 시 모달 닫기
+      onClose();
+    } catch (err) {
+      console.error("데이터 복구 실패:", err);
+      setRestoreError("데이터 복구에 실패했습니다. 다시 시도해주세요.");
+    } finally {
+      setRestoring(false);
+    }
+  };
+
+  const handleCopyId = async () => {
+    if (!detail) return;
+
+    try {
+      await navigator.clipboard.writeText(detail.id);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("클립보드 복사 실패:", err);
     }
   };
 
@@ -345,6 +454,8 @@ export default function ActivityLogDetailModal({
         return "문의";
       case "CHAT":
         return "채팅";
+      case "CHECK_LIST":
+        return "체크리스트";
       default:
         return domainType;
     }
@@ -400,8 +511,10 @@ export default function ActivityLogDetailModal({
       return (
         <ChangesSection>
           <SectionTitle>
-            <FiPlus style={{ color: "#fdb924" }} />
-            생성된 데이터
+            <SectionTitleContent>
+              <FiPlus style={{ color: "#fdb924" }} />
+              생성된 데이터
+            </SectionTitleContent>
           </SectionTitle>
           <DataContainer>
             <DataDisplay>
@@ -411,7 +524,11 @@ export default function ActivityLogDetailModal({
                     !key.startsWith("_") &&
                     key !== "delete" &&
                     key !== "deletedAt" &&
-                    key !== "updatedAt"
+                    key !== "updatedAt" &&
+                    key !== "password" &&
+                    key !== "confirmPassword" &&
+                    key !== "oldPassword" &&
+                    key !== "newPassword"
                 )
                 .map(([key, value]) => (
                   <DataRow key={key}>
@@ -434,8 +551,14 @@ export default function ActivityLogDetailModal({
       return (
         <ChangesSection>
           <SectionTitle>
-            <FiTrash2 style={{ color: "#fdb924" }} />
-            삭제된 데이터
+            <SectionTitleContent>
+              <FiTrash2 style={{ color: "#fdb924" }} />
+              삭제된 데이터
+            </SectionTitleContent>
+            <RestoreButton onClick={handleRestore} disabled={restoring}>
+              <FiRotateCcw />
+              {restoring ? "복구 중..." : "복구"}
+            </RestoreButton>
           </SectionTitle>
           <DataContainer>
             <DataDisplay>
@@ -445,7 +568,11 @@ export default function ActivityLogDetailModal({
                     !key.startsWith("_") &&
                     key !== "delete" &&
                     key !== "deletedAt" &&
-                    key !== "updatedAt"
+                    key !== "updatedAt" &&
+                    key !== "password" &&
+                    key !== "confirmPassword" &&
+                    key !== "oldPassword" &&
+                    key !== "newPassword"
                 )
                 .map(([key, value]) => (
                   <DataRow key={key}>
@@ -476,7 +603,11 @@ export default function ActivityLogDetailModal({
           key.startsWith("_") ||
           key === "delete" ||
           key === "deletedAt" ||
-          key === "updatedAt"
+          key === "updatedAt" ||
+          key === "password" ||
+          key === "confirmPassword" ||
+          key === "oldPassword" ||
+          key === "newPassword"
         );
       });
 
@@ -487,8 +618,14 @@ export default function ActivityLogDetailModal({
       return (
         <ChangesSection>
           <SectionTitle>
-            <FiEdit style={{ color: "#fdb924" }} />
-            변경된 내용
+            <SectionTitleContent>
+              <FiEdit style={{ color: "#fdb924" }} />
+              변경된 내용
+            </SectionTitleContent>
+            <RestoreButton onClick={handleRestore} disabled={restoring}>
+              <FiRotateCcw />
+              {restoring ? "복구 중..." : "복구"}
+            </RestoreButton>
           </SectionTitle>
           <ChangesGrid>
             <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
@@ -895,20 +1032,32 @@ export default function ActivityLogDetailModal({
   const getRoleDisplayName = (role: string) => {
     const roleMap: Record<string, string> = {
       ROLE_ADMIN: "관리자",
+      ROLE_USER: "사용자",
       ROLE_DEV_EMPLOYEE: "개발사 직원",
       ROLE_CLIENT_EMPLOYEE: "고객사 직원",
       ROLE_CLIENT_MANAGER: "고객사 담당자",
       ROLE_DEV_MANAGER: "개발사 담당자",
+      ROLE_SYSTEM_ADMIN: "시스템 관리자",
+      ROLE_TEAM_LEADER: "팀장",
     };
     return roleMap[role] || role;
   };
 
   // 역할에 따른 아이콘 반환
   const getRoleIcon = (role: string) => {
-    if (role === "ROLE_ADMIN") {
-      return <RiUserSettingsLine size={14} style={{ color: "#8b5cf6" }} />;
-    } else {
-      return <FiUser size={14} style={{ color: "#6b7280" }} />;
+    switch (role) {
+      case "ROLE_ADMIN":
+      case "ROLE_SYSTEM_ADMIN":
+        return <RiUserSettingsLine size={14} style={{ color: "#8b5cf6" }} />;
+      case "ROLE_TEAM_LEADER":
+        return <FiUser size={14} style={{ color: "#3b82f6" }} />;
+      case "ROLE_USER":
+      case "ROLE_DEV_EMPLOYEE":
+      case "ROLE_CLIENT_EMPLOYEE":
+      case "ROLE_CLIENT_MANAGER":
+      case "ROLE_DEV_MANAGER":
+      default:
+        return <FiUser size={14} style={{ color: "#6b7280" }} />;
     }
   };
 
@@ -918,13 +1067,17 @@ export default function ActivityLogDetailModal({
       case "USER":
         return <FiUser size={14} style={{ color: "#8b5cf6" }} />;
       case "COMPANY":
-        return <FiHome size={14} style={{ color: "#f59e0b" }} />;
+        return <FiHome size={14} style={{ color: "#8b5cf6" }} />;
       case "PROJECT":
         return <FaProjectDiagram size={14} style={{ color: "#3b82f6" }} />;
       case "STEP":
         return <FiLayers size={14} style={{ color: "#6366f1" }} />;
       case "POST":
         return <FiFileText size={14} style={{ color: "#10b981" }} />;
+      case "INQUIRY":
+        return <FiMessageSquare size={14} style={{ color: "#f59e0b" }} />;
+      case "CHECK_LIST":
+        return <FiCheckSquare size={14} style={{ color: "#ec4899" }} />;
       default:
         return <FiUser size={14} style={{ color: "#6b7280" }} />;
     }
@@ -936,7 +1089,15 @@ export default function ActivityLogDetailModal({
     <ModalOverlay isOpen={isOpen} onClick={onClose}>
       <ModalContent onClick={(e) => e.stopPropagation()}>
         <ModalHeader>
-          <ModalTitle>이력 상세 정보</ModalTitle>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <ModalTitle>이력 상세 정보</ModalTitle>
+            {detail && (
+              <CopyButton copied={copied} onClick={handleCopyId}>
+                ID: {detail.id}
+                {copied ? <FiCheck size={14} /> : <FiCopy size={14} />}
+              </CopyButton>
+            )}
+          </div>
           <CloseButton onClick={onClose}>
             <FiX />
           </CloseButton>
@@ -950,18 +1111,15 @@ export default function ActivityLogDetailModal({
           <>
             <ContentSection>
               <SectionTitle>
-                <FiInfo style={{ color: "#fdb924" }} />
-                기본 정보
+                <SectionTitleContent>
+                  <FiInfo style={{ color: "#fdb924" }} />
+                  작업 정보
+                </SectionTitleContent>
               </SectionTitle>
               <InfoGrid>
                 <InfoItem>
-                  <InfoLabel>이력 ID</InfoLabel>
-                  <InfoValue>{detail.id}</InfoValue>
-                </InfoItem>
-                <InfoItem>
                   <InfoLabel>작업 유형</InfoLabel>
                   <StatusBadge type={detail.historyType}>
-                    {getActionIcon(detail.historyType)}
                     {getActionDisplayName(detail.historyType)}
                   </StatusBadge>
                 </InfoItem>
@@ -981,14 +1139,12 @@ export default function ActivityLogDetailModal({
 
             <ContentSection>
               <SectionTitle>
-                <FiUser style={{ color: "#fdb924" }} />
-                변경자 정보
+                <SectionTitleContent>
+                  <FiUser style={{ color: "#fdb924" }} />
+                  변경자 정보
+                </SectionTitleContent>
               </SectionTitle>
               <InfoGrid>
-                <InfoItem>
-                  <InfoLabel>변경자 ID</InfoLabel>
-                  <InfoValue>{detail.changerId}</InfoValue>
-                </InfoItem>
                 <InfoItem>
                   <InfoLabel>변경자 이름</InfoLabel>
                   <InfoValue>
@@ -996,53 +1152,51 @@ export default function ActivityLogDetailModal({
                   </InfoValue>
                 </InfoItem>
                 <InfoItem>
-                  <InfoLabel>변경자 역할</InfoLabel>
+                  <InfoLabel>변경자 권한</InfoLabel>
                   <InfoValue>
                     {getRoleIcon(detail.changerRole)}
                     {getRoleDisplayName(detail.changerRole)}
                   </InfoValue>
                 </InfoItem>
+                <InfoItem>
+                  <InfoLabel>변경자 ID</InfoLabel>
+                  <InfoValue>{detail.changerId}</InfoValue>
+                </InfoItem>
               </InfoGrid>
             </ContentSection>
 
             <ContentSection>
-              <div style={{ display: "flex", gap: "20px" }}>
-                <div style={{ flex: "1" }}>
-                  <SectionTitle>
-                    <FiCalendar style={{ color: "#fdb924" }} />
-                    시간 정보
-                  </SectionTitle>
-                  <InfoGrid>
-                    <InfoItem>
-                      <InfoLabel>변경 발생 시간</InfoLabel>
-                      <InfoValue>{formatDate(detail.changedAt)}</InfoValue>
-                    </InfoItem>
-                  </InfoGrid>
-                </div>
-
+              <SectionTitle>
+                <SectionTitleContent>
+                  <FiCalendar style={{ color: "#fdb924" }} />
+                  시간 정보
+                </SectionTitleContent>
+              </SectionTitle>
+              <InfoGrid>
+                <InfoItem>
+                  <InfoLabel>변경 발생 시간</InfoLabel>
+                  <InfoValue>{formatDate(detail.changedAt)}</InfoValue>
+                </InfoItem>
                 {detail.message && (
-                  <div style={{ flex: "1" }}>
-                    <SectionTitle>
-                      <FiMessageSquare style={{ color: "#fdb924" }} />
-                      작업상세
-                    </SectionTitle>
-                    <div style={{ padding: "8px 0" }}>
-                      <span
-                        style={{
-                          fontSize: "0.875rem",
-                          color: "#111827",
-                          lineHeight: "1.5",
-                        }}
-                      >
-                        {detail.message}
-                      </span>
-                    </div>
-                  </div>
+                  <InfoItem style={{ marginLeft: "115px" }}>
+                    <InfoLabel>작업상세</InfoLabel>
+                    <InfoValue
+                      style={{ fontSize: "0.8rem", lineHeight: "1.4" }}
+                    >
+                      {detail.message}
+                    </InfoValue>
+                  </InfoItem>
                 )}
-              </div>
+              </InfoGrid>
             </ContentSection>
 
             {renderChanges()}
+
+            {/* 수정/삭제 작업에만 복구 버튼 표시 */}
+            {(detail.historyType === "UPDATED" ||
+              detail.historyType === "DELETED") && (
+              <>{restoreError && <ErrorMessage>{restoreError}</ErrorMessage>}</>
+            )}
           </>
         )}
       </ModalContent>
