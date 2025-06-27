@@ -545,7 +545,11 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
           </Td>
           <Td style={{ textAlign: "left" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <FiUser size={14} style={{ color: "#3b82f6" }} />
+              {parentPost.authorName === "관리자" ? (
+                <LuUserRoundCog size={14} style={{ color: "#8b5cf6" }} />
+              ) : (
+                <FiUser size={14} style={{ color: "#3b82f6" }} />
+              )}
               <span>{parentPost.authorName}</span>
             </div>
           </Td>
@@ -587,17 +591,6 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
           >
             <Td style={{ paddingLeft: 32 }}>
               <TitleText>
-                {getStepName(child.projectStepId) && (
-                  <span
-                    style={{
-                      color: "#9ca3af",
-                      fontSize: "0.85em",
-                      marginRight: "8px",
-                    }}
-                  >
-                    {getStepName(child.projectStepId)}
-                  </span>
-                )}
                 <span
                   style={{
                     color: "#fdb924",
@@ -629,7 +622,11 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
               <div
                 style={{ display: "flex", alignItems: "center", gap: "8px" }}
               >
-                <FiUser size={14} style={{ color: "#3b82f6" }} />
+                {child.authorName === "관리자" ? (
+                  <LuUserRoundCog size={14} style={{ color: "#8b5cf6" }} />
+                ) : (
+                  <FiUser size={14} style={{ color: "#3b82f6" }} />
+                )}
                 <span>{child.authorName}</span>
               </div>
             </Td>
