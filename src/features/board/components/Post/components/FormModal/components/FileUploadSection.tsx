@@ -50,7 +50,15 @@ const FileUploadSection: React.FC<FileUploadSectionProps> = ({
   };
 
   const getExistingFileIcon = (file: PostFile) => {
-    if (file.fileName.match(/\.(jpg|jpeg|png|gif|svg|webp)$/i)) {
+    const fileName = file.fileName.toLowerCase();
+    const extension = fileName.split(".").pop() || "";
+
+    // 아이콘 파일 (.ico)
+    if (extension === "ico") {
+      return <FiFile size={16} />;
+    }
+
+    if (fileName.match(/\.(jpg|jpeg|png|gif|svg|webp)$/i)) {
       return <FiImage size={16} />;
     }
     return <FiFile size={16} />;
@@ -110,7 +118,7 @@ const FileUploadSection: React.FC<FileUploadSectionProps> = ({
             multiple
             onChange={handleFileChange}
             style={{ display: "none" }}
-            accept="image/*,.pdf,.doc,.docx,.txt"
+            accept="image/*,.pdf,.doc,.docx,.txt,.ico,.webp"
             ref={fileInputRef}
           />
         </FileUploadArea>

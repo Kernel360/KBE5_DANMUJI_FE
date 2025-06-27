@@ -7,6 +7,7 @@ import {
   FaFileAlt,
 } from "react-icons/fa";
 import { FiDownload, FiFile } from "react-icons/fi";
+import { LuImage } from "react-icons/lu";
 import {
   AttachmentsSection,
   FileList,
@@ -35,6 +36,13 @@ const PostAttachments: React.FC<PostAttachmentsProps> = ({
 }) => {
   const getFileIcon = (file: PostFile) => {
     const fileType = file.fileType.toLowerCase();
+    const fileName = file.fileName.toLowerCase();
+    const extension = fileName.split(".").pop() || "";
+
+    // 아이콘 파일 (.ico)
+    if (extension === "ico") {
+      return <FiFile style={{ color: "#fbbf24" }} />;
+    }
 
     if (fileType.includes("word") || fileType.includes("doc")) {
       return <FaFileWord style={{ color: "#2b579a" }} />;
@@ -54,9 +62,11 @@ const PostAttachments: React.FC<PostAttachmentsProps> = ({
       fileType.includes("image") ||
       fileType.includes("jpg") ||
       fileType.includes("png") ||
-      fileType.includes("gif")
+      fileType.includes("gif") ||
+      fileType.includes("webp") ||
+      extension === "webp"
     ) {
-      return <FiFile style={{ color: "#28a745" }} />;
+      return <LuImage style={{ color: "#10b981" }} />;
     } else {
       return <FiFile style={{ color: "#6c757d" }} />;
     }
