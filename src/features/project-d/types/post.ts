@@ -51,6 +51,7 @@ export type Comment = {
   authorId?: number;
   authorName?: string;
   authorUsername?: string;
+  role?: string;
   author?: Author;
   content: string;
   createdAt: string;

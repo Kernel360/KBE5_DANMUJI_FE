@@ -1,9 +1,8 @@
 import React from "react";
 import { LuUserRound } from "react-icons/lu";
+import { RiUserSettingsLine } from "react-icons/ri";
 import ClickableUsername from "@/components/ClickableUsername";
-import ClickableMentionedUsername from "@/components/ClickableMentionedUsername";
 import MentionTextArea from "@/components/MentionTextArea";
-import { extractCompletedMentions } from "@/utils/mentionUtils";
 import {
   CommentItem as StyledCommentItem,
   CommentMeta,
@@ -11,7 +10,6 @@ import {
   CommentActions,
   CommentActionButton,
   CommentText,
-  CommentSubmitButton,
 } from "@/features/board/components/Post/styles/ProjectPostDetailModal.styled";
 import type { Comment } from "@/features/project-d/types/post";
 
@@ -36,6 +34,43 @@ interface ReplyItemProps {
   completedMentions?: string[];
 }
 
+// 역할에 따른 아이콘 컴포넌트
+const RoleIcon: React.FC<{ role?: string }> = ({ role }) => {
+  switch (role) {
+    case "ROLE_ADMIN":
+      return (
+        <RiUserSettingsLine
+          style={{
+            marginRight: "4px",
+            color: "#8b5cf6",
+            fontSize: "14px",
+          }}
+        />
+      );
+    case "ROLE_CLIENT":
+      return (
+        <LuUserRound
+          style={{
+            marginRight: "4px",
+            color: "#10b981",
+            fontSize: "14px",
+          }}
+        />
+      );
+    case "ROLE_DEV":
+    default:
+      return (
+        <LuUserRound
+          style={{
+            marginRight: "4px",
+            color: "#3b82f6",
+            fontSize: "14px",
+          }}
+        />
+      );
+  }
+};
+
 const ReplyItem: React.FC<ReplyItemProps> = ({
   reply,
   isEditing,
@@ -49,8 +84,6 @@ const ReplyItem: React.FC<ReplyItemProps> = ({
   isAuthor,
   formatDate,
   onUserProfileClick,
-  allUsernames,
-  completedMentions = [],
 }) => {
   const isDeleted = reply.deletedAt || reply.status === "DELETED";
 
@@ -76,13 +109,7 @@ const ReplyItem: React.FC<ReplyItemProps> = ({
     <StyledCommentItem>
       <CommentMeta>
         <CommentAuthor>
-          <LuUserRound
-            style={{
-              marginRight: "0px",
-              color: "#3b82f6",
-              fontSize: "14px",
-            }}
-          />
+          <RoleIcon role={reply.role} />
           <ClickableUsername
             username={reply.authorName || reply.author?.name || "undefined"}
             userId={reply.author?.id || reply.authorId}

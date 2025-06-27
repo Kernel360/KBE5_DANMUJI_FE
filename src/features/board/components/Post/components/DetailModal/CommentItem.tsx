@@ -1,8 +1,8 @@
 import React from "react";
 import { LuUserRound } from "react-icons/lu";
+import { RiUserSettingsLine } from "react-icons/ri";
 import ClickableUsername from "@/components/ClickableUsername";
 import MentionTextArea from "@/components/MentionTextArea";
-import { extractCompletedMentions } from "@/utils/mentionUtils";
 import {
   CommentItem as StyledCommentItem,
   CommentMeta,
@@ -35,6 +35,43 @@ interface CommentItemProps {
   completedMentions?: string[];
 }
 
+// 역할에 따른 아이콘 컴포넌트
+const RoleIcon: React.FC<{ role?: string }> = ({ role }) => {
+  switch (role) {
+    case "ROLE_ADMIN":
+      return (
+        <RiUserSettingsLine
+          style={{
+            marginRight: "4px",
+            color: "#8b5cf6",
+            fontSize: "14px",
+          }}
+        />
+      );
+    case "ROLE_CLIENT":
+      return (
+        <LuUserRound
+          style={{
+            marginRight: "4px",
+            color: "#10b981",
+            fontSize: "14px",
+          }}
+        />
+      );
+    case "ROLE_DEV":
+    default:
+      return (
+        <LuUserRound
+          style={{
+            marginRight: "4px",
+            color: "#3b82f6",
+            fontSize: "14px",
+          }}
+        />
+      );
+  }
+};
+
 const CommentItem: React.FC<CommentItemProps> = ({
   comment,
   isEditing,
@@ -48,8 +85,6 @@ const CommentItem: React.FC<CommentItemProps> = ({
   isAuthor,
   formatDate,
   onUserProfileClick,
-  allUsernames,
-  completedMentions = [],
 }) => {
   const isDeleted = comment.deletedAt || comment.status === "DELETED";
 
@@ -75,13 +110,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
     <StyledCommentItem>
       <CommentMeta>
         <CommentAuthor>
-          <LuUserRound
-            style={{
-              marginRight: "0px",
-              color: "#3b82f6",
-              fontSize: "14px",
-            }}
-          />
+          <RoleIcon role={comment.role} />
           <ClickableUsername
             username={comment.authorName || comment.author?.name || "undefined"}
             userId={comment.author?.id || comment.authorId}
