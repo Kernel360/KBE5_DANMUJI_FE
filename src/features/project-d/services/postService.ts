@@ -13,7 +13,6 @@ import type {
   PostPriority,
   PostUpdateRequest,
   PostDetailReadResponse,
-  PostSummaryReadResponse,
   PageResponse,
   PostFile,
 } from "../types/post";
@@ -490,49 +489,6 @@ export const deleteComment = async (
       );
     }
     throw new ApiError("댓글 삭제 중 알 수 없는 오류가 발생했습니다.");
-  }
-};
-
-// 단계별 게시글 목록 조회 (댓글 포함)
-export const getPostsByProjectStep = async (
-  projectId: number,
-  stepId: number,
-  page: number = 0,
-  size: number = 10
-): Promise<PageResponse<PostSummaryReadResponse>> => {
-  try {
-    const response = await api.get<
-      ApiResponse<PageResponse<PostSummaryReadResponse>>
-    >(
-      `/api/posts/projects/${projectId}/steps/${stepId}?page=${page}&size=${size}`
-    );
-
-    // 각 게시글의 댓글 정보를 가져오기
-    const postsWithComments = await Promise.all(
-      response.data.data.content.map(async (post) => {
-        try {
-          const commentsResponse = await getComments(post.postId);
-          return {
-            ...post,
-            comments: commentsResponse.data || [],
-          };
-        } catch (error) {
-          console.error(`게시글 ${post.postId} 댓글 로드 실패:`, error);
-          return {
-            ...post,
-            comments: [],
-          };
-        }
-      })
-    );
-
-    return {
-      ...response.data.data,
-      content: postsWithComments,
-    };
-  } catch (error) {
-    console.error("단계별 게시글 조회 실패:", error);
-    throw error;
   }
 };
 

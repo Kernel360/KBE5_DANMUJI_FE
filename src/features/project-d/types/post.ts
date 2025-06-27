@@ -204,20 +204,7 @@ export interface PostDetailReadResponse {
   files: PostFile[] | null;
   delete: boolean;
   links?: PostLink[];
-}
-
-export interface PostSummaryReadResponse {
-  postId: number;
-  parentId: number | null;
-  projectId: number;
-  projectStepId: number;
-  authorId: number;
-  authorName: string;
-  title: string;
-  type: string;
-  priority: string;
-  createdAt: string;
-  comments?: Comment[];
+  commentCount?: number;
 }
 
 export interface PageInfo {
