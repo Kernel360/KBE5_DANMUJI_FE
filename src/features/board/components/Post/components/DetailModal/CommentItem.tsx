@@ -1,6 +1,6 @@
 import React from "react";
+import { LuUserRound } from "react-icons/lu";
 import ClickableUsername from "@/components/ClickableUsername";
-import ClickableMentionedUsername from "@/components/ClickableMentionedUsername";
 import MentionTextArea from "@/components/MentionTextArea";
 import {
   CommentItem as StyledCommentItem,
@@ -10,7 +10,6 @@ import {
   CommentActionButton,
   CommentText,
   CommentSubmitButton,
-  ReplyInputContainer,
 } from "@/features/board/components/Post/styles/ProjectPostDetailModal.styled";
 import type { Comment } from "@/features/project-d/types/post";
 
@@ -71,6 +70,13 @@ const CommentItem: React.FC<CommentItemProps> = ({
     <StyledCommentItem>
       <CommentMeta>
         <CommentAuthor>
+          <LuUserRound
+            style={{
+              marginRight: "0px",
+              color: "#3b82f6",
+              fontSize: "14px",
+            }}
+          />
           <ClickableUsername
             username={comment.authorName || comment.author?.name || "undefined"}
             userId={comment.author?.id || comment.authorId}
@@ -134,7 +140,6 @@ const CommentItem: React.FC<CommentItemProps> = ({
             <MentionTextArea
               value={editText}
               onChange={onEditTextChange}
-              autoFocus
               rows={3}
               placeholder="댓글 내용을 수정하세요. @를 입력하여 사용자를 언급할 수 있습니다."
               style={{

@@ -1,4 +1,5 @@
 import React from "react";
+import { LuUserRound } from "react-icons/lu";
 import ClickableUsername from "@/components/ClickableUsername";
 import ClickableMentionedUsername from "@/components/ClickableMentionedUsername";
 import MentionTextArea from "@/components/MentionTextArea";
@@ -70,6 +71,13 @@ const ReplyItem: React.FC<ReplyItemProps> = ({
     <StyledCommentItem>
       <CommentMeta>
         <CommentAuthor>
+          <LuUserRound
+            style={{
+              marginRight: "0px",
+              color: "#3b82f6",
+              fontSize: "14px",
+            }}
+          />
           <ClickableUsername
             username={reply.authorName || reply.author?.name || "undefined"}
             userId={reply.author?.id || reply.authorId}
@@ -106,10 +114,10 @@ const ReplyItem: React.FC<ReplyItemProps> = ({
               {isEditing ? (
                 <>
                   <CommentActionButton onClick={onSaveEdit}>
-                    수정
+                    저장
                   </CommentActionButton>
-                  <CommentActionButton onClick={onDelete}>
-                    삭제
+                  <CommentActionButton onClick={onCancelEdit}>
+                    취소
                   </CommentActionButton>
                 </>
               ) : (
@@ -147,7 +155,6 @@ const ReplyItem: React.FC<ReplyItemProps> = ({
             <MentionTextArea
               value={editText}
               onChange={onEditTextChange}
-              autoFocus
               rows={3}
               placeholder="댓글 내용을 수정하세요. @를 입력하여 사용자를 언급할 수 있습니다."
               style={{
@@ -160,21 +167,6 @@ const ReplyItem: React.FC<ReplyItemProps> = ({
                 padding: "0.75rem",
               }}
             />
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "flex-end",
-                gap: 8,
-                marginTop: 6,
-              }}
-            >
-              <CommentSubmitButton onClick={onSaveEdit}>
-                저장
-              </CommentSubmitButton>
-              <CommentActionButton onClick={onCancelEdit}>
-                취소
-              </CommentActionButton>
-            </div>
           </div>
         ) : (
           reply.content.split(/(@\S+)/g).map((part, idx) =>
