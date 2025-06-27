@@ -494,7 +494,7 @@ export default function CompanyRegisterModal({
           </FormGroup>
           <FormGroup>
             <Label>
-              <FiPhone size={14} />
+              <FiPhone size={14} style={{ color: "#10b981" }} />
               전화번호
             </Label>
             <Input

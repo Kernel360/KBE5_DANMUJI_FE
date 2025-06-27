@@ -471,8 +471,10 @@ export default function CompanyPage() {
               <TableHeader>업체명</TableHeader>
               <TableHeader>사업자등록번호</TableHeader>
               <TableHeader>대표자</TableHeader>
-              <TableHeader>연락처</TableHeader>
-              <TableHeader>생성일</TableHeader>
+              <TableHeader style={{ padding: "8px 8px 8px 24px" }}>
+                연락처
+              </TableHeader>
+              <TableHeader style={{ padding: "8px 8px" }}>생성일</TableHeader>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -513,7 +515,7 @@ export default function CompanyPage() {
                         cursor: "pointer",
                       }}
                     >
-                      <FiHome size={14} style={{ color: "#f59e0b" }} />
+                      <FiHome size={14} style={{ color: "#8b5cf6" }} />
                       <span
                         style={{
                           fontSize: "14px",
@@ -561,7 +563,7 @@ export default function CompanyPage() {
                       </span>
                     </div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell style={{ padding: "8px 0px 8px 24px" }}>
                     <div
                       style={{
                         display: "flex",
@@ -570,13 +572,13 @@ export default function CompanyPage() {
                         cursor: "pointer",
                       }}
                     >
-                      <FiPhone size={14} style={{ color: "#f59e0b" }} />
+                      <FiPhone size={14} style={{ color: "#10b981" }} />
                       <span style={{ fontSize: "14px", color: "#374151" }}>
                         {formatTelNo(c.tel)}
                       </span>
                     </div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell style={{ padding: "8px 8px" }}>
                     <div
                       style={{
                         display: "flex",

@@ -385,7 +385,7 @@ const CompanyDetailPage: React.FC = () => {
             </DetailItem>
             <DetailItem>
               <DetailIcon>
-                <FiPhone size={18} />
+                <FiPhone size={18} style={{ color: "#10b981" }} />
               </DetailIcon>
               <DetailLabel>연락처</DetailLabel>
               <DetailValue>{formatTelNo(company.tel)}</DetailValue>
