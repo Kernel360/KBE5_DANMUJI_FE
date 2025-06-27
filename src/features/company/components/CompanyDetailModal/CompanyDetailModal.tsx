@@ -169,23 +169,21 @@ const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
                 <table style={{ width: '100%', fontSize: 13, borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ background: '#f9fafb' }}>
-                      <th style={{ textAlign: 'left', padding: '4px 8px' }}>ID</th>
-                      <th style={{ textAlign: 'left', padding: '4px 8px' }}>이름</th>
+                      <th style={{ textAlign: 'left', padding: '4px 8px' }}>회원</th>
                       <th style={{ textAlign: 'left', padding: '4px 8px' }}>이메일</th>
                       <th style={{ textAlign: 'left', padding: '4px 8px' }}>전화번호</th>
                       <th style={{ textAlign: 'left', padding: '4px 8px' }}>직책</th>
-                      <th style={{ textAlign: 'left', padding: '4px 8px' }}>생성일</th>
                     </tr>
                   </thead>
                   <tbody>
                     {pagedMembers.map((member) => (
                       <tr key={member.username} style={{ borderBottom: '1px solid #f3f4f6' }}>
-                        <td style={{ padding: '4px 8px' }}>{member.username}</td>
-                        <td style={{ padding: '4px 8px' }}>{member.name}</td>
+                        <td style={{ padding: '4px 8px' }}>
+                          {member.name} <span style={{ color: '#888', fontSize: 12 }}>({member.username})</span>
+                        </td>
                         <td style={{ padding: '4px 8px' }}>{member.email}</td>
                         <td style={{ padding: '4px 8px' }}>{member.phone}</td>
                         <td style={{ padding: '4px 8px' }}>{member.position}</td>
-                        <td style={{ padding: '4px 8px' }}>{member.createdAt ? new Date(member.createdAt).toLocaleDateString() : ''}</td>
                       </tr>
                     ))}
                   </tbody>
