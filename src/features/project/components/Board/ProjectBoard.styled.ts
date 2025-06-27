@@ -188,7 +188,7 @@ export const Th = styled.th`
 `;
 
 export const Td = styled.td`
-  padding: 8px 6px;
+  padding: 10px 6px;
   color: #374151;
   border-bottom: 1px solid #f3f4f6;
 
