@@ -126,6 +126,8 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
       if (open && postId !== null) {
         try {
           setLoading(true);
+          // 댓글 상태 초기화
+          setComments([]);
 
           // 게시글 상세 정보 가져오기
           const postResponse = await getPostDetail(postId);
