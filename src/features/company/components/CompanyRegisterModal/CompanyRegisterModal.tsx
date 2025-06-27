@@ -16,11 +16,12 @@ import { useNotification } from "@/features/Notification/NotificationContext";
 import styled from "styled-components";
 import { showSuccessToast } from "@/utils/errorHandler";
 import { IoMdClose } from "react-icons/io";
+import ReactDOM from "react-dom";
 
 const ModalOverlay = styled.div`
   position: fixed;
   inset: 0;
-  z-index: 50;
+  z-index: 11000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -29,13 +30,16 @@ const ModalOverlay = styled.div`
 `;
 
 const ModalContent = styled.div`
-  background-color: white;
-  border-radius: 16px;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
-    0 4px 6px -2px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(253, 185, 36, 0.1);
-  width: 600px;
-  padding: 24px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  width: 90%;
+  max-width: 700px;
+  max-height: 90vh;
+  overflow-y: auto;
   position: relative;
+  padding: 24px;
   animation: modalSlideIn 0.2s ease-out;
 
   @keyframes modalSlideIn {
@@ -380,7 +384,7 @@ export default function CompanyRegisterModal({
     }
   };
 
-  return (
+  return ReactDOM.createPortal(
     <ModalOverlay>
       <ModalContent>
         <CloseButton onClick={handleClose}>
@@ -390,11 +394,9 @@ export default function CompanyRegisterModal({
           <FiPlus size={20} />
           업체 등록
         </Title>
-
         {/* 성공 / 에러 메시지 표시 */}
         {successMessage && <MessageBox success>{successMessage}</MessageBox>}
         {errorMessage && <MessageBox>{errorMessage}</MessageBox>}
-
         <Form ref={formRef} onSubmit={handleSubmit}>
           <FormGroup>
             <Label>
@@ -529,6 +531,7 @@ export default function CompanyRegisterModal({
           </SubmitButton>
         </Form>
       </ModalContent>
-    </ModalOverlay>
+    </ModalOverlay>,
+    document.body
   );
 }

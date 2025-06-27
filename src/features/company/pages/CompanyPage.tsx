@@ -6,16 +6,14 @@ import CompanyRegisterModal from "../components/CompanyRegisterModal";
 import CompanyEditModal from "../components/CompanyEditModal";
 import CompanyFilterBar from "../components/CompanyFilterBar";
 import styled from "styled-components";
-import { useNavigate } from "react-router-dom";
 import {
   FiHome,
   FiUser,
-  FiMail,
   FiPhone,
-  FiMapPin,
   FiHash,
   FiCalendar,
 } from "react-icons/fi";
+import CompanyDetailModal from "../components/CompanyDetailModal/CompanyDetailModal";
 
 export interface Company {
   id: number;
@@ -260,7 +258,6 @@ export const formatTelNo = (telNo: string) => {
 };
 
 export default function CompanyPage() {
-  const navigate = useNavigate();
   const [filters, setFilters] = useState({
     sort: "latest",
     keyword: "",
@@ -281,6 +278,8 @@ export default function CompanyPage() {
     totalElements: number;
     totalPages: number;
   } | null>(null);
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
 
   const handlePageChange = (newPage: number) => {
     fetchCompanies(newPage);
@@ -424,7 +423,8 @@ export default function CompanyPage() {
   };
 
   const handleCompanyClick = (company: Company) => {
-    navigate(`/company/${company.id}`);
+    setSelectedCompany(company);
+    setDetailModalOpen(true);
   };
 
   return (
@@ -445,6 +445,11 @@ export default function CompanyPage() {
           setErrorMessage={setError}
         />
       )}
+      <CompanyDetailModal
+        open={detailModalOpen}
+        onClose={() => setDetailModalOpen(false)}
+        company={selectedCompany}
+      />
       <HeaderSection>
         <Title>업체 관리</Title>
         <Subtitle>
