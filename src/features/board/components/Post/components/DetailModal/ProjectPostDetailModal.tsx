@@ -37,6 +37,11 @@ import PostContent from "./PostContent";
 import PostAttachments from "./PostAttachments";
 import PostLinks from "./PostLinks";
 import CommentSection from "./CommentSection";
+import {
+  searchUsernames,
+  getUsersByProject,
+} from "@/features/user/services/userService";
+import { extractCompletedMentions } from "@/utils/mentionUtils";
 
 interface PostDetailModalProps {
   open: boolean;
@@ -83,6 +88,8 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
     handleSendMessage,
     handleSendInquiry,
   } = useUserProfile();
+
+  const [allUsernames, setAllUsernames] = useState<string[]>([]);
 
   // 모달 닫기 애니메이션 적용
   const handleCloseWithAnimation = () => {
@@ -156,6 +163,22 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
 
     loadPostData();
   }, [open, postId]);
+
+  useEffect(() => {
+    const fetchAllUsernames = async () => {
+      if (post && post.project && post.project.projectId) {
+        try {
+          const response = await getUsersByProject(post.project.projectId);
+          if (response.data) {
+            setAllUsernames(response.data.map((user) => user.username));
+          }
+        } catch (e) {
+          setAllUsernames([]);
+        }
+      }
+    };
+    fetchAllUsernames();
+  }, [post]);
 
   // 댓글 제출 핸들러
   const handleCommentSubmit = async () => {
@@ -460,31 +483,23 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                   replyText={replyText}
                   onReplyTextChange={setReplyText}
                   onReplySubmit={handleReplySubmit}
-                  onReplyCancel={() => {
-                    setReplyText("");
-                    setReplyingTo(null);
-                  }}
+                  onReplyCancel={() => setReplyingTo(null)}
                   submittingReply={submittingReply}
                   editingCommentId={editingCommentId}
                   editText={editText}
                   onEditTextChange={setEditText}
-                  onEdit={(commentId) => {
-                    const comment = comments.find((c) => c.id === commentId);
-                    if (comment) {
-                      setEditingCommentId(commentId);
-                      setEditText(comment.content);
-                    }
-                  }}
+                  onEdit={setEditingCommentId}
                   onDelete={handleDeleteComment}
                   onSaveEdit={handleSaveEdit}
-                  onCancelEdit={() => {
-                    setEditingCommentId(null);
-                    setEditText("");
-                  }}
+                  onCancelEdit={() => setEditingCommentId(null)}
                   onReply={handleReplyClick}
                   isAuthor={isAuthor}
                   formatDate={formatDate}
                   onUserProfileClick={openUserProfile}
+                  allUsernames={allUsernames}
+                  completedMentions={extractCompletedMentions(
+                    comments.map((c) => c.content).join(" ")
+                  )}
                 />
               </>
             ) : (

@@ -187,3 +187,24 @@ export const renderMentionText = (text: string) => {
 
   return parts.length > 0 ? parts : text;
 };
+
+// 실제 멘션이 완료된 사용자명들을 추출하는 함수 (더 정확한 버전)
+export const extractCompletedMentions = (content: string): string[] => {
+  const mentions: string[] = [];
+  // @username 형태로 완료된 멘션만 추출 (공백이나 특수문자로 구분)
+  const mentionPattern = /@(\w+)(?=\s|$|[^\w@])/g;
+  let match;
+
+  while ((match = mentionPattern.exec(content)) !== null) {
+    mentions.push(match[1]); // @ 제외하고 사용자명만 추출
+  }
+
+  return mentions;
+};
+
+// 멘션이 완료되었는지 확인하는 함수
+export const isCompletedMention = (text: string, username: string): boolean => {
+  // @username 형태로 완료된 멘션인지 확인
+  const mentionPattern = new RegExp(`@${username}(?=\\s|$|[^\\w@])`, "g");
+  return mentionPattern.test(text);
+};

@@ -3,6 +3,7 @@ import { LuUserRound } from "react-icons/lu";
 import ClickableUsername from "@/components/ClickableUsername";
 import ClickableMentionedUsername from "@/components/ClickableMentionedUsername";
 import MentionTextArea from "@/components/MentionTextArea";
+import { extractCompletedMentions } from "@/utils/mentionUtils";
 import {
   CommentItem as StyledCommentItem,
   CommentMeta,
@@ -31,6 +32,8 @@ interface ReplyItemProps {
     username: string,
     userId?: number
   ) => void;
+  allUsernames: string[];
+  completedMentions?: string[];
 }
 
 const ReplyItem: React.FC<ReplyItemProps> = ({
@@ -46,6 +49,8 @@ const ReplyItem: React.FC<ReplyItemProps> = ({
   isAuthor,
   formatDate,
   onUserProfileClick,
+  allUsernames,
+  completedMentions = [],
 }) => {
   const isDeleted = reply.deletedAt || reply.status === "DELETED";
 
@@ -169,23 +174,33 @@ const ReplyItem: React.FC<ReplyItemProps> = ({
             />
           </div>
         ) : (
-          reply.content.split(/(@\S+)/g).map((part, idx) =>
-            part.startsWith("@") ? (
-              <span
-                key={idx}
-                style={{
-                  color: "#fdb924",
-                  fontWeight: "500",
-                  cursor: "pointer",
-                }}
-                onClick={(e) => onUserProfileClick(e, part.substring(1))}
-              >
-                {part}
-              </span>
-            ) : (
-              <span key={idx}>{part}</span>
-            )
-          )
+          reply.content.split(/(@\w+)(?=\s|$|[^\w@])/g).map((part, idx) => {
+            if (part.startsWith("@")) {
+              const username = part.substring(1);
+              const isExistingUser = allUsernames.includes(username);
+              const isCompletedMention = completedMentions.includes(username);
+
+              if (isExistingUser && isCompletedMention) {
+                return (
+                  <span
+                    key={idx}
+                    style={{
+                      color: "#fdb924",
+                      fontWeight: "500",
+                      cursor: "pointer",
+                    }}
+                    onClick={(e) => onUserProfileClick(e, username)}
+                  >
+                    {part}
+                  </span>
+                );
+              } else {
+                return <span key={idx}>{part}</span>;
+              }
+            } else {
+              return <span key={idx}>{part}</span>;
+            }
+          })
         )}
       </CommentText>
     </StyledCommentItem>

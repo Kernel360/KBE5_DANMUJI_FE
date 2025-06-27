@@ -1,6 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams } from "react-router-dom";
-import { searchUsernames } from "@/features/user/services/userService";
+import {
+  searchUsernames,
+  getUsersByProject,
+} from "@/features/user/services/userService";
 
 // UserSummaryResponse 타입을 직접 정의
 interface UserSummaryResponse {
@@ -17,6 +20,7 @@ interface MentionState {
   endIndex: number;
   suggestions: string[];
   selectedIndex: number;
+  completedMentions: string[];
 }
 
 export const useMention = () => {
@@ -28,10 +32,35 @@ export const useMention = () => {
     endIndex: 0,
     suggestions: [],
     selectedIndex: 0,
+    completedMentions: [],
   });
 
   const [isLoading, setIsLoading] = useState(false);
+  const [allProjectUsers, setAllProjectUsers] = useState<string[]>([]);
   const debounceRef = useRef<NodeJS.Timeout>();
+
+  // 프로젝트의 모든 사용자 로드
+  const loadAllProjectUsers = useCallback(async () => {
+    if (!projectId) return;
+
+    try {
+      const response = await getUsersByProject(parseInt(projectId));
+      const userData = response?.data;
+      if (userData && Array.isArray(userData)) {
+        const usernames = userData.map(
+          (user: UserSummaryResponse) => user.username
+        );
+        setAllProjectUsers(usernames);
+      }
+    } catch (error) {
+      console.error("Failed to load project users:", error);
+    }
+  }, [projectId]);
+
+  // 컴포넌트 마운트 시 프로젝트 사용자 로드
+  useEffect(() => {
+    loadAllProjectUsers();
+  }, [loadAllProjectUsers]);
 
   // @ 검색 로직
   const searchMentions = useCallback(
@@ -43,34 +72,30 @@ export const useMention = () => {
 
       setIsLoading(true);
       try {
-        // 빈 쿼리일 때도 API 호출 (모든 사용자 가져오기)
-        const response = await searchUsernames(query, parseInt(projectId));
+        let usernames: string[] = [];
 
-        // API 응답이 유효한지 확인하고 안전하게 처리
-        const userData = response?.data;
-        if (userData && Array.isArray(userData)) {
-          // UserSummaryResponse 객체 배열에서 username만 추출하여 문자열 배열로 변환
-          const usernames = userData.map(
-            (user: UserSummaryResponse) => user.username
-          );
-
-          setMentionState((prev) => ({
-            ...prev,
-            suggestions: usernames,
-            isActive: usernames.length > 0,
-            selectedIndex: 0,
-          }));
+        if (query.trim() === "") {
+          // 빈 쿼리일 때는 이미 로드된 프로젝트 사용자들 사용
+          usernames = allProjectUsers;
         } else {
-          // 유효하지 않은 응답인 경우 빈 배열로 설정
-          setMentionState((prev) => ({
-            ...prev,
-            suggestions: [],
-            isActive: false,
-          }));
+          // 검색어가 있을 때는 LIKE 쿼리로 수정된 API 사용
+          const response = await searchUsernames(query, parseInt(projectId));
+          const userData = response?.data;
+          if (userData && Array.isArray(userData)) {
+            usernames = userData.map(
+              (user: UserSummaryResponse) => user.username
+            );
+          }
         }
+
+        setMentionState((prev) => ({
+          ...prev,
+          suggestions: usernames,
+          isActive: usernames.length > 0,
+          selectedIndex: 0,
+        }));
       } catch (error) {
         console.error("Mention search failed:", error);
-        // 에러가 발생해도 빈 배열로 설정하여 UI가 깨지지 않도록 함
         setMentionState((prev) => ({
           ...prev,
           suggestions: [],
@@ -80,7 +105,7 @@ export const useMention = () => {
         setIsLoading(false);
       }
     },
-    [projectId]
+    [projectId, allProjectUsers]
   );
 
   // 디바운스된 검색
@@ -197,7 +222,17 @@ export const useMention = () => {
     (text: string, username: string, startIndex: number, endIndex: number) => {
       const beforeMention = text.slice(0, startIndex);
       const afterMention = text.slice(endIndex);
-      return beforeMention + "@" + username + afterMention;
+      const newText = beforeMention + "@" + username + afterMention;
+
+      // 완료된 멘션 목록에 추가 (중복 방지)
+      setMentionState((prev) => ({
+        ...prev,
+        completedMentions: prev.completedMentions.includes(username)
+          ? prev.completedMentions
+          : [...prev.completedMentions, username],
+      }));
+
+      return newText;
     },
     []
   );
@@ -219,5 +254,7 @@ export const useMention = () => {
     selectMention,
     insertMention,
     setMentionState,
+    completedMentions: mentionState.completedMentions,
+    allProjectUsers,
   };
 };

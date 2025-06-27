@@ -29,6 +29,8 @@ interface CommentItemProps {
   onReply: (parentId: number, content: string) => void;
   isSubmitting?: boolean;
   depth?: number;
+  allProjectUsers?: string[];
+  completedMentions?: string[];
 }
 
 const CommentItem: React.FC<CommentItemProps> = ({
@@ -39,6 +41,8 @@ const CommentItem: React.FC<CommentItemProps> = ({
   onReply,
   isSubmitting = false,
   depth = 0,
+  allProjectUsers = [],
+  completedMentions = [],
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isReplying, setIsReplying] = useState(false);
@@ -146,7 +150,13 @@ const CommentItem: React.FC<CommentItemProps> = ({
           </div>
         ) : (
           <>
-            <CommentText>{formatCommentContent(comment.content)}</CommentText>
+            <CommentText>
+              {formatCommentContent(
+                comment.content,
+                allProjectUsers,
+                completedMentions
+              )}
+            </CommentText>
             <CommentActions
               isAuthor={isAuthor}
               isEditing={false}
