@@ -22,10 +22,15 @@ import {
   DetailIcon,
 } from "./CompanyDetailModal.styled";
 import type { Company } from "../../pages/CompanyPage";
-import { formatBizNo } from "../../pages/CompanyPage";
+import { formatBizNo, formatTelNo } from "../../pages/CompanyPage";
 import MemberRegisterModal from "@/features/user/components/MemberRegisterModal/MemberRegisterModal";
 import { useState, useEffect } from "react";
 import api from "@/api/axios";
+import CompanyEditModal from "../CompanyEditModal/CompanyEditModal";
+import type { FieldError } from "../../pages/CompanyPage";
+import type { CompanyFormData } from "../../pages/CompanyPage";
+import axios from "axios";
+import { useNotification } from "@/features/Notification/NotificationContext";
 
 interface CompanyMember {
   username: string;
@@ -39,40 +44,96 @@ interface CompanyMember {
 interface CompanyDetailModalProps {
   open: boolean;
   onClose: () => void;
-  company: Company | null;
+  companyId: number | null;
+  onUpdated?: () => void;
 }
 
 const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
   open,
   onClose,
-  company,
+  companyId,
+  onUpdated,
 }) => {
   const [registerOpen, setRegisterOpen] = useState(false);
   const [members, setMembers] = useState<CompanyMember[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(0);
   const pageSize = 4;
   const totalPages = Math.ceil(members.length / pageSize);
   const pagedMembers = members.slice(page * pageSize, (page + 1) * pageSize);
+  const [company, setCompany] = useState<Company | null>(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<FieldError[]>([]);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const { notify } = useNotification();
 
   useEffect(() => {
-    if (!open || !company) return;
+    if (!open || !companyId) return;
     setLoading(true);
-    setError(null);
-    api.get(`/api/companies/${company.id}/userLists`)
+    api.get(`/api/companies/${companyId}`)
+      .then(res => {
+        setCompany(res.data.data);
+        return api.get(`/api/companies/${companyId}/userLists`);
+      })
       .then(res => {
         setMembers(res.data.data || []);
       })
       .catch(err => {
-        setError(err?.response?.data?.message || '구성원 정보를 불러오지 못했습니다.');
+        console.error('구성원 정보를 불러오지 못했습니다.', err);
       })
       .finally(() => setLoading(false));
-  }, [open, company]);
+  }, [open, companyId, refreshKey]);
 
   useEffect(() => {
     setPage(0);
   }, [members]);
+
+  const handleDelete = async () => {
+    if (!company) return;
+    if (window.confirm("정말 이 업체를 삭제하시겠습니까?")) {
+      try {
+        await api.delete(`/api/companies/${company.id}`);
+        notify("업체가 성공적으로 삭제되었습니다.", true);
+        onClose();
+        if (onUpdated) onUpdated();
+      } catch (error) {
+        notify("업체 삭제에 실패했습니다.", false);
+      }
+    }
+  };
+
+  const setErrorMessage = () => {};
+
+  const handleEditSave = async (data: CompanyFormData): Promise<void> => {
+    if (!company) return;
+    try {
+      const bizNoCombined = parseInt(`${data.reg1}${data.reg2}${data.reg3}`, 10);
+      const companyUpdateData = {
+        name: data.name,
+        bizNo: bizNoCombined,
+        address: data.address,
+        ceoName: data.ceoName,
+        email: data.email,
+        bio: data.bio,
+        tel: data.tel.replace(/\D/g, ""),
+      };
+      await api.put(`/api/companies/${company.id}`, companyUpdateData);
+      notify("업체 정보가 성공적으로 수정되었습니다.", true);
+      setEditModalOpen(false);
+      if (onUpdated) onUpdated();
+      setRefreshKey((k) => k + 1);
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const errorData = err.response?.data;
+        if (errorData?.data?.errors) {
+          setFieldErrors(errorData.data.errors);
+          return;
+        }
+      }
+      notify("업체 정보 수정에 실패했습니다.", false);
+      throw err;
+    }
+  };
 
   if (!open || !company) return null;
 
@@ -85,9 +146,43 @@ const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
         <ModalTitle>{company.name}</ModalTitle>
 
         <Section>
-          <SectionTitle>
-            <FiHome size={16} />
-            정보
+          <SectionTitle style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <FiHome size={16} />
+              정보
+            </span>
+            <span style={{ display: 'flex', gap: 8 }}>
+              <button
+                style={{
+                  background: '#fbbf24',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 6,
+                  padding: '4px 14px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  fontSize: 13
+                }}
+                onClick={() => setEditModalOpen(true)}
+              >
+                수정
+              </button>
+              <button
+                style={{
+                  background: '#ef4444',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 6,
+                  padding: '4px 14px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  fontSize: 13
+                }}
+                onClick={handleDelete}
+              >
+                삭제
+              </button>
+            </span>
           </SectionTitle>
           <DetailItem>
             <DetailIcon>
@@ -122,7 +217,7 @@ const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
               <FiPhone size={14} style={{ color: "#10b981" }} />
             </DetailIcon>
             <DetailLabel>연락처:</DetailLabel>
-            <DetailValue>{company.tel}</DetailValue>
+            <DetailValue>{formatTelNo(company.tel)}</DetailValue>
           </DetailItem>
         </Section>
 
@@ -160,8 +255,6 @@ const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
           <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 8 }}>
             {loading ? (
               <div style={{ color: '#888', padding: '8px 0' }}>구성원 정보를 불러오는 중...</div>
-            ) : error ? (
-              <div style={{ color: 'red', padding: '8px 0' }}>{error}</div>
             ) : members.length === 0 ? (
               <div style={{ color: '#888', padding: '8px 0' }}>구성원이 없습니다.</div>
             ) : (
@@ -214,6 +307,21 @@ const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
           <MemberRegisterModal
             onClose={() => setRegisterOpen(false)}
             onRegister={() => setRegisterOpen(false)}
+          />
+        )}
+
+        {editModalOpen && company && (
+          <CompanyEditModal
+            open={editModalOpen}
+            onClose={() => {
+              setEditModalOpen(false);
+              if (onUpdated) onUpdated();
+            }}
+            onSave={handleEditSave}
+            initialData={company}
+            fieldErrors={fieldErrors}
+            setFieldErrors={setFieldErrors}
+            setErrorMessage={setErrorMessage}
           />
         )}
       </ModalPanel>

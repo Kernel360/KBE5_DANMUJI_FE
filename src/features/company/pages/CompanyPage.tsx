@@ -279,7 +279,7 @@ export default function CompanyPage() {
     totalPages: number;
   } | null>(null);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
-  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+  const [selectedCompanyId, setSelectedCompanyId] = useState<number | null>(null);
 
   const handlePageChange = (newPage: number) => {
     fetchCompanies(newPage);
@@ -423,7 +423,7 @@ export default function CompanyPage() {
   };
 
   const handleCompanyClick = (company: Company) => {
-    setSelectedCompany(company);
+    setSelectedCompanyId(company.id);
     setDetailModalOpen(true);
   };
 
@@ -448,7 +448,8 @@ export default function CompanyPage() {
       <CompanyDetailModal
         open={detailModalOpen}
         onClose={() => setDetailModalOpen(false)}
-        company={selectedCompany}
+        companyId={selectedCompanyId}
+        onUpdated={fetchCompanies}
       />
       <HeaderSection>
         <Title>업체 관리</Title>
