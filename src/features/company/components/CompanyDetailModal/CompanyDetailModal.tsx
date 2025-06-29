@@ -22,7 +22,7 @@ import {
   DetailIcon,
 } from "./CompanyDetailModal.styled";
 import type { Company } from "../../pages/CompanyPage";
-import { formatBizNo } from "../../pages/CompanyPage";
+import { formatBizNo, formatTelNo } from "../../pages/CompanyPage";
 import MemberRegisterModal from "@/features/user/components/MemberRegisterModal/MemberRegisterModal";
 import { useState, useEffect } from "react";
 import api from "@/api/axios";
@@ -127,7 +127,7 @@ const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
               <FiPhone size={14} style={{ color: "#10b981" }} />
             </DetailIcon>
             <DetailLabel>연락처:</DetailLabel>
-            <DetailValue>{company.tel}</DetailValue>
+            <DetailValue>{formatTelNo(company.tel)}</DetailValue>
           </DetailItem>
         </Section>
 
