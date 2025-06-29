@@ -56,6 +56,13 @@ interface RecentProject {
   createdAt: string;
 }
 
+interface RecentInquiry {
+  id: number;
+  title: string;
+  createdAt: string;
+  inquiryStatus: string;
+}
+
 // 커스텀 라벨 컴포넌트
 const CustomLabel = ({
   cx,
@@ -96,6 +103,8 @@ export default function DashboardPage() {
   const [totalProjectCount, setTotalProjectCount] = useState(0);
   const [inProgressProjectCount, setInProgressProjectCount] = useState(0);
   const [inquiryCount, setInquiryCount] = useState(0);
+  const [waitingInquiryCount, setWaitingInquiryCount] = useState(0);
+  const [answeredInquiryCount, setAnsweredInquiryCount] = useState(0);
   const [recentCompanies, setRecentCompanies] = useState<RecentCompany[]>([]);
   const [recentProjects, setRecentProjects] = useState<RecentProject[]>([]);
   const [recentInquiries, setRecentInquiries] = useState<RecentPost[]>([]);
@@ -160,12 +169,14 @@ export default function DashboardPage() {
         );
         setRecentProjects(recentProjectsResponse.data?.data || []);
 
-        // Fetch Inquiry Count (임시 데이터)
-        setInquiryCount(45);
+        // Fetch Inquiry Count (실제 데이터)
+        const inquiriesResponse = await api.get("/api/inquiries/all");
+        const inquiries: RecentInquiry[] = inquiriesResponse.data?.data || [];
+        setInquiryCount(inquiries.length);
+        setWaitingInquiryCount(inquiries.filter((inq) => inq.inquiryStatus === "WAITING").length);
+        setAnsweredInquiryCount(inquiries.filter((inq) => inq.inquiryStatus === "ANSWERED").length);
 
         // Fetch Recent Inquiries
-        const inquiriesResponse = await api.get("/api/inquiries/all");
-        const inquiries = inquiriesResponse.data?.data || [];
         const sortedInquiries = [...inquiries].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         setRecentInquiries(sortedInquiries.slice(0, 5));
       } catch (error) {
@@ -248,10 +259,6 @@ export default function DashboardPage() {
           >
             {memberCount.toLocaleString()}
           </div>
-          <div style={{ fontSize: "14px", color: "#6b7280" }}>
-            활성 사용자:{" "}
-            <span style={{ color: "#10b981", fontWeight: 600 }}>9,234</span>
-          </div>
         </RecentActivityCard>
 
         {/* 업체 통계 카드 */}
@@ -307,10 +314,6 @@ export default function DashboardPage() {
             }}
           >
             {companyCount.toLocaleString()}
-          </div>
-          <div style={{ fontSize: "14px", color: "#6b7280" }}>
-            활성 업체:{" "}
-            <span style={{ color: "#10b981", fontWeight: 600 }}>1,222</span>
           </div>
         </RecentActivityCard>
 
@@ -451,12 +454,12 @@ export default function DashboardPage() {
             }}
           >
             <span>
-              답변 대기:{" "}
-              <span style={{ color: "#ef4444", fontWeight: 600 }}>12</span>
+              답변 대기: {" "}
+              <span style={{ color: "#ef4444", fontWeight: 600 }}>{waitingInquiryCount}</span>
             </span>
             <span>
-              답변 완료:{" "}
-              <span style={{ color: "#10b981", fontWeight: 600 }}>33</span>
+              답변 완료: {" "}
+              <span style={{ color: "#10b981", fontWeight: 600 }}>{answeredInquiryCount}</span>
             </span>
           </div>
         </RecentActivityCard>
