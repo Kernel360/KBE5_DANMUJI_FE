@@ -392,11 +392,7 @@ export default function CompanyEditModal({
         const errorData = err.response?.data as ErrorResponse | undefined;
         if (errorData?.data?.errors) {
           setFieldErrors(errorData.data.errors);
-        } else {
-          setErrorMessage(
-            errorData?.error?.message || "업체 수정 중 오류가 발생했습니다."
-          );
-        }
+        } 
       } else {
         setErrorMessage("업체 수정 중 오류가 발생했습니다.");
       }

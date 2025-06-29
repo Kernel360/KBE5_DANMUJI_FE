@@ -29,6 +29,8 @@ import api from "@/api/axios";
 import CompanyEditModal from "../CompanyEditModal/CompanyEditModal";
 import type { FieldError } from "../../pages/CompanyPage";
 import type { CompanyFormData } from "../../pages/CompanyPage";
+import axios from "axios";
+import { useNotification } from "@/features/Notification/NotificationContext";
 
 interface CompanyMember {
   username: string;
@@ -63,6 +65,7 @@ const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<FieldError[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
+  const { notify } = useNotification();
 
   useEffect(() => {
     if (!open || !companyId) return;
@@ -90,18 +93,18 @@ const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
     if (window.confirm("정말 이 업체를 삭제하시겠습니까?")) {
       try {
         await api.delete(`/api/companies/${company.id}`);
-        alert("업체가 성공적으로 삭제되었습니다.");
+        notify("업체가 성공적으로 삭제되었습니다.", true);
         onClose();
         if (onUpdated) onUpdated();
       } catch (error) {
-        alert("업체 삭제에 실패했습니다.");
+        notify("업체 삭제에 실패했습니다.", false);
       }
     }
   };
 
   const setErrorMessage = () => {};
 
-  const handleEditSave = async (data: CompanyFormData) => {
+  const handleEditSave = async (data: CompanyFormData): Promise<void> => {
     if (!company) return;
     try {
       const bizNoCombined = parseInt(`${data.reg1}${data.reg2}${data.reg3}`, 10);
@@ -115,12 +118,19 @@ const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
         tel: data.tel.replace(/\D/g, ""),
       };
       await api.put(`/api/companies/${company.id}`, companyUpdateData);
-      alert("업체 정보가 성공적으로 수정되었습니다.");
+      notify("업체 정보가 성공적으로 수정되었습니다.", true);
       setEditModalOpen(false);
       if (onUpdated) onUpdated();
       setRefreshKey((k) => k + 1);
     } catch (err) {
-      alert("업체 정보 수정에 실패했습니다.");
+      if (axios.isAxiosError(err)) {
+        const errorData = err.response?.data;
+        if (errorData?.data?.errors) {
+          setFieldErrors(errorData.data.errors);
+          return;
+        }
+      }
+      notify("업체 정보 수정에 실패했습니다.", false);
       throw err;
     }
   };
