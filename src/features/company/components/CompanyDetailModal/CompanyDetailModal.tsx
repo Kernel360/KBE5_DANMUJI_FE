@@ -39,13 +39,13 @@ interface CompanyMember {
 interface CompanyDetailModalProps {
   open: boolean;
   onClose: () => void;
-  company: Company | null;
+  companyId: number | null;
 }
 
 const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
   open,
   onClose,
-  company,
+  companyId,
 }) => {
   const [registerOpen, setRegisterOpen] = useState(false);
   const [members, setMembers] = useState<CompanyMember[]>([]);
@@ -55,12 +55,17 @@ const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
   const pageSize = 4;
   const totalPages = Math.ceil(members.length / pageSize);
   const pagedMembers = members.slice(page * pageSize, (page + 1) * pageSize);
+  const [company, setCompany] = useState<Company | null>(null);
 
   useEffect(() => {
-    if (!open || !company) return;
+    if (!open || !companyId) return;
     setLoading(true);
     setError(null);
-    api.get(`/api/companies/${company.id}/userLists`)
+    api.get(`/api/companies/${companyId}`)
+      .then(res => {
+        setCompany(res.data.data);
+        return api.get(`/api/companies/${companyId}/userLists`);
+      })
       .then(res => {
         setMembers(res.data.data || []);
       })
@@ -68,7 +73,7 @@ const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
         setError(err?.response?.data?.message || '구성원 정보를 불러오지 못했습니다.');
       })
       .finally(() => setLoading(false));
-  }, [open, company]);
+  }, [open, companyId]);
 
   useEffect(() => {
     setPage(0);

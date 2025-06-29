@@ -29,13 +29,13 @@ import {
   FaUsers,
   FaBuilding,
   FaProjectDiagram,
-  FaFileAlt,
   FaCalendarAlt,
   FaChartLine,
   FaChartPie,
   FaClipboardList,
   FaQuestionCircle,
 } from "react-icons/fa";
+import CompanyDetailModal from "@/features/company/components/CompanyDetailModal/CompanyDetailModal";
 
 // Define interfaces for new data types
 interface RecentPost {
@@ -96,9 +96,11 @@ export default function DashboardPage() {
   const [totalProjectCount, setTotalProjectCount] = useState(0);
   const [inProgressProjectCount, setInProgressProjectCount] = useState(0);
   const [inquiryCount, setInquiryCount] = useState(0);
-  const [recentPosts, setRecentPosts] = useState<RecentPost[]>([]);
   const [recentCompanies, setRecentCompanies] = useState<RecentCompany[]>([]);
   const [recentProjects, setRecentProjects] = useState<RecentProject[]>([]);
+  const [recentInquiries, setRecentInquiries] = useState<RecentPost[]>([]);
+  const [companyDetailModalOpen, setCompanyDetailModalOpen] = useState(false);
+  const [selectedCompanyId, setSelectedCompanyId] = useState<number | null>(null);
 
   // 차트용 데이터
   const projectStatusData = [
@@ -146,10 +148,6 @@ export default function DashboardPage() {
         setTotalProjectCount(total);
         setInProgressProjectCount(inProgressCount);
 
-        // Fetch Recent Posts
-        const postsResponse = await api.get("/api/posts/recent-posts");
-        setRecentPosts(postsResponse.data?.data || []);
-
         // Fetch Recent Companies
         const recentCompaniesResponse = await api.get(
           "/api/companies/recent-companies"
@@ -164,6 +162,12 @@ export default function DashboardPage() {
 
         // Fetch Inquiry Count (임시 데이터)
         setInquiryCount(45);
+
+        // Fetch Recent Inquiries
+        const inquiriesResponse = await api.get("/api/inquiries/all");
+        const inquiries = inquiriesResponse.data?.data || [];
+        const sortedInquiries = [...inquiries].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        setRecentInquiries(sortedInquiries.slice(0, 5));
       } catch (error) {
         console.error("Failed to fetch dashboard data:", error);
       }
@@ -197,7 +201,9 @@ export default function DashboardPage() {
             border: "1px solid #e5e7eb",
             borderRadius: "12px",
             background: "linear-gradient(135deg, #ffffff 0%, #fefdf4 100%)",
+            cursor: "pointer"
           }}
+          onClick={() => window.location.href = "/members"}
         >
           <div
             style={{
@@ -255,7 +261,9 @@ export default function DashboardPage() {
             border: "1px solid #e5e7eb",
             borderRadius: "12px",
             background: "linear-gradient(135deg, #ffffff 0%, #fefdf4 100%)",
+            cursor: "pointer"
           }}
+          onClick={() => window.location.href = "/company"}
         >
           <div
             style={{
@@ -313,7 +321,9 @@ export default function DashboardPage() {
             border: "1px solid #e5e7eb",
             borderRadius: "12px",
             background: "linear-gradient(135deg, #ffffff 0%, #fefdf4 100%)",
+            cursor: "pointer"
           }}
+          onClick={() => window.location.href = "/projects"}
         >
           <div
             style={{
@@ -385,7 +395,9 @@ export default function DashboardPage() {
             border: "1px solid #e5e7eb",
             borderRadius: "12px",
             background: "linear-gradient(135deg, #ffffff 0%, #fefdf4 100%)",
+            cursor: "pointer"
           }}
+          onClick={() => window.location.href = "/inquiry"}
         >
           <div
             style={{
@@ -587,7 +599,7 @@ export default function DashboardPage() {
 
       {/* 최근 활동 섹션 */}
       <RecentActivityContainer>
-        {/* 최근 등록된 게시물 */}
+        {/* 최근 등록된 문의사항 */}
         <RecentActivityCard
           style={{
             border: "1px solid #e5e7eb",
@@ -604,33 +616,54 @@ export default function DashboardPage() {
               borderBottom: "1px solid #e5e7eb",
               paddingBottom: "12px",
               marginBottom: "16px",
+              justifyContent: "space-between"
             }}
           >
-            <FaFileAlt style={{ color: "#fdb924" }} />
-            최근 등록된 게시물
+            <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <FaQuestionCircle style={{ color: "#fdb924" }} />
+              최근 등록된 문의사항
+            </span>
+            <button
+              style={{
+                background: "#fdb924",
+                color: "#fff",
+                border: "none",
+                borderRadius: "6px",
+                padding: "6px 16px",
+                fontWeight: 600,
+                cursor: "pointer",
+                fontSize: "14px"
+              }}
+              onClick={() => window.location.href = "/admin/inquiries"}
+            >
+              더보기
+            </button>
           </RecentActivityTitle>
           <RecentActivityList>
-            {recentPosts.length > 0 ? (
-              recentPosts.slice(0, 5).map((post) => (
+            {recentInquiries.length > 0 ? (
+              recentInquiries.map((inquiry) => (
                 <RecentActivityItem
-                  key={post.id}
+                  key={inquiry.id}
                   style={{
                     padding: "8px 0",
                     borderBottom: "1px solid #f3f4f6",
                   }}
                 >
-                  <span style={{ fontSize: "14px", color: "#374151" }}>
-                    {post.title}
+                  <span
+                    style={{ fontSize: "14px", color: "#374151", cursor: "pointer", textDecoration: "underline" }}
+                    onClick={() => window.location.href = `/inquiry/${inquiry.id}`}
+                  >
+                    {inquiry.title}
                   </span>
                   <RecentActivityDate style={{ fontSize: "12px" }}>
-                    {new Date(post.createdAt).toLocaleDateString()}
+                    {new Date(inquiry.createdAt).toLocaleDateString()}
                   </RecentActivityDate>
                 </RecentActivityItem>
               ))
             ) : (
               <RecentActivityItem style={{ padding: "8px 0" }}>
                 <span style={{ fontSize: "14px", color: "#6b7280" }}>
-                  게시물이 없습니다.
+                  문의사항이 없습니다.
                 </span>
               </RecentActivityItem>
             )}
@@ -654,10 +687,28 @@ export default function DashboardPage() {
               borderBottom: "1px solid #e5e7eb",
               paddingBottom: "12px",
               marginBottom: "16px",
+              justifyContent: "space-between"
             }}
           >
-            <FaBuilding style={{ color: "#fdb924" }} />
-            최근 등록된 업체
+            <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <FaBuilding style={{ color: "#fdb924" }} />
+              최근 등록된 업체
+            </span>
+            <button
+              style={{
+                background: "#fdb924",
+                color: "#fff",
+                border: "none",
+                borderRadius: "6px",
+                padding: "6px 16px",
+                fontWeight: 600,
+                cursor: "pointer",
+                fontSize: "14px"
+              }}
+              onClick={() => window.location.href = "/company"}
+            >
+              더보기
+            </button>
           </RecentActivityTitle>
           <RecentActivityList>
             {recentCompanies.length > 0 ? (
@@ -669,7 +720,13 @@ export default function DashboardPage() {
                     borderBottom: "1px solid #f3f4f6",
                   }}
                 >
-                  <span style={{ fontSize: "14px", color: "#374151" }}>
+                  <span
+                    style={{ fontSize: "14px", color: "#374151", cursor: "pointer", textDecoration: "underline" }}
+                    onClick={() => {
+                      setSelectedCompanyId(company.id);
+                      setCompanyDetailModalOpen(true);
+                    }}
+                  >
                     {company.name}
                   </span>
                   <RecentActivityDate style={{ fontSize: "12px" }}>
@@ -685,6 +742,11 @@ export default function DashboardPage() {
               </RecentActivityItem>
             )}
           </RecentActivityList>
+          <CompanyDetailModal
+            open={companyDetailModalOpen}
+            onClose={() => setCompanyDetailModalOpen(false)}
+            companyId={selectedCompanyId}
+          />
         </RecentActivityCard>
 
         {/* 최근 등록된 프로젝트 */}
@@ -704,10 +766,28 @@ export default function DashboardPage() {
               borderBottom: "1px solid #e5e7eb",
               paddingBottom: "12px",
               marginBottom: "16px",
+              justifyContent: "space-between"
             }}
           >
-            <FaProjectDiagram style={{ color: "#fdb924" }} />
-            최근 등록된 프로젝트
+            <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <FaProjectDiagram style={{ color: "#fdb924" }} />
+              최근 등록된 프로젝트
+            </span>
+            <button
+              style={{
+                background: "#fdb924",
+                color: "#fff",
+                border: "none",
+                borderRadius: "6px",
+                padding: "6px 16px",
+                fontWeight: 600,
+                cursor: "pointer",
+                fontSize: "14px"
+              }}
+              onClick={() => window.location.href = "/projects"}
+            >
+              더보기
+            </button>
           </RecentActivityTitle>
           <RecentActivityList>
             {recentProjects.length > 0 ? (
@@ -719,7 +799,10 @@ export default function DashboardPage() {
                     borderBottom: "1px solid #f3f4f6",
                   }}
                 >
-                  <span style={{ fontSize: "14px", color: "#374151" }}>
+                  <span
+                    style={{ fontSize: "14px", color: "#374151", cursor: "pointer", textDecoration: "underline" }}
+                    onClick={() => window.location.href = `/projects/${project.id}/detail`}
+                  >
                     {project.name}
                   </span>
                   <RecentActivityDate style={{ fontSize: "12px" }}>
