@@ -449,6 +449,7 @@ export default function CompanyPage() {
         open={detailModalOpen}
         onClose={() => setDetailModalOpen(false)}
         companyId={selectedCompanyId}
+        onUpdated={fetchCompanies}
       />
       <HeaderSection>
         <Title>업체 관리</Title>
