@@ -97,8 +97,8 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ steps, onClose, onSave 
   };
 
   return (
-    <ModalOverlay>
-      <ModalBox style={{ background: '#fff' }}>
+    <ModalOverlay onClick={onClose}>
+      <ModalBox onClick={e => e.stopPropagation()} style={{ background: '#fff' }}>
         <ModalHeader>
           <ModalTitle>단계 순서 변경</ModalTitle>
           <ModalDescription>단계를 드래그하여 순서를 변경할 수 있습니다.</ModalDescription>
@@ -172,7 +172,7 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ steps, onClose, onSave 
                 />
                 <FaTimes size={13} color="#bdbdbd" style={{ marginLeft: 6, cursor: "pointer" }} onMouseDown={handleAddStepCancel} />
               </StepLeft>
-              <StepStatusBadge style={{ backgroundColor: '#f3f4f6', color: '#6b7280' }}>예정</StepStatusBadge>
+              {/* <StepStatusBadge style={{ backgroundColor: '#f3f4f6', color: '#6b7280' }}>예정</StepStatusBadge> */}
             </StepItem>
           )}
         </StepList>
@@ -198,8 +198,8 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ steps, onClose, onSave 
           단계를 드래그하여 위아래로 이동할 수 있습니다.
         </DragGuide>
         <ModalFooter>
-          <CancelButton onClick={onClose} style={{ background: '#f3f4f6', color: '#23272f' }}>취소</CancelButton>
-          <SaveButton onClick={() => onSave?.(stepList)} style={{ background: '#6366f1', color: '#fff' }}>저장</SaveButton>
+          <CancelButton onClick={onClose} style={{ background: '#f3f4f6', color: '#23272f', cursor: 'pointer' }}>취소</CancelButton>
+          <SaveButton onClick={() => onSave?.(stepList)} style={{ background: '#fbbf24', color: '#fff', cursor: 'pointer' }}>저장</SaveButton>
         </ModalFooter>
       </ModalBox>
     </ModalOverlay>

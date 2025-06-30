@@ -82,7 +82,7 @@ const ProjectProgress: React.FC<ProjectProgressProps> = ({
       <div style={{ position: "absolute", top: 0, right: 0, zIndex: 2 }}>
         <button
           onClick={() => setStepOrderModalOpen(true)}
-          style={{ background: "none", border: "none", cursor: "pointer", padding: 8 }}
+          style={{ background: "none", border: "none", cursor: "pointer", padding: 20 }}
           title="단계 순서 변경"
         >
           <FaPen size={18} color="#6366f1" />
@@ -129,8 +129,15 @@ const ProjectProgress: React.FC<ProjectProgressProps> = ({
       </StepContainer>
       {isStepOrderModalOpen && (
         <StepOrderModal
-          steps={projectDetail.steps}
+          steps={projectDetail.steps.map((step) => ({
+            id: step.id,
+            name: step.name,
+            projectStepStatus: step.projectStepStatus as "COMPLETED" | "IN_PROGRESS" | "PENDING",
+          }))}
           onClose={() => setStepOrderModalOpen(false)}
+          onSave={() => {
+            console.log("save");
+          }}
         />
       )}
     </Wrapper>
