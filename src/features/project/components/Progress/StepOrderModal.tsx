@@ -12,10 +12,15 @@ import {
   StepStatusBadge,
   ModalFooter,
   DragGuide,
-  Button,
   CancelButton,
   SaveButton,
+  AddStepButton,
+  AddStepInput,
+  StepOrderNumber,
+  EditIcon,
+  TrashIcon,
 } from "./StepOrderModal.styled";
+
 import { FaGripVertical, FaPlus, FaTimes, FaTrashAlt } from "react-icons/fa";
 import { RiEdit2Fill } from "react-icons/ri";
 
@@ -102,12 +107,13 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ steps, onClose, onSave 
 
   return (
     <ModalOverlay onClick={onClose}>
-      <ModalBox onClick={e => e.stopPropagation()} style={{ background: '#fff', width: 520, padding: '22px 20px 18px 20px', borderRadius: 10 }}>
-        <ModalHeader style={{ marginBottom: 10 }}>
-          <ModalTitle style={{ fontSize: 19 }}>단계 수정</ModalTitle>
-          <ModalDescription style={{ fontSize: 14, marginBottom: 8 }}>단계의 순서를 변경하고, 이름을 수정하거나 삭제할 수 있습니다.</ModalDescription>
+      <ModalBox onClick={e => e.stopPropagation()}>
+        <ModalHeader>
+          <ModalTitle>단계 수정</ModalTitle>
+          <ModalDescription>단계의 순서를 변경하고, 이름을 수정하거나 삭제할 수 있습니다.</ModalDescription>
         </ModalHeader>
-        <StepList style={{ gap: 4, marginBottom: 10 }}>
+
+        <StepList>
           {stepList.map((step, idx) => {
             const isDragging = dragIndex === idx;
             const { text, color, bg } = getStatusStyle(step.projectStepStatus);
@@ -119,18 +125,12 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ steps, onClose, onSave 
                 onDragEnter={() => handleDragEnter(idx)}
                 onDragEnd={handleDragEnd}
                 isDragging={isDragging}
-                style={{ background: isDragging ? '#fef3c7' : '#fff', border: isDragging ? '2px solid #fde68a' : '1.5px solid #e5e7eb', boxShadow: isDragging ? '0 2px 8px #fde68a33' : undefined, minHeight: 48, borderRadius: 7, padding: '8px 12px', marginBottom: 8 }}
               >
-                <StepLeft style={{ gap: 6, minHeight: 32 }}>
-                  <span style={{
-                    color: '#23272f',
-                    fontWeight: 700,
-                    fontSize: 14,
-                    marginRight: 6,
-                  }}>{idx + 1}</span>
+                <StepLeft>
+                  <StepOrderNumber>{idx + 1}</StepOrderNumber>
                   <FaGripVertical size={13} color={isDragging ? '#fbbf24' : '#d1d5db'} />
                   {editingIdx === idx ? (
-                    <input
+                    <AddStepInput
                       ref={editingInputRef}
                       value={editingName}
                       onChange={e => setEditingName(e.target.value)}
@@ -152,63 +152,67 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ steps, onClose, onSave 
                           setEditingIdx(null);
                         }
                       }}
-                      style={{
-                        fontSize: 15,
-                        fontWeight: 400,
-                        border: '1px solid #e5e7eb',
-                        outline: 'none',
-                        background: '#f9fafb',
-                        color: '#23272f',
-                        width: 110,
-                        marginLeft: 4,
-                        borderRadius: 6,
-                        padding: '3px 7px',
-                        minHeight: 28,
-                      }}
                       maxLength={20}
                       autoFocus
                     />
                   ) : (
                     <>
-                      <StepName style={{ fontSize: 15, fontWeight: 500, marginLeft: 4, marginRight: 2 }}>{step.name}</StepName>
-                      <RiEdit2Fill
-                        size={15}
-                        color="#bdbdbd"
-                        style={{ marginLeft: 2, cursor: 'pointer', transition: 'color 0.15s' }}
-                        title="이름 수정"
-                        onClick={() => {
-                          setEditingIdx(idx);
-                          setEditingName(step.name);
-                          setTimeout(() => editingInputRef.current?.focus(), 0);
-                        }}
-                        onMouseOver={e => (e.currentTarget.style.color = '#6366f1')}
-                        onMouseOut={e => (e.currentTarget.style.color = '#bdbdbd')}
-                      />
+                      <StepName>{step.name}</StepName>
+                      <EditIcon>
+                        <RiEdit2Fill
+                          size={15}
+                          title="이름 수정"
+                          onClick={() => {
+                            setEditingIdx(idx);
+                            setEditingName(step.name);
+                            setTimeout(() => editingInputRef.current?.focus(), 0);
+                          }}
+                        />
+                      </EditIcon>
                     </>
                   )}
                 </StepLeft>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <StepStatusBadge style={{ backgroundColor: bg, color, fontSize: 13, padding: '2px 10px', borderRadius: 7 }}>{text}</StepStatusBadge>
-                  <FaTrashAlt
-                    size={14}
-                    color="#e11d48"
-                    style={{ cursor: 'pointer', marginLeft: 6 }}
-                    title="단계 삭제"
+                  <StepStatusBadge
+                    clickable={step.projectStepStatus === 'IN_PROGRESS'}
+                    title={step.projectStepStatus === 'IN_PROGRESS' ? '클릭하면 완료로 변경' : undefined}
                     onClick={() => {
-                      if (window.confirm('정말 삭제할까요?')) {
-                        setStepList(stepList.filter((_, i) => i !== idx));
+                      if (step.projectStepStatus === 'IN_PROGRESS') {
+                        setStepList(list => list.map((s, i) => i === idx ? { ...s, projectStepStatus: 'COMPLETED' } : s));
                       }
                     }}
-                  />
+                    style={{ backgroundColor: bg, color }}
+                  >
+                    {text}
+                  </StepStatusBadge>
+                  <TrashIcon>
+                    <FaTrashAlt
+                      size={14}
+                      color="#e11d48"
+                      title="단계 삭제"
+                      onClick={() => {
+                        if (window.confirm('정말 삭제할까요?')) {
+                          setStepList(stepList.filter((_, i) => i !== idx));
+                        }
+                      }}
+                    />
+                  </TrashIcon>
                 </div>
               </StepItem>
             );
           })}
+
+          {!adding && (
+            <AddStepButton type="button" onClick={handleAddStep}>
+              <FaPlus size={14} /> 단계 추가
+            </AddStepButton>
+          )}
+
           {adding && (
-            <StepItem isDragging={false} style={{ background: '#f9fafb', border: '2px dashed #d1d5db', minWidth: 120, alignItems: 'center', justifyContent: 'center', gap: 0 }}>
+            <StepItem>
               <StepLeft>
                 <FaGripVertical size={14} color="#d1d5db" />
-                <input
+                <AddStepInput
                   ref={inputRef}
                   value={newStepName}
                   onChange={e => setNewStepName(e.target.value)}
@@ -217,29 +221,20 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ steps, onClose, onSave 
                     if (e.key === "Enter") handleAddStepConfirm();
                     if (e.key === "Escape") handleAddStepCancel();
                   }}
-                  style={{
-                    fontSize: 15,
-                    fontWeight: 600,
-                    border: 'none',
-                    outline: 'none',
-                    background: 'transparent',
-                    color: '#23272f',
-                    width: 160,
-                    marginLeft: 8,
-                  }}
                   placeholder="새 단계 이름"
                   maxLength={20}
                 />
                 <FaTimes size={13} color="#bdbdbd" style={{ marginLeft: 6, cursor: "pointer" }} onMouseDown={handleAddStepCancel} />
               </StepLeft>
-              {/* <StepStatusBadge style={{ backgroundColor: '#f3f4f6', color: '#6b7280' }}>예정</StepStatusBadge> */}
             </StepItem>
           )}
         </StepList>
-        <DragGuide style={{ fontSize: 13, marginBottom: 10, marginTop: 0 }}>드래그로 순서를 변경할 수 있습니다.</DragGuide>
-        <ModalFooter style={{ gap: 8, marginTop: 6 }}>
-          <CancelButton onClick={onClose} style={{ background: '#f3f4f6', color: '#23272f', cursor: 'pointer', padding: '8px 22px', fontSize: 15, borderRadius: 7 }}>취소</CancelButton>
-          <SaveButton onClick={() => onSave?.(stepList)} style={{ background: '#fbbf24', color: '#fff', cursor: 'pointer', padding: '8px 22px', fontSize: 15, borderRadius: 7 }}>저장</SaveButton>
+
+        <DragGuide>드래그로 순서를 변경할 수 있습니다.</DragGuide>
+
+        <ModalFooter>
+          <CancelButton onClick={onClose}>취소</CancelButton>
+          <SaveButton onClick={() => onSave?.(stepList)}>저장</SaveButton>
         </ModalFooter>
       </ModalBox>
     </ModalOverlay>
