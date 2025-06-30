@@ -1,7 +1,6 @@
 import api from "@/api/axios";
-import { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
-import MemberRegisterModal from "../components/MemberRegisterModal/MemberRegisterModal";
+import { useState, useEffect } from "react";
+import MemberDetailModal from "../components/MemberDetailModal/MemberDetailModal";
 import styled from "styled-components";
 import {
   FiSearch,
@@ -15,6 +14,8 @@ import {
   FiCalendar,
 } from "react-icons/fi";
 import { LuUserRoundCog, LuUserRoundCheck } from "react-icons/lu";
+import MemberRegisterModal from "../components/MemberRegisterModal/MemberRegisterModal";
+import { useNotification } from "@/features/Notification/NotificationContext";
 
 export interface Member {
   id: number;
@@ -34,7 +35,6 @@ interface Company {
   name: string;
 }
 
-// MemberData 타입 정의 (파일 상단에 위치)
 interface MemberData {
   username: string;
   name: string;
@@ -441,6 +441,7 @@ export const formatTelNo = (telNo: string) => {
 export default function MemberPage() {
   const [members, setMembers] = useState<Member[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
+  const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -462,7 +463,9 @@ export default function MemberPage() {
   const [pageSize] = useState(10);
   const [totalMembers, setTotalMembers] = useState(0);
 
-  const navigate = useNavigate();
+  const [registerModalOpen, setRegisterModalOpen] = useState(false);
+
+  const { notify } = useNotification();
 
   const fetchMembers = async () => {
     try {
@@ -566,8 +569,10 @@ export default function MemberPage() {
     setPositionDropdownOpen(false);
   };
 
+  // 이름 클릭 시 모달 오픈
   const handleMemberClick = (member: Member) => {
-    navigate(`/member/${member.id}`);
+    setSelectedMemberId(member.id);
+    setModalOpen(true);
   };
 
   // 페이지네이션 함수들
@@ -632,37 +637,17 @@ export default function MemberPage() {
     return pages;
   };
 
-  const handleRegister = useCallback(
-    async (data: MemberData) => {
-      try {
-        const newMember = {
-          ...data,
-          role: "user", // API에만 추가
-        };
-        const response = await api.post("/api/admin", newMember);
-
-        const { username, password } = response.data.data;
-        const fileContent = `Username: ${username}\nPassword: ${password}`;
-        const blob = new Blob([fileContent], { type: "text/plain" });
-        const fileUrl = URL.createObjectURL(blob);
-
-        const link = document.createElement("a");
-        link.href = fileUrl;
-        link.download = "member_credentials.txt";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        fetchMembers();
-        alert("회원 등록이 완료되었습니다!");
-        setModalOpen(false);
-      } catch (error: unknown) {
-        console.error("Error registering member:", error);
-        alert("회원 등록 중 오류가 발생했습니다.");
-      }
-    },
-    [fetchMembers]
-  );
+  // 회원 등록 핸들러
+  const handleRegister = async (memberData: MemberData) => {
+    try {
+      await api.post("/api/admin", memberData);
+      await fetchMembers();
+      setRegisterModalOpen(false);
+      notify("회원이 성공적으로 등록되었습니다.", true);
+    } catch {
+      notify("회원 등록에 실패했습니다.", false);
+    }
+  };
 
   if (loading)
     return (
@@ -818,7 +803,7 @@ export default function MemberPage() {
           </div>
         </FilterGroup>
         <SearchRight>
-          <NewButton onClick={() => setModalOpen(true)}>
+          <NewButton onClick={() => setRegisterModalOpen(true)}>
             <FiPlus size={16} />
             회원 등록
           </NewButton>
@@ -1040,9 +1025,21 @@ export default function MemberPage() {
         <PaginationInfo>{getPaginationInfo()}</PaginationInfo>
       </PaginationContainer>
 
-      {modalOpen && (
+      {modalOpen && selectedMemberId !== null && (
+        <MemberDetailModal
+          open={modalOpen}
+          onClose={() => {
+            setModalOpen(false);
+            setSelectedMemberId(null);
+          }}
+          memberId={selectedMemberId}
+        />
+      )}
+
+      {/* 회원 등록 모달 */}
+      {registerModalOpen && (
         <MemberRegisterModal
-          onClose={() => setModalOpen(false)}
+          onClose={() => setRegisterModalOpen(false)}
           onRegister={handleRegister}
         />
       )}

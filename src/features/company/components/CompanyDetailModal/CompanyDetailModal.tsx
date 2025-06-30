@@ -8,6 +8,8 @@ import {
   FiMapPin,
   FiHash,
   FiFileText,
+  FiEdit3,
+  FiTrash2,
 } from "react-icons/fi";
 import {
   ModalOverlay,
@@ -31,6 +33,7 @@ import type { FieldError } from "../../pages/CompanyPage";
 import type { CompanyFormData } from "../../pages/CompanyPage";
 import axios from "axios";
 import { useNotification } from "@/features/Notification/NotificationContext";
+import { Button as ModalButton } from "@/features/user/components/MemberEditModal/MemberEditModal.styled";
 
 interface CompanyMember {
   username: string;
@@ -96,13 +99,11 @@ const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
         notify("업체가 성공적으로 삭제되었습니다.", true);
         onClose();
         if (onUpdated) onUpdated();
-      } catch (error) {
+      } catch {
         notify("업체 삭제에 실패했습니다.", false);
       }
     }
   };
-
-  const setErrorMessage = () => {};
 
   const handleEditSave = async (data: CompanyFormData): Promise<void> => {
     if (!company) return;
@@ -146,43 +147,8 @@ const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
         <ModalTitle>{company.name}</ModalTitle>
 
         <Section>
-          <SectionTitle style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <FiHome size={16} />
-              정보
-            </span>
-            <span style={{ display: 'flex', gap: 8 }}>
-              <button
-                style={{
-                  background: '#fbbf24',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: 6,
-                  padding: '4px 14px',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  fontSize: 13
-                }}
-                onClick={() => setEditModalOpen(true)}
-              >
-                수정
-              </button>
-              <button
-                style={{
-                  background: '#ef4444',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: 6,
-                  padding: '4px 14px',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  fontSize: 13
-                }}
-                onClick={handleDelete}
-              >
-                삭제
-              </button>
-            </span>
+          <SectionTitle>
+            <FiHome size={16} /> 정보
           </SectionTitle>
           <DetailItem>
             <DetailIcon>
@@ -303,6 +269,16 @@ const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
           </div>
         </Section>
 
+        {/* 버튼 그룹: 모달 하단 오른쪽 정렬, MemberDetailModal과 동일하게 */}
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, marginTop: 32 }}>
+          <ModalButton $variant="secondary" onClick={() => setEditModalOpen(true)}>
+            <FiEdit3 style={{ color: "#fdb924" }} /> 수정
+          </ModalButton>
+          <ModalButton $variant="primary" onClick={handleDelete}>
+            <FiTrash2 style={{ color: "#fff" }} /> 삭제
+          </ModalButton>
+        </div>
+
         {registerOpen && (
           <MemberRegisterModal
             onClose={() => setRegisterOpen(false)}
@@ -321,7 +297,6 @@ const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
             initialData={company}
             fieldErrors={fieldErrors}
             setFieldErrors={setFieldErrors}
-            setErrorMessage={setErrorMessage}
           />
         )}
       </ModalPanel>
