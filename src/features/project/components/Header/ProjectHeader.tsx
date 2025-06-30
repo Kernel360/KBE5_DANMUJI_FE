@@ -18,6 +18,7 @@ import {
   BackButton,
 } from "./ProjectHeader.styled";
 import type { ProjectDetailResponse } from "../../services/projectService";
+import { useAuth } from "@/hooks/useAuth";
 
 interface ProjectHeaderProps {
   projectDetail: ProjectDetailResponse;
@@ -25,6 +26,7 @@ interface ProjectHeaderProps {
 }
 
 const ProjectHeader: React.FC<ProjectHeaderProps> = ({ projectDetail, onEdit }) => {
+  const { role } = useAuth();
   const navigate = useNavigate();
 
   const handleBack = () => {
@@ -83,31 +85,54 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = ({ projectDetail, onEdit }) 
           <FiArrowLeft size={16} />
           목록으로
         </BackButton>
-        <button
-          onClick={onEdit}
-          style={{
-            background: "#fdb924",
-            color: "#fff",
-            border: 0,
-            borderRadius: 6,
-            padding: "8px 16px",
-            fontWeight: 500,
-            fontSize: 14,
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: 6,
-            transition: "background-color 0.2s ease",
-          }}
-          onMouseOver={(e) => {
-            e.currentTarget.style.background = "#f59e0b";
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.background = "#fdb924";
-          }}
-        >
-          편집
-        </button>
+        {role === "ROLE_ADMIN" && (
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              onClick={onEdit}
+              style={{
+                background: "#fdb924",
+                color: "#fff",
+                border: 0,
+                borderRadius: 6,
+                padding: "8px 16px",
+                fontWeight: 500,
+                fontSize: 14,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                transition: "background-color 0.2s ease",
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.background = "#f59e0b";
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.background = "#fdb924";
+              }}
+            >
+              편집
+            </button>
+            <button
+              style={{
+                background: "#aaa",
+                color: "#fff",
+                border: 0,
+                borderRadius: 6,
+                padding: "8px 16px",
+                fontWeight: 500,
+                fontSize: 14,
+                cursor: "not-allowed",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                opacity: 0.7,
+              }}
+              disabled
+            >
+              비활성화
+            </button>
+          </div>
+        )}
       </div>
       <ProjectTitle>{projectDetail.name}</ProjectTitle>
       <ProjectMeta>
