@@ -98,7 +98,7 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ steps, onClose, onSave 
 
   return (
     <ModalOverlay>
-      <ModalBox>
+      <ModalBox style={{ background: '#fff' }}>
         <ModalHeader>
           <ModalTitle>단계 순서 변경</ModalTitle>
           <ModalDescription>단계를 드래그하여 순서를 변경할 수 있습니다.</ModalDescription>
@@ -115,9 +115,16 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ steps, onClose, onSave 
                 onDragEnter={() => handleDragEnter(idx)}
                 onDragEnd={handleDragEnd}
                 isDragging={isDragging}
+                style={{ background: isDragging ? '#fef3c7' : '#fff', border: isDragging ? '2.5px solid #fde68a' : '2px solid #f3f4f6', boxShadow: isDragging ? '0 4px 16px #fde68a55' : undefined }}
               >
                 <StepLeft>
-                  <FaGripVertical size={14} color="#9ca3af" />
+                  <span style={{
+                    color: '#23272f',
+                    fontWeight: 800,
+                    fontSize: 15,
+                    marginRight: 8,
+                  }}>{idx + 1}</span>
+                  <FaGripVertical size={14} color={isDragging ? '#fbbf24' : '#9ca3af'} />
                   <StepName>{step.name}</StepName>
                 </StepLeft>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -138,7 +145,7 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ steps, onClose, onSave 
             );
           })}
           {adding && (
-            <StepItem isDragging={false} style={{ background: "#f9fafb", border: "2px dashed #d1d5db", minWidth: 120, alignItems: "center", justifyContent: "center", gap: 0 }}>
+            <StepItem isDragging={false} style={{ background: '#f9fafb', border: '2px dashed #d1d5db', minWidth: 120, alignItems: 'center', justifyContent: 'center', gap: 0 }}>
               <StepLeft>
                 <FaGripVertical size={14} color="#d1d5db" />
                 <input
@@ -153,9 +160,10 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ steps, onClose, onSave 
                   style={{
                     fontSize: 15,
                     fontWeight: 600,
-                    border: "none",
-                    outline: "none",
-                    background: "transparent",
+                    border: 'none',
+                    outline: 'none',
+                    background: 'transparent',
+                    color: '#23272f',
                     width: 160,
                     marginLeft: 8,
                   }}
@@ -164,7 +172,7 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ steps, onClose, onSave 
                 />
                 <FaTimes size={13} color="#bdbdbd" style={{ marginLeft: 6, cursor: "pointer" }} onMouseDown={handleAddStepCancel} />
               </StepLeft>
-              <StepStatusBadge style={{ backgroundColor: "#f3f4f6", color: "#6b7280" }}>예정</StepStatusBadge>
+              <StepStatusBadge style={{ backgroundColor: '#f3f4f6', color: '#6b7280' }}>예정</StepStatusBadge>
             </StepItem>
           )}
         </StepList>
@@ -173,14 +181,14 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ steps, onClose, onSave 
           alignItems: "center",
           gap: 8,
           margin: "0 auto 18px auto",
-          background: "#f3f4f6",
-          color: "#6366f1",
+          background: "#fef3c7",
+          color: "#b45309",
           fontWeight: 700,
           fontSize: 15,
-          border: "none",
+          border: "1.5px solid #fde68a",
           borderRadius: 8,
           padding: "10px 22px",
-          boxShadow: "0 1px 4px #e5e7eb22",
+          boxShadow: "0 1px 4px #fde68a33",
           cursor: "pointer"
         }}>
           <FaPlus size={14} /> 단계 추가
@@ -190,8 +198,8 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ steps, onClose, onSave 
           단계를 드래그하여 위아래로 이동할 수 있습니다.
         </DragGuide>
         <ModalFooter>
-          <CancelButton onClick={onClose}>취소</CancelButton>
-          <SaveButton onClick={() => onSave?.(stepList)}>저장</SaveButton>
+          <CancelButton onClick={onClose} style={{ background: '#f3f4f6', color: '#23272f' }}>취소</CancelButton>
+          <SaveButton onClick={() => onSave?.(stepList)} style={{ background: '#6366f1', color: '#fff' }}>저장</SaveButton>
         </ModalFooter>
       </ModalBox>
     </ModalOverlay>
