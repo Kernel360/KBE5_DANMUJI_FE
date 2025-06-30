@@ -31,6 +31,9 @@ interface ProjectCreateModalProps {
   open: boolean;
   onClose: () => void;
   fetchProjects?: (page?: number) => void;
+  editMode?: boolean;
+  projectData?: any;
+  onSave?: (form: any) => void;
 }
 
 // 프로젝트 등록 모달 컴포넌트
@@ -38,6 +41,9 @@ export default function ProjectCreateModal({
   open,
   onClose,
   fetchProjects,
+  editMode = false,
+  projectData,
+  onSave,
 }: ProjectCreateModalProps) {
   const initialForm = {
     name: "",
@@ -48,6 +54,7 @@ export default function ProjectCreateModal({
     clientManagerId: "",
     devUserId: "",
     clientUserId: "",
+    projectCost: "",
   };
   const [form, setForm] = useState(initialForm);
   const [showDevModal, setShowDevModal] = useState(false);
@@ -96,6 +103,59 @@ export default function ProjectCreateModal({
     const allDevMembers = selectedDevCompanies.flatMap((c) => c.members);
     const allClientMembers = selectedClientCompanies.flatMap((c) => c.members);
   }, [selectedDevCompanies, selectedClientCompanies]);
+
+  // editMode일 때 projectData로 form 초기화
+  useEffect(() => {
+    if (editMode && projectData) {
+      setForm({
+        name: projectData.name || "",
+        description: projectData.description || "",
+        startDate: projectData.startDate || "",
+        endDate: projectData.endDate || "",
+        devManagerId: projectData.devManagerId || "",
+        clientManagerId: projectData.clientManagerId || "",
+        devUserId: projectData.devUserId || "",
+        clientUserId: projectData.clientUserId || "",
+        projectCost: projectData.projectCost || "",
+      });
+
+      // clients 데이터 파싱하여 selectedClientCompanies 설정
+      if (projectData.clients && Array.isArray(projectData.clients)) {
+        const parsedClientCompanies: SelectedClientCompany[] = projectData.clients.map((client: any) => ({
+          company: {
+            id: client.id,
+            name: client.companyName
+          },
+          members: client.assignUsers.map((user: any) => ({
+            id: user.id,
+            name: user.name,
+            type: user.userType === "MANAGER" ? "manager" : "member"
+          }))
+        }));
+        setSelectedClientCompanies(parsedClientCompanies);
+      }
+
+      // developers 데이터 파싱하여 selectedDevCompanies 설정
+      if (projectData.developers && Array.isArray(projectData.developers)) {
+        const parsedDevCompanies: SelectedDevCompany[] = projectData.developers.map((developer: any) => ({
+          company: {
+            id: developer.id,
+            name: developer.companyName
+          },
+          members: developer.assignUsers.map((user: any) => ({
+            id: user.id,
+            name: user.name,
+            type: user.userType === "MANAGER" ? "manager" : "member"
+          }))
+        }));
+        setSelectedDevCompanies(parsedDevCompanies);
+      }
+    } else if (!editMode) {
+      setForm(initialForm);
+      setSelectedDevCompanies([]);
+      setSelectedClientCompanies([]);
+    }
+  }, [editMode, projectData]);
 
   // 개발사 추가 모달에서 선택된 업체/멤버 반영
   const handleDevCompanyDone = (
@@ -174,6 +234,10 @@ export default function ProjectCreateModal({
       selectedClientCompanies.length === 0
     ) {
       alert("모든 필드를 입력하세요");
+      return;
+    }
+    if (editMode && onSave) {
+      onSave(form);
       return;
     }
     if (fetchProjects) {
@@ -405,7 +469,6 @@ export default function ProjectCreateModal({
                       setForm({ ...form, endDate: e.target.value })
                     }
                     min={form.startDate || undefined}
-                    disabled={!form.startDate}
                   />
                 </div>
               </div>
@@ -434,7 +497,11 @@ export default function ProjectCreateModal({
                       padding: "4px 12px",
                       cursor: "pointer",
                     }}
-                    onClick={() => setShowDevModal(true)}
+                    onClick={() => {
+                      setEditDevCompany(null);
+                      setEditDevMembers([]);
+                      setShowDevModal(true);
+                    }}
                   >
                     + 개발사 추가
                   </button>
@@ -658,7 +725,7 @@ export default function ProjectCreateModal({
             }}
             onClick={handleCreateProject}
           >
-            프로젝트 생성
+            {editMode ? "편집" : "프로젝트 생성"}
           </button>
         </div>
         {/* 닫기 버튼 (오른쪽 상단) */}

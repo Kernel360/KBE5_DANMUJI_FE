@@ -21,9 +21,10 @@ import type { ProjectDetailResponse } from "../../services/projectService";
 
 interface ProjectHeaderProps {
   projectDetail: ProjectDetailResponse;
+  onEdit: () => void;
 }
 
-const ProjectHeader: React.FC<ProjectHeaderProps> = ({ projectDetail }) => {
+const ProjectHeader: React.FC<ProjectHeaderProps> = ({ projectDetail, onEdit }) => {
   const navigate = useNavigate();
 
   const handleBack = () => {
@@ -77,15 +78,38 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = ({ projectDetail }) => {
 
   return (
     <ProjectHeaderContainer>
-      <BackButton onClick={handleBack}>
-        <FiArrowLeft size={16} />
-        목록으로
-      </BackButton>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', marginRight: '24px' }}>
+        <BackButton onClick={handleBack}>
+          <FiArrowLeft size={16} />
+          목록으로
+        </BackButton>
+        <button
+          onClick={onEdit}
+          style={{
+            background: "#fdb924",
+            color: "#fff",
+            border: 0,
+            borderRadius: 6,
+            padding: "8px 16px",
+            fontWeight: 500,
+            fontSize: 14,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            transition: "background-color 0.2s ease",
+          }}
+          onMouseOver={(e) => {
+            e.currentTarget.style.background = "#f59e0b";
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.background = "#fdb924";
+          }}
+        >
+          편집
+        </button>
+      </div>
       <ProjectTitle>{projectDetail.name}</ProjectTitle>
-      {projectDetail.description && (
-        <ProjectSubtitle>{projectDetail.description}</ProjectSubtitle>
-      )}
-
       <ProjectMeta>
         <ProjectPeriod>
           <FiCalendar size={14} />
