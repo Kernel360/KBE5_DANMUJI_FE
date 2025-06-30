@@ -26,12 +26,14 @@ interface ProjectProgressProps {
   projectDetail: ProjectDetailResponse;
   onStepSelect?: (stepId: number) => void;
   selectedStepId?: number;
+  canEditStep?: boolean;
 }
 
 const ProjectProgress: React.FC<ProjectProgressProps> = ({
   projectDetail,
   onStepSelect,
   selectedStepId,
+  canEditStep,
 }) => {
   const [isStepOrderModalOpen, setStepOrderModalOpen] = React.useState(false);
 
@@ -82,13 +84,15 @@ const ProjectProgress: React.FC<ProjectProgressProps> = ({
   return (
     <Wrapper style={{ position: "relative" }}>
       <div style={{ position: "absolute", top: 0, right: 0, zIndex: 2 }}>
-        <button
-          onClick={() => setStepOrderModalOpen(true)}
-          style={{ background: "none", border: "none", cursor: "pointer", padding: 20 }}
+        {canEditStep && (
+          <button
+            onClick={() => setStepOrderModalOpen(true)}
+            style={{ background: "none", border: "none", cursor: "pointer", padding: 20 }}
           title="단계 수정"
         >
-          <FaPen size={18} color="#6b7280" />
-        </button>
+            <FaPen size={18} color="#6b7280" />
+          </button>
+        )}
       </div>
       <StepContainer>
         {steps.map((step, index) => {
