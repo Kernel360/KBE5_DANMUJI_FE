@@ -85,7 +85,7 @@ const ProjectProgress: React.FC<ProjectProgressProps> = ({
           style={{ background: "none", border: "none", cursor: "pointer", padding: 20 }}
           title="단계 순서 변경"
         >
-          <FaPen size={18} color="#6366f1" />
+          <FaPen size={18} color="#6b7280" />
         </button>
       </div>
       <StepContainer>
