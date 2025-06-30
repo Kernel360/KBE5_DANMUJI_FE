@@ -8,7 +8,6 @@ import {
   type ProjectDetailResponse,
 } from "../services/projectService";
 import styled from "styled-components";
-import { SubmitButton } from "@/features/board/components/Post/styles/PostFormModal.styled";
 import ProjectCreateModal from "../components/ProjectCreateModal";
 import api from "@/api/axios";
 // import ProjectMemberList from "../components/MemberList/ProjectMemberList";

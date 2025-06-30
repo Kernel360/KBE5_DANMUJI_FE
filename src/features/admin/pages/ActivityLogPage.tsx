@@ -54,13 +54,12 @@ import {
 } from "react-icons/fi";
 import { FaProjectDiagram } from "react-icons/fa";
 import { LuUserRoundCog } from "react-icons/lu";
-import UserSelectionModal from "../components/UserSelectionModal";
-import UserFilterButton from "../components/UserFilterButton";
 import ActivityLogDetailModal from "../components/ActivityLogDetailModal";
 import {
   getActivityLogs,
   transformHistoryToActivityLog,
 } from "../services/activityLogService";
+import { RiUserSettingsLine } from "react-icons/ri";
 
 // 타입 정의
 interface ActivityLog {
@@ -69,27 +68,12 @@ interface ActivityLog {
   userName: string;
   userRole: string;
   action: string;
-  targetType:
-    | "POST"
-    | "USER"
-    | "PROJECT"
-    | "COMPANY"
-    | "STEP"
-    | "INQUIRY"
-    | "CHECK_LIST";
+  targetType: string;
   targetName: string;
   details: string;
   ipAddress: string;
   createdAt: string;
   changerUsername: string;
-  message: string;
-}
-
-interface User {
-  id: number;
-  username: string;
-  name: string;
-  role: string;
 }
 
 interface PageInfo {
@@ -113,9 +97,9 @@ export default function ActivityLogPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [actionFilter, setActionFilter] = useState("ALL");
   const [logTypeFilter, setLogTypeFilter] = useState("ALL");
+  const [roleFilter, setRoleFilter] = useState("ALL");
   const [logTypeDropdownOpen, setLogTypeDropdownOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [userModalOpen, setUserModalOpen] = useState(false);
+  const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
   const [startDateOpen, setStartDateOpen] = useState(false);
@@ -129,6 +113,7 @@ export default function ActivityLogPage() {
   const [actionDropdownOpen, setActionDropdownOpen] = useState(false);
   const actionDropdownRef = useRef<HTMLDivElement>(null);
   const logTypeDropdownRef = useRef<HTMLDivElement>(null);
+  const roleDropdownRef = useRef<HTMLDivElement>(null);
 
   // 드롭다운 옵션
   const ACTION_OPTIONS = [
@@ -140,33 +125,41 @@ export default function ActivityLogPage() {
 
   const LOG_TYPE_OPTIONS = [
     { value: "ALL", label: "전체", icon: FiGrid, color: "#6b7280" },
-    { value: "USER", label: "회원", icon: FiUser, color: "#6366f1" },
-    { value: "COMPANY", label: "업체", icon: FiHome, color: "#8b5cf6" },
+    { value: "POST", label: "게시글", icon: FiFileText, color: "#3b82f6" },
+    { value: "USER", label: "사용자", icon: FiUser, color: "#10b981" },
     {
       value: "PROJECT",
       label: "프로젝트",
       icon: FaProjectDiagram,
-      color: "#3b82f6",
+      color: "#8b5cf6",
     },
-    {
-      value: "STEP",
-      label: "프로젝트 단계",
-      icon: FiLayers,
-      color: "#6366f1",
-    },
-    { value: "POST", label: "게시글", icon: FiFileText, color: "#10b981" },
+    { value: "COMPANY", label: "회사", icon: FiHome, color: "#f59e0b" },
+    { value: "STEP", label: "단계", icon: FiLayers, color: "#ef4444" },
     {
       value: "INQUIRY",
       label: "문의",
       icon: FiMessageSquare,
-      color: "#f59e0b",
+      color: "#06b6d4",
     },
     {
       value: "CHECK_LIST",
       label: "체크리스트",
       icon: FiCheckSquare,
-      color: "#ec4899",
+      color: "#84cc16",
     },
+  ];
+
+  const ROLE_OPTIONS = [
+    { value: "ALL", label: "전체", icon: FiUser, color: "#6b7280" },
+    {
+      value: "ROLE_ADMIN",
+      label: "관리자",
+      icon: RiUserSettingsLine,
+      color: "#8b5cf6",
+    },
+    { value: "ROLE_DEV", label: "개발자", icon: FiUser, color: "#3b82f6" },
+    { value: "ROLE_CLIENT", label: "고객", icon: FiUser, color: "#10b981" },
+    { value: "ROLE_USER", label: "사용자", icon: FiUser, color: "#6b7280" },
   ];
 
   // 드롭다운 외부 클릭 감지
@@ -184,6 +177,12 @@ export default function ActivityLogPage() {
       ) {
         setActionDropdownOpen(false);
       }
+      if (
+        roleDropdownRef.current &&
+        !roleDropdownRef.current.contains(event.target as Node)
+      ) {
+        setRoleDropdownOpen(false);
+      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -193,7 +192,17 @@ export default function ActivityLogPage() {
   }, []);
 
   // 이력 데이터 가져오기
-  const fetchActivityLogs = async (page: number = 0, customFilters?: any) => {
+  const fetchActivityLogs = async (
+    page: number = 0,
+    customFilters?: {
+      historyType?: string;
+      domainType?: string;
+      changedBy?: string;
+      changedFrom?: string;
+      changedTo?: string;
+      changerRole?: string;
+    }
+  ) => {
     // 첫 페이지가 아니거나 초기 로드가 아닌 경우에만 로딩 표시
     if (page === 0 && activityLogs.length > 0) {
       setLoading(true);
@@ -204,7 +213,9 @@ export default function ActivityLogPage() {
       const filters = customFilters || {
         historyType: actionFilter !== "ALL" ? actionFilter : undefined,
         domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
-        changerId: selectedUser?.id?.toString(),
+        changedBy: searchTerm.trim() || undefined,
+        changerRole:
+          roleFilter !== "ALL" ? roleFilter.replace("ROLE_", "") : undefined,
         changedFrom: startDate || undefined,
         changedTo: endDate || undefined,
       };
@@ -213,7 +224,7 @@ export default function ActivityLogPage() {
       console.log("필터 값들:", {
         actionFilter,
         logTypeFilter,
-        selectedUser,
+        searchTerm,
         startDate,
         endDate,
         filters,
@@ -226,7 +237,8 @@ export default function ActivityLogPage() {
           size: "10",
           ...(filters.historyType && { historyType: filters.historyType }),
           ...(filters.domainType && { domainType: filters.domainType }),
-          ...(filters.changerId && { changerId: filters.changerId }),
+          ...(filters.changedBy && { changedBy: filters.changedBy }),
+          ...(filters.changerRole && { changerRole: filters.changerRole }),
           ...(filters.changedFrom && { changedFrom: filters.changedFrom }),
           ...(filters.changedTo && { changedTo: filters.changedTo }),
         }).toString()}`
@@ -253,19 +265,6 @@ export default function ActivityLogPage() {
   useEffect(() => {
     fetchActivityLogs(0);
   }, []);
-
-  const getActionIcon = (action: string) => {
-    switch (action) {
-      case "CREATED":
-        return <FiPlusCircle style={{ color: "#10b981" }} />;
-      case "UPDATED":
-        return <FiEdit style={{ color: "#3b82f6" }} />;
-      case "DELETED":
-        return <FiTrash style={{ color: "#ef4444" }} />;
-      default:
-        return <FiEdit style={{ color: "#6b7280" }} />;
-    }
-  };
 
   const getTargetTypeIcon = (targetType: string) => {
     switch (targetType) {
@@ -329,17 +328,6 @@ export default function ActivityLogPage() {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleString("ko-KR", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
   const formatDateOnly = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("ko-KR", {
@@ -373,12 +361,12 @@ export default function ActivityLogPage() {
   };
 
   const handleReset = () => {
-    setSearchTerm("");
     setActionFilter("ALL");
     setLogTypeFilter("ALL");
-    setSelectedUser(null);
+    setRoleFilter("ALL");
     setStartDate("");
     setEndDate("");
+    setSearchTerm("");
     setCurrentPage(0);
     fetchActivityLogs(0);
   };
@@ -386,6 +374,13 @@ export default function ActivityLogPage() {
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
     fetchActivityLogs(newPage);
+  };
+
+  // 검색어 입력 시 실시간 검색 (엔터키 또는 검색 버튼 클릭 시)
+  const handleSearchKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
   };
 
   // 드롭다운 토글 함수들
@@ -400,7 +395,9 @@ export default function ActivityLogPage() {
     const filters = {
       historyType: value !== "ALL" ? value : undefined,
       domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
-      changerId: selectedUser?.id?.toString(),
+      changedBy: searchTerm.trim() || undefined,
+      changerRole:
+        roleFilter !== "ALL" ? roleFilter.replace("ROLE_", "") : undefined,
       changedFrom: startDate || undefined,
       changedTo: endDate || undefined,
     };
@@ -418,7 +415,28 @@ export default function ActivityLogPage() {
     const filters = {
       historyType: actionFilter !== "ALL" ? actionFilter : undefined,
       domainType: value !== "ALL" ? value : undefined,
-      changerId: selectedUser?.id?.toString(),
+      changedBy: searchTerm.trim() || undefined,
+      changerRole:
+        roleFilter !== "ALL" ? roleFilter.replace("ROLE_", "") : undefined,
+      changedFrom: startDate || undefined,
+      changedTo: endDate || undefined,
+    };
+    fetchActivityLogs(0, filters);
+  };
+
+  const handleRoleDropdownToggle = () => {
+    setRoleDropdownOpen(!roleDropdownOpen);
+  };
+
+  const handleRoleSelect = (value: string) => {
+    setRoleFilter(value);
+    setRoleDropdownOpen(false);
+    setCurrentPage(0);
+    const filters = {
+      historyType: actionFilter !== "ALL" ? actionFilter : undefined,
+      domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
+      changedBy: searchTerm.trim() || undefined,
+      changerRole: value !== "ALL" ? value.replace("ROLE_", "") : undefined,
       changedFrom: startDate || undefined,
       changedTo: endDate || undefined,
     };
@@ -440,6 +458,13 @@ export default function ActivityLogPage() {
     );
   };
 
+  const getCurrentRoleOption = () => {
+    return (
+      ROLE_OPTIONS.find((option) => option.value === roleFilter) ||
+      ROLE_OPTIONS[0]
+    );
+  };
+
   // 날짜 관련 핸들러
   const handleStartDateChange = (date: Date | null) => {
     if (date) {
@@ -450,7 +475,9 @@ export default function ActivityLogPage() {
       const filters = {
         historyType: actionFilter !== "ALL" ? actionFilter : undefined,
         domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
-        changerId: selectedUser?.id?.toString(),
+        changedBy: searchTerm.trim() || undefined,
+        changerRole:
+          roleFilter !== "ALL" ? roleFilter.replace("ROLE_", "") : undefined,
         changedFrom: formattedDate,
         changedTo: endDate || undefined,
       };
@@ -467,7 +494,9 @@ export default function ActivityLogPage() {
       const filters = {
         historyType: actionFilter !== "ALL" ? actionFilter : undefined,
         domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
-        changerId: selectedUser?.id?.toString(),
+        changedBy: searchTerm.trim() || undefined,
+        changerRole:
+          roleFilter !== "ALL" ? roleFilter.replace("ROLE_", "") : undefined,
         changedFrom: startDate || undefined,
         changedTo: formattedDate,
       };
@@ -483,43 +512,6 @@ export default function ActivityLogPage() {
   const handleEndDateClick = () => {
     setEndDateOpen(!endDateOpen);
     setStartDateOpen(false);
-  };
-
-  // 사용자 모달 관련 핸들러
-  const handleUserModalOpen = () => {
-    setUserModalOpen(true);
-  };
-
-  const handleUserModalClose = () => {
-    setUserModalOpen(false);
-  };
-
-  const handleUserSelect = (user: User) => {
-    setSelectedUser(user);
-    setUserModalOpen(false);
-    setCurrentPage(0);
-    const filters = {
-      historyType: actionFilter !== "ALL" ? actionFilter : undefined,
-      domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
-      changerId: user.id.toString(),
-      changedFrom: startDate || undefined,
-      changedTo: endDate || undefined,
-    };
-    fetchActivityLogs(0, filters);
-  };
-
-  const handleUserClear = () => {
-    setSelectedUser(null);
-    // 바로 검색 실행
-    const filters = {
-      historyType: actionFilter !== "ALL" ? actionFilter : undefined,
-      domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
-      changerId: undefined,
-      changedFrom: startDate || undefined,
-      changedTo: endDate || undefined,
-    };
-    setCurrentPage(0);
-    fetchActivityLogs(0, filters);
   };
 
   // 상세조회 모달 핸들러
@@ -581,12 +573,37 @@ export default function ActivityLogPage() {
           </div>
         </FilterGroup>
         <FilterGroup>
-          <FilterLabel>변경한 사용자</FilterLabel>
-          <UserFilterButton
-            selectedUser={selectedUser}
-            onOpenModal={handleUserModalOpen}
-            onClear={handleUserClear}
-          />
+          <FilterLabel>변경자 역할</FilterLabel>
+          <div style={{ position: "relative" }} ref={roleDropdownRef}>
+            <SelectButton
+              type="button"
+              onClick={handleRoleDropdownToggle}
+              $hasValue={roleFilter !== "ALL"}
+              $color={getCurrentRoleOption().color}
+              className={roleDropdownOpen ? "open" : ""}
+            >
+              {React.createElement(getCurrentRoleOption().icon, { size: 16 })}
+              <span className="select-value">
+                {getCurrentRoleOption().label}
+              </span>
+              <FiChevronDown size={16} />
+            </SelectButton>
+            <SelectDropdown $isOpen={roleDropdownOpen}>
+              {ROLE_OPTIONS.map((option) => (
+                <SelectOption
+                  key={option.value}
+                  $isSelected={roleFilter === option.value}
+                  onClick={() => handleRoleSelect(option.value)}
+                >
+                  {React.createElement(option.icon, {
+                    size: 16,
+                    color: option.color,
+                  })}
+                  {option.label}
+                </SelectOption>
+              ))}
+            </SelectDropdown>
+          </div>
         </FilterGroup>
         <FilterGroup>
           <FilterLabel>대상</FilterLabel>
@@ -655,7 +672,7 @@ export default function ActivityLogPage() {
                     selectsStart
                     startDate={startDate ? new Date(startDate) : null}
                     endDate={endDate ? new Date(endDate) : null}
-                    maxDate={endDate ? new Date(endDate) : null}
+                    maxDate={endDate ? new Date(endDate) : undefined}
                     dateFormat="yyyy-MM-dd"
                     placeholderText="시작일 선택"
                     inline
@@ -696,7 +713,7 @@ export default function ActivityLogPage() {
                     selectsEnd
                     startDate={startDate ? new Date(startDate) : null}
                     endDate={endDate ? new Date(endDate) : null}
-                    minDate={startDate ? new Date(startDate) : null}
+                    minDate={startDate ? new Date(startDate) : undefined}
                     dateFormat="yyyy-MM-dd"
                     placeholderText="종료일 선택"
                     inline
@@ -717,6 +734,7 @@ export default function ActivityLogPage() {
             placeholder="사용자명, 대상명, 상세내용으로 검색..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={handleSearchKeyPress}
           />
           <FilterButton onClick={handleSearch}>
             <FiSearch size={16} />
@@ -747,11 +765,13 @@ export default function ActivityLogPage() {
         <Table>
           <TableHead>
             <TableRow>
-              <TableHeader>작업</TableHeader>
-              <TableHeader>변경자</TableHeader>
-              <TableHeader>대상</TableHeader>
-              <TableHeader>상세내용</TableHeader>
-              <TableHeader>변경 발생 일시</TableHeader>
+              <TableHeader style={{ width: "120px" }}>작업</TableHeader>
+              <TableHeader style={{ width: "200px" }}>변경자</TableHeader>
+              <TableHeader style={{ width: "180px" }}>대상</TableHeader>
+              <TableHeader style={{ width: "300px" }}>상세내용</TableHeader>
+              <TableHeader style={{ width: "200px" }}>
+                변경 발생 일시
+              </TableHeader>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -767,14 +787,14 @@ export default function ActivityLogPage() {
                   e.currentTarget.style.backgroundColor = "transparent";
                 }}
               >
-                <TableCell>
+                <TableCell style={{ width: "120px" }}>
                   <StatusBadge style={getActionBadgeStyle(log.action)}>
                     {log.action === "CREATED" && "생성"}
                     {log.action === "UPDATED" && "수정"}
                     {log.action === "DELETED" && "삭제"}
                   </StatusBadge>
                 </TableCell>
-                <TableCell>
+                <TableCell style={{ width: "200px" }}>
                   <div
                     style={{
                       display: "flex",
@@ -798,7 +818,7 @@ export default function ActivityLogPage() {
                     </span>
                   </div>
                 </TableCell>
-                <TableCell>
+                <TableCell style={{ width: "180px" }}>
                   <div
                     style={{
                       display: "flex",
@@ -810,12 +830,12 @@ export default function ActivityLogPage() {
                     <span style={{ fontWeight: "500" }}>{log.targetName}</span>
                   </div>
                 </TableCell>
-                <TableCell>
+                <TableCell style={{ width: "300px" }}>
                   <span style={{ fontSize: "14px", color: "#374151" }}>
                     {log.details}
                   </span>
                 </TableCell>
-                <TableCell>
+                <TableCell style={{ width: "200px" }}>
                   <div
                     style={{
                       display: "flex",
@@ -946,13 +966,6 @@ export default function ActivityLogPage() {
           개 표시
         </PaginationInfo>
       </PaginationContainer>
-
-      {/* 사용자 선택 모달 */}
-      <UserSelectionModal
-        isOpen={userModalOpen}
-        onClose={handleUserModalClose}
-        onSelect={handleUserSelect}
-      />
 
       {/* 이력 상세조회 모달 */}
       <ActivityLogDetailModal

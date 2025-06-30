@@ -90,6 +90,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
     priority: PostPriority.LOW,
     status: PostStatus.PENDING,
     stepId: stepId,
+    parentId: parentId || null,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -187,6 +188,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
               priority: post.priority as PostPriority,
               status: post.status,
               stepId: currentStepId, // 기존 게시글의 stepId를 우선 사용
+              parentId: post.parentId || null,
             });
             // 기존 파일 정보 설정
             setExistingFiles(post.files || []);
@@ -218,6 +220,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
               priority: PostPriority.LOW,
               status: PostStatus.PENDING,
               stepId: stepId,
+              parentId: parentId,
             });
             return null;
           }, "부모 게시글을 불러오는데 실패했습니다.");
@@ -232,6 +235,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
               priority: PostPriority.LOW,
               status: PostStatus.PENDING,
               stepId: stepId,
+              parentId: parentId,
             });
           }
           setLoading(false);
@@ -247,6 +251,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
           priority: PostPriority.LOW,
           status: PostStatus.PENDING,
           stepId: stepId,
+          parentId: null,
         });
       }
       setError(null);
@@ -362,7 +367,6 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
         // 게시글 생성
         const requestData = {
           ...formData,
-          ...(parentId && { parentId }),
           ...(newLinks.length > 0 && { newLinks }),
         };
 
@@ -458,6 +462,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
       priority: PostPriority.LOW,
       status: PostStatus.PENDING,
       stepId: stepId,
+      parentId: parentId || null,
     });
     setFiles([]);
     setExistingFiles([]);
@@ -475,12 +480,12 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
     setIsDragOver(false);
     const droppedFiles = Array.from(e.dataTransfer.files);
 
-    // 파일 크기 제한 (20MB - 백엔드 설정에 맞춤)
-    const maxFileSize = 20 * 1024 * 1024; // 20MB
+    // 파일 크기 제한 (50MB - 백엔드 설정에 맞춤)
+    const maxFileSize = 50 * 1024 * 1024; // 50MB
     const validFiles = droppedFiles.filter((file) => {
       if (file.size > maxFileSize) {
         showErrorToast(
-          `${file.name} 업로드 가능한 파일 용량을 초과했습니다. (최대 20MB)`
+          `${file.name} 업로드 가능한 파일 용량을 초과했습니다. (최대 50MB)`
         );
         return false;
       }
@@ -507,12 +512,12 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
 
-    // 파일 크기 제한 (20MB - 백엔드 설정에 맞춤)
-    const maxFileSize = 20 * 1024 * 1024; // 20MB
+    // 파일 크기 제한 (30MB - 백엔드 설정에 맞춤)
+    const maxFileSize = 30 * 1024 * 1024; // 30MB
     const validFiles = selectedFiles.filter((file) => {
       if (file.size > maxFileSize) {
         showErrorToast(
-          `${file.name} 업로드 가능한 파일 용량을 초과했습니다. (최대 20MB)`
+          `${file.name} 업로드 가능한 파일 용량을 초과했습니다. (최대 30MB)`
         );
         return false;
       }
