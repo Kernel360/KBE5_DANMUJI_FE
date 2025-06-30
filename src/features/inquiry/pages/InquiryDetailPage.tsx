@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { useParams, useNavigate } from "react-router-dom";
-import { FiEdit, FiTrash2 } from "react-icons/fi";
+import { FiEdit, FiTrash2, FiArrowLeft } from "react-icons/fi";
 import { useAuth } from "@/hooks/useAuth";
 import api from "@/api/axios";
 
@@ -164,6 +164,29 @@ interface Answer {
   content: string;
   createdAt: string;
 }
+
+const BackButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  margin-left: 0;
+  margin-bottom: 16px;
+  background: #ffffff;
+  color: #4b5563;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 0.925rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+
+  &:hover {
+    background: #f9fafb;
+    color: #111827;
+    border-color: #d1d5db;
+  }
+`;
 
 export default function InquiryDetailPage() {
   const { inquiryId } = useParams();
@@ -381,6 +404,15 @@ export default function InquiryDetailPage() {
     }
   };
 
+  // 목록으로 버튼 핸들러
+  const handleBack = () => {
+    if (role === "ROLE_ADMIN") {
+      navigate("/inquiry");
+    } else {
+      navigate("/my-inquiry");
+    }
+  };
+
   if (!inquiry) {
     return <PageContainer>문의사항을 찾을 수 없습니다.</PageContainer>;
   }
@@ -401,6 +433,9 @@ export default function InquiryDetailPage() {
 
   return (
     <PageContainer>
+      <BackButton onClick={handleBack}>
+        <FiArrowLeft size={16} /> 목록으로
+      </BackButton>
       <Header>
         <HeaderInfo>
           <StatusBadges>
