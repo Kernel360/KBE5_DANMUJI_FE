@@ -29,11 +29,13 @@ interface Company {
 interface MemberRegisterModalProps {
   onClose: () => void;
   onRegister: (memberData: MemberData) => void;
+  initialCompanyId?: number;
 }
 
 const MemberRegisterModal: React.FC<MemberRegisterModalProps> = ({
   onClose,
   onRegister,
+  initialCompanyId,
 }) => {
   const [formData, setFormData] = useState<{
     username: string;
@@ -48,7 +50,7 @@ const MemberRegisterModal: React.FC<MemberRegisterModalProps> = ({
     email: "",
     phone: "",
     position: "",
-    companyId: "",
+    companyId: initialCompanyId || "",
   });
 
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -56,10 +58,11 @@ const MemberRegisterModal: React.FC<MemberRegisterModalProps> = ({
 
   const fetchCompanies = async () => {
     try {
-      const res = await api.get("/api/companies");
-      setCompanies(res.data.data.content); // 응답 구조에 따라 조정
+      const res = await api.get("/api/companies/all");
+      setCompanies(res.data.data);
     } catch (error) {
       console.error("업체 목록을 불러오는 데 실패했습니다", error);
+      setCompanies([]);
     }
   };
 

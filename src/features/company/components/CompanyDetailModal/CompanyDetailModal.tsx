@@ -307,6 +307,7 @@ const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
           <MemberRegisterModal
             onClose={() => setRegisterOpen(false)}
             onRegister={handleMemberRegister}
+            initialCompanyId={company.id}
           />
         )}
 

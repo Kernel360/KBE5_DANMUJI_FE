@@ -90,11 +90,11 @@ export default function MemberEditModal({
 
   const fetchCompanies = async () => {
     try {
-      const response = await api.get("/api/companies");
-      setCompanies(response.data.data.content);
+      const res = await api.get("/api/companies/all");
+      setCompanies(res.data.data);
     } catch (error) {
       console.error("Failed to fetch companies:", error);
-      alert("업체 목록을 불러오는 데 실패했습니다.");
+      setCompanies([]);
     }
   };
 
@@ -215,10 +215,10 @@ export default function MemberEditModal({
                     </button>
                   </div>
                   <ReactSelect
-                    options={companies.map((company) => ({
+                    options={Array.isArray(companies) ? companies.map((company) => ({
                       value: company.id,
                       label: company.name,
-                    }))}
+                    })) : []}
                     isClearable
                     isSearchable
                     placeholder="업체 선택"
