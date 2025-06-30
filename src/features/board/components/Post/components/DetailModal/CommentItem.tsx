@@ -1,6 +1,7 @@
 import React from "react";
+import { LuUserRound } from "react-icons/lu";
+import { RiUserSettingsLine } from "react-icons/ri";
 import ClickableUsername from "@/components/ClickableUsername";
-import ClickableMentionedUsername from "@/components/ClickableMentionedUsername";
 import MentionTextArea from "@/components/MentionTextArea";
 import {
   CommentItem as StyledCommentItem,
@@ -10,7 +11,6 @@ import {
   CommentActionButton,
   CommentText,
   CommentSubmitButton,
-  ReplyInputContainer,
 } from "@/features/board/components/Post/styles/ProjectPostDetailModal.styled";
 import type { Comment } from "@/features/project-d/types/post";
 
@@ -31,7 +31,46 @@ interface CommentItemProps {
     username: string,
     userId?: number
   ) => void;
+  allUsernames: string[];
+  completedMentions?: string[];
 }
+
+// 역할에 따른 아이콘 컴포넌트
+const RoleIcon: React.FC<{ role?: string }> = ({ role }) => {
+  switch (role) {
+    case "ROLE_ADMIN":
+      return (
+        <RiUserSettingsLine
+          style={{
+            marginRight: "4px",
+            color: "#8b5cf6",
+            fontSize: "14px",
+          }}
+        />
+      );
+    case "ROLE_CLIENT":
+      return (
+        <LuUserRound
+          style={{
+            marginRight: "4px",
+            color: "#10b981",
+            fontSize: "14px",
+          }}
+        />
+      );
+    case "ROLE_DEV":
+    default:
+      return (
+        <LuUserRound
+          style={{
+            marginRight: "4px",
+            color: "#3b82f6",
+            fontSize: "14px",
+          }}
+        />
+      );
+  }
+};
 
 const CommentItem: React.FC<CommentItemProps> = ({
   comment,
@@ -71,10 +110,17 @@ const CommentItem: React.FC<CommentItemProps> = ({
     <StyledCommentItem>
       <CommentMeta>
         <CommentAuthor>
+          <RoleIcon role={comment.role} />
           <ClickableUsername
             username={comment.authorName || comment.author?.name || "undefined"}
             userId={comment.author?.id || comment.authorId}
-            onClick={onUserProfileClick}
+            onClick={(e) =>
+              onUserProfileClick(
+                e,
+                comment.authorUsername || comment.authorName || "undefined",
+                comment.author?.id || comment.authorId
+              )
+            }
             style={{ color: "#111827" }}
           />
           {comment.authorUsername && (
@@ -134,7 +180,6 @@ const CommentItem: React.FC<CommentItemProps> = ({
             <MentionTextArea
               value={editText}
               onChange={onEditTextChange}
-              autoFocus
               rows={3}
               placeholder="댓글 내용을 수정하세요. @를 입력하여 사용자를 언급할 수 있습니다."
               style={{
@@ -164,23 +209,28 @@ const CommentItem: React.FC<CommentItemProps> = ({
             </div>
           </div>
         ) : (
-          comment.content.split(/(@\S+)/g).map((part, idx) =>
-            part.startsWith("@") ? (
-              <span
-                key={idx}
-                style={{
-                  color: "#fdb924",
-                  fontWeight: "500",
-                  cursor: "pointer",
-                }}
-                onClick={(e) => onUserProfileClick(e, part.substring(1))}
-              >
-                {part}
-              </span>
-            ) : (
-              <span key={idx}>{part}</span>
-            )
-          )
+          comment.content
+            .split(/(@[a-zA-Z0-9._]+)(?=\s|$|[^a-zA-Z0-9._@])/g)
+            .map((part, idx) => {
+              if (part.startsWith("@")) {
+                const username = part.substring(1);
+                return (
+                  <span
+                    key={idx}
+                    style={{
+                      color: "#fdb924",
+                      fontWeight: "600",
+                      cursor: "pointer",
+                    }}
+                    onClick={(e) => onUserProfileClick(e, username)}
+                  >
+                    {part}
+                  </span>
+                );
+              } else {
+                return <span key={idx}>{part}</span>;
+              }
+            })
         )}
       </CommentText>
     </StyledCommentItem>

@@ -12,7 +12,6 @@ import type {
   PostType,
   PostPriority,
   PostUpdateRequest,
-  PostDetailReadResponse,
   PostSummaryReadResponse,
   PageResponse,
   PostFile,
@@ -493,49 +492,6 @@ export const deleteComment = async (
   }
 };
 
-// 단계별 게시글 목록 조회 (댓글 포함)
-export const getPostsByProjectStep = async (
-  projectId: number,
-  stepId: number,
-  page: number = 0,
-  size: number = 10
-): Promise<PageResponse<PostSummaryReadResponse>> => {
-  try {
-    const response = await api.get<
-      ApiResponse<PageResponse<PostSummaryReadResponse>>
-    >(
-      `/api/posts/projects/${projectId}/steps/${stepId}?page=${page}&size=${size}`
-    );
-
-    // 각 게시글의 댓글 정보를 가져오기
-    const postsWithComments = await Promise.all(
-      response.data.data.content.map(async (post) => {
-        try {
-          const commentsResponse = await getComments(post.postId);
-          return {
-            ...post,
-            comments: commentsResponse.data || [],
-          };
-        } catch (error) {
-          console.error(`게시글 ${post.postId} 댓글 로드 실패:`, error);
-          return {
-            ...post,
-            comments: [],
-          };
-        }
-      })
-    );
-
-    return {
-      ...response.data.data,
-      content: postsWithComments,
-    };
-  } catch (error) {
-    console.error("단계별 게시글 조회 실패:", error);
-    throw error;
-  }
-};
-
 // 게시글 검색 (백엔드 API)
 export const searchPosts = async (
   projectId: number,
@@ -550,7 +506,7 @@ export const searchPosts = async (
   },
   page: number = 0,
   size: number = 10
-): Promise<ApiResponse<PageResponse<PostDetailReadResponse>>> => {
+): Promise<ApiResponse<PageResponse<PostSummaryReadResponse>>> => {
   try {
     console.log("=== searchPosts 함수 호출 ===");
     console.log("projectId:", projectId);
@@ -567,7 +523,7 @@ export const searchPosts = async (
     };
 
     const response = await api.get<
-      ApiResponse<PageResponse<PostDetailReadResponse>>
+      ApiResponse<PageResponse<PostSummaryReadResponse>>
     >(`/api/posts/search`, {
       params: requestParams,
     });

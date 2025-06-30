@@ -747,11 +747,13 @@ export default function ActivityLogPage() {
         <Table>
           <TableHead>
             <TableRow>
-              <TableHeader>작업</TableHeader>
-              <TableHeader>변경자</TableHeader>
-              <TableHeader>대상</TableHeader>
-              <TableHeader>상세내용</TableHeader>
-              <TableHeader>변경 발생 일시</TableHeader>
+              <TableHeader style={{ width: "120px" }}>작업</TableHeader>
+              <TableHeader style={{ width: "200px" }}>변경자</TableHeader>
+              <TableHeader style={{ width: "180px" }}>대상</TableHeader>
+              <TableHeader style={{ width: "300px" }}>상세내용</TableHeader>
+              <TableHeader style={{ width: "200px" }}>
+                변경 발생 일시
+              </TableHeader>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -767,14 +769,14 @@ export default function ActivityLogPage() {
                   e.currentTarget.style.backgroundColor = "transparent";
                 }}
               >
-                <TableCell>
+                <TableCell style={{ width: "120px" }}>
                   <StatusBadge style={getActionBadgeStyle(log.action)}>
                     {log.action === "CREATED" && "생성"}
                     {log.action === "UPDATED" && "수정"}
                     {log.action === "DELETED" && "삭제"}
                   </StatusBadge>
                 </TableCell>
-                <TableCell>
+                <TableCell style={{ width: "200px" }}>
                   <div
                     style={{
                       display: "flex",
@@ -798,7 +800,7 @@ export default function ActivityLogPage() {
                     </span>
                   </div>
                 </TableCell>
-                <TableCell>
+                <TableCell style={{ width: "180px" }}>
                   <div
                     style={{
                       display: "flex",
@@ -810,12 +812,12 @@ export default function ActivityLogPage() {
                     <span style={{ fontWeight: "500" }}>{log.targetName}</span>
                   </div>
                 </TableCell>
-                <TableCell>
+                <TableCell style={{ width: "300px" }}>
                   <span style={{ fontSize: "14px", color: "#374151" }}>
                     {log.details}
                   </span>
                 </TableCell>
-                <TableCell>
+                <TableCell style={{ width: "200px" }}>
                   <div
                     style={{
                       display: "flex",
