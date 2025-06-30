@@ -108,6 +108,8 @@ export default function DashboardPage() {
   const [memberCount, setMemberCount] = useState(0);
   const [totalProjectCount, setTotalProjectCount] = useState(0);
   const [inProgressProjectCount, setInProgressProjectCount] = useState(0);
+  const [completedProjectCount, setCompletedProjectCount] = useState(0);
+  const [delayedProjectCount, setDelayedProjectCount] = useState(0);
   const [inquiryCount, setInquiryCount] = useState(0);
   const [waitingInquiryCount, setWaitingInquiryCount] = useState(0);
   const [answeredInquiryCount, setAnsweredInquiryCount] = useState(0);
@@ -169,9 +171,17 @@ export default function DashboardPage() {
         const inProgressCount = content.filter(
           (p: { status: string }) => p.status === "IN_PROGRESS"
         ).length;
+        const completedCount = content.filter(
+          (p: { status: string }) => p.status === "COMPLETED"
+        ).length;
+        const delayedCount = content.filter(
+          (p: { status: string }) => p.status === "DELAY"
+        ).length;
 
         setTotalProjectCount(total);
         setInProgressProjectCount(inProgressCount);
+        setCompletedProjectCount(completedCount);
+        setDelayedProjectCount(delayedCount);
 
         // Fetch Recent Companies
         await fetchRecentCompanies();
@@ -386,8 +396,9 @@ export default function DashboardPage() {
           </div>
           <div
             style={{
-              display: "flex",
-              justifyContent: "space-between",
+              display: "grid",
+              gridTemplateColumns: "repeat(2, 1fr)",
+              gap: "4px",
               fontSize: "14px",
               color: "#6b7280",
             }}
@@ -399,7 +410,20 @@ export default function DashboardPage() {
               </span>
             </span>
             <span>
-              완료: <span style={{ color: "#10b981", fontWeight: 600 }}>5</span>
+              마감 임박:{" "}
+              <span style={{ color: "#ef4444", fontWeight: 600 }}>2</span>
+            </span>
+            <span>
+              지연:{" "}
+              <span style={{ color: "#f59e0b", fontWeight: 600 }}>
+                {delayedProjectCount}
+              </span>
+            </span>
+            <span>
+              완료:{" "}
+              <span style={{ color: "#10b981", fontWeight: 600 }}>
+                {completedProjectCount}
+              </span>
             </span>
           </div>
         </RecentActivityCard>
