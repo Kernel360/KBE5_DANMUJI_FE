@@ -70,6 +70,8 @@ const ProjectProgress: React.FC<ProjectProgressProps> = ({
 
   const currentStepIndex = getCurrentStepIndex();
 
+  const steps = [...projectDetail.steps].sort((a, b) => a.stepOrder - b.stepOrder);
+
   // 스텝 클릭 핸들러
   const handleStepClick = (stepId: number) => {
     if (onStepSelect) {
@@ -89,7 +91,7 @@ const ProjectProgress: React.FC<ProjectProgressProps> = ({
         </button>
       </div>
       <StepContainer>
-        {projectDetail.steps.map((step, index) => {
+        {steps.map((step, index) => {
           const isActive = step.projectStepStatus === "IN_PROGRESS";
           const isComplete = step.projectStepStatus === "COMPLETED";
           const isReached = index <= currentStepIndex || isComplete;
@@ -120,7 +122,7 @@ const ProjectProgress: React.FC<ProjectProgressProps> = ({
                   {getStepStatusText(step.projectStepStatus)}
                 </StepStatus>
               </StepItem>
-              {index !== projectDetail.steps.length - 1 && (
+              {index !== steps.length - 1 && (
                 <StepLine active={isActive} complete={isComplete} />
               )}
             </React.Fragment>
