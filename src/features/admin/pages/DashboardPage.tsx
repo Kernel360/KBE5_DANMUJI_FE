@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import api from "@/api/axios";
 import {
   DashboardContainer,
@@ -17,7 +17,6 @@ import {
   Pie,
   Cell,
   Tooltip,
-  Legend,
   ResponsiveContainer,
   BarChart,
   Bar,
@@ -29,10 +28,8 @@ import {
   FaUsers,
   FaBuilding,
   FaProjectDiagram,
-  FaCalendarAlt,
   FaChartLine,
   FaChartPie,
-  FaClipboardList,
   FaQuestionCircle,
 } from "react-icons/fa";
 import CompanyDetailModal from "@/features/company/components/CompanyDetailModal/CompanyDetailModal";
@@ -64,16 +61,25 @@ interface RecentInquiry {
 }
 
 // 커스텀 라벨 컴포넌트
+interface CustomLabelProps {
+  cx: number;
+  cy: number;
+  midAngle: number;
+  innerRadius: number;
+  outerRadius: number;
+  name: string;
+  value: number;
+}
+
 const CustomLabel = ({
   cx,
   cy,
   midAngle,
   innerRadius,
   outerRadius,
-  percent,
   name,
   value,
-}: any) => {
+}: CustomLabelProps) => {
   const RADIAN = Math.PI / 180;
   const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
   const x = cx + radius * Math.cos(-midAngle * RADIAN);
@@ -102,6 +108,8 @@ export default function DashboardPage() {
   const [memberCount, setMemberCount] = useState(0);
   const [totalProjectCount, setTotalProjectCount] = useState(0);
   const [inProgressProjectCount, setInProgressProjectCount] = useState(0);
+  const [completedProjectCount, setCompletedProjectCount] = useState(0);
+  const [delayedProjectCount, setDelayedProjectCount] = useState(0);
   const [inquiryCount, setInquiryCount] = useState(0);
   const [waitingInquiryCount, setWaitingInquiryCount] = useState(0);
   const [answeredInquiryCount, setAnsweredInquiryCount] = useState(0);
@@ -133,6 +141,16 @@ export default function DashboardPage() {
     { month: "6월", posts: 25, projects: 8 },
   ];
 
+  // 최근 등록된 업체만 다시 불러오는 함수
+  const fetchRecentCompanies = useCallback(async () => {
+    try {
+      const recentCompaniesResponse = await api.get("/api/companies/recent-companies");
+      setRecentCompanies(recentCompaniesResponse.data?.data || []);
+    } catch (error) {
+      console.error("Failed to fetch recent companies:", error);
+    }
+  }, []);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -153,15 +171,20 @@ export default function DashboardPage() {
         const inProgressCount = content.filter(
           (p: { status: string }) => p.status === "IN_PROGRESS"
         ).length;
+        const completedCount = content.filter(
+          (p: { status: string }) => p.status === "COMPLETED"
+        ).length;
+        const delayedCount = content.filter(
+          (p: { status: string }) => p.status === "DELAY"
+        ).length;
 
         setTotalProjectCount(total);
         setInProgressProjectCount(inProgressCount);
+        setCompletedProjectCount(completedCount);
+        setDelayedProjectCount(delayedCount);
 
         // Fetch Recent Companies
-        const recentCompaniesResponse = await api.get(
-          "/api/companies/recent-companies"
-        );
-        setRecentCompanies(recentCompaniesResponse.data?.data || []);
+        await fetchRecentCompanies();
 
         // Fetch Recent Projects
         const recentProjectsResponse = await api.get(
@@ -185,7 +208,7 @@ export default function DashboardPage() {
     };
 
     fetchData();
-  }, []);
+  }, [fetchRecentCompanies]);
 
   return (
     <DashboardContainer>
@@ -373,8 +396,9 @@ export default function DashboardPage() {
           </div>
           <div
             style={{
-              display: "flex",
-              justifyContent: "space-between",
+              display: "grid",
+              gridTemplateColumns: "repeat(2, 1fr)",
+              gap: "4px",
               fontSize: "14px",
               color: "#6b7280",
             }}
@@ -386,7 +410,20 @@ export default function DashboardPage() {
               </span>
             </span>
             <span>
-              완료: <span style={{ color: "#10b981", fontWeight: 600 }}>5</span>
+              마감 임박:{" "}
+              <span style={{ color: "#ef4444", fontWeight: 600 }}>2</span>
+            </span>
+            <span>
+              지연:{" "}
+              <span style={{ color: "#f59e0b", fontWeight: 600 }}>
+                {delayedProjectCount}
+              </span>
+            </span>
+            <span>
+              완료:{" "}
+              <span style={{ color: "#10b981", fontWeight: 600 }}>
+                {completedProjectCount}
+              </span>
             </span>
           </div>
         </RecentActivityCard>
@@ -508,7 +545,7 @@ export default function DashboardPage() {
                   cy="50%"
                   innerRadius={60}
                   outerRadius={100}
-                  label={<CustomLabel />}
+                  label={CustomLabel}
                   stroke="#ffffff"
                   strokeWidth={1}
                   labelLine={false}
@@ -747,8 +784,12 @@ export default function DashboardPage() {
           </RecentActivityList>
           <CompanyDetailModal
             open={companyDetailModalOpen}
-            onClose={() => setCompanyDetailModalOpen(false)}
+            onClose={() => {
+              setCompanyDetailModalOpen(false);
+              fetchRecentCompanies();
+            }}
             companyId={selectedCompanyId}
+            onUpdated={fetchRecentCompanies}
           />
         </RecentActivityCard>
 
