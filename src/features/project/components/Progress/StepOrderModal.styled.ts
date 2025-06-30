@@ -43,7 +43,9 @@ export const StepList = styled.div`
   margin-bottom: 15px;
 `;
 
-export const StepItem = styled.div<{ isDragging?: boolean }>`
+export const StepItem = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== 'isDragging'
+})<{ isDragging?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -55,7 +57,7 @@ export const StepItem = styled.div<{ isDragging?: boolean }>`
   padding: 8px 13px;
   transition: all 0.15s;
   margin-bottom: 1px;
-  cursor: pointer;
+  cursor: ${({ isDragging }) => (isDragging ? 'grabbing' : 'grab')};
 `;
 
 export const StepLeft = styled.div`
@@ -72,7 +74,9 @@ export const StepName = styled.span`
   margin-right: 2px;
 `;
 
-export const StepStatusBadge = styled.span<{ clickable?: boolean }>`
+export const StepStatusBadge = styled.span.withConfig({
+  shouldForwardProp: (prop) => prop !== 'clickable'
+})<{ clickable?: boolean }>`
   font-size: 13px;
   padding: 2px 10px;
   border-radius: 7px;

@@ -86,12 +86,40 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ projectId, onClose, onS
       .catch(console.error);
   };
 
-  const handleDrop = () => {
-    if (dragIndex == null || dragOverIndex == null || dragIndex === dragOverIndex) return;
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    if (
+      dragIndex == null ||
+      dragOverIndex == null ||
+      dragIndex === dragOverIndex ||
+      dragOverIndex === dragIndex + 1 // 바로 뒤에는 드롭 불가
+    ) return;
+
     const updated = [...stepList];
     const [removed] = updated.splice(dragIndex, 1);
-    updated.splice(dragOverIndex, 0, removed);
-    reorderSteps(updated);
+
+    // 뒤로 이동할 때는 dragOverIndex - 1에 삽입
+    const insertIndex = dragIndex < dragOverIndex ? dragOverIndex - 1 : dragOverIndex;
+    updated.splice(insertIndex, 0, removed);
+
+    setStepList(updated);
+    setDragIndex(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDragStart = (e: React.DragEvent, idx: number) => {
+    setDragIndex(idx);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', ''); // 드래그 데이터 설정
+  };
+
+  const handleDragOver = (e: React.DragEvent, idx: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverIndex(idx);
+  };
+
+  const handleDragEnd = () => {
     setDragIndex(null);
     setDragOverIndex(null);
   };
@@ -115,16 +143,17 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ projectId, onClose, onS
         <StepList>
           {stepList.map((step, idx) => {
             const isDragging = dragIndex === idx;
-            const isDropTarget = dragOverIndex === idx && dragIndex !== idx;
+            const isDropTarget =
+              dragOverIndex === idx &&
+              dragIndex !== null &&
+              idx !== dragIndex &&
+              idx !== dragIndex + 1;
             const { text, color, bg } = getStatusStyle(step.projectStepStatus);
 
             return (
               <div
                 key={step.id}
-                onDragOver={e => {
-                  e.preventDefault();
-                  setDragOverIndex(idx);
-                }}
+                onDragOver={e => handleDragOver(e, idx)}
                 onDrop={handleDrop}
               >
                 {isDropTarget && (
@@ -138,11 +167,8 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ projectId, onClose, onS
                 )}
                 <StepItem
                   draggable
-                  onDragStart={() => setDragIndex(idx)}
-                  onDragEnd={() => {
-                    setDragIndex(null);
-                    setDragOverIndex(null);
-                  }}
+                  onDragStart={(e) => handleDragStart(e, idx)}
+                  onDragEnd={handleDragEnd}
                   isDragging={isDragging}
                 >
                   <StepLeft>
@@ -236,7 +262,9 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ projectId, onClose, onS
 
         <ModalFooter>
           <CancelButton onClick={onClose}>취소</CancelButton>
-          <SaveButton onClick={() => onSaved?.()}>저장</SaveButton>
+          <SaveButton onClick={() => {
+            reorderSteps(stepList);
+          }}>저장</SaveButton>
         </ModalFooter>
       </ModalBox>
     </ModalOverlay>
