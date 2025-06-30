@@ -15,6 +15,8 @@ import {
 import { Button as ModalButton } from "../MemberEditModal/MemberEditModal.styled";
 import MemberEditModal from "../MemberEditModal/MemberEditModal";
 import { type Member, formatTelNo } from "../../pages/MemberPage";
+import { useNotification } from "@/features/Notification/NotificationContext";
+import type { MemberFormData } from "../MemberEditModal/MemberEditModal";
 
 interface Company {
   id: number;
@@ -36,6 +38,7 @@ const MemberDetailModal: React.FC<MemberDetailModalProps> = ({ open, onClose, me
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [editOpen, setEditOpen] = useState(false);
+  const { notify } = useNotification();
 
   useEffect(() => {
     if (!open || !memberId) return;
@@ -63,19 +66,20 @@ const MemberDetailModal: React.FC<MemberDetailModalProps> = ({ open, onClose, me
       });
   }, [open]);
 
-  const handleEdit = async () => {
-    // 저장 후 상세 정보 갱신
-    setEditOpen(false);
-    if (memberId) {
-      setLoading(true);
-      try {
-        const res = await api.get(`/api/admin/${memberId}`);
-        setMember(res.data.data);
-      } catch {
-        setError("회원 정보를 불러오지 못했습니다.");
-      } finally {
-        setLoading(false);
-      }
+  const handleEdit = async (data: MemberFormData) => {
+    if (!memberId) return;
+    setLoading(true);
+    try {
+      await api.put(`/api/admin/${memberId}`, data);
+      notify("회원 정보가 성공적으로 수정되었습니다.", true);
+      // 수정 후 상세 정보 갱신
+      const res = await api.get(`/api/admin/${memberId}`);
+      setMember(res.data.data);
+      setEditOpen(false);
+    } catch {
+      notify("회원 정보 수정에 실패했습니다.", false);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -84,11 +88,11 @@ const MemberDetailModal: React.FC<MemberDetailModalProps> = ({ open, onClose, me
     if (!window.confirm("정말 이 회원을 삭제하시겠습니까?")) return;
     try {
       await api.delete(`/api/admin/${member.id}`);
-      alert("회원이 성공적으로 삭제되었습니다.");
+      notify("회원이 성공적으로 삭제되었습니다.", true);
       onClose();
       if (onDeleted) onDeleted();
     } catch {
-      alert("회원 삭제에 실패했습니다.");
+      notify("회원 삭제에 실패했습니다.", false);
     }
   };
 

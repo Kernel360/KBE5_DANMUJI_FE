@@ -506,6 +506,11 @@ export default function MemberPage() {
     fetchCompanies();
   }, []);
 
+  // 페이지 변경 시 회원 목록 새로고침
+  useEffect(() => {
+    fetchMembers();
+  }, [currentPage]);
+
   // 필터링된 회원 목록
   const filtered = members.filter((member) => {
     const matchesCompany =
@@ -647,6 +652,11 @@ export default function MemberPage() {
     } catch {
       notify("회원 등록에 실패했습니다.", false);
     }
+  };
+
+  const handleModalClose = () => {
+    setModalOpen(false);
+    setSelectedMemberId(null);
   };
 
   if (loading)
@@ -1025,14 +1035,21 @@ export default function MemberPage() {
         <PaginationInfo>{getPaginationInfo()}</PaginationInfo>
       </PaginationContainer>
 
-      {modalOpen && selectedMemberId !== null && (
+      {modalOpen && (
         <MemberDetailModal
           open={modalOpen}
-          onClose={() => {
+          onClose={handleModalClose}
+          memberId={selectedMemberId}
+          onDeleted={() => {
+            // 현재 페이지의 유저가 1명이고 2페이지 이상이면 한 페이지 앞으로 이동
+            if (filtered.slice(currentPage * pageSize, (currentPage + 1) * pageSize).length === 1 && currentPage > 0) {
+              setCurrentPage(currentPage - 1);
+            } else {
+              fetchMembers();
+            }
             setModalOpen(false);
             setSelectedMemberId(null);
           }}
-          memberId={selectedMemberId}
         />
       )}
 
