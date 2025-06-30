@@ -138,7 +138,8 @@ const ProjectProgress: React.FC<ProjectProgressProps> = ({
           projectId={projectDetail.id}
           onClose={() => setStepOrderModalOpen(false)}
           onSaved={() => {
-            console.log("save");
+            setStepOrderModalOpen(false);
+            window.location.reload();
           }}
         />
       )}
