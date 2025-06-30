@@ -17,8 +17,10 @@ import {
   FaSearch,
   FaFlag,
   FaList,
+  FaPen,
 } from "react-icons/fa";
 import type { ProjectDetailResponse } from "../../services/projectService";
+import StepOrderModal from "./StepOrderModal";
 
 interface ProjectProgressProps {
   projectDetail: ProjectDetailResponse;
@@ -31,6 +33,8 @@ const ProjectProgress: React.FC<ProjectProgressProps> = ({
   onStepSelect,
   selectedStepId,
 }) => {
+  const [isStepOrderModalOpen, setStepOrderModalOpen] = React.useState(false);
+
   // 스텝 상태에 따른 아이콘 매핑
   const getStepIcon = (stepName: string) => {
     const name = stepName.toLowerCase();
@@ -74,7 +78,16 @@ const ProjectProgress: React.FC<ProjectProgressProps> = ({
   };
 
   return (
-    <Wrapper>
+    <Wrapper style={{ position: "relative" }}>
+      <div style={{ position: "absolute", top: 0, right: 0, zIndex: 2 }}>
+        <button
+          onClick={() => setStepOrderModalOpen(true)}
+          style={{ background: "none", border: "none", cursor: "pointer", padding: 8 }}
+          title="단계 순서 변경"
+        >
+          <FaPen size={18} color="#6366f1" />
+        </button>
+      </div>
       <StepContainer>
         {projectDetail.steps.map((step, index) => {
           const isActive = step.projectStepStatus === "IN_PROGRESS";
@@ -114,6 +127,12 @@ const ProjectProgress: React.FC<ProjectProgressProps> = ({
           );
         })}
       </StepContainer>
+      {isStepOrderModalOpen && (
+        <StepOrderModal
+          steps={projectDetail.steps}
+          onClose={() => setStepOrderModalOpen(false)}
+        />
+      )}
     </Wrapper>
   );
 };
