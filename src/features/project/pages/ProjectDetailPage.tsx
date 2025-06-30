@@ -129,7 +129,7 @@ const ProjectDetailPage = () => {
       const payload = {
         name: form.name,
         description: form.description,
-        projectCost: form.projectCost,
+        projectCost: form.projectCost ? Number(form.projectCost) : 0,
         startDate: form.startDate,
         endDate: form.endDate,
         devManagerId: form.devManagerId
