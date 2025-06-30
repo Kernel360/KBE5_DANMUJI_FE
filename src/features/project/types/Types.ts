@@ -61,9 +61,10 @@ export interface Post {
 export type Project = {
   id: number;
   name: string;
-  client: string;
-  clientManager: string;
-  devManagers: string;
+  clientCompanies: string;
+  devCompanies: string;
+  clientManager?: string;
+  devManagers?: string;
   status: "IN_PROGRESS" | "COMPLETED" | "DELAYED" | "DUE_SOON";
   startDate: string;
   endDate: string;
