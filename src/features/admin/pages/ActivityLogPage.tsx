@@ -54,8 +54,6 @@ import {
 } from "react-icons/fi";
 import { FaProjectDiagram } from "react-icons/fa";
 import { LuUserRoundCog } from "react-icons/lu";
-import UserSelectionModal from "../components/UserSelectionModal";
-import UserFilterButton from "../components/UserFilterButton";
 import ActivityLogDetailModal from "../components/ActivityLogDetailModal";
 import {
   getActivityLogs,
@@ -86,13 +84,6 @@ interface ActivityLog {
   message: string;
 }
 
-interface User {
-  id: number;
-  username: string;
-  name: string;
-  role: string;
-}
-
 interface PageInfo {
   size: number;
   number: number;
@@ -117,8 +108,6 @@ export default function ActivityLogPage() {
   const [roleFilter, setRoleFilter] = useState("ALL");
   const [logTypeDropdownOpen, setLogTypeDropdownOpen] = useState(false);
   const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [userModalOpen, setUserModalOpen] = useState(false);
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
   const [startDateOpen, setStartDateOpen] = useState(false);
@@ -223,7 +212,6 @@ export default function ActivityLogPage() {
         historyType: actionFilter !== "ALL" ? actionFilter : undefined,
         domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
         changerRole: roleFilter !== "ALL" ? roleFilter : undefined,
-        changerId: selectedUser?.id?.toString(),
         changedFrom: startDate || undefined,
         changedTo: endDate || undefined,
       };
@@ -232,7 +220,6 @@ export default function ActivityLogPage() {
       console.log("필터 값들:", {
         actionFilter,
         logTypeFilter,
-        selectedUser,
         startDate,
         endDate,
         filters,
@@ -245,7 +232,6 @@ export default function ActivityLogPage() {
           size: "10",
           ...(filters.historyType && { historyType: filters.historyType }),
           ...(filters.domainType && { domainType: filters.domainType }),
-          ...(filters.changerId && { changerId: filters.changerId }),
           ...(filters.changedFrom && { changedFrom: filters.changedFrom }),
           ...(filters.changedTo && { changedTo: filters.changedTo }),
         }).toString()}`
@@ -395,7 +381,6 @@ export default function ActivityLogPage() {
     setActionFilter("ALL");
     setLogTypeFilter("ALL");
     setRoleFilter("ALL");
-    setSelectedUser(null);
     setStartDate("");
     setEndDate("");
     setCurrentPage(0);
@@ -420,7 +405,6 @@ export default function ActivityLogPage() {
       historyType: value !== "ALL" ? value : undefined,
       domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
       changerRole: roleFilter !== "ALL" ? roleFilter : undefined,
-      changerId: selectedUser?.id?.toString(),
       changedFrom: startDate || undefined,
       changedTo: endDate || undefined,
     };
@@ -439,7 +423,6 @@ export default function ActivityLogPage() {
       historyType: actionFilter !== "ALL" ? actionFilter : undefined,
       domainType: value !== "ALL" ? value : undefined,
       changerRole: roleFilter !== "ALL" ? roleFilter : undefined,
-      changerId: selectedUser?.id?.toString(),
       changedFrom: startDate || undefined,
       changedTo: endDate || undefined,
     };
@@ -458,7 +441,6 @@ export default function ActivityLogPage() {
       historyType: actionFilter !== "ALL" ? actionFilter : undefined,
       domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
       changerRole: value !== "ALL" ? value : undefined,
-      changerId: selectedUser?.id?.toString(),
       changedFrom: startDate || undefined,
       changedTo: endDate || undefined,
     };
@@ -498,7 +480,6 @@ export default function ActivityLogPage() {
         historyType: actionFilter !== "ALL" ? actionFilter : undefined,
         domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
         changerRole: roleFilter !== "ALL" ? roleFilter : undefined,
-        changerId: selectedUser?.id?.toString(),
         changedFrom: formattedDate,
         changedTo: endDate || undefined,
       };
@@ -516,7 +497,6 @@ export default function ActivityLogPage() {
         historyType: actionFilter !== "ALL" ? actionFilter : undefined,
         domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
         changerRole: roleFilter !== "ALL" ? roleFilter : undefined,
-        changerId: selectedUser?.id?.toString(),
         changedFrom: startDate || undefined,
         changedTo: formattedDate,
       };
@@ -532,45 +512,6 @@ export default function ActivityLogPage() {
   const handleEndDateClick = () => {
     setEndDateOpen(!endDateOpen);
     setStartDateOpen(false);
-  };
-
-  // 사용자 모달 관련 핸들러
-  const handleUserModalOpen = () => {
-    setUserModalOpen(true);
-  };
-
-  const handleUserModalClose = () => {
-    setUserModalOpen(false);
-  };
-
-  const handleUserSelect = (user: User) => {
-    setSelectedUser(user);
-    setUserModalOpen(false);
-    setCurrentPage(0);
-    const filters = {
-      historyType: actionFilter !== "ALL" ? actionFilter : undefined,
-      domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
-      changerRole: roleFilter !== "ALL" ? roleFilter : undefined,
-      changerId: user.id.toString(),
-      changedFrom: startDate || undefined,
-      changedTo: endDate || undefined,
-    };
-    fetchActivityLogs(0, filters);
-  };
-
-  const handleUserClear = () => {
-    setSelectedUser(null);
-    // 바로 검색 실행
-    const filters = {
-      historyType: actionFilter !== "ALL" ? actionFilter : undefined,
-      domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
-      changerRole: roleFilter !== "ALL" ? roleFilter : undefined,
-      changerId: undefined,
-      changedFrom: startDate || undefined,
-      changedTo: endDate || undefined,
-    };
-    setCurrentPage(0);
-    fetchActivityLogs(0, filters);
   };
 
   // 상세조회 모달 핸들러
@@ -630,14 +571,6 @@ export default function ActivityLogPage() {
               ))}
             </SelectDropdown>
           </div>
-        </FilterGroup>
-        <FilterGroup>
-          <FilterLabel>변경한 사용자</FilterLabel>
-          <UserFilterButton
-            selectedUser={selectedUser}
-            onOpenModal={handleUserModalOpen}
-            onClear={handleUserClear}
-          />
         </FilterGroup>
         <FilterGroup>
           <FilterLabel>변경자 역할</FilterLabel>
@@ -1032,13 +965,6 @@ export default function ActivityLogPage() {
           개 표시
         </PaginationInfo>
       </PaginationContainer>
-
-      {/* 사용자 선택 모달 */}
-      <UserSelectionModal
-        isOpen={userModalOpen}
-        onClose={handleUserModalClose}
-        onSelect={handleUserSelect}
-      />
 
       {/* 이력 상세조회 모달 */}
       <ActivityLogDetailModal
