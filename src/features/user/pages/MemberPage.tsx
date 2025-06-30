@@ -645,7 +645,20 @@ export default function MemberPage() {
   // 회원 등록 핸들러
   const handleRegister = async (memberData: MemberData) => {
     try {
-      await api.post("/api/admin", memberData);
+      const response = await api.post("/api/admin", memberData);
+      // 파일 저장 로직 추가
+      const { username, password } = response.data.data || {};
+      if (username && password) {
+        const fileContent = `Username: ${username}\nPassword: ${password}`;
+        const blob = new Blob([fileContent], { type: "text/plain" });
+        const fileUrl = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = fileUrl;
+        link.download = "member_credentials.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
       await fetchMembers();
       setRegisterModalOpen(false);
       notify("회원이 성공적으로 등록되었습니다.", true);
