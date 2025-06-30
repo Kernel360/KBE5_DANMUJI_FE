@@ -272,7 +272,7 @@ export default function CompanyRegisterModal({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+    e.stopPropagation();
     setErrorMessage(null);
     setSuccessMessage(null);
     setFieldErrors([]);
