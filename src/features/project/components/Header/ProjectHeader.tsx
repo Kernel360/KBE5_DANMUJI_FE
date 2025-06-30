@@ -19,6 +19,7 @@ import {
 } from "./ProjectHeader.styled";
 import type { ProjectDetailResponse } from "../../services/projectService";
 import { useAuth } from "@/hooks/useAuth";
+import api from "@/api/axios";
 
 interface ProjectHeaderProps {
   projectDetail: ProjectDetailResponse;
@@ -31,6 +32,18 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = ({ projectDetail, onEdit }) 
 
   const handleBack = () => {
     navigate("/projects");
+  };
+
+  const handleDeactivate = async () => {
+    if (!window.confirm("정말 이 프로젝트를 비활성화하시겠습니까?")) return;
+    try {
+      const id = projectDetail.id;
+      await api.delete(`/api/projects/${id}`);
+      alert("프로젝트가 비활성화되었습니다.");
+      navigate("/projects");
+    } catch (e) {
+      alert("비활성화에 실패했습니다.");
+    }
   };
 
   // 상태별 아이콘 반환 함수
@@ -113,6 +126,7 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = ({ projectDetail, onEdit }) 
               편집
             </button>
             <button
+              onClick={handleDeactivate}
               style={{
                 background: "#aaa",
                 color: "#fff",
@@ -121,13 +135,12 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = ({ projectDetail, onEdit }) 
                 padding: "8px 16px",
                 fontWeight: 500,
                 fontSize: 14,
-                cursor: "not-allowed",
+                cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
                 gap: 6,
                 opacity: 0.7,
               }}
-              disabled
             >
               비활성화
             </button>
