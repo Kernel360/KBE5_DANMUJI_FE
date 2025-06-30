@@ -86,6 +86,7 @@ export const createPost = async (
       status: postData.status,
       priority: postData.priority,
       ...(postData.parentId && { parentId: postData.parentId }),
+      ...(postData.newLinks && { newLinks: postData.newLinks }),
     };
 
     formData.append(
@@ -287,10 +288,18 @@ export const updatePost = async (
       type: postData.type,
       status: postData.status,
       priority: postData.priority,
-      stepId: postData.stepId || 1, // stepId가 필수 필드이므로 기본값 1 사용
+      stepId: postData.stepId || 1,
       ...(postData.fileIdsToDelete &&
         postData.fileIdsToDelete.length > 0 && {
           fileIdsToDelete: postData.fileIdsToDelete,
+        }),
+      ...(postData.linkIdsToDelete &&
+        postData.linkIdsToDelete.length > 0 && {
+          linkIdsToDelete: postData.linkIdsToDelete,
+        }),
+      ...(postData.newLinks &&
+        postData.newLinks.length > 0 && {
+          newLinks: postData.newLinks,
         }),
     };
 

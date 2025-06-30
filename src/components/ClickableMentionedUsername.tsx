@@ -11,15 +11,16 @@ interface ClickableMentionedUsernameProps {
 
 const MentionedUsernameSpan = styled.span`
   color: #fdb924;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  padding: 1px 3px;
-  border-radius: 3px;
-  margin: 0 1px;
+  padding: 0;
+  margin: 0;
+  display: inline;
+  position: relative;
 
   &:hover {
-    background-color: rgba(253, 185, 36, 0.1);
+    color: #f59e0b;
     text-decoration: underline;
   }
 

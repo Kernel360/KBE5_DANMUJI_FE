@@ -6,16 +6,14 @@ import CompanyRegisterModal from "../components/CompanyRegisterModal";
 import CompanyEditModal from "../components/CompanyEditModal";
 import CompanyFilterBar from "../components/CompanyFilterBar";
 import styled from "styled-components";
-import { useNavigate } from "react-router-dom";
 import {
   FiHome,
   FiUser,
-  FiMail,
   FiPhone,
-  FiMapPin,
   FiHash,
   FiCalendar,
 } from "react-icons/fi";
+import CompanyDetailModal from "../components/CompanyDetailModal/CompanyDetailModal";
 
 export interface Company {
   id: number;
@@ -260,7 +258,6 @@ export const formatTelNo = (telNo: string) => {
 };
 
 export default function CompanyPage() {
-  const navigate = useNavigate();
   const [filters, setFilters] = useState({
     sort: "latest",
     keyword: "",
@@ -281,6 +278,8 @@ export default function CompanyPage() {
     totalElements: number;
     totalPages: number;
   } | null>(null);
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [selectedCompanyId, setSelectedCompanyId] = useState<number | null>(null);
 
   const handlePageChange = (newPage: number) => {
     fetchCompanies(newPage);
@@ -424,7 +423,8 @@ export default function CompanyPage() {
   };
 
   const handleCompanyClick = (company: Company) => {
-    navigate(`/company/${company.id}`);
+    setSelectedCompanyId(company.id);
+    setDetailModalOpen(true);
   };
 
   return (
@@ -445,6 +445,12 @@ export default function CompanyPage() {
           setErrorMessage={setError}
         />
       )}
+      <CompanyDetailModal
+        open={detailModalOpen}
+        onClose={() => setDetailModalOpen(false)}
+        companyId={selectedCompanyId}
+        onUpdated={fetchCompanies}
+      />
       <HeaderSection>
         <Title>업체 관리</Title>
         <Subtitle>
@@ -466,8 +472,10 @@ export default function CompanyPage() {
               <TableHeader>업체명</TableHeader>
               <TableHeader>사업자등록번호</TableHeader>
               <TableHeader>대표자</TableHeader>
-              <TableHeader>연락처</TableHeader>
-              <TableHeader>생성일</TableHeader>
+              <TableHeader style={{ padding: "8px 8px 8px 24px" }}>
+                연락처
+              </TableHeader>
+              <TableHeader style={{ padding: "8px 8px" }}>생성일</TableHeader>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -508,7 +516,7 @@ export default function CompanyPage() {
                         cursor: "pointer",
                       }}
                     >
-                      <FiHome size={14} style={{ color: "#f59e0b" }} />
+                      <FiHome size={14} style={{ color: "#8b5cf6" }} />
                       <span
                         style={{
                           fontSize: "14px",
@@ -556,7 +564,7 @@ export default function CompanyPage() {
                       </span>
                     </div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell style={{ padding: "8px 0px 8px 24px" }}>
                     <div
                       style={{
                         display: "flex",
@@ -565,13 +573,13 @@ export default function CompanyPage() {
                         cursor: "pointer",
                       }}
                     >
-                      <FiPhone size={14} style={{ color: "#f59e0b" }} />
+                      <FiPhone size={14} style={{ color: "#10b981" }} />
                       <span style={{ fontSize: "14px", color: "#374151" }}>
                         {formatTelNo(c.tel)}
                       </span>
                     </div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell style={{ padding: "8px 8px" }}>
                     <div
                       style={{
                         display: "flex",

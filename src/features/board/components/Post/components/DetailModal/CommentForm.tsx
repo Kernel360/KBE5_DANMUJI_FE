@@ -19,7 +19,7 @@ const CommentForm: React.FC<CommentFormProps> = ({
   onChange,
   onSubmit,
   disabled = false,
-  placeholder = "댓글을 입력하세요. @를 입력하여 사용자를 언급할 수 있습니다. (우측 하단 마우스 드래그를 통해 크기 조절 가능)",
+  placeholder = "댓글을 입력하세요. @를 입력하여 사용자를 언급할 수 있습니다.",
   buttonText = "댓글",
 }) => {
   return (

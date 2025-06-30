@@ -72,11 +72,23 @@ const CommentItem: React.FC<CommentItemProps> = ({
       <CommentMeta>
         <CommentAuthor>
           <ClickableUsername
-            username={comment.author?.name || comment.authorName || "undefined"}
+            username={comment.authorName || comment.author?.name || "undefined"}
             userId={comment.author?.id || comment.authorId}
             onClick={onUserProfileClick}
             style={{ color: "#111827" }}
           />
+          {comment.authorUsername && (
+            <span
+              style={{
+                fontSize: 11,
+                color: "#6b7280",
+                marginLeft: -3,
+                fontWeight: 400,
+              }}
+            >
+              ({comment.authorUsername})
+            </span>
+          )}
           <span
             style={{
               fontSize: 11,
@@ -152,19 +164,23 @@ const CommentItem: React.FC<CommentItemProps> = ({
             </div>
           </div>
         ) : (
-          comment.content
-            .split(/(@\S+)/g)
-            .map((part, idx) =>
-              part.startsWith("@") ? (
-                <ClickableMentionedUsername
-                  key={idx}
-                  username={part.substring(1)}
-                  onClick={onUserProfileClick}
-                />
-              ) : (
-                <span key={idx}>{part}</span>
-              )
+          comment.content.split(/(@\S+)/g).map((part, idx) =>
+            part.startsWith("@") ? (
+              <span
+                key={idx}
+                style={{
+                  color: "#fdb924",
+                  fontWeight: "500",
+                  cursor: "pointer",
+                }}
+                onClick={(e) => onUserProfileClick(e, part.substring(1))}
+              >
+                {part}
+              </span>
+            ) : (
+              <span key={idx}>{part}</span>
             )
+          )
         )}
       </CommentText>
     </StyledCommentItem>

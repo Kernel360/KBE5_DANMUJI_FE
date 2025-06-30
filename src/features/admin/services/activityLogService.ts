@@ -27,7 +27,14 @@ interface PageResponse<T> {
 interface HistorySimpleResponse {
   id: string;
   historyType: "CREATED" | "UPDATED" | "DELETED";
-  domainType: "POST" | "USER" | "PROJECT" | "COMPANY" | "STEP";
+  domainType:
+    | "POST"
+    | "USER"
+    | "PROJECT"
+    | "COMPANY"
+    | "STEP"
+    | "INQUIRY"
+    | "CHECK_LIST";
   domainId: number;
   changedAt: string;
   changerId: string;
@@ -135,6 +142,10 @@ export const transformHistoryToActivityLog = (
         return "프로젝트 단계";
       case "POST":
         return "게시글";
+      case "INQUIRY":
+        return "문의";
+      case "CHECK_LIST":
+        return "체크리스트";
       default:
         return domainType;
     }

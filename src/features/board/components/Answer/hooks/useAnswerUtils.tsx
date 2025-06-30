@@ -26,7 +26,13 @@ export const formatAnswerContent = (
         );
       } else {
         return (
-          <span key={index} style={{ color: "#fdb924", fontWeight: "600" }}>
+          <span
+            key={index}
+            style={{
+              color: "#fdb924",
+              fontWeight: "500",
+            }}
+          >
             {part}
           </span>
         );

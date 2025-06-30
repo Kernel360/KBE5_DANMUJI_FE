@@ -23,6 +23,7 @@ export enum PostPriority {
 export type Author = {
   id: number;
   name: string;
+  username?: string;
   email?: string;
   role?: string;
 };
@@ -49,6 +50,7 @@ export type Comment = {
   authorIp: string;
   authorId?: number;
   authorName?: string;
+  authorUsername?: string;
   author?: Author;
   content: string;
   createdAt: string;
@@ -66,6 +68,7 @@ export type PostCreateData = {
   priority: PostPriority;
   stepId: number;
   parentId?: number | null;
+  newLinks?: string[];
 };
 
 // 게시글 타입 (기존 Post와 PostDetail 통합)
@@ -76,6 +79,8 @@ export type Post = {
   projectStepId: number;
   authorIp: string;
   authorId: number;
+  authorName?: string;
+  authorUsername?: string;
   author: Author;
   approver?: Author;
   project?: Project;
@@ -94,6 +99,7 @@ export type Post = {
   isDeleted?: boolean;
   delete?: boolean;
   files?: PostFile[];
+  links?: PostLink[];
 };
 
 // API 응답 타입
@@ -147,6 +153,8 @@ export type PostUpdateRequest = {
   priority?: PostPriority;
   stepId: number;
   fileIdsToDelete?: number[];
+  linkIdsToDelete?: number[];
+  newLinks?: string[];
 };
 
 // 게시글 검색 요청 데이터 타입
@@ -172,6 +180,12 @@ export interface PostFile {
   fileSize: string;
 }
 
+export interface PostLink {
+  id: number;
+  postId: number;
+  url: string;
+}
+
 export interface PostDetailReadResponse {
   postId: number | null;
   parentId: number | null;
@@ -180,6 +194,7 @@ export interface PostDetailReadResponse {
   authorIp: string | null;
   authorId: number | null;
   authorName: string;
+  authorUsername?: string;
   title: string;
   content: string | null;
   type: PostType;
@@ -188,6 +203,7 @@ export interface PostDetailReadResponse {
   updatedAt: string | null;
   files: PostFile[] | null;
   delete: boolean;
+  links?: PostLink[];
 }
 
 export interface PostSummaryReadResponse {

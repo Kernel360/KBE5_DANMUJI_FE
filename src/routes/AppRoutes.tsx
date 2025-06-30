@@ -1,4 +1,4 @@
-// src/AppRoutes.tsx
+// src/AppRoutes.tsxMore actions
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -17,6 +17,11 @@ import UserDashboardPage from "@/features/user/pages/dashboard/UserDashboardPage
 // company
 import CompanyPage from "@/features/company/pages/CompanyPage";
 import CompanyDetailPage from "@/features/company/pages/CompanyDetailPage";
+
+// inquiry
+import InquiryPage from "@/features/inquiry/InquiryPage";
+import UserInquiryPage from "@/features/inquiry/UserInquiryPage";
+import InquiryDetailPage from "@/features/inquiry/pages/InquiryDetailPage";
 
 // member
 import MemberPage from "@/features/user/pages/MemberPage";
@@ -82,6 +87,7 @@ const AppRoutes = () => {
           <Route path="/members" element={<MemberPage />} />
           <Route path="/member/:id" element={<MemberDetailPage />} />
           <Route path="/activity-log" element={<ActivityLogPage />} />
+          <Route path="/inquiry" element={<InquiryPage />} />
           {/* <Route path="/projects/create" element={<CreateProjectPage />} /> */}
           {/* <Route
             path="/projects/:projectId/edit"
@@ -103,6 +109,8 @@ const AppRoutes = () => {
       <Route path="/projects/inprogress" element={<InProgressProject />} />
       <Route path="/projects/active" element={<InProgressProject />} /> */}
       <Route path="/my" element={<UserProfilePage />} />
+      <Route path="/my-inquiry" element={<UserInquiryPage />} />
+      <Route path="/inquiry/:inquiryId" element={<InquiryDetailPage />} />
     </Routes>
   );
 };

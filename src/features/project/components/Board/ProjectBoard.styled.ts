@@ -228,25 +228,25 @@ export const Td = styled.td`
   }
 `;
 
-export const StatusBadge = styled.span<{ priority: PostPriority }>`
+export const StatusBadge = styled.span<{ $priority: PostPriority }>`
   padding: 4px 8px;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 500;
-  color: ${({ priority }) =>
-    priority === "LOW"
+  color: ${({ $priority }) =>
+    $priority === "LOW"
       ? "#065f46"
-      : priority === "MEDIUM"
+      : $priority === "MEDIUM"
       ? "#92400e"
-      : priority === "HIGH"
+      : $priority === "HIGH"
       ? "#a21caf"
       : "#991b1b"};
-  background-color: ${({ priority }) =>
-    priority === "LOW"
+  background-color: ${({ $priority }) =>
+    $priority === "LOW"
       ? "#d1fae5"
-      : priority === "MEDIUM"
+      : $priority === "MEDIUM"
       ? "#fef3c7"
-      : priority === "HIGH"
+      : $priority === "HIGH"
       ? "#fce7f3"
       : "#fee2e2"};
 `;

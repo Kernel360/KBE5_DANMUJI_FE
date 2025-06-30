@@ -35,6 +35,7 @@ import { FiX } from "react-icons/fi";
 import PostHeader from "./PostHeader";
 import PostContent from "./PostContent";
 import PostAttachments from "./PostAttachments";
+import PostLinks from "./PostLinks";
 import CommentSection from "./CommentSection";
 
 interface PostDetailModalProps {
@@ -446,6 +447,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                   onFileDownload={handleFileDownload}
                   postId={post.postId}
                 />
+                <PostLinks links={post.links} />
                 <CommentSection
                   comments={comments}
                   commentText={commentText}

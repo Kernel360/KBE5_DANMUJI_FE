@@ -29,7 +29,9 @@ export interface HistorySimpleResponse {
     | "PROJECT_STEP"
     | "POST"
     | "QUESTION"
-    | "CHAT";
+    | "CHAT"
+    | "INQUIRY"
+    | "CHECK_LIST";
   domainId: number;
   changedAt: string;
   changedBy: string;
@@ -51,7 +53,9 @@ export interface HistoryDetailResponse {
     | "PROJECT_STEP"
     | "POST"
     | "QUESTION"
-    | "CHAT";
+    | "CHAT"
+    | "INQUIRY"
+    | "CHECK_LIST";
   domainId: number;
   changedAt: string;
   changerId: string;

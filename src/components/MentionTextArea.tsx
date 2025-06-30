@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import styled from "styled-components";
 import { useMention } from "@/hooks/useMention";
 import MentionSuggestions from "./MentionSuggestions";
@@ -16,6 +16,7 @@ interface MentionTextAreaProps {
 const TextAreaContainer = styled.div`
   position: relative;
   width: 100%;
+  z-index: 1;
 `;
 
 const StyledTextArea = styled.textarea`
@@ -26,9 +27,12 @@ const StyledTextArea = styled.textarea`
   font-size: 0.875rem;
   background-color: white;
   color: #374151;
+  caret-color: #374151;
   resize: vertical;
   font-family: inherit;
   line-height: 1.5;
+  position: relative;
+  z-index: 2;
 
   &:focus {
     outline: none;
@@ -100,6 +104,16 @@ const MentionTextArea: React.FC<MentionTextAreaProps> = ({
     return { top, left };
   };
 
+  // mentionState가 변경될 때마다 위치 업데이트
+  useEffect(() => {
+    if (mentionState.isActive) {
+      const position = calculateCursorPosition();
+      setSuggestionPosition(position);
+    } else {
+      setSuggestionPosition(null);
+    }
+  }, [mentionState.isActive, mentionState.suggestions, value]);
+
   // 입력 변경 처리
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
@@ -107,14 +121,6 @@ const MentionTextArea: React.FC<MentionTextAreaProps> = ({
 
     // @ 검색 처리
     handleInputChange(newValue, e.target.selectionStart);
-
-    // 제안 위치 업데이트
-    if (mentionState.isActive) {
-      const position = calculateCursorPosition();
-      setSuggestionPosition(position);
-    } else {
-      setSuggestionPosition(null);
-    }
   };
 
   // 제안 선택 처리
@@ -128,7 +134,10 @@ const MentionTextArea: React.FC<MentionTextAreaProps> = ({
       mentionState.endIndex
     );
 
-    onChange(newText);
+    // 멘션 선택 후 자동으로 스페이스바 공백 추가
+    const textWithSpace = newText + " ";
+
+    onChange(textWithSpace);
 
     // 멘션 상태 즉시 리셋
     setMentionState((prev) => ({
@@ -141,7 +150,7 @@ const MentionTextArea: React.FC<MentionTextAreaProps> = ({
     // 커서 위치 조정 - @username 뒤에 위치하도록
     setTimeout(() => {
       if (textareaRef.current) {
-        const newCursorPosition = mentionState.startIndex + username.length + 1; // @ 포함
+        const newCursorPosition = mentionState.startIndex + username.length + 2; // @ + username + space
         textareaRef.current.setSelectionRange(
           newCursorPosition,
           newCursorPosition
@@ -220,7 +229,6 @@ const MentionTextArea: React.FC<MentionTextAreaProps> = ({
         className={className}
         style={style}
       />
-
       <MentionSuggestions
         suggestions={mentionState.suggestions}
         selectedIndex={mentionState.selectedIndex}

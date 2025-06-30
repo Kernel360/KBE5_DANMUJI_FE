@@ -10,6 +10,7 @@ import {
 import { FaUserPlus } from "react-icons/fa";
 import * as S from "./MemberRegisterModal.styled";
 import Select from "react-select";
+import CompanyRegisterModal from "@/features/company/components/CompanyRegisterModal";
 
 interface MemberData {
   username: string;
@@ -44,6 +45,7 @@ const MemberRegisterModal: React.FC<MemberRegisterModalProps> = ({
   });
 
   const [companies, setCompanies] = useState<Company[]>([]);
+  const [companyModalOpen, setCompanyModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchCompanies = async () => {
@@ -136,10 +138,29 @@ const MemberRegisterModal: React.FC<MemberRegisterModalProps> = ({
               {/* 업체 + 직책 */}
               <S.FormRow>
                 <S.FormGroup>
-                  <S.Label>
-                    <IoBusinessOutline />
-                    업체
-                  </S.Label>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <S.Label style={{ marginBottom: 0 }}>
+                      <IoBusinessOutline />
+                      업체
+                    </S.Label>
+                    <button
+                      type="button"
+                      style={{
+                        fontSize: 11,
+                        background: "#fbbf24",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: 5,
+                        padding: "2px 8px",
+                        cursor: "pointer",
+                        height: 22,
+                        lineHeight: 1,
+                      }}
+                      onClick={() => setCompanyModalOpen(true)}
+                    >
+                      업체 등록
+                    </button>
+                  </div>
                   <Select
                     options={companies.map((company) => ({
                       value: company.id,
@@ -248,6 +269,13 @@ const MemberRegisterModal: React.FC<MemberRegisterModalProps> = ({
             </S.ButtonGroup>
           </S.Form>
         </S.ModalBody>
+        {companyModalOpen && (
+          <CompanyRegisterModal
+            open={companyModalOpen}
+            onClose={() => setCompanyModalOpen(false)}
+            onRegisterSuccess={() => setCompanyModalOpen(false)}
+          />
+        )}
       </S.ModalContent>
     </S.ModalOverlay>
   );

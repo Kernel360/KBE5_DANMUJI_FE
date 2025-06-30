@@ -50,6 +50,7 @@ import PostDetailModal from "../components/DetailModal/ProjectPostDetailModal";
 import PostFormModal from "../components/FormModal/PostFormModal";
 import { useParams, useSearchParams } from "react-router-dom";
 import { showSuccessToast } from "@/utils/errorHandler";
+import { getProjectDetail } from "@/features/project/services/projectService";
 
 const formatDate = (dateString: string) => {
   let date;
@@ -131,7 +132,6 @@ const getPriorityStyle = (priority: number) => {
 };
 
 export default function PostListPage() {
-  const { stepId } = useParams();
   const [searchParams] = useSearchParams();
   const stepName = searchParams.get("stepName") || "알 수 없는 단계";
   const [posts, setPosts] = useState<Post[]>([]);
@@ -155,23 +155,6 @@ export default function PostListPage() {
   const [clientFilter, setClientFilter] = useState("");
   const [isFilterExpanded, setIsFilterExpanded] = useState(true);
 
-  // 실제 검색에 사용될 상태 (검색 버튼 클릭 시 업데이트)
-  const [activeSearchTerm, setActiveSearchTerm] = useState("");
-  const [activeSearchType, setActiveSearchType] = useState<
-    "title" | "content" | "author"
-  >("title");
-  const [activeStatusFilter, setActiveStatusFilter] = useState<
-    PostStatus | "ALL"
-  >("ALL");
-  const [activeTypeFilter, setActiveTypeFilter] = useState<PostType | "ALL">(
-    "ALL"
-  );
-  const [activePriorityFilter, setActivePriorityFilter] = useState<
-    number | "ALL"
-  >("ALL");
-  const [activeAssigneeFilter, setActiveAssigneeFilter] = useState("");
-  const [activeClientFilter, setActiveClientFilter] = useState("");
-
   const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
@@ -188,33 +171,70 @@ export default function PostListPage() {
     null
   );
 
+  const [projectSteps, setProjectSteps] = useState<any[]>([]);
+  const [stepFilter, setStepFilter] = useState<number | null>(null);
+
+  // 프로젝트 단계 정보 불러오기
+  useEffect(() => {
+    if (!projectId) return;
+    const fetchSteps = async () => {
+      try {
+        const res = await getProjectDetail(projectId);
+        if (res.data && res.data.steps) {
+          setProjectSteps(res.data.steps);
+          // 진행중 단계 중 id가 가장 작은 것 선택
+          const inProgressSteps = res.data.steps.filter(
+            (s: any) => s.projectStepStatus === "IN_PROGRESS"
+          );
+          if (inProgressSteps.length > 0) {
+            const minIdStep = inProgressSteps.reduce((prev, curr) =>
+              prev.id < curr.id ? prev : curr
+            );
+            setStepFilter(minIdStep.id);
+          } else if (res.data.steps.length > 0) {
+            setStepFilter(res.data.steps[0].id);
+          }
+        }
+      } catch (e) {
+        setProjectSteps([]);
+      }
+    };
+    fetchSteps();
+  }, [projectId]);
+
+  // stepFilter가 바뀌면 stepId도 변경
+  useEffect(() => {
+    if (stepFilter) {
+      window.history.replaceState(
+        null,
+        "",
+        `?stepName=${encodeURIComponent(
+          projectSteps.find((s) => s.id === stepFilter)?.name || ""
+        )}`
+      );
+    }
+  }, [stepFilter, projectSteps]);
+
   const fetchPosts = useCallback(async () => {
     setLoading(true);
     setError(null);
-
     let fetched: Post[] = [];
     let page = currentPage;
     let remain = itemsPerPage;
     let keepFetching = true;
     let totalCount = 0;
-
     try {
       while (remain > 0 && keepFetching) {
         const response = await getPostsWithComments(
-          Number(stepId),
+          Number(stepFilter),
           page,
           itemsPerPage
         );
         if (!response.data || response.data.content.length === 0) break;
-
-        // 소프트딜리트 제외
         const visible = response.data.content.filter(
           (post) => !post.isDeleted && !post.delete
         );
-
         fetched = [...fetched, ...visible];
-
-        // 실제 전체 개수는 백엔드에서 내려주는 totalElements에서 소프트딜리트 제외한 개수로 계산(임시)
         if (
           page === 0 &&
           response.data.page &&
@@ -222,19 +242,11 @@ export default function PostListPage() {
         ) {
           totalCount = response.data.page.totalElements;
         }
-
-        // 만약 10개가 모이면 break
         if (fetched.length >= itemsPerPage) break;
-
-        // 다음 페이지로
         page += 1;
         remain = itemsPerPage - fetched.length;
-
-        // 마지막 페이지라면 break
         if (response.data.content.length < itemsPerPage) keepFetching = false;
       }
-
-      // posts 가공 로직 추가
       const deletedWithReplies = fetched.filter(
         (post) =>
           (post.isDeleted || post.delete) &&
@@ -245,17 +257,13 @@ export default function PostListPage() {
         ...deletedWithReplies,
       ];
       setPosts(visiblePosts);
-
-      setTotalElements(totalCount); // 실제 전체 개수(소프트딜리트 제외 필요시 별도 계산)
+      setTotalElements(totalCount);
       setTotalPages(Math.ceil(totalCount / itemsPerPage));
-
-      // 첫 번째 게시글에서 projectId 가져오기
       if (visiblePosts.length > 0 && visiblePosts[0].project?.projectId) {
         setProjectId(visiblePosts[0].project.projectId);
       }
     } catch (err) {
       if (err instanceof Error && err.message.includes("완료")) {
-        // 완료 메시지는 무시
       } else {
         setError("게시글을 불러오는 중 오류가 발생했습니다.");
         console.error("게시글 목록 조회 중 오류:", err);
@@ -263,7 +271,7 @@ export default function PostListPage() {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, itemsPerPage, stepId]);
+  }, [currentPage, itemsPerPage, stepFilter]);
 
   useEffect(() => {
     fetchPosts();
@@ -296,13 +304,6 @@ export default function PostListPage() {
 
   const handleSearch = () => {
     setCurrentPage(0);
-    setActiveSearchTerm(searchTerm);
-    setActiveSearchType(searchType);
-    setActiveStatusFilter(statusFilter);
-    setActiveTypeFilter(typeFilter);
-    setActivePriorityFilter(priorityFilter);
-    setActiveAssigneeFilter(assigneeFilter);
-    setActiveClientFilter(clientFilter);
   };
 
   const handleStatusFilterChange = (
@@ -364,7 +365,10 @@ export default function PostListPage() {
     // 단계 변경으로 인해 게시글이 사라졌을 수 있음을 안내
     // (실제로는 백엔드에서 단계별로 게시글을 조회하므로,
     // 단계가 변경된 게시글은 현재 단계 목록에서 사라짐)
-    if (editingPostStepId !== null && editingPostStepId !== Number(stepId)) {
+    if (
+      editingPostStepId !== null &&
+      editingPostStepId !== Number(stepFilter)
+    ) {
       showSuccessToast(
         "게시글 수정 완료 - 단계가 변경되어 현재 목록에서 사라졌습니다."
       );
@@ -397,15 +401,6 @@ export default function PostListPage() {
     setAssigneeFilter("");
     setClientFilter("");
     setCurrentPage(0);
-
-    // 실제 검색 상태도 초기화
-    setActiveSearchTerm("");
-    setActiveSearchType("title");
-    setActiveStatusFilter("ALL");
-    setActiveTypeFilter("ALL");
-    setActivePriorityFilter("ALL");
-    setActiveAssigneeFilter("");
-    setActiveClientFilter("");
   };
 
   if (loading && posts.length === 0) {
@@ -539,6 +534,29 @@ export default function PostListPage() {
               <option value={3}>높음 (3)</option>
             </FilterSelect>
           </FilterGroup>
+
+          {/* 단계 필터 */}
+          <FilterGroup>
+            <FilterLabel>단계</FilterLabel>
+            <FilterSelect
+              value={
+                stepFilter !== null ? stepFilter : projectSteps[0]?.id || ""
+              }
+              onChange={(e) => setStepFilter(Number(e.target.value))}
+              style={{ minWidth: 120 }}
+            >
+              {projectSteps.map((step) => (
+                <option key={step.id} value={step.id}>
+                  {step.name}{" "}
+                  {step.projectStepStatus === "IN_PROGRESS"
+                    ? "(진행중)"
+                    : step.projectStepStatus === "COMPLETED"
+                    ? "(완료)"
+                    : ""}
+                </option>
+              ))}
+            </FilterSelect>
+          </FilterGroup>
         </FilterGrid>
 
         <FilterButtonGroup>
@@ -629,7 +647,20 @@ export default function PostListPage() {
                             ) : null}
                           </div>
                         </TableCell>
-                        <TableCell>{post.author.name}</TableCell>
+                        <TableCell style={{ textAlign: "left" }}>
+                          {post.author.name}
+                          {post.author.username && (
+                            <span
+                              style={{
+                                color: "#6b7280",
+                                fontSize: "0.85em",
+                                marginLeft: 4,
+                              }}
+                            >
+                              ({post.author.username})
+                            </span>
+                          )}
+                        </TableCell>
                         <TableCell $align="center">
                           <StatusBadge $status={getStatusText(post.status)}>
                             {getStatusText(post.status)}
@@ -753,7 +784,9 @@ export default function PostListPage() {
                                 </div>
                               </div>
                             </TableCell>
-                            <TableCell>{reply.author.name}</TableCell>
+                            <TableCell style={{ textAlign: "left" }}>
+                              {reply.author.name}
+                            </TableCell>
                             <TableCell $align="center">
                               <StatusBadge
                                 $status={getStatusText(reply.status)}
@@ -877,7 +910,9 @@ export default function PostListPage() {
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell>{post.author.name}</TableCell>
+                      <TableCell style={{ textAlign: "left" }}>
+                        {post.author.name}
+                      </TableCell>
                       <TableCell $align="center">
                         <StatusBadge $status={getStatusText(post.status)}>
                           {getStatusText(post.status)}
@@ -983,7 +1018,7 @@ export default function PostListPage() {
         mode={formModalMode}
         postId={formModalPostId || undefined}
         parentId={formModalParentId || undefined}
-        stepId={stepId ? Number(stepId) : undefined}
+        stepId={stepFilter ? Number(stepFilter) : undefined}
         projectId={projectId}
       />
     </PageContainer>

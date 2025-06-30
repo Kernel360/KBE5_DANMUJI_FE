@@ -11,19 +11,18 @@ interface MentionSuggestionsProps {
 }
 
 const SuggestionsContainer = styled.div<{
-  position: { top: number; left: number } | null;
+  $position: { top: number; left: number } | null;
 }>`
   position: absolute;
-  top: ${(props) => props.position?.top ?? 0}px;
-  left: ${(props) => props.position?.left ?? 0}px;
+  top: ${(props) => props.$position?.top ?? 0}px;
+  left: ${(props) => props.$position?.left ?? 0}px;
   background: white;
-  border: 1px solid #e5e7eb;
   border-radius: 8px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
   max-height: 200px;
   overflow-y: auto;
-  z-index: 1000;
+  z-index: 9999;
   min-width: 200px;
   animation: slideIn 0.15s ease-out;
 
@@ -45,7 +44,7 @@ const SuggestionItem = styled.div.withConfig({
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 12px;
+  padding: 10px 12px;
   cursor: pointer;
   transition: all 0.15s ease;
   font-size: 14px;
@@ -86,19 +85,22 @@ const LoadingItem = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 12px;
+  padding: 16px;
   color: #6b7280;
   font-size: 14px;
+  font-weight: 500;
 `;
 
 const EmptyItem = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 12px;
+  padding: 16px;
   color: #6b7280;
   font-size: 14px;
   font-style: italic;
+  text-align: center;
+  line-height: 1.4;
 `;
 
 const MentionSuggestions: React.FC<MentionSuggestionsProps> = ({
@@ -108,16 +110,37 @@ const MentionSuggestions: React.FC<MentionSuggestionsProps> = ({
   onSelect,
   position,
 }) => {
-  if (!position || (!isLoading && suggestions.length === 0)) {
+  if (!position) {
     return null;
   }
 
   return (
-    <SuggestionsContainer position={position}>
+    <SuggestionsContainer $position={position}>
       {isLoading ? (
-        <LoadingItem>검색 중...</LoadingItem>
+        <LoadingItem>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <div
+              style={{
+                width: "16px",
+                height: "16px",
+                border: "2px solid #fdb924",
+                borderTop: "2px solid transparent",
+                borderRadius: "50%",
+                animation: "spin 1s linear infinite",
+              }}
+            />
+            검색 중...
+          </div>
+        </LoadingItem>
       ) : suggestions.length === 0 ? (
-        <EmptyItem>검색 결과가 없습니다</EmptyItem>
+        <EmptyItem>
+          <div>
+            <div>검색 결과가 없습니다</div>
+            <div style={{ fontSize: "12px", marginTop: "4px" }}>
+              다른 키워드로 검색해보세요
+            </div>
+          </div>
+        </EmptyItem>
       ) : (
         suggestions.map((username, index) => (
           <SuggestionItem
@@ -133,6 +156,14 @@ const MentionSuggestions: React.FC<MentionSuggestionsProps> = ({
           </SuggestionItem>
         ))
       )}
+      <style>
+        {`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}
+      </style>
     </SuggestionsContainer>
   );
 };

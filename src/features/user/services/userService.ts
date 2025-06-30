@@ -52,20 +52,30 @@ export interface UserInfo {
   role: string;
 }
 
+// UserSummaryResponse 타입 (새로운 API 응답에 맞춤)
+export interface UserSummaryResponse {
+  id: number;
+  username: string;
+  name: string;
+  role: string;
+}
+
 // 사용자명 검색
 export const searchUsernames = async (
-  username: string
-): Promise<ApiResponse<UserInfo[]>> => {
+  username: string,
+  projectId: number
+): Promise<ApiResponse<UserSummaryResponse[]>> => {
   try {
-    const response = await api.get<ApiResponse<UserInfo[]>>(
+    const response = await api.get<ApiResponse<UserSummaryResponse[]>>(
       "/api/users/search",
       {
         params: {
+          projectId,
           username,
         },
       }
     );
-    return handleApiResponse<UserInfo[]>(response);
+    return handleApiResponse<UserSummaryResponse[]>(response);
   } catch (error) {
     if (error instanceof ApiError) throw error;
     if (error instanceof AxiosError) {

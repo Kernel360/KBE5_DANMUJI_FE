@@ -328,7 +328,7 @@ const FullScreenContentEditor: React.FC<FullScreenContentEditorProps> = ({
                 onChange={(e) => setContent(e.target.value)}
                 placeholder={
                   isMarkdownMode
-                    ? "마크다운 문법을 사용하여 내용을 작성할 수 있습니다."
+                    ? "마크다운 문법을 사용하여 내용을 작성하세요."
                     : "게시글 내용을 입력하세요."
                 }
                 style={{

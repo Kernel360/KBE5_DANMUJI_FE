@@ -5,11 +5,7 @@ import ClickableMentionedUsername from "@/components/ClickableMentionedUsername"
 
 const MentionSpan = styled.span`
   color: #fdb924;
-  font-weight: 600;
-  background-color: rgba(253, 185, 36, 0.1);
-  padding: 2px 4px;
-  border-radius: 4px;
-  margin: 0 1px;
+  font-weight: 500;
 `;
 
 // 날짜 포맷팅 함수
