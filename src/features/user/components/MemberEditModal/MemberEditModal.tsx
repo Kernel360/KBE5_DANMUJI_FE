@@ -34,7 +34,7 @@ interface Company {
   name: string;
 }
 
-interface MemberFormData {
+export interface MemberFormData {
   username: string;
   name: string;
   companyId?: number;

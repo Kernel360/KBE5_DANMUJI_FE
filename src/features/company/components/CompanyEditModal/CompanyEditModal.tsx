@@ -212,7 +212,6 @@ interface Props {
   initialData: Company | null;
   fieldErrors: FieldError[];
   setFieldErrors: React.Dispatch<React.SetStateAction<FieldError[]>>;
-  setErrorMessage: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 export default function CompanyEditModal({
@@ -222,7 +221,6 @@ export default function CompanyEditModal({
   initialData,
   fieldErrors,
   setFieldErrors,
-  setErrorMessage,
 }: Props) {
   const reg1Ref = useRef<HTMLInputElement>(null);
   const reg2Ref = useRef<HTMLInputElement>(null);
@@ -393,8 +391,6 @@ export default function CompanyEditModal({
         if (errorData?.data?.errors) {
           setFieldErrors(errorData.data.errors);
         } 
-      } else {
-        setErrorMessage("업체 수정 중 오류가 발생했습니다.");
       }
     }
   };

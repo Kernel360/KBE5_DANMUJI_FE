@@ -35,7 +35,14 @@ const MemberRegisterModal: React.FC<MemberRegisterModalProps> = ({
   onClose,
   onRegister,
 }) => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    username: string;
+    name: string;
+    email: string;
+    phone: string;
+    position: string;
+    companyId: number | "";
+  }>({
     username: "",
     name: "",
     email: "",
@@ -47,15 +54,16 @@ const MemberRegisterModal: React.FC<MemberRegisterModalProps> = ({
   const [companies, setCompanies] = useState<Company[]>([]);
   const [companyModalOpen, setCompanyModalOpen] = useState(false);
 
+  const fetchCompanies = async () => {
+    try {
+      const res = await api.get("/api/companies");
+      setCompanies(res.data.data.content); // 응답 구조에 따라 조정
+    } catch (error) {
+      console.error("업체 목록을 불러오는 데 실패했습니다", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchCompanies = async () => {
-      try {
-        const res = await api.get("/api/companies");
-        setCompanies(res.data.data.content); // 응답 구조에 따라 조정
-      } catch (error) {
-        console.error("업체 목록을 불러오는 데 실패했습니다", error);
-      }
-    };
     fetchCompanies();
   }, []);
 
@@ -65,7 +73,7 @@ const MemberRegisterModal: React.FC<MemberRegisterModalProps> = ({
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === "companyId" ? Number(value) : value,
+      [name]: name === "companyId" ? (value === "" ? "" : Number(value)) : value,
     }));
   };
 
@@ -170,7 +178,7 @@ const MemberRegisterModal: React.FC<MemberRegisterModalProps> = ({
                     isSearchable
                     placeholder="업체 선택"
                     value={
-                      companies && formData.companyId
+                      companies && formData.companyId !== ""
                         ? companies
                             .map((company) => ({
                               value: company.id,
@@ -178,17 +186,53 @@ const MemberRegisterModal: React.FC<MemberRegisterModalProps> = ({
                             }))
                             .find(
                               (option) =>
-                                option.value === Number(formData.companyId)
+                                option.value === formData.companyId
                             ) || null
                         : null
                     }
                     onChange={(selected) => {
                       setFormData((prev) => ({
                         ...prev,
-                        companyId: selected ? String(selected.value) : "",
+                        companyId: selected ? selected.value : "",
                       }));
                     }}
-                    styles={{ menu: (base) => ({ ...base, maxHeight: 200 }) }}
+                    styles={{
+                      menu: (base) => ({
+                        ...base,
+                        maxHeight: 220,
+                        minWidth: '100%',
+                        width: '100%',
+                        zIndex: 9999,
+                      }),
+                      option: (base, state) => ({
+                        ...base,
+                        minHeight: 40,
+                        display: 'flex',
+                        alignItems: 'center',
+                        backgroundColor: state.isSelected
+                          ? '#fdb924'
+                          : state.isFocused
+                          ? '#fef3c7'
+                          : '#fff',
+                        color: state.isSelected ? '#fff' : '#222',
+                        fontWeight: state.isSelected ? 700 : 500,
+                        cursor: 'pointer',
+                      }),
+                      control: (base) => ({
+                        ...base,
+                        minHeight: 40,
+                        borderRadius: 8,
+                        borderColor: '#e5e7eb',
+                        boxShadow: 'none',
+                        '&:hover': { borderColor: '#fdb924' },
+                      }),
+                      menuList: (base) => ({
+                        ...base,
+                        maxHeight: 220,
+                        paddingTop: 0,
+                        paddingBottom: 0,
+                      }),
+                    }}
                   />
                 </S.FormGroup>
                 <S.FormGroup>
@@ -273,7 +317,10 @@ const MemberRegisterModal: React.FC<MemberRegisterModalProps> = ({
           <CompanyRegisterModal
             open={companyModalOpen}
             onClose={() => setCompanyModalOpen(false)}
-            onRegisterSuccess={() => setCompanyModalOpen(false)}
+            onRegisterSuccess={() => {
+              setCompanyModalOpen(false);
+              fetchCompanies();
+            }}
           />
         )}
       </S.ModalContent>
