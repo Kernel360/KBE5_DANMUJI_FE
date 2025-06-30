@@ -51,7 +51,7 @@ const getStatusStyle = (status: Step["projectStepStatus"]) => {
 const StepOrderModal: React.FC<StepOrderModalProps> = ({ steps, onClose, onSave }) => {
   const [stepList, setStepList] = useState(steps);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
-  const dragOverIndex = useRef<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [adding, setAdding] = useState(false);
   const [newStepName, setNewStepName] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -60,31 +60,32 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ steps, onClose, onSave 
   const editingInputRef = useRef<HTMLInputElement>(null);
 
   const handleDragStart = (idx: number) => setDragIndex(idx);
-  const handleDragEnter = (idx: number) => {
-    dragOverIndex.current = idx;
-  };
-  const handleDragEnd = () => {
+
+  const handleDrop = () => {
     if (
       dragIndex === null ||
-      dragOverIndex.current === null ||
-      dragIndex === dragOverIndex.current
+      dragOverIndex === null ||
+      dragIndex === dragOverIndex
     ) {
       setDragIndex(null);
-      dragOverIndex.current = null;
+      setDragOverIndex(null);
       return;
     }
     const updated = [...stepList];
+    let insertAt = dragOverIndex;
+    if (dragIndex < dragOverIndex) insertAt--;
     const [removed] = updated.splice(dragIndex, 1);
-    updated.splice(dragOverIndex.current, 0, removed);
+    updated.splice(insertAt, 0, removed);
     setStepList(updated);
     setDragIndex(null);
-    dragOverIndex.current = null;
+    setDragOverIndex(null);
   };
 
   const handleAddStep = () => {
     setAdding(true);
     setTimeout(() => inputRef.current?.focus(), 0);
   };
+
   const handleAddStepConfirm = () => {
     const name = newStepName.trim();
     if (name) {
@@ -100,105 +101,148 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ steps, onClose, onSave 
     setAdding(false);
     setNewStepName("");
   };
-  const handleAddStepCancel = () => {
-    setAdding(false);
-    setNewStepName("");
-  };
 
   return (
     <ModalOverlay onClick={onClose}>
-      <ModalBox onClick={e => e.stopPropagation()}>
+      <ModalBox onClick={(e) => e.stopPropagation()}>
         <ModalHeader>
           <ModalTitle>단계 수정</ModalTitle>
-          <ModalDescription>단계의 순서를 변경하고, 이름을 수정하거나 삭제할 수 있습니다.</ModalDescription>
+          <ModalDescription>
+            단계의 순서를 변경하고, 이름을 수정하거나 삭제할 수 있습니다.
+          </ModalDescription>
         </ModalHeader>
 
         <StepList>
           {stepList.map((step, idx) => {
             const isDragging = dragIndex === idx;
+            const isDropTarget = dragOverIndex === idx && dragIndex !== idx;
             const { text, color, bg } = getStatusStyle(step.projectStepStatus);
+            const tempList = [...stepList];
+            if (
+              isDropTarget &&
+              dragIndex !== null &&
+              dragOverIndex !== null
+            ) {
+              const [removed] = tempList.splice(dragIndex, 1);
+              let insertAt = dragOverIndex;
+              if (dragIndex < dragOverIndex) insertAt--;
+              tempList.splice(insertAt, 0, removed);
+            }
             return (
-              <StepItem
+              <div
                 key={step.id}
-                draggable
-                onDragStart={() => handleDragStart(idx)}
-                onDragEnter={() => handleDragEnter(idx)}
-                onDragEnd={handleDragEnd}
-                isDragging={isDragging}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setDragOverIndex(idx);
+                }}
+                onDrop={handleDrop}
               >
-                <StepLeft>
-                  <StepOrderNumber>{idx + 1}</StepOrderNumber>
-                  <FaGripVertical size={13} color={isDragging ? '#fbbf24' : '#d1d5db'} />
-                  {editingIdx === idx ? (
-                    <AddStepInput
-                      ref={editingInputRef}
-                      value={editingName}
-                      onChange={e => setEditingName(e.target.value)}
-                      onBlur={() => {
-                        const name = editingName.trim();
-                        if (name) {
-                          setStepList(list => list.map((s, i) => i === idx ? { ...s, name } : s));
-                        }
-                        setEditingIdx(null);
-                      }}
-                      onKeyDown={e => {
-                        if (e.key === 'Enter') {
+                {isDropTarget && (
+                  <StepItem style={{ opacity: 0.5 }}>
+                    <StepLeft>
+                      <StepOrderNumber>{idx + 1}</StepOrderNumber>
+                      <FaGripVertical size={13} color="#fbbf24" />
+                      <StepName>{stepList[dragIndex!] && stepList[dragIndex!].name}</StepName>
+                    </StepLeft>
+                  </StepItem>
+                )}
+                <StepItem
+                  draggable
+                  onDragStart={() => handleDragStart(idx)}
+                  onDragEnd={() => {
+                    setDragIndex(null);
+                    setDragOverIndex(null);
+                  }}
+                  isDragging={isDragging}
+                >
+                  <StepLeft>
+                    <StepOrderNumber>{idx + 1}</StepOrderNumber>
+                    <FaGripVertical size={13} color={isDragging ? "#fbbf24" : "#d1d5db"} />
+                    {editingIdx === idx ? (
+                      <AddStepInput
+                        ref={editingInputRef}
+                        value={editingName}
+                        onChange={(e) => setEditingName(e.target.value)}
+                        onBlur={() => {
                           const name = editingName.trim();
                           if (name) {
-                            setStepList(list => list.map((s, i) => i === idx ? { ...s, name } : s));
+                            setStepList((list) =>
+                              list.map((s, i) => (i === idx ? { ...s, name } : s))
+                            );
                           }
                           setEditingIdx(null);
-                        } else if (e.key === 'Escape') {
-                          setEditingIdx(null);
-                        }
-                      }}
-                      maxLength={20}
-                      autoFocus
-                    />
-                  ) : (
-                    <>
-                      <StepName>{step.name}</StepName>
-                      <EditIcon>
-                        <RiEdit2Fill
-                          size={15}
-                          title="이름 수정"
-                          onClick={() => {
-                            setEditingIdx(idx);
-                            setEditingName(step.name);
-                            setTimeout(() => editingInputRef.current?.focus(), 0);
-                          }}
-                        />
-                      </EditIcon>
-                    </>
-                  )}
-                </StepLeft>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <StepStatusBadge
-                    clickable={step.projectStepStatus === 'IN_PROGRESS'}
-                    title={step.projectStepStatus === 'IN_PROGRESS' ? '클릭하면 완료로 변경' : undefined}
-                    onClick={() => {
-                      if (step.projectStepStatus === 'IN_PROGRESS') {
-                        setStepList(list => list.map((s, i) => i === idx ? { ...s, projectStepStatus: 'COMPLETED' } : s));
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            const name = editingName.trim();
+                            if (name) {
+                              setStepList((list) =>
+                                list.map((s, i) => (i === idx ? { ...s, name } : s))
+                              );
+                            }
+                            setEditingIdx(null);
+                          } else if (e.key === "Escape") {
+                            setEditingIdx(null);
+                          }
+                        }}
+                        maxLength={20}
+                        autoFocus
+                      />
+                    ) : (
+                      <>
+                        <StepName>{step.name}</StepName>
+                        <EditIcon>
+                          <RiEdit2Fill
+                            size={15}
+                            title="이름 수정"
+                            onClick={() => {
+                              setEditingIdx(idx);
+                              setEditingName(step.name);
+                              setTimeout(() => editingInputRef.current?.focus(), 0);
+                            }}
+                          />
+                        </EditIcon>
+                      </>
+                    )}
+                  </StepLeft>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <StepStatusBadge
+                      clickable={step.projectStepStatus === "IN_PROGRESS"}
+                      title={
+                        step.projectStepStatus === "IN_PROGRESS"
+                          ? "클릭하면 완료로 변경"
+                          : undefined
                       }
-                    }}
-                    style={{ backgroundColor: bg, color }}
-                  >
-                    {text}
-                  </StepStatusBadge>
-                  <TrashIcon>
-                    <FaTrashAlt
-                      size={14}
-                      color="#e11d48"
-                      title="단계 삭제"
                       onClick={() => {
-                        if (window.confirm('정말 삭제할까요?')) {
-                          setStepList(stepList.filter((_, i) => i !== idx));
+                        if (step.projectStepStatus === "IN_PROGRESS") {
+                          setStepList((list) =>
+                            list.map((s, i) =>
+                              i === idx
+                                ? { ...s, projectStepStatus: "COMPLETED" }
+                                : s
+                            )
+                          );
                         }
                       }}
-                    />
-                  </TrashIcon>
-                </div>
-              </StepItem>
+                      style={{ backgroundColor: bg, color }}
+                    >
+                      {text}
+                    </StepStatusBadge>
+                    <TrashIcon>
+                      <FaTrashAlt
+                        size={14}
+                        color="#e11d48"
+                        title="단계 삭제"
+                        onClick={() => {
+                          if (window.confirm("정말 삭제할까요?")) {
+                            setStepList(stepList.filter((_, i) => i !== idx));
+                          }
+                        }}
+                      />
+                    </TrashIcon>
+                  </div>
+                </StepItem>
+              </div>
             );
           })}
 
@@ -215,16 +259,27 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ steps, onClose, onSave 
                 <AddStepInput
                   ref={inputRef}
                   value={newStepName}
-                  onChange={e => setNewStepName(e.target.value)}
+                  onChange={(e) => setNewStepName(e.target.value)}
                   onBlur={handleAddStepConfirm}
-                  onKeyDown={e => {
+                  onKeyDown={(e) => {
                     if (e.key === "Enter") handleAddStepConfirm();
-                    if (e.key === "Escape") handleAddStepCancel();
+                    if (e.key === "Escape") {
+                      setAdding(false);
+                      setNewStepName("");
+                    }
                   }}
                   placeholder="새 단계 이름"
                   maxLength={20}
                 />
-                <FaTimes size={13} color="#bdbdbd" style={{ marginLeft: 6, cursor: "pointer" }} onMouseDown={handleAddStepCancel} />
+                <FaTimes
+                  size={13}
+                  color="#bdbdbd"
+                  style={{ marginLeft: 6, cursor: "pointer" }}
+                  onMouseDown={() => {
+                    setAdding(false);
+                    setNewStepName("");
+                  }}
+                />
               </StepLeft>
             </StepItem>
           )}

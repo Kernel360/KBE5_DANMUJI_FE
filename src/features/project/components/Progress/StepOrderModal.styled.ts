@@ -173,3 +173,11 @@ export const TrashIcon = styled.span`
   display: flex;
   align-items: center;
 `;
+
+export const DropIndicator = styled.div`
+  height: 6px;
+  background: #fde68a;
+  border-radius: 4px;
+  margin: 2px 0;
+  transition: background 0.15s;
+`;
