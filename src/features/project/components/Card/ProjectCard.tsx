@@ -24,7 +24,7 @@ interface ProjectCardProps {
 }
 
 const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
-  const { name , clientCompanies, devCompanies, status, startDate, endDate, progress } = project;
+  const { name , clientCompanies, devCompanies, projectStatus, startDate, endDate, progress } = project;
 
   const navigate = useNavigate();
 
@@ -33,7 +33,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
   };
 
   const getStatus = () => {
-    switch (status) {
+    switch (projectStatus) {
       case "IN_PROGRESS":
         return {
           text: "진행중",
@@ -66,11 +66,11 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
   const statusInfo = getStatus();
 
   return (
-    <Card $status={status} onClick={handleCardClick} style={{ cursor: 'pointer' }}>
+    <Card $status={projectStatus} onClick={handleCardClick} style={{ cursor: 'pointer' }}>
       <CardHeader>
         <CardTitle>{name}</CardTitle>
         <CardBadges>
-          <Badge $color={statusInfo.color} $status={status}>
+          <Badge $color={statusInfo.color} $status={projectStatus}>
             {statusInfo.icon}
             {statusInfo.text}
           </Badge>

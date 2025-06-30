@@ -27,7 +27,7 @@ export default function ProjectListPage() {
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
   const [filters, setFilters] = useState({
-    status: "",
+    projectStatus: "",
     sort: "latest",
     startDate: "",
     endDate: "",
@@ -73,7 +73,7 @@ export default function ProjectListPage() {
               name: project.name,
               clientCompanies: getCompanyDisplay(project.assignClientCompanies),
               devCompanies: getCompanyDisplay(project.assignDevCompanies),
-              status: statusMapping[project.projectStatus] || "IN_PROGRESS",
+              projectStatus: statusMapping[project.projectStatus],
               startDate: project.startDate,
               endDate: project.endDate,
               progress: project.progress
@@ -105,7 +105,7 @@ export default function ProjectListPage() {
       // 검색 파라미터 구성
       const searchParams: any = {};
       if (filters.keyword) searchParams.keyword = filters.keyword;
-      if (filters.status) searchParams.status = filters.status;
+      if (filters.projectStatus) searchParams.projectStatus = filters.projectStatus;
       if (filters.startDate) searchParams.startDate = filters.startDate;
       if (filters.endDate) searchParams.endDate = filters.endDate;
       if (filters.sort) searchParams.sort = filters.sort;
@@ -146,7 +146,8 @@ export default function ProjectListPage() {
               name: project.name,
               clientCompanies: getCompanyDisplay(project.assignClientCompanies),
               devCompanies: getCompanyDisplay(project.assignDevCompanies),
-              status: statusMapping[project.projectStatus] || "IN_PROGRESS",
+              status: statusMapping[project.projectStatus],
+              projectStatus: statusMapping[project.projectStatus],
               startDate: project.startDate,
               endDate: project.endDate,
               progress: project.progress
@@ -188,7 +189,7 @@ export default function ProjectListPage() {
 
   const handleSearch = () => {
     // 검색 조건이 있으면 검색 API 사용, 없으면 초기 로딩
-    const hasSearchConditions = filters.keyword || filters.status || filters.startDate || filters.endDate;
+    const hasSearchConditions = filters.keyword || filters.projectStatus || filters.startDate || filters.endDate;
     
     if (hasSearchConditions) {
       searchProjects(0); // 검색 시 첫 페이지부터
@@ -200,7 +201,7 @@ export default function ProjectListPage() {
 
   const handleReset = () => {
     setFilters({
-      status: "",
+      projectStatus: "",
       sort: "latest",
       startDate: "",
       endDate: "",

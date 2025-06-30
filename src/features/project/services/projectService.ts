@@ -143,7 +143,7 @@ export const getProjects = async (
   page: number = 0,
   size: number = 10,
   params: {
-    status?: string;
+    projectStatus?: string;
     client?: string;
     startDate?: string;
     endDate?: string;
