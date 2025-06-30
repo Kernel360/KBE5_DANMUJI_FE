@@ -34,6 +34,7 @@ import type { CompanyFormData } from "../../pages/CompanyPage";
 import axios from "axios";
 import { useNotification } from "@/features/Notification/NotificationContext";
 import { Button as ModalButton } from "@/features/user/components/MemberEditModal/MemberEditModal.styled";
+import type { MemberData } from "@/features/user/components/MemberRegisterModal/MemberRegisterModal";
 
 interface CompanyMember {
   username: string;
@@ -133,6 +134,29 @@ const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
       }
       notify("업체 정보 수정에 실패했습니다.", false);
       throw err;
+    }
+  };
+
+  const handleMemberRegister = async (memberData: MemberData) => {
+    try {
+      const response = await api.post("/api/admin", memberData);
+      const { username, password } = response.data.data || {};
+      if (username && password) {
+        const fileContent = `Username: ${username}\nPassword: ${password}`;
+        const blob = new Blob([fileContent], { type: "text/plain" });
+        const fileUrl = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = fileUrl;
+        link.download = "member_credentials.txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+      notify("회원이 성공적으로 등록되었습니다.", true);
+      setRegisterOpen(false);
+      setRefreshKey((k) => k + 1); // 구성원 목록 새로고침
+    } catch {
+      notify("회원 등록에 실패했습니다.", false);
     }
   };
 
@@ -241,7 +265,7 @@ const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
                           {member.name} <span style={{ color: '#888', fontSize: 12 }}>({member.username})</span>
                         </td>
                         <td style={{ padding: '4px 8px' }}>{member.email}</td>
-                        <td style={{ padding: '4px 8px' }}>{member.phone}</td>
+                        <td style={{ padding: '4px 8px' }}>{formatTelNo(member.phone)}</td>
                         <td style={{ padding: '4px 8px' }}>{member.position}</td>
                       </tr>
                     ))}
@@ -282,7 +306,7 @@ const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
         {registerOpen && (
           <MemberRegisterModal
             onClose={() => setRegisterOpen(false)}
-            onRegister={() => setRegisterOpen(false)}
+            onRegister={handleMemberRegister}
           />
         )}
 
@@ -291,7 +315,6 @@ const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
             open={editModalOpen}
             onClose={() => {
               setEditModalOpen(false);
-              if (onUpdated) onUpdated();
             }}
             onSave={handleEditSave}
             initialData={company}

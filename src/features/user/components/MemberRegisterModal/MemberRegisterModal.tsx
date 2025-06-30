@@ -12,7 +12,7 @@ import * as S from "./MemberRegisterModal.styled";
 import Select from "react-select";
 import CompanyRegisterModal from "@/features/company/components/CompanyRegisterModal";
 
-interface MemberData {
+export interface MemberData {
   username: string;
   name: string;
   email: string;
