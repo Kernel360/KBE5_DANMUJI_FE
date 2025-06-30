@@ -23,6 +23,8 @@ export const formatCommentDate = (dateString: string) => {
 // 댓글 내용에서 @태그와 "답글" 텍스트에 색상을 적용하는 함수
 export const formatCommentContent = (
   content: string,
+  allProjectUsers: string[] = [],
+  completedMentions: string[] = [],
   onUsernameClick?: (
     event: React.MouseEvent,
     username: string,
@@ -34,16 +36,25 @@ export const formatCommentContent = (
     if (part.startsWith("@")) {
       const username = part.substring(1); // @ 제거하여 사용자명만 추출
 
-      if (onUsernameClick) {
-        return (
-          <ClickableMentionedUsername
-            key={index}
-            username={username}
-            onClick={onUsernameClick}
-          />
-        );
+      // 실제 존재하는 유저이고 완료된 멘션인지 확인
+      const isExistingUser = allProjectUsers.includes(username);
+      const isCompletedMention = completedMentions.includes(username);
+
+      if (isExistingUser && isCompletedMention) {
+        if (onUsernameClick) {
+          return (
+            <ClickableMentionedUsername
+              key={index}
+              username={username}
+              onClick={onUsernameClick}
+            />
+          );
+        } else {
+          return <MentionSpan key={index}>{part}</MentionSpan>;
+        }
       } else {
-        return <MentionSpan key={index}>{part}</MentionSpan>;
+        // 존재하지 않는 유저이거나 완료되지 않은 멘션은 일반 텍스트로 표시
+        return <span key={index}>{part}</span>;
       }
     } else if (part === "답글") {
       return (

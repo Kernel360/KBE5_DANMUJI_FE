@@ -8,6 +8,8 @@ import {
   type ProjectDetailResponse,
 } from "../services/projectService";
 import styled from "styled-components";
+import ProjectCreateModal from "../components/ProjectCreateModal";
+import api from "@/api/axios";
 // import ProjectMemberList from "../components/MemberList/ProjectMemberList";
 // import ProjectFileList from '../components/FileList/ProjectFileList';
 
@@ -73,6 +75,7 @@ const ProjectDetailPage = () => {
   const [selectedStepId, setSelectedStepId] = useState<number | undefined>(
     undefined
   );
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   // 프로젝트 상세 정보 가져오기
   const fetchProjectDetail = async () => {
@@ -115,6 +118,38 @@ const ProjectDetailPage = () => {
     // 여기에 스텝 선택 시 추가 로직을 구현할 수 있습니다
     // 예: 해당 스텝의 게시글만 필터링, 스텝별 상세 정보 표시 등
     console.log(`Selected step: ${stepId}`);
+  };
+
+  // 편집 저장 핸들러
+  const handleEditSave = async (form: any) => {
+    if (!projectId) return;
+    try {
+      // 필드 변환 및 PUT 요청
+      const payload = {
+        name: form.name,
+        description: form.description,
+        projectCost: form.projectCost,
+        startDate: form.startDate,
+        endDate: form.endDate,
+        devManagerId: form.devManagerId
+          ? form.devManagerId.split(",").map((s: any) => Number(s.trim())).filter(Boolean)
+          : [],
+        clientManagerId: form.clientManagerId
+          ? form.clientManagerId.split(",").map((s: any) => Number(s.trim())).filter(Boolean)
+          : [],
+        devUserId: form.devUserId
+          ? form.devUserId.split(",").map((s: any) => Number(s.trim())).filter(Boolean)
+          : [],
+        clientUserId: form.clientUserId
+          ? form.clientUserId.split(",").map((s: any) => Number(s.trim())).filter(Boolean)
+          : [],
+      };
+      await api.put(`/api/projects/${projectId}`, payload);
+      setEditModalOpen(false);
+      fetchProjectDetail();
+    } catch (e) {
+      alert("프로젝트 수정에 실패했습니다.");
+    }
   };
 
   if (loading) {
@@ -160,7 +195,10 @@ const ProjectDetailPage = () => {
           overflow: "hidden",
         }}
       >
-        <ProjectHeader projectDetail={projectDetail} />
+        <ProjectHeader 
+          projectDetail={projectDetail} 
+          onEdit={() => setEditModalOpen(true)}
+        />
         {/* <ProjectMemberList projectDetail={projectDetail} /> */}
         <ProjectProgress
           projectDetail={projectDetail}
@@ -179,6 +217,13 @@ const ProjectDetailPage = () => {
           </div>
         </div>
       </div>
+      <ProjectCreateModal
+        open={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        editMode={true}
+        projectData={projectDetail as any}
+        onSave={handleEditSave as any}
+      />
     </DetailPageContainer>
   );
 };

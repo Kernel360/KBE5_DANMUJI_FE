@@ -37,6 +37,8 @@ import PostContent from "./PostContent";
 import PostAttachments from "./PostAttachments";
 import PostLinks from "./PostLinks";
 import CommentSection from "./CommentSection";
+import { getUsersByProject } from "@/features/user/services/userService";
+import { extractCompletedMentions } from "@/utils/mentionUtils";
 
 interface PostDetailModalProps {
   open: boolean;
@@ -82,7 +84,10 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
     handleViewProfile,
     handleSendMessage,
     handleSendInquiry,
+    setProfileState,
   } = useUserProfile();
+
+  const [allUsernames, setAllUsernames] = useState<string[]>([]);
 
   // 모달 닫기 애니메이션 적용
   const handleCloseWithAnimation = () => {
@@ -126,6 +131,8 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
       if (open && postId !== null) {
         try {
           setLoading(true);
+          // 댓글 상태 초기화
+          setComments([]);
 
           // 게시글 상세 정보 가져오기
           const postResponse = await getPostDetail(postId);
@@ -154,6 +161,22 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
 
     loadPostData();
   }, [open, postId]);
+
+  useEffect(() => {
+    const fetchAllUsernames = async () => {
+      if (post && post.project && post.project.projectId) {
+        try {
+          const response = await getUsersByProject(post.project.projectId);
+          if (response.data) {
+            setAllUsernames(response.data.map((user) => user.username));
+          }
+        } catch (e) {
+          setAllUsernames([]);
+        }
+      }
+    };
+    fetchAllUsernames();
+  }, [post]);
 
   // 댓글 제출 핸들러
   const handleCommentSubmit = async () => {
@@ -458,31 +481,68 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                   replyText={replyText}
                   onReplyTextChange={setReplyText}
                   onReplySubmit={handleReplySubmit}
-                  onReplyCancel={() => {
-                    setReplyText("");
-                    setReplyingTo(null);
-                  }}
+                  onReplyCancel={() => setReplyingTo(null)}
                   submittingReply={submittingReply}
                   editingCommentId={editingCommentId}
                   editText={editText}
                   onEditTextChange={setEditText}
-                  onEdit={(commentId) => {
-                    const comment = comments.find((c) => c.id === commentId);
-                    if (comment) {
-                      setEditingCommentId(commentId);
-                      setEditText(comment.content);
-                    }
-                  }}
+                  onEdit={setEditingCommentId}
                   onDelete={handleDeleteComment}
                   onSaveEdit={handleSaveEdit}
-                  onCancelEdit={() => {
-                    setEditingCommentId(null);
-                    setEditText("");
-                  }}
+                  onCancelEdit={() => setEditingCommentId(null)}
                   onReply={handleReplyClick}
                   isAuthor={isAuthor}
                   formatDate={formatDate}
-                  onUserProfileClick={openUserProfile}
+                  onUserProfileClick={(e, username, userId) => {
+                    // 댓글에서 해당 사용자의 role 정보 찾기
+                    const comment = comments.find(
+                      (c) =>
+                        c.authorUsername === username ||
+                        c.authorName === username
+                    );
+                    const role = comment?.role;
+
+                    // 역할에 따른 한글 표시
+                    let roleDisplay = "사용자";
+                    let isAdmin = false;
+
+                    switch (role) {
+                      case "ROLE_ADMIN":
+                        roleDisplay = "관리자";
+                        isAdmin = true;
+                        break;
+                      case "ROLE_DEV":
+                        roleDisplay = "개발자";
+                        break;
+                      case "ROLE_CLIENT":
+                        roleDisplay = "고객";
+                        break;
+                      case "ROLE_USER":
+                      default:
+                        roleDisplay = "사용자";
+                        break;
+                    }
+
+                    // 프로필 상태 업데이트
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const position = {
+                      top: rect.bottom + window.scrollY + 5,
+                      left: rect.left + window.scrollX,
+                    };
+
+                    setProfileState({
+                      isOpen: true,
+                      username,
+                      userId,
+                      position,
+                      userRole: roleDisplay,
+                      isAdmin,
+                    });
+                  }}
+                  allUsernames={allUsernames}
+                  completedMentions={extractCompletedMentions(
+                    comments.map((c) => c.content).join(" ")
+                  )}
                 />
               </>
             ) : (

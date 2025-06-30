@@ -16,23 +16,7 @@ import ProjectCard from "../components/Card/ProjectCard";
 import ProjectCreateModal from "../components/ProjectCreateModal";
 import { getProjects, type ProjectResponse } from "../services/projectService";
 import api from "@/api/axios";
-
-type Member = {
-  id: number;
-  name: string;
-  position: string;
-};
-
-type SelectedDevCompany = {
-  company: { id: number; name: string };
-  members: { id: number; name: string; position: string; type: 'manager' | 'member' }[];
-};
-
-type SelectedClientCompany = {
-  company: { id: number; name: string };
-  members: { id: number; name: string; position: string; type: 'manager' | 'member' }[];
-};
-
+import { SubmitButton } from "@/features/board/components/Post/styles/PostFormModal.styled";
 const PAGE_SIZE = 8;
 
 export default function ProjectListPage() {
@@ -43,12 +27,12 @@ export default function ProjectListPage() {
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
   const [filters, setFilters] = useState({
-    status: "",
-    client: "",
+    projectStatus: "",
     sort: "latest",
     startDate: "",
     endDate: "",
     keyword: "",
+    category: "",
   });
   const [showCreateModal, setShowCreateModal] = useState(false);
 
@@ -60,14 +44,12 @@ export default function ProjectListPage() {
       const response = await getProjects(page, PAGE_SIZE);
 
       if (response.data) {
-        console.log("API Response:", response.data);
+        console.log("전체 API Response:", response.data);
         console.log("Projects content:", response.data.content);
         
         // 백엔드 응답을 기존 Project 타입으로 변환
         const convertedProjects: Project[] = response.data.content.map(
-          (project: ProjectResponse) => {
-            console.log("Individual project:", project);
-            
+          (project: ProjectResponse) => {       
             // 상태 매핑
             const statusMapping: Record<
               string,
@@ -79,13 +61,19 @@ export default function ProjectListPage() {
               DUE_SOON: "DUE_SOON",
             };
 
+            // 회사명 표시 함수
+            const getCompanyDisplay = (companies: { companyName: string }[] = []) => {
+              if (!companies || companies.length === 0) return "미지정";
+              if (companies.length === 1) return companies[0].companyName;
+              return `${companies[0].companyName} 외 ${companies.length - 1}`;
+            };
+
             const convertedProject = {
               id: project.projectId,
               name: project.name,
-              client: project.assignClientCompanies[0]?.companyName || "고객사 미지정",
-              clientManager: "담당자",
-              devManagers: "개발팀",
-              status: statusMapping[project.projectStatus] || "IN_PROGRESS",
+              clientCompanies: getCompanyDisplay(project.assignClientCompanies),
+              devCompanies: getCompanyDisplay(project.assignDevCompanies),
+              projectStatus: statusMapping[project.projectStatus],
               startDate: project.startDate,
               endDate: project.endDate,
               progress: project.progress
@@ -117,11 +105,11 @@ export default function ProjectListPage() {
       // 검색 파라미터 구성
       const searchParams: any = {};
       if (filters.keyword) searchParams.keyword = filters.keyword;
-      if (filters.status) searchParams.status = filters.status;
-      if (filters.client) searchParams.client = filters.client;
+      if (filters.projectStatus) searchParams.projectStatus = filters.projectStatus;
       if (filters.startDate) searchParams.startDate = filters.startDate;
       if (filters.endDate) searchParams.endDate = filters.endDate;
       if (filters.sort) searchParams.sort = filters.sort;
+      if(filters.category) searchParams.category = filters.category;
 
       const response = await api.get("/api/projects/search", {
         params: {
@@ -132,8 +120,10 @@ export default function ProjectListPage() {
       });
 
       if (response.data?.data) {
-        const convertedProjects: Project[] = response.data.data.content.map(
-          (project: ProjectResponse) => {
+        console.log("검색 API Response:", response.data);
+        const convertedProjects: Project[] = response.data.content.map(
+          (project: ProjectResponse) => {       
+            // 상태 매핑
             const statusMapping: Record<
               string,
               "IN_PROGRESS" | "COMPLETED" | "DELAYED" | "DUE_SOON"
@@ -144,23 +134,33 @@ export default function ProjectListPage() {
               DUE_SOON: "DUE_SOON",
             };
 
-            return {
+            // 회사명 표시 함수
+            const getCompanyDisplay = (companies: { companyName: string }[] = []) => {
+              if (!companies || companies.length === 0) return "미지정";
+              if (companies.length === 1) return companies[0].companyName;
+              return `${companies[0].companyName} 외 ${companies.length - 1}`;
+            };
+
+            const convertedProject = {
               id: project.projectId,
               name: project.name,
-              client: project.assignClientCompanies[0]?.companyName || "고객사 미지정",
-              clientManager: "담당자",
-              devManagers: "개발팀",
-              status: statusMapping[project.projectStatus] || "IN_PROGRESS",
+              clientCompanies: getCompanyDisplay(project.assignClientCompanies),
+              devCompanies: getCompanyDisplay(project.assignDevCompanies),
+              status: statusMapping[project.projectStatus],
+              projectStatus: statusMapping[project.projectStatus],
               startDate: project.startDate,
               endDate: project.endDate,
               progress: project.progress
             };
+            
+            console.log("Converted project:", convertedProject);
+            return convertedProject;
           }
         );
 
         setFilteredProjects(convertedProjects);
-        setTotalPages(response.data.data.page.totalPages);
-        setTotalElements(response.data.data.page.totalElements);
+        setTotalPages(response.data.page.totalPages);
+        setTotalElements(response.data.page.totalElements);
       }
     } catch (err) {
       console.error("프로젝트 검색 실패", err);
@@ -175,12 +175,21 @@ export default function ProjectListPage() {
   }, [currentPage]);
 
   const handleInputChange = (field: string, value: string) => {
-    setFilters({ ...filters, [field]: value });
+    setFilters((prev) => {
+      const newFilters = { ...prev, [field]: value };
+  
+      // 시작일 변경 로직에서 바로 endDate도 세팅
+      if (field === "startDate" && newFilters.endDate && value > newFilters.endDate) {
+        newFilters.endDate = "";
+      }
+  
+      return newFilters;
+    });
   };
 
   const handleSearch = () => {
     // 검색 조건이 있으면 검색 API 사용, 없으면 초기 로딩
-    const hasSearchConditions = filters.keyword || filters.status || filters.client || filters.startDate || filters.endDate;
+    const hasSearchConditions = filters.keyword || filters.projectStatus || filters.startDate || filters.endDate;
     
     if (hasSearchConditions) {
       searchProjects(0); // 검색 시 첫 페이지부터
@@ -192,12 +201,12 @@ export default function ProjectListPage() {
 
   const handleReset = () => {
     setFilters({
-      status: "",
-      client: "",
+      projectStatus: "",
       sort: "latest",
       startDate: "",
       endDate: "",
       keyword: "",
+      category: "",
     });
     fetchProjects(0); // 초기화 시 기본 API 사용
     setCurrentPage(1);
@@ -263,12 +272,14 @@ export default function ProjectListPage() {
         <Description>
           프로젝트 관리 시스템의 주요 정보를 한눈에 확인하세요
         </Description>
-        <button
-          style={{ marginLeft: "auto", padding: "8px 16px", fontSize: 16, borderRadius: 4, background: "#1976d2", color: "#fff", border: 0, cursor: "pointer" }}
-          onClick={() => setShowCreateModal(true)}
-        >
-          프로젝트 등록
-        </button>
+        <div style={{ marginLeft: "auto" }}>
+          <SubmitButton
+            style={{ minWidth: 140, fontSize: 16 }}
+            onClick={() => setShowCreateModal(true)}
+          >
+            프로젝트 등록
+          </SubmitButton>
+        </div>
       </Header>
       <ProjectFilterBar
         filters={filters}

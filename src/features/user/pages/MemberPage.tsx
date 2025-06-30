@@ -1,7 +1,6 @@
 import api from "@/api/axios";
-import { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
-import MemberRegisterModal from "../components/MemberRegisterModal/MemberRegisterModal";
+import { useState, useEffect } from "react";
+import MemberDetailModal from "../components/MemberDetailModal/MemberDetailModal";
 import styled from "styled-components";
 import {
   FiSearch,
@@ -11,14 +10,12 @@ import {
   FiHome,
   FiUsers,
   FiUser,
-  FiMail,
   FiPhone,
-  FiChevronLeft,
-  FiChevronRight,
   FiCalendar,
 } from "react-icons/fi";
-import { IoBusinessOutline, IoPeopleOutline } from "react-icons/io5";
 import { LuUserRoundCog, LuUserRoundCheck } from "react-icons/lu";
+import MemberRegisterModal from "../components/MemberRegisterModal/MemberRegisterModal";
+import { useNotification } from "@/features/Notification/NotificationContext";
 
 export interface Member {
   id: number;
@@ -38,7 +35,6 @@ interface Company {
   name: string;
 }
 
-// MemberData 타입 정의 (파일 상단에 위치)
 interface MemberData {
   username: string;
   name: string;
@@ -143,7 +139,6 @@ const SearchInput = styled.input`
 
 const SelectButton = styled.button<{
   $hasValue: boolean;
-  $color?: string;
 }>`
   display: flex;
   align-items: center;
@@ -153,9 +148,9 @@ const SelectButton = styled.button<{
   padding: 8px 12px;
   background: ${({ $hasValue }) => ($hasValue ? "#fef3c7" : "#ffffff")};
   border: 2px solid
-    ${({ $hasValue, $color }) => ($hasValue ? "#fdb924" : "#e5e7eb")};
+    ${({ $hasValue }) => ($hasValue ? "#fdb924" : "#e5e7eb")};
   border-radius: 8px;
-  color: ${({ $hasValue, $color }) => ($hasValue ? "#a16207" : "#374151")};
+  color: ${({ $hasValue }) => ($hasValue ? "#a16207" : "#374151")};
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
@@ -164,7 +159,7 @@ const SelectButton = styled.button<{
 
   svg {
     flex-shrink: 0;
-    color: ${({ $hasValue, $color }) => ($hasValue ? "#fdb924" : "#6b7280")};
+    color: ${({ $hasValue }) => ($hasValue ? "#fdb924" : "#6b7280")};
     transition: transform 0.2s ease;
   }
 
@@ -181,9 +176,9 @@ const SelectButton = styled.button<{
   }
 
   &:hover {
-    background: ${({ $hasValue, $color }) =>
+    background: ${({ $hasValue }) =>
       $hasValue ? "#fef9c3" : "#f9fafb"};
-    border-color: ${({ $hasValue, $color }) =>
+    border-color: ${({ $hasValue }) =>
       $hasValue ? "#fdb924" : "#d1d5db"};
     transform: translateY(-1px);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -444,9 +439,9 @@ export const formatTelNo = (telNo: string) => {
 };
 
 export default function MemberPage() {
-  const [search, setSearch] = useState("");
   const [members, setMembers] = useState<Member[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
+  const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -468,18 +463,18 @@ export default function MemberPage() {
   const [pageSize] = useState(10);
   const [totalMembers, setTotalMembers] = useState(0);
 
-  const navigate = useNavigate();
+  const [registerModalOpen, setRegisterModalOpen] = useState(false);
+
+  const { notify } = useNotification();
 
   const fetchMembers = async () => {
     try {
       setLoading(true);
-      // TODO: Replace with actual API call to fetch members
-      const response = await api.get(`/api/admin/allUsers`);
-      setMembers(response.data.data.content);
-      setTotalMembers(
-        response.data.data.totalElements || response.data.data.content.length
-      );
-      console.log("Current members:", response.data.data.content);
+      // 전체 회원 목록을 반환하는 새로운 API 응답 구조에 맞게 수정
+      const response = await api.get(`/api/admin/all`);
+      setMembers(Array.isArray(response.data.data) ? response.data.data : []);
+      setTotalMembers(Array.isArray(response.data.data) ? response.data.data.length : 0);
+      console.log("Current members:", response.data.data);
     } catch (err: unknown) {
       let errorMessage = "An unknown error occurred";
       if (err instanceof Error) {
@@ -510,6 +505,11 @@ export default function MemberPage() {
     fetchMembers();
     fetchCompanies();
   }, []);
+
+  // 페이지 변경 시 회원 목록 새로고침
+  useEffect(() => {
+    fetchMembers();
+  }, [currentPage]);
 
   // 필터링된 회원 목록
   const filtered = members.filter((member) => {
@@ -551,7 +551,6 @@ export default function MemberPage() {
       position: "",
       keyword: "",
     });
-    setSearch("");
   };
 
   // 드롭다운 토글 함수들
@@ -566,7 +565,7 @@ export default function MemberPage() {
   };
 
   const handleCompanySelect = (companyId: number) => {
-    setFilters({ ...filters, companyId: companyId.toString() });
+    setFilters({ ...filters, companyId: companyId === 0 ? "" : companyId.toString() });
     setCompanyDropdownOpen(false);
   };
 
@@ -575,8 +574,10 @@ export default function MemberPage() {
     setPositionDropdownOpen(false);
   };
 
+  // 이름 클릭 시 모달 오픈
   const handleMemberClick = (member: Member) => {
-    navigate(`/member/${member.id}`);
+    setSelectedMemberId(member.id);
+    setModalOpen(true);
   };
 
   // 페이지네이션 함수들
@@ -641,37 +642,22 @@ export default function MemberPage() {
     return pages;
   };
 
-  const handleRegister = useCallback(
-    async (data: MemberData) => {
-      try {
-        const newMember = {
-          ...data,
-          role: "user", // API에만 추가
-        };
-        const response = await api.post("/api/admin", newMember);
+  // 회원 등록 핸들러
+  const handleRegister = async (memberData: MemberData) => {
+    try {
+      await api.post("/api/admin", memberData);
+      await fetchMembers();
+      setRegisterModalOpen(false);
+      notify("회원이 성공적으로 등록되었습니다.", true);
+    } catch {
+      notify("회원 등록에 실패했습니다.", false);
+    }
+  };
 
-        const { username, password } = response.data.data;
-        const fileContent = `Username: ${username}\nPassword: ${password}`;
-        const blob = new Blob([fileContent], { type: "text/plain" });
-        const fileUrl = URL.createObjectURL(blob);
-
-        const link = document.createElement("a");
-        link.href = fileUrl;
-        link.download = "member_credentials.txt";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        fetchMembers();
-        alert("회원 등록이 완료되었습니다!");
-        setModalOpen(false);
-      } catch (error: unknown) {
-        console.error("Error registering member:", error);
-        alert("회원 등록 중 오류가 발생했습니다.");
-      }
-    },
-    [fetchMembers]
-  );
+  const handleModalClose = () => {
+    setModalOpen(false);
+    setSelectedMemberId(null);
+  };
 
   if (loading)
     return (
@@ -717,7 +703,6 @@ export default function MemberPage() {
           <FilterLabel>업체</FilterLabel>
           <SelectButton
             $hasValue={filters.companyId !== ""}
-            $color="#fdb924"
             onClick={handleCompanyDropdownToggle}
             className={companyDropdownOpen ? "open" : ""}
           >
@@ -758,7 +743,6 @@ export default function MemberPage() {
           <FilterLabel>직책</FilterLabel>
           <SelectButton
             $hasValue={filters.position !== ""}
-            $color="#fdb924"
             onClick={handlePositionDropdownToggle}
             className={positionDropdownOpen ? "open" : ""}
           >
@@ -829,7 +813,7 @@ export default function MemberPage() {
           </div>
         </FilterGroup>
         <SearchRight>
-          <NewButton onClick={() => setModalOpen(true)}>
+          <NewButton onClick={() => setRegisterModalOpen(true)}>
             <FiPlus size={16} />
             회원 등록
           </NewButton>
@@ -1052,8 +1036,27 @@ export default function MemberPage() {
       </PaginationContainer>
 
       {modalOpen && (
+        <MemberDetailModal
+          open={modalOpen}
+          onClose={handleModalClose}
+          memberId={selectedMemberId}
+          onDeleted={() => {
+            // 현재 페이지의 유저가 1명이고 2페이지 이상이면 한 페이지 앞으로 이동
+            if (filtered.slice(currentPage * pageSize, (currentPage + 1) * pageSize).length === 1 && currentPage > 0) {
+              setCurrentPage(currentPage - 1);
+            } else {
+              fetchMembers();
+            }
+            setModalOpen(false);
+            setSelectedMemberId(null);
+          }}
+        />
+      )}
+
+      {/* 회원 등록 모달 */}
+      {registerModalOpen && (
         <MemberRegisterModal
-          onClose={() => setModalOpen(false)}
+          onClose={() => setRegisterModalOpen(false)}
           onRegister={handleRegister}
         />
       )}
