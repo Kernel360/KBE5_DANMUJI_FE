@@ -129,13 +129,9 @@ const ProjectProgress: React.FC<ProjectProgressProps> = ({
       </StepContainer>
       {isStepOrderModalOpen && (
         <StepOrderModal
-          steps={projectDetail.steps.map((step) => ({
-            id: step.id,
-            name: step.name,
-            projectStepStatus: step.projectStepStatus as "COMPLETED" | "IN_PROGRESS" | "PENDING",
-          }))}
+          projectId={projectDetail.id}
           onClose={() => setStepOrderModalOpen(false)}
-          onSave={() => {
+          onSaved={() => {
             console.log("save");
           }}
         />
