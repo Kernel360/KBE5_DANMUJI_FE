@@ -83,7 +83,7 @@ const ProjectProgress: React.FC<ProjectProgressProps> = ({
         <button
           onClick={() => setStepOrderModalOpen(true)}
           style={{ background: "none", border: "none", cursor: "pointer", padding: 20 }}
-          title="단계 순서 변경"
+          title="단계 수정"
         >
           <FaPen size={18} color="#6b7280" />
         </button>
