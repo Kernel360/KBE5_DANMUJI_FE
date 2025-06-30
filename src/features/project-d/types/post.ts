@@ -51,6 +51,7 @@ export type Comment = {
   authorId?: number;
   authorName?: string;
   authorUsername?: string;
+  role?: string;
   author?: Author;
   content: string;
   createdAt: string;
@@ -204,20 +205,7 @@ export interface PostDetailReadResponse {
   files: PostFile[] | null;
   delete: boolean;
   links?: PostLink[];
-}
-
-export interface PostSummaryReadResponse {
-  postId: number;
-  parentId: number | null;
-  projectId: number;
-  projectStepId: number;
-  authorId: number;
-  authorName: string;
-  title: string;
-  type: string;
-  priority: string;
-  createdAt: string;
-  comments?: Comment[];
+  commentCount?: number;
 }
 
 export interface PageInfo {
@@ -230,4 +218,19 @@ export interface PageInfo {
 export interface PageResponse<T> {
   content: T[];
   page: PageInfo;
+}
+
+export interface PostSummaryReadResponse {
+  postId: number;
+  parentId: number | null;
+  projectId: number;
+  projectStepId: number;
+  authorId: number;
+  authorName: string;
+  authorUsername: string;
+  title: string;
+  type: PostType;
+  priority: PostPriority;
+  createdAt: string;
+  commentCount: number;
 }

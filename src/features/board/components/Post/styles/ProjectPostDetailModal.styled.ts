@@ -338,14 +338,13 @@ export const CommentActionButton = styled.button`
   color: #6b7280;
   font-size: 0.75rem;
   cursor: pointer;
-  padding: 0.15rem 0.4rem;
+  padding: 0.1rem 0.1rem;
   border-radius: 0.25rem;
   transition: all 0.2s;
-  width: 55px;
+  width: 35px;
 
   &:hover {
-    background-color: #f3f4f6;
-    color: #374151;
+    color: #fdb924;
   }
 `;
 

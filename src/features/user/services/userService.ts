@@ -60,22 +60,42 @@ export interface UserSummaryResponse {
   role: string;
 }
 
-// 사용자명 검색
-export const searchUsernames = async (
-  username: string,
+// 프로젝트의 모든 사용자 조회
+export const getUsersByProject = async (
   projectId: number
 ): Promise<ApiResponse<UserSummaryResponse[]>> => {
   try {
     const response = await api.get<ApiResponse<UserSummaryResponse[]>>(
-      "/api/users/search",
-      {
-        params: {
-          projectId,
-          username,
-        },
-      }
+      `/api/users/project/${projectId}`
     );
     return handleApiResponse<UserSummaryResponse[]>(response);
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
+    if (error instanceof AxiosError) {
+      throw new ApiError(
+        error.response?.data?.message ||
+          "프로젝트 사용자 조회 중 오류가 발생했습니다.",
+        error.response?.status
+      );
+    }
+    throw new ApiError(
+      "프로젝트 사용자 조회 중 알 수 없는 오류가 발생했습니다."
+    );
+  }
+};
+
+// username으로 특정 사용자 검색
+export const getUserByUsername = async (
+  username: string
+): Promise<ApiResponse<UserSummaryResponse>> => {
+  try {
+    const response = await api.get<ApiResponse<UserSummaryResponse>>(
+      "/api/users/username",
+      {
+        params: { username },
+      }
+    );
+    return handleApiResponse<UserSummaryResponse>(response);
   } catch (error) {
     if (error instanceof ApiError) throw error;
     if (error instanceof AxiosError) {
