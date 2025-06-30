@@ -78,7 +78,7 @@ const ProjectBoardFilters: React.FC<ProjectBoardFiltersProps> = ({
 
   // 드롭다운 위치 조정 함수
   const adjustDropdownPosition = (
-    dropdownRef: React.RefObject<HTMLDivElement>
+    dropdownRef: React.RefObject<HTMLDivElement | null>
   ) => {
     if (!dropdownRef.current) return;
 

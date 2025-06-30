@@ -268,7 +268,7 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
     setEditingPostStepId(null);
   };
 
-  const handlePostDelete = (deletedPostId: number) => {
+  const handlePostDelete = () => {
     // 게시글 삭제 후 목록 새로고침
     fetchPosts();
   };
