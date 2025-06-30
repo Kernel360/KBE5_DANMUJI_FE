@@ -68,6 +68,7 @@ export const getActivityLogs = async (
     changedBy?: string;
     changedFrom?: string;
     changedTo?: string;
+    changerRole?: string;
   }
 ): Promise<PageResponse<HistorySimpleResponse>> => {
   try {
@@ -86,6 +87,9 @@ export const getActivityLogs = async (
       }
       if (filters.changedBy) {
         params.append("changedBy", filters.changedBy);
+      }
+      if (filters.changerRole && filters.changerRole !== "ALL") {
+        params.append("changerRole", filters.changerRole);
       }
       if (filters.changedFrom) {
         // 날짜 형식을 LocalDateTime 형식으로 변환 (YYYY-MM-DDTHH:mm:ss)
@@ -114,8 +118,7 @@ export const getActivityLogs = async (
 
 // 이력 타입을 프론트엔드 형식으로 변환
 export const transformHistoryToActivityLog = (
-  history: HistorySimpleResponse,
-  userInfo?: { name: string; role: string }
+  history: HistorySimpleResponse
 ): ActivityLog => {
   const getActionDisplayName = (historyType: string) => {
     switch (historyType) {
