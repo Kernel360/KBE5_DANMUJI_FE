@@ -23,7 +23,9 @@ export const StepContainer = styled.div`
   justify-content: center;
 `;
 
-export const StepItem = styled.div<{
+export const StepItem = styled.div.withConfig({
+  shouldForwardProp: (prop) => !['active', 'complete', 'selected'].includes(prop)
+})<{
   active?: boolean;
   complete?: boolean;
   selected?: boolean;
@@ -47,7 +49,9 @@ export const StepItem = styled.div<{
   box-sizing: border-box;
 `;
 
-export const StepIcon = styled.div<{ active?: boolean; complete?: boolean }>`
+export const StepIcon = styled.div.withConfig({
+  shouldForwardProp: (prop) => !['active', 'complete'].includes(prop)
+})<{ active?: boolean; complete?: boolean }>`
   background: ${({ complete, active }) =>
     complete ? "#10b981" : active ? "#f59e0b" : "#e5e7eb"};
   color: white;
@@ -70,7 +74,9 @@ export const StepIcon = styled.div<{ active?: boolean; complete?: boolean }>`
   }
 `;
 
-export const StepLine = styled.div<{ active?: boolean; complete?: boolean }>`
+export const StepLine = styled.div.withConfig({
+  shouldForwardProp: (prop) => !['active', 'complete'].includes(prop)
+})<{ active?: boolean; complete?: boolean }>`
   height: 2px;
   background: ${({ complete, active }) =>
     complete ? "#10b981" : active ? "#f59e0b" : "#e5e7eb"};
@@ -83,7 +89,9 @@ export const StepLine = styled.div<{ active?: boolean; complete?: boolean }>`
   transition: all 0.2s ease;
 `;
 
-export const StepTitle = styled.div<{ active?: boolean; complete?: boolean }>`
+export const StepTitle = styled.div.withConfig({
+  shouldForwardProp: (prop) => !['active', 'complete'].includes(prop)
+})<{ active?: boolean; complete?: boolean }>`
   font-weight: 500;
   font-size: 0.95rem;
   color: #6b7280;
@@ -91,7 +99,9 @@ export const StepTitle = styled.div<{ active?: boolean; complete?: boolean }>`
   transition: all 0.2s ease;
 `;
 
-export const StepStatus = styled.div<{ active?: boolean; complete?: boolean }>`
+export const StepStatus = styled.div.withConfig({
+  shouldForwardProp: (prop) => !['active', 'complete'].includes(prop)
+})<{ active?: boolean; complete?: boolean }>`
   font-size: 0.8rem;
   color: ${({ active, complete }) =>
     complete ? "#10b981" : active ? "#f59e0b" : "#9ca3af"};

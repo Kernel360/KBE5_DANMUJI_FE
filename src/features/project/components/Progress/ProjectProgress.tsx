@@ -17,20 +17,26 @@ import {
   FaSearch,
   FaFlag,
   FaList,
+  FaPen,
 } from "react-icons/fa";
 import type { ProjectDetailResponse } from "../../services/projectService";
+import StepOrderModal from "./StepOrderModal";
 
 interface ProjectProgressProps {
   projectDetail: ProjectDetailResponse;
   onStepSelect?: (stepId: number) => void;
   selectedStepId?: number;
+  canEditStep?: boolean;
 }
 
 const ProjectProgress: React.FC<ProjectProgressProps> = ({
   projectDetail,
   onStepSelect,
   selectedStepId,
+  canEditStep,
 }) => {
+  const [isStepOrderModalOpen, setStepOrderModalOpen] = React.useState(false);
+
   // 스텝 상태에 따른 아이콘 매핑
   const getStepIcon = (stepName: string) => {
     const name = stepName.toLowerCase();
@@ -66,6 +72,8 @@ const ProjectProgress: React.FC<ProjectProgressProps> = ({
 
   const currentStepIndex = getCurrentStepIndex();
 
+  const steps = [...projectDetail.steps].sort((a, b) => a.stepOrder - b.stepOrder);
+
   // 스텝 클릭 핸들러
   const handleStepClick = (stepId: number) => {
     if (onStepSelect) {
@@ -74,9 +82,20 @@ const ProjectProgress: React.FC<ProjectProgressProps> = ({
   };
 
   return (
-    <Wrapper>
+    <Wrapper style={{ position: "relative" }}>
+      <div style={{ position: "absolute", top: 0, right: 0, zIndex: 2 }}>
+        {canEditStep && (
+          <button
+            onClick={() => setStepOrderModalOpen(true)}
+            style={{ background: "none", border: "none", cursor: "pointer", padding: 20 }}
+          title="단계 수정"
+        >
+            <FaPen size={18} color="#6b7280" />
+          </button>
+        )}
+      </div>
       <StepContainer>
-        {projectDetail.steps.map((step, index) => {
+        {steps.map((step, index) => {
           const isActive = step.projectStepStatus === "IN_PROGRESS";
           const isComplete = step.projectStepStatus === "COMPLETED";
           const isReached = index <= currentStepIndex || isComplete;
@@ -107,13 +126,23 @@ const ProjectProgress: React.FC<ProjectProgressProps> = ({
                   {getStepStatusText(step.projectStepStatus)}
                 </StepStatus>
               </StepItem>
-              {index !== projectDetail.steps.length - 1 && (
+              {index !== steps.length - 1 && (
                 <StepLine active={isActive} complete={isComplete} />
               )}
             </React.Fragment>
           );
         })}
       </StepContainer>
+      {isStepOrderModalOpen && (
+        <StepOrderModal
+          projectId={projectDetail.id}
+          onClose={() => setStepOrderModalOpen(false)}
+          onSaved={() => {
+            setStepOrderModalOpen(false);
+            window.location.reload();
+          }}
+        />
+      )}
     </Wrapper>
   );
 };

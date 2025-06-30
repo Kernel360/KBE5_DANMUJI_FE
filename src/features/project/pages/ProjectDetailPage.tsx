@@ -10,6 +10,7 @@ import {
 import styled from "styled-components";
 import ProjectCreateModal from "../components/ProjectCreateModal";
 import api from "@/api/axios";
+import {useAuth} from "@/hooks/useAuth"
 // import ProjectMemberList from "../components/MemberList/ProjectMemberList";
 // import ProjectFileList from '../components/FileList/ProjectFileList';
 
@@ -76,7 +77,7 @@ const ProjectDetailPage = () => {
     undefined
   );
   const [editModalOpen, setEditModalOpen] = useState(false);
-
+  const { role } = useAuth();
   // 프로젝트 상세 정보 가져오기
   const fetchProjectDetail = async () => {
     if (!projectId) {
@@ -204,6 +205,11 @@ const ProjectDetailPage = () => {
           projectDetail={projectDetail}
           onStepSelect={handleStepSelect}
           selectedStepId={selectedStepId}
+          canEditStep={
+            projectDetail.userType === "MEMBER" &&
+            projectDetail.myProjectRole === "DEVELOPER" ||
+            role === "ROLE_ADMIN"
+          }
         />
         <div style={{ display: "flex", gap: 24, padding: "0 24px 24px" }}>
           <div style={{ flex: 2 }}>
