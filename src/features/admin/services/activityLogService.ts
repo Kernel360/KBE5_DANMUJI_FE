@@ -118,8 +118,7 @@ export const getActivityLogs = async (
 
 // 이력 타입을 프론트엔드 형식으로 변환
 export const transformHistoryToActivityLog = (
-  history: HistorySimpleResponse,
-  userInfo?: { name: string; role: string }
+  history: HistorySimpleResponse
 ): ActivityLog => {
   const getActionDisplayName = (historyType: string) => {
     switch (historyType) {

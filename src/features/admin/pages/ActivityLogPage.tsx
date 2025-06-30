@@ -68,14 +68,7 @@ interface ActivityLog {
   userName: string;
   userRole: string;
   action: string;
-  targetType:
-    | "POST"
-    | "USER"
-    | "PROJECT"
-    | "COMPANY"
-    | "STEP"
-    | "INQUIRY"
-    | "CHECK_LIST";
+  targetType: string;
   targetName: string;
   details: string;
   ipAddress: string;
@@ -221,7 +214,8 @@ export default function ActivityLogPage() {
         historyType: actionFilter !== "ALL" ? actionFilter : undefined,
         domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
         changedBy: searchTerm.trim() || undefined,
-        changerRole: roleFilter !== "ALL" ? roleFilter : undefined,
+        changerRole:
+          roleFilter !== "ALL" ? roleFilter.replace("ROLE_", "") : undefined,
         changedFrom: startDate || undefined,
         changedTo: endDate || undefined,
       };
@@ -402,7 +396,8 @@ export default function ActivityLogPage() {
       historyType: value !== "ALL" ? value : undefined,
       domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
       changedBy: searchTerm.trim() || undefined,
-      changerRole: roleFilter !== "ALL" ? roleFilter : undefined,
+      changerRole:
+        roleFilter !== "ALL" ? roleFilter.replace("ROLE_", "") : undefined,
       changedFrom: startDate || undefined,
       changedTo: endDate || undefined,
     };
@@ -421,7 +416,8 @@ export default function ActivityLogPage() {
       historyType: actionFilter !== "ALL" ? actionFilter : undefined,
       domainType: value !== "ALL" ? value : undefined,
       changedBy: searchTerm.trim() || undefined,
-      changerRole: roleFilter !== "ALL" ? roleFilter : undefined,
+      changerRole:
+        roleFilter !== "ALL" ? roleFilter.replace("ROLE_", "") : undefined,
       changedFrom: startDate || undefined,
       changedTo: endDate || undefined,
     };
@@ -440,7 +436,7 @@ export default function ActivityLogPage() {
       historyType: actionFilter !== "ALL" ? actionFilter : undefined,
       domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
       changedBy: searchTerm.trim() || undefined,
-      changerRole: value !== "ALL" ? value : undefined,
+      changerRole: value !== "ALL" ? value.replace("ROLE_", "") : undefined,
       changedFrom: startDate || undefined,
       changedTo: endDate || undefined,
     };
@@ -480,7 +476,8 @@ export default function ActivityLogPage() {
         historyType: actionFilter !== "ALL" ? actionFilter : undefined,
         domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
         changedBy: searchTerm.trim() || undefined,
-        changerRole: roleFilter !== "ALL" ? roleFilter : undefined,
+        changerRole:
+          roleFilter !== "ALL" ? roleFilter.replace("ROLE_", "") : undefined,
         changedFrom: formattedDate,
         changedTo: endDate || undefined,
       };
@@ -498,7 +495,8 @@ export default function ActivityLogPage() {
         historyType: actionFilter !== "ALL" ? actionFilter : undefined,
         domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
         changedBy: searchTerm.trim() || undefined,
-        changerRole: roleFilter !== "ALL" ? roleFilter : undefined,
+        changerRole:
+          roleFilter !== "ALL" ? roleFilter.replace("ROLE_", "") : undefined,
         changedFrom: startDate || undefined,
         changedTo: formattedDate,
       };
