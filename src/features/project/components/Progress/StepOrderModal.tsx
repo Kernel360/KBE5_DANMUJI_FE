@@ -16,7 +16,7 @@ import {
   CancelButton,
   SaveButton,
 } from "./StepOrderModal.styled";
-import { FaGripVertical, FaPlus, FaTimes } from "react-icons/fa";
+import { FaGripVertical, FaPlus, FaTimes, FaTrashAlt } from "react-icons/fa";
 
 interface Step {
   id: number;
@@ -120,7 +120,20 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ steps, onClose, onSave 
                   <FaGripVertical size={14} color="#9ca3af" />
                   <StepName>{step.name}</StepName>
                 </StepLeft>
-                <StepStatusBadge style={{ backgroundColor: bg, color }}>{text}</StepStatusBadge>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <StepStatusBadge style={{ backgroundColor: bg, color }}>{text}</StepStatusBadge>
+                  <FaTrashAlt
+                    size={15}
+                    color="#e11d48"
+                    style={{ cursor: 'pointer', marginLeft: 8 }}
+                    title="단계 삭제"
+                    onClick={() => {
+                      if (window.confirm('정말 삭제할까요?')) {
+                        setStepList(stepList.filter((_, i) => i !== idx));
+                      }
+                    }}
+                  />
+                </div>
               </StepItem>
             );
           })}
