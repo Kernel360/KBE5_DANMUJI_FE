@@ -24,6 +24,7 @@ import {
 
 import { FaGripVertical, FaPlus, FaTimes, FaTrashAlt } from "react-icons/fa";
 import { RiEdit2Fill } from "react-icons/ri";
+import { showErrorToast, showSuccessToast } from "@/utils/errorHandler";
 
 interface Step {
   id: number;
@@ -86,22 +87,32 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ projectId, onClose, onS
       .catch(console.error);
   };
 
+  const getVirtualStepList = () => {
+    if (
+      dragIndex === null ||
+      dragOverIndex === null ||
+      dragIndex === dragOverIndex ||
+      dragOverIndex === dragIndex + 1
+    ) {
+      return stepList;
+    }
+    const temp = [...stepList];
+    const [moved] = temp.splice(dragIndex, 1);
+    const insertAt = dragIndex < dragOverIndex ? dragOverIndex - 1 : dragOverIndex;
+    temp.splice(insertAt, 0, moved);
+    return temp;
+  };
+
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     if (
       dragIndex == null ||
       dragOverIndex == null ||
       dragIndex === dragOverIndex ||
-      dragOverIndex === dragIndex + 1 // 바로 뒤에는 드롭 불가
+      dragOverIndex === dragIndex + 1
     ) return;
 
-    const updated = [...stepList];
-    const [removed] = updated.splice(dragIndex, 1);
-
-    // 뒤로 이동할 때는 dragOverIndex - 1에 삽입
-    const insertIndex = dragIndex < dragOverIndex ? dragOverIndex - 1 : dragOverIndex;
-    updated.splice(insertIndex, 0, removed);
-
+    const updated = getVirtualStepList();
     setStepList(updated);
     setDragIndex(null);
     setDragOverIndex(null);
@@ -110,7 +121,7 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ projectId, onClose, onS
   const handleDragStart = (e: React.DragEvent, idx: number) => {
     setDragIndex(idx);
     e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/html', ''); // 드래그 데이터 설정
+    e.dataTransfer.setData('text/html', '');
   };
 
   const handleDragOver = (e: React.DragEvent, idx: number) => {
@@ -132,6 +143,18 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ projectId, onClose, onS
     setNewStepName("");
   };
 
+  const handleSave = async () => {
+    try {
+      await reorderSteps(stepList);
+      onClose();
+      showSuccessToast("저장되었습니다");
+    } catch (e) {
+      showErrorToast(e);
+    }
+  };
+
+  const virtualList = getVirtualStepList();
+
   return (
     <ModalOverlay onClick={onClose}>
       <ModalBox onClick={e => e.stopPropagation()}>
@@ -141,13 +164,15 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ projectId, onClose, onS
         </ModalHeader>
 
         <StepList>
-          {stepList.map((step, idx) => {
-            const isDragging = dragIndex === idx;
+          {virtualList.map((step, idx) => {
+            const originalIdx = stepList.findIndex(s => s.id === step.id);
+            const isDragging = originalIdx === dragIndex;
             const isDropTarget =
               dragOverIndex === idx &&
               dragIndex !== null &&
-              idx !== dragIndex &&
-              idx !== dragIndex + 1;
+              originalIdx !== dragOverIndex &&
+              dragOverIndex !== originalIdx + 1;
+
             const { text, color, bg } = getStatusStyle(step.projectStepStatus);
 
             return (
@@ -155,39 +180,44 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ projectId, onClose, onS
                 key={step.id}
                 onDragOver={e => handleDragOver(e, idx)}
                 onDrop={handleDrop}
+                style={{ position: "relative" }}
               >
-                {isDropTarget && (
-                  <StepItem style={{ opacity: 0.5 }}>
+                {isDropTarget && dragIndex !== null && (
+                  <StepItem style={{
+                    opacity: 0.5,
+                    position: "absolute",
+                    left: 0, right: 0, top: 0, zIndex: 1
+                  }}>
                     <StepLeft>
                       <StepOrderNumber>{idx + 1}</StepOrderNumber>
                       <FaGripVertical size={13} color="#fbbf24" />
-                      <StepName>{stepList[dragIndex!].name}</StepName>
+                      <StepName>{stepList[dragIndex].name}</StepName>
                     </StepLeft>
                   </StepItem>
                 )}
                 <StepItem
                   draggable
-                  onDragStart={(e) => handleDragStart(e, idx)}
+                  onDragStart={e => handleDragStart(e, originalIdx)}
                   onDragEnd={handleDragEnd}
                   isDragging={isDragging}
                 >
                   <StepLeft>
                     <StepOrderNumber>{idx + 1}</StepOrderNumber>
                     <FaGripVertical size={13} color={isDragging ? "#fbbf24" : "#d1d5db"} />
-                    {editingIdx === idx ? (
+                    {editingIdx === originalIdx ? (
                       <AddStepInput
                         ref={editingInputRef}
                         value={editingName}
                         onChange={e => setEditingName(e.target.value)}
                         onBlur={() => {
                           const name = editingName.trim();
-                          if (name) setStepList(list => list.map((s, i) => i === idx ? { ...s, name } : s));
+                          if (name) setStepList(list => list.map((s, i) => i === originalIdx ? { ...s, name } : s));
                           setEditingIdx(null);
                         }}
                         onKeyDown={e => {
                           if (e.key === "Enter") {
                             const name = editingName.trim();
-                            if (name) setStepList(list => list.map((s, i) => i === idx ? { ...s, name } : s));
+                            if (name) setStepList(list => list.map((s, i) => i === originalIdx ? { ...s, name } : s));
                             setEditingIdx(null);
                           } else if (e.key === "Escape") {
                             setEditingIdx(null);
@@ -201,7 +231,7 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ projectId, onClose, onS
                         <StepName>{step.name}</StepName>
                         <EditIcon>
                           <RiEdit2Fill size={15} title="이름 수정" onClick={() => {
-                            setEditingIdx(idx);
+                            setEditingIdx(originalIdx);
                             setEditingName(step.name);
                             setTimeout(() => editingInputRef.current?.focus(), 0);
                           }} />
@@ -214,7 +244,7 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ projectId, onClose, onS
                     <TrashIcon>
                       <FaTrashAlt size={14} color="#e11d48" title="단계 삭제" onClick={() => {
                         if (window.confirm("정말 삭제할까요?")) {
-                          setStepList(list => list.filter((_, i) => i !== idx));
+                          setStepList(list => list.filter((_, i) => i !== originalIdx));
                         }
                       }} />
                     </TrashIcon>
@@ -262,9 +292,7 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ projectId, onClose, onS
 
         <ModalFooter>
           <CancelButton onClick={onClose}>취소</CancelButton>
-          <SaveButton onClick={() => {
-            reorderSteps(stepList);
-          }}>저장</SaveButton>
+          <SaveButton type="button" onClick={handleSave}>저장</SaveButton>
         </ModalFooter>
       </ModalBox>
     </ModalOverlay>
