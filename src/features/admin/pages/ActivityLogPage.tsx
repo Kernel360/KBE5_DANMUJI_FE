@@ -81,7 +81,6 @@ interface ActivityLog {
   ipAddress: string;
   createdAt: string;
   changerUsername: string;
-  message: string;
 }
 
 interface PageInfo {
@@ -200,7 +199,17 @@ export default function ActivityLogPage() {
   }, []);
 
   // 이력 데이터 가져오기
-  const fetchActivityLogs = async (page: number = 0, customFilters?: any) => {
+  const fetchActivityLogs = async (
+    page: number = 0,
+    customFilters?: {
+      historyType?: string;
+      domainType?: string;
+      changedBy?: string;
+      changedFrom?: string;
+      changedTo?: string;
+      changerRole?: string;
+    }
+  ) => {
     // 첫 페이지가 아니거나 초기 로드가 아닌 경우에만 로딩 표시
     if (page === 0 && activityLogs.length > 0) {
       setLoading(true);
@@ -211,6 +220,7 @@ export default function ActivityLogPage() {
       const filters = customFilters || {
         historyType: actionFilter !== "ALL" ? actionFilter : undefined,
         domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
+        changedBy: searchTerm.trim() || undefined,
         changerRole: roleFilter !== "ALL" ? roleFilter : undefined,
         changedFrom: startDate || undefined,
         changedTo: endDate || undefined,
@@ -220,6 +230,7 @@ export default function ActivityLogPage() {
       console.log("필터 값들:", {
         actionFilter,
         logTypeFilter,
+        searchTerm,
         startDate,
         endDate,
         filters,
@@ -232,6 +243,8 @@ export default function ActivityLogPage() {
           size: "10",
           ...(filters.historyType && { historyType: filters.historyType }),
           ...(filters.domainType && { domainType: filters.domainType }),
+          ...(filters.changedBy && { changedBy: filters.changedBy }),
+          ...(filters.changerRole && { changerRole: filters.changerRole }),
           ...(filters.changedFrom && { changedFrom: filters.changedFrom }),
           ...(filters.changedTo && { changedTo: filters.changedTo }),
         }).toString()}`
@@ -258,19 +271,6 @@ export default function ActivityLogPage() {
   useEffect(() => {
     fetchActivityLogs(0);
   }, []);
-
-  const getActionIcon = (action: string) => {
-    switch (action) {
-      case "CREATED":
-        return <FiPlusCircle style={{ color: "#10b981" }} />;
-      case "UPDATED":
-        return <FiEdit style={{ color: "#3b82f6" }} />;
-      case "DELETED":
-        return <FiTrash style={{ color: "#ef4444" }} />;
-      default:
-        return <FiEdit style={{ color: "#6b7280" }} />;
-    }
-  };
 
   const getTargetTypeIcon = (targetType: string) => {
     switch (targetType) {
@@ -334,17 +334,6 @@ export default function ActivityLogPage() {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleString("ko-KR", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
   const formatDateOnly = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("ko-KR", {
@@ -383,6 +372,7 @@ export default function ActivityLogPage() {
     setRoleFilter("ALL");
     setStartDate("");
     setEndDate("");
+    setSearchTerm("");
     setCurrentPage(0);
     fetchActivityLogs(0);
   };
@@ -390,6 +380,13 @@ export default function ActivityLogPage() {
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
     fetchActivityLogs(newPage);
+  };
+
+  // 검색어 입력 시 실시간 검색 (엔터키 또는 검색 버튼 클릭 시)
+  const handleSearchKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
   };
 
   // 드롭다운 토글 함수들
@@ -404,6 +401,7 @@ export default function ActivityLogPage() {
     const filters = {
       historyType: value !== "ALL" ? value : undefined,
       domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
+      changedBy: searchTerm.trim() || undefined,
       changerRole: roleFilter !== "ALL" ? roleFilter : undefined,
       changedFrom: startDate || undefined,
       changedTo: endDate || undefined,
@@ -422,6 +420,7 @@ export default function ActivityLogPage() {
     const filters = {
       historyType: actionFilter !== "ALL" ? actionFilter : undefined,
       domainType: value !== "ALL" ? value : undefined,
+      changedBy: searchTerm.trim() || undefined,
       changerRole: roleFilter !== "ALL" ? roleFilter : undefined,
       changedFrom: startDate || undefined,
       changedTo: endDate || undefined,
@@ -440,6 +439,7 @@ export default function ActivityLogPage() {
     const filters = {
       historyType: actionFilter !== "ALL" ? actionFilter : undefined,
       domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
+      changedBy: searchTerm.trim() || undefined,
       changerRole: value !== "ALL" ? value : undefined,
       changedFrom: startDate || undefined,
       changedTo: endDate || undefined,
@@ -479,6 +479,7 @@ export default function ActivityLogPage() {
       const filters = {
         historyType: actionFilter !== "ALL" ? actionFilter : undefined,
         domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
+        changedBy: searchTerm.trim() || undefined,
         changerRole: roleFilter !== "ALL" ? roleFilter : undefined,
         changedFrom: formattedDate,
         changedTo: endDate || undefined,
@@ -496,6 +497,7 @@ export default function ActivityLogPage() {
       const filters = {
         historyType: actionFilter !== "ALL" ? actionFilter : undefined,
         domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
+        changedBy: searchTerm.trim() || undefined,
         changerRole: roleFilter !== "ALL" ? roleFilter : undefined,
         changedFrom: startDate || undefined,
         changedTo: formattedDate,
@@ -672,7 +674,7 @@ export default function ActivityLogPage() {
                     selectsStart
                     startDate={startDate ? new Date(startDate) : null}
                     endDate={endDate ? new Date(endDate) : null}
-                    maxDate={endDate ? new Date(endDate) : null}
+                    maxDate={endDate ? new Date(endDate) : undefined}
                     dateFormat="yyyy-MM-dd"
                     placeholderText="시작일 선택"
                     inline
@@ -713,7 +715,7 @@ export default function ActivityLogPage() {
                     selectsEnd
                     startDate={startDate ? new Date(startDate) : null}
                     endDate={endDate ? new Date(endDate) : null}
-                    minDate={startDate ? new Date(startDate) : null}
+                    minDate={startDate ? new Date(startDate) : undefined}
                     dateFormat="yyyy-MM-dd"
                     placeholderText="종료일 선택"
                     inline
@@ -734,6 +736,7 @@ export default function ActivityLogPage() {
             placeholder="사용자명, 대상명, 상세내용으로 검색..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={handleSearchKeyPress}
           />
           <FilterButton onClick={handleSearch}>
             <FiSearch size={16} />
