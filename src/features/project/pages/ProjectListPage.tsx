@@ -17,9 +17,11 @@ import ProjectCreateModal from "../components/ProjectCreateModal";
 import { getProjects, type ProjectResponse } from "../services/projectService";
 import api from "@/api/axios";
 import { SubmitButton } from "@/features/board/components/Post/styles/PostFormModal.styled";
+import { useAuth } from "@/hooks/useAuth";
 const PAGE_SIZE = 8;
 
 export default function ProjectListPage() {
+  const { role } = useAuth();
   const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -272,14 +274,16 @@ export default function ProjectListPage() {
         <Description>
           프로젝트 관리 시스템의 주요 정보를 한눈에 확인하세요
         </Description>
-        <div style={{ marginLeft: "auto" }}>
-          <SubmitButton
-            style={{ minWidth: 140, fontSize: 16 }}
-            onClick={() => setShowCreateModal(true)}
-          >
-            프로젝트 등록
-          </SubmitButton>
-        </div>
+        {role === "ROLE_ADMIN" && (
+          <div style={{ marginLeft: "auto" }}>
+            <SubmitButton
+              style={{ minWidth: 140, fontSize: 16 }}
+              onClick={() => setShowCreateModal(true)}
+            >
+              프로젝트 등록
+            </SubmitButton>
+          </div>
+        )}
       </Header>
       <ProjectFilterBar
         filters={filters}
