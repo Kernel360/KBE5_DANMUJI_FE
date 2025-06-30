@@ -65,7 +65,7 @@ export type Project = {
   devCompanies: string;
   clientManager?: string;
   devManagers?: string;
-  status: "IN_PROGRESS" | "COMPLETED" | "DELAYED" | "DUE_SOON";
+  projectStatus: "IN_PROGRESS" | "COMPLETED" | "DELAYED" | "DUE_SOON";
   startDate: string;
   endDate: string;
   progress: number;

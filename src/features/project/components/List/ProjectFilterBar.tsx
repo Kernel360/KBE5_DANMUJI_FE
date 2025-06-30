@@ -67,7 +67,7 @@ const SEARCH_CATEGORY_OPTIONS = [
 
 interface ProjectFilterBarProps {
   filters: {
-    status: string;
+    projectStatus: string;
     sort: string;
     startDate: string;
     endDate: string;
@@ -342,18 +342,18 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
             <StatusDropdownContainer ref={statusDropdownRef}>
               <StatusDropdownButton
                 type="button"
-                $active={!!filters.status}
-                $color={getStatusMap(filters.status).color}
+                $active={!!filters.projectStatus}
+                $color={getStatusMap(filters.projectStatus).color}
                 $isOpen={statusDropdownOpen}
                 onClick={handleStatusDropdownToggle}
               >
-                {getStatusMap(filters.status).icon &&
-                  React.createElement(getStatusMap(filters.status).icon, {
+                {getStatusMap(filters.projectStatus).icon &&
+                  React.createElement(getStatusMap(filters.projectStatus).icon, {
                     size: 16,
-                    color: getStatusMap(filters.status).color,
+                    color: getStatusMap(filters.projectStatus).color,
                     style: { marginRight: 4 },
                   })}
-                <span>{getStatusMap(filters.status).label}</span>
+                <span>{getStatusMap(filters.projectStatus).label}</span>
                 <FiChevronDown size={16} />
               </StatusDropdownButton>
               <StatusDropdownMenu $isOpen={statusDropdownOpen}>
@@ -361,7 +361,7 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
                   ([value, { label, icon: Icon, color }]) => (
                     <StatusDropdownItem
                       key={value}
-                      $active={filters.status === value}
+                      $active={filters.projectStatus === value}
                       $color={color}
                       onClick={() => {
                         onInputChange("status", value);
