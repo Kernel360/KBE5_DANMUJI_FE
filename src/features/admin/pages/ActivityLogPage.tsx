@@ -61,6 +61,7 @@ import {
   getActivityLogs,
   transformHistoryToActivityLog,
 } from "../services/activityLogService";
+import { RiUserSettingsLine } from "react-icons/ri";
 
 // 타입 정의
 interface ActivityLog {
@@ -113,7 +114,9 @@ export default function ActivityLogPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [actionFilter, setActionFilter] = useState("ALL");
   const [logTypeFilter, setLogTypeFilter] = useState("ALL");
+  const [roleFilter, setRoleFilter] = useState("ALL");
   const [logTypeDropdownOpen, setLogTypeDropdownOpen] = useState(false);
+  const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [userModalOpen, setUserModalOpen] = useState(false);
   const [startDate, setStartDate] = useState<string>("");
@@ -129,6 +132,7 @@ export default function ActivityLogPage() {
   const [actionDropdownOpen, setActionDropdownOpen] = useState(false);
   const actionDropdownRef = useRef<HTMLDivElement>(null);
   const logTypeDropdownRef = useRef<HTMLDivElement>(null);
+  const roleDropdownRef = useRef<HTMLDivElement>(null);
 
   // 드롭다운 옵션
   const ACTION_OPTIONS = [
@@ -140,33 +144,41 @@ export default function ActivityLogPage() {
 
   const LOG_TYPE_OPTIONS = [
     { value: "ALL", label: "전체", icon: FiGrid, color: "#6b7280" },
-    { value: "USER", label: "회원", icon: FiUser, color: "#6366f1" },
-    { value: "COMPANY", label: "업체", icon: FiHome, color: "#8b5cf6" },
+    { value: "POST", label: "게시글", icon: FiFileText, color: "#3b82f6" },
+    { value: "USER", label: "사용자", icon: FiUser, color: "#10b981" },
     {
       value: "PROJECT",
       label: "프로젝트",
       icon: FaProjectDiagram,
-      color: "#3b82f6",
+      color: "#8b5cf6",
     },
-    {
-      value: "STEP",
-      label: "프로젝트 단계",
-      icon: FiLayers,
-      color: "#6366f1",
-    },
-    { value: "POST", label: "게시글", icon: FiFileText, color: "#10b981" },
+    { value: "COMPANY", label: "회사", icon: FiHome, color: "#f59e0b" },
+    { value: "STEP", label: "단계", icon: FiLayers, color: "#ef4444" },
     {
       value: "INQUIRY",
       label: "문의",
       icon: FiMessageSquare,
-      color: "#f59e0b",
+      color: "#06b6d4",
     },
     {
       value: "CHECK_LIST",
       label: "체크리스트",
       icon: FiCheckSquare,
-      color: "#ec4899",
+      color: "#84cc16",
     },
+  ];
+
+  const ROLE_OPTIONS = [
+    { value: "ALL", label: "전체", icon: FiUser, color: "#6b7280" },
+    {
+      value: "ROLE_ADMIN",
+      label: "관리자",
+      icon: RiUserSettingsLine,
+      color: "#8b5cf6",
+    },
+    { value: "ROLE_DEV", label: "개발자", icon: FiUser, color: "#3b82f6" },
+    { value: "ROLE_CLIENT", label: "고객", icon: FiUser, color: "#10b981" },
+    { value: "ROLE_USER", label: "사용자", icon: FiUser, color: "#6b7280" },
   ];
 
   // 드롭다운 외부 클릭 감지
@@ -183,6 +195,12 @@ export default function ActivityLogPage() {
         !actionDropdownRef.current.contains(event.target as Node)
       ) {
         setActionDropdownOpen(false);
+      }
+      if (
+        roleDropdownRef.current &&
+        !roleDropdownRef.current.contains(event.target as Node)
+      ) {
+        setRoleDropdownOpen(false);
       }
     };
 
@@ -204,6 +222,7 @@ export default function ActivityLogPage() {
       const filters = customFilters || {
         historyType: actionFilter !== "ALL" ? actionFilter : undefined,
         domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
+        changerRole: roleFilter !== "ALL" ? roleFilter : undefined,
         changerId: selectedUser?.id?.toString(),
         changedFrom: startDate || undefined,
         changedTo: endDate || undefined,
@@ -373,9 +392,9 @@ export default function ActivityLogPage() {
   };
 
   const handleReset = () => {
-    setSearchTerm("");
     setActionFilter("ALL");
     setLogTypeFilter("ALL");
+    setRoleFilter("ALL");
     setSelectedUser(null);
     setStartDate("");
     setEndDate("");
@@ -400,6 +419,7 @@ export default function ActivityLogPage() {
     const filters = {
       historyType: value !== "ALL" ? value : undefined,
       domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
+      changerRole: roleFilter !== "ALL" ? roleFilter : undefined,
       changerId: selectedUser?.id?.toString(),
       changedFrom: startDate || undefined,
       changedTo: endDate || undefined,
@@ -418,6 +438,26 @@ export default function ActivityLogPage() {
     const filters = {
       historyType: actionFilter !== "ALL" ? actionFilter : undefined,
       domainType: value !== "ALL" ? value : undefined,
+      changerRole: roleFilter !== "ALL" ? roleFilter : undefined,
+      changerId: selectedUser?.id?.toString(),
+      changedFrom: startDate || undefined,
+      changedTo: endDate || undefined,
+    };
+    fetchActivityLogs(0, filters);
+  };
+
+  const handleRoleDropdownToggle = () => {
+    setRoleDropdownOpen(!roleDropdownOpen);
+  };
+
+  const handleRoleSelect = (value: string) => {
+    setRoleFilter(value);
+    setRoleDropdownOpen(false);
+    setCurrentPage(0);
+    const filters = {
+      historyType: actionFilter !== "ALL" ? actionFilter : undefined,
+      domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
+      changerRole: value !== "ALL" ? value : undefined,
       changerId: selectedUser?.id?.toString(),
       changedFrom: startDate || undefined,
       changedTo: endDate || undefined,
@@ -440,6 +480,13 @@ export default function ActivityLogPage() {
     );
   };
 
+  const getCurrentRoleOption = () => {
+    return (
+      ROLE_OPTIONS.find((option) => option.value === roleFilter) ||
+      ROLE_OPTIONS[0]
+    );
+  };
+
   // 날짜 관련 핸들러
   const handleStartDateChange = (date: Date | null) => {
     if (date) {
@@ -450,6 +497,7 @@ export default function ActivityLogPage() {
       const filters = {
         historyType: actionFilter !== "ALL" ? actionFilter : undefined,
         domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
+        changerRole: roleFilter !== "ALL" ? roleFilter : undefined,
         changerId: selectedUser?.id?.toString(),
         changedFrom: formattedDate,
         changedTo: endDate || undefined,
@@ -467,6 +515,7 @@ export default function ActivityLogPage() {
       const filters = {
         historyType: actionFilter !== "ALL" ? actionFilter : undefined,
         domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
+        changerRole: roleFilter !== "ALL" ? roleFilter : undefined,
         changerId: selectedUser?.id?.toString(),
         changedFrom: startDate || undefined,
         changedTo: formattedDate,
@@ -501,6 +550,7 @@ export default function ActivityLogPage() {
     const filters = {
       historyType: actionFilter !== "ALL" ? actionFilter : undefined,
       domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
+      changerRole: roleFilter !== "ALL" ? roleFilter : undefined,
       changerId: user.id.toString(),
       changedFrom: startDate || undefined,
       changedTo: endDate || undefined,
@@ -514,6 +564,7 @@ export default function ActivityLogPage() {
     const filters = {
       historyType: actionFilter !== "ALL" ? actionFilter : undefined,
       domainType: logTypeFilter !== "ALL" ? logTypeFilter : undefined,
+      changerRole: roleFilter !== "ALL" ? roleFilter : undefined,
       changerId: undefined,
       changedFrom: startDate || undefined,
       changedTo: endDate || undefined,
@@ -587,6 +638,39 @@ export default function ActivityLogPage() {
             onOpenModal={handleUserModalOpen}
             onClear={handleUserClear}
           />
+        </FilterGroup>
+        <FilterGroup>
+          <FilterLabel>변경자 역할</FilterLabel>
+          <div style={{ position: "relative" }} ref={roleDropdownRef}>
+            <SelectButton
+              type="button"
+              onClick={handleRoleDropdownToggle}
+              $hasValue={roleFilter !== "ALL"}
+              $color={getCurrentRoleOption().color}
+              className={roleDropdownOpen ? "open" : ""}
+            >
+              {React.createElement(getCurrentRoleOption().icon, { size: 16 })}
+              <span className="select-value">
+                {getCurrentRoleOption().label}
+              </span>
+              <FiChevronDown size={16} />
+            </SelectButton>
+            <SelectDropdown $isOpen={roleDropdownOpen}>
+              {ROLE_OPTIONS.map((option) => (
+                <SelectOption
+                  key={option.value}
+                  $isSelected={roleFilter === option.value}
+                  onClick={() => handleRoleSelect(option.value)}
+                >
+                  {React.createElement(option.icon, {
+                    size: 16,
+                    color: option.color,
+                  })}
+                  {option.label}
+                </SelectOption>
+              ))}
+            </SelectDropdown>
+          </div>
         </FilterGroup>
         <FilterGroup>
           <FilterLabel>대상</FilterLabel>
