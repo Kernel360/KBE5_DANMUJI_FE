@@ -28,6 +28,8 @@ import {
   SubmitButton,
 } from "./MemberEditModal.styled";
 import type { Member } from "../../pages/MemberPage";
+import ReactSelect from "react-select";
+import CompanyRegisterModal from "@/features/company/components/CompanyRegisterModal";
 
 interface Company {
   id: number;
@@ -67,6 +69,7 @@ export default function MemberEditModal({
     email: "",
   });
   const [companies, setCompanies] = useState<Company[]>([]);
+  const [companyModalOpen, setCompanyModalOpen] = useState(false);
 
   useEffect(() => {
     if (initialData) {
@@ -85,16 +88,17 @@ export default function MemberEditModal({
     }
   }, [initialData]);
 
+  const fetchCompanies = async () => {
+    try {
+      const response = await api.get("/api/companies");
+      setCompanies(response.data.data.content);
+    } catch (error) {
+      console.error("Failed to fetch companies:", error);
+      alert("업체 목록을 불러오는 데 실패했습니다.");
+    }
+  };
+
   useEffect(() => {
-    const fetchCompanies = async () => {
-      try {
-        const response = await api.get("/api/companies");
-        setCompanies(response.data.data.content);
-      } catch (error) {
-        console.error("Failed to fetch companies:", error);
-        alert("업체 목록을 불러오는 데 실패했습니다.");
-      }
-    };
     fetchCompanies();
   }, []);
 
@@ -143,6 +147,11 @@ export default function MemberEditModal({
     onClose();
   };
 
+  const handleCompanyRegisterSuccess = () => {
+    setCompanyModalOpen(false);
+    fetchCompanies();
+  };
+
   return (
     <ModalOverlay onClick={handleClose}>
       <ModalContent onClick={(e) => e.stopPropagation()}>
@@ -182,22 +191,98 @@ export default function MemberEditModal({
             <FormSection>
               <FormRow>
                 <FormGroup>
-                  <Label>
-                    <IoBusinessOutline />
-                    업체
-                  </Label>
-                  <Select
-                    name="companyId"
-                    value={formData.companyId.toString() || ""}
-                    onChange={handleChange}
-                  >
-                    <option value="">업체 선택</option>
-                    {companies.map((company) => (
-                      <option key={company.id} value={company.id.toString()}>
-                        {company.name}
-                      </option>
-                    ))}
-                  </Select>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <Label style={{ marginBottom: 0 }}>
+                      <IoBusinessOutline />
+                      업체
+                    </Label>
+                    <button
+                      type="button"
+                      style={{
+                        fontSize: 11,
+                        background: "#fbbf24",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: 5,
+                        padding: "2px 8px",
+                        cursor: "pointer",
+                        height: 22,
+                        lineHeight: 1,
+                      }}
+                      onClick={() => setCompanyModalOpen(true)}
+                    >
+                      업체 등록
+                    </button>
+                  </div>
+                  <ReactSelect
+                    options={companies.map((company) => ({
+                      value: company.id,
+                      label: company.name,
+                    }))}
+                    isClearable
+                    isSearchable
+                    placeholder="업체 선택"
+                    value={
+                      companies && formData.companyId !== ""
+                        ? companies
+                            .map((company) => ({
+                              value: company.id,
+                              label: company.name,
+                            }))
+                            .find((option) => option.value === formData.companyId) || null
+                        : null
+                    }
+                    onChange={(selected) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        companyId: selected ? selected.value : "",
+                      }));
+                    }}
+                    styles={{
+                      menu: (base) => ({
+                        ...base,
+                        maxHeight: 220,
+                        minWidth: '100%',
+                        width: '100%',
+                        zIndex: 9999,
+                      }),
+                      option: (base, state) => ({
+                        ...base,
+                        minHeight: 40,
+                        display: 'flex',
+                        alignItems: 'center',
+                        backgroundColor: state.isSelected
+                          ? '#fdb924'
+                          : state.isFocused
+                          ? '#fef3c7'
+                          : '#fff',
+                        color: state.isSelected ? '#fff' : '#222',
+                        fontWeight: state.isSelected ? 700 : 500,
+                        cursor: 'pointer',
+                      }),
+                      control: (base) => ({
+                        ...base,
+                        minHeight: 40,
+                        borderRadius: 8,
+                        borderColor: '#e5e7eb',
+                        boxShadow: 'none',
+                        '&:hover': { borderColor: '#fdb924' },
+                      }),
+                      menuList: (base) => ({
+                        ...base,
+                        maxHeight: 220,
+                        paddingTop: 0,
+                        paddingBottom: 0,
+                      }),
+                    }}
+                  />
+                  {companyModalOpen && (
+                    <CompanyRegisterModal
+                      open={companyModalOpen}
+                      onClose={() => setCompanyModalOpen(false)}
+                      onRegisterSuccess={handleCompanyRegisterSuccess}
+                    />
+                  )}
                 </FormGroup>
                 <FormGroup>
                   <Label>

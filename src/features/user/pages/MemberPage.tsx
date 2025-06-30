@@ -670,6 +670,7 @@ export default function MemberPage() {
   const handleModalClose = () => {
     setModalOpen(false);
     setSelectedMemberId(null);
+    fetchMembers();
   };
 
   if (loading)
