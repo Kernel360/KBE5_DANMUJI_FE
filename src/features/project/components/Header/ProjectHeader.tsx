@@ -214,7 +214,7 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = ({
           <span style={{ color: "#222", fontWeight: 500 }}>
             {projectDetail.developers[0]?.companyName || "미지정"}
           </span>
-          {projectDetail.developers[0]?.assignUsers?.length > 0 && (
+          {Array.isArray(projectDetail.developers[0]?.assignUsers) && projectDetail.developers[0].assignUsers.length > 0 && (
             <>
               <span style={{ color: "#d1d5db", margin: "0 6px" }}>|</span>
               <span style={{ color: "#9ca3af", marginRight: 6 }}>개발팀</span>
@@ -227,8 +227,7 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = ({
                     ({dev.positon})
                   </span>
                   {idx !==
-                    (projectDetail.developers[0]?.assignUsers?.length || 0) -
-                      1 && (
+                    projectDetail.developers[0].assignUsers.length - 1 && (
                     <span style={{ color: "#d1d5db", margin: "0 6px" }}>,</span>
                   )}
                 </span>
