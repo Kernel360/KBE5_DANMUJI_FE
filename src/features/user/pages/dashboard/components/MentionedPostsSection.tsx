@@ -192,54 +192,75 @@ const MentionedPostsSection = () => {
             key={mention.notificationId}
             color={mention.isRead ? "gray" : "blue"}
             onClick={() => handleMentionClick(mention.referenceId)}
+            style={{
+              padding: "12px 16px",
+              marginBottom: "8px",
+            }}
           >
             <div
               style={{
                 display: "flex",
-                alignItems: "center",
-                gap: "8px",
-                marginBottom: "8px",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                gap: "12px",
               }}
             >
-              <FiAtSign size={16} style={{ color: "#3b82f6" }} />
-              <S.MentionedTitle
-                style={{
-                  color: mention.isRead ? "#6b7280" : "#111827",
-                  fontWeight: mention.isRead ? "400" : "600",
-                }}
-              >
-                멘션 알림 #{mention.notificationId}
-              </S.MentionedTitle>
-            </div>
-            <S.MentionedDesc
-              style={{
-                color: mention.isRead ? "#9ca3af" : "#374151",
-              }}
-            >
-              {mention.content}
-            </S.MentionedDesc>
-            <S.MentionedMeta
-              style={{
-                color: mention.isRead ? "#9ca3af" : "#6b7280",
-              }}
-            >
-              <MdAccessTime /> {formatTimeAgo(mention.createdAt)}
-              {!mention.isRead && (
-                <span
+              <div style={{ flex: 1 }}>
+                <div
                   style={{
-                    marginLeft: "8px",
-                    padding: "2px 6px",
-                    backgroundColor: "#ef4444",
-                    color: "white",
-                    borderRadius: "4px",
-                    fontSize: "10px",
-                    fontWeight: "600",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    marginBottom: "4px",
                   }}
                 >
-                  NEW
-                </span>
-              )}
-            </S.MentionedMeta>
+                  <FiAtSign size={14} style={{ color: "#3b82f6" }} />
+                  <span
+                    style={{
+                      fontSize: "14px",
+                      color: mention.isRead ? "#6b7280" : "#111827",
+                      fontWeight: mention.isRead ? "400" : "600",
+                    }}
+                  >
+                    멘션 알림
+                  </span>
+                  {!mention.isRead && (
+                    <span
+                      style={{
+                        padding: "1px 4px",
+                        backgroundColor: "#ef4444",
+                        color: "white",
+                        borderRadius: "3px",
+                        fontSize: "9px",
+                        fontWeight: "600",
+                        lineHeight: "1",
+                      }}
+                    >
+                      NEW
+                    </span>
+                  )}
+                </div>
+                <div
+                  style={{
+                    fontSize: "13px",
+                    color: mention.isRead ? "#9ca3af" : "#374151",
+                    lineHeight: "1.4",
+                    marginBottom: "4px",
+                  }}
+                >
+                  {mention.content}
+                </div>
+              </div>
+              <div
+                style={{
+                  fontSize: "11px",
+                  color: mention.isRead ? "#9ca3af" : "#6b7280",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {formatTimeAgo(mention.createdAt)}
+              </div>
+            </div>
           </MentionCardWithHover>
         ))
       )}
