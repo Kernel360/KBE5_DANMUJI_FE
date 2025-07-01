@@ -44,6 +44,7 @@ export type AssignUser = {
   id: number;
   name: string;
   positon: string;
+  userType: string;
 };
 
 // 프로젝트 상세 조회용 회사 타입
