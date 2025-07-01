@@ -351,6 +351,13 @@ export default function CompanyEditModal({
         reason: "사업자등록번호 형식이 올바르지 않습니다.",
       });
     }
+    if (!formData.zonecode?.trim()) {
+      newFieldErrors.push({
+        field: "zonecode",
+        value: formData.zonecode,
+        reason: "우편번호는 필수입니다.",
+      });
+    }
     if (!formData.address?.trim()) {
       newFieldErrors.push({
         field: "address",

@@ -19,6 +19,7 @@ export interface Company {
   id: number;
   name: string;
   bizNo: number;
+  zonecode: string;
   address: string;
   ceoName: string;
   email: string;
@@ -32,6 +33,7 @@ export interface CompanyFormData {
   reg1: string;
   reg2: string;
   reg3: string;
+  zonecode: string;
   address: string;
   ceoName: string;
   email: string;
@@ -373,6 +375,7 @@ export default function CompanyPage() {
       const companyUpdateData = {
         name: data.name,
         bizNo: bizNoCombined,
+        zonecode: data.zonecode,
         address: data.address,
         ceoName: data.ceoName,
         email: data.email,
@@ -391,6 +394,7 @@ export default function CompanyPage() {
                 ...c,
                 name: data.name || c.name,
                 bizNo: bizNoCombined || c.bizNo,
+                zonecode: data.zonecode || c.zonecode,
                 address: data.address || c.address,
                 ceoName: data.ceoName || c.ceoName,
                 email: data.email || c.email,

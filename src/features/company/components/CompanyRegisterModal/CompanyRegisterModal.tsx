@@ -1,6 +1,6 @@
 import api from "@/api/axios";
 import axios from "axios";
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import {
   FiX,
   FiHome,
@@ -11,12 +11,43 @@ import {
   FiHash,
   FiFileText,
   FiPlus,
+  FiSearch,
 } from "react-icons/fi";
 import { useNotification } from "@/features/Notification/NotificationContext";
 import styled from "styled-components";
 import { showSuccessToast } from "@/utils/errorHandler";
-import { IoMdClose } from "react-icons/io";
 import ReactDOM from "react-dom";
+
+// PostcodeRow, PostcodeButton styled-components 정의
+const PostcodeRow = styled.div`
+  display: flex;
+  gap: 8px;
+  align-items: center;
+`;
+const PostcodeButton = styled.button`
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+  &:hover {
+    background: #e0e7ef;
+  }
+`;
+
+// window.daum 타입 선언 (최상단에 추가)
+declare global {
+  interface Window {
+    daum: any;
+  }
+}
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -247,6 +278,15 @@ export default function CompanyRegisterModal({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const { notify } = useNotification();
 
+  // 🔹 카카오 우편번호 API 스크립트 로딩
+  useEffect(() => {
+    if (document.getElementById("daum-postcode-script")) return;
+    const script = document.createElement("script");
+    script.src = "//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
+    script.id = "daum-postcode-script";
+    document.body.appendChild(script);
+  }, []);
+
   if (!open) return null;
 
   const handleRegInput = (
@@ -268,6 +308,22 @@ export default function CompanyRegisterModal({
     setSuccessMessage(null);
     setFieldErrors([]);
     onClose();
+  };
+
+  const handleOpenPostcode = () => {
+    new (window as any).daum.Postcode({
+      oncomplete: (data: any) => {
+        const form = formRef.current;
+        if (!form) return;
+        const zonecodeInput = form.querySelector("input[name='zonecode']") as HTMLInputElement;
+        const addressInput = form.querySelector("input[name='address']") as HTMLInputElement;
+        const addressDetailInput = form.querySelector("input[name='addressDetail']") as HTMLInputElement;
+  
+        zonecodeInput.value = data.zonecode;
+        addressInput.value = data.roadAddress || data.jibunAddress;
+        addressDetailInput?.focus();
+      },
+    }).open();
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -320,11 +376,25 @@ export default function CompanyRegisterModal({
         reason: "사업자등록번호 형식이 올바르지 않습니다.",
       });
     }
+    if (!data.zonecode?.trim()) {
+      newFieldErrors.push({
+        field: "zonecode",
+        value: data.zonecode,
+        reason: "우편번호는 필수입니다.",
+      });
+    }
     if (!data.address?.trim()) {
       newFieldErrors.push({
         field: "address",
         value: data.address,
         reason: "주소는 필수입니다.",
+      });
+    }
+    if (!data.addressDetail?.trim()) {
+      newFieldErrors.push({
+        field: "addressDetail",
+        value: data.addressDetail,
+        reason: "상세주소는 필수입니다.",
       });
     }
     if (!data.email?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
@@ -349,10 +419,16 @@ export default function CompanyRegisterModal({
       return;
     }
 
+    
+    const fullAddress = [data.address?.trim(), data.addressDetail?.trim()]
+      .filter(Boolean)
+      .join(", ");
+
     const requestBody = {
       name: data.name,
       bizNo,
-      address: data.address,
+      zonecode: data.zonecode,
+      address: fullAddress,
       ceoName: data.ceoName,
       email: data.email,
       tel: cleanedTel,
@@ -383,6 +459,8 @@ export default function CompanyRegisterModal({
       }
     }
   };
+
+  
 
   return ReactDOM.createPortal(
     <ModalOverlay>
@@ -457,7 +535,14 @@ export default function CompanyRegisterModal({
               <FiMapPin size={14} />
               주소
             </Label>
-            <Input name="address" placeholder="주소를 입력하세요" />
+            <PostcodeRow>
+              <Input name="zonecode" placeholder="우편번호를 입력하세요" readOnly />
+              <PostcodeButton type="button" onClick={handleOpenPostcode}>
+                <FiSearch size={14} /> 우편번호 찾기
+              </PostcodeButton>
+            </PostcodeRow>
+            <Input name="address" placeholder="기본주소를 입력하세요" />
+            <Input name="addressDetail" placeholder="상세주소를 입력하세요" />
             {fieldErrors.find((e) => e.field === "address") && (
               <p style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>
                 {fieldErrors.find((e) => e.field === "address")?.reason}
