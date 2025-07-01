@@ -54,6 +54,24 @@ const TypeBadge = styled.span<{ $type: PostType }>`
     $type === "GENERAL" ? "#dbeafe" : "#fef3c7"};
 `;
 
+// 긴급 아이콘 애니메이션 스타일 추가
+const UrgentIcon = styled.div`
+  animation: blink 0.8s infinite;
+  display: flex;
+  align-items: center;
+
+  @keyframes blink {
+    0%,
+    50% {
+      opacity: 1;
+    }
+    51%,
+    100% {
+      opacity: 0.3;
+    }
+  }
+`;
+
 // Reload 버튼 스타일 추가
 const ReloadButton = styled.button`
   display: flex;
@@ -91,6 +109,25 @@ const ReloadButton = styled.button`
   &:focus {
     outline: none;
     box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2);
+  }
+`;
+
+// LatestCard hover 스타일 추가
+const LatestCardWithHover = styled(S.LatestCard)`
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+
+  &:hover {
+    background: #f8fafc;
+    border-color: #3b82f6;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
+  }
+
+  &:active {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
   }
 `;
 
@@ -147,7 +184,11 @@ const LatestPostsSection = () => {
   const getPriorityIcon = (priority: PostPriority) => {
     switch (priority) {
       case "URGENT":
-        return <FiAlertTriangle size={16} style={{ color: "#991b1b" }} />;
+        return (
+          <UrgentIcon>
+            <FiAlertTriangle size={16} style={{ color: "#991b1b" }} />
+          </UrgentIcon>
+        );
       case "HIGH":
         return <FiAlertCircle size={16} style={{ color: "#a21caf" }} />;
       default:
@@ -271,7 +312,7 @@ const LatestPostsSection = () => {
         </div>
       ) : (
         posts.map((post) => (
-          <S.LatestCard
+          <LatestCardWithHover
             key={post.postId}
             onClick={() => handlePostClick(post.postId)}
             style={{ cursor: "pointer" }}
@@ -406,7 +447,7 @@ const LatestPostsSection = () => {
                 </div>
               </div>
             </div>
-          </S.LatestCard>
+          </LatestCardWithHover>
         ))
       )}
       <ProjectPostDetailModal
