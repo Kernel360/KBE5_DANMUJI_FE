@@ -1,40 +1,483 @@
+import React, { useState, useEffect } from "react";
 import * as S from "../styled/UserDashboardPage.styled";
 import { MdAccessTime } from "react-icons/md";
+import {
+  FiUser,
+  FiAlertTriangle,
+  FiAlertCircle,
+  FiLayers,
+  FiFileText,
+  FiHelpCircle,
+  FiRotateCcw,
+} from "react-icons/fi";
+import { LuUserRoundCog } from "react-icons/lu";
+import { FaProjectDiagram } from "react-icons/fa";
+import type { PostPriority, PostType } from "@/features/project/types/Types";
+import { POST_PRIORITY_LABELS } from "@/features/project/types/Types";
+import styled from "styled-components";
 
-const LatestPostsSection = () => (
-  <S.LatestSection>
-    <S.SectionTitle>진행 중인 프로젝트 최신 게시글</S.SectionTitle>
-    <S.LatestCard>
-      <S.LatestTitle>디자인 시스템 업데이트</S.LatestTitle>
-      <S.LatestDesc>새로운 컴포넌트가 추가되었습니다.</S.LatestDesc>
-      <S.LatestMeta>
-        <S.LatestTag color="blue">모바일 앱 리뉴얼</S.LatestTag>
-        <span>
-          <MdAccessTime /> 1시간 전
-        </span>
-      </S.LatestMeta>
-    </S.LatestCard>
-    <S.LatestCard>
-      <S.LatestTitle>테스트 결과 공유</S.LatestTitle>
-      <S.LatestDesc>QA 테스트가 완료되었습니다.</S.LatestDesc>
-      <S.LatestMeta>
-        <S.LatestTag color="yellow">웹사이트 개편</S.LatestTag>
-        <span>
-          <MdAccessTime /> 3시간 전
-        </span>
-      </S.LatestMeta>
-    </S.LatestCard>
-    <S.LatestCard>
-      <S.LatestTitle>API 문서 업데이트</S.LatestTitle>
-      <S.LatestDesc>새로운 엔드포인트가 추가되었습니다.</S.LatestDesc>
-      <S.LatestMeta>
-        <S.LatestTag color="green">API 통합 개발</S.LatestTag>
-        <span>
-          <MdAccessTime /> 5시간 전
-        </span>
-      </S.LatestMeta>
-    </S.LatestCard>
-  </S.LatestSection>
-);
+// ProjectBoard의 StatusBadge 스타일을 복사
+const StatusBadge = styled.span<{ $priority: PostPriority }>`
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  color: ${({ $priority }) =>
+    $priority === "LOW"
+      ? "#065f46"
+      : $priority === "MEDIUM"
+      ? "#92400e"
+      : $priority === "HIGH"
+      ? "#a21caf"
+      : "#991b1b"};
+  background-color: ${({ $priority }) =>
+    $priority === "LOW"
+      ? "#d1fae5"
+      : $priority === "MEDIUM"
+      ? "#fef3c7"
+      : $priority === "HIGH"
+      ? "#fce7f3"
+      : "#fee2e2"};
+`;
 
-export default LatestPostsSection; 
+// TypeBadge 스타일 추가 (ProjectBoard와 동일)
+const TypeBadge = styled.span<{ $type: PostType }>`
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  color: ${({ $type }) => ($type === "GENERAL" ? "#1e40af" : "#92400e")};
+  background-color: ${({ $type }) =>
+    $type === "GENERAL" ? "#dbeafe" : "#fef3c7"};
+`;
+
+// Reload 버튼 스타일 추가
+const ReloadButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: auto;
+  padding: 10px;
+  width: 40px;
+  height: 40px;
+  background: #f9fafb;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    border 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(107, 114, 128, 0.2);
+
+  &:hover {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    border-color: #fef3c7;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(251, 191, 36, 0.3);
+    color: #fff;
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(251, 191, 36, 0.2);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2);
+  }
+`;
+
+// 임시 데이터 타입 정의
+interface LatestPost {
+  postId: number;
+  title: string;
+  projectName: string;
+  projectStepName: string;
+  authorName: string;
+  authorUsername: string;
+  authorRole: string;
+  priority: string;
+  type: string;
+  createdAt: string;
+}
+
+const LatestPostsSection = () => {
+  const [posts, setPosts] = useState<LatestPost[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // 임시 데이터 로드
+    const loadMockData = () => {
+      setLoading(true);
+      setTimeout(() => {
+        const mockPosts: LatestPost[] = [
+          {
+            postId: 1,
+            title: "디자인 시스템 업데이트",
+            projectName: "모바일 앱 리뉴얼",
+            projectStepName: "디자인 단계",
+            authorName: "김디자이너",
+            authorUsername: "designer_kim",
+            authorRole: "ROLE_USER",
+            priority: "MEDIUM",
+            type: "GENERAL",
+            createdAt: new Date(Date.now() - 60 * 60 * 1000).toISOString(), // 1시간 전
+          },
+          {
+            postId: 2,
+            title: "테스트 결과 공유",
+            projectName: "웹사이트 개편",
+            projectStepName: "테스트 단계",
+            authorName: "박개발자",
+            authorUsername: "dev_park",
+            authorRole: "ROLE_USER",
+            priority: "LOW",
+            type: "QUESTION",
+            createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(), // 3시간 전
+          },
+          {
+            postId: 3,
+            title: "API 문서 업데이트",
+            projectName: "API 통합 개발",
+            projectStepName: "개발 단계",
+            authorName: "이엔지니어",
+            authorUsername: "engineer_lee",
+            authorRole: "ROLE_ADMIN",
+            priority: "HIGH",
+            type: "GENERAL",
+            createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(), // 5시간 전
+          },
+        ];
+        setPosts(mockPosts);
+        setLoading(false);
+      }, 500);
+    };
+
+    loadMockData();
+  }, []);
+
+  const formatTimeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInMinutes = Math.floor(
+      (now.getTime() - date.getTime()) / (1000 * 60)
+    );
+
+    if (diffInMinutes < 60) {
+      return `${diffInMinutes}분 전`;
+    } else if (diffInMinutes < 1440) {
+      return `${Math.floor(diffInMinutes / 60)}시간 전`;
+    } else {
+      return `${Math.floor(diffInMinutes / 1440)}일 전`;
+    }
+  };
+
+  const getRoleIcon = (role: string) => {
+    switch (role) {
+      case "ROLE_ADMIN":
+        return <LuUserRoundCog size={14} style={{ color: "#8b5cf6" }} />;
+      default:
+        return <FiUser size={14} style={{ color: "#6b7280" }} />;
+    }
+  };
+
+  const getPriorityIcon = (priority: string) => {
+    switch (priority) {
+      case "URGENT":
+        return <FiAlertTriangle size={16} style={{ color: "#991b1b" }} />;
+      case "HIGH":
+        return <FiAlertCircle size={16} style={{ color: "#a21caf" }} />;
+      default:
+        return <FiAlertCircle size={16} style={{ color: "#6b7280" }} />;
+    }
+  };
+
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case "GENERAL":
+        return <FiFileText size={16} style={{ color: "#1e40af" }} />;
+      case "QUESTION":
+        return <FiHelpCircle size={16} style={{ color: "#92400e" }} />;
+      default:
+        return <FiFileText size={16} style={{ color: "#6b7280" }} />;
+    }
+  };
+
+  const getTypeText = (type: string) => {
+    switch (type) {
+      case "GENERAL":
+        return "일반";
+      case "QUESTION":
+        return "질문";
+      default:
+        return type;
+    }
+  };
+
+  const handleReload = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      // TODO: 실제 API 호출로 교체
+      setTimeout(() => {
+        const mockPosts: LatestPost[] = [
+          {
+            postId: 1,
+            title: "디자인 시스템 업데이트",
+            projectName: "모바일 앱 리뉴얼",
+            projectStepName: "디자인 단계",
+            authorName: "김디자이너",
+            authorUsername: "designer_kim",
+            authorRole: "ROLE_USER",
+            priority: "MEDIUM",
+            type: "GENERAL",
+            createdAt: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
+          },
+          {
+            postId: 2,
+            title: "테스트 결과 공유",
+            projectName: "웹사이트 개편",
+            projectStepName: "테스트 단계",
+            authorName: "박개발자",
+            authorUsername: "dev_park",
+            authorRole: "ROLE_USER",
+            priority: "LOW",
+            type: "QUESTION",
+            createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
+          },
+          {
+            postId: 3,
+            title: "API 문서 업데이트",
+            projectName: "API 통합 개발",
+            projectStepName: "개발 단계",
+            authorName: "이엔지니어",
+            authorUsername: "engineer_lee",
+            authorRole: "ROLE_ADMIN",
+            priority: "HIGH",
+            type: "GENERAL",
+            createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
+          },
+        ];
+        setPosts(mockPosts);
+        setLoading(false);
+      }, 500);
+    } catch (err) {
+      console.error("최신 게시글 조회 실패:", err);
+      setError("게시글을 불러오는데 실패했습니다.");
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <S.LatestSection>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "18px",
+          }}
+        >
+          <S.SectionTitle>진행 중인 프로젝트 최신 게시글</S.SectionTitle>
+          <ReloadButton onClick={handleReload} title="새로고침">
+            <FiRotateCcw size={16} />
+          </ReloadButton>
+        </div>
+        <div style={{ textAlign: "center", padding: "20px" }}>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+          <p style={{ color: "#6b7280", marginTop: "8px" }}>로딩 중...</p>
+        </div>
+      </S.LatestSection>
+    );
+  }
+
+  if (error) {
+    return (
+      <S.LatestSection>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "18px",
+          }}
+        >
+          <S.SectionTitle>진행 중인 프로젝트 최신 게시글</S.SectionTitle>
+          <ReloadButton onClick={handleReload} title="새로고침">
+            <FiRotateCcw size={16} />
+          </ReloadButton>
+        </div>
+        <div style={{ textAlign: "center", padding: "20px" }}>
+          <p style={{ color: "#ef4444" }}>{error}</p>
+        </div>
+      </S.LatestSection>
+    );
+  }
+
+  return (
+    <S.LatestSection>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "18px",
+        }}
+      >
+        <S.SectionTitle>진행 중인 프로젝트 최신 게시글</S.SectionTitle>
+        <ReloadButton onClick={handleReload} title="새로고침">
+          <FiRotateCcw size={16} />
+        </ReloadButton>
+      </div>
+      {posts.length === 0 ? (
+        <div style={{ textAlign: "center", padding: "20px" }}>
+          <p style={{ color: "#6b7280" }}>
+            진행 중인 프로젝트의 최신 게시글이 없습니다.
+          </p>
+        </div>
+      ) : (
+        posts.map((post) => (
+          <S.LatestCard key={post.postId}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+              }}
+            >
+              <div style={{ flex: 1 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    marginBottom: "8px",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px",
+                    }}
+                  >
+                    {getPriorityIcon(post.priority)}
+                    <StatusBadge $priority={post.priority as PostPriority}>
+                      {POST_PRIORITY_LABELS[post.priority as PostPriority] ??
+                        post.priority}
+                    </StatusBadge>
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px",
+                    }}
+                  >
+                    {getTypeIcon(post.type)}
+                    <TypeBadge $type={post.type as PostType}>
+                      {getTypeText(post.type)}
+                    </TypeBadge>
+                  </div>
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "12px",
+                    marginBottom: "8px",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                    }}
+                  >
+                    <FaProjectDiagram size={14} style={{ color: "#8b5cf6" }} />
+                    <span
+                      style={{
+                        fontSize: "14px",
+                        color: "#6b7280",
+                        fontWeight: "500",
+                      }}
+                    >
+                      {post.projectName}
+                    </span>
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                    }}
+                  >
+                    <FiLayers size={14} style={{ color: "#6366f1" }} />
+                    <span
+                      style={{
+                        fontSize: "14px",
+                        color: "#6b7280",
+                        fontWeight: "500",
+                      }}
+                    >
+                      {post.projectStepName}
+                    </span>
+                  </div>
+                </div>
+                <S.LatestTitle>{post.title}</S.LatestTitle>
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "flex-end",
+                  gap: "4px",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "12px",
+                    fontSize: "12px",
+                    color: "#6b7280",
+                  }}
+                >
+                  <span
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px",
+                    }}
+                  >
+                    <MdAccessTime size={12} />
+                    {formatTimeAgo(post.createdAt)}
+                  </span>
+                  <span
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px",
+                    }}
+                  >
+                    {getRoleIcon(post.authorRole)}
+                    {post.authorName}({post.authorUsername})
+                  </span>
+                </div>
+              </div>
+            </div>
+          </S.LatestCard>
+        ))
+      )}
+    </S.LatestSection>
+  );
+};
+
+export default LatestPostsSection;
