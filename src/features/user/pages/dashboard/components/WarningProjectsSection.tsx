@@ -25,8 +25,8 @@ const WarningProjectsSection: React.FC<WarningProjectsSectionProps> = ({
       style={{
         display: "flex",
         gap: 0,
-        marginBottom: 14,
-        borderBottom: "1.5px solid #eee",
+        marginBottom: 12,
+        borderBottom: "1px solid #eee",
       }}
     >
       <S.WarningTabButton
@@ -65,16 +65,20 @@ const WarningProjectsSection: React.FC<WarningProjectsSectionProps> = ({
       return filtered.map((project) => {
         const today = new Date();
         const end = new Date(project.endDate);
-        const diff = Math.ceil((today.getTime() - end.getTime()) / (1000 * 60 * 60 * 24));
+        const diff = Math.ceil(
+          (today.getTime() - end.getTime()) / (1000 * 60 * 60 * 24)
+        );
         return (
           <S.ProjectCard
             key={project.id}
-            onClick={() => window.location.assign(`/projects/${project.id}/detail`)}
+            onClick={() =>
+              window.location.assign(`/projects/${project.id}/detail`)
+            }
             style={{
-              marginBottom: 12,
-              border: "1.5px solid #ffd6d6",
+              marginBottom: 8,
+              border: "1px solid #ffd6d6",
               background: "#fff9f9",
-              cursor: "pointer"
+              cursor: "pointer",
             }}
           >
             <div
@@ -82,18 +86,23 @@ const WarningProjectsSection: React.FC<WarningProjectsSectionProps> = ({
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                marginBottom: 6,
+                marginBottom: 4,
               }}
             >
               <div
-                style={{ fontWeight: 700, fontSize: "1.05rem", color: "#e74c3c" }}
+                style={{
+                  fontWeight: 600,
+                  fontSize: "0.95rem",
+                  color: "#e74c3c",
+                }}
               >
                 {project.name}
               </div>
               <S.StatusBadge status={project.status}>
                 {project.status === "COMPLETED" && "완료"}
                 {project.status === "IN_PROGRESS" && "진행중"}
-                {project.status === "DELAYED" && `${diff > 0 ? `${diff}일 지연` : "지연"}`}
+                {project.status === "DELAYED" &&
+                  `${diff > 0 ? `${diff}일 지연` : "지연"}`}
                 {project.status === "PENDING" && "보류"}
                 {project.status !== "COMPLETED" &&
                   project.status !== "IN_PROGRESS" &&
@@ -102,8 +111,8 @@ const WarningProjectsSection: React.FC<WarningProjectsSectionProps> = ({
                   project.status}
               </S.StatusBadge>
             </div>
-            <div style={{ color: "#bdbdbd", fontSize: 13, marginBottom: 2 }}>
-              마감일: {" "}
+            <div style={{ color: "#bdbdbd", fontSize: 12, marginBottom: 2 }}>
+              마감일:{" "}
               <b
                 style={{
                   color:

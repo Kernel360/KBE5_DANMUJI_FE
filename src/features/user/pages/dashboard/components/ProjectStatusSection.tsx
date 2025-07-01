@@ -86,8 +86,8 @@ const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
         style={{
           display: "flex",
           gap: 0,
-          marginBottom: 14,
-          borderBottom: "1.5px solid #eee",
+          marginBottom: 12,
+          borderBottom: "1px solid #eee",
           flex: 1,
         }}
       >
@@ -107,7 +107,7 @@ const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
         </S.ProgressListEmpty>
       ) : (
         <S.ProgressList
-          style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}
+          style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}
         >
           {filteredProjects.slice(0, 4).map((project, idx) => {
             const percent = getProgressPercent(project.steps);
@@ -115,7 +115,7 @@ const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
               <S.ProjectCard
                 key={project.id}
                 onClick={() => navigate(`/projects/${project.id}/detail`)}
-                style={{ cursor: 'pointer' }}
+                style={{ cursor: "pointer" }}
               >
                 <S.ProjectHeaderRow>
                   <S.ProjectTitle>{project.name}</S.ProjectTitle>
@@ -140,7 +140,7 @@ const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "space-between",
-                          marginBottom: 4,
+                          marginBottom: 3,
                         }}
                       >
                         <S.ProjectProgressStep>

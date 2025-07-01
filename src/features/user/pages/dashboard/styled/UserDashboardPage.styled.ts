@@ -342,14 +342,14 @@ export const SectionTitle = styled.div<{ color?: string }>`
 // 프로젝트 카드 및 관련 컴포넌트
 export const ProjectCard = styled.div`
   background: #fff;
-  border-radius: 10px;
-  border: 2px solid #e0e0e0;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
-  padding: 12px 14px 10px;
-  margin-bottom: 8px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  padding: 10px 12px 8px;
+  margin-bottom: 6px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 `;
 
 export const ProjectHeaderRow = styled.div`
@@ -360,17 +360,17 @@ export const ProjectHeaderRow = styled.div`
 `;
 
 export const ProjectTitle = styled.div`
-  font-size: 1.02rem;
-  font-weight: 700;
+  font-size: 0.95rem;
+  font-weight: 600;
   color: #222;
 `;
 
 export const StatusBadge = styled.span<{ status: string }>`
   display: inline-block;
-  font-size: 0.93rem;
+  font-size: 0.85rem;
   font-weight: 600;
-  border-radius: 8px;
-  padding: 2px 12px;
+  border-radius: 6px;
+  padding: 2px 8px;
   color: #fff;
   background: ${({ status }) =>
     status === "COMPLETED"
@@ -384,8 +384,8 @@ export const StatusBadge = styled.span<{ status: string }>`
 
 export const ProjectMeta = styled.div`
   display: flex;
-  gap: 18px;
-  font-size: 0.97rem;
+  gap: 14px;
+  font-size: 0.9rem;
   color: #8b95a1;
 `;
 
@@ -409,14 +409,14 @@ export const Divider = styled.div`
 
 // ViewAllButton은 그대로 두고, 주의 프로젝트 탭에만 적용할 새로운 스타일 추가
 export const WarningTabButton = styled.button<{ selected?: boolean }>`
-  padding: 7px 18px;
+  padding: 6px 16px;
   border: none;
   border-radius: 0;
   background: ${({ selected }) => (selected ? "#fff" : "#f4f6fa")};
   color: ${({ selected }) => (selected ? "#e74c3c" : "#bdbdbd")};
-  font-weight: 700;
-  font-size: 1rem;
-  border-bottom: 3px solid
+  font-weight: 600;
+  font-size: 0.95rem;
+  border-bottom: 2px solid
     ${({ selected }) => (selected ? "#e74c3c" : "transparent")};
   box-shadow: none;
   transition: background 0.2s, color 0.2s, border-bottom 0.2s;
@@ -426,14 +426,14 @@ export const WarningTabButton = styled.button<{ selected?: boolean }>`
 
 // 프로젝트 상태 탭 버튼 (주의 프로젝트 탭과 완전히 동일하게)
 export const ProjectStatusTabButton = styled.button<{ selected?: boolean }>`
-  padding: 7px 18px;
+  padding: 6px 16px;
   border: none;
   border-radius: 0;
   background: ${({ selected }) => (selected ? "#fff" : "#f4f6fa")};
   color: ${({ selected }) => (selected ? "#1abc7b" : "#bdbdbd")};
-  font-weight: 700;
-  font-size: 1rem;
-  border-bottom: 3px solid
+  font-weight: 600;
+  font-size: 0.95rem;
+  border-bottom: 2px solid
     ${({ selected }) => (selected ? "#1abc7b" : "transparent")};
   box-shadow: none;
   transition: background 0.2s, color 0.2s, border-bottom 0.2s;
@@ -484,22 +484,22 @@ export const ProjectProgressInfo = styled.div`
 `;
 
 export const ProjectProgressStep = styled.span`
-  font-size: 0.93rem;
+  font-size: 0.85rem;
   color: #8b95a1;
   font-weight: 500;
 `;
 
 export const ProjectProgressPercent = styled.span<{ percent: number }>`
-  font-size: 1.05rem;
-  font-weight: 700;
+  font-size: 0.95rem;
+  font-weight: 600;
   color: ${({ percent }) =>
     percent === 100 ? "#10b981" : percent < 50 ? "#fdb924" : "#1abc7b"};
-  min-width: 48px;
+  min-width: 42px;
   text-align: right;
 `;
 
 export const ProjectDate = styled.div`
   color: #8b95a1;
-  font-size: 0.97rem;
+  font-size: 0.9rem;
   margin-bottom: 2px;
 `;
