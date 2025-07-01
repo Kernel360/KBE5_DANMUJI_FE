@@ -663,18 +663,16 @@ export default function DashboardPage() {
                     style={{
                       padding: "12px 0",
                       borderBottom: "1px solid #f3f4f6",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
                       cursor: "pointer",
                       transition: "background 0.15s",
+                      width: "100%",
                     }}
                     onClick={() => navigate(`/projects/${project.id}/detail`)}
                     onMouseOver={e => (e.currentTarget.style.background = "#f9fafb")}
                     onMouseOut={e => (e.currentTarget.style.background = "")}
                   >
-                    <span style={{ fontSize: "14px", color: "#374151" }}>{project.name}</span>
-                    <span style={{ fontSize: "13px", color: "#888" }}>{project.startDate} ~ {project.endDate}</span>
+                    <span style={{ fontSize: "14px", color: "#374151", fontWeight: 600 }}>{project.name}</span>
+                    <span style={{ fontSize: "13px", color: "#888", marginTop: 2, display: "block" }}>{project.startDate} ~ {project.endDate}</span>
                   </div>
                 ))
               )}
