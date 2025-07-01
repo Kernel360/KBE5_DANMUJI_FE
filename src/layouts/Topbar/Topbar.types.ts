@@ -1,5 +1,5 @@
-export interface Notification {
-  id: string;
+export interface SseNotification {
+  id: number;
   message: string;
   time: string;
   isRead: boolean;

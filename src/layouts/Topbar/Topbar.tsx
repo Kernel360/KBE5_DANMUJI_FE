@@ -10,18 +10,20 @@ import {
   UserDropdown,
 } from "./Topbar.styles";
 
-import type { Notification } from "@/layouts/Topbar/Topbar.types";
+import type { SseNotification } from "@/layouts/Topbar/Topbar.types";
 
 interface TopbarProps {
-  notifications: Notification[];
-  markAsRead: (id: string) => void;
+  notifications: SseNotification[];
+  markAsRead: (id: number) => void;
   error: string | null;
+  onDelete: (id: number) => void;
 }
 
 export const Topbar: React.FC<TopbarProps> = ({
   notifications,
   markAsRead,
   error,
+  onDelete,
 }) => {
   // const location = useLocation();
 
@@ -52,6 +54,7 @@ export const Topbar: React.FC<TopbarProps> = ({
           notifications={notifications}
           markAsRead={markAsRead}
           error={error}
+          onDelete={onDelete}
         />
       </UserInfo>
     </TopbarContainer>

@@ -1,6 +1,6 @@
 // src/components/NotificationDropdown.tsx
 import React, { useRef, useEffect } from "react";
-import { FaBell } from "react-icons/fa";
+import { FaBell, FaTrash } from "react-icons/fa";
 import {
   DropdownContainer,
   NotificationButton,
@@ -16,16 +16,17 @@ import {
   MarkAllAsReadButton,
   ErrorState,
 } from "./NotificationDropdown.styled";
-import type { Notification } from "@/layouts/Topbar/Topbar.types";
+import type { SseNotification } from "@/layouts/Topbar/Topbar.types";
 import api from "@/api/axios";
 
 interface Props {
-  notifications: Notification[];
-  markAsRead: (id: string) => void;
+  notifications: SseNotification[];
+  markAsRead: (id: number) => void;
   error: string | null;
+  onDelete?: (id: number) => void;
 }
 
-const NotificationDropdown: React.FC<Props> = ({ notifications, markAsRead, error }) => {
+const NotificationDropdown: React.FC<Props> = ({ notifications, markAsRead, error, onDelete }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -46,19 +47,27 @@ const NotificationDropdown: React.FC<Props> = ({ notifications, markAsRead, erro
 
   const handleMarkAllAsRead = async () => {
     try {
-      await api.post('/api/notifications/read/all');
+      await api.put('/api/notifications/mark-all-read');
       notifications.forEach(n => {
         if (!n.isRead) {
           markAsRead(n.id);
         }
       });
-      renderContent();
     } catch (error) {
       console.error('Failed to mark all notifications as read:', error);
     }
   };
 
-  const handleNotificationClick = (notification: Notification) => {
+  const handleDeleteNotification = async (id: number) => {
+    try {
+      await api.delete(`/api/notifications/${id}`);
+      if (onDelete) onDelete(id);
+    } catch (error) {
+      console.error('Failed to delete notification:', error);
+    }
+  };
+
+  const handleNotificationClick = (notification: SseNotification) => {
     if (!notification.isRead) {
       markAsRead(notification.id);
     }
@@ -78,9 +87,28 @@ const NotificationDropdown: React.FC<Props> = ({ notifications, markAsRead, erro
         key={n.id} 
         isRead={n.isRead} 
         onClick={() => handleNotificationClick(n)}
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
       >
-        <NotificationMessage>{n.message}</NotificationMessage>
-        <NotificationTime>{n.time}</NotificationTime>
+        <div>
+          <NotificationMessage>{n.message}</NotificationMessage>
+          <NotificationTime>{n.time}</NotificationTime>
+        </div>
+        <button
+          onClick={e => {
+            e.stopPropagation();
+            handleDeleteNotification(n.id);
+          }}
+          style={{
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            marginLeft: "8px",
+            color: "#888"
+          }}
+          title="알림 삭제"
+        >
+          <FaTrash />
+        </button>
       </NotificationItem>
     ));
   };

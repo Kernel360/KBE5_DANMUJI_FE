@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import styled from "styled-components";
 import { Notification } from "./Notification";
 
@@ -13,24 +13,24 @@ const Container = styled.div`
   pointer-events: none;
 `;
 
-interface NotificationItem {
-  id: number;
+interface ToastNotification {
+  id: string;
   message: string;
   success?: boolean;
   isVisible?: boolean;
 }
 
-interface NotificationListProps {
-  notifications: NotificationItem[];
-  onRemove: (id: number) => void;
+interface ToastNotificationListProps {
+  notifications: ToastNotification[];
+  onRemove: (id: string) => void;
 }
 
 export function NotificationList({
   notifications,
   onRemove,
-}: NotificationListProps) {
+}: ToastNotificationListProps) {
   const [visibleNotifications, setVisibleNotifications] = useState<
-    NotificationItem[]
+    ToastNotification[]
   >([]);
 
   useEffect(() => {

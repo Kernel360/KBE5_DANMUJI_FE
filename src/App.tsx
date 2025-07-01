@@ -10,19 +10,21 @@ import Footer from "@/layouts/Footer/Footer";
 import { AppContainer, MainContent, PageContent } from "./App.styled";
 import { NotificationList } from "@/features/Notification/NotificationList";
 import { useNotification as useToastNotification } from "@/features/Notification/NotificationContext";
-import type { Notification } from "@/layouts/Topbar/Topbar.types";
+import type { SseNotification } from "@/layouts/Topbar/Topbar.types";
 import { setupGlobalErrorHandler } from "@/utils/errorHandler";
 
 const LayoutWrapper = ({
   children,
-  notifications,
-  markAsRead,
-  error,
+  sseNotifications,
+  markSseAsRead,
+  sseError,
+  onDeleteSse,
 }: {
   children: React.ReactNode;
-  notifications: Notification[];
-  markAsRead: (id: string) => void;
-  error: string | null;
+  sseNotifications: SseNotification[];
+  markSseAsRead: (id: number) => void;
+  sseError: string | null;
+  onDeleteSse: (id: number) => void;
 }) => {
   const location = useLocation();
   const isAuthPage = [
@@ -39,9 +41,10 @@ const LayoutWrapper = ({
       <Sidebar />
       <MainContent>
         <Topbar
-          notifications={notifications}
-          markAsRead={markAsRead}
-          error={error}
+          notifications={sseNotifications}
+          markAsRead={markSseAsRead}
+          error={sseError}
+          onDelete={onDeleteSse}
         />
         <PageContent>{children}</PageContent>
         <Footer />
@@ -51,13 +54,13 @@ const LayoutWrapper = ({
 };
 
 function AppContent() {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const [sseNotifications, setSseNotifications] = useState<SseNotification[]>([]);
+  const [sseError, setSseError] = useState<string | null>(null);
 
   const {
     notifications: toastNotifications,
-    removeNotification,
-    notify,
+    removeNotification: removeToastNotification,
+    notify: notifyToast,
   } = useToastNotification();
 
   // API 에러 핸들러 연결
@@ -72,7 +75,7 @@ function AppContent() {
   useEffect(() => {
     const handleShowToast = (event: CustomEvent) => {
       const { message, success } = event.detail;
-      notify(message, success);
+      notifyToast(message, success);
     };
 
     window.addEventListener("show-toast", handleShowToast as EventListener);
@@ -83,33 +86,33 @@ function AppContent() {
         handleShowToast as EventListener
       );
     };
-  }, [notify]);
+  }, [notifyToast]);
 
   useNotification(
-    (data) => {
-      const newNotification: Notification = {
+    (data: any) => {
+      const newSseNotification: SseNotification = {
         ...data,
         isRead: false,
       };
-      setNotifications((prev) => {
+      setSseNotifications((prev) => {
         // 중복 알림 방지
-        const isDuplicate = prev.some((n) => n.id === newNotification.id);
+        const isDuplicate = prev.some((n) => n.id === newSseNotification.id);
         if (isDuplicate) return prev;
-        return [newNotification, ...prev];
+        return [newSseNotification, ...prev];
       });
     },
-    (error) => {
-      setError(error);
+    (error: string) => {
+      setSseError(error);
     }
   );
 
-  const markAsRead = async (id: string) => {
+  const markSseAsRead = async (id: number) => {
     try {
-      const notification = notifications.find((n) => n.id === id);
+      const notification = sseNotifications.find((n) => n.id === id);
       if (!notification) return;
 
       // 상태 먼저 업데이트
-      setNotifications((prev) =>
+      setSseNotifications((prev) =>
         prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
       );
 
@@ -121,10 +124,10 @@ function AppContent() {
 
       eventSource.onerror = () => {
         // 에러 발생 시 상태 롤백
-        setNotifications((prev) =>
+        setSseNotifications((prev) =>
           prev.map((n) => (n.id === id ? { ...n, isRead: false } : n))
         );
-        setError("알림 상태를 업데이트하는 중 오류가 발생했습니다.");
+        setSseError("알림 상태를 업데이트하는 중 오류가 발생했습니다.");
         eventSource.close();
       };
 
@@ -140,20 +143,26 @@ function AppContent() {
       };
     } catch (error) {
       console.error("Failed to mark notification as read:", error);
-      setError("알림 상태를 업데이트하는 중 오류가 발생했습니다.");
+      setSseError("알림 상태를 업데이트하는 중 오류가 발생했습니다.");
     }
+  };
+
+  // 알림 삭제 핸들러
+  const handleDeleteSseNotification = (id: number) => {
+    setSseNotifications((prev) => prev.filter((n) => n.id !== id));
   };
 
   return (
     <>
       <NotificationList
         notifications={toastNotifications}
-        onRemove={removeNotification}
+        onRemove={removeToastNotification}
       />
       <LayoutWrapper
-        notifications={notifications}
-        markAsRead={markAsRead}
-        error={error}
+        sseNotifications={sseNotifications}
+        markSseAsRead={markSseAsRead}
+        sseError={sseError}
+        onDeleteSse={handleDeleteSseNotification}
       >
         <AppRoutes />
       </LayoutWrapper>
