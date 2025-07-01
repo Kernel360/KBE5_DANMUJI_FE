@@ -2,6 +2,17 @@ import React, { useState, useEffect } from "react";
 import api from "@/api/axios";
 import CompanyMemberSelectModal from "./CompanyMemberSelectModal";
 import useCompanyMemberSelect from "./useCompanyMemberSelect.ts";
+import {
+  ModalOverlay,
+  ModalPanel,
+  ModalHeader,
+  ModalTitle,
+  ModalDescription,
+  Input,
+  TextArea,
+  Button,
+  CloseButton
+} from "./ProjectCreateModal.styled";
 
 type Member = {
   id: number;
@@ -297,82 +308,32 @@ export default function ProjectCreateModal({
   };
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100vw",
-        height: "100vh",
-        background: "rgba(0,0,0,0.3)",
-        zIndex: 1000,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-      onClick={handleOverlayClick}
-    >
-      <div
-        style={{
-          background: "#fff",
-          borderRadius: 12,
-          padding: 40,
-          minWidth: 900,
-          maxWidth: 1100,
-          width: "90vw",
-          maxHeight: 800,
-          overflowY: "auto",
-          boxShadow: "0 2px 32px rgba(0,0,0,0.18)",
-          position: "relative",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            marginBottom: 4,
-          }}
-        >
-          <h2 style={{ fontSize: 28, fontWeight: 700 }}>새 프로젝트 생성</h2>
-        </div>
-        <div style={{ color: "#888", marginBottom: 32 }}>
+    <ModalOverlay onClick={handleOverlayClick}>
+      <ModalPanel>
+        <ModalHeader>
+          <ModalTitle>
+            {/* 아이콘 등 추가 가능 */}
+            새 프로젝트 생성
+          </ModalTitle>
+        </ModalHeader>
+        <ModalDescription>
           새로운 프로젝트의 정보를 입력해주세요
-        </div>
+        </ModalDescription>
         <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
           {/* 프로젝트명, 개요 */}
           <div>
             <div style={{ fontWeight: 600, marginBottom: 8 }}>프로젝트명 *</div>
-            <input
-              style={{
-                width: "100%",
-                padding: 12,
-                borderRadius: 6,
-                border: "1px solid #eee",
-                marginBottom: 20,
-              }}
+            <Input
               placeholder="프로젝트 이름을 입력하세요"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               maxLength={255}
             />
             <div style={{ fontWeight: 600, marginBottom: 8 }}>개요 *</div>
-            <textarea
-              style={{
-                width: "100%",
-                minHeight: 90,
-                maxHeight: 300,
-                padding: 12,
-                borderRadius: 6,
-                border: "1px solid #eee",
-                resize: "none",
-                overflowY: "auto",
-              }}
+            <TextArea
               placeholder="프로젝트 개요를 상세히 입력하세요..."
               value={form.description}
-              onChange={(e) =>
-                setForm({ ...form, description: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
               rows={4}
               maxLength={255}
             />
@@ -380,14 +341,8 @@ export default function ProjectCreateModal({
           {/* 프로젝트 금액 */}
           <div>
             <div style={{ fontWeight: 600, marginBottom: 8 }}>프로젝트 금액</div>
-            <input
+            <Input
               type="text"
-              style={{
-                width: "100%",
-                padding: 12,
-                borderRadius: 6,
-                border: "1px solid #eee",
-              }}
               placeholder="프로젝트 금액을 입력하세요"
               value={Number(form.projectCost).toLocaleString()}
               onChange={(e) => {
@@ -416,14 +371,9 @@ export default function ProjectCreateModal({
                     if (input) input.showPicker && input.showPicker();
                   }}
                 >
-                  <input
+                  <Input
+                    as="input"
                     type="date"
-                    style={{
-                      width: "100%",
-                      padding: 10,
-                      borderRadius: 6,
-                      border: "1px solid #eee",
-                    }}
                     value={form.startDate}
                     onChange={(e) =>
                       setForm((prev) => ({
@@ -446,14 +396,9 @@ export default function ProjectCreateModal({
                     if (input) input.showPicker && input.showPicker();
                   }}
                 >
-                  <input
+                  <Input
+                    as="input"
                     type="date"
-                    style={{
-                      width: "100%",
-                      padding: 10,
-                      borderRadius: 6,
-                      border: "1px solid #eee",
-                    }}
                     value={form.endDate}
                     onChange={(e) =>
                       setForm({ ...form, endDate: e.target.value })
@@ -477,22 +422,16 @@ export default function ProjectCreateModal({
                   }}
                 >
                   <span style={{ fontWeight: 500 }}>개발사 선택 *</span>
-                  <button
-                    style={{
-                      marginLeft: 12,
-                      background: "#19c37d",
-                      color: "#fff",
-                      border: 0,
-                      borderRadius: 4,
-                      padding: "4px 12px",
-                      cursor: "pointer",
-                    }}
+                  <Button
+                    style={{ marginLeft: 12 }}
+                    $variant="primary"
+                    type="button"
                     onClick={() => {
                       openCompanyMemberModal("dev", true);
                     }}
                   >
                     + 개발사 추가
-                  </button>
+                  </Button>
                 </div>
                 {/* 여러 개발사/멤버 표시 (이동) */}
                 {selectedDevCompanies.map(({ company, members }) => (
@@ -516,17 +455,10 @@ export default function ProjectCreateModal({
                       <div style={{ fontWeight: 600 }}>
                         선택된 개발사: {company.name}
                       </div>
-                      <button
-                        style={{
-                          marginLeft: 8,
-                          background: "#eee",
-                          border: 0,
-                          color: "#222",
-                          fontSize: 14,
-                          borderRadius: 4,
-                          padding: "2px 10px",
-                          cursor: "pointer",
-                        }}
+                      <Button
+                        style={{ marginLeft: 8 }}
+                        $variant="secondary"
+                        type="button"
                         onClick={() => {
                           setEditCompany(company);
                           setEditMembers(members);
@@ -534,16 +466,11 @@ export default function ProjectCreateModal({
                         }}
                       >
                         수정
-                      </button>
-                      <button
-                        style={{
-                          marginLeft: 8,
-                          background: "transparent",
-                          border: 0,
-                          color: "#888",
-                          fontSize: 18,
-                          cursor: "pointer",
-                        }}
+                      </Button>
+                      <Button
+                        style={{ marginLeft: 8, fontSize: 18, background: "transparent", color: "#888" }}
+                        $variant={undefined}
+                        type="button"
                         onClick={() =>
                           setSelectedDevCompanies((prev) =>
                             prev.filter((c) => c.company.id !== company.id)
@@ -552,7 +479,7 @@ export default function ProjectCreateModal({
                         aria-label="삭제"
                       >
                         ×
-                      </button>
+                      </Button>
                     </div>
                     <div
                       style={{ marginTop: 8, color: "#555", fontWeight: 500 }}
@@ -571,22 +498,16 @@ export default function ProjectCreateModal({
                   }}
                 >
                   <span style={{ fontWeight: 500 }}>고객사 선택 *</span>
-                  <button
-                    style={{
-                      marginLeft: 12,
-                      background: "#2563eb",
-                      color: "#fff",
-                      border: 0,
-                      borderRadius: 4,
-                      padding: "4px 12px",
-                      cursor: "pointer",
-                    }}
+                  <Button
+                    style={{ marginLeft: 12, background: "#2563eb" }}
+                    $variant="primary"
+                    type="button"
                     onClick={() => {
                       openCompanyMemberModal("client", true);
                     }}
                   >
                     + 고객사 추가
-                  </button>
+                  </Button>
                 </div>
                 {/* 여러 고객사/멤버 표시 (이동) */}
                 {selectedClientCompanies.map(({ company, members }) => (
@@ -610,17 +531,10 @@ export default function ProjectCreateModal({
                       <div style={{ fontWeight: 600 }}>
                         선택된 고객사: {company.name}
                       </div>
-                      <button
-                        style={{
-                          marginLeft: 8,
-                          background: "#eee",
-                          border: 0,
-                          color: "#222",
-                          fontSize: 14,
-                          borderRadius: 4,
-                          padding: "2px 10px",
-                          cursor: "pointer",
-                        }}
+                      <Button
+                        style={{ marginLeft: 8 }}
+                        $variant="secondary"
+                        type="button"
                         onClick={() => {
                           setEditCompany(company);
                           setEditMembers(members);
@@ -628,16 +542,11 @@ export default function ProjectCreateModal({
                         }}
                       >
                         수정
-                      </button>
-                      <button
-                        style={{
-                          marginLeft: 8,
-                          background: "transparent",
-                          border: 0,
-                          color: "#888",
-                          fontSize: 18,
-                          cursor: "pointer",
-                        }}
+                      </Button>
+                      <Button
+                        style={{ marginLeft: 8, fontSize: 18, background: "transparent", color: "#888" }}
+                        $variant={undefined}
+                        type="button"
                         onClick={() =>
                           setSelectedClientCompanies((prev) =>
                             prev.filter((c) => c.company.id !== company.id)
@@ -646,7 +555,7 @@ export default function ProjectCreateModal({
                         aria-label="삭제"
                       >
                         ×
-                      </button>
+                      </Button>
                     </div>
                     <div
                       style={{ marginTop: 8, color: "#555", fontWeight: 500 }}
@@ -668,68 +577,20 @@ export default function ProjectCreateModal({
             marginTop: 40,
           }}
         >
-          <button
-            style={{
-              padding: "10px 28px",
-              borderRadius: 6,
-              border: "1px solid #eee",
-              background: "#fff",
-              color: "#222",
-              fontWeight: 500,
-              fontSize: 16,
-              cursor: "pointer",
-            }}
-            onClick={onClose}
-          >
+          <Button $variant={undefined} onClick={onClose}>
             취소
-          </button>
-          <button
-            style={{
-              padding: "10px 28px",
-              borderRadius: 6,
-              border: 0,
-              background: "#aaa",
-              color: "#fff",
-              fontWeight: 500,
-              fontSize: 16,
-              cursor: "pointer",
-            }}
-            onClick={handleReset}
-          >
+          </Button>
+          <Button $variant="secondary" onClick={handleReset}>
             초기화
-          </button>
-          <button
-            style={{
-              padding: "10px 28px",
-              borderRadius: 6,
-              border: 0,
-              background: "#4338ca",
-              color: "#fff",
-              fontWeight: 600,
-              fontSize: 16,
-              cursor: "pointer",
-            }}
-            onClick={handleCreateProject}
-          >
+          </Button>
+          <Button $variant="primary" onClick={handleCreateProject}>
             {editMode ? "편집" : "프로젝트 생성"}
-          </button>
+          </Button>
         </div>
         {/* 닫기 버튼 (오른쪽 상단) */}
-        <button
-          style={{
-            position: "absolute",
-            top: 20,
-            right: 20,
-            background: "transparent",
-            border: 0,
-            fontSize: 24,
-            cursor: "pointer",
-          }}
-          onClick={onClose}
-          aria-label="닫기"
-        >
+        <CloseButton onClick={onClose} aria-label="닫기">
           ×
-        </button>
+        </CloseButton>
         {showCompanyMemberModal && (
           <CompanyMemberSelectModal
             onClose={closeCompanyMemberModal}
@@ -740,7 +601,7 @@ export default function ProjectCreateModal({
             selectedClientCompanies={selectedClientCompanies}
           />
         )}
-      </div>
-    </div>
+      </ModalPanel>
+    </ModalOverlay>
   );
 }
