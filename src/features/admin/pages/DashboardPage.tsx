@@ -22,8 +22,6 @@ import {
 import {
   FaUsers,
   FaBuilding,
-  FaProjectDiagram,
-  FaChartLine,
   FaChartPie,
   FaQuestionCircle,
 } from "react-icons/fa";
