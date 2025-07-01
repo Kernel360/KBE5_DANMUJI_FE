@@ -38,13 +38,26 @@ export const StepItem = styled.div<{
   font-size: 15px;
   position: relative;
   min-width: 56px;
-  cursor: default;
+  cursor: pointer;
   gap: 2px;
   padding: 8px;
   border-radius: 8px;
   outline: none;
   border: 2px solid transparent;
   box-sizing: border-box;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #f9fafb;
+    border-color: #e5e7eb;
+    transform: translateY(-1px);
+  }
+
+  &:focus {
+    background-color: #f3f4f6;
+    border-color: #d1d5db;
+    outline: none;
+  }
 `;
 
 export const StepIcon = styled.div<{ $active?: boolean; complete?: boolean }>`

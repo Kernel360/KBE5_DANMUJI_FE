@@ -116,6 +116,16 @@ const ProjectProgress: React.FC<ProjectProgressProps> = ({
                 $active={isActive || isSelected}
                 complete={isComplete}
                 selected={isSelected}
+                onClick={() => handleStepClick(step.id)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleStepClick(step.id);
+                  }
+                }}
+                tabIndex={0}
+                role="button"
+                aria-label={`${step.name} 단계 선택`}
               >
                 <StepIcon
                   $active={isActive || isSelected}
