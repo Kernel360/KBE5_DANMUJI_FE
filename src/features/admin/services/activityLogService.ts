@@ -300,3 +300,32 @@ export const getMyMentions = async (): Promise<MyMentionListResponse[]> => {
     throw error;
   }
 };
+
+// 알림 읽음 처리
+export const markNotificationAsRead = async (
+  notificationId: number
+): Promise<void> => {
+  try {
+    const response = await api.put<ApiResponse<Void>>(
+      `/api/notifications/read/${notificationId}`
+    );
+
+    console.log("알림 읽음 처리 API 응답:", response.data);
+
+    // 백엔드 응답 구조 확인
+    if (
+      response.data.status === "OK" ||
+      response.data.status === "SUCCESS" ||
+      response.data.success
+    ) {
+      console.log("알림 읽음 처리 성공");
+    } else {
+      throw new Error(
+        response.data.message || "알림 읽음 처리에 실패했습니다."
+      );
+    }
+  } catch (error) {
+    console.error("알림 읽음 처리 실패:", error);
+    throw error;
+  }
+};

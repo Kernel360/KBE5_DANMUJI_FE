@@ -2,14 +2,13 @@ import React, { useState, useEffect } from "react";
 import * as S from "../styled/UserDashboardPage.styled";
 import { MdAccessTime, MdComment, MdReply, MdPostAdd } from "react-icons/md";
 import { FiRotateCcw, FiAtSign, FiBell } from "react-icons/fi";
-import { getMyMentions } from "@/features/admin/services/activityLogService";
+import {
+  getMyMentions,
+  markNotificationAsRead,
+} from "@/features/admin/services/activityLogService";
 import type { MyMentionListResponse } from "@/features/admin/types/activityLog";
 import { formatRelativeTime } from "@/utils/dateUtils";
 import ProjectPostDetailModal from "@/features/board/components/Post/components/DetailModal/ProjectPostDetailModal";
-import {
-  getPostDetail,
-  getCommentDetail,
-} from "@/features/project-d/services/postService";
 import styled, { keyframes } from "styled-components";
 
 const blinkAnimation = keyframes`
@@ -119,13 +118,15 @@ const MentionedPostsSection = () => {
     return formatRelativeTime(dateString);
   };
 
-  const getNotificationIcon = (type: string) => {
+  const getNotificationIcon = (type: string, content: string) => {
     switch (type) {
       case "MENTIONED":
         return <FiAtSign size={14} style={{ color: "#3b82f6" }} />;
       case "COMMENT_POST_CREATED":
         return <MdComment size={14} style={{ color: "#10b981" }} />;
       case "COMMENT_REPLY_CREATED":
+        return <MdReply size={14} style={{ color: "#f59e0b" }} />;
+      case "POST_REPLY_CREATED":
         return <MdReply size={14} style={{ color: "#f59e0b" }} />;
       case "PROJECT_POST_CREATED":
         return <MdPostAdd size={14} style={{ color: "#8b5cf6" }} />;
@@ -134,13 +135,15 @@ const MentionedPostsSection = () => {
     }
   };
 
-  const getNotificationTitle = (type: string) => {
+  const getNotificationTitle = (type: string, content: string) => {
     switch (type) {
       case "MENTIONED":
         return "멘션 알림";
       case "COMMENT_POST_CREATED":
         return "댓글 알림";
       case "COMMENT_REPLY_CREATED":
+        return "답글 알림";
+      case "POST_REPLY_CREATED":
         return "답글 알림";
       case "PROJECT_POST_CREATED":
         return "새 게시글";
@@ -166,134 +169,79 @@ const MentionedPostsSection = () => {
   const handleMentionClick = async (mention: MyMentionListResponse) => {
     console.log("알림 클릭:", mention);
 
+    // 읽지 않은 알림인 경우 읽음 처리
+    if (!mention.isRead) {
+      try {
+        await markNotificationAsRead(mention.notificationId);
+        // 로컬 상태 업데이트
+        setMentions((prev) =>
+          prev.map((m) =>
+            m.notificationId === mention.notificationId
+              ? { ...m, isRead: true }
+              : m
+          )
+        );
+      } catch (error) {
+        console.error("알림 읽음 처리 실패:", error);
+        // 읽음 처리 실패해도 계속 진행
+      }
+    }
+
     // 타입에 따라 다른 처리
     switch (mention.type) {
       case "MENTIONED":
-        // 멘션된 게시글로 이동 (게시글이거나 댓글일 수 있음)
-        console.log("멘션된 게시글로 이동:", mention.referenceId);
-        try {
-          // 먼저 게시글으로 시도
-          await getPostDetail(mention.referenceId);
-          // 게시글이 존재하면 게시글 ID로 사용
-          setSelectedPostId(mention.referenceId);
+        // 멘션된 게시글로 이동
+        console.log("멘션된 게시글로 이동:", mention.postId);
+        if (mention.postId) {
+          setSelectedPostId(mention.postId);
           setIsDetailModalOpen(true);
-        } catch (error) {
-          // 게시글이 없으면 댓글일 가능성
-          console.log(
-            "게시글이 아니므로 댓글일 가능성 확인:",
-            mention.referenceId
-          );
-          try {
-            // 댓글 상세 조회하여 게시글 ID 가져오기
-            const commentResponse = await getCommentDetail(mention.referenceId);
-            if (commentResponse.data && commentResponse.data.postId) {
-              setSelectedPostId(commentResponse.data.postId);
-              setIsDetailModalOpen(true);
-            } else {
-              console.error("댓글에서 게시글 ID를 찾을 수 없습니다.");
-            }
-          } catch (commentError) {
-            console.error("댓글 상세 조회도 실패:", commentError);
-            // 최종 fallback으로 원래 ID 사용
-            setSelectedPostId(mention.referenceId);
-            setIsDetailModalOpen(true);
-          }
+        } else {
+          console.error("postId가 없어서 게시글 상세로 이동할 수 없습니다.");
         }
         break;
 
       case "COMMENT_POST_CREATED":
-        // 내 게시글에 댓글이 달린 경우 - referenceId가 게시글 ID일 가능성
-        console.log("내 게시글에 댓글이 달린 경우:", mention.referenceId);
-        try {
-          // 먼저 게시글으로 시도
-          await getPostDetail(mention.referenceId);
-          console.log("게시글 ID로 확인됨:", mention.referenceId);
-          setSelectedPostId(mention.referenceId);
+        // 내 게시글에 댓글이 달린 경우
+        console.log("내 게시글에 댓글이 달린 경우:", mention.postId);
+        if (mention.postId) {
+          setSelectedPostId(mention.postId);
           setIsDetailModalOpen(true);
-        } catch (error) {
-          console.log(
-            "게시글이 아니므로 댓글일 가능성 확인:",
-            mention.referenceId
-          );
-          // 댓글 상세 조회 시도
-          try {
-            const commentResponse = await getCommentDetail(mention.referenceId);
-            console.log("댓글 상세 조회 응답:", commentResponse);
-
-            if (commentResponse.data && commentResponse.data.postId) {
-              console.log(
-                "댓글에서 게시글 ID 찾음:",
-                commentResponse.data.postId
-              );
-              setSelectedPostId(commentResponse.data.postId);
-              setIsDetailModalOpen(true);
-            } else {
-              console.error(
-                "댓글에서 게시글 ID를 찾을 수 없습니다. 응답:",
-                commentResponse
-              );
-              // 최종 fallback으로 원래 ID 사용
-              setSelectedPostId(mention.referenceId);
-              setIsDetailModalOpen(true);
-            }
-          } catch (commentError) {
-            console.error("댓글 상세 조회도 실패:", commentError);
-            // 최종 fallback으로 원래 ID 사용
-            setSelectedPostId(mention.referenceId);
-            setIsDetailModalOpen(true);
-          }
+        } else {
+          console.error("postId가 없어서 게시글 상세로 이동할 수 없습니다.");
         }
         break;
 
       case "COMMENT_REPLY_CREATED":
         // 내 댓글에 대댓글이 달린 경우 - 해당 게시글 상세로 이동
-        console.log("댓글이 달린 게시글 상세로 이동:", mention.referenceId);
-        try {
-          // 먼저 게시글으로 시도
-          await getPostDetail(mention.referenceId);
-          console.log("게시글 ID로 확인됨:", mention.referenceId);
-          setSelectedPostId(mention.referenceId);
+        console.log("댓글이 달린 게시글 상세로 이동:", mention.postId);
+        if (mention.postId) {
+          setSelectedPostId(mention.postId);
           setIsDetailModalOpen(true);
-        } catch (error) {
-          console.log(
-            "게시글이 아니므로 댓글일 가능성 확인:",
-            mention.referenceId
-          );
-          // 댓글 상세 조회 시도
-          try {
-            const commentResponse = await getCommentDetail(mention.referenceId);
-            console.log("답글 상세 조회 응답:", commentResponse);
+        } else {
+          console.error("postId가 없어서 게시글 상세로 이동할 수 없습니다.");
+        }
+        break;
 
-            if (commentResponse.data && commentResponse.data.postId) {
-              console.log(
-                "댓글에서 게시글 ID 찾음:",
-                commentResponse.data.postId
-              );
-              setSelectedPostId(commentResponse.data.postId);
-              setIsDetailModalOpen(true);
-            } else {
-              console.error(
-                "댓글에서 게시글 ID를 찾을 수 없습니다. 응답:",
-                commentResponse
-              );
-              // 최종 fallback으로 원래 ID 사용
-              setSelectedPostId(mention.referenceId);
-              setIsDetailModalOpen(true);
-            }
-          } catch (commentError) {
-            console.error("댓글 상세 조회도 실패:", commentError);
-            // 최종 fallback으로 원래 ID 사용
-            setSelectedPostId(mention.referenceId);
-            setIsDetailModalOpen(true);
-          }
+      case "POST_REPLY_CREATED":
+        // 내 게시글에 답글이 달린 경우 - 해당 게시글 상세로 이동
+        console.log("내 게시글에 답글이 달린 경우:", mention.postId);
+        if (mention.postId) {
+          setSelectedPostId(mention.postId);
+          setIsDetailModalOpen(true);
+        } else {
+          console.error("postId가 없어서 게시글 상세로 이동할 수 없습니다.");
         }
         break;
 
       case "PROJECT_POST_CREATED":
         // 프로젝트에 새로운 게시글이 등록된 경우 - 게시글 상세로 이동
-        console.log("새 게시글 상세로 이동:", mention.referenceId);
-        setSelectedPostId(mention.referenceId);
-        setIsDetailModalOpen(true);
+        console.log("새 게시글 상세로 이동:", mention.postId);
+        if (mention.postId) {
+          setSelectedPostId(mention.postId);
+          setIsDetailModalOpen(true);
+        } else {
+          console.error("postId가 없어서 게시글 상세로 이동할 수 없습니다.");
+        }
         break;
 
       default:
@@ -410,7 +358,7 @@ const MentionedPostsSection = () => {
                     marginBottom: "4px",
                   }}
                 >
-                  {getNotificationIcon(mention.type)}
+                  {getNotificationIcon(mention.type, mention.content)}
                   <span
                     style={{
                       fontSize: "14px",
@@ -418,7 +366,7 @@ const MentionedPostsSection = () => {
                       fontWeight: mention.isRead ? "400" : "600",
                     }}
                   >
-                    {getNotificationTitle(mention.type)}
+                    {getNotificationTitle(mention.type, mention.content)}
                   </span>
                   {!mention.isRead && <NewBadge>NEW</NewBadge>}
                 </div>
