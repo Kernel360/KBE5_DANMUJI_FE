@@ -1,6 +1,7 @@
 import * as S from "../styled/UserDashboardPage.styled";
 import { MdOutlineViewHeadline } from "react-icons/md";
 import { IoSearchSharp } from "react-icons/io5";
+import { FaProjectDiagram } from "react-icons/fa";
 import React, { useState, useEffect } from "react";
 
 // 타입 정의 추가
@@ -74,7 +75,17 @@ const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
   return (
     <S.Section>
       <S.ProgressSectionTitleRow>
-        <S.SectionTitle color="#1abc7b">내 프로젝트</S.SectionTitle>
+        <S.SectionTitle color="#1abc7b">
+          <FaProjectDiagram
+            size={20}
+            style={{
+              marginRight: "8px",
+              color: "#1abc7b",
+              verticalAlign: "middle",
+            }}
+          />
+          내 프로젝트
+        </S.SectionTitle>
         <S.ViewAllButton onClick={() => navigate("/projects")}>
           전체 보기
           <S.ViewAllButtonIcon>

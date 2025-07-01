@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from "react";
 import * as S from "../styled/UserDashboardPage.styled";
-import { MdAccessTime, MdComment, MdReply, MdPostAdd } from "react-icons/md";
+import {
+  MdAccessTime,
+  MdComment,
+  MdReply,
+  MdPostAdd,
+  MdNotifications,
+} from "react-icons/md";
 import { FiRotateCcw, FiAtSign } from "react-icons/fi";
 import { getMyMentions } from "@/features/admin/services/activityLogService";
 import type { MyMentionListResponse } from "@/features/admin/types/activityLog";
@@ -354,7 +360,17 @@ const MentionedPostsSection = () => {
           marginBottom: "18px",
         }}
       >
-        <S.SectionTitle>알림 목록</S.SectionTitle>
+        <S.SectionTitle>
+          <MdNotifications
+            size={20}
+            style={{
+              marginRight: "8px",
+              color: "#f59e0b",
+              verticalAlign: "middle",
+            }}
+          />
+          알림 목록
+        </S.SectionTitle>
         <ReloadButton onClick={handleReload} title="새로고침">
           <FiRotateCcw size={16} />
         </ReloadButton>

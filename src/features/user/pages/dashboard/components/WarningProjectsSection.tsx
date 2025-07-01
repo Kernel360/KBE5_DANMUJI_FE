@@ -1,4 +1,5 @@
 import * as S from "../styled/UserDashboardPage.styled";
+import { FaProjectDiagram } from "react-icons/fa";
 import React from "react";
 
 interface Project {
@@ -20,7 +21,17 @@ const WarningProjectsSection: React.FC<WarningProjectsSectionProps> = ({
   setSelectedWarningTab,
 }) => (
   <S.Section>
-    <S.SectionTitle color="#e74c3c">주의 프로젝트</S.SectionTitle>
+    <S.SectionTitle color="#e74c3c">
+      <FaProjectDiagram
+        size={20}
+        style={{
+          marginRight: "8px",
+          color: "#ef4444",
+          verticalAlign: "middle",
+        }}
+      />
+      주의 프로젝트
+    </S.SectionTitle>
     <div
       style={{
         display: "flex",

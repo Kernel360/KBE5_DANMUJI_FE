@@ -12,6 +12,7 @@ import {
 } from "react-icons/fi";
 import { LuUserRoundCog } from "react-icons/lu";
 import { FaProjectDiagram } from "react-icons/fa";
+import { BiNews } from "react-icons/bi";
 import { getHighPriorityPosts } from "@/features/admin/services/activityLogService";
 import type { PostDashboardReadResponse } from "@/features/admin/types/activityLog";
 import type { PostPriority, PostType } from "@/features/project/types/Types";
@@ -280,7 +281,17 @@ const PriorityPostsSection = () => {
           marginBottom: "14px",
         }}
       >
-        <S.SectionTitle color="#e74c3c">우선순위 높은 게시글</S.SectionTitle>
+        <S.SectionTitle color="#e74c3c">
+          <BiNews
+            size={20}
+            style={{
+              marginRight: "8px",
+              color: "#ef4444",
+              verticalAlign: "middle",
+            }}
+          />
+          우선순위 높은 게시글
+        </S.SectionTitle>
         <ReloadButton onClick={handleReload} title="새로고침">
           <FiRotateCcw size={16} />
         </ReloadButton>

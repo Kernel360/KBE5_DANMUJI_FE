@@ -12,6 +12,7 @@ import {
 } from "react-icons/fi";
 import { LuUserRoundCog } from "react-icons/lu";
 import { FaProjectDiagram } from "react-icons/fa";
+import { BiNews } from "react-icons/bi";
 import { getPostsDueSoon } from "@/features/admin/services/activityLogService";
 import type { PostDashboardReadResponse } from "@/features/admin/types/activityLog";
 import type { PostPriority, PostType } from "@/features/project/types/Types";
@@ -299,7 +300,17 @@ const LatestPostsSection = () => {
           marginBottom: "14px",
         }}
       >
-        <S.SectionTitle>진행 중인 프로젝트 최신 게시글</S.SectionTitle>
+        <S.SectionTitle>
+          <BiNews
+            size={20}
+            style={{
+              marginRight: "8px",
+              color: "#3b82f6",
+              verticalAlign: "middle",
+            }}
+          />
+          진행 중인 프로젝트 최신 게시글
+        </S.SectionTitle>
         <ReloadButton onClick={handleReload} title="새로고침">
           <FiRotateCcw size={16} />
         </ReloadButton>
