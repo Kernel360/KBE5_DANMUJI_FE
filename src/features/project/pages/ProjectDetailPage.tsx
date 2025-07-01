@@ -10,7 +10,7 @@ import {
 import styled from "styled-components";
 import ProjectCreateModal from "../components/ProjectCreateModal";
 import api from "@/api/axios";
-import {useAuth} from "@/hooks/useAuth"
+import { useAuth } from "@/hooks/useAuth";
 // import ProjectMemberList from "../components/MemberList/ProjectMemberList";
 // import ProjectFileList from '../components/FileList/ProjectFileList';
 
@@ -116,9 +116,15 @@ const ProjectDetailPage = () => {
 
   const handleStepSelect = (stepId: number) => {
     setSelectedStepId(stepId);
-    // 여기에 스텝 선택 시 추가 로직을 구현할 수 있습니다
-    // 예: 해당 스텝의 게시글만 필터링, 스텝별 상세 정보 표시 등
-    console.log(`Selected step: ${stepId}`);
+    // 선택된 단계 정보 로깅
+    const selectedStep = projectDetail?.steps.find(
+      (step) => step.id === stepId
+    );
+    console.log(`Selected step: ${stepId} - ${selectedStep?.name}`);
+
+    // ProjectBoard가 자동으로 해당 단계의 게시글을 필터링하여 표시합니다
+    // selectedStepId가 변경되면 ProjectBoard의 useEffect가 트리거되어
+    // 해당 단계의 게시글만 가져오게 됩니다
   };
 
   // 편집 저장 핸들러
@@ -133,16 +139,28 @@ const ProjectDetailPage = () => {
         startDate: form.startDate,
         endDate: form.endDate,
         devManagerId: form.devManagerId
-          ? form.devManagerId.split(",").map((s: any) => Number(s.trim())).filter(Boolean)
+          ? form.devManagerId
+              .split(",")
+              .map((s: any) => Number(s.trim()))
+              .filter(Boolean)
           : [],
         clientManagerId: form.clientManagerId
-          ? form.clientManagerId.split(",").map((s: any) => Number(s.trim())).filter(Boolean)
+          ? form.clientManagerId
+              .split(",")
+              .map((s: any) => Number(s.trim()))
+              .filter(Boolean)
           : [],
         devUserId: form.devUserId
-          ? form.devUserId.split(",").map((s: any) => Number(s.trim())).filter(Boolean)
+          ? form.devUserId
+              .split(",")
+              .map((s: any) => Number(s.trim()))
+              .filter(Boolean)
           : [],
         clientUserId: form.clientUserId
-          ? form.clientUserId.split(",").map((s: any) => Number(s.trim())).filter(Boolean)
+          ? form.clientUserId
+              .split(",")
+              .map((s: any) => Number(s.trim()))
+              .filter(Boolean)
           : [],
       };
       await api.put(`/api/projects/${projectId}`, payload);
@@ -196,8 +214,8 @@ const ProjectDetailPage = () => {
           overflow: "hidden",
         }}
       >
-        <ProjectHeader 
-          projectDetail={projectDetail} 
+        <ProjectHeader
+          projectDetail={projectDetail}
           onEdit={() => setEditModalOpen(true)}
         />
         {/* <ProjectMemberList projectDetail={projectDetail} /> */}

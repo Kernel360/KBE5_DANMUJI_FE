@@ -266,6 +266,15 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
     setLoading(false);
   };
 
+  // 댓글 수정 시작 핸들러
+  const handleEditComment = (commentId: number) => {
+    const comment = comments.find((c) => c.id === commentId);
+    if (comment) {
+      setEditingCommentId(commentId);
+      setEditText(comment.content);
+    }
+  };
+
   // 댓글 수정 저장 핸들러
   const handleSaveEdit = async (commentId: number) => {
     if (!editText.trim()) return;
@@ -486,10 +495,13 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                   editingCommentId={editingCommentId}
                   editText={editText}
                   onEditTextChange={setEditText}
-                  onEdit={setEditingCommentId}
+                  onEdit={handleEditComment}
                   onDelete={handleDeleteComment}
                   onSaveEdit={handleSaveEdit}
-                  onCancelEdit={() => setEditingCommentId(null)}
+                  onCancelEdit={() => {
+                    setEditingCommentId(null);
+                    setEditText("");
+                  }}
                   onReply={handleReplyClick}
                   isAuthor={isAuthor}
                   formatDate={formatDate}

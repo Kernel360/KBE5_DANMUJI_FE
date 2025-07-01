@@ -15,6 +15,7 @@ import {
 } from "react-icons/fi";
 import { LuUserRoundCog, LuUserRoundCheck } from "react-icons/lu";
 import MemberRegisterModal from "../components/MemberRegisterModal/MemberRegisterModal";
+import { formatDateOnly, formatTimeOnly } from "@/utils/dateUtils";
 import { useNotification } from "@/features/Notification/NotificationContext";
 
 export interface Member {
@@ -147,8 +148,7 @@ const SelectButton = styled.button<{
   width: 140px;
   padding: 8px 12px;
   background: ${({ $hasValue }) => ($hasValue ? "#fef3c7" : "#ffffff")};
-  border: 2px solid
-    ${({ $hasValue }) => ($hasValue ? "#fdb924" : "#e5e7eb")};
+  border: 2px solid ${({ $hasValue }) => ($hasValue ? "#fdb924" : "#e5e7eb")};
   border-radius: 8px;
   color: ${({ $hasValue }) => ($hasValue ? "#a16207" : "#374151")};
   font-size: 0.875rem;
@@ -176,10 +176,8 @@ const SelectButton = styled.button<{
   }
 
   &:hover {
-    background: ${({ $hasValue }) =>
-      $hasValue ? "#fef9c3" : "#f9fafb"};
-    border-color: ${({ $hasValue }) =>
-      $hasValue ? "#fdb924" : "#d1d5db"};
+    background: ${({ $hasValue }) => ($hasValue ? "#fef9c3" : "#f9fafb")};
+    border-color: ${({ $hasValue }) => ($hasValue ? "#fdb924" : "#d1d5db")};
     transform: translateY(-1px);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
@@ -473,7 +471,9 @@ export default function MemberPage() {
       // 전체 회원 목록을 반환하는 새로운 API 응답 구조에 맞게 수정
       const response = await api.get(`/api/admin/all`);
       setMembers(Array.isArray(response.data.data) ? response.data.data : []);
-      setTotalMembers(Array.isArray(response.data.data) ? response.data.data.length : 0);
+      setTotalMembers(
+        Array.isArray(response.data.data) ? response.data.data.length : 0
+      );
       console.log("Current members:", response.data.data);
     } catch (err: unknown) {
       let errorMessage = "An unknown error occurred";
@@ -565,7 +565,10 @@ export default function MemberPage() {
   };
 
   const handleCompanySelect = (companyId: number) => {
-    setFilters({ ...filters, companyId: companyId === 0 ? "" : companyId.toString() });
+    setFilters({
+      ...filters,
+      companyId: companyId === 0 ? "" : companyId.toString(),
+    });
     setCompanyDropdownOpen(false);
   };
 
@@ -996,25 +999,12 @@ export default function MemberPage() {
                       >
                         <span style={{ fontSize: "14px", color: "#374151" }}>
                           {member.createdAt
-                            ? new Date(member.createdAt).toLocaleDateString(
-                                "ko-KR",
-                                {
-                                  year: "numeric",
-                                  month: "2-digit",
-                                  day: "2-digit",
-                                }
-                              )
+                            ? formatDateOnly(member.createdAt)
                             : "N/A"}
                         </span>
                         {member.createdAt && (
                           <span style={{ fontSize: "12px", color: "#6b7280" }}>
-                            {new Date(member.createdAt).toLocaleTimeString(
-                              "ko-KR",
-                              {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              }
-                            )}
+                            {formatTimeOnly(member.createdAt)}
                           </span>
                         )}
                       </div>
@@ -1057,7 +1047,13 @@ export default function MemberPage() {
           memberId={selectedMemberId}
           onDeleted={() => {
             // 현재 페이지의 유저가 1명이고 2페이지 이상이면 한 페이지 앞으로 이동
-            if (filtered.slice(currentPage * pageSize, (currentPage + 1) * pageSize).length === 1 && currentPage > 0) {
+            if (
+              filtered.slice(
+                currentPage * pageSize,
+                (currentPage + 1) * pageSize
+              ).length === 1 &&
+              currentPage > 0
+            ) {
               setCurrentPage(currentPage - 1);
             } else {
               fetchMembers();

@@ -10,10 +10,10 @@ import {
   FiChevronDown,
   FiArrowUp,
   FiSearch,
-
   FiAlertCircle,
   FiRotateCcw,
 } from "react-icons/fi";
+import { formatDateOnly } from "@/utils/dateUtils";
 import {
   FilterBar,
   FilterGroup,
@@ -145,7 +145,7 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
   useEffect(() => {
     if (clientModalOpen) {
       const originalStyle = window.getComputedStyle(document.body).overflow;
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
       return () => {
         document.body.style.overflow = originalStyle;
       };
@@ -163,34 +163,27 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
     if (!dateString) return "연도.연.월";
     const date = parseDate(dateString);
     if (!date) return "연도.연.월";
-    return date.toLocaleDateString("ko-KR", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    });
+    return formatDateOnly(date.toISOString());
   };
 
   // 날짜 변환
   const formatDateToYyyyMmDd = (date: Date) => {
     const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, "0");
     return `${year}-${month}-${day}`;
   };
-
-  
 
   const handleStartDateChange = (date: Date | null) => {
     if (date) {
       const newStartDate = formatDateToYyyyMmDd(date);
       if (filters.endDate && date > parseDate(filters.endDate)!) {
         onInputChange("startDate", newStartDate);
-        onInputChange("endDate", ""); 
+        onInputChange("endDate", "");
       } else {
         onInputChange("startDate", newStartDate);
       }
       // 종료일이 있고, 시작일이 종료일보다 뒤라면 종료일 초기화
-    
     }
     setStartDateOpen(false);
   };
@@ -279,7 +272,8 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
     };
   }, []);
 
-  const getStatusMap = (status: string) => STATUS_MAP[status as keyof typeof STATUS_MAP] || STATUS_MAP[""];
+  const getStatusMap = (status: string) =>
+    STATUS_MAP[status as keyof typeof STATUS_MAP] || STATUS_MAP[""];
 
   // 드롭다운 외부 클릭 시 닫기 (카테고리)
   useEffect(() => {
@@ -348,11 +342,14 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
                 onClick={handleStatusDropdownToggle}
               >
                 {getStatusMap(filters.projectStatus).icon &&
-                  React.createElement(getStatusMap(filters.projectStatus).icon, {
-                    size: 16,
-                    color: getStatusMap(filters.projectStatus).color,
-                    style: { marginRight: 4 },
-                  })}
+                  React.createElement(
+                    getStatusMap(filters.projectStatus).icon,
+                    {
+                      size: 16,
+                      color: getStatusMap(filters.projectStatus).color,
+                      style: { marginRight: 4 },
+                    }
+                  )}
                 <span>{getStatusMap(filters.projectStatus).label}</span>
                 <FiChevronDown size={16} />
               </StatusDropdownButton>
@@ -364,7 +361,7 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
                       $active={filters.projectStatus === value}
                       $color={color}
                       onClick={() => {
-                        onInputChange("status", value);
+                        onInputChange("projectStatus", value);
                         setStatusDropdownOpen(false);
                       }}
                     >
@@ -407,11 +404,17 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
                     }}
                   >
                     <DatePicker
-                      selected={filters.startDate ? parseDate(filters.startDate) : null} // ✅ new Date → parseDate로 교체
+                      selected={
+                        filters.startDate ? parseDate(filters.startDate) : null
+                      } // ✅ new Date → parseDate로 교체
                       onChange={handleStartDateChange}
                       selectsStart
-                      startDate={filters.startDate ? parseDate(filters.startDate) : null} // ✅ 교체
-                      endDate={filters.endDate ? parseDate(filters.endDate) : null} // ✅ 교체
+                      startDate={
+                        filters.startDate ? parseDate(filters.startDate) : null
+                      } // ✅ 교체
+                      endDate={
+                        filters.endDate ? parseDate(filters.endDate) : null
+                      } // ✅ 교체
                       dateFormat="yyyy-MM-dd"
                       placeholderText="시작일 선택"
                       inline
@@ -448,12 +451,22 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
                     }}
                   >
                     <DatePicker
-                      selected={filters.endDate ? parseDate(filters.endDate) : null} // ✅ 교체
+                      selected={
+                        filters.endDate ? parseDate(filters.endDate) : null
+                      } // ✅ 교체
                       onChange={handleEndDateChange}
                       selectsEnd
-                      startDate={filters.startDate ? parseDate(filters.startDate) : null} // ✅ 교체
-                      endDate={filters.endDate ? parseDate(filters.endDate) : null} // ✅ 교체
-                      minDate={filters.startDate ? parseDate(filters.startDate) : undefined} // ✅ 교체
+                      startDate={
+                        filters.startDate ? parseDate(filters.startDate) : null
+                      } // ✅ 교체
+                      endDate={
+                        filters.endDate ? parseDate(filters.endDate) : null
+                      } // ✅ 교체
+                      minDate={
+                        filters.startDate
+                          ? parseDate(filters.startDate)
+                          : undefined
+                      } // ✅ 교체
                       dateFormat="yyyy-MM-dd"
                       placeholderText="종료일 선택"
                       inline
@@ -484,7 +497,9 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
                   style={{ paddingLeft: 10, paddingRight: 10, minWidth: 90 }}
                 >
                   <span className="select-value">
-                    {SEARCH_CATEGORY_OPTIONS.find(opt => opt.value === category)?.label || "전체"}
+                    {SEARCH_CATEGORY_OPTIONS.find(
+                      (opt) => opt.value === category
+                    )?.label || "전체"}
                   </span>
                   <FiChevronDown size={16} />
                 </SelectButton>
@@ -512,8 +527,12 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
                   if (e.key === "Enter") handleSearch();
                 }}
               />
-              <NewButton onClick={handleSearch}><FiSearch size={16} /></NewButton>
-              <NewButton onClick={handleResetFilters}><FiRotateCcw size={16} /></NewButton>
+              <NewButton onClick={handleSearch}>
+                <FiSearch size={16} />
+              </NewButton>
+              <NewButton onClick={handleResetFilters}>
+                <FiRotateCcw size={16} />
+              </NewButton>
             </div>
           </FilterGroup>
         </div>

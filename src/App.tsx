@@ -1,8 +1,9 @@
 // src/App.tsx
 import { BrowserRouter as Router, useLocation } from "react-router-dom";
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { useNotification, useApiErrorHandler } from "@/hooks/useNotification";
+import { SseNotificationProvider } from "@/contexts/SseNotificationContext";
+import { useApiErrorHandler } from "@/hooks/useNotification";
 import AppRoutes from "@/routes/AppRoutes";
 import { Sidebar } from "@/layouts/Sidebar";
 import { Topbar } from "@/layouts/Topbar";
@@ -10,19 +11,12 @@ import Footer from "@/layouts/Footer/Footer";
 import { AppContainer, MainContent, PageContent } from "./App.styled";
 import { NotificationList } from "@/features/Notification/NotificationList";
 import { useNotification as useToastNotification } from "@/features/Notification/NotificationContext";
-import type { Notification } from "@/layouts/Topbar/Topbar.types";
 import { setupGlobalErrorHandler } from "@/utils/errorHandler";
 
 const LayoutWrapper = ({
   children,
-  notifications,
-  markAsRead,
-  error,
 }: {
   children: React.ReactNode;
-  notifications: Notification[];
-  markAsRead: (id: string) => void;
-  error: string | null;
 }) => {
   const location = useLocation();
   const isAuthPage = [
@@ -38,11 +32,7 @@ const LayoutWrapper = ({
     <AppContainer>
       <Sidebar />
       <MainContent>
-        <Topbar
-          notifications={notifications}
-          markAsRead={markAsRead}
-          error={error}
-        />
+        <Topbar />
         <PageContent>{children}</PageContent>
         <Footer />
       </MainContent>
@@ -51,13 +41,10 @@ const LayoutWrapper = ({
 };
 
 function AppContent() {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [error, setError] = useState<string | null>(null);
-
   const {
     notifications: toastNotifications,
-    removeNotification,
-    notify,
+    removeNotification: removeToastNotification,
+    notify: notifyToast,
   } = useToastNotification();
 
   // API 에러 핸들러 연결
@@ -72,7 +59,7 @@ function AppContent() {
   useEffect(() => {
     const handleShowToast = (event: CustomEvent) => {
       const { message, success } = event.detail;
-      notify(message, success);
+      notifyToast(message, success);
     };
 
     window.addEventListener("show-toast", handleShowToast as EventListener);
@@ -83,78 +70,15 @@ function AppContent() {
         handleShowToast as EventListener
       );
     };
-  }, [notify]);
-
-  useNotification(
-    (data) => {
-      const newNotification: Notification = {
-        ...data,
-        isRead: false,
-      };
-      setNotifications((prev) => {
-        // 중복 알림 방지
-        const isDuplicate = prev.some((n) => n.id === newNotification.id);
-        if (isDuplicate) return prev;
-        return [newNotification, ...prev];
-      });
-    },
-    (error) => {
-      setError(error);
-    }
-  );
-
-  const markAsRead = async (id: string) => {
-    try {
-      const notification = notifications.find((n) => n.id === id);
-      if (!notification) return;
-
-      // 상태 먼저 업데이트
-      setNotifications((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
-      );
-
-      // SSE를 통해 서버에 읽음 상태 전달
-      const eventSource = new EventSource(
-        `${import.meta.env.VITE_API_BASE_URL}/api/notifications/${id}/read`,
-        { withCredentials: true }
-      );
-
-      eventSource.onerror = () => {
-        // 에러 발생 시 상태 롤백
-        setNotifications((prev) =>
-          prev.map((n) => (n.id === id ? { ...n, isRead: false } : n))
-        );
-        setError("알림 상태를 업데이트하는 중 오류가 발생했습니다.");
-        eventSource.close();
-      };
-
-      eventSource.onmessage = () => {
-        // 성공적으로 처리됨
-        eventSource.close();
-
-        // 알림 클릭 시 해당 참조 페이지로 이동
-        if (notification.referenceId) {
-          // TODO: 알림 타입에 따른 라우팅 처리
-          // window.location.href = `/reference/${notification.referenceId}`;
-        }
-      };
-    } catch (error) {
-      console.error("Failed to mark notification as read:", error);
-      setError("알림 상태를 업데이트하는 중 오류가 발생했습니다.");
-    }
-  };
+  }, [notifyToast]);
 
   return (
     <>
       <NotificationList
         notifications={toastNotifications}
-        onRemove={removeNotification}
+        onRemove={removeToastNotification}
       />
-      <LayoutWrapper
-        notifications={notifications}
-        markAsRead={markAsRead}
-        error={error}
-      >
+      <LayoutWrapper>
         <AppRoutes />
       </LayoutWrapper>
     </>
@@ -164,9 +88,11 @@ function AppContent() {
 export default function App() {
   return (
     <AuthProvider>
-      <Router>
-        <AppContent />
-      </Router>
+      <SseNotificationProvider>
+        <Router>
+          <AppContent />
+        </Router>
+      </SseNotificationProvider>
     </AuthProvider>
   );
 }

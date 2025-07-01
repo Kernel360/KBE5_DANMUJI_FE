@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from "react";
 import api from "@/api/axios";
-import { FiX, FiUser, FiMail, FiCalendar, FiEdit3, FiTrash2 } from "react-icons/fi";
+import {
+  FiX,
+  FiUser,
+  FiMail,
+  FiCalendar,
+  FiEdit3,
+  FiTrash2,
+} from "react-icons/fi";
 import {
   ModalOverlay,
   ModalPanel,
@@ -17,6 +24,7 @@ import MemberEditModal from "../MemberEditModal/MemberEditModal";
 import { type Member, formatTelNo } from "../../pages/MemberPage";
 import { useNotification } from "@/features/Notification/NotificationContext";
 import type { MemberFormData } from "../MemberEditModal/MemberEditModal";
+import { formatDateOnly, formatTimeOnly } from "@/utils/dateUtils";
 
 interface Company {
   id: number;
@@ -32,7 +40,12 @@ interface MemberDetailModalProps {
 
 const iconStyle = { color: "#fdb924", marginRight: 6 };
 
-const MemberDetailModal: React.FC<MemberDetailModalProps> = ({ open, onClose, memberId, onDeleted }) => {
+const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
+  open,
+  onClose,
+  memberId,
+  onDeleted,
+}) => {
   const [member, setMember] = useState<Member | null>(null);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(false);
@@ -43,11 +56,12 @@ const MemberDetailModal: React.FC<MemberDetailModalProps> = ({ open, onClose, me
   useEffect(() => {
     if (!open || !memberId) return;
     setLoading(true);
-    api.get(`/api/admin/${memberId}`)
-      .then(res => {
+    api
+      .get(`/api/admin/${memberId}`)
+      .then((res) => {
         setMember(res.data.data);
       })
-      .catch(err => {
+      .catch((err) => {
         setError("회원 정보를 불러오지 못했습니다.");
         console.error("회원 정보 불러오기 실패:", err);
       })
@@ -56,11 +70,12 @@ const MemberDetailModal: React.FC<MemberDetailModalProps> = ({ open, onClose, me
 
   useEffect(() => {
     if (!open) return;
-    api.get("/api/companies/all")
-      .then(res => {
+    api
+      .get("/api/companies/all")
+      .then((res) => {
         setCompanies(Array.isArray(res.data.data) ? res.data.data : []);
       })
-      .catch(err => {
+      .catch((err) => {
         setCompanies([]);
         console.error("업체 목록을 불러오지 못했습니다:", err);
       });
@@ -100,15 +115,23 @@ const MemberDetailModal: React.FC<MemberDetailModalProps> = ({ open, onClose, me
 
   return (
     <ModalOverlay onClick={onClose}>
-      <ModalPanel onClick={e => e.stopPropagation()}>
+      <ModalPanel onClick={(e) => e.stopPropagation()}>
         <CloseButton onClick={onClose}>
           <FiX size={20} />
         </CloseButton>
         <ModalTitle>회원 상세 정보</ModalTitle>
         {loading ? (
-          <div style={{ textAlign: "center", padding: "40px 0", color: "#888" }}>회원 정보를 불러오는 중...</div>
+          <div
+            style={{ textAlign: "center", padding: "40px 0", color: "#888" }}
+          >
+            회원 정보를 불러오는 중...
+          </div>
         ) : error ? (
-          <div style={{ textAlign: "center", padding: "40px 0", color: "#ef4444" }}>{error}</div>
+          <div
+            style={{ textAlign: "center", padding: "40px 0", color: "#ef4444" }}
+          >
+            {error}
+          </div>
         ) : member ? (
           <>
             <Section>
@@ -129,7 +152,10 @@ const MemberDetailModal: React.FC<MemberDetailModalProps> = ({ open, onClose, me
               </DetailItem>
               <DetailItem>
                 <DetailLabel>소속 업체</DetailLabel>
-                <DetailValue>{companies.find(c => c.id === member.companyId)?.name || "소속 없음"}</DetailValue>
+                <DetailValue>
+                  {companies.find((c) => c.id === member.companyId)?.name ||
+                    "소속 없음"}
+                </DetailValue>
               </DetailItem>
             </Section>
             <Section>
@@ -152,10 +178,12 @@ const MemberDetailModal: React.FC<MemberDetailModalProps> = ({ open, onClose, me
               <DetailItem>
                 <DetailLabel>가입일</DetailLabel>
                 <DetailValue>
-                  {member.createdAt ? new Date(member.createdAt).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" }) : "N/A"}
+                  {member.createdAt ? formatDateOnly(member.createdAt) : "N/A"}
                   {member.createdAt && (
-                    <span style={{ marginLeft: 8, color: "#6b7280", fontSize: 12 }}>
-                      {new Date(member.createdAt).toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })}
+                    <span
+                      style={{ marginLeft: 8, color: "#6b7280", fontSize: 12 }}
+                    >
+                      {formatTimeOnly(member.createdAt)}
                     </span>
                   )}
                 </DetailValue>
@@ -164,16 +192,35 @@ const MemberDetailModal: React.FC<MemberDetailModalProps> = ({ open, onClose, me
                 <DetailItem>
                   <DetailLabel>최근 로그인</DetailLabel>
                   <DetailValue>
-                    {new Date(member.lastLoginAt).toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })}
-                    <span style={{ marginLeft: 8, color: "#6b7280", fontSize: 12 }}>
-                      {new Date(member.lastLoginAt).toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })}
+                    {new Date(member.lastLoginAt).toLocaleDateString("ko-KR", {
+                      year: "numeric",
+                      month: "2-digit",
+                      day: "2-digit",
+                    })}
+                    <span
+                      style={{ marginLeft: 8, color: "#6b7280", fontSize: 12 }}
+                    >
+                      {new Date(member.lastLoginAt).toLocaleTimeString(
+                        "ko-KR",
+                        { hour: "2-digit", minute: "2-digit" }
+                      )}
                     </span>
                   </DetailValue>
                 </DetailItem>
               )}
             </Section>
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, marginTop: 32 }}>
-              <ModalButton $variant="secondary" onClick={() => setEditOpen(true)}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: 12,
+                marginTop: 32,
+              }}
+            >
+              <ModalButton
+                $variant="secondary"
+                onClick={() => setEditOpen(true)}
+              >
                 <FiEdit3 style={{ color: "#fdb924" }} /> 수정
               </ModalButton>
               <ModalButton $variant="primary" onClick={handleDelete}>
@@ -189,11 +236,15 @@ const MemberDetailModal: React.FC<MemberDetailModalProps> = ({ open, onClose, me
             )}
           </>
         ) : (
-          <div style={{ textAlign: "center", padding: "40px 0", color: "#888" }}>회원 정보를 찾을 수 없습니다.</div>
+          <div
+            style={{ textAlign: "center", padding: "40px 0", color: "#888" }}
+          >
+            회원 정보를 찾을 수 없습니다.
+          </div>
         )}
       </ModalPanel>
     </ModalOverlay>
   );
 };
 
-export default MemberDetailModal; 
+export default MemberDetailModal;

@@ -25,13 +25,28 @@ export const NotificationButton = styled.button`
 
 export const NotificationBadge = styled.div`
   position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 8px;
-  height: 8px;
-  background-color: #ef4444;
-  border-radius: 4px;
+  top: -2px;
+  right: -2px;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #fff;
+  border-radius: 60%;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  border: 2px solid #fff;
+  z-index: 1;
+  transition: transform 0.2s ease;
+
+  ${NotificationButton}:hover & {
+    transform: scale(1.1);
+  }
 `;
+
 
 export const DropdownMenu = styled.div`
   position: absolute;
@@ -82,13 +97,13 @@ export const NotificationList = styled.div`
   padding: 8px 0;
 `;
 
-export const NotificationItem = styled.div<{ isRead: boolean }>`
+export const NotificationItem = styled.div<{ $isRead: boolean }>`
   padding: 12px 16px;
   cursor: pointer;
-  background-color: ${({ isRead }) => (isRead ? "transparent" : "#f9fafb")};
+  background-color: ${({ $isRead }) => ($isRead ? '#fff' : '#f9fafb')};
 
   &:hover {
-    background-color: #f3f4f6;
+    background-color: ${({ $isRead }) => ($isRead ? '#f5f5f5' : '#f3f4f6')};
   }
 `;
 

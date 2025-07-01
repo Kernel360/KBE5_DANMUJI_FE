@@ -13,6 +13,7 @@ import {
 import { FiUser, FiCalendar } from "react-icons/fi";
 import { LuUserRoundCog } from "react-icons/lu";
 import { POST_PRIORITY_LABELS } from "../../types/Types";
+import { formatDateOnly, formatTimeOnly } from "@/utils/dateUtils";
 import type { PostSummaryReadResponse } from "../../../project-d/types/post";
 import { PostPriority, PostType } from "../../../project-d/types/post";
 import type { ProjectDetailStep } from "../../services/projectService";
@@ -33,16 +34,8 @@ const ProjectBoardTable: React.FC<ProjectBoardTableProps> = ({
   onRowClick,
 }) => {
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const dateStr = date.toLocaleDateString("ko-KR", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    });
-    const timeStr = date.toLocaleTimeString("ko-KR", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    const dateStr = formatDateOnly(dateString);
+    const timeStr = formatTimeOnly(dateString);
 
     return (
       <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
