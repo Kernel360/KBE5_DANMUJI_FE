@@ -381,16 +381,17 @@ const PriorityPostsSection = () => {
                       {getTypeText(post.type)}
                     </TypeBadge>
                   </div>
+                  <span
+                    style={{
+                      fontSize: "16px",
+                      color: "#111827",
+                      fontWeight: "600",
+                      marginLeft: "8px",
+                    }}
+                  >
+                    {post.title}
+                  </span>
                 </div>
-                <span
-                  style={{
-                    fontSize: "16px",
-                    color: "#111827",
-                    fontWeight: "600",
-                  }}
-                >
-                  {post.title}
-                </span>
               </div>
               <div
                 style={{
