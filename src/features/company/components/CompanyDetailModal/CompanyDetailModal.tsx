@@ -113,6 +113,7 @@ const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
       const companyUpdateData = {
         name: data.name,
         bizNo: bizNoCombined,
+        zonecode: data.zonecode,
         address: data.address,
         ceoName: data.ceoName,
         email: data.email,
@@ -193,7 +194,7 @@ const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
               <FiMapPin size={14} />
             </DetailIcon>
             <DetailLabel>주소:</DetailLabel>
-            <DetailValue>{company.address}</DetailValue>
+            <DetailValue>{company.zonecode ? `(${company.zonecode}) ` : ''}{company.address}</DetailValue>
           </DetailItem>
           <DetailItem>
             <DetailIcon>
