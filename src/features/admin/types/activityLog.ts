@@ -132,7 +132,8 @@ export interface PostDashboardReadResponse {
 export interface MyMentionListResponse {
   notificationId: number;
   clientId: number;
-  referenceId: number;
+  projectId: number | null;
+  postId: number | null;
   content: string;
   type: string;
   isRead: boolean;
