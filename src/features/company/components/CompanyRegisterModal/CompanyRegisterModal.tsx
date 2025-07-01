@@ -21,24 +21,30 @@ import ReactDOM from "react-dom";
 // PostcodeRow, PostcodeButton styled-components 정의
 const PostcodeRow = styled.div`
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
+  justify-content: space-between;
 `;
 const PostcodeButton = styled.button`
   background: #f3f4f6;
   color: #374151;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
-  padding: 8px 14px;
+  padding: 7px 12px;
   font-size: 13px;
   font-weight: 600;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   cursor: pointer;
   transition: all 0.15s;
   &:hover {
     background: #e0e7ef;
+  }
+  svg {
+    margin-right: 2px;
+    font-size: 14px;
+    vertical-align: middle;
   }
 `;
 
@@ -460,7 +466,16 @@ export default function CompanyRegisterModal({
     }
   };
 
-  
+  // zonecode input width 조정
+  const ZonecodeInput = styled(Input)`
+    width: 120px;
+    margin-bottom: 3px;
+  `;
+
+  // 주소 입력란(기본주소, 상세주소)에도 margin-bottom 추가
+  const AddressInput = styled(Input)`
+    margin-bottom: 3px;
+  `;
 
   return ReactDOM.createPortal(
     <ModalOverlay>
@@ -536,13 +551,14 @@ export default function CompanyRegisterModal({
               주소
             </Label>
             <PostcodeRow>
-              <Input name="zonecode" placeholder="우편번호를 입력하세요" readOnly />
+              <ZonecodeInput name="zonecode" placeholder="우편번호" readOnly />
               <PostcodeButton type="button" onClick={handleOpenPostcode}>
-                <FiSearch size={14} /> 우편번호 찾기
+                <FiSearch size={14} />
+                우편번호 찾기
               </PostcodeButton>
             </PostcodeRow>
-            <Input name="address" placeholder="기본주소를 입력하세요" />
-            <Input name="addressDetail" placeholder="상세주소를 입력하세요" />
+            <AddressInput name="address" placeholder="기본주소를 입력하세요" readOnly />
+            <AddressInput name="addressDetail" placeholder="상세주소를 입력하세요" />
             {fieldErrors.find((e) => e.field === "address") && (
               <p style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>
                 {fieldErrors.find((e) => e.field === "address")?.reason}
