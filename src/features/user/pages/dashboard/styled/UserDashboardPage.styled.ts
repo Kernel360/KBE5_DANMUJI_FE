@@ -38,9 +38,10 @@ export const DashboardTitle = styled.h1`
 `;
 
 export const DashboardDescription = styled.div`
-  color: #8b95a1;
-  font-size: 0.95rem;
-  margin-left: 16px;
+  color: #bdbdbd;
+  font-size: 0.9rem;
+  margin-bottom: 18px;
+  margin-left: 0px;
 `;
 
 // 레이아웃 구조
