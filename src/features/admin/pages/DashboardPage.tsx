@@ -27,6 +27,7 @@ import {
 } from "react-icons/fa";
 import { FiPackage } from "react-icons/fi";
 import CompanyDetailModal from "@/features/company/components/CompanyDetailModal/CompanyDetailModal";
+import { useNavigate } from "react-router-dom";
 
 // Define interfaces for new data types
 interface RecentPost {
@@ -128,6 +129,7 @@ export default function DashboardPage() {
   const [projectList, setProjectList] = useState<ProjectListItem[]>([]);
   const [loadingProjects, setLoadingProjects] = useState(false);
   const [projectListError, setProjectListError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   // 차트용 데이터
   const projectStatusData = [
@@ -656,9 +658,23 @@ export default function DashboardPage() {
                 <div style={{ textAlign: "center", color: "#aaa", padding: 12 }}>프로젝트가 없습니다.</div>
               ) : (
                 projectList.map((project) => (
-                  <div key={project.id} style={{ padding: 12, borderBottom: "1px solid #eee" }}>
-                    <div style={{ fontWeight: 600 }}>{project.name}</div>
-                    <div style={{ color: "#888", fontSize: 13 }}>{project.startDate} ~ {project.endDate}</div>
+                  <div
+                    key={project.id}
+                    style={{
+                      padding: "12px 0",
+                      borderBottom: "1px solid #f3f4f6",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      cursor: "pointer",
+                      transition: "background 0.15s",
+                    }}
+                    onClick={() => navigate(`/projects/${project.id}/detail`)}
+                    onMouseOver={e => (e.currentTarget.style.background = "#f9fafb")}
+                    onMouseOut={e => (e.currentTarget.style.background = "")}
+                  >
+                    <span style={{ fontSize: "14px", color: "#374151" }}>{project.name}</span>
+                    <span style={{ fontSize: "13px", color: "#888" }}>{project.startDate} ~ {project.endDate}</span>
                   </div>
                 ))
               )}
@@ -724,7 +740,6 @@ export default function DashboardPage() {
                       fontSize: "14px",
                       color: "#374151",
                       cursor: "pointer",
-                      textDecoration: "underline",
                     }}
                     onClick={() =>
                       (window.location.href = `/inquiry/${inquiry.id}`)
@@ -802,7 +817,6 @@ export default function DashboardPage() {
                       fontSize: "14px",
                       color: "#374151",
                       cursor: "pointer",
-                      textDecoration: "underline",
                     }}
                     onClick={() => {
                       setSelectedCompanyId(company.id);
@@ -890,7 +904,6 @@ export default function DashboardPage() {
                       fontSize: "14px",
                       color: "#374151",
                       cursor: "pointer",
-                      textDecoration: "underline",
                     }}
                     onClick={() =>
                       (window.location.href = `/projects/${project.id}/detail`)
