@@ -173,6 +173,18 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = ({
       {projectDetail.description && (
         <ProjectDescription>{projectDetail.description}</ProjectDescription>
       )}
+      {typeof projectDetail.projectCost !== 'undefined' && projectDetail.projectCost !== null && (
+        <div style={{
+          fontSize: '1.08rem',
+          color: '#4338ca',
+          fontWeight: 600,
+          margin: '0 0 8px 24px',
+          lineHeight: 1.5,
+          letterSpacing: '0.01em',
+        }}>
+          프로젝트 금액: {Number(projectDetail.projectCost).toLocaleString()}원
+        </div>
+      )}
       <ProjectMeta>
         <ProjectPeriod>
           <FiCalendar size={14} />

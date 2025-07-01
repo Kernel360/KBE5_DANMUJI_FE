@@ -72,6 +72,7 @@ export type ProjectDetailResponse = {
   description: string;
   startDate: string;
   endDate: string;
+  projectCost: string;
   projectStatus: string;
   progress : number;
   clients: ProjectCompany[];
