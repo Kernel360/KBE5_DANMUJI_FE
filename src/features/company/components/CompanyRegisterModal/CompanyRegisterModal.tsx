@@ -321,11 +321,11 @@ export default function CompanyRegisterModal({
       oncomplete: (data: any) => {
         const form = formRef.current;
         if (!form) return;
-        const zonecodeInput = form.querySelector("input[name='zonecode']") as HTMLInputElement;
+        const zoneCodeInput = form.querySelector("input[name='zonecode']") as HTMLInputElement;
         const addressInput = form.querySelector("input[name='address']") as HTMLInputElement;
         const addressDetailInput = form.querySelector("input[name='addressDetail']") as HTMLInputElement;
   
-        zonecodeInput.value = data.zonecode;
+        zoneCodeInput.value = data.zonecode;
         addressInput.value = data.roadAddress || data.jibunAddress;
         addressDetailInput?.focus();
       },
@@ -467,7 +467,7 @@ export default function CompanyRegisterModal({
   };
 
   // zonecode input width 조정
-  const ZonecodeInput = styled(Input)`
+  const ZoneCodeInput = styled(Input)`
     width: 120px;
     margin-bottom: 3px;
   `;
@@ -551,7 +551,7 @@ export default function CompanyRegisterModal({
               주소
             </Label>
             <PostcodeRow>
-              <ZonecodeInput name="zonecode" placeholder="우편번호" readOnly />
+              <ZoneCodeInput name="zonecode" placeholder="우편번호" readOnly />
               <PostcodeButton type="button" onClick={handleOpenPostcode}>
                 <FiSearch size={14} />
                 우편번호 찾기

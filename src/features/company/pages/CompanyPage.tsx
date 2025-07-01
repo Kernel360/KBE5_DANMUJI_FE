@@ -34,6 +34,8 @@ export interface CompanyFormData {
   reg2: string;
   reg3: string;
   zonecode: string;
+  baseAddress: string;
+  detailAddress: string;
   address: string;
   ceoName: string;
   email: string;
