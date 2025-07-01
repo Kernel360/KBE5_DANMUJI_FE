@@ -17,9 +17,9 @@ interface WarningProjectsSectionProps {
 }
 
 const getProgressPercent = (steps: { projectStepStatus: string }[]) => {
-  if (!steps || steps.length === 0) return 0;
+  if (!steps || !Array.isArray(steps) || steps.length === 0) return 0;
   const completed = steps.filter(
-    (s) => s.projectStepStatus === "COMPLETED"
+    (s) => s?.projectStepStatus === "COMPLETED"
   ).length;
   return Math.round((completed / steps.length) * 100);
 };
