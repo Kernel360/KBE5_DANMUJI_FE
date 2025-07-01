@@ -179,70 +179,44 @@ const PriorityPostsSection = () => {
                     style={{
                       display: "flex",
                       alignItems: "center",
-                      gap: "12px",
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                      }}
-                    >
-                      <FaProjectDiagram
-                        size={14}
-                        style={{ color: "#8b5cf6" }}
-                      />
-                      <span
-                        style={{
-                          fontSize: "14px",
-                          color: "#6b7280",
-                          fontWeight: "500",
-                        }}
-                      >
-                        {post.projectName}
-                      </span>
-                    </div>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                      }}
-                    >
-                      <FiLayers size={14} style={{ color: "#6366f1" }} />
-                      <span
-                        style={{
-                          fontSize: "14px",
-                          color: "#6b7280",
-                          fontWeight: "500",
-                        }}
-                      >
-                        {post.projectStepName}
-                      </span>
-                    </div>
-                  </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
                       gap: "8px",
                     }}
                   >
-                    {getTypeIcon(post.type)}
-                    <TypeBadge $type={post.type as PostType}>
-                      {getTypeText(post.type)}
-                    </TypeBadge>
-                    <span
+                    <div
                       style={{
-                        fontSize: "16px",
-                        color: "#111827",
-                        fontWeight: "600",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "4px",
                       }}
                     >
-                      {post.title}
-                    </span>
+                      {getPriorityIcon(post.priority)}
+                      <StatusBadge $priority={post.priority as PostPriority}>
+                        {POST_PRIORITY_LABELS[post.priority as PostPriority] ??
+                          post.priority}
+                      </StatusBadge>
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "4px",
+                      }}
+                    >
+                      {getTypeIcon(post.type)}
+                      <TypeBadge $type={post.type as PostType}>
+                        {getTypeText(post.type)}
+                      </TypeBadge>
+                    </div>
                   </div>
+                  <span
+                    style={{
+                      fontSize: "16px",
+                      color: "#111827",
+                      fontWeight: "600",
+                    }}
+                  >
+                    {post.title}
+                  </span>
                 </div>
               </S.PriorityLabel>
               <div
@@ -258,14 +232,45 @@ const PriorityPostsSection = () => {
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    gap: "8px",
+                    gap: "12px",
                   }}
                 >
-                  {getPriorityIcon(post.priority)}
-                  <StatusBadge $priority={post.priority as PostPriority}>
-                    {POST_PRIORITY_LABELS[post.priority as PostPriority] ??
-                      post.priority}
-                  </StatusBadge>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                    }}
+                  >
+                    <FaProjectDiagram size={14} style={{ color: "#8b5cf6" }} />
+                    <span
+                      style={{
+                        fontSize: "14px",
+                        color: "#6b7280",
+                        fontWeight: "500",
+                      }}
+                    >
+                      {post.projectName}
+                    </span>
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                    }}
+                  >
+                    <FiLayers size={14} style={{ color: "#6366f1" }} />
+                    <span
+                      style={{
+                        fontSize: "14px",
+                        color: "#6b7280",
+                        fontWeight: "500",
+                      }}
+                    >
+                      {post.projectStepName}
+                    </span>
+                  </div>
                 </div>
                 <div
                   style={{
