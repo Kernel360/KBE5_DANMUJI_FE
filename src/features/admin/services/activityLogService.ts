@@ -2,6 +2,7 @@ import api from "@/api/axios";
 import type {
   HistoryDetailResponse,
   ActivityLogDetail,
+  PostDashboardReadResponse,
 } from "../types/activityLog";
 
 // 임시 타입 정의 (모듈 import 문제 해결을 위해)
@@ -226,6 +227,21 @@ export const getActivityLogDetail = async (
     };
   } catch (error) {
     console.error("이력 상세 조회 실패:", error);
+    throw error;
+  }
+};
+
+// 우선순위 높은 게시글 조회
+export const getHighPriorityPosts = async (): Promise<
+  PostDashboardReadResponse[]
+> => {
+  try {
+    const response = await api.get<ApiResponse<PostDashboardReadResponse[]>>(
+      `/api/posts/priority/high`
+    );
+    return response.data.data;
+  } catch (error) {
+    console.error("우선순위 높은 게시글 조회 실패:", error);
     throw error;
   }
 };
