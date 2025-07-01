@@ -11,9 +11,11 @@ export default function useCompanyMemberSelect() {
   const [editMembers, setEditMembers] = useState<Member>([]);
   const [modalType, setModalType] = useState<ModalType>(null);
 
-  const openCompanyMemberModal = (type: "dev" | "client") => {
-    setEditCompany(null);
-    setEditMembers([]);
+  const openCompanyMemberModal = (type: "dev" | "client", reset: boolean = true) => {
+    if (reset) {
+      setEditCompany(null);
+      setEditMembers([]);
+    }
     setModalType(type);
     setShowCompanyMemberModal(true);
   };

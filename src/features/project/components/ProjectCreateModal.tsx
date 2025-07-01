@@ -488,7 +488,7 @@ export default function ProjectCreateModal({
                       cursor: "pointer",
                     }}
                     onClick={() => {
-                      openCompanyMemberModal("dev");
+                      openCompanyMemberModal("dev", true);
                     }}
                   >
                     + 개발사 추가
@@ -530,7 +530,7 @@ export default function ProjectCreateModal({
                         onClick={() => {
                           setEditCompany(company);
                           setEditMembers(members);
-                          openCompanyMemberModal("dev");
+                          openCompanyMemberModal("dev", false);
                         }}
                       >
                         수정
@@ -582,7 +582,7 @@ export default function ProjectCreateModal({
                       cursor: "pointer",
                     }}
                     onClick={() => {
-                      openCompanyMemberModal("client");
+                      openCompanyMemberModal("client", true);
                     }}
                   >
                     + 고객사 추가
@@ -624,7 +624,7 @@ export default function ProjectCreateModal({
                         onClick={() => {
                           setEditCompany(company);
                           setEditMembers(members);
-                          openCompanyMemberModal("client");
+                          openCompanyMemberModal("client", false);
                         }}
                       >
                         수정
