@@ -6,6 +6,7 @@ import {
   FiClock,
   FiCheckCircle,
   FiAlertTriangle,
+  FiAlertCircle,
   FiArrowLeft,
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
@@ -62,6 +63,8 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = ({
         return <FiCheckCircle size={14} style={{ marginRight: 4 }} />;
       case "DELAY":
         return <FiAlertTriangle size={14} style={{ marginRight: 4 }} />;
+      case "DUE_SOON":
+        return <FiAlertCircle size={14} style={{ marginRight: 4 }} />;
       default:
         return null;
     }
@@ -76,6 +79,8 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = ({
         return "완료";
       case "DELAY":
         return "지연";
+      case "DUE_SOON":
+        return "기한 임박";
       default:
         return status;
     }
@@ -90,6 +95,8 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = ({
         return "#059669";
       case "DELAY":
         return "#ef4444";
+      case "DUE_SOON":
+        return "#f59e0b";
       default:
         return "#6b7280";
     }
