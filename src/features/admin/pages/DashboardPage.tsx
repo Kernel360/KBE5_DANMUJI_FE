@@ -18,21 +18,16 @@ import {
   Cell,
   Tooltip,
   ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
 } from "recharts";
 import {
   FaUsers,
   FaBuilding,
   FaProjectDiagram,
-  FaChartLine,
   FaChartPie,
   FaQuestionCircle,
 } from "react-icons/fa";
 import CompanyDetailModal from "@/features/company/components/CompanyDetailModal/CompanyDetailModal";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 // Define interfaces for new data types
 interface RecentPost {
@@ -103,6 +98,36 @@ const CustomLabel = ({
   );
 };
 
+// Define ProjectStatusKey
+type ProjectStatusKey = 'DUE_SOON' | 'IN_PROGRESS' | 'COMPLETED' | 'DELAY';
+
+// Define DummyProject interface
+interface DummyProject { id: number; name: string; deadline: string; }
+
+// 더미 프로젝트 데이터
+const dummyProjectsAll: Record<ProjectStatusKey, DummyProject[]> = {
+  DUE_SOON: Array.from({ length: 50 }, (_, i) => ({
+    id: i + 1,
+    name: `마감임박 프로젝트 ${i + 1}`,
+    deadline: `2024-06-${(i % 30 + 1).toString().padStart(2, '0')}`,
+  })),
+  IN_PROGRESS: Array.from({ length: 50 }, (_, i) => ({
+    id: 100 + i + 1,
+    name: `진행중 프로젝트 ${i + 1}`,
+    deadline: `2024-07-${(i % 30 + 1).toString().padStart(2, '0')}`,
+  })),
+  COMPLETED: Array.from({ length: 50 }, (_, i) => ({
+    id: 200 + i + 1,
+    name: `완료 프로젝트 ${i + 1}`,
+    deadline: `2024-05-${(i % 30 + 1).toString().padStart(2, '0')}`,
+  })),
+  DELAY: Array.from({ length: 50 }, (_, i) => ({
+    id: 300 + i + 1,
+    name: `지연 프로젝트 ${i + 1}`,
+    deadline: `2024-05-${(i % 30 + 1).toString().padStart(2, '0')}`,
+  })),
+};
+
 export default function DashboardPage() {
   const [companyCount, setCompanyCount] = useState(0);
   const [memberCount, setMemberCount] = useState(0);
@@ -119,6 +144,9 @@ export default function DashboardPage() {
   const [recentInquiries, setRecentInquiries] = useState<RecentPost[]>([]);
   const [companyDetailModalOpen, setCompanyDetailModalOpen] = useState(false);
   const [selectedCompanyId, setSelectedCompanyId] = useState<number | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<ProjectStatusKey>("DUE_SOON");
+  const [displayedProjects, setDisplayedProjects] = useState<DummyProject[]>(dummyProjectsAll["DUE_SOON"].slice(0, 5));
+  const [hasMore, setHasMore] = useState(dummyProjectsAll["DUE_SOON"].length > 5);
 
   // 차트용 데이터
   const projectStatusData = [
@@ -131,15 +159,6 @@ export default function DashboardPage() {
     { name: "완료", value: completedProjectCount, fill: "#d1fae5", stroke: "#10b981" },
     { name: "지연", value: delayedProjectCount, fill: "#fef3c7", stroke: "#f59e0b" },
     { name: "마감임박", value: dueSoonProjectCount, fill: "#fee2e2", stroke: "#ef4444" },
-  ];
-
-  const monthlyData = [
-    { month: "1월", posts: 12, projects: 3 },
-    { month: "2월", posts: 19, projects: 5 },
-    { month: "3월", posts: 15, projects: 4 },
-    { month: "4월", posts: 22, projects: 7 },
-    { month: "5월", posts: 18, projects: 6 },
-    { month: "6월", posts: 25, projects: 8 },
   ];
 
   // 최근 등록된 업체만 다시 불러오는 함수
@@ -210,6 +229,21 @@ export default function DashboardPage() {
 
     fetchData();
   }, [fetchRecentCompanies]);
+
+  useEffect(() => {
+    setDisplayedProjects(dummyProjectsAll[selectedStatus].slice(0, 5));
+    setHasMore(dummyProjectsAll[selectedStatus].length > 5);
+  }, [selectedStatus]);
+
+  const fetchMoreProjects = () => {
+    setTimeout(() => {
+      setDisplayedProjects(prev => {
+        const next = dummyProjectsAll[selectedStatus].slice(0, prev.length + 5);
+        setHasMore(next.length < dummyProjectsAll[selectedStatus].length);
+        return next;
+      });
+    }, 500);
+  };
 
   return (
     <DashboardContainer>
@@ -548,6 +582,11 @@ export default function DashboardPage() {
                     stroke="#ffffff"
                     strokeWidth={1}
                     labelLine={false}
+                    onClick={(_, index) => {
+                      // 상태 순서: 진행중, 완료, 지연, 마감임박
+                      const statusKey = ["IN_PROGRESS", "COMPLETED", "DELAY", "DUE_SOON"][index] as ProjectStatusKey;
+                      setSelectedStatus(statusKey);
+                    }}
                   >
                     {projectStatusData.map((entry, index) => (
                       <Cell
@@ -576,7 +615,7 @@ export default function DashboardPage() {
               </ResponsiveContainer>
             </div>
           </div>
-          {/* 월별 활동 추이 */}
+          {/* 오른쪽: 상태별 프로젝트 리스트 */}
           <div style={{ flex: 1, minWidth: 320 }}>
             <RecentActivityTitle
               style={{
@@ -589,41 +628,33 @@ export default function DashboardPage() {
                 marginBottom: "20px",
               }}
             >
-              <FaChartLine style={{ color: "#fdb924" }} />
-              월별 활동 추이
+              {(() => {
+                switch (selectedStatus) {
+                  case "DUE_SOON": return "마감 임박 프로젝트";
+                  case "IN_PROGRESS": return "진행중 프로젝트";
+                  case "COMPLETED": return "완료 프로젝트";
+                  case "DELAY": return "지연 프로젝트";
+                  default: return "프로젝트 리스트";
+                }
+              })()}
             </RecentActivityTitle>
-            <div style={{ height: "260px" }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={monthlyData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                  <XAxis dataKey="month" stroke="#6b7280" fontSize={12} />
-                  <YAxis stroke="#6b7280" fontSize={12} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "#ffffff",
-                      border: "1px solid #e5e7eb",
-                      borderRadius: "8px",
-                      boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-                    }}
-                  />
-                  <Bar
-                    dataKey="posts"
-                    fill="#fef3c7"
-                    stroke="#fdb924"
-                    strokeWidth={2}
-                    name="게시물"
-                    radius={[4, 4, 0, 0]}
-                  />
-                  <Bar
-                    dataKey="projects"
-                    fill="#dbeafe"
-                    stroke="#3b82f6"
-                    strokeWidth={2}
-                    name="프로젝트"
-                    radius={[4, 4, 0, 0]}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
+            <div style={{ height: 260, overflow: 'auto' }}>
+              <InfiniteScroll
+                dataLength={displayedProjects.length}
+                next={fetchMoreProjects}
+                hasMore={hasMore}
+                loader={<div style={{ textAlign: "center", padding: 12 }}>로딩중...</div>}
+                height={260}
+                endMessage={<div style={{ textAlign: "center", color: "#aaa", padding: 12 }}>모든 프로젝트를 불러왔습니다.</div>}
+                scrollableTarget={null}
+              >
+                {displayedProjects.map((project: DummyProject) => (
+                  <div key={project.id} style={{ padding: 12, borderBottom: "1px solid #eee" }}>
+                    <div style={{ fontWeight: 600 }}>{project.name}</div>
+                    <div style={{ color: "#888", fontSize: 13 }}>마감일: {project.deadline}</div>
+                  </div>
+                ))}
+              </InfiniteScroll>
             </div>
           </div>
         </div>
