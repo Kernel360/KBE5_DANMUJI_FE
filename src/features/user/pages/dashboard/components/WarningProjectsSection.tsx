@@ -73,7 +73,7 @@ const WarningProjectsSection: React.FC<WarningProjectsSectionProps> = ({
           </S.ProgressListEmpty>
         );
       }
-      return filtered.map((project) => {
+      return filtered.map((project, idx) => {
         const today = new Date();
         const end = new Date(project.endDate);
         const diff = Math.ceil(
@@ -81,7 +81,7 @@ const WarningProjectsSection: React.FC<WarningProjectsSectionProps> = ({
         );
         return (
           <S.ProjectCard
-            key={project.id}
+            key={`warning-project-${project.id}-${idx}`}
             onClick={() =>
               window.location.assign(`/projects/${project.id}/detail`)
             }
@@ -109,7 +109,7 @@ const WarningProjectsSection: React.FC<WarningProjectsSectionProps> = ({
               >
                 {project.name}
               </div>
-              <S.StatusBadge status={project.status}>
+              <S.StatusBadge $status={project.status}>
                 {project.status === "COMPLETED" && "완료"}
                 {project.status === "IN_PROGRESS" && "진행중"}
                 {project.status === "DELAYED" &&

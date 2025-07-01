@@ -301,9 +301,9 @@ const PriorityPostsSection = () => {
           <p style={{ color: "#6b7280" }}>우선순위 높은 게시글이 없습니다.</p>
         </div>
       ) : (
-        posts.map((post) => (
+        posts.map((post, idx) => (
           <S.PriorityCard
-            key={post.postId}
+            key={`priority-post-${post.postId}-${idx}`}
             onClick={() => handlePostClick(post.postId)}
             style={{ cursor: "pointer" }}
           >

@@ -124,14 +124,14 @@ const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
             const percent = getProgressPercent(project.steps);
             return (
               <S.ProjectCard
-                key={project.id}
+                key={`project-${project.id}-${idx}`}
                 onClick={() => navigate(`/projects/${project.id}/detail`)}
                 style={{ cursor: "pointer" }}
               >
                 <S.ProjectHeaderRow>
                   <S.ProjectTitle>{project.name}</S.ProjectTitle>
                   {statusTab !== "IN_PROGRESS" && (
-                    <S.StatusBadge status={project.status}>
+                    <S.StatusBadge $status={project.status}>
                       {project.status === "COMPLETED" && "완료"}
                       {project.status === "IN_PROGRESS" && "진행중"}
                       {project.status !== "COMPLETED" &&
@@ -159,12 +159,12 @@ const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
                             (s) => s.projectStepStatus === "IN_PROGRESS"
                           )?.name || "진행중"}
                         </S.ProjectProgressStep>
-                        <S.ProjectProgressPercent percent={percent}>
+                        <S.ProjectProgressPercent $percent={percent}>
                           {percent}%
                         </S.ProjectProgressPercent>
                       </div>
                       <S.ProgressBarWrap style={{ marginTop: 0 }}>
-                        <S.ProgressBar percent={animatedPercents[idx] ?? 0} />
+                        <S.ProgressBar $percent={animatedPercents[idx] ?? 0} />
                       </S.ProgressBarWrap>
                     </div>
                   </S.ProjectProgressInfo>

@@ -380,9 +380,9 @@ const MentionedPostsSection = () => {
           <p style={{ color: "#6b7280" }}>새로운 알림이 없습니다.</p>
         </div>
       ) : (
-        mentions.slice(0, 5).map((mention) => (
+        mentions.slice(0, 5).map((mention, idx) => (
           <MentionCardWithHover
-            key={mention.notificationId}
+            key={`mention-${mention.notificationId}-${idx}`}
             color={mention.isRead ? "gray" : "blue"}
             onClick={() => handleMentionClick(mention)}
             style={{

@@ -322,9 +322,9 @@ const LatestPostsSection = () => {
           </p>
         </div>
       ) : (
-        posts.map((post) => (
+        posts.map((post, idx) => (
           <LatestCardWithHover
-            key={post.postId}
+            key={`latest-post-${post.postId}-${idx}`}
             onClick={() => handlePostClick(post.postId)}
             style={{ cursor: "pointer" }}
           >

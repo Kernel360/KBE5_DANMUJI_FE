@@ -161,9 +161,9 @@ export const ProgressBarWrap = styled.div`
   overflow: hidden;
 `;
 
-export const ProgressBar = styled.div<{ percent: number }>`
+export const ProgressBar = styled.div<{ $percent: number }>`
   height: 100%;
-  width: ${({ percent }) => percent}%;
+  width: ${({ $percent }) => $percent}%;
   background: #1abc7b;
   border-radius: 8px;
   transition: width 0.4s;
@@ -366,19 +366,19 @@ export const ProjectTitle = styled.div`
   color: #222;
 `;
 
-export const StatusBadge = styled.span<{ status: string }>`
+export const StatusBadge = styled.span<{ $status: string }>`
   display: inline-block;
   font-size: 0.85rem;
   font-weight: 600;
   border-radius: 6px;
   padding: 2px 8px;
   color: #fff;
-  background: ${({ status }) =>
-    status === "COMPLETED"
+  background: ${({ $status }) =>
+    $status === "COMPLETED"
       ? "#10b981"
-      : status === "IN_PROGRESS"
+      : $status === "IN_PROGRESS"
       ? "#1abc7b"
-      : status === "DELAYED"
+      : $status === "DELAYED"
       ? "#e74c3c"
       : "#bdbdbd"};
 `;
@@ -490,11 +490,11 @@ export const ProjectProgressStep = styled.span`
   font-weight: 500;
 `;
 
-export const ProjectProgressPercent = styled.span<{ percent: number }>`
+export const ProjectProgressPercent = styled.span<{ $percent: number }>`
   font-size: 0.95rem;
   font-weight: 600;
-  color: ${({ percent }) =>
-    percent === 100 ? "#10b981" : percent < 50 ? "#fdb924" : "#1abc7b"};
+  color: ${({ $percent }) =>
+    $percent === 100 ? "#10b981" : $percent < 50 ? "#fdb924" : "#1abc7b"};
   min-width: 42px;
   text-align: right;
 `;
