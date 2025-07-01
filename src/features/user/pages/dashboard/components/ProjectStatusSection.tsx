@@ -2,6 +2,7 @@ import * as S from "../styled/UserDashboardPage.styled";
 import { MdOutlineViewHeadline } from "react-icons/md";
 import { IoSearchSharp } from "react-icons/io5";
 import { FaProjectDiagram } from "react-icons/fa";
+import { FiLayers, FiCalendar, FiHome } from "react-icons/fi";
 import React, { useState, useEffect } from "react";
 
 // 타입 정의 추가
@@ -129,7 +130,19 @@ const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
                 style={{ cursor: "pointer" }}
               >
                 <S.ProjectHeaderRow>
-                  <S.ProjectTitle>{project.name}</S.ProjectTitle>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      marginBottom: "4px",
+                    }}
+                  >
+                    <FaProjectDiagram size={13} style={{ color: "#8b5cf6" }} />
+                    <S.ProjectTitle style={{ fontSize: "0.9rem" }}>
+                      {project.name}
+                    </S.ProjectTitle>
+                  </div>
                   {statusTab !== "IN_PROGRESS" && (
                     <S.StatusBadge $status={project.status}>
                       {project.status === "COMPLETED" && "완료"}
@@ -140,10 +153,22 @@ const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
                     </S.StatusBadge>
                   )}
                 </S.ProjectHeaderRow>
-                <S.ProjectDate>
-                  {project.startDate.replace(/-/g, ".")} ~{" "}
-                  {project.endDate.replace(/-/g, ".")}
-                </S.ProjectDate>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    marginBottom: "4px",
+                    fontSize: "0.8rem",
+                    color: "#6b7280",
+                  }}
+                >
+                  <FiCalendar size={12} />
+                  <span>
+                    {project.startDate.replace(/-/g, ".")} ~{" "}
+                    {project.endDate.replace(/-/g, ".")}
+                  </span>
+                </div>
                 {statusTab === "IN_PROGRESS" ? (
                   <S.ProjectProgressInfo>
                     <div style={{ flex: 1 }}>
@@ -155,11 +180,20 @@ const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
                           marginBottom: 3,
                         }}
                       >
-                        <S.ProjectProgressStep>
-                          {project.steps.find(
-                            (s) => s.projectStepStatus === "IN_PROGRESS"
-                          )?.name || "진행중"}
-                        </S.ProjectProgressStep>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "4px",
+                          }}
+                        >
+                          <FiLayers size={12} style={{ color: "#6366f1" }} />
+                          <S.ProjectProgressStep style={{ fontSize: "0.8rem" }}>
+                            {project.steps.find(
+                              (s) => s.projectStepStatus === "IN_PROGRESS"
+                            )?.name || "진행중"}
+                          </S.ProjectProgressStep>
+                        </div>
                         <S.ProjectProgressPercent $percent={percent}>
                           {percent}%
                         </S.ProjectProgressPercent>
@@ -170,10 +204,21 @@ const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
                     </div>
                   </S.ProjectProgressInfo>
                 ) : (
-                  <S.ProjectMeta>
-                    고객사: {project.clientCompany} / 개발사:{" "}
-                    {project.developerCompany}
-                  </S.ProjectMeta>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      fontSize: "0.8rem",
+                      color: "#6b7280",
+                    }}
+                  >
+                    <FiHome size={12} />
+                    <span>
+                      고객사: {project.clientCompany} / 개발사:{" "}
+                      {project.developerCompany}
+                    </span>
+                  </div>
                 )}
               </S.ProjectCard>
             );

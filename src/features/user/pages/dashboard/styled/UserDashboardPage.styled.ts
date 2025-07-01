@@ -346,11 +346,11 @@ export const ProjectCard = styled.div`
   background: #fff;
   border-radius: 8px;
   border: 1px solid #e5e7eb;
-  padding: 12px;
+  padding: 10px;
   margin-bottom: 8px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   transition: all 0.2s ease;
   cursor: pointer;
 
