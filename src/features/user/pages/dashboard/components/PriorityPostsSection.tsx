@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import * as S from "../styled/UserDashboardPage.styled";
 import { MdWarning, MdAccessTime, MdAssignment } from "react-icons/md";
+import { FiUser } from "react-icons/fi";
+import { LuUserRoundCog } from "react-icons/lu";
 import { getHighPriorityPosts } from "@/features/admin/services/activityLogService";
 import type { PostDashboardReadResponse } from "@/features/admin/types/activityLog";
 
@@ -58,6 +60,15 @@ const PriorityPostsSection = () => {
     }
   };
 
+  const getRoleIcon = (role: string) => {
+    switch (role) {
+      case "ROLE_ADMIN":
+        return <LuUserRoundCog size={14} style={{ color: "#8b5cf6" }} />;
+      default:
+        return <FiUser size={14} style={{ color: "#6b7280" }} />;
+    }
+  };
+
   if (loading) {
     return (
       <S.PrioritySection>
@@ -110,7 +121,8 @@ const PriorityPostsSection = () => {
                 <MdAccessTime /> {formatTimeAgo(post.createdAt)}
               </span>
               <span>
-                <MdAssignment /> {post.authorName}
+                {getRoleIcon(post.authorRole)}
+                {post.authorName}({post.authorUsername})
               </span>
             </S.PriorityMeta>
           </S.PriorityCard>
