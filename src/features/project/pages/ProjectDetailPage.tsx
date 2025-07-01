@@ -224,10 +224,11 @@ const ProjectDetailPage = () => {
           onStepSelect={handleStepSelect}
           selectedStepId={selectedStepId}
           canEditStep={
-            projectDetail.myUserType === "MANAGER" &&
+            // projectDetail.myUserType === "MANAGER" &&
             projectDetail.myCompanyType === "DEVELOPER" ||
             role === "ROLE_ADMIN"
           }
+          onStepOrderSaved={fetchProjectDetail}
         />
         <div style={{ display: "flex", gap: 24, padding: "0 24px 24px" }}>
           <div style={{ flex: 2 }}>
