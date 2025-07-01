@@ -4,6 +4,7 @@ import { MdAccessTime, MdComment, MdReply, MdPostAdd } from "react-icons/md";
 import { FiRotateCcw, FiAtSign, FiBell } from "react-icons/fi";
 import { getMyMentions } from "@/features/admin/services/activityLogService";
 import type { MyMentionListResponse } from "@/features/admin/types/activityLog";
+import { formatRelativeTime } from "@/utils/dateUtils";
 import ProjectPostDetailModal from "@/features/board/components/Post/components/DetailModal/ProjectPostDetailModal";
 import {
   getPostDetail,
@@ -115,19 +116,7 @@ const MentionedPostsSection = () => {
   }, []);
 
   const formatTimeAgo = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInMinutes = Math.floor(
-      (now.getTime() - date.getTime()) / (1000 * 60)
-    );
-
-    if (diffInMinutes < 60) {
-      return `${diffInMinutes}분 전`;
-    } else if (diffInMinutes < 1440) {
-      return `${Math.floor(diffInMinutes / 60)}시간 전`;
-    } else {
-      return `${Math.floor(diffInMinutes / 1440)}일 전`;
-    }
+    return formatRelativeTime(dateString);
   };
 
   const getNotificationIcon = (type: string) => {

@@ -6,14 +6,9 @@ import CompanyRegisterModal from "../components/CompanyRegisterModal";
 import CompanyEditModal from "../components/CompanyEditModal";
 import CompanyFilterBar from "../components/CompanyFilterBar";
 import styled from "styled-components";
-import {
-  FiHome,
-  FiUser,
-  FiPhone,
-  FiHash,
-  FiCalendar,
-} from "react-icons/fi";
+import { FiHome, FiUser, FiPhone, FiHash, FiCalendar } from "react-icons/fi";
 import CompanyDetailModal from "../components/CompanyDetailModal/CompanyDetailModal";
+import { formatDateOnly, formatTimeOnly } from "@/utils/dateUtils";
 
 export interface Company {
   id: number;
@@ -283,7 +278,9 @@ export default function CompanyPage() {
     totalPages: number;
   } | null>(null);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
-  const [selectedCompanyId, setSelectedCompanyId] = useState<number | null>(null);
+  const [selectedCompanyId, setSelectedCompanyId] = useState<number | null>(
+    null
+  );
 
   const handlePageChange = (newPage: number) => {
     fetchCompanies(newPage);
@@ -603,23 +600,11 @@ export default function CompanyPage() {
                         }}
                       >
                         <span style={{ fontSize: "14px", color: "#374151" }}>
-                          {c.createdAt
-                            ? new Date(c.createdAt).toLocaleDateString(
-                                "ko-KR",
-                                {
-                                  year: "numeric",
-                                  month: "2-digit",
-                                  day: "2-digit",
-                                }
-                              )
-                            : "N/A"}
+                          {c.createdAt ? formatDateOnly(c.createdAt) : "N/A"}
                         </span>
                         {c.createdAt && (
                           <span style={{ fontSize: "12px", color: "#6b7280" }}>
-                            {new Date(c.createdAt).toLocaleTimeString("ko-KR", {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
+                            {formatTimeOnly(c.createdAt)}
                           </span>
                         )}
                       </div>

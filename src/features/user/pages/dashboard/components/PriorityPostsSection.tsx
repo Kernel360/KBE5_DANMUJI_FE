@@ -14,6 +14,7 @@ import {
 import { LuUserRoundCog } from "react-icons/lu";
 import { BiNews } from "react-icons/bi";
 import { getHighPriorityPosts } from "@/features/admin/services/activityLogService";
+import { formatRelativeTime } from "@/utils/dateUtils";
 import type { PostDashboardReadResponse } from "@/features/admin/types/activityLog";
 import type { PostPriority, PostType } from "@/features/project/types/Types";
 import { POST_PRIORITY_LABELS } from "@/features/project/types/Types";
@@ -139,19 +140,7 @@ const PriorityPostsSection = () => {
   }, []);
 
   const formatTimeAgo = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInMinutes = Math.floor(
-      (now.getTime() - date.getTime()) / (1000 * 60)
-    );
-
-    if (diffInMinutes < 60) {
-      return `${diffInMinutes}분 전`;
-    } else if (diffInMinutes < 1440) {
-      return `${Math.floor(diffInMinutes / 60)}시간 전`;
-    } else {
-      return `${Math.floor(diffInMinutes / 1440)}일 전`;
-    }
+    return formatRelativeTime(dateString);
   };
 
   const getRoleIcon = (role: string) => {
