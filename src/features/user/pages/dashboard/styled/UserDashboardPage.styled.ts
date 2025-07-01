@@ -225,6 +225,14 @@ export const PriorityCard = styled.div`
   border: 1.5px solid #ffd6d6;
   padding: 16px;
   margin-bottom: 8px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #fff9f9;
+    border-color: #ffb3b3;
+    box-shadow: 0 2px 8px rgba(255, 182, 182, 0.15);
+    transform: translateY(-1px);
+  }
 `;
 
 export const PriorityHeader = styled.div`

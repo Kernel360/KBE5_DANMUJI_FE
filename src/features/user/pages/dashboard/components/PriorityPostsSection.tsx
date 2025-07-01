@@ -16,6 +16,7 @@ import type { PostDashboardReadResponse } from "@/features/admin/types/activityL
 import type { PostPriority, PostType } from "@/features/project/types/Types";
 import { POST_PRIORITY_LABELS } from "@/features/project/types/Types";
 import styled from "styled-components";
+import ProjectPostDetailModal from "@/features/board/components/Post/components/DetailModal/ProjectPostDetailModal";
 
 // ProjectBoard의 StatusBadge 스타일을 복사
 const StatusBadge = styled.span<{ $priority: PostPriority }>`
@@ -52,10 +53,30 @@ const TypeBadge = styled.span<{ $type: PostType }>`
     $type === "GENERAL" ? "#dbeafe" : "#fef3c7"};
 `;
 
+// 긴급 아이콘 애니메이션 스타일 추가
+const UrgentIcon = styled.div`
+  animation: blink 0.8s infinite;
+  display: flex;
+  align-items: center;
+
+  @keyframes blink {
+    0%,
+    50% {
+      opacity: 1;
+    }
+    51%,
+    100% {
+      opacity: 0.3;
+    }
+  }
+`;
+
 const PriorityPostsSection = () => {
   const [posts, setPosts] = useState<PostDashboardReadResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchPriorityPosts = async () => {
@@ -103,7 +124,11 @@ const PriorityPostsSection = () => {
   const getPriorityIcon = (priority: string) => {
     switch (priority) {
       case "URGENT":
-        return <FiAlertTriangle size={16} style={{ color: "#991b1b" }} />;
+        return (
+          <UrgentIcon>
+            <FiAlertTriangle size={16} style={{ color: "#991b1b" }} />
+          </UrgentIcon>
+        );
       case "HIGH":
         return <FiAlertCircle size={16} style={{ color: "#a21caf" }} />;
       default:
@@ -131,6 +156,16 @@ const PriorityPostsSection = () => {
       default:
         return type;
     }
+  };
+
+  const handlePostClick = (postId: number) => {
+    setSelectedPostId(postId);
+    setIsDetailModalOpen(true);
+  };
+
+  const handleDetailModalClose = () => {
+    setIsDetailModalOpen(false);
+    setSelectedPostId(null);
   };
 
   if (loading) {
@@ -165,7 +200,11 @@ const PriorityPostsSection = () => {
         </div>
       ) : (
         posts.map((post) => (
-          <S.PriorityCard key={post.postId}>
+          <S.PriorityCard
+            key={post.postId}
+            onClick={() => handlePostClick(post.postId)}
+            style={{ cursor: "pointer" }}
+          >
             <S.PriorityHeader>
               <S.PriorityLabel>
                 <div
@@ -308,6 +347,11 @@ const PriorityPostsSection = () => {
           </S.PriorityCard>
         ))
       )}
+      <ProjectPostDetailModal
+        open={isDetailModalOpen}
+        postId={selectedPostId}
+        onClose={handleDetailModalClose}
+      />
     </S.PrioritySection>
   );
 };
