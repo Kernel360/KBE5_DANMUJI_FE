@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import api from "@/api/axios";
+import CompanyRegisterModal from "@/features/company/components/CompanyRegisterModal/CompanyRegisterModal";
+import MemberRegisterModal from "@/features/user/components/MemberRegisterModal/MemberRegisterModal";
 
 type Member = {
   id: number;
@@ -43,6 +45,10 @@ const CompanyMemberSelectModal: React.FC<CompanyMemberSelectModalProps> = ({
   const [selectedMembersState, setSelectedMembersState] = useState<SelectedMember[]>(selectedMembers ?? []);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
+  const [companyModalOpen, setCompanyModalOpen] = useState(false);
+  const [memberModalOpen, setMemberModalOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0); // 업체 목록 강제 새로고침용
+  const [memberRefreshKey, setMemberRefreshKey] = useState(0); // 멤버 목록 강제 새로고침용
 
   // ✅ 검색 버튼 or Enter 입력 시 호출되는 함수
   const handleSearch = () => {
@@ -82,7 +88,7 @@ const CompanyMemberSelectModal: React.FC<CompanyMemberSelectModalProps> = ({
     };
   
     fetchCompanies();
-  }, [search, page]); // search나 page가 바뀔 때마다 재호출
+  }, [search, page, refreshKey]); // search나 page가 바뀔 때마다 재호출
 
   // ✅ 검색창 비우면 전체 검색 + 페이지 초기화
   useEffect(() => {
@@ -113,7 +119,7 @@ const CompanyMemberSelectModal: React.FC<CompanyMemberSelectModalProps> = ({
         setLoading(false);
       }
     })();
-  }, [selectedCompanyState]);
+  }, [selectedCompanyState, memberRefreshKey]);
 
   // 멤버 검색 필터링
   const filteredMembers = members.filter((m) => m.name.includes(memberSearch));
@@ -170,10 +176,12 @@ const CompanyMemberSelectModal: React.FC<CompanyMemberSelectModalProps> = ({
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
           <h3 style={{ fontSize: 22, fontWeight: 700, marginBottom: 0 }}>업체 선택</h3>
           <div style={{ display: "flex", gap: 8 }}>
-            <button style={{ background: "#2563eb", color: "#fff", border: 0, borderRadius: 4, padding: "6px 16px", fontWeight: 500, fontSize: 15, cursor: "pointer" }}>
+            <button style={{ background: "#2563eb", color: "#fff", border: 0, borderRadius: 4, padding: "6px 16px", fontWeight: 500, fontSize: 15, cursor: "pointer" }}
+              onClick={() => setCompanyModalOpen(true)}>
               업체 등록
             </button>
-            <button style={{ background: "#19c37d", color: "#fff", border: 0, borderRadius: 4, padding: "6px 16px", fontWeight: 500, fontSize: 15, cursor: "pointer" }}>
+            <button style={{ background: "#19c37d", color: "#fff", border: 0, borderRadius: 4, padding: "6px 16px", fontWeight: 500, fontSize: 15, cursor: "pointer" }}
+              onClick={() => setMemberModalOpen(true)}>
               멤버 생성
             </button>
           </div>
@@ -347,6 +355,34 @@ const CompanyMemberSelectModal: React.FC<CompanyMemberSelectModalProps> = ({
         >
           ×
         </button>
+        {companyModalOpen && (
+          <CompanyRegisterModal
+            open={companyModalOpen}
+            onClose={() => setCompanyModalOpen(false)}
+            onRegisterSuccess={() => {
+              setCompanyModalOpen(false);
+              setInputValue("");
+              setSearch("");
+              setRefreshKey((k) => k + 1); // 강제 새로고침
+            }}
+          />
+        )}
+        {memberModalOpen && (
+          <MemberRegisterModal
+            onClose={() => setMemberModalOpen(false)}
+            onRegister={async (memberData) => {
+              try {
+                await api.post("/api/admin", memberData);
+                setMemberModalOpen(false);
+                setMemberRefreshKey((k) => k + 1); // 멤버 목록 강제 새로고침
+                // 성공 알림 등 필요시 추가
+              } catch (e) {
+                alert("멤버 등록에 실패했습니다.");
+              }
+            }}
+            initialCompanyId={selectedCompanyState?.id}
+          />
+        )}
       </div>
     </div>
   );
