@@ -76,8 +76,8 @@ export type ProjectDetailResponse = {
   clients: ProjectCompany[];
   developers: ProjectCompany[];
   steps: ProjectDetailStep[];
-  userType: string;
-  myProjectRole: string;
+  myUserType: string;
+  myCompanyType: string;
 };
 
 // 프로젝트 상세 조회 응답 타입
