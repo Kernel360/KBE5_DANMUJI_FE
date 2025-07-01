@@ -239,10 +239,11 @@ export const getHighPriorityPosts = async (): Promise<
     const response = await api.get<ApiResponse<PostDashboardReadResponse[]>>(
       `/api/posts/priority/high`
     );
-    return response.data.data;
+    // data가 없거나 배열이 아니면 빈 배열 반환
+    return Array.isArray(response.data.data) ? response.data.data : [];
   } catch (error) {
     console.error("우선순위 높은 게시글 조회 실패:", error);
-    throw error;
+    return [];
   }
 };
 
