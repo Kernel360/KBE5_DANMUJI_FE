@@ -83,7 +83,21 @@ const MemberRegisterModal: React.FC<MemberRegisterModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // 전화번호 숫자만 필터링
+    // 아이디 유효성 검사: 영문자, 숫자, 밑줄(_), 4~20자
+    const usernameRegex = /^[a-zA-Z0-9_]{4,20}$/;
+    if (!usernameRegex.test(formData.username)) {
+      alert("아이디는 영문자, 숫자, 밑줄(_)만 사용하며 4~20자여야 합니다.");
+      return;
+    }
+
+    // 전화번호 유효성 검사: 010-0000-0000
+    const phoneRegex = /^010-\d{4}-\d{4}$/;
+    if (!phoneRegex.test(formData.phone)) {
+      alert("전화번호는 010-0000-0000 형식으로 입력해야 합니다.");
+      return;
+    }
+
+    // 전화번호 숫자만 필터링 (서버 전송용)
     const cleanedPhone = formData.phone.replace(/\D/g, "");
 
     onRegister({
