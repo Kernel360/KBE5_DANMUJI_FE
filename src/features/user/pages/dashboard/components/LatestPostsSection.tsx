@@ -12,9 +12,12 @@ import {
 } from "react-icons/fi";
 import { LuUserRoundCog } from "react-icons/lu";
 import { FaProjectDiagram } from "react-icons/fa";
+import { getPostsDueSoon } from "@/features/admin/services/activityLogService";
+import type { PostDashboardReadResponse } from "@/features/admin/types/activityLog";
 import type { PostPriority, PostType } from "@/features/project/types/Types";
 import { POST_PRIORITY_LABELS } from "@/features/project/types/Types";
 import styled from "styled-components";
+import ProjectPostDetailModal from "@/features/board/components/Post/components/DetailModal/ProjectPostDetailModal";
 
 // ProjectBoard의 StatusBadge 스타일을 복사
 const StatusBadge = styled.span<{ $priority: PostPriority }>`
@@ -91,74 +94,29 @@ const ReloadButton = styled.button`
   }
 `;
 
-// 임시 데이터 타입 정의
-interface LatestPost {
-  postId: number;
-  title: string;
-  projectName: string;
-  projectStepName: string;
-  authorName: string;
-  authorUsername: string;
-  authorRole: string;
-  priority: string;
-  type: string;
-  createdAt: string;
-}
-
 const LatestPostsSection = () => {
-  const [posts, setPosts] = useState<LatestPost[]>([]);
+  const [posts, setPosts] = useState<PostDashboardReadResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
 
   useEffect(() => {
-    // 임시 데이터 로드
-    const loadMockData = () => {
+    const fetchLatestPosts = async () => {
       setLoading(true);
-      setTimeout(() => {
-        const mockPosts: LatestPost[] = [
-          {
-            postId: 1,
-            title: "디자인 시스템 업데이트",
-            projectName: "모바일 앱 리뉴얼",
-            projectStepName: "디자인 단계",
-            authorName: "김디자이너",
-            authorUsername: "designer_kim",
-            authorRole: "ROLE_USER",
-            priority: "MEDIUM",
-            type: "GENERAL",
-            createdAt: new Date(Date.now() - 60 * 60 * 1000).toISOString(), // 1시간 전
-          },
-          {
-            postId: 2,
-            title: "테스트 결과 공유",
-            projectName: "웹사이트 개편",
-            projectStepName: "테스트 단계",
-            authorName: "박개발자",
-            authorUsername: "dev_park",
-            authorRole: "ROLE_USER",
-            priority: "LOW",
-            type: "QUESTION",
-            createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(), // 3시간 전
-          },
-          {
-            postId: 3,
-            title: "API 문서 업데이트",
-            projectName: "API 통합 개발",
-            projectStepName: "개발 단계",
-            authorName: "이엔지니어",
-            authorUsername: "engineer_lee",
-            authorRole: "ROLE_ADMIN",
-            priority: "HIGH",
-            type: "GENERAL",
-            createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(), // 5시간 전
-          },
-        ];
-        setPosts(mockPosts);
+      setError(null);
+      try {
+        const data = await getPostsDueSoon();
+        setPosts(data);
+      } catch (err) {
+        console.error("진행중인 프로젝트 최신 게시글 조회 실패:", err);
+        setError("게시글을 불러오는데 실패했습니다.");
+      } finally {
         setLoading(false);
-      }, 500);
+      }
     };
 
-    loadMockData();
+    fetchLatestPosts();
   }, []);
 
   const formatTimeAgo = (dateString: string) => {
@@ -186,7 +144,7 @@ const LatestPostsSection = () => {
     }
   };
 
-  const getPriorityIcon = (priority: string) => {
+  const getPriorityIcon = (priority: PostPriority) => {
     switch (priority) {
       case "URGENT":
         return <FiAlertTriangle size={16} style={{ color: "#991b1b" }} />;
@@ -197,7 +155,7 @@ const LatestPostsSection = () => {
     }
   };
 
-  const getTypeIcon = (type: string) => {
+  const getTypeIcon = (type: PostType) => {
     switch (type) {
       case "GENERAL":
         return <FiFileText size={16} style={{ color: "#1e40af" }} />;
@@ -208,7 +166,7 @@ const LatestPostsSection = () => {
     }
   };
 
-  const getTypeText = (type: string) => {
+  const getTypeText = (type: PostType) => {
     switch (type) {
       case "GENERAL":
         return "일반";
@@ -219,56 +177,26 @@ const LatestPostsSection = () => {
     }
   };
 
+  const handlePostClick = (postId: number) => {
+    setSelectedPostId(postId);
+    setIsDetailModalOpen(true);
+  };
+
+  const handleDetailModalClose = () => {
+    setIsDetailModalOpen(false);
+    setSelectedPostId(null);
+  };
+
   const handleReload = async () => {
     setLoading(true);
     setError(null);
     try {
-      // TODO: 실제 API 호출로 교체
-      setTimeout(() => {
-        const mockPosts: LatestPost[] = [
-          {
-            postId: 1,
-            title: "디자인 시스템 업데이트",
-            projectName: "모바일 앱 리뉴얼",
-            projectStepName: "디자인 단계",
-            authorName: "김디자이너",
-            authorUsername: "designer_kim",
-            authorRole: "ROLE_USER",
-            priority: "MEDIUM",
-            type: "GENERAL",
-            createdAt: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
-          },
-          {
-            postId: 2,
-            title: "테스트 결과 공유",
-            projectName: "웹사이트 개편",
-            projectStepName: "테스트 단계",
-            authorName: "박개발자",
-            authorUsername: "dev_park",
-            authorRole: "ROLE_USER",
-            priority: "LOW",
-            type: "QUESTION",
-            createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
-          },
-          {
-            postId: 3,
-            title: "API 문서 업데이트",
-            projectName: "API 통합 개발",
-            projectStepName: "개발 단계",
-            authorName: "이엔지니어",
-            authorUsername: "engineer_lee",
-            authorRole: "ROLE_ADMIN",
-            priority: "HIGH",
-            type: "GENERAL",
-            createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
-          },
-        ];
-        setPosts(mockPosts);
-        setLoading(false);
-      }, 500);
+      const data = await getPostsDueSoon();
+      setPosts(data);
     } catch (err) {
-      console.error("최신 게시글 조회 실패:", err);
+      console.error("진행중인 프로젝트 최신 게시글 조회 실패:", err);
       setError("게시글을 불러오는데 실패했습니다.");
+    } finally {
       setLoading(false);
     }
   };
@@ -343,7 +271,11 @@ const LatestPostsSection = () => {
         </div>
       ) : (
         posts.map((post) => (
-          <S.LatestCard key={post.postId}>
+          <S.LatestCard
+            key={post.postId}
+            onClick={() => handlePostClick(post.postId)}
+            style={{ cursor: "pointer" }}
+          >
             <div
               style={{
                 display: "flex",
@@ -413,9 +345,8 @@ const LatestPostsSection = () => {
                     }}
                   >
                     {getPriorityIcon(post.priority)}
-                    <StatusBadge $priority={post.priority as PostPriority}>
-                      {POST_PRIORITY_LABELS[post.priority as PostPriority] ??
-                        post.priority}
+                    <StatusBadge $priority={post.priority}>
+                      {POST_PRIORITY_LABELS[post.priority] ?? post.priority}
                     </StatusBadge>
                   </div>
                   <div
@@ -426,7 +357,7 @@ const LatestPostsSection = () => {
                     }}
                   >
                     {getTypeIcon(post.type)}
-                    <TypeBadge $type={post.type as PostType}>
+                    <TypeBadge $type={post.type}>
                       {getTypeText(post.type)}
                     </TypeBadge>
                   </div>
@@ -476,6 +407,11 @@ const LatestPostsSection = () => {
           </S.LatestCard>
         ))
       )}
+      <ProjectPostDetailModal
+        open={isDetailModalOpen}
+        postId={selectedPostId}
+        onClose={handleDetailModalClose}
+      />
     </S.LatestSection>
   );
 };

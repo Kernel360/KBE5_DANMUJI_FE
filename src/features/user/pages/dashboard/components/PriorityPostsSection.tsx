@@ -162,7 +162,7 @@ const PriorityPostsSection = () => {
     }
   };
 
-  const getPriorityIcon = (priority: string) => {
+  const getPriorityIcon = (priority: PostPriority) => {
     switch (priority) {
       case "URGENT":
         return (
@@ -177,7 +177,7 @@ const PriorityPostsSection = () => {
     }
   };
 
-  const getTypeIcon = (type: string) => {
+  const getTypeIcon = (type: PostType) => {
     switch (type) {
       case "GENERAL":
         return <FiFileText size={16} style={{ color: "#1e40af" }} />;
@@ -188,7 +188,7 @@ const PriorityPostsSection = () => {
     }
   };
 
-  const getTypeText = (type: string) => {
+  const getTypeText = (type: PostType) => {
     switch (type) {
       case "GENERAL":
         return "일반";
@@ -365,9 +365,8 @@ const PriorityPostsSection = () => {
                     }}
                   >
                     {getPriorityIcon(post.priority)}
-                    <StatusBadge $priority={post.priority as PostPriority}>
-                      {POST_PRIORITY_LABELS[post.priority as PostPriority] ??
-                        post.priority}
+                    <StatusBadge $priority={post.priority}>
+                      {POST_PRIORITY_LABELS[post.priority] ?? post.priority}
                     </StatusBadge>
                   </div>
                   <div
@@ -378,7 +377,7 @@ const PriorityPostsSection = () => {
                     }}
                   >
                     {getTypeIcon(post.type)}
-                    <TypeBadge $type={post.type as PostType}>
+                    <TypeBadge $type={post.type}>
                       {getTypeText(post.type)}
                     </TypeBadge>
                   </div>

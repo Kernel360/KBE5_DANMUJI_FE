@@ -125,6 +125,6 @@ export interface PostDashboardReadResponse {
   authorName: string;
   authorUsername: string;
   authorRole: string;
-  priority: string;
-  type: string;
+  priority: "URGENT" | "HIGH" | "MEDIUM" | "LOW";
+  type: "GENERAL" | "QUESTION";
 }

@@ -245,3 +245,31 @@ export const getHighPriorityPosts = async (): Promise<
     throw error;
   }
 };
+
+// 진행중인 프로젝트의 최신 게시글 조회
+export const getPostsDueSoon = async (): Promise<
+  PostDashboardReadResponse[]
+> => {
+  try {
+    const response = await api.get<ApiResponse<PostDashboardReadResponse[]>>(
+      "/api/posts/projects/due-soon"
+    );
+
+    console.log("API 응답:", response.data);
+
+    // 백엔드 응답 구조 확인 - status가 "OK"인 경우 성공
+    if (
+      response.data.status === "OK" ||
+      response.data.status === "SUCCESS" ||
+      response.data.success
+    ) {
+      // data 필드가 없으면 빈 배열 반환
+      return response.data.data || response.data.content || [];
+    } else {
+      throw new Error(response.data.message || "게시글 조회에 실패했습니다.");
+    }
+  } catch (error) {
+    console.error("진행중인 프로젝트 최신 게시글 조회 실패:", error);
+    throw error;
+  }
+};
