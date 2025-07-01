@@ -27,7 +27,6 @@ import {
   FaQuestionCircle,
 } from "react-icons/fa";
 import CompanyDetailModal from "@/features/company/components/CompanyDetailModal/CompanyDetailModal";
-import InfiniteScroll from "react-infinite-scroll-component";
 
 // Define interfaces for new data types
 interface RecentPost {
@@ -70,13 +69,12 @@ const CustomLabel = ({
   cx,
   cy,
   midAngle,
-  innerRadius,
   outerRadius,
   name,
   value,
-}: CustomLabelProps) => {
+}: Omit<CustomLabelProps, 'innerRadius'>) => {
   const RADIAN = Math.PI / 180;
-  const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+  const radius = outerRadius + 20;
   const x = cx + radius * Math.cos(-midAngle * RADIAN);
   const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
@@ -92,6 +90,7 @@ const CustomLabel = ({
         fontWeight: "600",
         textShadow: "0 0 3px white, 0 0 3px white, 0 0 3px white",
       }}
+      pointerEvents="none"
     >
       {`${name}: ${value}`}
     </text>
@@ -101,32 +100,13 @@ const CustomLabel = ({
 // Define ProjectStatusKey
 type ProjectStatusKey = 'DUE_SOON' | 'IN_PROGRESS' | 'COMPLETED' | 'DELAY';
 
-// Define DummyProject interface
-interface DummyProject { id: number; name: string; deadline: string; }
-
-// 더미 프로젝트 데이터
-const dummyProjectsAll: Record<ProjectStatusKey, DummyProject[]> = {
-  DUE_SOON: Array.from({ length: 50 }, (_, i) => ({
-    id: i + 1,
-    name: `마감임박 프로젝트 ${i + 1}`,
-    deadline: `2024-06-${(i % 30 + 1).toString().padStart(2, '0')}`,
-  })),
-  IN_PROGRESS: Array.from({ length: 50 }, (_, i) => ({
-    id: 100 + i + 1,
-    name: `진행중 프로젝트 ${i + 1}`,
-    deadline: `2024-07-${(i % 30 + 1).toString().padStart(2, '0')}`,
-  })),
-  COMPLETED: Array.from({ length: 50 }, (_, i) => ({
-    id: 200 + i + 1,
-    name: `완료 프로젝트 ${i + 1}`,
-    deadline: `2024-05-${(i % 30 + 1).toString().padStart(2, '0')}`,
-  })),
-  DELAY: Array.from({ length: 50 }, (_, i) => ({
-    id: 300 + i + 1,
-    name: `지연 프로젝트 ${i + 1}`,
-    deadline: `2024-05-${(i % 30 + 1).toString().padStart(2, '0')}`,
-  })),
-};
+// 프로젝트 리스트 아이템 타입
+interface ProjectListItem {
+  id: number;
+  name: string;
+  startDate: string;
+  endDate: string;
+}
 
 export default function DashboardPage() {
   const [companyCount, setCompanyCount] = useState(0);
@@ -145,8 +125,9 @@ export default function DashboardPage() {
   const [companyDetailModalOpen, setCompanyDetailModalOpen] = useState(false);
   const [selectedCompanyId, setSelectedCompanyId] = useState<number | null>(null);
   const [selectedStatus, setSelectedStatus] = useState<ProjectStatusKey>("DUE_SOON");
-  const [displayedProjects, setDisplayedProjects] = useState<DummyProject[]>(dummyProjectsAll["DUE_SOON"].slice(0, 5));
-  const [hasMore, setHasMore] = useState(dummyProjectsAll["DUE_SOON"].length > 5);
+  const [projectList, setProjectList] = useState<ProjectListItem[]>([]);
+  const [loadingProjects, setLoadingProjects] = useState(false);
+  const [projectListError, setProjectListError] = useState<string | null>(null);
 
   // 차트용 데이터
   const projectStatusData = [
@@ -168,6 +149,21 @@ export default function DashboardPage() {
       setRecentCompanies(recentCompaniesResponse.data?.data || []);
     } catch (error) {
       console.error("Failed to fetch recent companies:", error);
+    }
+  }, []);
+
+  // 프로젝트 리스트 fetch 함수
+  const fetchProjectList = useCallback(async (status: ProjectStatusKey) => {
+    setLoadingProjects(true);
+    setProjectListError(null);
+    try {
+      const res = await api.get(`/api/projects/status?status=${status}`);
+      setProjectList(res.data?.data || []);
+    } catch {
+      setProjectListError("프로젝트 목록을 불러오지 못했습니다.");
+      setProjectList([]);
+    } finally {
+      setLoadingProjects(false);
     }
   }, []);
 
@@ -222,28 +218,21 @@ export default function DashboardPage() {
         // Fetch Recent Inquiries
         const sortedInquiries = [...inquiries].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         setRecentInquiries(sortedInquiries.slice(0, 5));
+
+        // Fetch Project List
+        await fetchProjectList(selectedStatus);
       } catch (error) {
         console.error("Failed to fetch dashboard data:", error);
       }
     };
 
     fetchData();
-  }, [fetchRecentCompanies]);
+  }, [fetchRecentCompanies, fetchProjectList]);
 
+  // 최초 및 상태 변경 시 fetch
   useEffect(() => {
-    setDisplayedProjects(dummyProjectsAll[selectedStatus].slice(0, 5));
-    setHasMore(dummyProjectsAll[selectedStatus].length > 5);
-  }, [selectedStatus]);
-
-  const fetchMoreProjects = () => {
-    setTimeout(() => {
-      setDisplayedProjects(prev => {
-        const next = dummyProjectsAll[selectedStatus].slice(0, prev.length + 5);
-        setHasMore(next.length < dummyProjectsAll[selectedStatus].length);
-        return next;
-      });
-    }, 500);
-  };
+    fetchProjectList(selectedStatus);
+  }, [selectedStatus, fetchProjectList]);
 
   return (
     <DashboardContainer>
@@ -576,17 +565,13 @@ export default function DashboardPage() {
                     nameKey="name"
                     cx="50%"
                     cy="50%"
-                    innerRadius={60}
+                    innerRadius={0}
                     outerRadius={100}
                     label={CustomLabel}
                     stroke="#ffffff"
                     strokeWidth={1}
                     labelLine={false}
-                    onClick={(_, index) => {
-                      // 상태 순서: 진행중, 완료, 지연, 마감임박
-                      const statusKey = ["IN_PROGRESS", "COMPLETED", "DELAY", "DUE_SOON"][index] as ProjectStatusKey;
-                      setSelectedStatus(statusKey);
-                    }}
+                    isAnimationActive={false}
                   >
                     {projectStatusData.map((entry, index) => (
                       <Cell
@@ -594,6 +579,12 @@ export default function DashboardPage() {
                         fill={entry.fill}
                         stroke={entry.stroke}
                         strokeWidth={1}
+                        onClick={() => {
+                          const statusKey = ["IN_PROGRESS", "COMPLETED", "DELAY", "DUE_SOON"][index] as ProjectStatusKey;
+                          setSelectedStatus(statusKey);
+                        }}
+                        style={{ cursor: "pointer", outline: "none" }}
+                        tabIndex={-1}
                       />
                     ))}
                   </Pie>
@@ -639,22 +630,20 @@ export default function DashboardPage() {
               })()}
             </RecentActivityTitle>
             <div style={{ height: 260, overflow: 'auto' }}>
-              <InfiniteScroll
-                dataLength={displayedProjects.length}
-                next={fetchMoreProjects}
-                hasMore={hasMore}
-                loader={<div style={{ textAlign: "center", padding: 12 }}>로딩중...</div>}
-                height={260}
-                endMessage={<div style={{ textAlign: "center", color: "#aaa", padding: 12 }}>모든 프로젝트를 불러왔습니다.</div>}
-                scrollableTarget={null}
-              >
-                {displayedProjects.map((project: DummyProject) => (
+              {loadingProjects ? (
+                <div style={{ textAlign: "center", padding: 12 }}>로딩중...</div>
+              ) : projectListError ? (
+                <div style={{ textAlign: "center", color: "#ef4444", padding: 12 }}>{projectListError}</div>
+              ) : projectList.length === 0 ? (
+                <div style={{ textAlign: "center", color: "#aaa", padding: 12 }}>프로젝트가 없습니다.</div>
+              ) : (
+                projectList.map((project) => (
                   <div key={project.id} style={{ padding: 12, borderBottom: "1px solid #eee" }}>
                     <div style={{ fontWeight: 600 }}>{project.name}</div>
-                    <div style={{ color: "#888", fontSize: 13 }}>마감일: {project.deadline}</div>
+                    <div style={{ color: "#888", fontSize: 13 }}>{project.startDate} ~ {project.endDate}</div>
                   </div>
-                ))}
-              </InfiniteScroll>
+                ))
+              )}
             </div>
           </div>
         </div>
