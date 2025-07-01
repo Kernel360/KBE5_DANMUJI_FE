@@ -77,7 +77,6 @@ export const ProgressSectionTitleRow = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 22px;
 `;
 
 export const ProgressSectionTitle = styled.div`
@@ -94,7 +93,7 @@ export const ViewAllButton = styled.button`
   border: none;
   color: #1abc7b;
   font-size: 0.95rem;
-  font-weight: 600;
+  font-weight: 500;
   padding: 6px 14px;
   border-radius: 999px;
   cursor: pointer;

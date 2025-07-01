@@ -87,10 +87,10 @@ const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
           내 프로젝트
         </S.SectionTitle>
         <S.ViewAllButton onClick={() => navigate("/projects")}>
-          전체 보기
           <S.ViewAllButtonIcon>
             <MdOutlineViewHeadline />
           </S.ViewAllButtonIcon>
+          전체 보기
         </S.ViewAllButton>
       </S.ProgressSectionTitleRow>
       <div
