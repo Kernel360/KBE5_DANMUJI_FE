@@ -1,10 +1,37 @@
 import React, { useState, useEffect } from "react";
 import * as S from "../styled/UserDashboardPage.styled";
 import { MdWarning, MdAccessTime, MdAssignment } from "react-icons/md";
-import { FiUser } from "react-icons/fi";
+import { FiUser, FiAlertTriangle, FiAlertCircle } from "react-icons/fi";
 import { LuUserRoundCog } from "react-icons/lu";
 import { getHighPriorityPosts } from "@/features/admin/services/activityLogService";
 import type { PostDashboardReadResponse } from "@/features/admin/types/activityLog";
+import type { PostPriority } from "@/features/project/types/Types";
+import { POST_PRIORITY_LABELS } from "@/features/project/types/Types";
+import styled from "styled-components";
+
+// ProjectBoard의 StatusBadge 스타일을 복사
+const StatusBadge = styled.span<{ $priority: PostPriority }>`
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  color: ${({ $priority }) =>
+    $priority === "LOW"
+      ? "#065f46"
+      : $priority === "MEDIUM"
+      ? "#92400e"
+      : $priority === "HIGH"
+      ? "#a21caf"
+      : "#991b1b"};
+  background-color: ${({ $priority }) =>
+    $priority === "LOW"
+      ? "#d1fae5"
+      : $priority === "MEDIUM"
+      ? "#fef3c7"
+      : $priority === "HIGH"
+      ? "#fce7f3"
+      : "#fee2e2"};
+`;
 
 const PriorityPostsSection = () => {
   const [posts, setPosts] = useState<PostDashboardReadResponse[]>([]);
@@ -45,27 +72,23 @@ const PriorityPostsSection = () => {
     }
   };
 
-  const getPriorityTagType = (priority: string) => {
-    switch (priority) {
-      case "URGENT":
-        return "긴급";
-      case "HIGH":
-        return "높음";
-      case "MEDIUM":
-        return "보통";
-      case "LOW":
-        return "낮음";
-      default:
-        return "보통";
-    }
-  };
-
   const getRoleIcon = (role: string) => {
     switch (role) {
       case "ROLE_ADMIN":
         return <LuUserRoundCog size={14} style={{ color: "#8b5cf6" }} />;
       default:
         return <FiUser size={14} style={{ color: "#6b7280" }} />;
+    }
+  };
+
+  const getPriorityIcon = (priority: string) => {
+    switch (priority) {
+      case "URGENT":
+        return <FiAlertTriangle size={16} style={{ color: "#ef4444" }} />;
+      case "HIGH":
+        return <FiAlertCircle size={16} style={{ color: "#f59e0b" }} />;
+      default:
+        return <FiAlertCircle size={16} style={{ color: "#6b7280" }} />;
     }
   };
 
@@ -104,14 +127,13 @@ const PriorityPostsSection = () => {
           <S.PriorityCard key={post.postId}>
             <S.PriorityHeader>
               <S.PriorityLabel>
-                <MdWarning style={{ marginRight: 6 }} />
+                {getPriorityIcon(post.priority)}
                 {post.title}
               </S.PriorityLabel>
-              <S.PriorityTag
-                type={post.priority === "URGENT" ? "red" : "yellow"}
-              >
-                {getPriorityTagType(post.priority)}
-              </S.PriorityTag>
+              <StatusBadge $priority={post.priority as PostPriority}>
+                {POST_PRIORITY_LABELS[post.priority as PostPriority] ??
+                  post.priority}
+              </StatusBadge>
             </S.PriorityHeader>
             <S.PriorityDesc>
               {post.projectName} - {post.projectStepName}
