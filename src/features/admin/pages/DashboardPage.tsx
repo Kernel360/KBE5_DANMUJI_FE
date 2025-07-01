@@ -658,22 +658,24 @@ export default function DashboardPage() {
                 <div style={{ textAlign: "center", color: "#aaa", padding: 12 }}>프로젝트가 없습니다.</div>
               ) : (
                 projectList.map((project) => (
-                  <div
+                  <RecentActivityItem
                     key={project.id}
                     style={{
                       padding: "12px 0",
                       borderBottom: "1px solid #f3f4f6",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "flex-start",
                       cursor: "pointer",
                       transition: "background 0.15s",
-                      width: "100%",
                     }}
                     onClick={() => navigate(`/projects/${project.id}/detail`)}
                     onMouseOver={e => (e.currentTarget.style.background = "#f9fafb")}
                     onMouseOut={e => (e.currentTarget.style.background = "")}
                   >
                     <span style={{ fontSize: "14px", color: "#374151", fontWeight: 600 }}>{project.name}</span>
-                    <span style={{ fontSize: "13px", color: "#888", marginTop: 2, display: "block" }}>{project.startDate} ~ {project.endDate}</span>
-                  </div>
+                    <span style={{ fontSize: "13px", color: "#888", marginTop: 2 }}>{project.startDate} ~ {project.endDate}</span>
+                  </RecentActivityItem>
                 ))
               )}
             </div>
@@ -731,20 +733,17 @@ export default function DashboardPage() {
                   style={{
                     padding: "8px 0",
                     borderBottom: "1px solid #f3f4f6",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    cursor: "pointer",
+                    transition: "background 0.15s",
                   }}
+                  onClick={() => (window.location.href = `/inquiry/${inquiry.id}`)}
+                  onMouseOver={e => (e.currentTarget.style.background = "#f9fafb")}
+                  onMouseOut={e => (e.currentTarget.style.background = "")}
                 >
-                  <span
-                    style={{
-                      fontSize: "14px",
-                      color: "#374151",
-                      cursor: "pointer",
-                    }}
-                    onClick={() =>
-                      (window.location.href = `/inquiry/${inquiry.id}`)
-                    }
-                  >
-                    {inquiry.title}
-                  </span>
+                  <span style={{ fontSize: "14px", color: "#374151" }}>{inquiry.title}</span>
                   <RecentActivityDate style={{ fontSize: "12px" }}>
                     {new Date(inquiry.createdAt).toLocaleDateString()}
                   </RecentActivityDate>
@@ -808,21 +807,20 @@ export default function DashboardPage() {
                   style={{
                     padding: "8px 0",
                     borderBottom: "1px solid #f3f4f6",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    cursor: "pointer",
+                    transition: "background 0.15s",
                   }}
+                  onClick={() => {
+                    setSelectedCompanyId(company.id);
+                    setCompanyDetailModalOpen(true);
+                  }}
+                  onMouseOver={e => (e.currentTarget.style.background = "#f9fafb")}
+                  onMouseOut={e => (e.currentTarget.style.background = "")}
                 >
-                  <span
-                    style={{
-                      fontSize: "14px",
-                      color: "#374151",
-                      cursor: "pointer",
-                    }}
-                    onClick={() => {
-                      setSelectedCompanyId(company.id);
-                      setCompanyDetailModalOpen(true);
-                    }}
-                  >
-                    {company.name}
-                  </span>
+                  <span style={{ fontSize: "14px", color: "#374151" }}>{company.name}</span>
                   <RecentActivityDate style={{ fontSize: "12px" }}>
                     {new Date(company.createdAt).toLocaleDateString()}
                   </RecentActivityDate>
@@ -895,20 +893,17 @@ export default function DashboardPage() {
                   style={{
                     padding: "8px 0",
                     borderBottom: "1px solid #f3f4f6",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    cursor: "pointer",
+                    transition: "background 0.15s",
                   }}
+                  onClick={() => navigate(`/projects/${project.id}/detail`)}
+                  onMouseOver={e => (e.currentTarget.style.background = "#f9fafb")}
+                  onMouseOut={e => (e.currentTarget.style.background = "")}
                 >
-                  <span
-                    style={{
-                      fontSize: "14px",
-                      color: "#374151",
-                      cursor: "pointer",
-                    }}
-                    onClick={() =>
-                      (window.location.href = `/projects/${project.id}/detail`)
-                    }
-                  >
-                    {project.name}
-                  </span>
+                  <span style={{ fontSize: "14px", color: "#374151" }}>{project.name}</span>
                   <RecentActivityDate style={{ fontSize: "12px" }}>
                     {new Date(project.createdAt).toLocaleDateString()}
                   </RecentActivityDate>
