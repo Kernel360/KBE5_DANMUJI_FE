@@ -18,7 +18,22 @@ export const UserProfile: React.FC = () => {
     <ProfileContainer>
       <UserInfo>
         <div style={{ display: "flex", alignItems: "center", gap: "9px" }}>
-          <IoPersonSharp /> <UserName>{user?.name ?? ""}</UserName>
+          <IoPersonSharp />
+          <UserName>
+            {user?.name ?? "이름 없음"}
+            {user?.username && (
+              <span
+                style={{
+                  fontSize: "0.8em",
+                  color: "#9ca3af",
+                  fontWeight: "normal",
+                  marginLeft: "4px",
+                }}
+              >
+                ({user.username})
+              </span>
+            )}
+          </UserName>
         </div>
         {role === "ROLE_USER" && (
           <div>

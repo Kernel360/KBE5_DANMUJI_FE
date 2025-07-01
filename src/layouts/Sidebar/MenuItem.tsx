@@ -1,5 +1,5 @@
 import React from "react";
-import { MenuItemContainer, IconWrapper, MenuText } from './MenuItem.styled';
+import { MenuItemContainer, IconWrapper, MenuText } from "./MenuItem.styled";
 // import { useNavigate } from "react-router-dom"; // Remove useNavigate import
 import type { IconType } from "react-icons";
 
@@ -21,7 +21,7 @@ export const MenuItem: React.FC<MenuItemProps> = ({
   };
 
   return (
-    <MenuItemContainer active={isActive} onClick={handleClick}>
+    <MenuItemContainer $active={isActive} onClick={handleClick}>
       <IconWrapper>
         <Icon />
       </IconWrapper>

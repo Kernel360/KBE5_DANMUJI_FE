@@ -27,7 +27,6 @@ import {
 import {
   FaUsers,
   FaBuilding,
-  FaProjectDiagram,
   FaChartLine,
   FaChartPie,
   FaQuestionCircle,
@@ -117,7 +116,9 @@ export default function DashboardPage() {
   const [recentProjects, setRecentProjects] = useState<RecentProject[]>([]);
   const [recentInquiries, setRecentInquiries] = useState<RecentPost[]>([]);
   const [companyDetailModalOpen, setCompanyDetailModalOpen] = useState(false);
-  const [selectedCompanyId, setSelectedCompanyId] = useState<number | null>(null);
+  const [selectedCompanyId, setSelectedCompanyId] = useState<number | null>(
+    null
+  );
 
   // 차트용 데이터
   const projectStatusData = [
@@ -144,7 +145,9 @@ export default function DashboardPage() {
   // 최근 등록된 업체만 다시 불러오는 함수
   const fetchRecentCompanies = useCallback(async () => {
     try {
-      const recentCompaniesResponse = await api.get("/api/companies/recent-companies");
+      const recentCompaniesResponse = await api.get(
+        "/api/companies/recent-companies"
+      );
       setRecentCompanies(recentCompaniesResponse.data?.data || []);
     } catch (error) {
       console.error("Failed to fetch recent companies:", error);
@@ -196,11 +199,18 @@ export default function DashboardPage() {
         const inquiriesResponse = await api.get("/api/inquiries/all");
         const inquiries: RecentInquiry[] = inquiriesResponse.data?.data || [];
         setInquiryCount(inquiries.length);
-        setWaitingInquiryCount(inquiries.filter((inq) => inq.inquiryStatus === "WAITING").length);
-        setAnsweredInquiryCount(inquiries.filter((inq) => inq.inquiryStatus === "ANSWERED").length);
+        setWaitingInquiryCount(
+          inquiries.filter((inq) => inq.inquiryStatus === "WAITING").length
+        );
+        setAnsweredInquiryCount(
+          inquiries.filter((inq) => inq.inquiryStatus === "ANSWERED").length
+        );
 
         // Fetch Recent Inquiries
-        const sortedInquiries = [...inquiries].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        const sortedInquiries = [...inquiries].sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
         setRecentInquiries(sortedInquiries.slice(0, 5));
       } catch (error) {
         console.error("Failed to fetch dashboard data:", error);
@@ -235,9 +245,9 @@ export default function DashboardPage() {
             border: "1px solid #e5e7eb",
             borderRadius: "12px",
             background: "linear-gradient(135deg, #ffffff 0%, #fefdf4 100%)",
-            cursor: "pointer"
+            cursor: "pointer",
           }}
-          onClick={() => window.location.href = "/members"}
+          onClick={() => (window.location.href = "/members")}
         >
           <div
             style={{
@@ -291,9 +301,9 @@ export default function DashboardPage() {
             border: "1px solid #e5e7eb",
             borderRadius: "12px",
             background: "linear-gradient(135deg, #ffffff 0%, #fefdf4 100%)",
-            cursor: "pointer"
+            cursor: "pointer",
           }}
-          onClick={() => window.location.href = "/company"}
+          onClick={() => (window.location.href = "/company")}
         >
           <div
             style={{
@@ -347,9 +357,9 @@ export default function DashboardPage() {
             border: "1px solid #e5e7eb",
             borderRadius: "12px",
             background: "linear-gradient(135deg, #ffffff 0%, #fefdf4 100%)",
-            cursor: "pointer"
+            cursor: "pointer",
           }}
-          onClick={() => window.location.href = "/projects"}
+          onClick={() => (window.location.href = "/projects")}
         >
           <div
             style={{
@@ -371,7 +381,7 @@ export default function DashboardPage() {
                 justifyContent: "center",
               }}
             >
-              <FaProjectDiagram />
+              <FiPackage />
             </div>
             <div>
               <div
@@ -435,9 +445,9 @@ export default function DashboardPage() {
             border: "1px solid #e5e7eb",
             borderRadius: "12px",
             background: "linear-gradient(135deg, #ffffff 0%, #fefdf4 100%)",
-            cursor: "pointer"
+            cursor: "pointer",
           }}
-          onClick={() => window.location.href = "/inquiry"}
+          onClick={() => (window.location.href = "/inquiry")}
         >
           <div
             style={{
@@ -491,12 +501,16 @@ export default function DashboardPage() {
             }}
           >
             <span>
-              답변 대기: {" "}
-              <span style={{ color: "#ef4444", fontWeight: 600 }}>{waitingInquiryCount}</span>
+              답변 대기:{" "}
+              <span style={{ color: "#ef4444", fontWeight: 600 }}>
+                {waitingInquiryCount}
+              </span>
             </span>
             <span>
-              답변 완료: {" "}
-              <span style={{ color: "#10b981", fontWeight: 600 }}>{answeredInquiryCount}</span>
+              답변 완료:{" "}
+              <span style={{ color: "#10b981", fontWeight: 600 }}>
+                {answeredInquiryCount}
+              </span>
             </span>
           </div>
         </RecentActivityCard>
@@ -656,7 +670,7 @@ export default function DashboardPage() {
               borderBottom: "1px solid #e5e7eb",
               paddingBottom: "12px",
               marginBottom: "16px",
-              justifyContent: "space-between"
+              justifyContent: "space-between",
             }}
           >
             <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -672,9 +686,9 @@ export default function DashboardPage() {
                 padding: "6px 16px",
                 fontWeight: 600,
                 cursor: "pointer",
-                fontSize: "14px"
+                fontSize: "14px",
               }}
-              onClick={() => window.location.href = "/admin/inquiries"}
+              onClick={() => (window.location.href = "/admin/inquiries")}
             >
               더보기
             </button>
@@ -690,8 +704,15 @@ export default function DashboardPage() {
                   }}
                 >
                   <span
-                    style={{ fontSize: "14px", color: "#374151", cursor: "pointer", textDecoration: "underline" }}
-                    onClick={() => window.location.href = `/inquiry/${inquiry.id}`}
+                    style={{
+                      fontSize: "14px",
+                      color: "#374151",
+                      cursor: "pointer",
+                      textDecoration: "underline",
+                    }}
+                    onClick={() =>
+                      (window.location.href = `/inquiry/${inquiry.id}`)
+                    }
                   >
                     {inquiry.title}
                   </span>
@@ -727,7 +748,7 @@ export default function DashboardPage() {
               borderBottom: "1px solid #e5e7eb",
               paddingBottom: "12px",
               marginBottom: "16px",
-              justifyContent: "space-between"
+              justifyContent: "space-between",
             }}
           >
             <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -743,9 +764,9 @@ export default function DashboardPage() {
                 padding: "6px 16px",
                 fontWeight: 600,
                 cursor: "pointer",
-                fontSize: "14px"
+                fontSize: "14px",
               }}
-              onClick={() => window.location.href = "/company"}
+              onClick={() => (window.location.href = "/company")}
             >
               더보기
             </button>
@@ -761,7 +782,12 @@ export default function DashboardPage() {
                   }}
                 >
                   <span
-                    style={{ fontSize: "14px", color: "#374151", cursor: "pointer", textDecoration: "underline" }}
+                    style={{
+                      fontSize: "14px",
+                      color: "#374151",
+                      cursor: "pointer",
+                      textDecoration: "underline",
+                    }}
                     onClick={() => {
                       setSelectedCompanyId(company.id);
                       setCompanyDetailModalOpen(true);
@@ -810,11 +836,11 @@ export default function DashboardPage() {
               borderBottom: "1px solid #e5e7eb",
               paddingBottom: "12px",
               marginBottom: "16px",
-              justifyContent: "space-between"
+              justifyContent: "space-between",
             }}
           >
             <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <FaProjectDiagram style={{ color: "#fdb924" }} />
+              <FiPackage style={{ color: "#fdb924" }} />
               최근 등록된 프로젝트
             </span>
             <button
@@ -826,9 +852,9 @@ export default function DashboardPage() {
                 padding: "6px 16px",
                 fontWeight: 600,
                 cursor: "pointer",
-                fontSize: "14px"
+                fontSize: "14px",
               }}
-              onClick={() => window.location.href = "/projects"}
+              onClick={() => (window.location.href = "/projects")}
             >
               더보기
             </button>
@@ -844,8 +870,15 @@ export default function DashboardPage() {
                   }}
                 >
                   <span
-                    style={{ fontSize: "14px", color: "#374151", cursor: "pointer", textDecoration: "underline" }}
-                    onClick={() => window.location.href = `/projects/${project.id}/detail`}
+                    style={{
+                      fontSize: "14px",
+                      color: "#374151",
+                      cursor: "pointer",
+                      textDecoration: "underline",
+                    }}
+                    onClick={() =>
+                      (window.location.href = `/projects/${project.id}/detail`)
+                    }
                   >
                     {project.name}
                   </span>
