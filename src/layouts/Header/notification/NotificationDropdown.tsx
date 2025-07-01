@@ -46,7 +46,7 @@ const NotificationDropdown: React.FC<Props> = ({ notifications, markAsRead, erro
 
   const handleMarkAllAsRead = async () => {
     try {
-      await api.put('/api/notifications/mark-all-read');
+      await api.post('/api/notifications/read/all');
       notifications.forEach(n => {
         if (!n.isRead) {
           markAsRead(n.id);
