@@ -51,22 +51,10 @@ import PostFormModal from "../components/FormModal/PostFormModal";
 import { useParams, useSearchParams } from "react-router-dom";
 import { showSuccessToast } from "@/utils/errorHandler";
 import { getProjectDetail } from "@/features/project/services/projectService";
+import { formatDetailedDateTime } from "@/utils/dateUtils";
 
 const formatDate = (dateString: string) => {
-  let date;
-  if (dateString.includes("T")) {
-    date = new Date(dateString);
-  } else {
-    date = new Date(dateString.replace(" ", "T") + "Z");
-  }
-  date.setHours(date.getHours() + 9);
-  return date.toLocaleDateString("ko-KR", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  return formatDetailedDateTime(dateString);
 };
 
 const getStatusText = (status: PostStatus) => {

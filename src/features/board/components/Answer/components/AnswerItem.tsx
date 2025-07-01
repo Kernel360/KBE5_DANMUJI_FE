@@ -17,6 +17,7 @@ import {
   BestAnswerBadge,
 } from "../styles/AnswerItem.styled";
 import ClickableUsername from "../../../../components/ClickableUsername";
+import { formatDetailedDateTime } from "@/utils/dateUtils";
 
 interface AnswerItemProps {
   answer: Answer;
@@ -78,16 +79,7 @@ const AnswerItem: React.FC<AnswerItemProps> = ({
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return "";
-    const date = new Date(dateString);
-    const kstDate = new Date(date.getTime() + 9 * 60 * 60 * 1000);
-    const options: Intl.DateTimeFormatOptions = {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    };
-    return kstDate.toLocaleDateString("ko-KR", options);
+    return formatDetailedDateTime(dateString);
   };
 
   if (isDeleted) {

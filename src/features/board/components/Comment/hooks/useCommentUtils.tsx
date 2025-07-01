@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import type { Comment } from "@/features/project-d/types/post";
 import ClickableMentionedUsername from "@/components/ClickableMentionedUsername";
+import { formatFullDateTime } from "@/utils/dateUtils";
 
 const MentionSpan = styled.span`
   color: #fdb924;
@@ -10,14 +11,7 @@ const MentionSpan = styled.span`
 
 // 날짜 포맷팅 함수
 export const formatCommentDate = (dateString: string) => {
-  const options: Intl.DateTimeFormatOptions = {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  };
-  return new Date(dateString).toLocaleDateString("ko-KR", options);
+  return formatFullDateTime(dateString);
 };
 
 // 댓글 내용에서 @태그와 "답글" 텍스트에 색상을 적용하는 함수
