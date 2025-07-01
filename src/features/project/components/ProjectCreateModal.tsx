@@ -257,6 +257,7 @@ export default function ProjectCreateModal({
         description: form.description,
         startDate: form.startDate,
         endDate: form.endDate,
+        projectCost: form.projectCost ? Number(form.projectCost) : 0,
         devManagerId: form.devManagerId
           ? form.devManagerId
               .split(",")
@@ -407,6 +408,27 @@ export default function ProjectCreateModal({
                 setForm({ ...form, description: e.target.value })
               }
               rows={4}
+            />
+          </div>
+          {/* 프로젝트 금액 */}
+          <div>
+            <div style={{ fontWeight: 600, marginBottom: 8 }}>프로젝트 금액</div>
+            <input
+              type="text"
+              style={{
+                width: "100%",
+                padding: 12,
+                borderRadius: 6,
+                border: "1px solid #eee",
+              }}
+              placeholder="프로젝트 금액을 입력하세요"
+              value={Number(form.projectCost).toLocaleString()}
+              onChange={(e) => {
+                const value = e.target.value.replace(/,/g, "");
+                if (!isNaN(Number(value))) {
+                  setForm({ ...form, projectCost: value });
+                }
+              }}
             />
           </div>
           {/* 프로젝트 기간 */}

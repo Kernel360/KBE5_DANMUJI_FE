@@ -220,17 +220,29 @@ export default function ProjectListPage() {
 
   // 페이지 번호 배열 생성 (최대 5개)
   const getPageNumbers = () => {
-    const pageNumbers = [];
+    const pageNumbers: (number | null)[] = [];
     const maxPages = 5;
-    let startPage = Math.max(1, currentPage - Math.floor(maxPages / 2));
-    let endPage = Math.min(totalPages, startPage + maxPages - 1);
 
-    if (endPage - startPage + 1 < maxPages) {
-      startPage = Math.max(1, endPage - maxPages + 1);
-    }
+    if (totalPages <= maxPages) {
+      for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i);
+      }
+      // 남은 공간을 null로 채워 5개 너비 유지
+      while (pageNumbers.length < maxPages) {
+        pageNumbers.push(null);
+      }
+    } else {
+      let startPage = Math.max(1, currentPage - Math.floor(maxPages / 2));
+      let endPage = startPage + maxPages - 1;
 
-    for (let i = startPage; i <= endPage; i++) {
-      pageNumbers.push(i);
+      if (endPage > totalPages) {
+        endPage = totalPages;
+        startPage = endPage - maxPages + 1;
+      }
+
+      for (let i = startPage; i <= endPage; i++) {
+        pageNumbers.push(i);
+      }
     }
     return pageNumbers;
   };
@@ -323,15 +335,23 @@ export default function ProjectListPage() {
             >
               이전
             </PaginationButton>
-            {getPageNumbers().map((pageNum) => (
-              <PaginationButton
-                key={pageNum}
-                onClick={() => handlePageChange(pageNum)}
-                $active={currentPage === pageNum}
-              >
-                {pageNum}
-              </PaginationButton>
-            ))}
+            {getPageNumbers().map((pageNum, index) =>
+              pageNum !== null ? (
+                <PaginationButton
+                  key={pageNum}
+                  onClick={() => handlePageChange(pageNum)}
+                  $active={currentPage === pageNum}
+                >
+                  {pageNum}
+                </PaginationButton>
+              ) : (
+                <PaginationButton
+                  key={`empty-${index}`}
+                  disabled
+                  style={{ visibility: "hidden", cursor: "default" }}
+                />
+              )
+            )}
             <PaginationButton
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
