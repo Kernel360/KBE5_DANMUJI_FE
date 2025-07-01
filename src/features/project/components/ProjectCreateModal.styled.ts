@@ -90,7 +90,7 @@ export const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'dang
   font-size: 16px;
   cursor: pointer;
   background: ${({ $variant }) =>
-    $variant === 'primary' ? '#4338ca' :
+    $variant === 'primary' ? '#fdb924' :
     $variant === 'secondary' ? '#aaa' :
     $variant === 'danger' ? '#ef4444' : '#fff'};
   color: ${({ $variant }) =>

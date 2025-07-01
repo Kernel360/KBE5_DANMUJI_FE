@@ -673,7 +673,11 @@ export default function DashboardPage() {
                     onMouseOver={e => (e.currentTarget.style.background = "#f9fafb")}
                     onMouseOut={e => (e.currentTarget.style.background = "")}
                   >
-                    <span style={{ fontSize: "14px", color: "#374151", fontWeight: 600 }}>{project.name}</span>
+                    <span style={{ fontSize: "14px", color: "#374151", fontWeight: 600 }}>
+                      {project.name.length > 25
+                        ? project.name.slice(0, 25) + "..."
+                        : project.name}
+                    </span>
                     <span style={{ fontSize: "13px", color: "#888", marginTop: 2 }}>{project.startDate} ~ {project.endDate}</span>
                   </RecentActivityItem>
                 ))
@@ -903,7 +907,11 @@ export default function DashboardPage() {
                   onMouseOver={e => (e.currentTarget.style.background = "#f9fafb")}
                   onMouseOut={e => (e.currentTarget.style.background = "")}
                 >
-                  <span style={{ fontSize: "14px", color: "#374151" }}>{project.name}</span>
+                  <span style={{ fontSize: "14px", color: "#374151" }}>
+                    {project.name.length > 25
+                      ? project.name.slice(0, 25) + "..."
+                      : project.name}
+                  </span>
                   <RecentActivityDate style={{ fontSize: "12px" }}>
                     {new Date(project.createdAt).toLocaleDateString()}
                   </RecentActivityDate>

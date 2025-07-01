@@ -499,7 +499,7 @@ export default function ProjectCreateModal({
                 >
                   <span style={{ fontWeight: 500 }}>고객사 선택 *</span>
                   <Button
-                    style={{ marginLeft: 12, background: "#2563eb" }}
+                    style={{ marginLeft: 12}}
                     $variant="primary"
                     type="button"
                     onClick={() => {
