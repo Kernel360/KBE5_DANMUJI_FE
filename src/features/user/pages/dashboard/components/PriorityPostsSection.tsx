@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import * as S from "../styled/UserDashboardPage.styled";
-import { MdWarning, MdAccessTime, MdAssignment } from "react-icons/md";
+import { MdAccessTime } from "react-icons/md";
 import {
   FiUser,
   FiAlertTriangle,

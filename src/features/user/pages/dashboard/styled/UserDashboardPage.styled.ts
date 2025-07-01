@@ -47,7 +47,7 @@ export const DashboardDescription = styled.div`
 // 레이아웃 구조
 export const LayoutGrid = styled.div`
   display: grid;
-  grid-template-columns: 1.3fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 24px;
   align-items: flex-start;
 `;
@@ -121,14 +121,14 @@ export const ProgressList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 18px;
-  min-height: 280px;
+  min-height: 360px;
 `;
 
 export const ProgressListEmpty = styled.div`
   color: #bdbdbd;
   text-align: center;
   gap: 18px;
-  min-height: 280px;
+  min-height: 360px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -166,6 +166,18 @@ export const ProgressBar = styled.div<{ $percent: number }>`
   height: 100%;
   width: ${({ $percent }) => $percent}%;
   background: #1abc7b;
+  border-radius: 8px;
+  transition: width 0.4s;
+`;
+
+export const WarningProgressBar = styled.div<{
+  $percent: number;
+  $status: string;
+}>`
+  height: 100%;
+  width: ${({ $percent }) => $percent}%;
+  background: ${({ $status }) =>
+    $status === "DELAYED" ? "#dc2626" : "#f59e0b"};
   border-radius: 8px;
   transition: width 0.4s;
 `;
@@ -420,16 +432,16 @@ export const Divider = styled.div`
 `;
 
 // ViewAllButton은 그대로 두고, 주의 프로젝트 탭에만 적용할 새로운 스타일 추가
-export const WarningTabButton = styled.button<{ selected?: boolean }>`
+export const WarningTabButton = styled.button<{ $selected?: boolean }>`
   padding: 6px 16px;
   border: none;
   border-radius: 0;
-  background: ${({ selected }) => (selected ? "#fff" : "#f4f6fa")};
-  color: ${({ selected }) => (selected ? "#e74c3c" : "#bdbdbd")};
+  background: ${({ $selected }) => ($selected ? "#fff" : "#f4f6fa")};
+  color: ${({ $selected }) => ($selected ? "#e74c3c" : "#bdbdbd")};
   font-weight: 600;
   font-size: 0.95rem;
   border-bottom: 2px solid
-    ${({ selected }) => (selected ? "#e74c3c" : "transparent")};
+    ${({ $selected }) => ($selected ? "#e74c3c" : "transparent")};
   box-shadow: none;
   transition: background 0.2s, color 0.2s, border-bottom 0.2s;
   margin-bottom: -2px;
@@ -437,16 +449,16 @@ export const WarningTabButton = styled.button<{ selected?: boolean }>`
 `;
 
 // 프로젝트 상태 탭 버튼 (주의 프로젝트 탭과 완전히 동일하게)
-export const ProjectStatusTabButton = styled.button<{ selected?: boolean }>`
+export const ProjectStatusTabButton = styled.button<{ $selected?: boolean }>`
   padding: 6px 16px;
   border: none;
   border-radius: 0;
-  background: ${({ selected }) => (selected ? "#fff" : "#f4f6fa")};
-  color: ${({ selected }) => (selected ? "#1abc7b" : "#bdbdbd")};
+  background: ${({ $selected }) => ($selected ? "#fff" : "#f4f6fa")};
+  color: ${({ $selected }) => ($selected ? "#1abc7b" : "#bdbdbd")};
   font-weight: 600;
   font-size: 0.95rem;
   border-bottom: 2px solid
-    ${({ selected }) => (selected ? "#1abc7b" : "transparent")};
+    ${({ $selected }) => ($selected ? "#1abc7b" : "transparent")};
   box-shadow: none;
   transition: background 0.2s, color 0.2s, border-bottom 0.2s;
   margin-bottom: -2px;

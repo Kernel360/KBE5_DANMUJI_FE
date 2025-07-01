@@ -1,6 +1,5 @@
 import * as S from "../styled/UserDashboardPage.styled";
 import { MdOutlineViewHeadline } from "react-icons/md";
-import { IoSearchSharp } from "react-icons/io5";
 import { FaProjectDiagram } from "react-icons/fa";
 import { FiLayers, FiCalendar, FiHome } from "react-icons/fi";
 import React, { useState, useEffect } from "react";
@@ -57,7 +56,7 @@ const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
   const [animatedPercents, setAnimatedPercents] = useState<number[]>([]);
   useEffect(() => {
     if (statusTab === "IN_PROGRESS") {
-      const percents = filteredProjects.slice(0, 4).map((project) => 0);
+      const percents = filteredProjects.slice(0, 4).map(() => 0);
       setAnimatedPercents(percents);
       const timeouts = filteredProjects.slice(0, 4).map((project, idx) =>
         setTimeout(() => {
@@ -106,7 +105,7 @@ const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
         {STATUS_TABS.map((tab) => (
           <S.ProjectStatusTabButton
             key={tab.key}
-            selected={statusTab === tab.key}
+            $selected={statusTab === tab.key}
             onClick={() => setStatusTab(tab.key as any)}
           >
             {tab.label}
@@ -119,9 +118,9 @@ const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
         </S.ProgressListEmpty>
       ) : (
         <S.ProgressList
-          style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}
+          style={{ display: "flex", flexDirection: "column", gap: 8 }}
         >
-          {filteredProjects.slice(0, 4).map((project, idx) => {
+          {filteredProjects.slice(0, 3).map((project, idx) => {
             const percent = getProgressPercent(project.steps);
             return (
               <S.ProjectCard

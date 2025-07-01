@@ -15,7 +15,27 @@ import {
   getPostDetail,
   getCommentDetail,
 } from "@/features/project-d/services/postService";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
+
+const blinkAnimation = keyframes`
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0.3;
+  }
+`;
+
+const NewBadge = styled.span`
+  padding: 1px 4px;
+  background-color: #ef4444;
+  color: white;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 1;
+  animation: ${blinkAnimation} 0.8s ease-in-out infinite;
+`;
 
 // Reload 버튼 스타일 추가
 const ReloadButton = styled.button`
@@ -417,21 +437,7 @@ const MentionedPostsSection = () => {
                   >
                     {getNotificationTitle(mention.type)}
                   </span>
-                  {!mention.isRead && (
-                    <span
-                      style={{
-                        padding: "1px 4px",
-                        backgroundColor: "#ef4444",
-                        color: "white",
-                        borderRadius: "3px",
-                        fontSize: "9px",
-                        fontWeight: "600",
-                        lineHeight: "1",
-                      }}
-                    >
-                      NEW
-                    </span>
-                  )}
+                  {!mention.isRead && <NewBadge>NEW</NewBadge>}
                 </div>
                 <div
                   style={{
