@@ -621,7 +621,7 @@ export default function PostListPage() {
                             }}
                           >
                             <PostTitle>
-                              {post.title.length > 30
+                              {post.title?.length > 30
                                 ? post.title.slice(0, 30) + "..."
                                 : post.title}
                             </PostTitle>
@@ -737,7 +737,7 @@ export default function PostListPage() {
                                       alignItems: "center",
                                     }}
                                   >
-                                    {post.title.length > 10
+                                    {post.title?.length > 10
                                       ? post.title.slice(0, 10) + "..."
                                       : post.title}
                                   </span>
@@ -751,7 +751,7 @@ export default function PostListPage() {
                                   }}
                                 >
                                   <PostTitle>
-                                    {reply.title.length > 20
+                                    {reply.title?.length > 20
                                       ? reply.title.slice(0, 20) + "..."
                                       : reply.title}
                                   </PostTitle>
@@ -868,7 +868,7 @@ export default function PostListPage() {
                                   alignItems: "center",
                                 }}
                               >
-                                {topParent.title.length > 10
+                                {topParent.title?.length > 10
                                   ? topParent.title.slice(0, 10) + "..."
                                   : topParent.title}
                               </span>
@@ -883,7 +883,7 @@ export default function PostListPage() {
                             }}
                           >
                             <PostTitle>
-                              {post.title.length > 20
+                              {post.title?.length > 20
                                 ? post.title.slice(0, 20) + "..."
                                 : post.title}
                             </PostTitle>
