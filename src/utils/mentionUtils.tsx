@@ -185,7 +185,7 @@ export const renderMentionText = (text: string) => {
     parts.push(text.slice(lastIndex));
   }
 
-  return parts.length > 0 ? parts : text;
+  return (parts?.length || 0) > 0 ? parts : text;
 };
 
 // 실제 멘션이 완료된 사용자명들을 추출하는 함수 (더 정확한 버전)

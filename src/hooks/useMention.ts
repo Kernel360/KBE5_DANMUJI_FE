@@ -77,7 +77,7 @@ export const useMention = () => {
         setMentionState((prev) => ({
           ...prev,
           suggestions: filteredUsernames,
-          isActive: filteredUsernames.length > 0,
+          isActive: (filteredUsernames?.length || 0) > 0,
           selectedIndex: 0,
         }));
       } catch (error) {
@@ -158,7 +158,7 @@ export const useMention = () => {
             ...prev,
             selectedIndex: Math.min(
               prev.selectedIndex + 1,
-              prev.suggestions.length - 1
+              (prev.suggestions?.length || 1) - 1
             ),
           }));
           break;
@@ -171,7 +171,7 @@ export const useMention = () => {
           break;
         case "Enter":
           e.preventDefault();
-          if (mentionState.suggestions[mentionState.selectedIndex]) {
+          if (mentionState.suggestions?.[mentionState.selectedIndex]) {
             const selectedUsername =
               mentionState.suggestions[mentionState.selectedIndex];
             selectMention(selectedUsername);

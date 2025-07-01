@@ -11,6 +11,7 @@ interface MentionTextAreaProps {
   disabled?: boolean;
   className?: string;
   style?: React.CSSProperties;
+  onCompletedMentionsChange?: (mentions: string[]) => void;
 }
 
 const TextAreaContainer = styled.div`
@@ -58,6 +59,7 @@ const MentionTextArea: React.FC<MentionTextAreaProps> = ({
   disabled = false,
   className,
   style,
+  onCompletedMentionsChange,
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [suggestionPosition, setSuggestionPosition] = useState<{
@@ -71,6 +73,7 @@ const MentionTextArea: React.FC<MentionTextAreaProps> = ({
     handleInputChange,
     insertMention,
     setMentionState,
+    completedMentions,
   } = useMention();
 
   // 커서 위치 계산
@@ -83,7 +86,7 @@ const MentionTextArea: React.FC<MentionTextAreaProps> = ({
     // 커서 위치 계산
     const textBeforeCursor = value.substring(0, textarea.selectionStart);
     const lines = textBeforeCursor.split("\n");
-    const currentLine = lines[lines.length - 1];
+    const currentLine = lines?.[lines.length - 1] || "";
 
     // 임시 span을 사용하여 텍스트 너비 계산
     const tempSpan = document.createElement("span");
@@ -98,7 +101,7 @@ const MentionTextArea: React.FC<MentionTextAreaProps> = ({
     document.body.removeChild(tempSpan);
 
     const lineHeight = parseInt(window.getComputedStyle(textarea).lineHeight);
-    const top = offsetTop + (lines.length - 1) * lineHeight + 30; // 약간의 여백
+    const top = offsetTop + ((lines?.length || 1) - 1) * lineHeight + 30; // 약간의 여백
     const left = offsetLeft + textWidth + 10; // 약간의 여백
 
     return { top, left };
@@ -114,6 +117,13 @@ const MentionTextArea: React.FC<MentionTextAreaProps> = ({
     }
   }, [mentionState.isActive, mentionState.suggestions, value]);
 
+  // completedMentions가 변경될 때마다 콜백 호출
+  useEffect(() => {
+    if (onCompletedMentionsChange) {
+      onCompletedMentionsChange(completedMentions);
+    }
+  }, [completedMentions, onCompletedMentionsChange]);
+
   // 입력 변경 처리
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
@@ -125,7 +135,7 @@ const MentionTextArea: React.FC<MentionTextAreaProps> = ({
 
   // 제안 선택 처리
   const handleSuggestionSelect = (username: string) => {
-    if (!textareaRef.current) return;
+    if (!textareaRef.current || !username) return;
 
     const newText = insertMention(
       value,
@@ -150,7 +160,8 @@ const MentionTextArea: React.FC<MentionTextAreaProps> = ({
     // 커서 위치 조정 - @username 뒤에 위치하도록
     setTimeout(() => {
       if (textareaRef.current) {
-        const newCursorPosition = mentionState.startIndex + username.length + 2; // @ + username + space
+        const newCursorPosition =
+          mentionState.startIndex + (username?.length || 0) + 2; // @ + username + space
         textareaRef.current.setSelectionRange(
           newCursorPosition,
           newCursorPosition
@@ -169,7 +180,7 @@ const MentionTextArea: React.FC<MentionTextAreaProps> = ({
           ...prev,
           selectedIndex: Math.min(
             prev.selectedIndex + 1,
-            prev.suggestions.length - 1
+            (prev.suggestions?.length || 1) - 1
           ),
         }));
       } else if (e.key === "ArrowUp") {
@@ -178,10 +189,13 @@ const MentionTextArea: React.FC<MentionTextAreaProps> = ({
           ...prev,
           selectedIndex: Math.max(prev.selectedIndex - 1, 0),
         }));
-      } else if (e.key === "Enter" && mentionState.suggestions.length > 0) {
+      } else if (
+        e.key === "Enter" &&
+        (mentionState.suggestions?.length || 0) > 0
+      ) {
         e.preventDefault();
         const selectedUsername =
-          mentionState.suggestions[mentionState.selectedIndex];
+          mentionState.suggestions?.[mentionState.selectedIndex];
         if (selectedUsername) {
           handleSuggestionSelect(selectedUsername);
         }
