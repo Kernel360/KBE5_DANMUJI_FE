@@ -143,38 +143,49 @@ const PriorityPostsSection = () => {
                   <div
                     style={{
                       display: "flex",
-                      alignItems: "center",
-                      gap: "6px",
+                      flexDirection: "column",
+                      gap: "2px",
                     }}
                   >
-                    <FaProjectDiagram size={14} style={{ color: "#8b5cf6" }} />
-                    <span
+                    <div
                       style={{
-                        fontSize: "14px",
-                        color: "#6b7280",
-                        fontWeight: "500",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px",
                       }}
                     >
-                      {post.projectName}
-                    </span>
-                  </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "6px",
-                    }}
-                  >
-                    <FiLayers size={14} style={{ color: "#6366f1" }} />
-                    <span
+                      <FaProjectDiagram
+                        size={14}
+                        style={{ color: "#8b5cf6" }}
+                      />
+                      <span
+                        style={{
+                          fontSize: "14px",
+                          color: "#6b7280",
+                          fontWeight: "500",
+                        }}
+                      >
+                        {post.projectName}
+                      </span>
+                    </div>
+                    <div
                       style={{
-                        fontSize: "14px",
-                        color: "#6b7280",
-                        fontWeight: "500",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px",
                       }}
                     >
-                      {post.projectStepName}
-                    </span>
+                      <FiLayers size={14} style={{ color: "#6366f1" }} />
+                      <span
+                        style={{
+                          fontSize: "14px",
+                          color: "#6b7280",
+                          fontWeight: "500",
+                        }}
+                      >
+                        {post.projectStepName}
+                      </span>
+                    </div>
                   </div>
                   <span
                     style={{
@@ -188,7 +199,12 @@ const PriorityPostsSection = () => {
                 </div>
               </S.PriorityLabel>
               <div
-                style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  marginTop: "-30px",
+                }}
               >
                 {getPriorityIcon(post.priority)}
                 <StatusBadge $priority={post.priority as PostPriority}>
@@ -197,15 +213,30 @@ const PriorityPostsSection = () => {
                 </StatusBadge>
               </div>
             </S.PriorityHeader>
-            <S.PriorityMeta>
-              <span>
-                <MdAccessTime /> {formatTimeAgo(post.createdAt)}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                alignItems: "center",
+                gap: "12px",
+                marginTop: "8px",
+                fontSize: "12px",
+                color: "#6b7280",
+              }}
+            >
+              <span
+                style={{ display: "flex", alignItems: "center", gap: "4px" }}
+              >
+                <MdAccessTime size={12} />
+                {formatTimeAgo(post.createdAt)}
               </span>
-              <span>
+              <span
+                style={{ display: "flex", alignItems: "center", gap: "4px" }}
+              >
                 {getRoleIcon(post.authorRole)}
                 {post.authorName}({post.authorUsername})
               </span>
-            </S.PriorityMeta>
+            </div>
           </S.PriorityCard>
         ))
       )}
