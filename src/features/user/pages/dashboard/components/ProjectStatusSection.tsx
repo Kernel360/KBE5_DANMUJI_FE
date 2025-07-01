@@ -141,7 +141,8 @@ const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
                   )}
                 </S.ProjectHeaderRow>
                 <S.ProjectDate>
-                  {project.startDate} ~ {project.endDate}
+                  {project.startDate.replace(/-/g, ".")} ~{" "}
+                  {project.endDate.replace(/-/g, ".")}
                 </S.ProjectDate>
                 {statusTab === "IN_PROGRESS" ? (
                   <S.ProjectProgressInfo>

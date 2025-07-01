@@ -167,7 +167,7 @@ const WarningProjectsSection: React.FC<WarningProjectsSectionProps> = ({
                       : "#374151",
                 }}
               >
-                {project.endDate}
+                {project.endDate.replace(/-/g, ".")}
               </b>
             </div>
           </S.ProjectCard>
