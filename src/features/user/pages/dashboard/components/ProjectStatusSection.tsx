@@ -1,7 +1,7 @@
 import * as S from "../styled/UserDashboardPage.styled";
 import { MdOutlineViewHeadline } from "react-icons/md";
 import { FaProjectDiagram } from "react-icons/fa";
-import { FiLayers, FiCalendar, FiHome } from "react-icons/fi";
+import { FiLayers, FiCalendar, FiHome, FiGrid } from "react-icons/fi";
 import React, { useState, useEffect } from "react";
 
 // 타입 정의 추가
@@ -88,7 +88,7 @@ const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
         </S.SectionTitle>
         <S.ViewAllButton onClick={() => navigate("/projects")}>
           <S.ViewAllButtonIcon>
-            <MdOutlineViewHeadline />
+            <FiGrid />
           </S.ViewAllButtonIcon>
           전체 보기
         </S.ViewAllButton>
