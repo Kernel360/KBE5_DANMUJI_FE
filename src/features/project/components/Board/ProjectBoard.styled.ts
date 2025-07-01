@@ -317,7 +317,7 @@ export const StatusButton = styled.button<{ $active: boolean; $color: string }>`
 
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 3px ${({ $color }) => `${$color}20`};
+    box-shadow: none;
   }
 `;
 
