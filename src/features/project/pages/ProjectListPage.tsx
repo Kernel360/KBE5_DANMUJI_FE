@@ -48,10 +48,10 @@ export default function ProjectListPage() {
       if (response.data) {
         console.log("전체 API Response:", response.data);
         console.log("Projects content:", response.data.content);
-        
+
         // 백엔드 응답을 기존 Project 타입으로 변환
         const convertedProjects: Project[] = response.data.content.map(
-          (project: ProjectResponse) => {       
+          (project: ProjectResponse) => {
             // 상태 매핑
             const statusMapping: Record<
               string,
@@ -64,10 +64,20 @@ export default function ProjectListPage() {
             };
 
             // 회사명 표시 함수
-            const getCompanyDisplay = (companies: { companyName: string }[] = []) => {
-              if (!companies || companies.length === 0) return "미지정";
-              if (companies.length === 1) return companies[0].companyName;
-              return `${companies[0].companyName} 외 ${companies.length - 1}`;
+            const getCompanyDisplay = (
+              companies: { companyName: string }[] = []
+            ) => {
+              if (
+                !companies ||
+                !Array.isArray(companies) ||
+                companies.length === 0
+              )
+                return "미지정";
+              if (companies.length === 1)
+                return companies[0]?.companyName || "미지정";
+              return `${companies[0]?.companyName || "미지정"} 외 ${
+                companies.length - 1
+              }`;
             };
 
             const convertedProject = {
@@ -78,9 +88,9 @@ export default function ProjectListPage() {
               projectStatus: statusMapping[project.projectStatus],
               startDate: project.startDate,
               endDate: project.endDate,
-              progress: project.progress
+              progress: project.progress,
             };
-            
+
             console.log("Converted project:", convertedProject);
             return convertedProject;
           }
@@ -103,15 +113,16 @@ export default function ProjectListPage() {
     try {
       setLoading(true);
       setError(null);
-      
+
       // 검색 파라미터 구성
       const searchParams: any = {};
       if (filters.keyword) searchParams.keyword = filters.keyword;
-      if (filters.projectStatus) searchParams.projectStatus = filters.projectStatus;
+      if (filters.projectStatus)
+        searchParams.projectStatus = filters.projectStatus;
       if (filters.startDate) searchParams.startDate = filters.startDate;
       if (filters.endDate) searchParams.endDate = filters.endDate;
       if (filters.sort) searchParams.sort = filters.sort;
-      if(filters.category) searchParams.category = filters.category;
+      if (filters.category) searchParams.category = filters.category;
 
       const response = await api.get("/api/projects/search", {
         params: {
@@ -124,7 +135,7 @@ export default function ProjectListPage() {
       if (response.data?.data) {
         console.log("검색 API Response:", response.data);
         const convertedProjects: Project[] = response.data.content.map(
-          (project: ProjectResponse) => {       
+          (project: ProjectResponse) => {
             // 상태 매핑
             const statusMapping: Record<
               string,
@@ -137,10 +148,20 @@ export default function ProjectListPage() {
             };
 
             // 회사명 표시 함수
-            const getCompanyDisplay = (companies: { companyName: string }[] = []) => {
-              if (!companies || companies.length === 0) return "미지정";
-              if (companies.length === 1) return companies[0].companyName;
-              return `${companies[0].companyName} 외 ${companies.length - 1}`;
+            const getCompanyDisplay = (
+              companies: { companyName: string }[] = []
+            ) => {
+              if (
+                !companies ||
+                !Array.isArray(companies) ||
+                companies.length === 0
+              )
+                return "미지정";
+              if (companies.length === 1)
+                return companies[0]?.companyName || "미지정";
+              return `${companies[0]?.companyName || "미지정"} 외 ${
+                companies.length - 1
+              }`;
             };
 
             const convertedProject = {
@@ -152,9 +173,9 @@ export default function ProjectListPage() {
               projectStatus: statusMapping[project.projectStatus],
               startDate: project.startDate,
               endDate: project.endDate,
-              progress: project.progress
+              progress: project.progress,
             };
-            
+
             console.log("Converted project:", convertedProject);
             return convertedProject;
           }
@@ -179,20 +200,28 @@ export default function ProjectListPage() {
   const handleInputChange = (field: string, value: string) => {
     setFilters((prev) => {
       const newFilters = { ...prev, [field]: value };
-  
+
       // 시작일 변경 로직에서 바로 endDate도 세팅
-      if (field === "startDate" && newFilters.endDate && value > newFilters.endDate) {
+      if (
+        field === "startDate" &&
+        newFilters.endDate &&
+        value > newFilters.endDate
+      ) {
         newFilters.endDate = "";
       }
-  
+
       return newFilters;
     });
   };
 
   const handleSearch = () => {
     // 검색 조건이 있으면 검색 API 사용, 없으면 초기 로딩
-    const hasSearchConditions = filters.keyword || filters.projectStatus || filters.startDate || filters.endDate;
-    
+    const hasSearchConditions =
+      filters.keyword ||
+      filters.projectStatus ||
+      filters.startDate ||
+      filters.endDate;
+
     if (hasSearchConditions) {
       searchProjects(0); // 검색 시 첫 페이지부터
     } else {
