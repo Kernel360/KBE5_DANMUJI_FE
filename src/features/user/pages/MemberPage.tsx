@@ -660,6 +660,7 @@ export default function MemberPage() {
         document.body.removeChild(link);
       }
       await fetchMembers();
+      await fetchCompanies();
       setRegisterModalOpen(false);
       notify("회원이 성공적으로 등록되었습니다.", true);
     } catch {

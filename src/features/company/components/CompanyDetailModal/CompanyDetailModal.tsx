@@ -156,6 +156,7 @@ const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
       notify("회원이 성공적으로 등록되었습니다.", true);
       setRegisterOpen(false);
       setRefreshKey((k) => k + 1); // 구성원 목록 새로고침
+      setCompany(null); // 업체 정보도 새로고침 (useEffect 재실행)
     } catch {
       notify("회원 등록에 실패했습니다.", false);
     }
