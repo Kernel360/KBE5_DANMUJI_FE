@@ -110,6 +110,7 @@ export default function DashboardPage() {
   const [inProgressProjectCount, setInProgressProjectCount] = useState(0);
   const [completedProjectCount, setCompletedProjectCount] = useState(0);
   const [delayedProjectCount, setDelayedProjectCount] = useState(0);
+  const [dueSoonProjectCount, setDueSoonProjectCount] = useState(0);
   const [inquiryCount, setInquiryCount] = useState(0);
   const [waitingInquiryCount, setWaitingInquiryCount] = useState(0);
   const [answeredInquiryCount, setAnsweredInquiryCount] = useState(0);
@@ -127,9 +128,9 @@ export default function DashboardPage() {
       fill: "#dbeafe",
       stroke: "#3b82f6",
     },
-    { name: "완료", value: 5, fill: "#d1fae5", stroke: "#10b981" },
-    { name: "지연", value: 2, fill: "#fef3c7", stroke: "#f59e0b" },
-    { name: "임박", value: 1, fill: "#fee2e2", stroke: "#ef4444" },
+    { name: "완료", value: completedProjectCount, fill: "#d1fae5", stroke: "#10b981" },
+    { name: "지연", value: delayedProjectCount, fill: "#fef3c7", stroke: "#f59e0b" },
+    { name: "마감임박", value: dueSoonProjectCount, fill: "#fee2e2", stroke: "#ef4444" },
   ];
 
   const monthlyData = [
@@ -165,23 +166,23 @@ export default function DashboardPage() {
         setMemberCount(members);
 
         // Fetch Project Counts
-        const projectCountsResponse = await api.get("/api/projects/all");
-        const content = projectCountsResponse.data?.data || [];
-        const total = content.length;
-        const inProgressCount = content.filter(
-          (p: { status: string }) => p.status === "IN_PROGRESS"
-        ).length;
-        const completedCount = content.filter(
-          (p: { status: string }) => p.status === "COMPLETED"
-        ).length;
-        const delayedCount = content.filter(
-          (p: { status: string }) => p.status === "DELAY"
-        ).length;
-
-        setTotalProjectCount(total);
-        setInProgressProjectCount(inProgressCount);
-        setCompletedProjectCount(completedCount);
-        setDelayedProjectCount(delayedCount);
+        const projectCountsResponse = await api.get("/api/projects/status-count");
+        type ProjectStatusCount = { projectStatus: string; statusCount: number };
+        const content: ProjectStatusCount[] = projectCountsResponse.data?.data || [];
+        const statusMap = content.reduce((acc, cur) => {
+          acc[cur.projectStatus] = cur.statusCount;
+          return acc;
+        }, {} as Record<string, number>);
+        setInProgressProjectCount(statusMap["IN_PROGRESS"] || 0);
+        setCompletedProjectCount(statusMap["COMPLETED"] || 0);
+        setDelayedProjectCount(statusMap["DELAY"] || 0);
+        setDueSoonProjectCount(statusMap["DUE_SOON"] || 0);
+        setTotalProjectCount(
+          (statusMap["IN_PROGRESS"] || 0) +
+          (statusMap["COMPLETED"] || 0) +
+          (statusMap["DELAY"] || 0) +
+          (statusMap["DUE_SOON"] || 0)
+        );
 
         // Fetch Recent Companies
         await fetchRecentCompanies();
@@ -411,7 +412,9 @@ export default function DashboardPage() {
             </span>
             <span>
               마감 임박:{" "}
-              <span style={{ color: "#ef4444", fontWeight: 600 }}>2</span>
+              <span style={{ color: "#ef4444", fontWeight: 600 }}>
+                {dueSoonProjectCount}
+              </span>
             </span>
             <span>
               지연:{" "}
@@ -503,139 +506,128 @@ export default function DashboardPage() {
       </div>
 
       {/* 차트 섹션 */}
-      <div
+      <RecentActivityCard
         style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
-          gap: "24px",
+          border: "1px solid #e5e7eb",
+          borderRadius: "12px",
+          background: "#ffffff",
+          padding: "24px",
+          minHeight: 340,
           marginBottom: "32px",
         }}
       >
-        {/* 프로젝트 상태 분포 차트 */}
-        <RecentActivityCard
-          style={{
-            border: "1px solid #e5e7eb",
-            borderRadius: "12px",
-            background: "#ffffff",
-            padding: "24px",
-          }}
-        >
-          <RecentActivityTitle
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              color: "#374151",
-              borderBottom: "1px solid #e5e7eb",
-              paddingBottom: "12px",
-              marginBottom: "20px",
-            }}
-          >
-            <FaChartPie style={{ color: "#fdb924" }} />
-            프로젝트 상태 분포
-          </RecentActivityTitle>
-          <div style={{ height: "300px" }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={projectStatusData}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={100}
-                  label={CustomLabel}
-                  stroke="#ffffff"
-                  strokeWidth={1}
-                  labelLine={false}
-                >
-                  {projectStatusData.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={entry.fill}
-                      stroke={entry.stroke}
-                      strokeWidth={1}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#ffffff",
-                    border: "1px solid #e5e7eb",
-                    borderRadius: "8px",
-                    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-                    fontSize: "14px",
-                    fontWeight: "600",
-                  }}
-                  labelStyle={{
-                    color: "#374151",
-                    fontWeight: "600",
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
+        <div style={{ display: "flex", gap: 32, flexWrap: "wrap", justifyContent: "space-between" }}>
+          {/* 프로젝트 상태 분포 */}
+          <div style={{ flex: 1, minWidth: 320 }}>
+            <RecentActivityTitle
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                color: "#374151",
+                borderBottom: "1px solid #e5e7eb",
+                paddingBottom: "12px",
+                marginBottom: "20px",
+              }}
+            >
+              <FaChartPie style={{ color: "#fdb924" }} />
+              프로젝트 상태 분포
+            </RecentActivityTitle>
+            <div style={{ height: "260px" }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={projectStatusData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={100}
+                    label={CustomLabel}
+                    stroke="#ffffff"
+                    strokeWidth={1}
+                    labelLine={false}
+                  >
+                    {projectStatusData.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={entry.fill}
+                        stroke={entry.stroke}
+                        strokeWidth={1}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#ffffff",
+                      border: "1px solid #e5e7eb",
+                      borderRadius: "8px",
+                      boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                      fontSize: "14px",
+                      fontWeight: "600",
+                    }}
+                    labelStyle={{
+                      color: "#374151",
+                      fontWeight: "600",
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
           </div>
-        </RecentActivityCard>
-
-        {/* 월별 활동 추이 차트 */}
-        <RecentActivityCard
-          style={{
-            border: "1px solid #e5e7eb",
-            borderRadius: "12px",
-            background: "#ffffff",
-            padding: "24px",
-          }}
-        >
-          <RecentActivityTitle
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              color: "#374151",
-              borderBottom: "1px solid #e5e7eb",
-              paddingBottom: "12px",
-              marginBottom: "20px",
-            }}
-          >
-            <FaChartLine style={{ color: "#fdb924" }} />
-            월별 활동 추이
-          </RecentActivityTitle>
-          <div style={{ height: "300px" }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={monthlyData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                <XAxis dataKey="month" stroke="#6b7280" fontSize={12} />
-                <YAxis stroke="#6b7280" fontSize={12} />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#ffffff",
-                    border: "1px solid #e5e7eb",
-                    borderRadius: "8px",
-                    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-                  }}
-                />
-                <Bar
-                  dataKey="posts"
-                  fill="#fef3c7"
-                  stroke="#fdb924"
-                  strokeWidth={2}
-                  name="게시물"
-                  radius={[4, 4, 0, 0]}
-                />
-                <Bar
-                  dataKey="projects"
-                  fill="#dbeafe"
-                  stroke="#3b82f6"
-                  strokeWidth={2}
-                  name="프로젝트"
-                  radius={[4, 4, 0, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
+          {/* 월별 활동 추이 */}
+          <div style={{ flex: 1, minWidth: 320 }}>
+            <RecentActivityTitle
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                color: "#374151",
+                borderBottom: "1px solid #e5e7eb",
+                paddingBottom: "12px",
+                marginBottom: "20px",
+              }}
+            >
+              <FaChartLine style={{ color: "#fdb924" }} />
+              월별 활동 추이
+            </RecentActivityTitle>
+            <div style={{ height: "260px" }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={monthlyData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+                  <XAxis dataKey="month" stroke="#6b7280" fontSize={12} />
+                  <YAxis stroke="#6b7280" fontSize={12} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#ffffff",
+                      border: "1px solid #e5e7eb",
+                      borderRadius: "8px",
+                      boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                    }}
+                  />
+                  <Bar
+                    dataKey="posts"
+                    fill="#fef3c7"
+                    stroke="#fdb924"
+                    strokeWidth={2}
+                    name="게시물"
+                    radius={[4, 4, 0, 0]}
+                  />
+                  <Bar
+                    dataKey="projects"
+                    fill="#dbeafe"
+                    stroke="#3b82f6"
+                    strokeWidth={2}
+                    name="프로젝트"
+                    radius={[4, 4, 0, 0]}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </div>
-        </RecentActivityCard>
-      </div>
+        </div>
+      </RecentActivityCard>
 
       {/* 최근 활동 섹션 */}
       <RecentActivityContainer>
