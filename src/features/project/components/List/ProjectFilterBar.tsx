@@ -361,7 +361,7 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
                       $active={filters.projectStatus === value}
                       $color={color}
                       onClick={() => {
-                        onInputChange("status", value);
+                        onInputChange("projectStatus", value);
                         setStatusDropdownOpen(false);
                       }}
                     >
