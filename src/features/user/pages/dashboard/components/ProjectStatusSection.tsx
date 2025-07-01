@@ -75,12 +75,12 @@ const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
   return (
     <S.Section>
       <S.ProgressSectionTitleRow>
-        <S.SectionTitle color="#1abc7b">
+        <S.SectionTitle color="#059669">
           <FaProjectDiagram
             size={20}
             style={{
               marginRight: "8px",
-              color: "#1abc7b",
+              color: "#059669",
               verticalAlign: "middle",
             }}
           />

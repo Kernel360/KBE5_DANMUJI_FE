@@ -21,12 +21,12 @@ const WarningProjectsSection: React.FC<WarningProjectsSectionProps> = ({
   setSelectedWarningTab,
 }) => (
   <S.Section>
-    <S.SectionTitle color="#e74c3c">
+    <S.SectionTitle color="#dc2626">
       <FaProjectDiagram
         size={20}
         style={{
           marginRight: "8px",
-          color: "#ef4444",
+          color: "#dc2626",
           verticalAlign: "middle",
         }}
       />
@@ -87,9 +87,23 @@ const WarningProjectsSection: React.FC<WarningProjectsSectionProps> = ({
             }
             style={{
               marginBottom: 8,
-              border: "1px solid #ffd6d6",
-              background: "#fff9f9",
+              border: "1px solid #fecaca",
+              background: "#fff",
               cursor: "pointer",
+              transition: "all 0.2s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "#fef2f2";
+              e.currentTarget.style.borderColor = "#fca5a5";
+              e.currentTarget.style.boxShadow =
+                "0 2px 8px rgba(239, 68, 68, 0.1)";
+              e.currentTarget.style.transform = "translateY(-1px)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "#fff";
+              e.currentTarget.style.borderColor = "#fecaca";
+              e.currentTarget.style.boxShadow = "none";
+              e.currentTarget.style.transform = "translateY(0)";
             }}
           >
             <div
@@ -104,7 +118,7 @@ const WarningProjectsSection: React.FC<WarningProjectsSectionProps> = ({
                 style={{
                   fontWeight: 600,
                   fontSize: "0.95rem",
-                  color: "#e74c3c",
+                  color: "#dc2626",
                 }}
               >
                 {project.name}
@@ -136,8 +150,8 @@ const WarningProjectsSection: React.FC<WarningProjectsSectionProps> = ({
                         new Date().getTime()) /
                         (1000 * 60 * 60 * 24) >=
                         0)
-                      ? "#e74c3c"
-                      : "#222",
+                      ? "#dc2626"
+                      : "#374151",
                 }}
               >
                 {project.endDate}

@@ -281,12 +281,12 @@ const PriorityPostsSection = () => {
           marginBottom: "14px",
         }}
       >
-        <S.SectionTitle color="#e74c3c">
+        <S.SectionTitle color="#dc2626">
           <BiNews
             size={20}
             style={{
               marginRight: "8px",
-              color: "#ef4444",
+              color: "#dc2626",
               verticalAlign: "middle",
             }}
           />
@@ -395,7 +395,7 @@ const PriorityPostsSection = () => {
                   <span
                     style={{
                       fontSize: "14px",
-                      color: "#111827",
+                      color: "#1f2937",
                       fontWeight: "600",
                       marginLeft: "6px",
                     }}

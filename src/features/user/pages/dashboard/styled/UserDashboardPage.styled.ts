@@ -344,13 +344,21 @@ export const SectionTitle = styled.div<{ color?: string }>`
 export const ProjectCard = styled.div`
   background: #fff;
   border-radius: 8px;
-  border: 1px solid #e0e0e0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
-  padding: 10px 12px 8px;
-  margin-bottom: 6px;
+  border: 1px solid #e5e7eb;
+  padding: 12px;
+  margin-bottom: 8px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+
+  &:hover {
+    background: #f9fafb;
+    border-color: #1abc7b;
+    box-shadow: 0 2px 8px rgba(26, 188, 123, 0.1);
+    transform: translateY(-1px);
+  }
 `;
 
 export const ProjectHeaderRow = styled.div`
@@ -361,9 +369,10 @@ export const ProjectHeaderRow = styled.div`
 `;
 
 export const ProjectTitle = styled.div`
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 600;
-  color: #222;
+  color: #1f2937;
+  line-height: 1.4;
 `;
 
 export const StatusBadge = styled.span<{ $status: string }>`
@@ -385,9 +394,10 @@ export const StatusBadge = styled.span<{ $status: string }>`
 
 export const ProjectMeta = styled.div`
   display: flex;
-  gap: 14px;
+  gap: 12px;
   font-size: 0.9rem;
-  color: #8b95a1;
+  color: #6b7280;
+  line-height: 1.4;
 `;
 
 export const CompanyRow = styled.div`
@@ -480,13 +490,13 @@ export const ProjectProgressInfo = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 8px;
-  gap: 12px;
+  margin-top: 6px;
+  gap: 10px;
 `;
 
 export const ProjectProgressStep = styled.span`
-  font-size: 0.85rem;
-  color: #8b95a1;
+  font-size: 0.9rem;
+  color: #6b7280;
   font-weight: 500;
 `;
 
@@ -500,7 +510,7 @@ export const ProjectProgressPercent = styled.span<{ $percent: number }>`
 `;
 
 export const ProjectDate = styled.div`
-  color: #8b95a1;
+  color: #6b7280;
   font-size: 0.9rem;
-  margin-bottom: 2px;
+  margin-bottom: 4px;
 `;

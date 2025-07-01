@@ -64,12 +64,12 @@ const MentionCardWithHover = styled(S.MentionedCard)`
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
+    box-shadow: 0 8px 25px rgba(26, 188, 123, 0.15);
   }
 
   &:active {
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+    box-shadow: 0 4px 12px rgba(26, 188, 123, 0.1);
   }
 `;
 
