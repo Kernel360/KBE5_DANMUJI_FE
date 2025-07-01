@@ -63,13 +63,7 @@ export const SseNotificationProvider: React.FC<SseNotificationProviderProps> = (
       setSseNotifications((prev) =>
         prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
       );
-      await api.delete(`/api/notifications/read/${id}`);
-        // 알림 클릭 시 해당 참조 페이지로 이동
-        if (notification.referenceId) {
-          // TODO: 알림 타입에 따른 라우팅 처리
-          // window.location.href = `/reference/${notification.referenceId}`;
-        }
-        
+      await api.put(`/api/notifications/read/${id}`);
     } catch (error) {
       console.error("Failed to mark notification as read:", error);
       setSseError("알림 상태를 업데이트하는 중 오류가 발생했습니다.");

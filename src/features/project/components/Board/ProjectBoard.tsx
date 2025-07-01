@@ -11,6 +11,7 @@ import { showSuccessToast } from "@/utils/errorHandler";
 import ProjectBoardFilters from "./ProjectBoardFilters";
 import ProjectBoardTable from "./ProjectBoardTable";
 import ProjectBoardPagination from "./ProjectBoardPagination";
+import { useNavigate } from "react-router-dom";
 
 interface ProjectBoardProps {
   projectId: number;
@@ -63,6 +64,9 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
 
   // 단계 이름 상태 추가
   const [stepName, setStepName] = useState<string>("");
+
+  const navigate = useNavigate();
+  const [modalPostId, setModalPostId] = React.useState<number | null>(null);
 
   // fetchPosts 함수
   const fetchPosts = async () => {
@@ -328,6 +332,14 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
         onSuccess={handleFormModalSuccess}
         colorTheme={{ main: "#fdb924", sub: "#f59e0b" }}
       />
+
+      {modalPostId && (
+        <ProjectPostDetailModal
+          open={!!modalPostId}
+          postId={modalPostId}
+          onClose={() => setModalPostId(null)}
+        />
+      )}
     </Wrapper>
   );
 };

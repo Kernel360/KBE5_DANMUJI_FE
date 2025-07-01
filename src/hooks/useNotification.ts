@@ -94,7 +94,8 @@ export const useNotification = (
               message: raw.message,
               type: raw.type,
               isRead: raw.isRead,
-              referenceId: raw.referenceId,
+              projectId: raw.projectId,
+              postId: raw.postId,
               time: new Date(raw.createdAt).toLocaleString("ko-KR", {
                 year: "numeric",
                 month: "2-digit",
