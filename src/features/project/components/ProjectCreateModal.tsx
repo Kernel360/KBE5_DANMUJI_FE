@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import api from "@/api/axios";
+import CompanyMemberSelectModal from "./CompanyMemberSelectModal";
+import useCompanyMemberSelect from "./useCompanyMemberSelect.ts";
 
 type Member = {
   id: number;
@@ -57,27 +59,22 @@ export default function ProjectCreateModal({
     projectCost: "",
   };
   const [form, setForm] = useState(initialForm);
-  const [showDevModal, setShowDevModal] = useState(false);
+  const {
+    showCompanyMemberModal,
+    setShowCompanyMemberModal,
+    editCompany,
+    setEditCompany,
+    editMembers,
+    setEditMembers,
+    modalType,
+    openCompanyMemberModal,
+    closeCompanyMemberModal
+  } = useCompanyMemberSelect();
   const [selectedDevCompanies, setSelectedDevCompanies] = useState<
     SelectedDevCompany[]
   >([]);
   const [selectedClientCompanies, setSelectedClientCompanies] = useState<
     SelectedClientCompany[]
-  >([]);
-  const [showClientModal, setShowClientModal] = useState(false);
-  const [editDevCompany, setEditDevCompany] = useState<{
-    id: number;
-    name: string;
-  } | null>(null);
-  const [editDevMembers, setEditDevMembers] = useState<
-    { id: number; name: string; position: string; type: "manager" | "member" }[]
-  >([]);
-  const [editClientCompany, setEditClientCompany] = useState<{
-    id: number;
-    name: string;
-  } | null>(null);
-  const [editClientMembers, setEditClientMembers] = useState<
-    { id: number; name: string; position: string; type: "manager" | "member" }[]
   >([]);
 
   // devManagerId, devUserId, clientManagerId, clientUserId 동기화
@@ -178,7 +175,7 @@ export default function ProjectCreateModal({
         return [...prev, { company, members }];
       }
     });
-    setShowDevModal(false);
+    setShowCompanyMemberModal(false);
   };
 
   // 고객사 추가 모달에서 선택된 업체/멤버 반영
@@ -201,7 +198,7 @@ export default function ProjectCreateModal({
         return [...prev, { company, members }];
       }
     });
-    setShowClientModal(false);
+    setShowCompanyMemberModal(false);
   };
 
   // 모달 열릴 때 body 스크롤 방지
@@ -295,10 +292,8 @@ export default function ProjectCreateModal({
     setForm(initialForm);
     setSelectedDevCompanies([]);
     setSelectedClientCompanies([]);
-    setEditDevCompany(null);
-    setEditDevMembers([]);
-    setEditClientCompany(null);
-    setEditClientMembers([]);
+    setEditCompany(null);
+    setEditMembers([]);
   };
 
   return (
@@ -340,36 +335,6 @@ export default function ProjectCreateModal({
           }}
         >
           <h2 style={{ fontSize: 28, fontWeight: 700 }}>새 프로젝트 생성</h2>
-          <div style={{ display: "flex", gap: 8 }}>
-            <button
-              style={{
-                background: "#2563eb",
-                color: "#fff",
-                border: 0,
-                borderRadius: 4,
-                padding: "6px 16px",
-                fontWeight: 500,
-                fontSize: 15,
-                cursor: "pointer",
-              }}
-            >
-              업체 등록
-            </button>
-            <button
-              style={{
-                background: "#19c37d",
-                color: "#fff",
-                border: 0,
-                borderRadius: 4,
-                padding: "6px 16px",
-                fontWeight: 500,
-                fontSize: 15,
-                cursor: "pointer",
-              }}
-            >
-              멤버생성
-            </button>
-          </div>
         </div>
         <div style={{ color: "#888", marginBottom: 32 }}>
           새로운 프로젝트의 정보를 입력해주세요
@@ -520,9 +485,7 @@ export default function ProjectCreateModal({
                       cursor: "pointer",
                     }}
                     onClick={() => {
-                      setEditDevCompany(null);
-                      setEditDevMembers([]);
-                      setShowDevModal(true);
+                      openCompanyMemberModal("dev");
                     }}
                   >
                     + 개발사 추가
@@ -562,9 +525,9 @@ export default function ProjectCreateModal({
                           cursor: "pointer",
                         }}
                         onClick={() => {
-                          setEditDevCompany(company);
-                          setEditDevMembers(members);
-                          setShowDevModal(true);
+                          setEditCompany(company);
+                          setEditMembers(members);
+                          openCompanyMemberModal("dev");
                         }}
                       >
                         수정
@@ -616,9 +579,7 @@ export default function ProjectCreateModal({
                       cursor: "pointer",
                     }}
                     onClick={() => {
-                      setEditClientCompany(null);
-                      setEditClientMembers([]);
-                      setShowClientModal(true);
+                      openCompanyMemberModal("client");
                     }}
                   >
                     + 고객사 추가
@@ -658,9 +619,9 @@ export default function ProjectCreateModal({
                           cursor: "pointer",
                         }}
                         onClick={() => {
-                          setEditClientCompany(company);
-                          setEditClientMembers(members);
-                          setShowClientModal(true);
+                          setEditCompany(company);
+                          setEditMembers(members);
+                          openCompanyMemberModal("client");
                         }}
                       >
                         수정
@@ -766,406 +727,16 @@ export default function ProjectCreateModal({
         >
           ×
         </button>
-        {showDevModal && (
-          <DevCompanySelectModal
-            onClose={() => setShowDevModal(false)}
-            onDone={handleDevCompanyDone}
-            selectedCompany={editDevCompany}
-            selectedMembers={editDevMembers}
+        {showCompanyMemberModal && (
+          <CompanyMemberSelectModal
+            onClose={closeCompanyMemberModal}
+            onDone={modalType === "dev" ? handleDevCompanyDone : handleClientCompanyDone}
+            selectedCompany={editCompany}
+            selectedMembers={editMembers}
             selectedDevCompanies={selectedDevCompanies}
             selectedClientCompanies={selectedClientCompanies}
           />
         )}
-        {showClientModal && (
-          <DevCompanySelectModal
-            onClose={() => setShowClientModal(false)}
-            onDone={handleClientCompanyDone}
-            selectedCompany={editClientCompany}
-            selectedMembers={editClientMembers}
-            selectedDevCompanies={selectedDevCompanies}
-            selectedClientCompanies={selectedClientCompanies}
-          />
-        )}
-      </div>
-    </div>
-  );
-}
-
-function DevCompanySelectModal({
-  onClose,
-  onDone,
-  selectedCompany,
-  selectedMembers,
-  selectedDevCompanies = [],
-  selectedClientCompanies = [],
-}: {
-  onClose: () => void;
-  onDone: (
-    company: { id: number; name: string },
-    members: {
-      id: number;
-      name: string;
-      position: string;
-      type: "manager" | "member";
-    }[]
-  ) => void;
-  selectedCompany?: { id: number; name: string } | null;
-  selectedMembers?: {
-    id: number;
-    name: string;
-    position: string;
-    type: "manager" | "member";
-  }[];
-  selectedDevCompanies?: { company: { id: number; name: string } }[];
-  selectedClientCompanies?: { company: { id: number; name: string } }[];
-}) {
-  const [search, setSearch] = useState("");
-  const [companies, setCompanies] = useState<{ id: number; name: string }[]>(
-    []
-  );
-  const [loading, setLoading] = useState(false);
-  const [selectedCompanyState, setSelectedCompanyState] = useState(
-    selectedCompany ?? null
-  );
-  const [members, setMembers] = useState<Member[]>([]);
-  const [memberSearch, setMemberSearch] = useState("");
-  const [selectedMembersState, setSelectedMembersState] = useState(
-    selectedMembers ?? []
-  );
-
-  // 업체 검색
-  useEffect(() => {
-    const timeout = setTimeout(async () => {
-      setLoading(true);
-      try {
-        const params = search ? { name: search } : {};
-        const res = await api.get("/api/companies/search", { params });
-        const result = Array.isArray(res.data?.data?.content)
-          ? res.data.data.content
-          : Array.isArray(res.data?.content)
-          ? res.data.content
-          : Array.isArray(res.data)
-          ? res.data
-          : [];
-        setCompanies(
-          result.filter(
-            (c: any) =>
-              c && typeof c.id === "number" && typeof c.name === "string"
-          )
-        );
-        console.log("Companies 응답:", res.data, "최종:", result);
-      } catch (e) {
-        setCompanies([]);
-      } finally {
-        setLoading(false);
-      }
-    }, 300);
-    return () => clearTimeout(timeout);
-  }, [search]);
-
-  // 업체 선택 시 멤버 불러오기
-  useEffect(() => {
-    if (!selectedCompanyState) return;
-    (async () => {
-      setLoading(true);
-      try {
-        const res = await api.get(
-          `/api/companies/${selectedCompanyState.id}/users`
-        );
-
-        // ✅ 수정: 배열 형태로 안전하게 추출
-        const result = Array.isArray(res.data?.data)
-          ? res.data.data
-          : Array.isArray(res.data?.content)
-          ? res.data.content
-          : Array.isArray(res.data)
-          ? res.data
-          : [];
-
-        setMembers(result); // ✅ 수정된 멤버 설정
-      } catch (e) {
-        setMembers([]); // ✅ 실패 시 빈 배열
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [selectedCompanyState]);
-
-  // 모달 외부 클릭 시 닫기
-  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === e.currentTarget) onClose();
-  };
-
-  // 멤버 필터링
-  const filteredMembers = members.filter((m) => m.name.includes(memberSearch));
-
-  // 멤버 버튼 클릭 핸들러
-  const handleMemberType = (member: Member, type: "manager" | "member") => {
-    setSelectedMembersState((prev) => {
-      // 이미 선택된 멤버인지 확인
-      const exists = prev.find((m) => m.id === member.id);
-      if (exists) {
-        // 같은 타입이면 해제, 다른 타입이면 타입만 변경
-        if (exists.type === type) {
-          return prev.filter((m) => m.id !== member.id);
-        } else {
-          return prev.map((m) => (m.id === member.id ? { ...m, type } : m));
-        }
-      } else {
-        // 새로 추가
-        return [...prev, { ...member, type }];
-      }
-    });
-  };
-
-  return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100vw",
-        height: "100vh",
-        background: "rgba(0,0,0,0.3)",
-        zIndex: 2000,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-      onClick={handleOverlayClick}
-    >
-      <div
-        style={{
-          background: "#fff",
-          borderRadius: 12,
-          padding: 32,
-          minWidth: 400,
-          maxWidth: 500,
-          width: "90vw",
-          boxShadow: "0 2px 32px rgba(0,0,0,0.18)",
-          position: "relative",
-        }}
-      >
-        {/* ← 업체 다시 선택 버튼 상단 */}
-        {selectedCompanyState && (
-          <button
-            style={{
-              marginBottom: 16,
-              width: "100%",
-              border: 0,
-              borderRadius: 6,
-              background: "#eee",
-              color: "#222",
-              padding: 10,
-              fontWeight: 500,
-              cursor: "pointer",
-            }}
-            onClick={() => setSelectedCompanyState(null)}
-          >
-            ← 업체 다시 선택
-          </button>
-        )}
-        <h3 style={{ fontSize: 22, fontWeight: 700, marginBottom: 16 }}>
-          업체 선택
-        </h3>
-        {!selectedCompanyState ? (
-          <>
-            <div style={{ marginBottom: 16 }}>
-              <input
-                style={{
-                  width: "100%",
-                  padding: 10,
-                  borderRadius: 6,
-                  border: "1px solid #eee",
-                }}
-                placeholder="업체명 검색"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                autoFocus
-              />
-            </div>
-            <div
-              style={{
-                maxHeight: 300,
-                overflowY: "auto",
-                display: "flex",
-                flexDirection: "column",
-                gap: 8,
-              }}
-            >
-              {loading && (
-                <div style={{ textAlign: "center", color: "#888" }}>
-                  불러오는 중...
-                </div>
-              )}
-              {!loading && companies.length === 0 && (
-                <div style={{ textAlign: "center", color: "#aaa" }}>
-                  검색 결과 없음
-                </div>
-              )}
-              {companies
-                .filter(
-                  (c) =>
-                    !selectedDevCompanies.some(
-                      (dev) => dev.company.id === c.id
-                    ) &&
-                    !selectedClientCompanies.some(
-                      (cli) => cli.company.id === c.id
-                    )
-                )
-                .map((c) => (
-                  <div
-                    key={c.id}
-                    style={{
-                      padding: 14,
-                      border: "1px solid #eee",
-                      borderRadius: 8,
-                      background: "#fafbfc",
-                      cursor: "pointer",
-                      fontWeight: 500,
-                      transition: "box-shadow 0.2s",
-                      boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
-                    }}
-                    onClick={() => setSelectedCompanyState(c)}
-                  >
-                    {c.name}
-                  </div>
-                ))}
-            </div>
-          </>
-        ) : (
-          <>
-            <div style={{ marginBottom: 12, fontWeight: 600 }}>
-              {selectedCompanyState.name}
-            </div>
-            <div style={{ margin: "12px 0 16px 0" }}>
-              <input
-                placeholder="멤버 이름 검색"
-                value={memberSearch}
-                onChange={(e) => setMemberSearch(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: 8,
-                  borderRadius: 6,
-                  border: "1px solid #eee",
-                }}
-              />
-            </div>
-            <div
-              style={{
-                maxHeight: 300,
-                overflowY: "auto",
-                display: "flex",
-                flexDirection: "column",
-                gap: 12,
-              }}
-            >
-              {loading && (
-                <div style={{ textAlign: "center", color: "#888" }}>
-                  불러오는 중...
-                </div>
-              )}
-              {!loading && filteredMembers.length === 0 && (
-                <div style={{ textAlign: "center", color: "#aaa" }}>
-                  멤버 없음
-                </div>
-              )}
-              {filteredMembers.map((member) => {
-                const sel = selectedMembersState.find(
-                  (m) => m.id === member.id
-                );
-                return (
-                  <div
-                    key={member.id}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      border: "1px solid #eee",
-                      borderRadius: 8,
-                      padding: 14,
-                      background: "#fafbfc",
-                      transition: "box-shadow 0.2s",
-                      boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
-                    }}
-                  >
-                    <div>
-                      <div style={{ fontWeight: 600 }}>{member.name}</div>
-                      <div style={{ color: "#888" }}>{member.position}</div>
-                    </div>
-                    <div style={{ display: "flex", gap: 8 }}>
-                      <button
-                        style={{
-                          border: 0,
-                          borderRadius: 4,
-                          background:
-                            sel?.type === "manager" ? "#4338ca" : "#eee",
-                          color: sel?.type === "manager" ? "#fff" : "#222",
-                          padding: "4px 12px",
-                          cursor: "pointer",
-                        }}
-                        onClick={() => handleMemberType(member, "manager")}
-                      >
-                        담당자
-                      </button>
-                      <button
-                        style={{
-                          border: 0,
-                          borderRadius: 4,
-                          background:
-                            sel?.type === "member" ? "#19c37d" : "#eee",
-                          color: sel?.type === "member" ? "#fff" : "#222",
-                          padding: "4px 12px",
-                          cursor: "pointer",
-                        }}
-                        onClick={() => handleMemberType(member, "member")}
-                      >
-                        멤버
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-            <button
-              style={{
-                marginTop: 24,
-                width: "100%",
-                border: 0,
-                borderRadius: 6,
-                background: "#4338ca",
-                color: "#fff",
-                padding: 10,
-                fontWeight: 500,
-                cursor: "pointer",
-              }}
-              onClick={() => {
-                if (selectedMembersState.length === 0) {
-                  alert("한 명 이상 선택해야 합니다");
-                  return;
-                }
-                onDone(selectedCompanyState, selectedMembersState);
-              }}
-            >
-              등록
-            </button>
-          </>
-        )}
-        <button
-          style={{
-            position: "absolute",
-            top: 16,
-            right: 16,
-            background: "transparent",
-            border: 0,
-            fontSize: 22,
-            cursor: "pointer",
-          }}
-          onClick={onClose}
-          aria-label="닫기"
-        >
-          ×
-        </button>
       </div>
     </div>
   );
