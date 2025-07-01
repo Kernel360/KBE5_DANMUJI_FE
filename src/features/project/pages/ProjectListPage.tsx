@@ -11,7 +11,7 @@ import {
   PaginationInfo,
 } from "./ProjectListPage.styled";
 import type { Project } from "../types/Types";
-import ProjectFilterBar from "../components/list/ProjectFilterBar";
+import ProjectFilterBar from "../components/List/ProjectFilterBar";
 import ProjectCard from "../components/Card/ProjectCard";
 import ProjectCreateModal from "../components/ProjectCreateModal";
 import { getProjects, type ProjectResponse } from "../services/projectService";
