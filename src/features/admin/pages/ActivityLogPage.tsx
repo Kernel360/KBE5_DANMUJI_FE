@@ -56,6 +56,11 @@ import { FiPackage } from "react-icons/fi";
 import { LuUserRoundCog } from "react-icons/lu";
 import ActivityLogDetailModal from "../components/ActivityLogDetailModal";
 import {
+  formatDateOnly,
+  formatTimeOnly,
+  formatFullDateTime,
+} from "@/utils/dateUtils";
+import {
   getActivityLogs,
   transformHistoryToActivityLog,
 } from "../services/activityLogService";
@@ -328,31 +333,17 @@ export default function ActivityLogPage() {
     }
   };
 
-  const formatDateOnly = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("ko-KR", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    });
+  const formatDateOnlyLocal = (dateString: string) => {
+    return formatDateOnly(dateString);
   };
 
-  const formatTimeOnly = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString("ko-KR", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+  const formatTimeOnlyLocal = (dateString: string) => {
+    return formatTimeOnly(dateString);
   };
 
   const formatDateForDisplay = (dateString: string) => {
     if (!dateString) return "선택";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("ko-KR", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    });
+    return formatDateOnly(dateString);
   };
 
   const handleSearch = () => {
@@ -845,10 +836,10 @@ export default function ActivityLogPage() {
                   >
                     <FiCalendar size={14} style={{ color: "#8b5cf6" }} />
                     <span style={{ fontSize: "14px", color: "#374151" }}>
-                      {formatDateOnly(log.createdAt)}
+                      {formatDateOnlyLocal(log.createdAt)}
                     </span>
                     <span style={{ fontSize: "12px", color: "#6b7280" }}>
-                      {formatTimeOnly(log.createdAt)}
+                      {formatTimeOnlyLocal(log.createdAt)}
                     </span>
                   </div>
                 </TableCell>

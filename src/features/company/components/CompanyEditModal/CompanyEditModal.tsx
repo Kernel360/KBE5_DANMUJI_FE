@@ -252,6 +252,13 @@ const AddressInput = styled(Input)`
   margin-bottom: 3px;
 `;
 
+// 카카오 우편번호 API 타입 선언
+interface DaumPostcodeData {
+  zonecode: string;
+  roadAddress: string;
+  jibunAddress: string;
+}
+
 // window.daum 타입 선언 (최상단에 추가)
 declare global {
   interface Window {
@@ -451,20 +458,21 @@ export default function CompanyEditModal({
 
     try {
       await onSave(finalData);
-    } catch (err) {
-      console.error("업체 수정 중 오류 발생:", err);
+    } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
         const errorData = err.response?.data as ErrorResponse | undefined;
         if (errorData?.data?.errors) {
           setFieldErrors(errorData.data.errors);
-        } 
+          return;
+        }
       }
+      throw err;
     }
   };
 
   const handleOpenPostcode = () => {
     new (window as any).daum.Postcode({
-      oncomplete: (data: any) => {
+      oncomplete: (data: DaumPostcodeData) => {
         setFormData(prev => ({
           ...prev,
           zonecode: data.zonecode,

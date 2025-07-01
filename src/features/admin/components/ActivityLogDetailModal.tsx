@@ -21,6 +21,7 @@ import {
 import { RiUserSettingsLine } from "react-icons/ri";
 import { FiPackage } from "react-icons/fi";
 import { getActivityLogDetail } from "../services/activityLogService";
+import { formatFullDateTime } from "@/utils/dateUtils";
 import type { ActivityLogDetail } from "../types/activityLog";
 import { LoadingSpinner } from "../../../styles/common/LoadingSpinner.styled";
 
@@ -462,15 +463,7 @@ export default function ActivityLogDetailModal({
   };
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleString("ko-KR", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    });
+    return formatFullDateTime(dateString);
   };
 
   const renderChanges = () => {

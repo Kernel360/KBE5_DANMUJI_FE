@@ -223,7 +223,6 @@ const CompanyDetailPage: React.FC = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editData, setEditData] = useState<Company | null>(null);
   const [fieldErrors, setFieldErrors] = useState<FieldError[]>([]);
-  const [, setErrorMessage] = useState<string | null>(null);
   const [registerModalOpen, setRegisterModalOpen] = useState(false);
 
   const fetchCompanyDetail = useCallback(async () => {
@@ -321,7 +320,6 @@ const CompanyDetailPage: React.FC = () => {
           initialData={editData}
           fieldErrors={fieldErrors}
           setFieldErrors={setFieldErrors}
-          setErrorMessage={setErrorMessage}
         />
       )}
       <PageHeaderSection>

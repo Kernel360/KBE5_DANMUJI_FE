@@ -135,10 +135,7 @@ const MentionSuggestions: React.FC<MentionSuggestionsProps> = ({
       ) : (suggestions?.length || 0) === 0 ? (
         <EmptyItem>
           <div>
-            <div>검색 결과가 없습니다</div>
-            <div style={{ fontSize: "12px", marginTop: "4px" }}>
-              다른 키워드로 검색해보세요
-            </div>
+            <div>현재 같이 진행중인 사용자가 없습니다.</div>
           </div>
         </EmptyItem>
       ) : (
