@@ -215,6 +215,7 @@ export default function ProjectListPage() {
   };
 
   const handleSearch = () => {
+    alert('필터링 작업 연동중');
     // 검색 조건이 있으면 검색 API 사용, 없으면 초기 로딩
     const hasSearchConditions =
       filters.keyword ||
@@ -310,20 +311,20 @@ export default function ProjectListPage() {
 
   return (
     <ProjectListContainer>
-      <Header>
-        <Title>프로젝트 목록</Title>
-        <Description>
-          프로젝트 관리 시스템의 주요 정보를 한눈에 확인하세요
-        </Description>
+      <Header style={{ display: "flex", alignItems: "center" }}>
+        <div>
+          <Title>프로젝트 목록</Title>
+          <Description>
+            프로젝트 관리 시스템의 주요 정보를 한눈에 확인하세요
+          </Description>
+        </div>
         {role === "ROLE_ADMIN" && (
-          <div style={{ marginLeft: "auto" }}>
-            <SubmitButton
-              style={{ minWidth: 140, fontSize: 16 }}
-              onClick={() => setShowCreateModal(true)}
-            >
-              프로젝트 등록
-            </SubmitButton>
-          </div>
+          <SubmitButton
+            style={{ minWidth: 140, fontSize: 16, marginLeft: "auto" }}
+            onClick={() => setShowCreateModal(true)}
+          >
+            프로젝트 등록
+          </SubmitButton>
         )}
       </Header>
       <ProjectFilterBar
