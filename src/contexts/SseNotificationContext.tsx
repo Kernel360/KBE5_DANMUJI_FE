@@ -88,7 +88,7 @@ export const SseNotificationProvider: React.FC<SseNotificationProviderProps> = (
 
   const markAllAsRead = useCallback(async () => {
     try {
-      await api.post('/api/notifications/read/all');
+      await api.put('/api/notifications/read/all');
       setSseNotifications((prev) =>
         prev.map((n) => ({ ...n, isRead: true }))
       );

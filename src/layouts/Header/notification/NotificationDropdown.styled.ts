@@ -97,13 +97,13 @@ export const NotificationList = styled.div`
   padding: 8px 0;
 `;
 
-export const NotificationItem = styled.div<{ isRead: boolean }>`
+export const NotificationItem = styled.div<{ $isRead: boolean }>`
   padding: 12px 16px;
   cursor: pointer;
-  background-color: ${({ isRead }) => (isRead ? "transparent" : "#f9fafb")};
+  background-color: ${({ $isRead }) => ($isRead ? '#fff' : '#f9fafb')};
 
   &:hover {
-    background-color: #f3f4f6;
+    background-color: ${({ $isRead }) => ($isRead ? '#f5f5f5' : '#f3f4f6')};
   }
 `;
 

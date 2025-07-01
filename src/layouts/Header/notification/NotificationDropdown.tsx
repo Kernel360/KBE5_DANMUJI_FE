@@ -69,7 +69,7 @@ const NotificationDropdown: React.FC<Props> = ({
     return notifications.map((n) => (
       <NotificationItem 
         key={n.id} 
-        isRead={n.isRead} 
+        $isRead={n.isRead} 
         onClick={() => handleNotificationClick(n)}
         style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
       >
