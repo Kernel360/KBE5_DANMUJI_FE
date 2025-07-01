@@ -1,8 +1,14 @@
 import React, { useState, useEffect } from "react";
 import * as S from "../styled/UserDashboardPage.styled";
 import { MdWarning, MdAccessTime, MdAssignment } from "react-icons/md";
-import { FiUser, FiAlertTriangle, FiAlertCircle } from "react-icons/fi";
+import {
+  FiUser,
+  FiAlertTriangle,
+  FiAlertCircle,
+  FiLayers,
+} from "react-icons/fi";
 import { LuUserRoundCog } from "react-icons/lu";
+import { FaProjectDiagram } from "react-icons/fa";
 import { getHighPriorityPosts } from "@/features/admin/services/activityLogService";
 import type { PostDashboardReadResponse } from "@/features/admin/types/activityLog";
 import type { PostPriority } from "@/features/project/types/Types";
@@ -84,9 +90,9 @@ const PriorityPostsSection = () => {
   const getPriorityIcon = (priority: string) => {
     switch (priority) {
       case "URGENT":
-        return <FiAlertTriangle size={16} style={{ color: "#ef4444" }} />;
+        return <FiAlertTriangle size={16} style={{ color: "#991b1b" }} />;
       case "HIGH":
-        return <FiAlertCircle size={16} style={{ color: "#f59e0b" }} />;
+        return <FiAlertCircle size={16} style={{ color: "#a21caf" }} />;
       default:
         return <FiAlertCircle size={16} style={{ color: "#6b7280" }} />;
     }
@@ -127,17 +133,70 @@ const PriorityPostsSection = () => {
           <S.PriorityCard key={post.postId}>
             <S.PriorityHeader>
               <S.PriorityLabel>
-                {getPriorityIcon(post.priority)}
-                {post.title}
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "4px",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                    }}
+                  >
+                    <FaProjectDiagram size={14} style={{ color: "#8b5cf6" }} />
+                    <span
+                      style={{
+                        fontSize: "14px",
+                        color: "#6b7280",
+                        fontWeight: "500",
+                      }}
+                    >
+                      {post.projectName}
+                    </span>
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                    }}
+                  >
+                    <FiLayers size={14} style={{ color: "#6366f1" }} />
+                    <span
+                      style={{
+                        fontSize: "14px",
+                        color: "#6b7280",
+                        fontWeight: "500",
+                      }}
+                    >
+                      {post.projectStepName}
+                    </span>
+                  </div>
+                  <span
+                    style={{
+                      fontSize: "16px",
+                      color: "#111827",
+                      fontWeight: "600",
+                    }}
+                  >
+                    {post.title}
+                  </span>
+                </div>
               </S.PriorityLabel>
-              <StatusBadge $priority={post.priority as PostPriority}>
-                {POST_PRIORITY_LABELS[post.priority as PostPriority] ??
-                  post.priority}
-              </StatusBadge>
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "8px" }}
+              >
+                {getPriorityIcon(post.priority)}
+                <StatusBadge $priority={post.priority as PostPriority}>
+                  {POST_PRIORITY_LABELS[post.priority as PostPriority] ??
+                    post.priority}
+                </StatusBadge>
+              </div>
             </S.PriorityHeader>
-            <S.PriorityDesc>
-              {post.projectName} - {post.projectStepName}
-            </S.PriorityDesc>
             <S.PriorityMeta>
               <span>
                 <MdAccessTime /> {formatTimeAgo(post.createdAt)}
