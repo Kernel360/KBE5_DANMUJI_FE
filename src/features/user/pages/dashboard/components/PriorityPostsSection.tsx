@@ -8,6 +8,7 @@ import {
   FiLayers,
   FiFileText,
   FiHelpCircle,
+  FiRotateCcw,
 } from "react-icons/fi";
 import { LuUserRoundCog } from "react-icons/lu";
 import { FaProjectDiagram } from "react-icons/fa";
@@ -68,6 +69,46 @@ const UrgentIcon = styled.div`
     100% {
       opacity: 0.3;
     }
+  }
+`;
+
+// Reload 버튼 스타일 추가
+const ReloadButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: auto;
+  padding: 10px;
+  width: 40px;
+  height: 40px;
+  background: #f9fafb;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    border 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(107, 114, 128, 0.2);
+
+  &:hover {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    border-color: #fef3c7;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(251, 191, 36, 0.3);
+    color: #fff;
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(251, 191, 36, 0.2);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2);
   }
 `;
 
@@ -168,10 +209,36 @@ const PriorityPostsSection = () => {
     setSelectedPostId(null);
   };
 
+  const handleReload = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await getHighPriorityPosts();
+      setPosts(data);
+    } catch (err) {
+      console.error("우선순위 게시글 조회 실패:", err);
+      setError("게시글을 불러오는데 실패했습니다.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <S.PrioritySection>
-        <S.SectionTitle color="#e74c3c">우선순위 높은 게시글</S.SectionTitle>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "18px",
+          }}
+        >
+          <S.SectionTitle color="#e74c3c">우선순위 높은 게시글</S.SectionTitle>
+          <ReloadButton onClick={handleReload} title="새로고침">
+            <FiRotateCcw size={16} />
+          </ReloadButton>
+        </div>
         <div style={{ textAlign: "center", padding: "20px" }}>
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500 mx-auto"></div>
           <p style={{ color: "#6b7280", marginTop: "8px" }}>로딩 중...</p>
@@ -183,7 +250,19 @@ const PriorityPostsSection = () => {
   if (error) {
     return (
       <S.PrioritySection>
-        <S.SectionTitle color="#e74c3c">우선순위 높은 게시글</S.SectionTitle>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "18px",
+          }}
+        >
+          <S.SectionTitle color="#e74c3c">우선순위 높은 게시글</S.SectionTitle>
+          <ReloadButton onClick={handleReload} title="새로고침">
+            <FiRotateCcw size={16} />
+          </ReloadButton>
+        </div>
         <div style={{ textAlign: "center", padding: "20px" }}>
           <p style={{ color: "#ef4444" }}>{error}</p>
         </div>
@@ -193,7 +272,19 @@ const PriorityPostsSection = () => {
 
   return (
     <S.PrioritySection>
-      <S.SectionTitle color="#e74c3c">우선순위 높은 게시글</S.SectionTitle>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "18px",
+        }}
+      >
+        <S.SectionTitle color="#e74c3c">우선순위 높은 게시글</S.SectionTitle>
+        <ReloadButton onClick={handleReload} title="새로고침">
+          <FiRotateCcw size={16} />
+        </ReloadButton>
+      </div>
       {posts.length === 0 ? (
         <div style={{ textAlign: "center", padding: "20px" }}>
           <p style={{ color: "#6b7280" }}>우선순위 높은 게시글이 없습니다.</p>
