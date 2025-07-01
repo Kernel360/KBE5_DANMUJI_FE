@@ -145,6 +145,11 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ projectId, onClose, onS
 
   const handleSave = async () => {
     try {
+      // 이름이 변경된 단계만 찾아서 PUT 요청
+      const changedSteps = stepList.filter((step, idx) => step.name !== originalStepList[idx]?.name);
+      for (const step of changedSteps) {
+        await api.put(`/api/project-steps/${step.id}`, { name: step.name });
+      }
       await reorderSteps(stepList);
       onClose();
       showSuccessToast("저장되었습니다");
@@ -153,10 +158,13 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ projectId, onClose, onS
     }
   };
 
+  // 원본 단계 리스트를 저장해둠
+  const originalStepList = React.useRef(stepList).current;
+
   const virtualList = getVirtualStepList();
 
   return (
-    <ModalOverlay onClick={onClose}>
+    <ModalOverlay onClick={() => { onClose(); window.location.reload(); }}>
       <ModalBox onClick={e => e.stopPropagation()}>
         <ModalHeader>
           <ModalTitle>단계 수정</ModalTitle>
@@ -240,7 +248,54 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ projectId, onClose, onS
                     )}
                   </StepLeft>
                   <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <StepStatusBadge style={{ backgroundColor: bg, color }}>{text}</StepStatusBadge>
+                  {(step.projectStepStatus === 'IN_PROGRESS' || step.projectStepStatus === 'COMPLETED') && (
+                      <button
+                        style={{
+                          marginLeft: 8,
+                          padding: '2px 10px',
+                          borderRadius: 6,
+                          border: '1px solid #e5e7eb',
+                          background: '#f3f4f6',
+                          color: '#6b7280',
+                          fontSize: 13,
+                          cursor: 'pointer',
+                        }}
+                        title="예정으로 되돌리기"
+                        onClick={async () => {
+                          try {
+                            await api.put(`/api/project-steps/${step.id}/revert`);
+                            setStepList(list => list.map(s => s.id === step.id ? { ...s, projectStepStatus: 'PENDING' } : s));
+                            showSuccessToast('예정 상태로 되돌렸습니다');
+                          } catch (e) {
+                            showErrorToast(e);
+                          }
+                        }}
+                      >
+                        초기화
+                      </button>
+                    )}
+                    <StepStatusBadge
+                      style={{ backgroundColor: bg, color }}
+                      clickable={true}
+                      onClick={async () => {
+                        try {
+                          // 상태 토글: PENDING -> IN_PROGRESS -> COMPLETED -> IN_PROGRESS ...
+                          let newStatus = 'IN_PROGRESS';
+                          if (step.projectStepStatus === 'IN_PROGRESS') newStatus = 'COMPLETED';
+                          else if (step.projectStepStatus === 'COMPLETED') newStatus = 'IN_PROGRESS';
+                          await api.put(`/api/project-steps/${step.id}/status`, null, {
+                            params: { projectId }
+                          });
+                          setStepList(list => list.map(s => s.id === step.id ? { ...s, projectStepStatus: newStatus as Step['projectStepStatus'] } : s));
+                          showSuccessToast('상태가 변경되었습니다');
+                        } catch (e) {
+                          showErrorToast(e);
+                        }
+                      }}
+                    >
+                      {text}
+                    </StepStatusBadge>
+                    
                     <TrashIcon>
                       <FaTrashAlt size={14} color="#e11d48" title="단계 삭제" onClick={async () => {
                         if (window.confirm("정말 삭제할까요?")) {
