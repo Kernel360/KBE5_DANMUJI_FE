@@ -134,6 +134,13 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
     }
   };
 
+  // selectedStepId가 변경될 때 stepFilter도 업데이트
+  useEffect(() => {
+    if (selectedStepId) {
+      setStepFilter(selectedStepId);
+    }
+  }, [selectedStepId]);
+
   useEffect(() => {
     fetchPosts();
   }, [
@@ -201,6 +208,12 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
   const handleRowClick = (postId: number) => {
     setSelectedPostId(postId);
     setDetailModalOpen(true);
+  };
+
+  // 단계 클릭 핸들러 추가
+  const handleStepClick = (stepId: number) => {
+    setStepFilter(stepId);
+    setCurrentPage(0); // 페이지를 첫 페이지로 리셋
   };
 
   const handleResetFilters = () => {
@@ -302,6 +315,7 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
         error={error}
         projectSteps={projectSteps}
         onRowClick={handleRowClick}
+        onStepClick={handleStepClick}
       />
 
       <ProjectBoardPagination
