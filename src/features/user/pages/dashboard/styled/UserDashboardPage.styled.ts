@@ -208,8 +208,8 @@ export const MentionedMeta = styled.div`
 // 우선순위 높은 게시글
 export const PrioritySection = styled(Section)`
   background: #fff6f6;
-  border: 1.5px solid #ffd6d6;
-  padding-bottom: 18px;
+  border: 1px solid #ffd6d6;
+  padding-bottom: 14px;
 `;
 
 export const PriorityTitle = styled.div`
@@ -221,9 +221,9 @@ export const PriorityTitle = styled.div`
 
 export const PriorityCard = styled.div`
   background: #fff;
-  border-radius: 10px;
-  border: 1.5px solid #ffd6d6;
-  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #ffd6d6;
+  padding: 12px;
   margin-bottom: 8px;
   transition: all 0.2s ease;
 
@@ -285,20 +285,20 @@ export const PriorityMeta = styled.div`
 
 // 최신 게시글
 export const LatestSection = styled(Section)`
-  padding-bottom: 18px;
+  padding-bottom: 14px;
 `;
 
 export const LatestCard = styled.div`
   background: #fff;
-  border-radius: 10px;
-  border: 1.5px solid #e6eaf3;
-  padding: 16px;
-  margin-bottom: 12px;
+  border-radius: 8px;
+  border: 1px solid #e6eaf3;
+  padding: 12px;
+  margin-bottom: 8px;
 `;
 
 export const LatestTitle = styled.div`
-  font-size: 1.05rem;
-  font-weight: 700;
+  font-size: 0.95rem;
+  font-weight: 600;
   color: #222;
 `;
 

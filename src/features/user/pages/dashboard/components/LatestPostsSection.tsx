@@ -21,9 +21,9 @@ import ProjectPostDetailModal from "@/features/board/components/Post/components/
 
 // ProjectBoard의 StatusBadge 스타일을 복사
 const StatusBadge = styled.span<{ $priority: PostPriority }>`
-  padding: 4px 8px;
+  padding: 3px 6px;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
   color: ${({ $priority }) =>
     $priority === "LOW"
@@ -45,9 +45,9 @@ const StatusBadge = styled.span<{ $priority: PostPriority }>`
 
 // TypeBadge 스타일 추가 (ProjectBoard와 동일)
 const TypeBadge = styled.span<{ $type: PostType }>`
-  padding: 4px 8px;
+  padding: 3px 6px;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
   color: ${({ $type }) => ($type === "GENERAL" ? "#1e40af" : "#92400e")};
   background-color: ${({ $type }) =>
@@ -78,12 +78,12 @@ const ReloadButton = styled.button`
   align-items: center;
   justify-content: center;
   min-width: auto;
-  padding: 10px;
-  width: 40px;
-  height: 40px;
+  padding: 8px;
+  width: 36px;
+  height: 36px;
   background: #f9fafb;
   color: #374151;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   border: 2px solid #e5e7eb;
   border-radius: 10px;
@@ -296,7 +296,7 @@ const LatestPostsSection = () => {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          marginBottom: "18px",
+          marginBottom: "14px",
         }}
       >
         <S.SectionTitle>진행 중인 프로젝트 최신 게시글</S.SectionTitle>
@@ -329,8 +329,8 @@ const LatestPostsSection = () => {
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    gap: "12px",
-                    marginBottom: "8px",
+                    gap: "10px",
+                    marginBottom: "6px",
                   }}
                 >
                   <div
@@ -340,10 +340,10 @@ const LatestPostsSection = () => {
                       gap: "6px",
                     }}
                   >
-                    <FaProjectDiagram size={14} style={{ color: "#8b5cf6" }} />
+                    <FaProjectDiagram size={13} style={{ color: "#8b5cf6" }} />
                     <span
                       style={{
-                        fontSize: "14px",
+                        fontSize: "13px",
                         color: "#6b7280",
                         fontWeight: "500",
                       }}
@@ -358,10 +358,10 @@ const LatestPostsSection = () => {
                       gap: "6px",
                     }}
                   >
-                    <FiLayers size={14} style={{ color: "#6366f1" }} />
+                    <FiLayers size={13} style={{ color: "#6366f1" }} />
                     <span
                       style={{
-                        fontSize: "14px",
+                        fontSize: "13px",
                         color: "#6b7280",
                         fontWeight: "500",
                       }}
@@ -374,8 +374,8 @@ const LatestPostsSection = () => {
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    gap: "8px",
-                    marginBottom: "8px",
+                    gap: "6px",
+                    marginBottom: "6px",
                   }}
                 >
                   <div
@@ -402,7 +402,7 @@ const LatestPostsSection = () => {
                       {getTypeText(post.type)}
                     </TypeBadge>
                   </div>
-                  <S.LatestTitle style={{ marginLeft: "8px" }}>
+                  <S.LatestTitle style={{ marginLeft: "6px" }}>
                     {post.title}
                   </S.LatestTitle>
                 </div>
@@ -419,8 +419,8 @@ const LatestPostsSection = () => {
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    gap: "12px",
-                    fontSize: "12px",
+                    gap: "10px",
+                    fontSize: "11px",
                     color: "#6b7280",
                   }}
                 >
@@ -431,7 +431,7 @@ const LatestPostsSection = () => {
                       gap: "4px",
                     }}
                   >
-                    <MdAccessTime size={12} />
+                    <MdAccessTime size={11} />
                     {formatTimeAgo(post.createdAt)}
                   </span>
                   <span

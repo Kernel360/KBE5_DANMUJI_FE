@@ -246,6 +246,7 @@ const UserDashboardPage = () => {
               navigate={navigate}
             />
             <LatestPostsSection />
+            <PriorityPostsSection />
           </S.LeftColumn>
 
           <S.RightColumn>
@@ -255,7 +256,6 @@ const UserDashboardPage = () => {
               setSelectedWarningTab={setSelectedWarningTab}
             />
             <MentionedPostsSection />
-            <PriorityPostsSection />
           </S.RightColumn>
         </S.LayoutGrid>
       </S.MainContent>
