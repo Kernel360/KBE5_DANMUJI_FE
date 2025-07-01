@@ -449,13 +449,13 @@ export default function ProjectDetailPage() {
         </S.ProjectDetailSection>
 
         <S.TabsContainer>
-          <S.TabButton active={tab === 0} onClick={() => setTab(0)}>
+          <S.TabButton $active={tab === 0} onClick={() => setTab(0)}>
             게시글관리
           </S.TabButton>
-          <S.TabButton active={tab === 1} onClick={() => setTab(1)}>
+          <S.TabButton $active={tab === 1} onClick={() => setTab(1)}>
             질문관리
           </S.TabButton>
-          <S.TabButton active={tab === 2} onClick={() => setTab(2)}>
+          <S.TabButton $active={tab === 2} onClick={() => setTab(2)}>
             이력관리
           </S.TabButton>
         </S.TabsContainer>

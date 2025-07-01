@@ -132,7 +132,7 @@ const MentionSuggestions: React.FC<MentionSuggestionsProps> = ({
             검색 중...
           </div>
         </LoadingItem>
-      ) : suggestions.length === 0 ? (
+      ) : (suggestions?.length || 0) === 0 ? (
         <EmptyItem>
           <div>
             <div>검색 결과가 없습니다</div>
@@ -142,7 +142,7 @@ const MentionSuggestions: React.FC<MentionSuggestionsProps> = ({
           </div>
         </EmptyItem>
       ) : (
-        suggestions.map((username, index) => (
+        suggestions?.map((username, index) => (
           <SuggestionItem
             key={username}
             isSelected={index === selectedIndex}

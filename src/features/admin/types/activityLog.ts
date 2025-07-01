@@ -86,7 +86,7 @@ export interface ActivityLog {
 // 프론트엔드에서 사용할 이력 상세 타입
 export interface ActivityLogDetail {
   id: string;
-  historyType: "CREATED" | "UPDATED" | "DELETED";
+  historyType: string;
   domainType: string;
   domainId: number;
   changedAt: string;
@@ -94,8 +94,8 @@ export interface ActivityLogDetail {
   changerName: string;
   changerUsername: string;
   changerRole: string;
-  before: Record<string, string | number | boolean | null>;
-  after: Record<string, string | number | boolean | null>;
+  before: string;
+  after: string;
   createdAt: string;
   message: string;
 }
@@ -114,4 +114,27 @@ export interface FilterOptions {
   searchTerm: string;
   startDate: string;
   endDate: string;
+}
+
+export interface PostDashboardReadResponse {
+  postId: number;
+  title: string;
+  createdAt: string;
+  projectName: string;
+  projectStepName: string;
+  authorName: string;
+  authorUsername: string;
+  authorRole: string;
+  priority: "URGENT" | "HIGH" | "MEDIUM" | "LOW";
+  type: "GENERAL" | "QUESTION";
+}
+
+export interface MyMentionListResponse {
+  notificationId: number;
+  clientId: number;
+  referenceId: number;
+  content: string;
+  type: string;
+  isRead: boolean;
+  createdAt: string;
 }

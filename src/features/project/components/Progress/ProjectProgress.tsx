@@ -72,7 +72,9 @@ const ProjectProgress: React.FC<ProjectProgressProps> = ({
 
   const currentStepIndex = getCurrentStepIndex();
 
-  const steps = [...projectDetail.steps].sort((a, b) => a.stepOrder - b.stepOrder);
+  const steps = [...projectDetail.steps].sort(
+    (a, b) => a.stepOrder - b.stepOrder
+  );
 
   // 스텝 클릭 핸들러
   const handleStepClick = (stepId: number) => {
@@ -87,9 +89,14 @@ const ProjectProgress: React.FC<ProjectProgressProps> = ({
         {canEditStep && (
           <button
             onClick={() => setStepOrderModalOpen(true)}
-            style={{ background: "none", border: "none", cursor: "pointer", padding: 20 }}
-          title="단계 수정"
-        >
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: 20,
+            }}
+            title="단계 수정"
+          >
             <FaPen size={18} color="#6b7280" />
           </button>
         )}
@@ -106,28 +113,31 @@ const ProjectProgress: React.FC<ProjectProgressProps> = ({
           return (
             <React.Fragment key={step.id}>
               <StepItem
-                active={isActive || isSelected}
+                $active={isActive || isSelected}
                 complete={isComplete}
                 selected={isSelected}
               >
-                <StepIcon active={isActive || isSelected} complete={isComplete}>
+                <StepIcon
+                  $active={isActive || isSelected}
+                  complete={isComplete}
+                >
                   <Icon size={18} />
                 </StepIcon>
                 <StepTitle
-                  active={isActive || isSelected}
+                  $active={isActive || isSelected}
                   complete={isComplete}
                 >
                   {step.name}
                 </StepTitle>
                 <StepStatus
-                  active={isActive || isSelected}
+                  $active={isActive || isSelected}
                   complete={isComplete}
                 >
                   {getStepStatusText(step.projectStepStatus)}
                 </StepStatus>
               </StepItem>
               {index !== steps.length - 1 && (
-                <StepLine active={isActive} complete={isComplete} />
+                <StepLine $active={isActive} complete={isComplete} />
               )}
             </React.Fragment>
           );

@@ -10,6 +10,7 @@ import {
   FiHash,
   FiFileText,
   FiEdit3,
+  FiSearch,
 } from "react-icons/fi";
 import type { CompanyFormData } from "../../pages/CompanyPage";
 import type { Company } from "../../pages/CompanyPage";
@@ -214,6 +215,50 @@ interface Props {
   setFieldErrors: React.Dispatch<React.SetStateAction<FieldError[]>>;
 }
 
+// PostcodeRow, PostcodeButton styled-components 정의
+const PostcodeRow = styled.div`
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: space-between;
+`;
+const PostcodeButton = styled.button`
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 7px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+  &:hover {
+    background: #e0e7ef;
+  }
+  svg {
+    margin-right: 2px;
+    font-size: 14px;
+    vertical-align: middle;
+  }
+`;
+const ZonecodeInput = styled(Input)`
+  width: 120px;
+  margin-bottom: 3px;
+`;
+const AddressInput = styled(Input)`
+  margin-bottom: 3px;
+`;
+
+// window.daum 타입 선언 (최상단에 추가)
+declare global {
+  interface Window {
+    daum: any;
+  }
+}
+
 export default function CompanyEditModal({
   open,
   onClose,
@@ -231,6 +276,9 @@ export default function CompanyEditModal({
     reg1: "",
     reg2: "",
     reg3: "",
+    zonecode: "",
+    baseAddress: "",
+    detailAddress: "",
     address: "",
     ceoName: "",
     email: "",
@@ -243,27 +291,33 @@ export default function CompanyEditModal({
 
   useEffect(() => {
     if (open && initialData) {
-      const mappedData: CompanyFormData = {
+      const [base, detail] = (initialData.address || '').split(',').map(s => s.trim());
+      setFormData({
         name: initialData.name,
         reg1: String(initialData.bizNo).padStart(10, "0").slice(0, 3),
         reg2: String(initialData.bizNo).padStart(10, "0").slice(3, 5),
         reg3: String(initialData.bizNo).padStart(10, "0").slice(5),
-        address: initialData.address,
+        zonecode: initialData.zonecode || '',
+        baseAddress: base || '',
+        detailAddress: detail || '',
+        address: initialData.address || '',
         ceoName: initialData.ceoName,
         email: initialData.email,
         bio: initialData.bio,
         tel: initialData.tel,
-      };
-      setFormData(mappedData);
-      setReg1(mappedData.reg1);
-      setReg2(mappedData.reg2);
-      setReg3(mappedData.reg3);
+      });
+      setReg1(String(initialData.bizNo).padStart(10, "0").slice(0, 3));
+      setReg2(String(initialData.bizNo).padStart(10, "0").slice(3, 5));
+      setReg3(String(initialData.bizNo).padStart(10, "0").slice(5));
     } else if (!open) {
       setFormData({
         name: "",
         reg1: "",
         reg2: "",
         reg3: "",
+        zonecode: "",
+        baseAddress: "",
+        detailAddress: "",
         address: "",
         ceoName: "",
         email: "",
@@ -276,6 +330,15 @@ export default function CompanyEditModal({
       setFieldErrors([]);
     }
   }, [open, initialData, setFieldErrors]);
+
+  // 카카오 우편번호 API 스크립트 로딩 useEffect
+  useEffect(() => {
+    if (document.getElementById("daum-postcode-script")) return;
+    const script = document.createElement("script");
+    script.src = "//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
+    script.id = "daum-postcode-script";
+    document.body.appendChild(script);
+  }, []);
 
   if (!open) return null;
 
@@ -302,20 +365,17 @@ export default function CompanyEditModal({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     const bizNo = `${reg1}${reg2}${reg3}`;
-
-    // 전화번호 숫자만 필터링
     const cleanedTel = formData.tel.replace(/\D/g, "");
-
+    const address = [formData.baseAddress, formData.detailAddress].filter(Boolean).join(', ');
     const finalData: CompanyFormData = {
       ...formData,
       reg1,
       reg2,
       reg3,
       tel: cleanedTel,
+      address,
     };
-
     // 프론트 유효성 검사
     const newFieldErrors: FieldError[] = [];
 
@@ -349,6 +409,13 @@ export default function CompanyEditModal({
         field: "bizNo",
         value: bizNo,
         reason: "사업자등록번호 형식이 올바르지 않습니다.",
+      });
+    }
+    if (!formData.zonecode?.trim()) {
+      newFieldErrors.push({
+        field: "zonecode",
+        value: formData.zonecode,
+        reason: "우편번호는 필수입니다.",
       });
     }
     if (!formData.address?.trim()) {
@@ -393,6 +460,18 @@ export default function CompanyEditModal({
         } 
       }
     }
+  };
+
+  const handleOpenPostcode = () => {
+    new (window as any).daum.Postcode({
+      oncomplete: (data: any) => {
+        setFormData(prev => ({
+          ...prev,
+          zonecode: data.zonecode,
+          baseAddress: data.roadAddress || data.jibunAddress
+        }));
+      },
+    }).open();
   };
 
   return (
@@ -468,13 +547,15 @@ export default function CompanyEditModal({
               <FiMapPin size={14} />
               주소
             </Label>
-            <Input
-              name="address"
-              required
-              placeholder="주소를 입력하세요"
-              value={formData.address || ""}
-              onChange={handleChange}
-            />
+            <PostcodeRow>
+              <ZonecodeInput name="zonecode" placeholder="우편번호" required value={formData.zonecode} readOnly onChange={handleChange} />
+              <PostcodeButton type="button" onClick={handleOpenPostcode}>
+                <FiSearch size={14} />
+                우편번호 찾기
+              </PostcodeButton>
+            </PostcodeRow>
+            <AddressInput name="baseAddress" placeholder="기본주소" value={formData.baseAddress} readOnly onChange={handleChange} />
+            <AddressInput name="detailAddress" placeholder="상세주소" value={formData.detailAddress} onChange={handleChange} />
             {fieldErrors.find((e) => e.field === "address") && (
               <p style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>
                 {fieldErrors.find((e) => e.field === "address")?.reason}

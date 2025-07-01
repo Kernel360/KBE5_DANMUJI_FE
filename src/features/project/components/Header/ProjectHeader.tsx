@@ -26,7 +26,10 @@ interface ProjectHeaderProps {
   onEdit: () => void;
 }
 
-const ProjectHeader: React.FC<ProjectHeaderProps> = ({ projectDetail, onEdit }) => {
+const ProjectHeader: React.FC<ProjectHeaderProps> = ({
+  projectDetail,
+  onEdit,
+}) => {
   const { role } = useAuth();
   const navigate = useNavigate();
 
@@ -93,13 +96,21 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = ({ projectDetail, onEdit }) 
 
   return (
     <ProjectHeaderContainer>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', marginRight: '24px' }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "16px",
+          marginRight: "24px",
+        }}
+      >
         <BackButton onClick={handleBack}>
           <FiArrowLeft size={16} />
           목록으로
         </BackButton>
         {role === "ROLE_ADMIN" && (
-          <div style={{ display: 'flex', gap: 8 }}>
+          <div style={{ display: "flex", gap: 8 }}>
             <button
               onClick={onEdit}
               style={{
@@ -203,7 +214,7 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = ({ projectDetail, onEdit }) 
           <span style={{ color: "#222", fontWeight: 500 }}>
             {projectDetail.developers[0]?.companyName || "미지정"}
           </span>
-          {projectDetail.developers[0]?.assignUsers.length > 0 && (
+          {Array.isArray(projectDetail.developers[0]?.assignUsers) && projectDetail.developers[0].assignUsers.length > 0 && (
             <>
               <span style={{ color: "#d1d5db", margin: "0 6px" }}>|</span>
               <span style={{ color: "#9ca3af", marginRight: 6 }}>개발팀</span>

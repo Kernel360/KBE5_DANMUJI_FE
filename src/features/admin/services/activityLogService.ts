@@ -2,6 +2,7 @@ import api from "@/api/axios";
 import type {
   HistoryDetailResponse,
   ActivityLogDetail,
+  PostDashboardReadResponse,
 } from "../types/activityLog";
 
 // 임시 타입 정의 (모듈 import 문제 해결을 위해)
@@ -226,6 +227,76 @@ export const getActivityLogDetail = async (
     };
   } catch (error) {
     console.error("이력 상세 조회 실패:", error);
+    throw error;
+  }
+};
+
+// 우선순위 높은 게시글 조회
+export const getHighPriorityPosts = async (): Promise<
+  PostDashboardReadResponse[]
+> => {
+  try {
+    const response = await api.get<ApiResponse<PostDashboardReadResponse[]>>(
+      `/api/posts/priority/high`
+    );
+    // data가 없거나 배열이 아니면 빈 배열 반환
+    return Array.isArray(response.data.data) ? response.data.data : [];
+  } catch (error) {
+    console.error("우선순위 높은 게시글 조회 실패:", error);
+    return [];
+  }
+};
+
+// 진행중인 프로젝트의 최신 게시글 조회
+export const getPostsDueSoon = async (): Promise<
+  PostDashboardReadResponse[]
+> => {
+  try {
+    const response = await api.get<ApiResponse<PostDashboardReadResponse[]>>(
+      "/api/posts/projects/due-soon"
+    );
+
+    console.log("API 응답:", response.data);
+
+    // 백엔드 응답 구조 확인 - status가 "OK"인 경우 성공
+    if (
+      response.data.status === "OK" ||
+      response.data.status === "SUCCESS" ||
+      response.data.success
+    ) {
+      // data 필드가 없으면 빈 배열 반환
+      return response.data.data || response.data.content || [];
+    } else {
+      throw new Error(response.data.message || "게시글 조회에 실패했습니다.");
+    }
+  } catch (error) {
+    console.error("진행중인 프로젝트 최신 게시글 조회 실패:", error);
+    throw error;
+  }
+};
+
+// 나를 멘션한 게시글 조회
+export const getMyMentions = async (): Promise<MyMentionListResponse[]> => {
+  try {
+    const response = await api.get<ApiResponse<MyMentionListResponse[]>>(
+      "/api/mentions/my"
+    );
+
+    console.log("멘션 API 응답:", response.data);
+
+    // 백엔드 응답 구조 확인 - status가 "OK"인 경우 성공
+    if (
+      response.data.status === "OK" ||
+      response.data.status === "SUCCESS" ||
+      response.data.success
+    ) {
+      // data 필드가 없으면 빈 배열 반환
+      return response.data.data || response.data.content || [];
+    } else {
+      throw new Error(response.data.message || "멘션 조회에 실패했습니다.");
+    }
+  } catch (error) {
+    console.error("나를 멘션한 게시글 조회 실패:", error);
     throw error;
   }
 };

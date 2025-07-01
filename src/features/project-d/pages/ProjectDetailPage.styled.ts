@@ -279,14 +279,14 @@ export const TabsContainer = styled.div`
   margin-bottom: 24px;
 `;
 
-export const TabButton = styled.button<{ active: boolean }>`
+export const TabButton = styled.button<{ $active: boolean }>`
   padding: 16px 32px;
   border: none;
   background: transparent;
   font-size: 1.25rem;
-  font-weight: ${(props) => (props.active ? 700 : 500)};
-  color: ${(props) => (props.active ? "#4f46e5" : "#6b7280")};
-  border-bottom: ${(props) => (props.active ? "3px solid #4f46e5" : "none")};
+  font-weight: ${(props) => (props.$active ? 700 : 500)};
+  color: ${(props) => (props.$active ? "#4f46e5" : "#6b7280")};
+  border-bottom: ${(props) => (props.$active ? "3px solid #4f46e5" : "none")};
   cursor: pointer;
   transition: color 0.2s;
 `;

@@ -1,6 +1,6 @@
 import styled, { css } from "styled-components";
 
-export const MenuItemContainer = styled.div<{ active?: boolean }>`
+export const MenuItemContainer = styled.div<{ $active?: boolean }>`
   padding: 12px 32px;
   display: flex;
   align-items: center;
@@ -14,8 +14,8 @@ export const MenuItemContainer = styled.div<{ active?: boolean }>`
   font-weight: 500;
   transition: background 0.2s, color 0.2s, border-left 0.2s;
 
-  ${({ active }) =>
-    active &&
+  ${({ $active }) =>
+    $active &&
     css`
       color: #ffb300;
       background: #fffbe6;
@@ -28,8 +28,8 @@ export const MenuItemContainer = styled.div<{ active?: boolean }>`
     color: #222;
   }
 
-  ${({ active }) =>
-    active &&
+  ${({ $active }) =>
+    $active &&
     css`
       &:hover {
         background: #fffbe6;

@@ -170,6 +170,45 @@ const CommentSection: React.FC<CommentSectionProps> = ({
                     allUsernames={allUsernames}
                     completedMentions={completedMentions}
                   />,
+                  // 루트 댓글에 대한 답글 입력창
+                  replyingTo === rootComment.id && (
+                    <ReplyInputContainer key={`reply-input-${rootComment.id}`}>
+                      <MentionTextArea
+                        value={replyText}
+                        onChange={onReplyTextChange}
+                        placeholder={`@${
+                          comments.find((c) => c.id === replyingTo)
+                            ?.authorName ||
+                          comments.find((c) => c.id === replyingTo)?.author
+                            ?.name ||
+                          "알 수 없는 사용자"
+                        } 님에게 답글을 입력하세요. @를 입력하여 사용자를 언급할 수 있습니다.`}
+                        disabled={submittingReply}
+                        rows={3}
+                      />
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "flex-end",
+                          gap: 8,
+                        }}
+                      >
+                        <CommentActionButton
+                          type="button"
+                          onClick={onReplyCancel}
+                          disabled={submittingReply}
+                        >
+                          취소
+                        </CommentActionButton>
+                        <CommentSubmitButton
+                          onClick={onReplySubmit}
+                          disabled={!replyText.trim() || submittingReply}
+                        >
+                          {submittingReply ? "등록 중..." : "등록"}
+                        </CommentSubmitButton>
+                      </div>
+                    </ReplyInputContainer>
+                  ),
                   ...replies.map((reply) => {
                     const isDeleted =
                       reply.deletedAt || reply.status === "DELETED";
@@ -211,7 +250,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
                     }
 
                     // 정상 답글 표시
-                    return (
+                    return [
                       <ReplyItem
                         key={reply.id}
                         reply={reply}
@@ -230,8 +269,47 @@ const CommentSection: React.FC<CommentSectionProps> = ({
                         onUserProfileClick={onUserProfileClick}
                         allUsernames={allUsernames}
                         completedMentions={completedMentions}
-                      />
-                    );
+                      />,
+                      // 답글에 대한 답글 입력창
+                      replyingTo === reply.id && (
+                        <ReplyInputContainer key={`reply-input-${reply.id}`}>
+                          <MentionTextArea
+                            value={replyText}
+                            onChange={onReplyTextChange}
+                            placeholder={`@${
+                              comments.find((c) => c.id === replyingTo)
+                                ?.authorName ||
+                              comments.find((c) => c.id === replyingTo)?.author
+                                ?.name ||
+                              "알 수 없는 사용자"
+                            } 님에게 답글을 입력하세요. @를 입력하여 사용자를 언급할 수 있습니다.`}
+                            disabled={submittingReply}
+                            rows={3}
+                          />
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "flex-end",
+                              gap: 8,
+                            }}
+                          >
+                            <CommentActionButton
+                              type="button"
+                              onClick={onReplyCancel}
+                              disabled={submittingReply}
+                            >
+                              취소
+                            </CommentActionButton>
+                            <CommentSubmitButton
+                              onClick={onReplySubmit}
+                              disabled={!replyText.trim() || submittingReply}
+                            >
+                              {submittingReply ? "등록 중..." : "등록"}
+                            </CommentSubmitButton>
+                          </div>
+                        </ReplyInputContainer>
+                      ),
+                    ];
                   }),
                 ];
               })
@@ -249,44 +327,6 @@ const CommentSection: React.FC<CommentSectionProps> = ({
             </div>
           )}
         </CommentsList>
-
-        {/* 답글 입력창 */}
-        {replyingTo !== null && (
-          <ReplyInputContainer>
-            <MentionTextArea
-              value={replyText}
-              onChange={onReplyTextChange}
-              placeholder={`@${
-                comments.find((c) => c.id === replyingTo)?.authorName ||
-                comments.find((c) => c.id === replyingTo)?.author?.name ||
-                "알 수 없는 사용자"
-              } 님에게 답글을 입력하세요. @를 입력하여 사용자를 언급할 수 있습니다.`}
-              disabled={submittingReply}
-              rows={3}
-            />
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "flex-end",
-                gap: 8,
-              }}
-            >
-              <CommentActionButton
-                type="button"
-                onClick={onReplyCancel}
-                disabled={submittingReply}
-              >
-                취소
-              </CommentActionButton>
-              <CommentSubmitButton
-                onClick={onReplySubmit}
-                disabled={!replyText.trim() || submittingReply}
-              >
-                {submittingReply ? "등록 중..." : "등록"}
-              </CommentSubmitButton>
-            </div>
-          </ReplyInputContainer>
-        )}
       </CommentsSection>
     </div>
   );

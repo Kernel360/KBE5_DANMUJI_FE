@@ -492,6 +492,28 @@ export const deleteComment = async (
   }
 };
 
+// 댓글 상세 조회
+export const getCommentDetail = async (
+  commentId: number
+): Promise<CommentResponse> => {
+  try {
+    const response = await api.get<CommentResponse>(
+      `/api/comments/${commentId}`
+    );
+    return handleApiResponse<Comment>(response);
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
+    if (error instanceof AxiosError) {
+      throw new ApiError(
+        error.response?.data?.message ||
+          "댓글 상세 조회 중 오류가 발생했습니다.",
+        error.response?.status
+      );
+    }
+    throw new ApiError("댓글 상세 조회 중 알 수 없는 오류가 발생했습니다.");
+  }
+};
+
 // 게시글 검색 (백엔드 API)
 export const searchPosts = async (
   projectId: number,
