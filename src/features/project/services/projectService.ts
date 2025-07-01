@@ -81,6 +81,15 @@ export type ProjectDetailResponse = {
   myCompanyType: string;
 };
 
+export type ProjectStatusResponse = {
+  id: number;
+  name: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  progress : number;
+};
+
 // 프로젝트 상세 조회 응답 타입
 export type ProjectDetailApiResponse = ApiResponse<ProjectDetailResponse>;
 
@@ -224,5 +233,27 @@ export const searchProjects = async (
       );
     }
     throw new ApiError("프로젝트 검색 중 알 수 없는 오류가 발생했습니다.");
+  }
+};
+
+// 프로젝트 상태별 현황 조회
+export const getProjectStatusByStatus = async (
+  status: string
+): Promise<ApiResponse<ProjectStatusResponse[]>> => {
+  try {
+    const response = await api.get<ApiResponse<ProjectStatusResponse[]>>(`/api/projects/status`, {
+      params: { status },
+    });
+    return handleApiResponse<ProjectStatusResponse[]>(response);
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
+    if (error instanceof AxiosError) {
+      throw new ApiError(
+        error.response?.data?.message ||
+          "프로젝트 상태별 현황 조회 중 오류가 발생했습니다.",
+        error.response?.status
+      );
+    }
+    throw new ApiError("프로젝트 상태별 현황 조회 중 알 수 없는 오류가 발생했습니다.");
   }
 };
