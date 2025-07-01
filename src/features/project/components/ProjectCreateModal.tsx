@@ -354,6 +354,7 @@ export default function ProjectCreateModal({
               placeholder="프로젝트 이름을 입력하세요"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
+              maxLength={255}
             />
             <div style={{ fontWeight: 600, marginBottom: 8 }}>개요 *</div>
             <textarea
@@ -373,6 +374,7 @@ export default function ProjectCreateModal({
                 setForm({ ...form, description: e.target.value })
               }
               rows={4}
+              maxLength={255}
             />
           </div>
           {/* 프로젝트 금액 */}
@@ -394,6 +396,7 @@ export default function ProjectCreateModal({
                   setForm({ ...form, projectCost: value });
                 }
               }}
+              maxLength={20}
             />
           </div>
           {/* 프로젝트 기간 */}
