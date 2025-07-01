@@ -17,16 +17,22 @@ import {
   ErrorState,
 } from "./NotificationDropdown.styled";
 import type { SseNotification } from "@/layouts/Topbar/Topbar.types";
-import api from "@/api/axios";
 
 interface Props {
   notifications: SseNotification[];
   markAsRead: (id: number) => void;
   error: string | null;
   onDelete?: (id: number) => void;
+  onMarkAllAsRead?: () => void;
 }
 
-const NotificationDropdown: React.FC<Props> = ({ notifications, markAsRead, error, onDelete }) => {
+const NotificationDropdown: React.FC<Props> = ({ 
+  notifications, 
+  markAsRead, 
+  error, 
+  onDelete,
+  onMarkAllAsRead 
+}) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -44,28 +50,6 @@ const NotificationDropdown: React.FC<Props> = ({ notifications, markAsRead, erro
   }, []);
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
-
-  const handleMarkAllAsRead = async () => {
-    try {
-      await api.put('/api/notifications/mark-all-read');
-      notifications.forEach(n => {
-        if (!n.isRead) {
-          markAsRead(n.id);
-        }
-      });
-    } catch (error) {
-      console.error('Failed to mark all notifications as read:', error);
-    }
-  };
-
-  const handleDeleteNotification = async (id: number) => {
-    try {
-      await api.delete(`/api/notifications/${id}`);
-      if (onDelete) onDelete(id);
-    } catch (error) {
-      console.error('Failed to delete notification:', error);
-    }
-  };
 
   const handleNotificationClick = (notification: SseNotification) => {
     if (!notification.isRead) {
@@ -93,22 +77,24 @@ const NotificationDropdown: React.FC<Props> = ({ notifications, markAsRead, erro
           <NotificationMessage>{n.message}</NotificationMessage>
           <NotificationTime>{n.time}</NotificationTime>
         </div>
-        <button
-          onClick={e => {
-            e.stopPropagation();
-            handleDeleteNotification(n.id);
-          }}
-          style={{
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            marginLeft: "8px",
-            color: "#888"
-          }}
-          title="알림 삭제"
-        >
-          <FaTrash />
-        </button>
+        {onDelete && (
+          <button
+            onClick={e => {
+              e.stopPropagation();
+              onDelete(n.id);
+            }}
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              marginLeft: "8px",
+              color: "#888"
+            }}
+            title="알림 삭제"
+          >
+            <FaTrash />
+          </button>
+        )}
       </NotificationItem>
     ));
   };
@@ -125,8 +111,8 @@ const NotificationDropdown: React.FC<Props> = ({ notifications, markAsRead, erro
         <DropdownMenu>
           <NotificationHeader>
             <NotificationTitle>알림</NotificationTitle>
-            {unreadCount > 0 && (
-              <MarkAllAsReadButton onClick={handleMarkAllAsRead}>
+            {unreadCount > 0 && onMarkAllAsRead && (
+              <MarkAllAsReadButton onClick={onMarkAllAsRead}>
                 모두 읽음 처리
               </MarkAllAsReadButton>
             )}

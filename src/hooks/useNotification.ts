@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useContext } from "react";
 import { AuthContext } from "@/contexts/AuthContext";
-import type { Notification as RawNotification } from "@/layouts/Topbar/Topbar.types";
+import type { SseNotification as RawNotification } from "@/layouts/Topbar/Topbar.types";
 
 export const useNotification = (
   onMessage: (data: RawNotification) => void,
@@ -92,6 +92,7 @@ export const useNotification = (
             const formatted: RawNotification = {
               id: raw.id,
               message: raw.message,
+              type: raw.type,
               isRead: raw.isRead,
               referenceId: raw.referenceId,
               time: new Date(raw.createdAt).toLocaleString("ko-KR", {

@@ -2,6 +2,7 @@ import React from "react";
 // import { useLocation } from "react-router-dom";
 import NotificationDropdown from "../Header/notification/NotificationDropdown";
 import { ProfileDropdown } from "../Header/dropdown/ProfileDropdown";
+import { useSseNotification } from "@/contexts/SseNotificationContext";
 
 import {
   TopbarContainer,
@@ -10,21 +11,9 @@ import {
   UserDropdown,
 } from "./Topbar.styles";
 
-import type { SseNotification } from "@/layouts/Topbar/Topbar.types";
+export const Topbar: React.FC = () => {
+  const { sseNotifications, markAsRead, sseError, deleteNotification, markAllAsRead } = useSseNotification();
 
-interface TopbarProps {
-  notifications: SseNotification[];
-  markAsRead: (id: number) => void;
-  error: string | null;
-  onDelete: (id: number) => void;
-}
-
-export const Topbar: React.FC<TopbarProps> = ({
-  notifications,
-  markAsRead,
-  error,
-  onDelete,
-}) => {
   // const location = useLocation();
 
   // const getPageTitle = () => {
@@ -51,10 +40,11 @@ export const Topbar: React.FC<TopbarProps> = ({
           <ProfileDropdown />
         </UserDropdown>
         <NotificationDropdown
-          notifications={notifications}
+          notifications={sseNotifications}
           markAsRead={markAsRead}
-          error={error}
-          onDelete={onDelete}
+          error={sseError}
+          onDelete={deleteNotification}
+          onMarkAllAsRead={markAllAsRead}
         />
       </UserInfo>
     </TopbarContainer>
