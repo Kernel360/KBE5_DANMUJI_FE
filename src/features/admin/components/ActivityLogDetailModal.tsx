@@ -19,7 +19,7 @@ import {
   FiCheck,
 } from "react-icons/fi";
 import { RiUserSettingsLine } from "react-icons/ri";
-import { FaProjectDiagram } from "react-icons/fa";
+import { FiPackage } from "react-icons/fi";
 import { getActivityLogDetail } from "../services/activityLogService";
 import type { ActivityLogDetail } from "../types/activityLog";
 import { LoadingSpinner } from "../../../styles/common/LoadingSpinner.styled";
@@ -1069,7 +1069,7 @@ export default function ActivityLogDetailModal({
       case "COMPANY":
         return <FiHome size={14} style={{ color: "#8b5cf6" }} />;
       case "PROJECT":
-        return <FaProjectDiagram size={14} style={{ color: "#3b82f6" }} />;
+        return <FiPackage size={14} style={{ color: "#3b82f6" }} />;
       case "STEP":
         return <FiLayers size={14} style={{ color: "#6366f1" }} />;
       case "POST":

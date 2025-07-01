@@ -9,9 +9,9 @@ import {
   FiFileText,
   FiHelpCircle,
   FiRotateCcw,
+  FiPackage,
 } from "react-icons/fi";
 import { LuUserRoundCog } from "react-icons/lu";
-import { FaProjectDiagram } from "react-icons/fa";
 import { BiNews } from "react-icons/bi";
 import { getHighPriorityPosts } from "@/features/admin/services/activityLogService";
 import type { PostDashboardReadResponse } from "@/features/admin/types/activityLog";
@@ -330,7 +330,7 @@ const PriorityPostsSection = () => {
                       gap: "6px",
                     }}
                   >
-                    <FaProjectDiagram size={13} style={{ color: "#8b5cf6" }} />
+                    <FiPackage size={13} style={{ color: "#8b5cf6" }} />
                     <span
                       style={{
                         fontSize: "13px",

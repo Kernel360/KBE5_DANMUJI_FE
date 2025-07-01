@@ -1,7 +1,12 @@
 import * as S from "../styled/UserDashboardPage.styled";
 import { MdOutlineViewHeadline } from "react-icons/md";
-import { FaProjectDiagram } from "react-icons/fa";
-import { FiLayers, FiCalendar, FiHome, FiGrid } from "react-icons/fi";
+import {
+  FiLayers,
+  FiCalendar,
+  FiHome,
+  FiGrid,
+  FiPackage,
+} from "react-icons/fi";
 import React, { useState, useEffect } from "react";
 
 // 타입 정의 추가
@@ -76,7 +81,7 @@ const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
     <S.Section>
       <S.ProgressSectionTitleRow>
         <S.SectionTitle color="#111827">
-          <FaProjectDiagram
+          <FiPackage
             size={20}
             style={{
               marginRight: "8px",
@@ -137,7 +142,7 @@ const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
                       marginBottom: "4px",
                     }}
                   >
-                    <FaProjectDiagram size={13} style={{ color: "#8b5cf6" }} />
+                    <FiPackage size={13} style={{ color: "#8b5cf6" }} />
                     <S.ProjectTitle style={{ fontSize: "0.9rem" }}>
                       {project.name}
                     </S.ProjectTitle>

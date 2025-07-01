@@ -1,6 +1,5 @@
 import * as S from "../styled/UserDashboardPage.styled";
-import { FaProjectDiagram } from "react-icons/fa";
-import { FiLayers, FiCalendar } from "react-icons/fi";
+import { FiLayers, FiCalendar, FiPackage } from "react-icons/fi";
 import React from "react";
 
 interface Project {
@@ -32,7 +31,7 @@ const WarningProjectsSection: React.FC<WarningProjectsSectionProps> = ({
 }) => (
   <S.Section>
     <S.SectionTitle color="#111827">
-      <FaProjectDiagram
+      <FiPackage
         size={20}
         style={{
           marginRight: "8px",
@@ -109,7 +108,7 @@ const WarningProjectsSection: React.FC<WarningProjectsSectionProps> = ({
                       marginBottom: "4px",
                     }}
                   >
-                    <FaProjectDiagram size={13} style={{ color: "#8b5cf6" }} />
+                    <FiPackage size={13} style={{ color: "#8b5cf6" }} />
                     <S.ProjectTitle style={{ fontSize: "0.9rem" }}>
                       {project.name}
                     </S.ProjectTitle>

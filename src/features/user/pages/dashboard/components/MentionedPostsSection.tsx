@@ -1,13 +1,7 @@
 import React, { useState, useEffect } from "react";
 import * as S from "../styled/UserDashboardPage.styled";
-import {
-  MdAccessTime,
-  MdComment,
-  MdReply,
-  MdPostAdd,
-  MdNotifications,
-} from "react-icons/md";
-import { FiRotateCcw, FiAtSign } from "react-icons/fi";
+import { MdAccessTime, MdComment, MdReply, MdPostAdd } from "react-icons/md";
+import { FiRotateCcw, FiAtSign, FiBell } from "react-icons/fi";
 import { getMyMentions } from "@/features/admin/services/activityLogService";
 import type { MyMentionListResponse } from "@/features/admin/types/activityLog";
 import ProjectPostDetailModal from "@/features/board/components/Post/components/DetailModal/ProjectPostDetailModal";
@@ -381,7 +375,7 @@ const MentionedPostsSection = () => {
         }}
       >
         <S.SectionTitle>
-          <MdNotifications
+          <FiBell
             size={20}
             style={{
               marginRight: "8px",
