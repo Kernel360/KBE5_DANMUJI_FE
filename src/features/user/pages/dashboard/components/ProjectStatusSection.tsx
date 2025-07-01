@@ -152,8 +152,12 @@ const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
                     <S.StatusBadge $status={project.status}>
                       {project.status === "COMPLETED" && "완료"}
                       {project.status === "IN_PROGRESS" && "진행중"}
+                      {project.status === "DELAY" && "지연"}
+                      {project.status === "DUE_SOON" && "기한임박"}
                       {project.status !== "COMPLETED" &&
                         project.status !== "IN_PROGRESS" &&
+                        project.status !== "DELAY" &&
+                        project.status !== "DUE_SOON" &&
                         project.status}
                     </S.StatusBadge>
                   )}
