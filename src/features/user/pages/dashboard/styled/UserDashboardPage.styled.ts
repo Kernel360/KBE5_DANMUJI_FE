@@ -224,7 +224,7 @@ export const PriorityCard = styled.div`
   border-radius: 10px;
   border: 1.5px solid #ffd6d6;
   padding: 16px;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 `;
 
 export const PriorityHeader = styled.div`
@@ -445,15 +445,17 @@ export const ProjectGoButton = styled.button`
   font-size: 0.97rem;
   padding: 4px 13px 4px 8px;
   cursor: pointer;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-  transition: background 0.18s, color 0.18s, box-shadow 0.18s, border 0.18s, transform 0.12s;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s, border 0.18s,
+    transform 0.12s;
   outline: none;
 
-  &:hover, &:focus {
+  &:hover,
+  &:focus {
     background: #444;
     color: #fff;
     border: 1px solid #444;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.13);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.13);
     transform: translateY(-1px) scale(1.03);
   }
 `;

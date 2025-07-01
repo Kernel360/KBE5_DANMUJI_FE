@@ -172,7 +172,7 @@ const PriorityPostsSection = () => {
                   style={{
                     display: "flex",
                     flexDirection: "column",
-                    gap: "4px",
+                    gap: "12px",
                   }}
                 >
                   <div
@@ -248,42 +248,58 @@ const PriorityPostsSection = () => {
               <div
                 style={{
                   display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  marginTop: "-30px",
+                  flexDirection: "column",
+                  alignItems: "flex-end",
+                  gap: "4px",
+                  marginTop: "0px",
                 }}
               >
-                {getPriorityIcon(post.priority)}
-                <StatusBadge $priority={post.priority as PostPriority}>
-                  {POST_PRIORITY_LABELS[post.priority as PostPriority] ??
-                    post.priority}
-                </StatusBadge>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                  }}
+                >
+                  {getPriorityIcon(post.priority)}
+                  <StatusBadge $priority={post.priority as PostPriority}>
+                    {POST_PRIORITY_LABELS[post.priority as PostPriority] ??
+                      post.priority}
+                  </StatusBadge>
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "12px",
+                    fontSize: "12px",
+                    color: "#6b7280",
+                    marginTop: "6px",
+                  }}
+                >
+                  <span
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px",
+                    }}
+                  >
+                    <MdAccessTime size={12} />
+                    {formatTimeAgo(post.createdAt)}
+                  </span>
+                  <span
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px",
+                    }}
+                  >
+                    {getRoleIcon(post.authorRole)}
+                    {post.authorName}({post.authorUsername})
+                  </span>
+                </div>
               </div>
             </S.PriorityHeader>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "flex-end",
-                alignItems: "center",
-                gap: "12px",
-                marginTop: "8px",
-                fontSize: "12px",
-                color: "#6b7280",
-              }}
-            >
-              <span
-                style={{ display: "flex", alignItems: "center", gap: "4px" }}
-              >
-                <MdAccessTime size={12} />
-                {formatTimeAgo(post.createdAt)}
-              </span>
-              <span
-                style={{ display: "flex", alignItems: "center", gap: "4px" }}
-              >
-                {getRoleIcon(post.authorRole)}
-                {post.authorName}({post.authorUsername})
-              </span>
-            </div>
           </S.PriorityCard>
         ))
       )}
