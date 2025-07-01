@@ -473,19 +473,18 @@ export default function InquiryDetailPage() {
               {isAdmin && !isWaiting && (
                 <ActionButton variant="default" onClick={handleReopenInquiry}>답변 다시하기</ActionButton>
               )}
-              {/* 일반 사용자만 수정 버튼 노출 */}
-              {!isAdmin && (
-                <ActionButton variant="default" onClick={handleEditToggle}>
-                  <FiEdit />
-                  문의사항 수정
-                </ActionButton>
-              )}
-              {/* 일반 사용자만 삭제 버튼 노출 */}
-              {!isAdmin && (
-                <ActionButton variant="danger" onClick={handleDeleteInquiry}>
-                  <FiTrash2 />
-                  문의사항 삭제
-                </ActionButton>
+              {/* 일반 사용자만 수정/삭제 버튼 노출: inquiryStatus가 WAITING일 때만 */}
+              {!isAdmin && inquiry.inquiryStatus === "WAITING" && (
+                <>
+                  <ActionButton variant="default" onClick={handleEditToggle}>
+                    <FiEdit />
+                    문의사항 수정
+                  </ActionButton>
+                  <ActionButton variant="danger" onClick={handleDeleteInquiry}>
+                    <FiTrash2 />
+                    문의사항 삭제
+                  </ActionButton>
+                </>
               )}
             </>
           )}
@@ -584,16 +583,16 @@ export default function InquiryDetailPage() {
         </div>
       </Section>
 
-      {/* 답변 작성 UI (관리자만) */}
-      {isAdmin && (
+      {/* 답변 작성 UI (관리자만, 그리고 WAITING 상태일 때만) */}
+      {isAdmin && inquiry.inquiryStatus === "WAITING" && (
         <Section>
           <SectionTitle>답변 작성</SectionTitle>
           <AnswerForm ref={answerFormRef} onSubmit={handleSubmitAnswer}>
             <TextArea
-              placeholder="답변을 입력해주세요... (최대 1000자)"
+              placeholder="답변을 입력해주세요... (최대 255자)"
               value={answerContent}
               onChange={e => setAnswerContent(e.target.value)}
-              maxLength={1000}
+              maxLength={255}
               onKeyDown={handleAnswerKeyDown}
             />
             <SubmitButton variant="primary" type="submit">
