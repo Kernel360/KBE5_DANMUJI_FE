@@ -406,7 +406,7 @@ const PriorityPostsSection = () => {
                     display: "flex",
                     alignItems: "center",
                     gap: "10px",
-                    fontSize: "11px",
+                    fontSize: "12px",
                     color: "#6b7280",
                   }}
                 >

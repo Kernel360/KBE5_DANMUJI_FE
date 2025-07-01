@@ -430,7 +430,7 @@ const MentionedPostsSection = () => {
               </div>
               <div
                 style={{
-                  fontSize: "11px",
+                  fontSize: "12px",
                   color: mention.isRead ? "#9ca3af" : "#6b7280",
                   whiteSpace: "nowrap",
                 }}
