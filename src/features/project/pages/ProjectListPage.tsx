@@ -18,6 +18,7 @@ import { getProjects, type ProjectResponse } from "../services/projectService";
 import api from "@/api/axios";
 import { SubmitButton } from "@/features/board/components/Post/styles/PostFormModal.styled";
 import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 const PAGE_SIZE = 8;
 
 export default function ProjectListPage() {
@@ -37,6 +38,7 @@ export default function ProjectListPage() {
     category: "",
   });
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const navigate = useNavigate();
 
   // 프로젝트 목록 가져오기 (초기 로딩용)
   const fetchProjects = async (page: number = 0) => {
@@ -216,6 +218,8 @@ export default function ProjectListPage() {
 
   const handleSearch = () => {
     alert('필터링 작업 연동중');
+    navigate('/projects');
+    return;
     // 검색 조건이 있으면 검색 API 사용, 없으면 초기 로딩
     const hasSearchConditions =
       filters.keyword ||
