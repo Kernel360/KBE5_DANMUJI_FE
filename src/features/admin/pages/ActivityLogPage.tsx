@@ -52,7 +52,7 @@ import {
   FiMessageSquare,
   FiCheckSquare,
 } from "react-icons/fi";
-import { FaProjectDiagram } from "react-icons/fa";
+import { FiPackage } from "react-icons/fi";
 import { LuUserRoundCog } from "react-icons/lu";
 import ActivityLogDetailModal from "../components/ActivityLogDetailModal";
 import {
@@ -130,7 +130,7 @@ export default function ActivityLogPage() {
     {
       value: "PROJECT",
       label: "프로젝트",
-      icon: FaProjectDiagram,
+      icon: FiPackage,
       color: "#8b5cf6",
     },
     { value: "COMPANY", label: "회사", icon: FiHome, color: "#f59e0b" },
@@ -273,7 +273,7 @@ export default function ActivityLogPage() {
       case "COMPANY":
         return <FiHome style={{ color: "#8b5cf6" }} />;
       case "PROJECT":
-        return <FaProjectDiagram style={{ color: "#3b82f6" }} />;
+        return <FiPackage style={{ color: "#3b82f6" }} />;
       case "STEP":
         return <FiLayers style={{ color: "#6366f1" }} />;
       case "POST":

@@ -38,15 +38,16 @@ export const DashboardTitle = styled.h1`
 `;
 
 export const DashboardDescription = styled.div`
-  color: #8b95a1;
-  font-size: 0.95rem;
-  margin-left: 16px;
+  color: #bdbdbd;
+  font-size: 0.9rem;
+  margin-bottom: 18px;
+  margin-left: 0px;
 `;
 
 // 레이아웃 구조
 export const LayoutGrid = styled.div`
   display: grid;
-  grid-template-columns: 1.3fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 24px;
   align-items: flex-start;
 `;
@@ -69,13 +70,13 @@ export const Section = styled.section`
   border-radius: 16px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   padding: 28px 32px 24px;
+  min-height: 400px;
 `;
 
 export const ProgressSectionTitleRow = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 22px;
 `;
 
 export const ProgressSectionTitle = styled.div`
@@ -92,7 +93,7 @@ export const ViewAllButton = styled.button`
   border: none;
   color: #1abc7b;
   font-size: 0.95rem;
-  font-weight: 600;
+  font-weight: 500;
   padding: 6px 14px;
   border-radius: 999px;
   cursor: pointer;
@@ -119,14 +120,14 @@ export const ProgressList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 18px;
-  min-height: 200px;
+  min-height: 360px;
 `;
 
 export const ProgressListEmpty = styled.div`
   color: #bdbdbd;
   text-align: center;
   gap: 18px;
-  min-height: 200px;
+  min-height: 360px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -160,10 +161,22 @@ export const ProgressBarWrap = styled.div`
   overflow: hidden;
 `;
 
-export const ProgressBar = styled.div<{ percent: number }>`
+export const ProgressBar = styled.div<{ $percent: number }>`
   height: 100%;
-  width: ${({ percent }) => percent}%;
+  width: ${({ $percent }) => $percent}%;
   background: #1abc7b;
+  border-radius: 8px;
+  transition: width 0.4s;
+`;
+
+export const WarningProgressBar = styled.div<{
+  $percent: number;
+  $status: string;
+}>`
+  height: 100%;
+  width: ${({ $percent }) => $percent}%;
+  background: ${({ $status }) =>
+    $status === "DELAYED" ? "#dc2626" : "#f59e0b"};
   border-radius: 8px;
   transition: width 0.4s;
 `;
@@ -208,8 +221,8 @@ export const MentionedMeta = styled.div`
 // 우선순위 높은 게시글
 export const PrioritySection = styled(Section)`
   background: #fff6f6;
-  border: 1.5px solid #ffd6d6;
-  padding-bottom: 18px;
+  border: 1px solid #ffd6d6;
+  padding-bottom: 14px;
 `;
 
 export const PriorityTitle = styled.div`
@@ -221,10 +234,18 @@ export const PriorityTitle = styled.div`
 
 export const PriorityCard = styled.div`
   background: #fff;
-  border-radius: 10px;
-  border: 1.5px solid #ffd6d6;
-  padding: 16px;
-  margin-bottom: 12px;
+  border-radius: 8px;
+  border: 1px solid #ffd6d6;
+  padding: 12px;
+  margin-bottom: 8px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #fff9f9;
+    border-color: #ffb3b3;
+    box-shadow: 0 2px 8px rgba(255, 182, 182, 0.15);
+    transform: translateY(-1px);
+  }
 `;
 
 export const PriorityHeader = styled.div`
@@ -277,20 +298,20 @@ export const PriorityMeta = styled.div`
 
 // 최신 게시글
 export const LatestSection = styled(Section)`
-  padding-bottom: 18px;
+  padding-bottom: 14px;
 `;
 
 export const LatestCard = styled.div`
   background: #fff;
-  border-radius: 10px;
-  border: 1.5px solid #e6eaf3;
-  padding: 16px;
-  margin-bottom: 12px;
+  border-radius: 8px;
+  border: 1px solid #e6eaf3;
+  padding: 12px;
+  margin-bottom: 8px;
 `;
 
 export const LatestTitle = styled.div`
-  font-size: 1.05rem;
-  font-weight: 700;
+  font-size: 0.95rem;
+  font-weight: 600;
   color: #222;
 `;
 
@@ -334,14 +355,22 @@ export const SectionTitle = styled.div<{ color?: string }>`
 // 프로젝트 카드 및 관련 컴포넌트
 export const ProjectCard = styled.div`
   background: #fff;
-  border-radius: 10px;
-  border: 2px solid #e0e0e0;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
-  padding: 12px 14px 10px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  padding: 10px;
   margin-bottom: 8px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+
+  &:hover {
+    background: #f9fafb;
+    border-color: #3b82f6;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+    transform: translateY(-1px);
+  }
 `;
 
 export const ProjectHeaderRow = styled.div`
@@ -352,33 +381,35 @@ export const ProjectHeaderRow = styled.div`
 `;
 
 export const ProjectTitle = styled.div`
-  font-size: 1.02rem;
-  font-weight: 700;
-  color: #222;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1f2937;
+  line-height: 1.4;
 `;
 
-export const StatusBadge = styled.span<{ status: string }>`
+export const StatusBadge = styled.span<{ $status: string }>`
   display: inline-block;
-  font-size: 0.93rem;
+  font-size: 0.85rem;
   font-weight: 600;
-  border-radius: 8px;
-  padding: 2px 12px;
+  border-radius: 6px;
+  padding: 2px 8px;
   color: #fff;
-  background: ${({ status }) =>
-    status === "COMPLETED"
+  background: ${({ $status }) =>
+    $status === "COMPLETED"
       ? "#10b981"
-      : status === "IN_PROGRESS"
+      : $status === "IN_PROGRESS"
       ? "#1abc7b"
-      : status === "DELAYED"
+      : $status === "DELAYED"
       ? "#e74c3c"
       : "#bdbdbd"};
 `;
 
 export const ProjectMeta = styled.div`
   display: flex;
-  gap: 18px;
-  font-size: 0.97rem;
-  color: #8b95a1;
+  gap: 12px;
+  font-size: 0.9rem;
+  color: #6b7280;
+  line-height: 1.4;
 `;
 
 export const CompanyRow = styled.div`
@@ -400,16 +431,16 @@ export const Divider = styled.div`
 `;
 
 // ViewAllButton은 그대로 두고, 주의 프로젝트 탭에만 적용할 새로운 스타일 추가
-export const WarningTabButton = styled.button<{ selected?: boolean }>`
-  padding: 7px 18px;
+export const WarningTabButton = styled.button<{ $selected?: boolean }>`
+  padding: 6px 16px;
   border: none;
   border-radius: 0;
-  background: ${({ selected }) => (selected ? "#fff" : "#f4f6fa")};
-  color: ${({ selected }) => (selected ? "#e74c3c" : "#bdbdbd")};
-  font-weight: 700;
-  font-size: 1rem;
-  border-bottom: 3px solid
-    ${({ selected }) => (selected ? "#e74c3c" : "transparent")};
+  background: ${({ $selected }) => ($selected ? "#fff" : "#f4f6fa")};
+  color: ${({ $selected }) => ($selected ? "#e74c3c" : "#bdbdbd")};
+  font-weight: 600;
+  font-size: 0.95rem;
+  border-bottom: 2px solid
+    ${({ $selected }) => ($selected ? "#e74c3c" : "transparent")};
   box-shadow: none;
   transition: background 0.2s, color 0.2s, border-bottom 0.2s;
   margin-bottom: -2px;
@@ -417,16 +448,16 @@ export const WarningTabButton = styled.button<{ selected?: boolean }>`
 `;
 
 // 프로젝트 상태 탭 버튼 (주의 프로젝트 탭과 완전히 동일하게)
-export const ProjectStatusTabButton = styled.button<{ selected?: boolean }>`
-  padding: 7px 18px;
+export const ProjectStatusTabButton = styled.button<{ $selected?: boolean }>`
+  padding: 6px 16px;
   border: none;
   border-radius: 0;
-  background: ${({ selected }) => (selected ? "#fff" : "#f4f6fa")};
-  color: ${({ selected }) => (selected ? "#1abc7b" : "#bdbdbd")};
-  font-weight: 700;
-  font-size: 1rem;
-  border-bottom: 3px solid
-    ${({ selected }) => (selected ? "#1abc7b" : "transparent")};
+  background: ${({ $selected }) => ($selected ? "#fff" : "#f4f6fa")};
+  color: ${({ $selected }) => ($selected ? "#1abc7b" : "#bdbdbd")};
+  font-weight: 600;
+  font-size: 0.95rem;
+  border-bottom: 2px solid
+    ${({ $selected }) => ($selected ? "#1abc7b" : "transparent")};
   box-shadow: none;
   transition: background 0.2s, color 0.2s, border-bottom 0.2s;
   margin-bottom: -2px;
@@ -445,15 +476,17 @@ export const ProjectGoButton = styled.button`
   font-size: 0.97rem;
   padding: 4px 13px 4px 8px;
   cursor: pointer;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-  transition: background 0.18s, color 0.18s, box-shadow 0.18s, border 0.18s, transform 0.12s;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s, border 0.18s,
+    transform 0.12s;
   outline: none;
 
-  &:hover, &:focus {
+  &:hover,
+  &:focus {
     background: #444;
     color: #fff;
     border: 1px solid #444;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.13);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.13);
     transform: translateY(-1px) scale(1.03);
   }
 `;
@@ -469,27 +502,27 @@ export const ProjectProgressInfo = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 8px;
-  gap: 12px;
+  margin-top: 6px;
+  gap: 10px;
 `;
 
 export const ProjectProgressStep = styled.span`
-  font-size: 0.93rem;
-  color: #8b95a1;
+  font-size: 0.9rem;
+  color: #6b7280;
   font-weight: 500;
 `;
 
-export const ProjectProgressPercent = styled.span<{ percent: number }>`
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: ${({ percent }) =>
-    percent === 100 ? "#10b981" : percent < 50 ? "#fdb924" : "#1abc7b"};
-  min-width: 48px;
+export const ProjectProgressPercent = styled.span<{ $percent: number }>`
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: ${({ $percent }) =>
+    $percent === 100 ? "#10b981" : $percent < 50 ? "#fdb924" : "#1abc7b"};
+  min-width: 42px;
   text-align: right;
 `;
 
 export const ProjectDate = styled.div`
-  color: #8b95a1;
-  font-size: 0.97rem;
-  margin-bottom: 2px;
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
 `;

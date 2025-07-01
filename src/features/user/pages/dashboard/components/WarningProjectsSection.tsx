@@ -1,4 +1,5 @@
 import * as S from "../styled/UserDashboardPage.styled";
+import { FiLayers, FiCalendar, FiPackage } from "react-icons/fi";
 import React from "react";
 
 interface Project {
@@ -6,6 +7,7 @@ interface Project {
   name: string;
   status: string;
   endDate: string;
+  steps: { projectStepStatus: string; name: string }[];
 }
 
 interface WarningProjectsSectionProps {
@@ -14,29 +16,47 @@ interface WarningProjectsSectionProps {
   setSelectedWarningTab: (tab: "DELAYED" | "DEADLINE") => void;
 }
 
+const getProgressPercent = (steps: { projectStepStatus: string }[]) => {
+  if (!steps || steps.length === 0) return 0;
+  const completed = steps.filter(
+    (s) => s.projectStepStatus === "COMPLETED"
+  ).length;
+  return Math.round((completed / steps.length) * 100);
+};
+
 const WarningProjectsSection: React.FC<WarningProjectsSectionProps> = ({
   projectTabs,
   selectedWarningTab,
   setSelectedWarningTab,
 }) => (
   <S.Section>
-    <S.SectionTitle color="#e74c3c">주의 프로젝트</S.SectionTitle>
+    <S.SectionTitle color="#111827">
+      <FiPackage
+        size={20}
+        style={{
+          marginRight: "8px",
+          color: "#dc2626",
+          verticalAlign: "middle",
+        }}
+      />
+      이슈 프로젝트
+    </S.SectionTitle>
     <div
       style={{
         display: "flex",
         gap: 0,
-        marginBottom: 14,
-        borderBottom: "1.5px solid #eee",
+        marginBottom: 12,
+        borderBottom: "1px solid #eee",
       }}
     >
       <S.WarningTabButton
-        selected={selectedWarningTab === "DELAYED"}
+        $selected={selectedWarningTab === "DELAYED"}
         onClick={() => setSelectedWarningTab("DELAYED")}
       >
         지연 상태
       </S.WarningTabButton>
       <S.WarningTabButton
-        selected={selectedWarningTab === "DEADLINE"}
+        $selected={selectedWarningTab === "DEADLINE"}
         onClick={() => setSelectedWarningTab("DEADLINE")}
       >
         마감 7일 이내
@@ -62,70 +82,112 @@ const WarningProjectsSection: React.FC<WarningProjectsSectionProps> = ({
           </S.ProgressListEmpty>
         );
       }
-      return filtered.map((project) => {
-        const today = new Date();
-        const end = new Date(project.endDate);
-        const diff = Math.ceil((today.getTime() - end.getTime()) / (1000 * 60 * 60 * 24));
-        return (
-          <S.ProjectCard
-            key={project.id}
-            onClick={() => window.location.assign(`/projects/${project.id}/detail`)}
-            style={{
-              marginBottom: 12,
-              border: "1.5px solid #ffd6d6",
-              background: "#fff9f9",
-              cursor: "pointer"
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: 6,
-              }}
-            >
-              <div
-                style={{ fontWeight: 700, fontSize: "1.05rem", color: "#e74c3c" }}
+      return (
+        <S.ProgressList
+          style={{ display: "flex", flexDirection: "column", gap: 8 }}
+        >
+          {filtered.map((project, idx) => {
+            const today = new Date();
+            const end = new Date(project.endDate);
+            const diff = Math.ceil(
+              (today.getTime() - end.getTime()) / (1000 * 60 * 60 * 24)
+            );
+            return (
+              <S.ProjectCard
+                key={`warning-project-${project.id}-${idx}`}
+                onClick={() =>
+                  window.location.assign(`/projects/${project.id}/detail`)
+                }
               >
-                {project.name}
-              </div>
-              <S.StatusBadge status={project.status}>
-                {project.status === "COMPLETED" && "완료"}
-                {project.status === "IN_PROGRESS" && "진행중"}
-                {project.status === "DELAYED" && `${diff > 0 ? `${diff}일 지연` : "지연"}`}
-                {project.status === "PENDING" && "보류"}
-                {project.status !== "COMPLETED" &&
-                  project.status !== "IN_PROGRESS" &&
-                  project.status !== "DELAYED" &&
-                  project.status !== "PENDING" &&
-                  project.status}
-              </S.StatusBadge>
-            </div>
-            <div style={{ color: "#bdbdbd", fontSize: 13, marginBottom: 2 }}>
-              마감일: {" "}
-              <b
-                style={{
-                  color:
-                    project.status === "DELAYED" ||
-                    ((new Date(project.endDate).getTime() -
-                      new Date().getTime()) /
-                      (1000 * 60 * 60 * 24) <=
-                      7 &&
-                      (new Date(project.endDate).getTime() -
-                        new Date().getTime()) /
-                        (1000 * 60 * 60 * 24) >=
-                        0)
-                      ? "#e74c3c"
-                      : "#222",
-                }}
-              >
-                {project.endDate}
-              </b>
-            </div>
-          </S.ProjectCard>
-        );
-      });
+                <S.ProjectHeaderRow>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      marginBottom: "4px",
+                    }}
+                  >
+                    <FiPackage size={13} style={{ color: "#8b5cf6" }} />
+                    <S.ProjectTitle style={{ fontSize: "0.9rem" }}>
+                      {project.name}
+                    </S.ProjectTitle>
+                  </div>
+                  <S.StatusBadge $status={project.status}>
+                    {project.status === "COMPLETED" && "완료"}
+                    {project.status === "IN_PROGRESS" && "진행중"}
+                    {project.status === "DELAYED" &&
+                      `${diff > 0 ? `${diff}일 지연` : "지연"}`}
+                    {project.status !== "COMPLETED" &&
+                      project.status !== "IN_PROGRESS" &&
+                      project.status !== "DELAYED" &&
+                      project.status !== "PENDING" &&
+                      project.status}
+                  </S.StatusBadge>
+                </S.ProjectHeaderRow>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    marginBottom: "4px",
+                    fontSize: "0.8rem",
+                    color: "#6b7280",
+                  }}
+                >
+                  <FiCalendar size={12} />
+                  <span>마감일: {project.endDate.replace(/-/g, ".")}</span>
+                </div>
+
+                <S.ProjectProgressInfo>
+                  <div style={{ flex: 1 }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        marginBottom: 3,
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "4px",
+                        }}
+                      >
+                        <FiLayers size={12} style={{ color: "#6366f1" }} />
+                        <S.ProjectProgressStep style={{ fontSize: "0.8rem" }}>
+                          {project.steps.find(
+                            (s) => s.projectStepStatus === "IN_PROGRESS"
+                          )?.name || "진행중"}
+                        </S.ProjectProgressStep>
+                      </div>
+                      <S.ProjectProgressPercent
+                        $percent={getProgressPercent(project.steps)}
+                        style={{
+                          color:
+                            project.status === "DELAYED"
+                              ? "#dc2626"
+                              : "#f59e0b",
+                        }}
+                      >
+                        {getProgressPercent(project.steps)}%
+                      </S.ProjectProgressPercent>
+                    </div>
+                    <S.ProgressBarWrap style={{ marginTop: 0 }}>
+                      <S.WarningProgressBar
+                        $percent={getProgressPercent(project.steps)}
+                        $status={project.status}
+                      />
+                    </S.ProgressBarWrap>
+                  </div>
+                </S.ProjectProgressInfo>
+              </S.ProjectCard>
+            );
+          })}
+        </S.ProgressList>
+      );
     })()}
   </S.Section>
 );
