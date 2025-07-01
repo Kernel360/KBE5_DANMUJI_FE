@@ -26,12 +26,12 @@ interface Props {
   onMarkAllAsRead?: () => void;
 }
 
-const NotificationDropdown: React.FC<Props> = ({ 
-  notifications, 
-  markAsRead, 
-  error, 
+const NotificationDropdown: React.FC<Props> = ({
+  notifications,
+  markAsRead,
+  error,
   onDelete,
-  onMarkAllAsRead 
+  onMarkAllAsRead
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -67,21 +67,21 @@ const NotificationDropdown: React.FC<Props> = ({
     }
 
     return notifications.map((n) => (
-      <NotificationItem 
-        key={n.id} 
-        $isRead={n.isRead} 
+      <NotificationItem
+        key={n.id}
+        $isRead={n.isRead}
         onClick={() => handleNotificationClick(n)}
         style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
       >
-        <div>
-          <NotificationMessage>{n.message}</NotificationMessage>
-          <NotificationTime>{n.time}</NotificationTime>
-        </div>
+        <NotificationMessage>{n.message}</NotificationMessage>
+        <NotificationTime>{n.time}</NotificationTime>
         {onDelete && (
           <button
             onClick={e => {
               e.stopPropagation();
-              onDelete(n.id);
+              if (window.confirm('정말 삭제할까요?')) {
+                onDelete(n.id);
+              }
             }}
             style={{
               background: "none",
