@@ -361,7 +361,7 @@ const MentionedPostsSection = () => {
       </div>
       {mentions.length === 0 ? (
         <div style={{ textAlign: "center", padding: "20px" }}>
-          <p style={{ color: "#6b7280" }}>나를 멘션한 게시글이 없습니다.</p>
+          <p style={{ color: "#6b7280" }}>새로운 알림이 없습니다.</p>
         </div>
       ) : (
         mentions.slice(0, 5).map((mention) => (
