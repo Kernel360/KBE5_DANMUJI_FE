@@ -354,7 +354,7 @@ const MentionedPostsSection = () => {
           marginBottom: "18px",
         }}
       >
-        <S.SectionTitle>나를 멘션</S.SectionTitle>
+        <S.SectionTitle>알림 목록</S.SectionTitle>
         <ReloadButton onClick={handleReload} title="새로고침">
           <FiRotateCcw size={16} />
         </ReloadButton>
