@@ -18,21 +18,16 @@ import {
   Cell,
   Tooltip,
   ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
 } from "recharts";
 import {
   FaUsers,
   FaBuilding,
-  FaChartLine,
   FaChartPie,
   FaQuestionCircle,
 } from "react-icons/fa";
 import { FiPackage } from "react-icons/fi";
 import CompanyDetailModal from "@/features/company/components/CompanyDetailModal/CompanyDetailModal";
+import { useNavigate } from "react-router-dom";
 
 // Define interfaces for new data types
 interface RecentPost {
@@ -75,13 +70,12 @@ const CustomLabel = ({
   cx,
   cy,
   midAngle,
-  innerRadius,
   outerRadius,
   name,
   value,
-}: CustomLabelProps) => {
+}: Omit<CustomLabelProps, 'innerRadius'>) => {
   const RADIAN = Math.PI / 180;
-  const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+  const radius = outerRadius + 20;
   const x = cx + radius * Math.cos(-midAngle * RADIAN);
   const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
@@ -97,11 +91,23 @@ const CustomLabel = ({
         fontWeight: "600",
         textShadow: "0 0 3px white, 0 0 3px white, 0 0 3px white",
       }}
+      pointerEvents="none"
     >
       {`${name}: ${value}`}
     </text>
   );
 };
+
+// Define ProjectStatusKey
+type ProjectStatusKey = 'DUE_SOON' | 'IN_PROGRESS' | 'COMPLETED' | 'DELAY';
+
+// 프로젝트 리스트 아이템 타입
+interface ProjectListItem {
+  id: number;
+  name: string;
+  startDate: string;
+  endDate: string;
+}
 
 export default function DashboardPage() {
   const [companyCount, setCompanyCount] = useState(0);
@@ -110,6 +116,7 @@ export default function DashboardPage() {
   const [inProgressProjectCount, setInProgressProjectCount] = useState(0);
   const [completedProjectCount, setCompletedProjectCount] = useState(0);
   const [delayedProjectCount, setDelayedProjectCount] = useState(0);
+  const [dueSoonProjectCount, setDueSoonProjectCount] = useState(0);
   const [inquiryCount, setInquiryCount] = useState(0);
   const [waitingInquiryCount, setWaitingInquiryCount] = useState(0);
   const [answeredInquiryCount, setAnsweredInquiryCount] = useState(0);
@@ -117,9 +124,12 @@ export default function DashboardPage() {
   const [recentProjects, setRecentProjects] = useState<RecentProject[]>([]);
   const [recentInquiries, setRecentInquiries] = useState<RecentPost[]>([]);
   const [companyDetailModalOpen, setCompanyDetailModalOpen] = useState(false);
-  const [selectedCompanyId, setSelectedCompanyId] = useState<number | null>(
-    null
-  );
+  const [selectedCompanyId, setSelectedCompanyId] = useState<number | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<ProjectStatusKey>("DUE_SOON");
+  const [projectList, setProjectList] = useState<ProjectListItem[]>([]);
+  const [loadingProjects, setLoadingProjects] = useState(false);
+  const [projectListError, setProjectListError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   // 차트용 데이터
   const projectStatusData = [
@@ -129,18 +139,9 @@ export default function DashboardPage() {
       fill: "#dbeafe",
       stroke: "#3b82f6",
     },
-    { name: "완료", value: 5, fill: "#d1fae5", stroke: "#10b981" },
-    { name: "지연", value: 2, fill: "#fef3c7", stroke: "#f59e0b" },
-    { name: "임박", value: 1, fill: "#fee2e2", stroke: "#ef4444" },
-  ];
-
-  const monthlyData = [
-    { month: "1월", posts: 12, projects: 3 },
-    { month: "2월", posts: 19, projects: 5 },
-    { month: "3월", posts: 15, projects: 4 },
-    { month: "4월", posts: 22, projects: 7 },
-    { month: "5월", posts: 18, projects: 6 },
-    { month: "6월", posts: 25, projects: 8 },
+    { name: "완료", value: completedProjectCount, fill: "#d1fae5", stroke: "#10b981" },
+    { name: "지연", value: delayedProjectCount, fill: "#fef3c7", stroke: "#f59e0b" },
+    { name: "마감임박", value: dueSoonProjectCount, fill: "#fee2e2", stroke: "#ef4444" },
   ];
 
   // 최근 등록된 업체만 다시 불러오는 함수
@@ -152,6 +153,21 @@ export default function DashboardPage() {
       setRecentCompanies(recentCompaniesResponse.data?.data || []);
     } catch (error) {
       console.error("Failed to fetch recent companies:", error);
+    }
+  }, []);
+
+  // 프로젝트 리스트 fetch 함수
+  const fetchProjectList = useCallback(async (status: ProjectStatusKey) => {
+    setLoadingProjects(true);
+    setProjectListError(null);
+    try {
+      const res = await api.get(`/api/projects/status?status=${status}`);
+      setProjectList(res.data?.data || []);
+    } catch {
+      setProjectListError("프로젝트 목록을 불러오지 못했습니다.");
+      setProjectList([]);
+    } finally {
+      setLoadingProjects(false);
     }
   }, []);
 
@@ -169,27 +185,23 @@ export default function DashboardPage() {
         setMemberCount(members);
 
         // Fetch Project Counts
-        const projectCountsResponse = await api.get("/api/projects/all");
-        const content = projectCountsResponse.data?.data || [];
-        const total = Array.isArray(content) ? content.length : 0;
-        const inProgressCount = Array.isArray(content)
-          ? content.filter(
-              (p: { status: string }) => p?.status === "IN_PROGRESS"
-            ).length
-          : 0;
-        const completedCount = Array.isArray(content)
-          ? content.filter((p: { status: string }) => p?.status === "COMPLETED")
-              .length
-          : 0;
-        const delayedCount = Array.isArray(content)
-          ? content.filter((p: { status: string }) => p?.status === "DELAY")
-              .length
-          : 0;
-
-        setTotalProjectCount(total);
-        setInProgressProjectCount(inProgressCount);
-        setCompletedProjectCount(completedCount);
-        setDelayedProjectCount(delayedCount);
+        const projectCountsResponse = await api.get("/api/projects/status-count");
+        type ProjectStatusCount = { projectStatus: string; statusCount: number };
+        const content: ProjectStatusCount[] = projectCountsResponse.data?.data || [];
+        const statusMap = content.reduce((acc, cur) => {
+          acc[cur.projectStatus] = cur.statusCount;
+          return acc;
+        }, {} as Record<string, number>);
+        setInProgressProjectCount(statusMap["IN_PROGRESS"] || 0);
+        setCompletedProjectCount(statusMap["COMPLETED"] || 0);
+        setDelayedProjectCount(statusMap["DELAY"] || 0);
+        setDueSoonProjectCount(statusMap["DUE_SOON"] || 0);
+        setTotalProjectCount(
+          (statusMap["IN_PROGRESS"] || 0) +
+          (statusMap["COMPLETED"] || 0) +
+          (statusMap["DELAY"] || 0) +
+          (statusMap["DUE_SOON"] || 0)
+        );
 
         // Fetch Recent Companies
         await fetchRecentCompanies();
@@ -222,13 +234,21 @@ export default function DashboardPage() {
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
         setRecentInquiries(sortedInquiries.slice(0, 5));
+
+        // Fetch Project List
+        await fetchProjectList(selectedStatus);
       } catch (error) {
         console.error("Failed to fetch dashboard data:", error);
       }
     };
 
     fetchData();
-  }, [fetchRecentCompanies]);
+  }, [fetchRecentCompanies, fetchProjectList]);
+
+  // 최초 및 상태 변경 시 fetch
+  useEffect(() => {
+    fetchProjectList(selectedStatus);
+  }, [selectedStatus, fetchProjectList]);
 
   return (
     <DashboardContainer>
@@ -431,7 +451,9 @@ export default function DashboardPage() {
             </span>
             <span>
               마감 임박:{" "}
-              <span style={{ color: "#ef4444", fontWeight: 600 }}>2</span>
+              <span style={{ color: "#ef4444", fontWeight: 600 }}>
+                {dueSoonProjectCount}
+              </span>
             </span>
             <span>
               지연:{" "}
@@ -527,139 +549,139 @@ export default function DashboardPage() {
       </div>
 
       {/* 차트 섹션 */}
-      <div
+      <RecentActivityCard
         style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
-          gap: "24px",
+          border: "1px solid #e5e7eb",
+          borderRadius: "12px",
+          background: "#ffffff",
+          padding: "24px",
+          minHeight: 340,
           marginBottom: "32px",
         }}
       >
-        {/* 프로젝트 상태 분포 차트 */}
-        <RecentActivityCard
-          style={{
-            border: "1px solid #e5e7eb",
-            borderRadius: "12px",
-            background: "#ffffff",
-            padding: "24px",
-          }}
-        >
-          <RecentActivityTitle
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              color: "#374151",
-              borderBottom: "1px solid #e5e7eb",
-              paddingBottom: "12px",
-              marginBottom: "20px",
-            }}
-          >
-            <FaChartPie style={{ color: "#fdb924" }} />
-            프로젝트 상태 분포
-          </RecentActivityTitle>
-          <div style={{ height: "300px" }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={projectStatusData}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={100}
-                  label={CustomLabel}
-                  stroke="#ffffff"
-                  strokeWidth={1}
-                  labelLine={false}
-                >
-                  {projectStatusData.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={entry.fill}
-                      stroke={entry.stroke}
-                      strokeWidth={1}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#ffffff",
-                    border: "1px solid #e5e7eb",
-                    borderRadius: "8px",
-                    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-                    fontSize: "14px",
-                    fontWeight: "600",
-                  }}
-                  labelStyle={{
-                    color: "#374151",
-                    fontWeight: "600",
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
+        <div style={{ display: "flex", gap: 32, flexWrap: "wrap", justifyContent: "space-between" }}>
+          {/* 프로젝트 상태 분포 */}
+          <div style={{ flex: 1, minWidth: 320 }}>
+            <RecentActivityTitle
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                color: "#374151",
+                borderBottom: "1px solid #e5e7eb",
+                paddingBottom: "12px",
+                marginBottom: "20px",
+              }}
+            >
+              <FaChartPie style={{ color: "#fdb924" }} />
+              프로젝트 상태 분포
+            </RecentActivityTitle>
+            <div style={{ height: "260px" }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={projectStatusData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={0}
+                    outerRadius={100}
+                    label={CustomLabel}
+                    stroke="#ffffff"
+                    strokeWidth={1}
+                    labelLine={false}
+                    isAnimationActive={false}
+                  >
+                    {projectStatusData.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={entry.fill}
+                        stroke={entry.stroke}
+                        strokeWidth={1}
+                        onClick={() => {
+                          const statusKey = ["IN_PROGRESS", "COMPLETED", "DELAY", "DUE_SOON"][index] as ProjectStatusKey;
+                          setSelectedStatus(statusKey);
+                        }}
+                        style={{ cursor: "pointer", outline: "none" }}
+                        tabIndex={-1}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#ffffff",
+                      border: "1px solid #e5e7eb",
+                      borderRadius: "8px",
+                      boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                      fontSize: "14px",
+                      fontWeight: "600",
+                    }}
+                    labelStyle={{
+                      color: "#374151",
+                      fontWeight: "600",
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
           </div>
-        </RecentActivityCard>
-
-        {/* 월별 활동 추이 차트 */}
-        <RecentActivityCard
-          style={{
-            border: "1px solid #e5e7eb",
-            borderRadius: "12px",
-            background: "#ffffff",
-            padding: "24px",
-          }}
-        >
-          <RecentActivityTitle
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              color: "#374151",
-              borderBottom: "1px solid #e5e7eb",
-              paddingBottom: "12px",
-              marginBottom: "20px",
-            }}
-          >
-            <FaChartLine style={{ color: "#fdb924" }} />
-            월별 활동 추이
-          </RecentActivityTitle>
-          <div style={{ height: "300px" }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={monthlyData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                <XAxis dataKey="month" stroke="#6b7280" fontSize={12} />
-                <YAxis stroke="#6b7280" fontSize={12} />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#ffffff",
-                    border: "1px solid #e5e7eb",
-                    borderRadius: "8px",
-                    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-                  }}
-                />
-                <Bar
-                  dataKey="posts"
-                  fill="#fef3c7"
-                  stroke="#fdb924"
-                  strokeWidth={2}
-                  name="게시물"
-                  radius={[4, 4, 0, 0]}
-                />
-                <Bar
-                  dataKey="projects"
-                  fill="#dbeafe"
-                  stroke="#3b82f6"
-                  strokeWidth={2}
-                  name="프로젝트"
-                  radius={[4, 4, 0, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
+          {/* 오른쪽: 상태별 프로젝트 리스트 */}
+          <div style={{ flex: 1, minWidth: 320 }}>
+            <RecentActivityTitle
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                color: "#374151",
+                borderBottom: "1px solid #e5e7eb",
+                paddingBottom: "12px",
+                marginBottom: "20px",
+              }}
+            >
+              {(() => {
+                switch (selectedStatus) {
+                  case "DUE_SOON": return "마감 임박 프로젝트";
+                  case "IN_PROGRESS": return "진행중 프로젝트";
+                  case "COMPLETED": return "완료 프로젝트";
+                  case "DELAY": return "지연 프로젝트";
+                  default: return "프로젝트 리스트";
+                }
+              })()}
+            </RecentActivityTitle>
+            <div style={{ height: 260, overflow: 'auto' }}>
+              {loadingProjects ? (
+                <div style={{ textAlign: "center", padding: 12 }}>로딩중...</div>
+              ) : projectListError ? (
+                <div style={{ textAlign: "center", color: "#ef4444", padding: 12 }}>{projectListError}</div>
+              ) : projectList.length === 0 ? (
+                <div style={{ textAlign: "center", color: "#aaa", padding: 12 }}>프로젝트가 없습니다.</div>
+              ) : (
+                projectList.map((project) => (
+                  <RecentActivityItem
+                    key={project.id}
+                    style={{
+                      padding: "12px 0",
+                      borderBottom: "1px solid #f3f4f6",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "flex-start",
+                      cursor: "pointer",
+                      transition: "background 0.15s",
+                    }}
+                    onClick={() => navigate(`/projects/${project.id}/detail`)}
+                    onMouseOver={e => (e.currentTarget.style.background = "#f9fafb")}
+                    onMouseOut={e => (e.currentTarget.style.background = "")}
+                  >
+                    <span style={{ fontSize: "14px", color: "#374151", fontWeight: 600 }}>{project.name}</span>
+                    <span style={{ fontSize: "13px", color: "#888", marginTop: 2 }}>{project.startDate} ~ {project.endDate}</span>
+                  </RecentActivityItem>
+                ))
+              )}
+            </div>
           </div>
-        </RecentActivityCard>
-      </div>
+        </div>
+      </RecentActivityCard>
 
       {/* 최근 활동 섹션 */}
       <RecentActivityContainer>
@@ -711,21 +733,17 @@ export default function DashboardPage() {
                   style={{
                     padding: "8px 0",
                     borderBottom: "1px solid #f3f4f6",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    cursor: "pointer",
+                    transition: "background 0.15s",
                   }}
+                  onClick={() => (window.location.href = `/inquiry/${inquiry.id}`)}
+                  onMouseOver={e => (e.currentTarget.style.background = "#f9fafb")}
+                  onMouseOut={e => (e.currentTarget.style.background = "")}
                 >
-                  <span
-                    style={{
-                      fontSize: "14px",
-                      color: "#374151",
-                      cursor: "pointer",
-                      textDecoration: "underline",
-                    }}
-                    onClick={() =>
-                      (window.location.href = `/inquiry/${inquiry.id}`)
-                    }
-                  >
-                    {inquiry.title}
-                  </span>
+                  <span style={{ fontSize: "14px", color: "#374151" }}>{inquiry.title}</span>
                   <RecentActivityDate style={{ fontSize: "12px" }}>
                     {new Date(inquiry.createdAt).toLocaleDateString()}
                   </RecentActivityDate>
@@ -789,22 +807,20 @@ export default function DashboardPage() {
                   style={{
                     padding: "8px 0",
                     borderBottom: "1px solid #f3f4f6",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    cursor: "pointer",
+                    transition: "background 0.15s",
                   }}
+                  onClick={() => {
+                    setSelectedCompanyId(company.id);
+                    setCompanyDetailModalOpen(true);
+                  }}
+                  onMouseOver={e => (e.currentTarget.style.background = "#f9fafb")}
+                  onMouseOut={e => (e.currentTarget.style.background = "")}
                 >
-                  <span
-                    style={{
-                      fontSize: "14px",
-                      color: "#374151",
-                      cursor: "pointer",
-                      textDecoration: "underline",
-                    }}
-                    onClick={() => {
-                      setSelectedCompanyId(company.id);
-                      setCompanyDetailModalOpen(true);
-                    }}
-                  >
-                    {company.name}
-                  </span>
+                  <span style={{ fontSize: "14px", color: "#374151" }}>{company.name}</span>
                   <RecentActivityDate style={{ fontSize: "12px" }}>
                     {new Date(company.createdAt).toLocaleDateString()}
                   </RecentActivityDate>
@@ -877,21 +893,17 @@ export default function DashboardPage() {
                   style={{
                     padding: "8px 0",
                     borderBottom: "1px solid #f3f4f6",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    cursor: "pointer",
+                    transition: "background 0.15s",
                   }}
+                  onClick={() => navigate(`/projects/${project.id}/detail`)}
+                  onMouseOver={e => (e.currentTarget.style.background = "#f9fafb")}
+                  onMouseOut={e => (e.currentTarget.style.background = "")}
                 >
-                  <span
-                    style={{
-                      fontSize: "14px",
-                      color: "#374151",
-                      cursor: "pointer",
-                      textDecoration: "underline",
-                    }}
-                    onClick={() =>
-                      (window.location.href = `/projects/${project.id}/detail`)
-                    }
-                  >
-                    {project.name}
-                  </span>
+                  <span style={{ fontSize: "14px", color: "#374151" }}>{project.name}</span>
                   <RecentActivityDate style={{ fontSize: "12px" }}>
                     {new Date(project.createdAt).toLocaleDateString()}
                   </RecentActivityDate>

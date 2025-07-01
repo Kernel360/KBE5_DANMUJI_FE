@@ -263,6 +263,12 @@ interface ErrorResponse {
   };
 }
 
+interface DaumPostcodeData {
+  zonecode: string;
+  roadAddress: string;
+  jibunAddress: string;
+}
+
 interface Props {
   open: boolean;
   onClose: () => void;
@@ -318,7 +324,7 @@ export default function CompanyRegisterModal({
 
   const handleOpenPostcode = () => {
     new (window as any).daum.Postcode({
-      oncomplete: (data: any) => {
+      oncomplete: (data: DaumPostcodeData) => {
         const form = formRef.current;
         if (!form) return;
         const zoneCodeInput = form.querySelector("input[name='zonecode']") as HTMLInputElement;
@@ -446,9 +452,7 @@ export default function CompanyRegisterModal({
       showSuccessToast("업체 등록이 완료되었습니다!");
       onRegisterSuccess?.();
       handleClose();
-    } catch (err: any) {
-      console.error(err);
-
+    } catch (err: unknown) {
       if (axios.isAxiosError(err) && err.response?.data) {
         const errorData = err.response.data as ErrorResponse;
 

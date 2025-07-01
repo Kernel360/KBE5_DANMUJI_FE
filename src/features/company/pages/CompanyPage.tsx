@@ -448,7 +448,6 @@ export default function CompanyPage() {
           initialData={editData}
           fieldErrors={fieldErrors}
           setFieldErrors={setFieldErrors}
-          setErrorMessage={setError}
         />
       )}
       <CompanyDetailModal
