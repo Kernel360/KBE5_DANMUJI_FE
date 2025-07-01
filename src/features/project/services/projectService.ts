@@ -89,6 +89,7 @@ export type ProjectStatusResponse = {
   startDate: string;
   endDate: string;
   progress : number;
+  status : string;
 };
 
 // 프로젝트 상세 조회 응답 타입

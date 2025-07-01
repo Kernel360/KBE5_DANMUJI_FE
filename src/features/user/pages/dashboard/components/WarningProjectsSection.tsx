@@ -1,18 +1,11 @@
 import * as S from "../styled/UserDashboardPage.styled";
 import { FiLayers, FiCalendar, FiPackage } from "react-icons/fi";
 import React from "react";
+import type { ProjectStatusResponse } from "@/features/project/services/projectService";
 
-interface Project {
-  id: string | number;
-  name: string;
-  status: string;
-  endDate: string;
-  steps: { projectStepStatus: string; name: string }[];
-}
-
-export interface WarningProjectsSectionProps {
-  delayedProjects: Project[];
-  deadlineProjects: Project[];
+interface WarningProjectsSectionProps {
+  delayedProjects: ProjectStatusResponse[];
+  deadlineProjects: ProjectStatusResponse[];
   selectedWarningTab: "DELAY" | "DUE_SOON";
   setSelectedWarningTab: (tab: "DELAY" | "DUE_SOON") => void;
 }

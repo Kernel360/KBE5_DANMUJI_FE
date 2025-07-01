@@ -21,10 +21,10 @@ const UserDashboardPage = () => {
   const navigate = useNavigate();
   const [selectedStatusTab, setSelectedStatusTab] = useState<"IN_PROGRESS" | "COMPLETED">("IN_PROGRESS");
   const [selectedWarningTab, setSelectedWarningTab] = useState<"DELAY" | "DUE_SOON">("DELAY");
-  const [inProgressProjects, setInProgressProjects] = useState<DashboardProject[]>([]);
-  const [completedProjects, setCompletedProjects] = useState<DashboardProject[]>([]);
-  const [delayedProjects, setDelayedProjects] = useState<DashboardProject[]>([]);
-  const [deadlineProjects, setDeadlineProjects] = useState<DashboardProject[]>([]);
+  const [inProgressProjects, setInProgressProjects] = useState<ProjectStatusResponse[]>([]);
+  const [completedProjects, setCompletedProjects] = useState<ProjectStatusResponse[]>([]);
+  const [delayedProjects, setDelayedProjects] = useState<ProjectStatusResponse[]>([]);
+  const [deadlineProjects, setDeadlineProjects] = useState<ProjectStatusResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -37,27 +37,16 @@ const UserDashboardPage = () => {
       getProjectStatusByStatus("DUE_SOON"),
     ])
       .then(([inProgressRes, completedRes, delayedRes, dueSoonRes]) => {
-        const mapToProject = (item: any, status: string): DashboardProject => ({
-          id: item.id,
-          name: item.name,
-          description: item.description || '',
-          startDate: item.startDate,
-          endDate: item.endDate,
-          status: status,
-          steps: item.steps || [],
-          clientCompany: item.clientCompany || '',
-          developerCompany: item.developerCompany || '',
-          users: item.users || [],
-        });
-        setInProgressProjects((inProgressRes.data || []).map((item: any) => mapToProject(item, "IN_PROGRESS")));
-        setCompletedProjects((completedRes.data || []).map((item: any) => mapToProject(item, "COMPLETED")));
-        setDelayedProjects((delayedRes.data || []).map((item: any) => mapToProject(item, "DELAY")));
-        setDeadlineProjects((dueSoonRes.data || []).map((item: any) => mapToProject(item, "DUE_SOON")));
+        setInProgressProjects((inProgressRes.data || []).map(item => ({ ...item, status: "IN_PROGRESS" })));
+        setCompletedProjects((completedRes.data || []).map(item => ({ ...item, status: "COMPLETED" })));
+        setDelayedProjects((delayedRes.data || []).map(item => ({ ...item, status: "DELAY" })));
+        setDeadlineProjects((dueSoonRes.data || []).map(item => ({ ...item, status: "DUE_SOON" })));
         setError(null);
       })
       .catch((err) => {
         setError(err.message || "프로젝트 현황을 불러오지 못했습니다.");
         setInProgressProjects([]);
+        setCompletedProjects([]);
         setDelayedProjects([]);
         setDeadlineProjects([]);
       })
@@ -81,6 +70,8 @@ const UserDashboardPage = () => {
           <S.LeftColumn>
             <ProjectStatusSection
               projectTabs={selectedStatusTab === "IN_PROGRESS" ? inProgressProjects : completedProjects}
+              selectedStatusTab={selectedStatusTab}
+              setSelectedStatusTab={setSelectedStatusTab}
               getProgressPercent={getProgressPercent}
               navigate={navigate}
             />
