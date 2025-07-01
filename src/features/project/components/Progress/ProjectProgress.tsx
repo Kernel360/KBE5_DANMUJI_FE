@@ -27,6 +27,7 @@ interface ProjectProgressProps {
   onStepSelect?: (stepId: number) => void;
   selectedStepId?: number;
   canEditStep?: boolean;
+  onStepOrderSaved?: () => void;
 }
 
 const ProjectProgress: React.FC<ProjectProgressProps> = ({
@@ -34,6 +35,7 @@ const ProjectProgress: React.FC<ProjectProgressProps> = ({
   onStepSelect,
   selectedStepId,
   canEditStep,
+  onStepOrderSaved,
 }) => {
   const [isStepOrderModalOpen, setStepOrderModalOpen] = React.useState(false);
 
@@ -159,7 +161,7 @@ const ProjectProgress: React.FC<ProjectProgressProps> = ({
           onClose={() => setStepOrderModalOpen(false)}
           onSaved={() => {
             setStepOrderModalOpen(false);
-            window.location.reload();
+            onStepOrderSaved && onStepOrderSaved();
           }}
         />
       )}

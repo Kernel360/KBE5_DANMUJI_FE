@@ -6,6 +6,7 @@ import {
   FiClock,
   FiCheckCircle,
   FiAlertTriangle,
+  FiAlertCircle,
   FiArrowLeft,
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
@@ -62,6 +63,8 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = ({
         return <FiCheckCircle size={14} style={{ marginRight: 4 }} />;
       case "DELAY":
         return <FiAlertTriangle size={14} style={{ marginRight: 4 }} />;
+      case "DUE_SOON":
+        return <FiAlertCircle size={14} style={{ marginRight: 4 }} />;
       default:
         return null;
     }
@@ -76,6 +79,8 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = ({
         return "완료";
       case "DELAY":
         return "지연";
+      case "DUE_SOON":
+        return "기한 임박";
       default:
         return status;
     }
@@ -90,6 +95,8 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = ({
         return "#059669";
       case "DELAY":
         return "#ef4444";
+      case "DUE_SOON":
+        return "#f59e0b";
       default:
         return "#6b7280";
     }
@@ -165,6 +172,18 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = ({
       <ProjectTitle>{projectDetail.name}</ProjectTitle>
       {projectDetail.description && (
         <ProjectDescription>{projectDetail.description}</ProjectDescription>
+      )}
+      {typeof projectDetail.projectCost !== 'undefined' && projectDetail.projectCost !== null && (
+        <div style={{
+          fontSize: '1.08rem',
+          color: '#4338ca',
+          fontWeight: 600,
+          margin: '0 0 8px 24px',
+          lineHeight: 1.5,
+          letterSpacing: '0.01em',
+        }}>
+          프로젝트 금액: {Number(projectDetail.projectCost).toLocaleString()}원
+        </div>
       )}
       <ProjectMeta>
         <ProjectPeriod>
