@@ -1,6 +1,6 @@
 // src/components/NotificationDropdown.tsx
 import React, { useRef, useEffect } from "react";
-import { FaBell } from "react-icons/fa";
+import { FaBell, FaTrash } from "react-icons/fa";
 import {
   DropdownContainer,
   NotificationButton,
@@ -16,18 +16,29 @@ import {
   MarkAllAsReadButton,
   ErrorState,
 } from "./NotificationDropdown.styled";
-import type { Notification } from "@/layouts/Topbar/Topbar.types";
-import api from "@/api/axios";
+import type { SseNotification } from "@/layouts/Topbar/Topbar.types";
+import { useNavigate } from "react-router-dom";
+import ProjectPostDetailModal from "@/features/board/components/Post/components/DetailModal/ProjectPostDetailModal";
 
 interface Props {
-  notifications: Notification[];
-  markAsRead: (id: string) => void;
+  notifications: SseNotification[];
+  markAsRead: (id: number) => void;
   error: string | null;
+  onDelete?: (id: number) => void;
+  onMarkAllAsRead?: () => void;
 }
 
-const NotificationDropdown: React.FC<Props> = ({ notifications, markAsRead, error }) => {
+const NotificationDropdown: React.FC<Props> = ({
+  notifications,
+  markAsRead,
+  error,
+  onDelete,
+  onMarkAllAsRead
+}) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [modalPostId, setModalPostId] = React.useState<number | null>(null);
+  const navigate = useNavigate();
 
   const toggleDropdown = () => setIsOpen(!isOpen);
 
@@ -44,23 +55,24 @@ const NotificationDropdown: React.FC<Props> = ({ notifications, markAsRead, erro
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
-  const handleMarkAllAsRead = async () => {
-    try {
-      await api.put('/api/notifications/mark-all-read');
-      notifications.forEach(n => {
-        if (!n.isRead) {
-          markAsRead(n.id);
-        }
-      });
-    } catch (error) {
-      console.error('Failed to mark all notifications as read:', error);
+  const handleNotificationClick = (notification: SseNotification) => {
+    console.log(notification);
+    if (notification.type === "PROJECT_CREATE_ASSIGNMENT" && notification.projectId) {
+      navigate(`/projects/${notification.projectId}/detail`);
+      setIsOpen(false);
+    } else if (
+      [
+        "PROJECT_POST_CREATED",
+        "POST_REPLY_CREATED",
+        "COMMENT_POST_CREATED",
+        "COMMENT_REPLY_CREATED"
+      ].includes(notification.type) && notification.postId
+    ) {
+      navigate(`/projects/${notification.projectId}/detail`);
+      setModalPostId(notification.postId);
+      setIsOpen(false);
     }
-  };
-
-  const handleNotificationClick = (notification: Notification) => {
-    if (!notification.isRead) {
-      markAsRead(notification.id);
-    }
+    markAsRead(notification.id);
   };
 
   const renderContent = () => {
@@ -73,41 +85,71 @@ const NotificationDropdown: React.FC<Props> = ({ notifications, markAsRead, erro
     }
 
     return notifications.map((n) => (
-      <NotificationItem 
-        key={n.id} 
-        isRead={n.isRead} 
+      <NotificationItem
+        key={n.id}
+        $isRead={n.isRead}
         onClick={() => handleNotificationClick(n)}
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
       >
         <NotificationMessage>{n.message}</NotificationMessage>
         <NotificationTime>{n.time}</NotificationTime>
+        {onDelete && (
+          <button
+            onClick={e => {
+              e.stopPropagation();
+              if (window.confirm('정말 삭제할까요?')) {
+                onDelete(n.id);
+              }
+            }}
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              marginLeft: "8px",
+              color: "#888"
+            }}
+            title="알림 삭제"
+          >
+            <FaTrash />
+          </button>
+        )}
       </NotificationItem>
     ));
   };
 
   return (
-    <DropdownContainer ref={dropdownRef}>
-      <NotificationButton onClick={toggleDropdown}>
-        <FaBell />
-        {!error && unreadCount > 0 && (
-          <NotificationBadge>{unreadCount}</NotificationBadge>
+    <>
+      <DropdownContainer ref={dropdownRef}>
+        <NotificationButton onClick={toggleDropdown}>
+          <FaBell />
+          {!error && unreadCount > 0 && (
+            <NotificationBadge>{unreadCount}</NotificationBadge>
+          )}
+        </NotificationButton>
+        {isOpen && (
+          <DropdownMenu>
+            <NotificationHeader>
+              <NotificationTitle>알림</NotificationTitle>
+              {unreadCount > 0 && onMarkAllAsRead && (
+                <MarkAllAsReadButton onClick={onMarkAllAsRead}>
+                  모두 읽음 처리
+                </MarkAllAsReadButton>
+              )}
+            </NotificationHeader>
+            <NotificationList>
+              {renderContent()}
+            </NotificationList>
+          </DropdownMenu>
         )}
-      </NotificationButton>
-      {isOpen && (
-        <DropdownMenu>
-          <NotificationHeader>
-            <NotificationTitle>알림</NotificationTitle>
-            {unreadCount > 0 && (
-              <MarkAllAsReadButton onClick={handleMarkAllAsRead}>
-                모두 읽음 처리
-              </MarkAllAsReadButton>
-            )}
-          </NotificationHeader>
-          <NotificationList>
-            {renderContent()}
-          </NotificationList>
-        </DropdownMenu>
+      </DropdownContainer>
+      {modalPostId && (
+        <ProjectPostDetailModal
+          open={!!modalPostId}
+          postId={modalPostId}
+          onClose={() => setModalPostId(null)}
+        />
       )}
-    </DropdownContainer>
+    </>
   );
 };
 

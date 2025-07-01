@@ -1,9 +1,11 @@
-export interface Notification {
-  id: string;
+export interface SseNotification {
+  id: number;
   message: string;
+  type: string;
   time: string;
   isRead: boolean;
-  referenceId: number;
+  projectId: number | null;
+  postId: number | null;
 }
 
 export interface UserProfile {
