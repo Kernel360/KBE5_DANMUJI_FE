@@ -6,12 +6,14 @@ import {
   FiAlertTriangle,
   FiAlertCircle,
   FiLayers,
+  FiFileText,
+  FiHelpCircle,
 } from "react-icons/fi";
 import { LuUserRoundCog } from "react-icons/lu";
 import { FaProjectDiagram } from "react-icons/fa";
 import { getHighPriorityPosts } from "@/features/admin/services/activityLogService";
 import type { PostDashboardReadResponse } from "@/features/admin/types/activityLog";
-import type { PostPriority } from "@/features/project/types/Types";
+import type { PostPriority, PostType } from "@/features/project/types/Types";
 import { POST_PRIORITY_LABELS } from "@/features/project/types/Types";
 import styled from "styled-components";
 
@@ -37,6 +39,17 @@ const StatusBadge = styled.span<{ $priority: PostPriority }>`
       : $priority === "HIGH"
       ? "#fce7f3"
       : "#fee2e2"};
+`;
+
+// TypeBadge 스타일 추가 (ProjectBoard와 동일)
+const TypeBadge = styled.span<{ $type: PostType }>`
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  color: ${({ $type }) => ($type === "GENERAL" ? "#1e40af" : "#92400e")};
+  background-color: ${({ $type }) =>
+    $type === "GENERAL" ? "#dbeafe" : "#fef3c7"};
 `;
 
 const PriorityPostsSection = () => {
@@ -98,6 +111,28 @@ const PriorityPostsSection = () => {
     }
   };
 
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case "GENERAL":
+        return <FiFileText size={16} style={{ color: "#1e40af" }} />;
+      case "QUESTION":
+        return <FiHelpCircle size={16} style={{ color: "#92400e" }} />;
+      default:
+        return <FiFileText size={16} style={{ color: "#6b7280" }} />;
+    }
+  };
+
+  const getTypeText = (type: string) => {
+    switch (type) {
+      case "GENERAL":
+        return "일반";
+      case "QUESTION":
+        return "질문";
+      default:
+        return type;
+    }
+  };
+
   if (loading) {
     return (
       <S.PrioritySection>
@@ -143,8 +178,8 @@ const PriorityPostsSection = () => {
                   <div
                     style={{
                       display: "flex",
-                      flexDirection: "column",
-                      gap: "2px",
+                      alignItems: "center",
+                      gap: "12px",
                     }}
                   >
                     <div
@@ -187,15 +222,27 @@ const PriorityPostsSection = () => {
                       </span>
                     </div>
                   </div>
-                  <span
+                  <div
                     style={{
-                      fontSize: "16px",
-                      color: "#111827",
-                      fontWeight: "600",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
                     }}
                   >
-                    {post.title}
-                  </span>
+                    {getTypeIcon(post.type)}
+                    <TypeBadge $type={post.type as PostType}>
+                      {getTypeText(post.type)}
+                    </TypeBadge>
+                    <span
+                      style={{
+                        fontSize: "16px",
+                        color: "#111827",
+                        fontWeight: "600",
+                      }}
+                    >
+                      {post.title}
+                    </span>
+                  </div>
                 </div>
               </S.PriorityLabel>
               <div
