@@ -2,7 +2,10 @@ import React, { useState, useEffect } from "react";
 import * as S from "../styled/UserDashboardPage.styled";
 import { MdAccessTime, MdComment, MdReply, MdPostAdd } from "react-icons/md";
 import { FiRotateCcw, FiAtSign, FiBell } from "react-icons/fi";
-import { getMyMentions } from "@/features/admin/services/activityLogService";
+import {
+  getMyMentions,
+  markNotificationAsRead,
+} from "@/features/admin/services/activityLogService";
 import type { MyMentionListResponse } from "@/features/admin/types/activityLog";
 import { formatRelativeTime } from "@/utils/dateUtils";
 import ProjectPostDetailModal from "@/features/board/components/Post/components/DetailModal/ProjectPostDetailModal";
@@ -165,6 +168,24 @@ const MentionedPostsSection = () => {
 
   const handleMentionClick = async (mention: MyMentionListResponse) => {
     console.log("알림 클릭:", mention);
+
+    // 읽지 않은 알림인 경우 읽음 처리
+    if (!mention.isRead) {
+      try {
+        await markNotificationAsRead(mention.notificationId);
+        // 로컬 상태 업데이트
+        setMentions((prev) =>
+          prev.map((m) =>
+            m.notificationId === mention.notificationId
+              ? { ...m, isRead: true }
+              : m
+          )
+        );
+      } catch (error) {
+        console.error("알림 읽음 처리 실패:", error);
+        // 읽음 처리 실패해도 계속 진행
+      }
+    }
 
     // 타입에 따라 다른 처리
     switch (mention.type) {
