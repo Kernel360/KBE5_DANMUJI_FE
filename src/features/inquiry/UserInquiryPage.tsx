@@ -692,7 +692,9 @@ export default function UserInquiryPage() {
                 return (
                   <TableRow key={inq.id}>
                     <InquiryTitleCell onClick={() => handleTitleClick(inq.id)}>
-                      {inq.title}
+                      {inq.title.length > 20
+                        ? inq.title.slice(0, 20) + '...'
+                        : inq.title}
                     </InquiryTitleCell>
                     <TableCell>{inq.authorName}</TableCell>
                     <TableCell>{formattedDate}</TableCell>
