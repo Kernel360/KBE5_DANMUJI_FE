@@ -356,40 +356,6 @@ const LatestPostsSection = () => {
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    gap: "8px",
-                    marginBottom: "8px",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "4px",
-                    }}
-                  >
-                    {getPriorityIcon(post.priority)}
-                    <StatusBadge $priority={post.priority as PostPriority}>
-                      {POST_PRIORITY_LABELS[post.priority as PostPriority] ??
-                        post.priority}
-                    </StatusBadge>
-                  </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "4px",
-                    }}
-                  >
-                    {getTypeIcon(post.type)}
-                    <TypeBadge $type={post.type as PostType}>
-                      {getTypeText(post.type)}
-                    </TypeBadge>
-                  </div>
-                </div>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
                     gap: "12px",
                     marginBottom: "8px",
                   }}
@@ -429,6 +395,40 @@ const LatestPostsSection = () => {
                     >
                       {post.projectStepName}
                     </span>
+                  </div>
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    marginBottom: "8px",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px",
+                    }}
+                  >
+                    {getPriorityIcon(post.priority)}
+                    <StatusBadge $priority={post.priority as PostPriority}>
+                      {POST_PRIORITY_LABELS[post.priority as PostPriority] ??
+                        post.priority}
+                    </StatusBadge>
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px",
+                    }}
+                  >
+                    {getTypeIcon(post.type)}
+                    <TypeBadge $type={post.type as PostType}>
+                      {getTypeText(post.type)}
+                    </TypeBadge>
                   </div>
                 </div>
                 <S.LatestTitle>{post.title}</S.LatestTitle>

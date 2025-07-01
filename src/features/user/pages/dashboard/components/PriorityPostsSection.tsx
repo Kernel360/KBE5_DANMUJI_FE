@@ -296,73 +296,20 @@ const PriorityPostsSection = () => {
             onClick={() => handlePostClick(post.postId)}
             style={{ cursor: "pointer" }}
           >
-            <S.PriorityHeader>
-              <S.PriorityLabel>
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "12px",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "4px",
-                      }}
-                    >
-                      {getPriorityIcon(post.priority)}
-                      <StatusBadge $priority={post.priority as PostPriority}>
-                        {POST_PRIORITY_LABELS[post.priority as PostPriority] ??
-                          post.priority}
-                      </StatusBadge>
-                    </div>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "4px",
-                      }}
-                    >
-                      {getTypeIcon(post.type)}
-                      <TypeBadge $type={post.type as PostType}>
-                        {getTypeText(post.type)}
-                      </TypeBadge>
-                    </div>
-                  </div>
-                  <span
-                    style={{
-                      fontSize: "16px",
-                      color: "#111827",
-                      fontWeight: "600",
-                    }}
-                  >
-                    {post.title}
-                  </span>
-                </div>
-              </S.PriorityLabel>
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "flex-end",
-                  gap: "4px",
-                  marginTop: "0px",
-                }}
-              >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+              }}
+            >
+              <div style={{ flex: 1 }}>
                 <div
                   style={{
                     display: "flex",
                     alignItems: "center",
                     gap: "12px",
+                    marginBottom: "8px",
                   }}
                 >
                   <div
@@ -406,10 +353,61 @@ const PriorityPostsSection = () => {
                   style={{
                     display: "flex",
                     alignItems: "center",
+                    gap: "8px",
+                    marginBottom: "8px",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px",
+                    }}
+                  >
+                    {getPriorityIcon(post.priority)}
+                    <StatusBadge $priority={post.priority as PostPriority}>
+                      {POST_PRIORITY_LABELS[post.priority as PostPriority] ??
+                        post.priority}
+                    </StatusBadge>
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px",
+                    }}
+                  >
+                    {getTypeIcon(post.type)}
+                    <TypeBadge $type={post.type as PostType}>
+                      {getTypeText(post.type)}
+                    </TypeBadge>
+                  </div>
+                </div>
+                <span
+                  style={{
+                    fontSize: "16px",
+                    color: "#111827",
+                    fontWeight: "600",
+                  }}
+                >
+                  {post.title}
+                </span>
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "flex-end",
+                  gap: "4px",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
                     gap: "12px",
                     fontSize: "12px",
                     color: "#6b7280",
-                    marginTop: "6px",
                   }}
                 >
                   <span
@@ -434,7 +432,7 @@ const PriorityPostsSection = () => {
                   </span>
                 </div>
               </div>
-            </S.PriorityHeader>
+            </div>
           </S.PriorityCard>
         ))
       )}
