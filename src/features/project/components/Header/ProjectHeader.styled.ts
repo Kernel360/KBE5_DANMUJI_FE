@@ -272,6 +272,9 @@ export const ProjectTitle = styled.h1`
   color: #111827;
   margin: 0 0 8px 24px;
   line-height: 1.2;
+  word-break: break-all;
+  white-space: pre-line;
+  overflow-wrap: break-word;
 `;
 
 // 프로젝트 개요(Description)
@@ -282,6 +285,8 @@ export const ProjectDescription = styled.p`
   margin: 0 0 8px 24px;
   line-height: 1.5;
   word-break: break-all;
+  white-space: pre-line;
+  overflow-wrap: break-word;
 `;
 
 // 프로젝트 부제목
