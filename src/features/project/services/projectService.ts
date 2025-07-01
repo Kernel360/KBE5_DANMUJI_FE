@@ -68,6 +68,7 @@ export type ProjectDetailStep = {
 export type ProjectDetailResponse = {
   id: number;
   name: string;
+  description: string;
   startDate: string;
   endDate: string;
   projectStatus: string;

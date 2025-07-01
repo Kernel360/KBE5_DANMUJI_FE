@@ -16,6 +16,7 @@ import {
   ProjectMeta,
   ProjectPeriod,
   BackButton,
+  ProjectDescription,
 } from "./ProjectHeader.styled";
 import type { ProjectDetailResponse } from "../../services/projectService";
 import { useAuth } from "@/hooks/useAuth";
@@ -159,6 +160,9 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = ({
         )}
       </div>
       <ProjectTitle>{projectDetail.name}</ProjectTitle>
+      {projectDetail.description && (
+        <ProjectDescription>{projectDetail.description}</ProjectDescription>
+      )}
       <ProjectMeta>
         <ProjectPeriod>
           <FiCalendar size={14} />

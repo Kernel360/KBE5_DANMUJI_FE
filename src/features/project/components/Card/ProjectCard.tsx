@@ -68,7 +68,9 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
   return (
     <Card $status={projectStatus} onClick={handleCardClick} style={{ cursor: 'pointer' }}>
       <CardHeader>
-        <CardTitle>{name}</CardTitle>
+        <CardTitle>
+          {name.length > 10 ? name.slice(0, 10) + '...' : name}
+        </CardTitle>
         <CardBadges>
           <Badge $color={statusInfo.color} $status={projectStatus}>
             {statusInfo.icon}
