@@ -3,6 +3,7 @@ import type {
   HistoryDetailResponse,
   ActivityLogDetail,
   PostDashboardReadResponse,
+  MyMentionListResponse,
 } from "../types/activityLog";
 
 // 임시 타입 정의 (모듈 import 문제 해결을 위해)
@@ -220,8 +221,8 @@ export const getActivityLogDetail = async (
       changerName: historyDetail.changerName,
       changerUsername: historyDetail.changerUsername,
       changerRole: historyDetail.changerRole,
-      before: historyDetail.before,
-      after: historyDetail.after,
+      before: historyDetail.before as unknown as string,
+      after: historyDetail.after as unknown as string,
       createdAt: historyDetail.createdAt,
       message: historyDetail.message,
     };
@@ -256,16 +257,13 @@ export const getPostsDueSoon = async (): Promise<
       "/api/posts/projects/due-soon"
     );
 
-    console.log("API 응답:", response.data);
-
     // 백엔드 응답 구조 확인 - status가 "OK"인 경우 성공
     if (
       response.data.status === "OK" ||
-      response.data.status === "SUCCESS" ||
-      response.data.success
+      response.data.status === "SUCCESS" 
     ) {
       // data 필드가 없으면 빈 배열 반환
-      return response.data.data || response.data.content || [];
+      return response.data.data ||  [];
     } else {
       throw new Error(response.data.message || "게시글 조회에 실패했습니다.");
     }
@@ -282,16 +280,13 @@ export const getMyMentions = async (): Promise<MyMentionListResponse[]> => {
       "/api/mentions/my"
     );
 
-    console.log("멘션 API 응답:", response.data);
-
     // 백엔드 응답 구조 확인 - status가 "OK"인 경우 성공
     if (
       response.data.status === "OK" ||
-      response.data.status === "SUCCESS" ||
-      response.data.success
+      response.data.status === "SUCCESS" 
     ) {
       // data 필드가 없으면 빈 배열 반환
-      return response.data.data || response.data.content || [];
+      return response.data.data ||  [];
     } else {
       throw new Error(response.data.message || "멘션 조회에 실패했습니다.");
     }
@@ -306,24 +301,8 @@ export const markNotificationAsRead = async (
   notificationId: number
 ): Promise<void> => {
   try {
-    const response = await api.put<ApiResponse<Void>>(
-      `/api/notifications/read/${notificationId}`
-    );
+    await api.put(`/api/notifications/read/${notificationId}`);
 
-    console.log("알림 읽음 처리 API 응답:", response.data);
-
-    // 백엔드 응답 구조 확인
-    if (
-      response.data.status === "OK" ||
-      response.data.status === "SUCCESS" ||
-      response.data.success
-    ) {
-      console.log("알림 읽음 처리 성공");
-    } else {
-      throw new Error(
-        response.data.message || "알림 읽음 처리에 실패했습니다."
-      );
-    }
   } catch (error) {
     console.error("알림 읽음 처리 실패:", error);
     throw error;

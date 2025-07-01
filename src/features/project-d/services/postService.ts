@@ -102,10 +102,6 @@ export const createPost = async (
       });
     }
 
-    console.log("=== createPost API 호출 ===");
-    console.log("요청 데이터:", jsonData);
-    console.log("파일 개수:", files?.length || 0);
-
     const response = await api.post<ApiResponse<PostCreateResponse>>(
       "/api/posts",
       formData,
@@ -116,14 +112,8 @@ export const createPost = async (
       }
     );
 
-    console.log("API 응답:", response);
-    console.log("응답 데이터:", response.data);
-    console.log("======================");
-
     return handleApiResponse<PostCreateResponse>(response);
   } catch (error) {
-    console.error("=== createPost 에러 ===");
-    console.error("에러:", error);
 
     if (error instanceof ApiError) throw error;
     if (error instanceof AxiosError) {
@@ -316,11 +306,6 @@ export const updatePost = async (
       });
     }
 
-    console.log("=== updatePost API 호출 ===");
-    console.log("요청 데이터:", jsonData);
-    console.log("새로 추가된 파일 개수:", files?.length || 0);
-    console.log("삭제할 파일 ID:", postData.fileIdsToDelete);
-
     const response = await api.put<ApiResponse<Post>>(
       `/api/posts/${postId}`,
       formData,
@@ -330,10 +315,6 @@ export const updatePost = async (
         },
       }
     );
-
-    console.log("API 응답:", response);
-    console.log("응답 데이터:", response.data);
-    console.log("======================");
 
     return handleApiResponse<Post>(response);
   } catch (error) {
@@ -410,6 +391,8 @@ export const getComments = async (
         return {
           success: true,
           data: [],
+          status: "OK",
+          code: "OK",
           message: "댓글 목록이 비어있습니다.",
         };
       }
@@ -530,12 +513,6 @@ export const searchPosts = async (
   size: number = 10
 ): Promise<ApiResponse<PageResponse<PostSummaryReadResponse>>> => {
   try {
-    console.log("=== searchPosts 함수 호출 ===");
-    console.log("projectId:", projectId);
-    console.log("stepId:", stepId);
-    console.log("검색 파라미터:", searchParams);
-    console.log("페이지:", page, "크기:", size);
-
     const requestParams = {
       projectId,
       stepId,
@@ -549,10 +526,6 @@ export const searchPosts = async (
     >(`/api/posts/search`, {
       params: requestParams,
     });
-
-    console.log("API 응답:", response);
-    console.log("응답 데이터:", response.data);
-    console.log("======================");
 
     return response.data;
   } catch (error) {

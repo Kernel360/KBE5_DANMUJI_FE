@@ -94,16 +94,6 @@ const WarningProjectsSection: React.FC<WarningProjectsSectionProps> = ({
               const todayNormalized = new Date(today.getFullYear(), today.getMonth(), today.getDate());
               const endNormalized = new Date(end.getFullYear(), end.getMonth(), end.getDate());
               
-              console.log('Date Debug:', {
-                projectName: project.name,
-                endDate: project.endDate,
-                parsedEnd: end,
-                today: today,
-                todayNormalized: todayNormalized,
-                endNormalized: endNormalized,
-                diff: Math.ceil((endNormalized.getTime() - todayNormalized.getTime()) / (1000 * 60 * 60 * 24))
-              });
-              
               let dayInfo = '';
               if (project.status === "DELAY") {
                 const diff = Math.ceil((todayNormalized.getTime() - endNormalized.getTime()) / (1000 * 60 * 60 * 24));

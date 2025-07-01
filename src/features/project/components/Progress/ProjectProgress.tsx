@@ -116,7 +116,7 @@ const ProjectProgress: React.FC<ProjectProgressProps> = ({
             <React.Fragment key={step.id}>
               <StepItem
                 $active={isActive || isSelected}
-                complete={isComplete}
+                $complete={isComplete}
                 selected={isSelected}
                 onClick={() => handleStepClick(step.id)}
                 onKeyDown={(e) => {
@@ -131,25 +131,25 @@ const ProjectProgress: React.FC<ProjectProgressProps> = ({
               >
                 <StepIcon
                   $active={isActive || isSelected}
-                  complete={isComplete}
+                  $complete={isComplete}
                 >
                   <Icon size={18} />
                 </StepIcon>
                 <StepTitle
                   $active={isActive || isSelected}
-                  complete={isComplete}
+                  $complete={isComplete}
                 >
                   {step.name}
                 </StepTitle>
                 <StepStatus
                   $active={isActive || isSelected}
-                  complete={isComplete}
+                  $complete={isComplete}
                 >
                   {getStepStatusText(step.projectStepStatus)}
                 </StepStatus>
               </StepItem>
               {index !== steps.length - 1 && (
-                <StepLine $active={isActive} complete={isComplete} />
+                <StepLine $active={isActive} $complete={isComplete} />
               )}
             </React.Fragment>
           );

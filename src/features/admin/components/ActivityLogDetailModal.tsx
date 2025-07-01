@@ -31,14 +31,14 @@ interface ActivityLogDetailModalProps {
   historyId: string;
 }
 
-const ModalOverlay = styled.div<{ isOpen: boolean }>`
+const ModalOverlay = styled.div<{ $isOpen: boolean }>`
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
-  display: ${({ isOpen }) => (isOpen ? "flex" : "none")};
+  display: ${({ $isOpen }) => ($isOpen ? "flex" : "none")};
   align-items: center;
   justify-content: center;
   z-index: 1000;
@@ -157,7 +157,7 @@ const InfoValue = styled.span`
   gap: 4px;
 `;
 
-const StatusBadge = styled.span<{ type: string }>`
+const StatusBadge = styled.span<{ $type: string }>`
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -166,8 +166,8 @@ const StatusBadge = styled.span<{ type: string }>`
   font-size: 0.75rem;
   font-weight: 500;
   width: 50px;
-  background-color: ${({ type }) => {
-    switch (type) {
+  background-color: ${({ $type }) => {
+    switch ($type) {
       case "CREATED":
         return "#dcfce7";
       case "UPDATED":
@@ -178,8 +178,8 @@ const StatusBadge = styled.span<{ type: string }>`
         return "#f3f4f6";
     }
   }};
-  color: ${({ type }) => {
-    switch (type) {
+  color: ${({ $type }) => {
+    switch ($type) {
       case "CREATED":
         return "#166534";
       case "UPDATED":
@@ -305,13 +305,13 @@ const ChangeColumnBox = styled.div`
   gap: 6px;
 `;
 
-const CopyButton = styled.button<{ copied: boolean }>`
+const CopyButton = styled.button<{ $copied: boolean }>`
   background: none;
   border: none;
   cursor: pointer;
   padding: 4px;
   border-radius: 4px;
-  color: ${({ copied }) => (copied ? "#10b981" : "#6b7280")};
+  color: ${({ $copied }) => ($copied ? "#10b981" : "#6b7280")};
   transition: all 0.2s;
   display: flex;
   align-items: center;
@@ -321,7 +321,7 @@ const CopyButton = styled.button<{ copied: boolean }>`
 
   &:hover {
     background-color: #f3f4f6;
-    color: ${({ copied }) => (copied ? "#10b981" : "#374151")};
+    color: ${({ $copied }) => ($copied ? "#10b981" : "#374151")};
   }
 `;
 
@@ -1079,13 +1079,13 @@ export default function ActivityLogDetailModal({
   if (!isOpen) return null;
 
   return (
-    <ModalOverlay isOpen={isOpen} onClick={onClose}>
+    <ModalOverlay $isOpen={isOpen} onClick={onClose}>
       <ModalContent onClick={(e) => e.stopPropagation()}>
         <ModalHeader>
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <ModalTitle>이력 상세 정보</ModalTitle>
             {detail && (
-              <CopyButton copied={copied} onClick={handleCopyId}>
+              <CopyButton $copied={copied} onClick={handleCopyId}>
                 ID: {detail.id}
                 {copied ? <FiCheck size={14} /> : <FiCopy size={14} />}
               </CopyButton>
@@ -1112,7 +1112,7 @@ export default function ActivityLogDetailModal({
               <InfoGrid>
                 <InfoItem>
                   <InfoLabel>작업 유형</InfoLabel>
-                  <StatusBadge type={detail.historyType}>
+                  <StatusBadge $type={detail.historyType}>
                     {getActionDisplayName(detail.historyType)}
                   </StatusBadge>
                 </InfoItem>

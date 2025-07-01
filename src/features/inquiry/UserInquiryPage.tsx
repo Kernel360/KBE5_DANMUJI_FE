@@ -123,22 +123,22 @@ const InquiryTitleCell = styled(TableCell)`
   }
 `;
 
-const StatusBadge = styled.span<{ status: string }>`
+const StatusBadge = styled.span<{ $status: string }>`
   display: inline-block;
   padding: 4px 12px;
   border-radius: 8px;
   font-size: 12px;
   font-weight: 600;
-  color: ${({ status }: { status: string }) =>
-    status === "답변완료"
+  color: ${({ $status }: { $status: string }) =>
+    $status === "답변완료"
       ? "#16a34a"
-      : status === "답변대기"
+      : $status === "답변대기"
       ? "#d97706"
       : "#4b5565"};
-  background-color: ${({ status }: { status: string }) =>
-    status === "답변완료"
+  background-color: ${({ $status }: { $status: string }) =>
+    $status === "답변완료"
       ? "#dcfce7"
-      : status === "답변대기"
+      : $status === "답변대기"
       ? "#fef3c7"
       : "#fff"};
 `;
@@ -697,7 +697,7 @@ export default function UserInquiryPage() {
                     <TableCell>{inq.authorName}</TableCell>
                     <TableCell>{formattedDate}</TableCell>
                     <TableCell>
-                      <StatusBadge status={statusText}>{statusText}</StatusBadge>
+                      <StatusBadge $status={statusText}>{statusText}</StatusBadge>
                     </TableCell>
                   </TableRow>
                 );

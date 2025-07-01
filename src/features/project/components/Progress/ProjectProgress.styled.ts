@@ -25,15 +25,15 @@ export const StepContainer = styled.div`
 
 export const StepItem = styled.div<{
   $active?: boolean;
-  complete?: boolean;
+  $complete?: boolean;
   selected?: boolean;
 }>`
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  color: ${({ $active, complete }) =>
-    complete ? "#10b981" : $active ? "#f59e0b" : "#9ca3af"};
+  color: ${({ $active, $complete }) =>
+    $complete ? "#10b981" : $active ? "#f59e0b" : "#9ca3af"};
   font-weight: ${({ $active }) => ($active ? "600" : "400")};
   font-size: 15px;
   position: relative;
@@ -60,9 +60,9 @@ export const StepItem = styled.div<{
   }
 `;
 
-export const StepIcon = styled.div<{ $active?: boolean; complete?: boolean }>`
-  background: ${({ complete, $active }) =>
-    complete ? "#10b981" : $active ? "#f59e0b" : "#e5e7eb"};
+export const StepIcon = styled.div<{ $active?: boolean; $complete?: boolean }>`
+  background: ${({ $complete, $active }) =>
+    $complete ? "#10b981" : $active ? "#f59e0b" : "#e5e7eb"};
   color: white;
   border-radius: 50%;
   padding: 8px;
@@ -77,16 +77,16 @@ export const StepIcon = styled.div<{ $active?: boolean; complete?: boolean }>`
   position: relative;
 
   svg {
-    color: ${({ complete, $active }) =>
-      complete || $active ? "#ffffff" : "#9ca3af"};
+    color: ${({ $complete, $active }) =>
+      $complete || $active ? "#ffffff" : "#9ca3af"};
     transition: color 0.2s ease;
   }
 `;
 
-export const StepLine = styled.div<{ $active?: boolean; complete?: boolean }>`
+export const StepLine = styled.div<{ $active?: boolean; $complete?: boolean }>`
   height: 2px;
-  background: ${({ complete, $active }) =>
-    complete ? "#10b981" : $active ? "#f59e0b" : "#e5e7eb"};
+  background: ${({ $complete, $active }) =>
+    $complete ? "#10b981" : $active ? "#f59e0b" : "#e5e7eb"};
   flex: 1;
   border-radius: 2px;
   position: relative;
@@ -96,7 +96,7 @@ export const StepLine = styled.div<{ $active?: boolean; complete?: boolean }>`
   transition: all 0.2s ease;
 `;
 
-export const StepTitle = styled.div<{ $active?: boolean; complete?: boolean }>`
+export const StepTitle = styled.div<{ $active?: boolean; $complete?: boolean }>`
   font-weight: 500;
   font-size: 0.95rem;
   color: #6b7280;
@@ -104,10 +104,10 @@ export const StepTitle = styled.div<{ $active?: boolean; complete?: boolean }>`
   transition: all 0.2s ease;
 `;
 
-export const StepStatus = styled.div<{ $active?: boolean; complete?: boolean }>`
+export const StepStatus = styled.div<{ $active?: boolean; $complete?: boolean }>`
   font-size: 0.8rem;
-  color: ${({ $active, complete }) =>
-    complete ? "#10b981" : $active ? "#f59e0b" : "#9ca3af"};
+  color: ${({ $active, $complete }) =>
+    $complete ? "#10b981" : $active ? "#f59e0b" : "#9ca3af"};
   font-weight: 500;
   transition: all 0.2s ease;
 `;
