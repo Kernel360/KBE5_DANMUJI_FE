@@ -273,3 +273,29 @@ export const getPostsDueSoon = async (): Promise<
     throw error;
   }
 };
+
+// 나를 멘션한 게시글 조회
+export const getMyMentions = async (): Promise<MyMentionListResponse[]> => {
+  try {
+    const response = await api.get<ApiResponse<MyMentionListResponse[]>>(
+      "/api/mentions/my"
+    );
+
+    console.log("멘션 API 응답:", response.data);
+
+    // 백엔드 응답 구조 확인 - status가 "OK"인 경우 성공
+    if (
+      response.data.status === "OK" ||
+      response.data.status === "SUCCESS" ||
+      response.data.success
+    ) {
+      // data 필드가 없으면 빈 배열 반환
+      return response.data.data || response.data.content || [];
+    } else {
+      throw new Error(response.data.message || "멘션 조회에 실패했습니다.");
+    }
+  } catch (error) {
+    console.error("나를 멘션한 게시글 조회 실패:", error);
+    throw error;
+  }
+};

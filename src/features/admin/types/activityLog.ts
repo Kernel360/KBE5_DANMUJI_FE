@@ -128,3 +128,13 @@ export interface PostDashboardReadResponse {
   priority: "URGENT" | "HIGH" | "MEDIUM" | "LOW";
   type: "GENERAL" | "QUESTION";
 }
+
+export interface MyMentionListResponse {
+  notificationId: number;
+  clientId: number;
+  referenceId: number;
+  content: string;
+  type: string;
+  isRead: boolean;
+  createdAt: string;
+}
