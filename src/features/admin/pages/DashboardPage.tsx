@@ -31,6 +31,7 @@ import {
   FaChartPie,
   FaQuestionCircle,
 } from "react-icons/fa";
+import { FiPackage } from "react-icons/fi";
 import CompanyDetailModal from "@/features/company/components/CompanyDetailModal/CompanyDetailModal";
 
 // Define interfaces for new data types
@@ -160,7 +161,7 @@ export default function DashboardPage() {
         // Fetch Company Count
         const companyResponse = await api.get("/api/companies/all");
         const companies = companyResponse.data?.data || [];
-        setCompanyCount(companies.length);
+        setCompanyCount(Array.isArray(companies) ? companies.length : 0);
 
         // Fetch Member Count
         const memberResponse = await api.get("/api/admin/allUsers");
@@ -170,16 +171,20 @@ export default function DashboardPage() {
         // Fetch Project Counts
         const projectCountsResponse = await api.get("/api/projects/all");
         const content = projectCountsResponse.data?.data || [];
-        const total = content.length;
-        const inProgressCount = content.filter(
-          (p: { status: string }) => p.status === "IN_PROGRESS"
-        ).length;
-        const completedCount = content.filter(
-          (p: { status: string }) => p.status === "COMPLETED"
-        ).length;
-        const delayedCount = content.filter(
-          (p: { status: string }) => p.status === "DELAY"
-        ).length;
+        const total = Array.isArray(content) ? content.length : 0;
+        const inProgressCount = Array.isArray(content)
+          ? content.filter(
+              (p: { status: string }) => p?.status === "IN_PROGRESS"
+            ).length
+          : 0;
+        const completedCount = Array.isArray(content)
+          ? content.filter((p: { status: string }) => p?.status === "COMPLETED")
+              .length
+          : 0;
+        const delayedCount = Array.isArray(content)
+          ? content.filter((p: { status: string }) => p?.status === "DELAY")
+              .length
+          : 0;
 
         setTotalProjectCount(total);
         setInProgressProjectCount(inProgressCount);
@@ -198,12 +203,17 @@ export default function DashboardPage() {
         // Fetch Inquiry Count (실제 데이터)
         const inquiriesResponse = await api.get("/api/inquiries/all");
         const inquiries: RecentInquiry[] = inquiriesResponse.data?.data || [];
-        setInquiryCount(inquiries.length);
+        setInquiryCount(Array.isArray(inquiries) ? inquiries.length : 0);
         setWaitingInquiryCount(
-          inquiries.filter((inq) => inq.inquiryStatus === "WAITING").length
+          Array.isArray(inquiries)
+            ? inquiries.filter((inq) => inq?.inquiryStatus === "WAITING").length
+            : 0
         );
         setAnsweredInquiryCount(
-          inquiries.filter((inq) => inq.inquiryStatus === "ANSWERED").length
+          Array.isArray(inquiries)
+            ? inquiries.filter((inq) => inq?.inquiryStatus === "ANSWERED")
+                .length
+            : 0
         );
 
         // Fetch Recent Inquiries
