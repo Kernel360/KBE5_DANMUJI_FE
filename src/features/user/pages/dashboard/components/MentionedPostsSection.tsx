@@ -365,7 +365,7 @@ const MentionedPostsSection = () => {
             size={20}
             style={{
               marginRight: "8px",
-              color: "#f59e0b",
+              color: "#3b82f6",
               verticalAlign: "middle",
             }}
           />

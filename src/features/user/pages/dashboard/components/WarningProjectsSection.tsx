@@ -21,7 +21,7 @@ const WarningProjectsSection: React.FC<WarningProjectsSectionProps> = ({
   setSelectedWarningTab,
 }) => (
   <S.Section>
-    <S.SectionTitle color="#dc2626">
+    <S.SectionTitle color="#111827">
       <FaProjectDiagram
         size={20}
         style={{
@@ -87,21 +87,32 @@ const WarningProjectsSection: React.FC<WarningProjectsSectionProps> = ({
             }
             style={{
               marginBottom: 8,
-              border: "1px solid #fecaca",
+              border:
+                project.status === "DELAYED"
+                  ? "1px solid #fecaca"
+                  : "1px solid #fed7aa",
               background: "#fff",
               cursor: "pointer",
               transition: "all 0.2s ease",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = "#fef2f2";
-              e.currentTarget.style.borderColor = "#fca5a5";
-              e.currentTarget.style.boxShadow =
-                "0 2px 8px rgba(239, 68, 68, 0.1)";
+              if (project.status === "DELAYED") {
+                e.currentTarget.style.background = "#fef2f2";
+                e.currentTarget.style.borderColor = "#fca5a5";
+                e.currentTarget.style.boxShadow =
+                  "0 2px 8px rgba(239, 68, 68, 0.1)";
+              } else {
+                e.currentTarget.style.background = "#fffbeb";
+                e.currentTarget.style.borderColor = "#fdba74";
+                e.currentTarget.style.boxShadow =
+                  "0 2px 8px rgba(245, 158, 11, 0.1)";
+              }
               e.currentTarget.style.transform = "translateY(-1px)";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = "#fff";
-              e.currentTarget.style.borderColor = "#fecaca";
+              e.currentTarget.style.borderColor =
+                project.status === "DELAYED" ? "#fecaca" : "#fed7aa";
               e.currentTarget.style.boxShadow = "none";
               e.currentTarget.style.transform = "translateY(0)";
             }}
@@ -118,7 +129,7 @@ const WarningProjectsSection: React.FC<WarningProjectsSectionProps> = ({
                 style={{
                   fontWeight: 600,
                   fontSize: "0.95rem",
-                  color: "#dc2626",
+                  color: project.status === "DELAYED" ? "#dc2626" : "#d97706",
                 }}
               >
                 {project.name}
@@ -136,7 +147,7 @@ const WarningProjectsSection: React.FC<WarningProjectsSectionProps> = ({
                   project.status}
               </S.StatusBadge>
             </div>
-            <div style={{ color: "#bdbdbd", fontSize: 12, marginBottom: 2 }}>
+            <div style={{ color: "#6b7280", fontSize: 12, marginBottom: 2 }}>
               마감일:{" "}
               <b
                 style={{
@@ -150,7 +161,9 @@ const WarningProjectsSection: React.FC<WarningProjectsSectionProps> = ({
                         new Date().getTime()) /
                         (1000 * 60 * 60 * 24) >=
                         0)
-                      ? "#dc2626"
+                      ? project.status === "DELAYED"
+                        ? "#dc2626"
+                        : "#d97706"
                       : "#374151",
                 }}
               >

@@ -70,6 +70,7 @@ export const Section = styled.section`
   border-radius: 16px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   padding: 28px 32px 24px;
+  min-height: 400px;
 `;
 
 export const ProgressSectionTitleRow = styled.div`
@@ -120,14 +121,14 @@ export const ProgressList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 18px;
-  min-height: 200px;
+  min-height: 280px;
 `;
 
 export const ProgressListEmpty = styled.div`
   color: #bdbdbd;
   text-align: center;
   gap: 18px;
-  min-height: 200px;
+  min-height: 280px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -355,8 +356,8 @@ export const ProjectCard = styled.div`
 
   &:hover {
     background: #f9fafb;
-    border-color: #1abc7b;
-    box-shadow: 0 2px 8px rgba(26, 188, 123, 0.1);
+    border-color: #3b82f6;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
     transform: translateY(-1px);
   }
 `;
