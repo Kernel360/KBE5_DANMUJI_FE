@@ -46,7 +46,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
           color: "#10b981",
           icon: <FiCheckCircle size={14} />,
         };
-      case "DELAYED":
+      case "DELAY":
         return {
           text: "지연",
           color: "#ef4444",
@@ -59,7 +59,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
           icon: <FiAlertCircle size={14} />,
         };
       default:
-        return { text: status, color: "#6b7280", icon: null };
+        return { text: projectStatus, color: "#6b7280", icon: null };
     }
   };
 

@@ -48,8 +48,6 @@ export default function ProjectListPage() {
       const response = await getProjects(page, PAGE_SIZE);
 
       if (response.data) {
-        console.log("전체 API Response:", response.data);
-        console.log("Projects content:", response.data.content);
 
         // 백엔드 응답을 기존 Project 타입으로 변환
         const convertedProjects: Project[] = response.data.content.map(
@@ -57,11 +55,11 @@ export default function ProjectListPage() {
             // 상태 매핑
             const statusMapping: Record<
               string,
-              "IN_PROGRESS" | "COMPLETED" | "DELAYED" | "DUE_SOON"
+              "IN_PROGRESS" | "COMPLETED" | "DELAY" | "DUE_SOON"
             > = {
               IN_PROGRESS: "IN_PROGRESS",
               COMPLETED: "COMPLETED",
-              DELAY: "DELAYED",
+              DELAY: "DELAY",
               DUE_SOON: "DUE_SOON",
             };
 
@@ -141,11 +139,11 @@ export default function ProjectListPage() {
             // 상태 매핑
             const statusMapping: Record<
               string,
-              "IN_PROGRESS" | "COMPLETED" | "DELAYED" | "DUE_SOON"
+              "IN_PROGRESS" | "COMPLETED" | "DELAY" | "DUE_SOON"
             > = {
               IN_PROGRESS: "IN_PROGRESS",
               COMPLETED: "COMPLETED",
-              DELAY: "DELAYED",
+              DELAY: "DELAY",
               DUE_SOON: "DUE_SOON",
             };
 
@@ -171,7 +169,6 @@ export default function ProjectListPage() {
               name: project.name,
               clientCompanies: getCompanyDisplay(project.assignClientCompanies),
               devCompanies: getCompanyDisplay(project.assignDevCompanies),
-              status: statusMapping[project.projectStatus],
               projectStatus: statusMapping[project.projectStatus],
               startDate: project.startDate,
               endDate: project.endDate,

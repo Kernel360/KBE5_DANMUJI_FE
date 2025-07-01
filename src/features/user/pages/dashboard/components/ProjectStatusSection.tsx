@@ -8,6 +8,7 @@ import {
   FiPackage,
 } from "react-icons/fi";
 import React, { useState, useEffect } from "react";
+import type { ProjectStatusResponse } from "@/features/project/services/projectService";
 
 // 타입 정의 추가
 export type ProjectStep = {
@@ -31,7 +32,9 @@ export type Project = {
 };
 
 export interface ProjectStatusSectionProps {
-  projectTabs: Project[];
+  projectTabs: ProjectStatusResponse[];
+  selectedStatusTab: "IN_PROGRESS" | "COMPLETED";
+  setSelectedStatusTab: (tab: "IN_PROGRESS" | "COMPLETED") => void;
   getProgressPercent: (steps: ProjectStep[]) => number;
   navigate: (path: string) => void;
 }
@@ -43,39 +46,37 @@ const STATUS_TABS = [
 
 const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
   projectTabs,
+  selectedStatusTab,
+  setSelectedStatusTab,
   getProgressPercent,
   navigate,
 }) => {
-  const [statusTab, setStatusTab] = useState<"IN_PROGRESS" | "COMPLETED">(
-    "IN_PROGRESS"
-  );
-
   // 필터링 로직
   const filteredProjects = projectTabs.filter((project) => {
-    if (statusTab === "IN_PROGRESS") return project.status === "IN_PROGRESS";
-    if (statusTab === "COMPLETED") return project.status === "COMPLETED";
+    if (selectedStatusTab === "IN_PROGRESS") return project.status === "IN_PROGRESS";
+    if (selectedStatusTab === "COMPLETED") return project.status === "COMPLETED";
     return false;
   });
 
   // 진행중 탭에서만 animatedPercents 배열 사용
-  const [animatedPercents, setAnimatedPercents] = useState<number[]>([]);
-  useEffect(() => {
-    if (statusTab === "IN_PROGRESS") {
-      const percents = filteredProjects.slice(0, 4).map(() => 0);
-      setAnimatedPercents(percents);
-      const timeouts = filteredProjects.slice(0, 4).map((project, idx) =>
-        setTimeout(() => {
-          setAnimatedPercents((prev) => {
-            const copy = [...prev];
-            copy[idx] = getProgressPercent(project.steps);
-            return copy;
-          });
-        }, 100)
-      );
-      return () => timeouts.forEach((t) => clearTimeout(t));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [statusTab, filteredProjects.length]);
+  // const [animatedPercents, setAnimatedPercents] = useState<number[]>([]);
+  // useEffect(() => {
+  //   if (selectedStatusTab === "IN_PROGRESS") {
+  //     const percents = filteredProjects.slice(0, 4).map(() => 0);
+  //     setAnimatedPercents(percents);
+  //     const timeouts = filteredProjects.slice(0, 4).map((project, idx) =>
+  //       setTimeout(() => {
+  //         setAnimatedPercents((prev) => {
+  //           const copy = [...prev];
+  //           copy[idx] = getProgressPercent(project.steps);
+  //           return copy;
+  //         });
+  //       }, 100)
+  //     );
+  //     return () => timeouts.forEach((t) => clearTimeout(t));
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [selectedStatusTab, filteredProjects.length]);
 
   return (
     <S.Section>
@@ -110,8 +111,8 @@ const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
         {STATUS_TABS.map((tab) => (
           <S.ProjectStatusTabButton
             key={tab.key}
-            $selected={statusTab === tab.key}
-            onClick={() => setStatusTab(tab.key as any)}
+            $selected={selectedStatusTab === tab.key}
+            onClick={() => setSelectedStatusTab(tab.key as any)}
           >
             {tab.label}
           </S.ProjectStatusTabButton>
@@ -125,8 +126,8 @@ const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
         <S.ProgressList
           style={{ display: "flex", flexDirection: "column", gap: 8 }}
         >
-          {filteredProjects.slice(0, 3).map((project, idx) => {
-            const percent = getProgressPercent(project.steps);
+          {filteredProjects.map((project, idx) => {
+            const percent = project.progress;
             return (
               <S.ProjectCard
                 key={`project-${project.id}-${idx}`}
@@ -147,12 +148,16 @@ const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
                       {project.name}
                     </S.ProjectTitle>
                   </div>
-                  {statusTab !== "IN_PROGRESS" && (
+                  {selectedStatusTab !== "IN_PROGRESS" && (
                     <S.StatusBadge $status={project.status}>
                       {project.status === "COMPLETED" && "완료"}
                       {project.status === "IN_PROGRESS" && "진행중"}
+                      {project.status === "DELAY" && "지연"}
+                      {project.status === "DUE_SOON" && "기한임박"}
                       {project.status !== "COMPLETED" &&
                         project.status !== "IN_PROGRESS" &&
+                        project.status !== "DELAY" &&
+                        project.status !== "DUE_SOON" &&
                         project.status}
                     </S.StatusBadge>
                   )}
@@ -173,7 +178,7 @@ const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
                     {project.endDate.replace(/-/g, ".")}
                   </span>
                 </div>
-                {statusTab === "IN_PROGRESS" ? (
+                {selectedStatusTab === "IN_PROGRESS" ? (
                   <S.ProjectProgressInfo>
                     <div style={{ flex: 1 }}>
                       <div
@@ -193,9 +198,9 @@ const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
                         >
                           <FiLayers size={12} style={{ color: "#6366f1" }} />
                           <S.ProjectProgressStep style={{ fontSize: "0.8rem" }}>
-                            {project.steps.find(
+                            {/* {project.steps.find(
                               (s) => s.projectStepStatus === "IN_PROGRESS"
-                            )?.name || "진행중"}
+                            )?.name || "진행중"} */}
                           </S.ProjectProgressStep>
                         </div>
                         <S.ProjectProgressPercent $percent={percent}>
@@ -203,7 +208,7 @@ const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
                         </S.ProjectProgressPercent>
                       </div>
                       <S.ProgressBarWrap style={{ marginTop: 0 }}>
-                        <S.ProgressBar $percent={animatedPercents[idx] ?? 0} />
+                        <S.ProgressBar $percent={percent} />
                       </S.ProgressBarWrap>
                     </div>
                   </S.ProjectProgressInfo>
@@ -218,10 +223,10 @@ const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
                     }}
                   >
                     <FiHome size={12} />
-                    <span>
+                    {/* <span>
                       고객사: {project.clientCompany} / 개발사:{" "}
                       {project.developerCompany}
-                    </span>
+                    </span> */}
                   </div>
                 )}
               </S.ProjectCard>
