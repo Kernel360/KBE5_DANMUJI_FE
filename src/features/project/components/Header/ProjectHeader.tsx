@@ -12,14 +12,16 @@ import { useNavigate } from "react-router-dom";
 import {
   ProjectHeaderContainer,
   ProjectTitle,
-  ProjectSubtitle,
   ProjectMeta,
   ProjectPeriod,
   BackButton,
+  ProjectDescription,
 } from "./ProjectHeader.styled";
 import type { ProjectDetailResponse } from "../../services/projectService";
 import { useAuth } from "@/hooks/useAuth";
 import api from "@/api/axios";
+import MemberDetailModal from "@/features/user/components/MemberDetailModal/MemberDetailModal";
+import { useState } from "react";
 
 interface ProjectHeaderProps {
   projectDetail: ProjectDetailResponse;
@@ -32,6 +34,8 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = ({
 }) => {
   const { role } = useAuth();
   const navigate = useNavigate();
+  const [memberListModal, setMemberListModal] = useState<{ open: boolean; company: any; members: any[]; type: 'client' | 'dev' | null }>({ open: false, company: null, members: [], type: null });
+  const [memberDetailModal, setMemberDetailModal] = useState<{ open: boolean; memberId: number | null }>({ open: false, memberId: null });
 
   const handleBack = () => {
     navigate("/projects");
@@ -159,6 +163,9 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = ({
         )}
       </div>
       <ProjectTitle>{projectDetail.name}</ProjectTitle>
+      {projectDetail.description && (
+        <ProjectDescription>{projectDetail.description}</ProjectDescription>
+      )}
       <ProjectMeta>
         <ProjectPeriod>
           <FiCalendar size={14} />
@@ -195,47 +202,57 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = ({
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <FaBuilding size={17} style={{ marginRight: 4, color: "#9ca3af" }} />
           <span style={{ color: "#9ca3af", marginRight: 6 }}>고객사</span>
-          <span style={{ color: "#222", fontWeight: 500 }}>
-            {projectDetail.clients[0]?.companyName || "미지정"}
-          </span>
-          {projectDetail.clients[0]?.assignUsers[0] && (
-            <>
-              <span style={{ color: "#d1d5db", margin: "0 6px" }}>|</span>
-              <span style={{ color: "#9ca3af", marginRight: 6 }}>담당자</span>
-              <span style={{ color: "#222", fontWeight: 500 }}>
-                {projectDetail.clients[0].assignUsers[0].name}
+          {projectDetail.clients && projectDetail.clients.length > 0 ? (
+            projectDetail.clients.map((client, idx) => (
+              <span key={client.id} style={{ color: "#2563eb", fontWeight: 600, cursor: "pointer", marginRight: 8 }}
+                onClick={() => setMemberListModal({ open: true, company: client, members: client.assignUsers, type: 'client' })}>
+                {client.companyName}
+                {idx < projectDetail.clients.length - 1 && <span style={{ color: "#d1d5db", margin: "0 4px" }}>|</span>}
               </span>
-            </>
+            ))
+          ) : (
+            <span style={{ color: "#aaa" }}>미지정</span>
           )}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <FaUsers size={17} style={{ marginRight: 4, color: "#9ca3af" }} />
           <span style={{ color: "#9ca3af", marginRight: 6 }}>개발사</span>
-          <span style={{ color: "#222", fontWeight: 500 }}>
-            {projectDetail.developers[0]?.companyName || "미지정"}
-          </span>
-          {Array.isArray(projectDetail.developers[0]?.assignUsers) && projectDetail.developers[0].assignUsers.length > 0 && (
-            <>
-              <span style={{ color: "#d1d5db", margin: "0 6px" }}>|</span>
-              <span style={{ color: "#9ca3af", marginRight: 6 }}>개발팀</span>
-              {projectDetail.developers[0].assignUsers.map((dev, idx) => (
-                <span key={dev.id}>
-                  <span style={{ color: "#222", fontWeight: 500 }}>
-                    {dev.name}
-                  </span>
-                  <span style={{ color: "#9ca3af", margin: "0 2px" }}>
-                    ({dev.positon})
-                  </span>
-                  {idx !==
-                    projectDetail.developers[0].assignUsers.length - 1 && (
-                    <span style={{ color: "#d1d5db", margin: "0 6px" }}>,</span>
-                  )}
-                </span>
-              ))}
-            </>
+          {projectDetail.developers && projectDetail.developers.length > 0 ? (
+            projectDetail.developers.map((dev, idx) => (
+              <span key={dev.id} style={{ color: "#19c37d", fontWeight: 600, cursor: "pointer", marginRight: 8 }}
+                onClick={() => setMemberListModal({ open: true, company: dev, members: dev.assignUsers, type: 'dev' })}>
+                {dev.companyName}
+                {idx < projectDetail.developers.length - 1 && <span style={{ color: "#d1d5db", margin: "0 4px" }}>|</span>}
+              </span>
+            ))
+          ) : (
+            <span style={{ color: "#aaa" }}>미지정</span>
           )}
         </div>
       </div>
+      {/* 멤버 리스트 모달 */}
+      {memberListModal.open && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+          background: 'rgba(0,0,0,0.3)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center'
+        }} onClick={() => setMemberListModal({ open: false, company: null, members: [], type: null })}>
+          <div style={{ background: '#fff', borderRadius: 12, minWidth: 340, maxWidth: 400, width: '90vw', padding: 28, position: 'relative' }} onClick={e => e.stopPropagation()}>
+            <div style={{ fontWeight: 700, fontSize: 20, marginBottom: 16 }}>{memberListModal.company?.companyName} 멤버 목록</div>
+            {memberListModal.members && memberListModal.members.length > 0 ? (
+              memberListModal.members.map((m) => (
+                <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, cursor: 'pointer', padding: 8, borderRadius: 6, transition: 'background 0.2s', background: '#f9fafb' }}>
+                  <span style={{ fontWeight: 600 }}>{m.name}</span>
+                  <span style={{ color: '#888', fontSize: 13 }}>{m.positon || m.position}</span>
+                  <span style={{ color: '#aaa', fontSize: 12, marginLeft: 'auto' }}>{m.userType === 'MANAGER' ? '담당자' : '멤버'}</span>
+                </div>
+              ))
+            ) : (
+              <div style={{ color: '#aaa', textAlign: 'center', padding: 20 }}>멤버 없음</div>
+            )}
+            <button style={{ position: 'absolute', top: 12, right: 12, background: 'transparent', border: 0, fontSize: 22, cursor: 'pointer' }} onClick={() => setMemberListModal({ open: false, company: null, members: [], type: null })}>×</button>
+          </div>
+        </div>
+      )}
     </ProjectHeaderContainer>
   );
 };

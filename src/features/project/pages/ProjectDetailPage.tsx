@@ -224,8 +224,8 @@ const ProjectDetailPage = () => {
           onStepSelect={handleStepSelect}
           selectedStepId={selectedStepId}
           canEditStep={
-            (projectDetail.userType === "MEMBER" &&
-              projectDetail.myProjectRole === "DEVELOPER") ||
+            projectDetail.myUserType === "MANAGER" &&
+            projectDetail.myCompanyType === "DEVELOPER" ||
             role === "ROLE_ADMIN"
           }
         />

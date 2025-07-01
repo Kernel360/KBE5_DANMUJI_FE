@@ -44,6 +44,7 @@ export type AssignUser = {
   id: number;
   name: string;
   positon: string;
+  userType: string;
 };
 
 // 프로젝트 상세 조회용 회사 타입
@@ -68,6 +69,7 @@ export type ProjectDetailStep = {
 export type ProjectDetailResponse = {
   id: number;
   name: string;
+  description: string;
   startDate: string;
   endDate: string;
   projectStatus: string;
@@ -75,8 +77,8 @@ export type ProjectDetailResponse = {
   clients: ProjectCompany[];
   developers: ProjectCompany[];
   steps: ProjectDetailStep[];
-  userType: string;
-  myProjectRole: string;
+  myUserType: string;
+  myCompanyType: string;
 };
 
 // 프로젝트 상세 조회 응답 타입

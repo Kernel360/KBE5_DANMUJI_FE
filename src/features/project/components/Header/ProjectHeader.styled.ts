@@ -274,6 +274,16 @@ export const ProjectTitle = styled.h1`
   line-height: 1.2;
 `;
 
+// 프로젝트 개요(Description)
+export const ProjectDescription = styled.p`
+  font-size: 1.05rem;
+  color: #6b7280;
+  font-weight: 400;
+  margin: 0 0 8px 24px;
+  line-height: 1.5;
+  word-break: break-all;
+`;
+
 // 프로젝트 부제목
 export const ProjectSubtitle = styled.p`
   font-size: 1rem;

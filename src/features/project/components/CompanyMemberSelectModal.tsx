@@ -252,7 +252,29 @@ const CompanyMemberSelectModal: React.FC<CompanyMemberSelectModalProps> = ({
           </>
         ) : (
           <>
-            <div style={{ marginBottom: 12, fontWeight: 600 }}>{selectedCompanyState.name}</div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+              <div style={{ fontWeight: 600 }}>{selectedCompanyState.name}</div>
+              <button
+                style={{
+                  background: '#eee',
+                  color: '#222',
+                  border: 0,
+                  borderRadius: 4,
+                  padding: '4px 12px',
+                  fontWeight: 500,
+                  fontSize: 14,
+                  cursor: 'pointer',
+                  marginLeft: 8,
+                }}
+                onClick={() => {
+                  setSelectedCompanyState(null);
+                  setMembers([]);
+                  setSelectedMembersState([]);
+                }}
+              >
+                업체 다시 선택
+              </button>
+            </div>
             <div style={{ margin: "12px 0 16px 0" }}>
               <input
                 placeholder="멤버 이름 검색"
