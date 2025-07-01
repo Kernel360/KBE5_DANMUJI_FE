@@ -65,7 +65,6 @@ export const SseNotificationProvider: React.FC<SseNotificationProviderProps> = (
       );
       await api.put(`/api/notifications/read/${id}`);
     } catch (error) {
-      console.error("Failed to mark notification as read:", error);
       setSseError("알림 상태를 업데이트하는 중 오류가 발생했습니다.");
     }
   }, [sseNotifications]);
@@ -75,7 +74,6 @@ export const SseNotificationProvider: React.FC<SseNotificationProviderProps> = (
       await api.delete(`/api/notifications/${id}`);
       setSseNotifications((prev) => prev.filter((n) => n.id !== id));
     } catch (error) {
-      console.error('Failed to delete notification:', error);
       setSseError('알림 삭제 중 오류가 발생했습니다.');
     }
   }, []);
@@ -87,7 +85,6 @@ export const SseNotificationProvider: React.FC<SseNotificationProviderProps> = (
         prev.map((n) => ({ ...n, isRead: true }))
       );
     } catch (error) {
-      console.error('Failed to mark all notifications as read:', error);
       setSseError('모든 알림을 읽음 처리하는 중 오류가 발생했습니다.');
     }
   }, []);

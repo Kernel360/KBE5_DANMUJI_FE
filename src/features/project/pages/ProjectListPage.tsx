@@ -91,7 +91,6 @@ export default function ProjectListPage() {
               progress: project.progress,
             };
 
-            console.log("Converted project:", convertedProject);
             return convertedProject;
           }
         );
@@ -101,7 +100,6 @@ export default function ProjectListPage() {
         setTotalElements(response.data.page.totalElements);
       }
     } catch (err) {
-      console.error("프로젝트 목록 불러오기 실패", err);
       setError("프로젝트 목록을 불러오는데 실패했습니다.");
     } finally {
       setLoading(false);
@@ -133,7 +131,6 @@ export default function ProjectListPage() {
       });
 
       if (response.data?.data) {
-        console.log("검색 API Response:", response.data);
         const convertedProjects: Project[] = response.data.content.map(
           (project: ProjectResponse) => {
             // 상태 매핑
@@ -175,7 +172,6 @@ export default function ProjectListPage() {
               progress: project.progress,
             };
 
-            console.log("Converted project:", convertedProject);
             return convertedProject;
           }
         );
@@ -185,7 +181,6 @@ export default function ProjectListPage() {
         setTotalElements(response.data.page.totalElements);
       }
     } catch (err) {
-      console.error("프로젝트 검색 실패", err);
       setError("프로젝트 검색에 실패했습니다.");
     } finally {
       setLoading(false);

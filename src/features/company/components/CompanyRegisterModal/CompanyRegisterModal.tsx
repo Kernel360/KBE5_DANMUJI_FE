@@ -206,9 +206,9 @@ const RegInput = styled(Input)`
   padding-right: 0;
 `;
 
-const MessageBox = styled.div<{ success?: boolean }>`
+const MessageBox = styled.div<{ $success?: boolean }>`
   margin-bottom: 16px;
-  color: ${({ success }) => (success ? "green" : "red")};
+  color: ${({ $success }) => ($success ? "green" : "red")};
   font-weight: 600;
   font-size: 14px;
 `;
@@ -492,7 +492,7 @@ export default function CompanyRegisterModal({
           업체 등록
         </Title>
         {/* 성공 / 에러 메시지 표시 */}
-        {successMessage && <MessageBox success>{successMessage}</MessageBox>}
+        {successMessage && <MessageBox $success>{successMessage}</MessageBox>}
         {errorMessage && <MessageBox>{errorMessage}</MessageBox>}
         <Form ref={formRef} onSubmit={handleSubmit}>
           <FormGroup>

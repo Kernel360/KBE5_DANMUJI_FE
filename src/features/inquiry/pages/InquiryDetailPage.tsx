@@ -35,19 +35,19 @@ const StatusBadges = styled.div`
   margin-bottom: 12px;
 `;
 
-const Badge = styled.span<{ type: "status" | "role" }>`
+const Badge = styled.span<{ $type: "status" | "role" }>`
   padding: 4px 12px;
   border-radius: 20px;
   font-size: 13px;
   font-weight: 600;
-  color: ${({ type, children }) =>
-    type === "status"
+  color: ${({ $type, children }) =>
+    $type === "status"
       ? children === "답변완료"
         ? "#16a34a"
         : "#d97706"
       : "#4f46e5"};
-  background-color: ${({ type, children }) =>
-    type === "status"
+  background-color: ${({ $type, children }) =>
+    $type === "status"
       ? children === "답변완료"
         ? "#dcfce7"
         : "#fef3c7"
@@ -75,7 +75,7 @@ const HeaderActions = styled.div`
   gap: 12px;
 `;
 
-const ActionButton = styled.button<{ variant: "primary" | "danger" | "default" }>`
+const ActionButton = styled.button<{ $variant: "primary" | "danger" | "default" }>`
   display: flex;
   align-items: center;
   gap: 6px;
@@ -86,10 +86,10 @@ const ActionButton = styled.button<{ variant: "primary" | "danger" | "default" }
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
-  ${({ variant }) => {
-    if (variant === "primary")
+  ${({ $variant }) => {
+    if ($variant === "primary")
       return "background-color: #22c55e; color: #fff; border-color: #22c55e;";
-    if (variant === "danger")
+    if ($variant === "danger")
       return "background-color: #ef4444; color: #fff; border-color: #ef4444;";
     return "background-color: #fff; color: #4b5565; border-color: #d1d5db;";
   }}
@@ -439,7 +439,7 @@ export default function InquiryDetailPage() {
       <Header>
         <HeaderInfo>
           <StatusBadges>
-            <Badge type="status">
+            <Badge $type="status">
               {inquiry.inquiryStatus === 'WAITING' ? "답변 대기" : "답변완료"}
             </Badge>
           </StatusBadges>
@@ -461,26 +461,26 @@ export default function InquiryDetailPage() {
         <HeaderActions>
           {isEditing ? (
             <>
-              <ActionButton variant="primary" onClick={handleSaveChanges}>저장하기</ActionButton>
-              <ActionButton variant="default" onClick={handleCancelEdit}>취소</ActionButton>
+              <ActionButton $variant="primary" onClick={handleSaveChanges}>저장하기</ActionButton>
+              <ActionButton $variant="default" onClick={handleCancelEdit}>취소</ActionButton>
             </>
           ) : (
             <>
               {/* 답변 대기 상태: 답변 완료하기, 답변완료 상태: 답변 다시하기 */}
               {isAdmin && isWaiting && (
-                <ActionButton variant="primary" onClick={handleCompleteInquiry}>답변 완료하기</ActionButton>
+                <ActionButton $variant="primary" onClick={handleCompleteInquiry}>답변 완료하기</ActionButton>
               )}
               {isAdmin && !isWaiting && (
-                <ActionButton variant="default" onClick={handleReopenInquiry}>답변 다시하기</ActionButton>
+                <ActionButton $variant="default" onClick={handleReopenInquiry}>답변 다시하기</ActionButton>
               )}
               {/* 일반 사용자만 수정/삭제 버튼 노출: inquiryStatus가 WAITING일 때만 */}
               {!isAdmin && inquiry.inquiryStatus === "WAITING" && (
                 <>
-                  <ActionButton variant="default" onClick={handleEditToggle}>
+                  <ActionButton $variant="default" onClick={handleEditToggle}>
                     <FiEdit />
                     문의사항 수정
                   </ActionButton>
-                  <ActionButton variant="danger" onClick={handleDeleteInquiry}>
+                  <ActionButton $variant="danger" onClick={handleDeleteInquiry}>
                     <FiTrash2 />
                     문의사항 삭제
                   </ActionButton>
@@ -510,7 +510,7 @@ export default function InquiryDetailPage() {
               <AnswerItem key={answer.id}>
                 <AnswerHeader>
                   <AnswerMeta>
-                    <Badge type="role">관리자</Badge>
+                    <Badge $type="role">관리자</Badge>
                     <span>{answer.authorName}</span>
                     <span>{formatDate(answer.createdAt)}</span>
                   </AnswerMeta>
@@ -519,14 +519,14 @@ export default function InquiryDetailPage() {
                     <div style={{ display: 'flex', gap: '8px' }}>
                       {editingAnswerId === answer.id ? null : (
                         <ActionButton
-                          variant="default"
+                          $variant="default"
                           style={{ padding: '6px 10px', fontSize: '13px' }}
                           onClick={() => handleEditAnswer(answer.id, answer.content)}
                         >
                           <FiEdit /> 수정
                         </ActionButton>
                       )}
-                      <ActionButton variant="danger" style={{ padding: '6px 10px', fontSize: '13px' }} onClick={() => handleDeleteAnswer(answer.id)}>
+                      <ActionButton $variant="danger" style={{ padding: '6px 10px', fontSize: '13px' }} onClick={() => handleDeleteAnswer(answer.id)}>
                         <FiTrash2 /> 삭제
                       </ActionButton>
                     </div>
@@ -540,10 +540,10 @@ export default function InquiryDetailPage() {
                       rows={4}
                     />
                     <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                      <ActionButton variant="primary" onClick={() => handleSaveAnswer(answer.id)}>
+                      <ActionButton $variant="primary" onClick={() => handleSaveAnswer(answer.id)}>
                         저장
                       </ActionButton>
-                      <ActionButton variant="default" onClick={handleCancelEditAnswer}>
+                      <ActionButton $variant="default" onClick={handleCancelEditAnswer}>
                         취소
                       </ActionButton>
                     </div>
@@ -595,7 +595,7 @@ export default function InquiryDetailPage() {
               maxLength={255}
               onKeyDown={handleAnswerKeyDown}
             />
-            <SubmitButton variant="primary" type="submit">
+            <SubmitButton $variant="primary" type="submit">
               답변 등록
             </SubmitButton>
           </AnswerForm>

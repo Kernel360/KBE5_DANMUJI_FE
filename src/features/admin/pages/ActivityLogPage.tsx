@@ -225,30 +225,6 @@ export default function ActivityLogPage() {
         changedTo: endDate || undefined,
       };
 
-      // 디버깅용 로그
-      console.log("필터 값들:", {
-        actionFilter,
-        logTypeFilter,
-        searchTerm,
-        startDate,
-        endDate,
-        filters,
-      });
-
-      console.log(
-        "API 요청 URL:",
-        `/api/histories/search?${new URLSearchParams({
-          page: page.toString(),
-          size: "10",
-          ...(filters.historyType && { historyType: filters.historyType }),
-          ...(filters.domainType && { domainType: filters.domainType }),
-          ...(filters.changedBy && { changedBy: filters.changedBy }),
-          ...(filters.changerRole && { changerRole: filters.changerRole }),
-          ...(filters.changedFrom && { changedFrom: filters.changedFrom }),
-          ...(filters.changedTo && { changedTo: filters.changedTo }),
-        }).toString()}`
-      );
-
       const response = await getActivityLogs(page, 10, filters);
 
       // 백엔드 응답을 프론트엔드 형식으로 변환

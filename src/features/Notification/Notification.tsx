@@ -24,13 +24,13 @@ const slideOut = keyframes`
   }
 `;
 
-const ToastContainer = styled.div<{ success?: boolean; isVisible: boolean }>`
+const ToastContainer = styled.div<{ $success?: boolean; $isVisible: boolean }>`
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 16px 20px;
-  background: ${({ success }) =>
-    success
+  background: ${({ $success }) =>
+    $success
       ? "linear-gradient(135deg, #e0fbe6 0%, #b2f2d7 100%)"
       : "linear-gradient(135deg, #ffeaea 0%, #ffd6d6 100%)"};
   color: #222;
@@ -39,8 +39,8 @@ const ToastContainer = styled.div<{ success?: boolean; isVisible: boolean }>`
   font-size: 14px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
   backdrop-filter: blur(10px);
-  border: 1px solid ${({ success }) => (success ? "#d2f5e3" : "#ffe3e3")};
-  animation: ${({ isVisible }) => (isVisible ? slideIn : slideOut)} 0.3s
+  border: 1px solid ${({ $success }) => ($success ? "#d2f5e3" : "#ffe3e3")};
+  animation: ${({ $isVisible }) => ($isVisible ? slideIn : slideOut)} 0.3s
     cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
   margin-bottom: 12px;
   min-width: 280px;
@@ -55,19 +55,19 @@ const ToastContainer = styled.div<{ success?: boolean; isVisible: boolean }>`
     left: 0;
     right: 0;
     height: 2px;
-    background: ${({ success }) =>
-      success ? "rgba(76, 175, 80, 0.08)" : "rgba(255, 107, 107, 0.08)"};
+    background: ${({ $success }) =>
+      $success ? "rgba(76, 175, 80, 0.08)" : "rgba(255, 107, 107, 0.08)"};
   }
 `;
 
-const IconWrapper = styled.div<{ success?: boolean }>`
+const IconWrapper = styled.div<{ $success?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: ${({ success }) => (success ? "#d2f5e3" : "#ffe3e3")};
+  background: ${({ $success }) => ($success ? "#d2f5e3" : "#ffe3e3")};
   flex-shrink: 0;
 `;
 
@@ -97,8 +97,8 @@ export function Notification({
   };
 
   return (
-    <ToastContainer success={success} isVisible={isVisible}>
-      <IconWrapper success={success}>{getIcon()}</IconWrapper>
+    <ToastContainer $success={success} $isVisible={isVisible}>
+      <IconWrapper $success={success}>{getIcon()}</IconWrapper>
       <Message>{message}</Message>
     </ToastContainer>
   );

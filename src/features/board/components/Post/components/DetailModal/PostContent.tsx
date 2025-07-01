@@ -1,7 +1,7 @@
 import React from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { renderContentWithMentions } from "@/utils/mentionUtils";
+import { highlightMentions } from "@/utils/mentionUtils";
 import type { Post } from "@/features/project-d/types/post";
 
 interface PostContentProps {
@@ -74,7 +74,7 @@ const PostContent: React.FC<PostContentProps> = ({
               if (typeof children === "string") {
                 return (
                   <p style={{ margin: "8px 0", lineHeight: "1.6" }}>
-                    {renderContentWithMentions(children, onUserProfileClick)}
+                    {highlightMentions(children, onUserProfileClick)}
                   </p>
                 );
               }
