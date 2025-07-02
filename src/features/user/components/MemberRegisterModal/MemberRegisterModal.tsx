@@ -70,6 +70,18 @@ const MemberRegisterModal: React.FC<MemberRegisterModalProps> = ({
     fetchCompanies();
   }, []);
 
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleEsc);
+    return () => {
+      window.removeEventListener("keydown", handleEsc);
+    };
+  }, [onClose]);
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -124,8 +136,8 @@ const MemberRegisterModal: React.FC<MemberRegisterModalProps> = ({
   };
 
   return (
-    <S.ModalOverlay onClick={handleClose}>
-      <S.ModalContent onClick={(e) => e.stopPropagation()}>
+    <S.ModalOverlay>
+      <S.ModalContent>
         <S.ModalHeader>
           <S.ModalTitle>
             <FaUserPlus />

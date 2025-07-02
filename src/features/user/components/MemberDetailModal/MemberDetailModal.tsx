@@ -81,6 +81,18 @@ const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
       });
   }, [open]);
 
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleEsc);
+    return () => {
+      window.removeEventListener("keydown", handleEsc);
+    };
+  }, [onClose]);
+
   const handleEdit = async (data: MemberFormData) => {
     if (!memberId) return;
     setLoading(true);
@@ -114,8 +126,8 @@ const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
   if (!open) return null;
 
   return (
-    <ModalOverlay onClick={onClose}>
-      <ModalPanel onClick={(e) => e.stopPropagation()}>
+    <ModalOverlay>
+      <ModalPanel>
         <CloseButton onClick={onClose}>
           <FiX size={20} />
         </CloseButton>
