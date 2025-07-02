@@ -690,10 +690,10 @@ export default function UserInquiryPage() {
                 const statusText = inq.inquiryStatus === 'WAITING' ? '답변대기' : '답변완료';
                 const formattedDate = new Date(inq.createdAt).toLocaleDateString('ko-KR');
                 return (
-                  <TableRow key={inq.id}>
-                    <InquiryTitleCell onClick={() => handleTitleClick(inq.id)}>
-                      {inq.title.length > 20
-                        ? inq.title.slice(0, 20) + '...'
+                  <TableRow key={inq.id} onClick={() => handleTitleClick(inq.id)} style={{ cursor: 'pointer' }}>
+                    <InquiryTitleCell>
+                      {inq.title.length > 0
+                        ? inq.title.slice(0, 50) + '...'
                         : inq.title}
                     </InquiryTitleCell>
                     <TableCell>{inq.authorName}</TableCell>
