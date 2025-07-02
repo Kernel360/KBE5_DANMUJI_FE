@@ -22,12 +22,10 @@ import { RiUserSettingsLine } from "react-icons/ri";
 import { FiPackage } from "react-icons/fi";
 import { getActivityLogDetail } from "../services/activityLogService";
 import { restorePost } from "@/features/project-d/services/postService";
-import { restoreProject } from "@/features/project/services/projectService";
 import { formatFullDateTime } from "@/utils/dateUtils";
 import type { ActivityLogDetail } from "../types/activityLog";
 import { LoadingSpinner } from "../../../styles/common/LoadingSpinner.styled";
 import { showSuccessToast, showErrorToast } from "@/utils/errorHandler";
-import api from "@/api/axios";
 
 interface ActivityLogDetailModalProps {
   isOpen: boolean;
@@ -278,16 +276,6 @@ const RestoreButton = styled.button`
   }
 `;
 
-const ErrorMessage = styled.div`
-  color: #ef4444;
-  font-size: 0.875rem;
-  margin-top: 8px;
-  padding: 8px 12px;
-  background-color: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 6px;
-`;
-
 const ChangesGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -342,7 +330,6 @@ export default function ActivityLogDetailModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [restoring, setRestoring] = useState(false);
-  const [restoreError, setRestoreError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [isRestored, setIsRestored] = useState(false);
 
@@ -387,8 +374,13 @@ export default function ActivityLogDetailModal({
   const handleRestore = async () => {
     if (!detail) return;
 
+    // 프로젝트와 업체는 아직 API 연동이 안 되어있으므로 토스트 메시지로 안내
+    if (detail.domainType === "PROJECT" || detail.domainType === "COMPANY") {
+      showErrorToast("아직 게시글 복구 밖에 연동을 못했습니다 죄송ㅎㅎ");
+      return;
+    }
+
     setRestoring(true);
-    setRestoreError(null);
 
     try {
       let response;
@@ -399,20 +391,13 @@ export default function ActivityLogDetailModal({
           response = await restorePost(detail.domainId);
           break;
         case "PROJECT":
-          response = await restoreProject(detail.domainId);
-          break;
+          // 프로젝트는 아직 연동 안됨
+          showErrorToast("아직 연동을 못했습니다 죄송ㅎㅎ");
+          return;
         case "COMPANY":
-          // 회사 복구는 직접 API 호출
-          const companyResponse = await api.put(
-            `/api/companies/${detail.domainId}/restore`
-          );
-          response = {
-            success:
-              companyResponse.data.status === "OK" ||
-              companyResponse.data.message?.includes("완료"),
-            message: companyResponse.data.message,
-          };
-          break;
+          // 업체는 아직 연동 안됨
+          showErrorToast("아직 연동을 못했습니다 죄송ㅎㅎ");
+          return;
         default:
           throw new Error("복구할 수 없는 도메인 타입입니다.");
       }
@@ -423,13 +408,14 @@ export default function ActivityLogDetailModal({
         setIsRestored(true);
         // onClose(); // 복구 후 모달을 닫지 않고 상태만 변경
       } else {
-        setRestoreError(
-          response.message || "데이터 복구에 실패했습니다. 다시 시도해주세요."
-        );
+        // 에러 메시지가 있으면 해당 메시지만 표시, 없으면 토스트 표시 안함
+        if (response.message) {
+          showErrorToast(response.message);
+        }
       }
     } catch (err) {
       console.error("데이터 복구 실패:", err);
-      setRestoreError("데이터 복구에 실패했습니다. 다시 시도해주세요.");
+      // 에러 발생 시 토스트 표시 안함
     } finally {
       setRestoring(false);
     }
@@ -1289,10 +1275,7 @@ export default function ActivityLogDetailModal({
             {renderChanges()}
 
             {/* 수정/삭제 작업에만 복구 버튼 표시 */}
-            {(detail.historyType === "UPDATED" ||
-              detail.historyType === "DELETED") && (
-              <>{restoreError && <ErrorMessage>{restoreError}</ErrorMessage>}</>
-            )}
+            {/* 에러 메시지는 토스트로 처리하므로 제거 */}
           </>
         )}
       </ModalContent>
