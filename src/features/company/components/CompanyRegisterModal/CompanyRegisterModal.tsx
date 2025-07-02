@@ -284,6 +284,7 @@ export default function CompanyRegisterModal({
   const reg2 = useRef<HTMLInputElement>(null);
   const reg3 = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
 
   const [fieldErrors, setFieldErrors] = useState<FieldError[]>([]);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -298,6 +299,21 @@ export default function CompanyRegisterModal({
     script.id = "daum-postcode-script";
     document.body.appendChild(script);
   }, []);
+
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        const modals = document.querySelectorAll('.custom-modal-class');
+        if (modals.length && modals[modals.length - 1] === modalRef.current) {
+          onClose();
+        }
+      }
+    };
+    window.addEventListener("keydown", handleEsc);
+    return () => {
+      window.removeEventListener("keydown", handleEsc);
+    };
+  }, [onClose]);
 
   if (!open) return null;
 
@@ -482,7 +498,7 @@ export default function CompanyRegisterModal({
   `;
 
   return ReactDOM.createPortal(
-    <ModalOverlay>
+    <ModalOverlay ref={modalRef} className="custom-modal-class">
       <ModalContent>
         <CloseButton onClick={handleClose}>
           <FiX size={18} />

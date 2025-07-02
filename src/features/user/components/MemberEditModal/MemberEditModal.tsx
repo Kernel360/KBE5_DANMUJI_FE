@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import api from "@/api/axios";
 import { IoMdClose } from "react-icons/io";
 import {
@@ -70,6 +70,7 @@ export default function MemberEditModal({
   });
   const [companies, setCompanies] = useState<Company[]>([]);
   const [companyModalOpen, setCompanyModalOpen] = useState(false);
+  const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (initialData) {
@@ -155,7 +156,10 @@ export default function MemberEditModal({
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        onClose();
+        const modals = document.querySelectorAll('.custom-modal-class');
+        if (modals.length && modals[modals.length - 1] === modalRef.current) {
+          onClose();
+        }
       }
     };
     window.addEventListener("keydown", handleEsc);
@@ -165,7 +169,7 @@ export default function MemberEditModal({
   }, [onClose]);
 
   return (
-    <ModalOverlay>
+    <ModalOverlay ref={modalRef} className="custom-modal-class">
       <ModalContent>
         <ModalHeader>
           <ModalTitle>

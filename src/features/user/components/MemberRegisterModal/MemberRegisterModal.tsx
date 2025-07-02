@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import api from "@/api/axios";
 import { IoMdClose } from "react-icons/io";
 import {
@@ -56,6 +56,8 @@ const MemberRegisterModal: React.FC<MemberRegisterModalProps> = ({
   const [companies, setCompanies] = useState<Company[]>([]);
   const [companyModalOpen, setCompanyModalOpen] = useState(false);
 
+  const modalRef = useRef<HTMLDivElement>(null);
+
   const fetchCompanies = async () => {
     try {
       const res = await api.get("/api/companies/all");
@@ -73,7 +75,10 @@ const MemberRegisterModal: React.FC<MemberRegisterModalProps> = ({
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        onClose();
+        const modals = document.querySelectorAll('.custom-modal-class');
+        if (modals.length && modals[modals.length - 1] === modalRef.current) {
+          onClose();
+        }
       }
     };
     window.addEventListener("keydown", handleEsc);
@@ -136,7 +141,7 @@ const MemberRegisterModal: React.FC<MemberRegisterModalProps> = ({
   };
 
   return (
-    <S.ModalOverlay>
+    <S.ModalOverlay ref={modalRef} className="custom-modal-class">
       <S.ModalContent>
         <S.ModalHeader>
           <S.ModalTitle>

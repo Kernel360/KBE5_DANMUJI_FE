@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import api from "@/api/axios";
 import {
   FiX,
@@ -52,6 +52,7 @@ const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [editOpen, setEditOpen] = useState(false);
   const { notify } = useNotification();
+  const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open || !memberId) return;
@@ -84,7 +85,10 @@ const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        onClose();
+        const modals = document.querySelectorAll('.custom-modal-class');
+        if (modals.length && modals[modals.length - 1] === modalRef.current) {
+          onClose();
+        }
       }
     };
     window.addEventListener("keydown", handleEsc);
@@ -126,7 +130,7 @@ const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
   if (!open) return null;
 
   return (
-    <ModalOverlay>
+    <ModalOverlay ref={modalRef} className="custom-modal-class">
       <ModalPanel>
         <CloseButton onClick={onClose}>
           <FiX size={20} />
