@@ -39,6 +39,7 @@ import PostLinks from "./PostLinks";
 import CommentSection from "./CommentSection";
 import { getUsersByProject } from "@/features/user/services/userService";
 import { extractCompletedMentions } from "@/utils/mentionUtils";
+import PostFormModal from "../FormModal/PostFormModal";
 
 interface PostDetailModalProps {
   open: boolean;
@@ -88,6 +89,9 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
   } = useUserProfile();
 
   const [allUsernames, setAllUsernames] = useState<string[]>([]);
+
+  // 수정 모달 상태
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   // 모달 닫기 애니메이션 적용
   const handleCloseWithAnimation = () => {
@@ -231,9 +235,30 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
 
   // 게시글 수정 핸들러
   const handleEditPost = () => {
-    if (onEditPost && postId) {
-      onEditPost(postId);
+    if (postId) {
+      setIsEditModalOpen(true);
     }
+  };
+
+  // 수정 모달 닫기 핸들러
+  const handleEditModalClose = () => {
+    setIsEditModalOpen(false);
+  };
+
+  // 수정 완료 핸들러
+  const handleEditSuccess = async () => {
+    // 게시글 데이터 새로고침
+    if (postId) {
+      try {
+        const postResponse = await getPostDetail(postId);
+        if (postResponse.data) {
+          setPost(postResponse.data);
+        }
+      } catch (err) {
+        console.error("게시글 새로고침 실패:", err);
+      }
+    }
+    setIsEditModalOpen(false);
   };
 
   // 게시글 답글 핸들러
@@ -578,6 +603,18 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
           isAdmin={profileState.isAdmin}
         />
       )}
+
+      {/* 게시글 수정 모달 */}
+      <PostFormModal
+        open={isEditModalOpen}
+        onClose={handleEditModalClose}
+        mode="edit"
+        postId={postId || undefined}
+        projectId={post?.project?.projectId || 1}
+        stepId={post?.projectStepId || 1}
+        onSuccess={handleEditSuccess}
+        colorTheme={{ main: "#fdb924", sub: "#f59e0b" }}
+      />
     </>
   );
 };
