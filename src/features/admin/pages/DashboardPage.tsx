@@ -724,7 +724,7 @@ export default function DashboardPage() {
                 cursor: "pointer",
                 fontSize: "14px",
               }}
-              onClick={() => (window.location.href = "/admin/inquiries")}
+              onClick={() => (window.location.href = "/inquiry")}
             >
               더보기
             </button>
