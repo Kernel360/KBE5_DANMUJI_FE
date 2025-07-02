@@ -114,7 +114,6 @@ export const createPost = async (
 
     return handleApiResponse<PostCreateResponse>(response);
   } catch (error) {
-
     if (error instanceof ApiError) throw error;
     if (error instanceof AxiosError) {
       console.error(
