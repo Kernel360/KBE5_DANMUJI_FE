@@ -178,6 +178,8 @@ const StatusBadge = styled.span<{ $type: string }>`
         return "#dbeafe";
       case "DELETED":
         return "#fee2e2";
+      case "RESTORED":
+        return "#f3e8ff";
       default:
         return "#f3f4f6";
     }
@@ -190,6 +192,8 @@ const StatusBadge = styled.span<{ $type: string }>`
         return "#1e40af";
       case "DELETED":
         return "#991b1b";
+      case "RESTORED":
+        return "#7c3aed";
       default:
         return "#374151";
     }
@@ -413,8 +417,9 @@ export default function ActivityLogDetailModal({
           throw new Error("복구할 수 없는 도메인 타입입니다.");
       }
 
-      if (response.success) {
-        showSuccessToast("데이터가 성공적으로 복구되었습니다.");
+      if (response.success || response.code === "P210") {
+        const domainTypeName = getDomainTypeDisplayName(detail.domainType);
+        showSuccessToast(`${domainTypeName} 복구가 완료되었습니다.`);
         setIsRestored(true);
         // onClose(); // 복구 후 모달을 닫지 않고 상태만 변경
       } else {
@@ -450,6 +455,8 @@ export default function ActivityLogDetailModal({
         return <FiEdit />;
       case "DELETED":
         return <FiTrash />;
+      case "RESTORED":
+        return <FiRotateCcw />;
       default:
         return <FiEdit />;
     }
@@ -463,6 +470,8 @@ export default function ActivityLogDetailModal({
         return "수정";
       case "DELETED":
         return "삭제";
+      case "RESTORED":
+        return "복구";
       default:
         return historyType;
     }
@@ -519,6 +528,13 @@ export default function ActivityLogDetailModal({
         if (data.after && typeof data.after === "object") {
           return data.after as Record<string, string | number | boolean | null>;
         }
+        // 중첩된 after 구조 처리 (after.after 형태)
+        if (data.after && typeof data.after === "object" && data.after.after) {
+          return data.after.after as Record<
+            string,
+            string | number | boolean | null
+          >;
+        }
         // 직접 데이터가 있는 경우
         return data;
       }
@@ -540,6 +556,46 @@ export default function ActivityLogDetailModal({
             <SectionTitleContent>
               <FiPlus style={{ color: "#fdb924" }} />
               생성된 데이터
+            </SectionTitleContent>
+          </SectionTitle>
+          <DataContainer>
+            <DataDisplay>
+              {Object.entries(afterData)
+                .filter(
+                  ([key]) =>
+                    !key.startsWith("_") &&
+                    key !== "delete" &&
+                    key !== "deletedAt" &&
+                    key !== "updatedAt" &&
+                    key !== "password" &&
+                    key !== "confirmPassword" &&
+                    key !== "oldPassword" &&
+                    key !== "newPassword"
+                )
+                .map(([key, value]) => (
+                  <DataRow key={key}>
+                    <DataLabel>{getFieldDisplayName(key)}</DataLabel>
+                    <DataValue>{formatFieldValue(key, value)}</DataValue>
+                  </DataRow>
+                ))}
+            </DataDisplay>
+          </DataContainer>
+        </ChangesSection>
+      );
+    }
+
+    // 복구 작업인 경우 after 데이터만 표시
+    if (detail.historyType === "RESTORED") {
+      if (!afterData || Object.keys(afterData).length === 0) {
+        return null;
+      }
+
+      return (
+        <ChangesSection>
+          <SectionTitle>
+            <SectionTitleContent>
+              <FiRotateCcw style={{ color: "#fdb924" }} />
+              복구된 데이터
             </SectionTitleContent>
           </SectionTitle>
           <DataContainer>
@@ -980,80 +1036,78 @@ export default function ActivityLogDetailModal({
     // 파일 객체 처리 (fileName 추출)
     if (typeof value === "object" && value !== null) {
       // 파일 배열 처리
-      if (Array.isArray(value)) {
+      if (fieldName === "files" && Array.isArray(value)) {
         if (value.length === 0) {
-          return "-";
+          return "첨부파일 없음";
         }
-
-        // 링크 배열 처리
-        if (fieldName === "links" || fieldName === "newLinks") {
-          if (value.length === 0) return "-";
-
-          // 링크 객체 배열인 경우 (기존 링크)
-          if (value[0] && typeof value[0] === "object" && "url" in value[0]) {
-            return value.map((link: any) => link.url).join(", ");
-          }
-
-          // 문자열 배열인 경우 (새 링크)
-          if (typeof value[0] === "string") {
-            return value.join(", ");
-          }
-
-          return value.join(", ");
-        }
-
-        // 링크 ID 배열 처리 (삭제된 링크)
-        if (fieldName === "linkIdsToDelete") {
-          if (value.length === 0) return "-";
-          return value.join(", ");
-        }
-
-        // 배열의 첫 번째 파일 객체에서 fileName 추출
-        const firstFile = value[0];
-        if (
-          firstFile &&
-          typeof firstFile === "object" &&
-          "fileName" in firstFile
-        ) {
-          return firstFile.fileName || "-";
-        }
-        return "-";
+        return `${value.length}개 파일`;
       }
 
-      // 단일 파일 객체 처리
-      if ("fileName" in value) {
-        return (value as any).fileName || "-";
+      // 링크 배열 처리
+      if (fieldName === "links" && Array.isArray(value)) {
+        if (value.length === 0) {
+          return "첨부 링크 없음";
+        }
+        return `${value.length}개 링크`;
       }
 
-      // 단일 링크 객체 처리
-      if ("url" in value) {
-        return (value as any).url || "-";
+      // 링크 ID 배열 처리 (삭제된 링크)
+      if (fieldName === "linkIdsToDelete") {
+        if (value.length === 0) return "-";
+        return value.join(", ");
       }
 
-      // 다른 객체 타입의 경우 JSON 문자열로 변환하지 않고 "-" 반환
+      // 배열의 첫 번째 파일 객체에서 fileName 추출
+      const firstFile = value[0];
+      if (
+        firstFile &&
+        typeof firstFile === "object" &&
+        "fileName" in firstFile
+      ) {
+        return firstFile.fileName || "-";
+      }
       return "-";
     }
 
-    // 날짜 필드 처리
+    // 단일 파일 객체 처리
+    if (typeof value === "object" && value !== null && "fileName" in value) {
+      return (value as any).fileName || "-";
+    }
+
+    // 단일 링크 객체 처리
+    if (typeof value === "object" && value !== null && "url" in value) {
+      return (value as any).url || "-";
+    }
+
+    // 날짜 형식 처리
     if (
-      fieldName.includes("createdAt") ||
-      fieldName.includes("changedAt") ||
-      fieldName.includes("updatedAt") ||
-      fieldName.includes("deletedAt")
+      fieldName === "createdAt" ||
+      fieldName === "updatedAt" ||
+      fieldName === "deletedAt" ||
+      fieldName === "changedAt" ||
+      fieldName === "startDate" ||
+      fieldName === "endDate"
     ) {
-      try {
-        const date = new Date(value as string);
-        return date.toLocaleString("ko-KR", {
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-        });
-      } catch {
-        return String(value);
+      if (typeof value === "string") {
+        try {
+          return formatDate(value);
+        } catch {
+          return value;
+        }
       }
+    }
+
+    // 부모 ID 처리
+    if (fieldName === "parentId") {
+      if (value === null || value === undefined) {
+        return "없음";
+      }
+      return value.toString();
+    }
+
+    // 삭제 여부 처리
+    if (fieldName === "delete") {
+      return value ? "삭제됨" : "활성";
     }
 
     // 불린 값 처리

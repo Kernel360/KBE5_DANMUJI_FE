@@ -53,6 +53,7 @@ const handleApiResponse = async <T>(
     "COMMENT_CREATE_SUCCESS",
     "COMMENT_UPDATE_SUCCESS",
     "COMMENT_DELETE_SUCCESS",
+    "비활성화 게시글 복구 완료",
   ];
 
   // success가 false이고, 메시지가 성공 메시지가 아닌 경우에만 에러로 처리
