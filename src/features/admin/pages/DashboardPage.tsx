@@ -747,7 +747,11 @@ export default function DashboardPage() {
                   onMouseOver={e => (e.currentTarget.style.background = "#f9fafb")}
                   onMouseOut={e => (e.currentTarget.style.background = "")}
                 >
-                  <span style={{ fontSize: "14px", color: "#374151" }}>{inquiry.title}</span>
+                  <span style={{ fontSize: "14px", color: "#374151" }}>
+                    {inquiry.title.length > 25
+                      ? inquiry.title.slice(0, 25) + "..."
+                      : inquiry.title}
+                  </span>
                   <RecentActivityDate style={{ fontSize: "12px" }}>
                     {new Date(inquiry.createdAt).toLocaleDateString()}
                   </RecentActivityDate>
