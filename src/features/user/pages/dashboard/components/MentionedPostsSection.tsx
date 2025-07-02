@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from "react";
 import * as S from "../styled/UserDashboardPage.styled";
 import { MdAccessTime, MdComment, MdReply, MdPostAdd } from "react-icons/md";
-import { FiRotateCcw, FiAtSign, FiBell } from "react-icons/fi";
+import {
+  FiRotateCcw,
+  FiAtSign,
+  FiBell,
+  FiCheckSquare,
+  FiCheck,
+  FiX,
+  FiPackage,
+} from "react-icons/fi";
 import {
   getMyMentions,
   markNotificationAsRead,
@@ -130,6 +138,16 @@ const MentionedPostsSection = () => {
         return <MdReply size={14} style={{ color: "#f59e0b" }} />;
       case "PROJECT_POST_CREATED":
         return <MdPostAdd size={14} style={{ color: "#8b5cf6" }} />;
+      case "POST_RESTORED":
+        return <FiRotateCcw size={14} style={{ color: "#8b5cf6" }} />;
+      case "STEP_APPROVAL_REQUEST":
+        return <FiCheckSquare size={14} style={{ color: "#f59e0b" }} />;
+      case "STEP_APPROVAL_ACCEPTED":
+        return <FiCheck size={14} style={{ color: "#10b981" }} />;
+      case "STEP_APPROVAL_REJECTED":
+        return <FiX size={14} style={{ color: "#ef4444" }} />;
+      case "PROJECT_CREATE_ASSIGNMENT":
+        return <FiPackage size={14} style={{ color: "#3b82f6" }} />;
       default:
         return <FiAtSign size={14} style={{ color: "#6b7280" }} />;
     }
@@ -147,6 +165,16 @@ const MentionedPostsSection = () => {
         return "답글 알림";
       case "PROJECT_POST_CREATED":
         return "새 게시글";
+      case "POST_RESTORED":
+        return "게시글 복구";
+      case "STEP_APPROVAL_REQUEST":
+        return "단계 승인 요청";
+      case "STEP_APPROVAL_ACCEPTED":
+        return "단계 승인 완료";
+      case "STEP_APPROVAL_REJECTED":
+        return "단계 승인 거절";
+      case "PROJECT_CREATE_ASSIGNMENT":
+        return "프로젝트 배정";
       default:
         return "알림";
     }

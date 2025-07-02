@@ -21,9 +21,13 @@ import {
 import { RiUserSettingsLine } from "react-icons/ri";
 import { FiPackage } from "react-icons/fi";
 import { getActivityLogDetail } from "../services/activityLogService";
+import { restorePost } from "@/features/project-d/services/postService";
+import { restoreProject } from "@/features/project/services/projectService";
 import { formatFullDateTime } from "@/utils/dateUtils";
 import type { ActivityLogDetail } from "../types/activityLog";
 import { LoadingSpinner } from "../../../styles/common/LoadingSpinner.styled";
+import { showSuccessToast, showErrorToast } from "@/utils/errorHandler";
+import api from "@/api/axios";
 
 interface ActivityLogDetailModalProps {
   isOpen: boolean;
@@ -336,10 +340,12 @@ export default function ActivityLogDetailModal({
   const [restoring, setRestoring] = useState(false);
   const [restoreError, setRestoreError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [isRestored, setIsRestored] = useState(false);
 
   useEffect(() => {
     if (isOpen && historyId) {
       fetchDetail();
+      setIsRestored(false);
     }
   }, [isOpen, historyId]);
 
@@ -381,14 +387,41 @@ export default function ActivityLogDetailModal({
     setRestoreError(null);
 
     try {
-      // TODO: 실제 복구 API 호출
-      // const response = await restoreData(detail.id);
+      let response;
 
-      // 임시로 성공 메시지 표시
-      console.log("데이터 복구 요청:", detail.id);
+      // 도메인 타입에 따라 다른 복구 API 호출
+      switch (detail.domainType) {
+        case "POST":
+          response = await restorePost(detail.domainId);
+          break;
+        case "PROJECT":
+          response = await restoreProject(detail.domainId);
+          break;
+        case "COMPANY":
+          // 회사 복구는 직접 API 호출
+          const companyResponse = await api.put(
+            `/api/companies/${detail.domainId}/restore`
+          );
+          response = {
+            success:
+              companyResponse.data.status === "OK" ||
+              companyResponse.data.message?.includes("완료"),
+            message: companyResponse.data.message,
+          };
+          break;
+        default:
+          throw new Error("복구할 수 없는 도메인 타입입니다.");
+      }
 
-      // 성공 시 모달 닫기
-      onClose();
+      if (response.success) {
+        showSuccessToast("데이터가 성공적으로 복구되었습니다.");
+        setIsRestored(true);
+        // onClose(); // 복구 후 모달을 닫지 않고 상태만 변경
+      } else {
+        setRestoreError(
+          response.message || "데이터 복구에 실패했습니다. 다시 시도해주세요."
+        );
+      }
     } catch (err) {
       console.error("데이터 복구 실패:", err);
       setRestoreError("데이터 복구에 실패했습니다. 다시 시도해주세요.");
@@ -541,6 +574,11 @@ export default function ActivityLogDetailModal({
         return null;
       }
 
+      // 복구 가능한 도메인 타입인지 확인
+      const isRestorableType = ["PROJECT", "POST", "COMPANY"].includes(
+        detail.domainType
+      );
+
       return (
         <ChangesSection>
           <SectionTitle>
@@ -548,10 +586,25 @@ export default function ActivityLogDetailModal({
               <FiTrash2 style={{ color: "#fdb924" }} />
               삭제된 데이터
             </SectionTitleContent>
-            <RestoreButton onClick={handleRestore} disabled={restoring}>
-              <FiRotateCcw />
-              {restoring ? "복구 중..." : "복구"}
-            </RestoreButton>
+            {isRestorableType && (
+              <RestoreButton
+                onClick={handleRestore}
+                disabled={restoring || isRestored}
+                style={
+                  isRestored
+                    ? {
+                        backgroundColor: "#10b981",
+                        cursor: "default",
+                        color: "white",
+                        opacity: 0.8,
+                      }
+                    : {}
+                }
+              >
+                <FiRotateCcw style={isRestored ? { opacity: 0.7 } : {}} />
+                {restoring ? "복구 중..." : isRestored ? "복구됨" : "복구"}
+              </RestoreButton>
+            )}
           </SectionTitle>
           <DataContainer>
             <DataDisplay>
@@ -615,10 +668,6 @@ export default function ActivityLogDetailModal({
               <FiEdit style={{ color: "#fdb924" }} />
               변경된 내용
             </SectionTitleContent>
-            <RestoreButton onClick={handleRestore} disabled={restoring}>
-              <FiRotateCcw />
-              {restoring ? "복구 중..." : "복구"}
-            </RestoreButton>
           </SectionTitle>
           <ChangesGrid>
             <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>

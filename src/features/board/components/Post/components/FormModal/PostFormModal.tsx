@@ -47,7 +47,6 @@ import {
   FiAlertTriangle,
   FiTarget,
   FiPlus,
-  FiFileText,
 } from "react-icons/fi";
 import FullScreenContentEditor from "./FullScreenContentEditor";
 import FileUploadSection from "./components/FileUploadSection";
@@ -178,7 +177,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
           if (post) {
             // 기존 게시글의 stepId를 우선적으로 사용
             // (기존 게시글이 속한 단계가 기본으로 선택되도록)
-            const currentStepId = post.stepId || stepId;
+            const currentStepId = post.projectStepId || stepId;
 
             setFormData({
               projectId: projectId,
@@ -274,7 +273,10 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === "priority" ? (Number(value) as PostPriority) : value,
+      [name]:
+        name === "priority"
+          ? (Number(value) as unknown as PostPriority)
+          : value,
     }));
     setFormErrors((prev) => ({ ...prev, [name]: "" }));
   };
@@ -403,7 +405,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
 
         // 수정 전 기존 게시글 정보 저장 (단계 변경 확인용)
         const originalPost = await getPostDetail(postId);
-        const originalStepId = originalPost.data?.stepId;
+        const originalStepId = originalPost.data?.projectStepId;
 
         const response = await updatePost(postId, requestData, files);
         if (response.success || response.message?.includes("완료")) {
@@ -441,7 +443,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
           throw new Error(response.message || "게시글 수정에 실패했습니다.");
         }
       }
-    }, null); // 에러 메시지를 null로 설정하여 withErrorHandling에서 토스트를 표시하지 않음
+    }, undefined); // 에러 메시지를 undefined로 설정하여 withErrorHandling에서 토스트를 표시하지 않음
 
     // withErrorHandling에서 null이 반환되면 에러가 발생한 것이므로 직접 에러 토스트 표시
     if (result === null) {

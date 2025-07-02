@@ -546,3 +546,24 @@ export const searchPosts = async (
     throw new ApiError("게시글 검색 중 알 수 없는 오류가 발생했습니다.");
   }
 };
+
+// 게시글 복구
+export const restorePost = async (
+  postId: number
+): Promise<ApiResponse<any>> => {
+  try {
+    const response = await api.put<ApiResponse<any>>(
+      `/api/posts/${postId}/restore`
+    );
+    return handleApiResponse<any>(response);
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
+    if (error instanceof AxiosError) {
+      throw new ApiError(
+        error.response?.data?.message || "게시글 복구 중 오류가 발생했습니다.",
+        error.response?.status
+      );
+    }
+    throw new ApiError("게시글 복구 중 알 수 없는 오류가 발생했습니다.");
+  }
+};
