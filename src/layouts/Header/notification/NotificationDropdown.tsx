@@ -59,7 +59,6 @@ const NotificationDropdown: React.FC<Props> = ({
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   const handleNotificationClick = (notification: SseNotification) => {
-    console.log(notification);
     if (
       notification.type === "PROJECT_CREATE_ASSIGNMENT" &&
       notification.projectId
