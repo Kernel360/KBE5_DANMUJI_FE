@@ -583,11 +583,10 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
     };
   }, [open, onClose, isFullScreenModal]);
 
-  // 모달 바깥 클릭 처리
-  const handleOverlayClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
+  // 모달 바깥 클릭 처리 - 바깥 클릭 시 모달 닫지 않음
+  const handleOverlayClick = () => {
+    // 바깥 클릭 시 모달을 닫지 않도록 아무것도 하지 않음
+    // ESC 키로만 모달을 닫을 수 있음
   };
 
   if (!open) return null;
