@@ -46,6 +46,7 @@ interface PostDetailModalProps {
   onClose: () => void;
   postId: number | null;
   stepName?: string;
+  projectId?: number;
   onPostDelete?: (deletedPostId: number) => void;
   onEditPost?: (postId: number) => void;
   onReplyPost?: (parentId: number) => void;
@@ -56,6 +57,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
   onClose,
   postId,
   stepName,
+  projectId,
   onPostDelete,
   onEditPost,
   onReplyPost,
@@ -629,7 +631,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
         onClose={handleEditModalClose}
         mode="edit"
         postId={postId || undefined}
-        projectId={post?.project?.projectId}
+        projectId={projectId || post?.project?.projectId}
         stepId={post?.projectStepId}
         onSuccess={handleEditSuccess}
         colorTheme={{ main: "#fdb924", sub: "#f59e0b" }}
