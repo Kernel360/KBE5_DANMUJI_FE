@@ -58,11 +58,9 @@ const SORT_OPTIONS = [
   { value: "oldest", label: "오래된순" },
 ];
 
-const SEARCH_CATEGORY_OPTIONS = [
-  { value: "all", label: "전체" },
-  { value: "name", label: "제목" },
-  { value: "clientCompany", label: "고객사" },
-  { value: "developerCompany", label: "개발사" },
+const SEARCH_CATEGORY_OPTIONS = [ // all 일때로 나중에 수정
+  { value: "nameProject", label: "제목" },
+  { value: "nameCompany", label: "업체" },
 ];
 
 interface ProjectFilterBarProps {
@@ -91,8 +89,8 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
   const [clientModalOpen, setClientModalOpen] = useState(false);
   const [clientSearchTerm, setClientSearchTerm] = useState("");
   const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
-  const [keyword, setKeyword] = useState("");
-  const [category, setCategory] = useState(filters.category || "all");
+  const [keyword, setKeyword] = useState(filters.keyword || "");
+  const [category, setCategory] = useState(filters.category || "nameProject");
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
 
   const statusDropdownRef = useRef<HTMLDivElement>(null);
@@ -101,6 +99,7 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
 
   const handleSearch = () => {
     onInputChange("keyword", keyword);
+    onInputChange("category", category);
     onSearch();
   };
 
@@ -499,7 +498,7 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
                   <span className="select-value">
                     {SEARCH_CATEGORY_OPTIONS.find(
                       (opt) => opt.value === category
-                    )?.label || "전체"}
+                    )?.label || "제목"}
                   </span>
                   <FiChevronDown size={16} />
                 </SelectButton>
@@ -537,40 +536,6 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
           </FilterGroup>
         </div>
       </FilterBar>
-
-      {/* 고객사 선택 모달 */}
-      <ModalOverlay $isOpen={clientModalOpen} onClick={handleClientModalClose}>
-        <ClientModal
-          $isOpen={clientModalOpen}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <ModalHeader>
-            <ModalTitle>고객사 선택</ModalTitle>
-            <ModalSubtitle>
-              프로젝트를 진행할 고객사를 선택해주세요
-            </ModalSubtitle>
-          </ModalHeader>
-          <ModalBody>
-            <SearchInputWrapper>
-              <SearchIcon>
-                <FiSearch size={16} />
-              </SearchIcon>
-              <ModalSearchInput
-                placeholder="고객사명 또는 설명으로 검색..."
-                value={clientSearchTerm}
-                onChange={(e) => setClientSearchTerm(e.target.value)}
-                autoFocus
-              />
-            </SearchInputWrapper>
-          </ModalBody>
-          <ModalFooter>
-            <ModalButton onClick={handleClientModalClose}>취소</ModalButton>
-            <ModalButton $primary onClick={handleClientConfirm}>
-              선택 완료
-            </ModalButton>
-          </ModalFooter>
-        </ClientModal>
-      </ModalOverlay>
     </DatePickerStyles>
   );
 };
