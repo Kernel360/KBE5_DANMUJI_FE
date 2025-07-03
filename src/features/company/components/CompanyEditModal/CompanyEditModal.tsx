@@ -296,6 +296,8 @@ export default function CompanyEditModal({
   const [reg2, setReg2] = useState("");
   const [reg3, setReg3] = useState("");
 
+  const modalRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (open && initialData) {
       const [base, detail] = (initialData.address || '').split(',').map(s => s.trim());
@@ -346,6 +348,21 @@ export default function CompanyEditModal({
     script.id = "daum-postcode-script";
     document.body.appendChild(script);
   }, []);
+
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        const modals = document.querySelectorAll('.custom-modal-class');
+        if (modals.length && modals[modals.length - 1] === modalRef.current) {
+          onClose();
+        }
+      }
+    };
+    window.addEventListener("keydown", handleEsc);
+    return () => {
+      window.removeEventListener("keydown", handleEsc);
+    };
+  }, [onClose]);
 
   if (!open) return null;
 
@@ -483,7 +500,7 @@ export default function CompanyEditModal({
   };
 
   return (
-    <ModalOverlay>
+    <ModalOverlay ref={modalRef} className="custom-modal-class">
       <ModalContent>
         <CloseButton onClick={onClose}>
           <FiX size={18} />

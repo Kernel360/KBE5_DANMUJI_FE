@@ -26,7 +26,7 @@ import {
 import type { Company } from "../../pages/CompanyPage";
 import { formatBizNo, formatTelNo } from "../../pages/CompanyPage";
 import MemberRegisterModal from "@/features/user/components/MemberRegisterModal/MemberRegisterModal";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import api from "@/api/axios";
 import CompanyEditModal from "../CompanyEditModal/CompanyEditModal";
 import type { FieldError } from "../../pages/CompanyPage";
@@ -70,6 +70,7 @@ const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
   const [fieldErrors, setFieldErrors] = useState<FieldError[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
   const { notify } = useNotification();
+  const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open || !companyId) return;
@@ -91,6 +92,21 @@ const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
   useEffect(() => {
     setPage(0);
   }, [members]);
+
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        const modals = document.querySelectorAll('.custom-modal-class');
+        if (modals.length && modals[modals.length - 1] === modalRef.current) {
+          onClose();
+        }
+      }
+    };
+    window.addEventListener("keydown", handleEsc);
+    return () => {
+      window.removeEventListener("keydown", handleEsc);
+    };
+  }, [onClose]);
 
   const handleDelete = async () => {
     if (!company) return;
@@ -165,8 +181,8 @@ const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
   if (!open || !company) return null;
 
   return (
-    <ModalOverlay onClick={onClose}>
-      <ModalPanel onClick={e => e.stopPropagation()}>
+    <ModalOverlay ref={modalRef} className="custom-modal-class">
+      <ModalPanel>
         <CloseButton onClick={onClose}>
           <FiX size={20} />
         </CloseButton>
