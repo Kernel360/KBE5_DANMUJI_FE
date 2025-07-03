@@ -99,7 +99,7 @@ const AppRoutes = () => {
       </Route>
 
       {/* 사용자 전용 */}
-      <Route element={<PrivateRoute allowedRoles={["ROLE_USER"]}/>}>
+      <Route element={<PrivateRoute allowedRoles={["ROLE_USER", "ROLE_ADMIN"]}/>}>
           <Route path="/posts/:stepId" element={<PostListPage />} />
           {/* <Route path="/projects/all" element={<MemberProjectPage />} /> */}
           <Route
