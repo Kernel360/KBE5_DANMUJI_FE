@@ -272,7 +272,11 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
   const handleDeletePost = async () => {
     if (!postId) return;
 
-    if (!window.confirm("정말로 이 게시글을 삭제하시겠습니까?")) {
+    if (
+      !window.confirm(
+        "정말로 이 게시글을 삭제하시겠습니까?\n\n삭제된 게시글은 관리자에게 문의하여 복구가 가능합니다."
+      )
+    ) {
       return;
     }
 
