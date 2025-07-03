@@ -89,8 +89,6 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
   const [clientModalOpen, setClientModalOpen] = useState(false);
   const [clientSearchTerm, setClientSearchTerm] = useState("");
   const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
-  const [keyword, setKeyword] = useState(filters.keyword || "");
-  const [category, setCategory] = useState(filters.category || "nameProject");
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
 
   const statusDropdownRef = useRef<HTMLDivElement>(null);
@@ -98,13 +96,10 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
   const categoryDropdownRef = useRef<HTMLDivElement>(null);
 
   const handleSearch = () => {
-    onInputChange("keyword", keyword);
-    onInputChange("category", category);
     onSearch();
   };
 
   const handleResetFilters = () => {
-    setKeyword("");
     onInputChange("keyword", "");
     onReset();
   };
@@ -490,14 +485,14 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
                 <SelectButton
                   type="button"
                   onClick={() => setCategoryDropdownOpen((prev) => !prev)}
-                  $hasValue={!!category}
+                  $hasValue={!!filters.category}
                   $color="#3b82f6"
                   className={categoryDropdownOpen ? "open" : ""}
                   style={{ paddingLeft: 10, paddingRight: 10, minWidth: 90 }}
                 >
                   <span className="select-value">
                     {SEARCH_CATEGORY_OPTIONS.find(
-                      (opt) => opt.value === category
+                      (opt) => opt.value === filters.category
                     )?.label || "제목"}
                   </span>
                   <FiChevronDown size={16} />
@@ -506,9 +501,8 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
                   {SEARCH_CATEGORY_OPTIONS.map((option) => (
                     <SelectOption
                       key={option.value}
-                      $isSelected={category === option.value}
+                      $isSelected={filters.category === option.value}
                       onClick={() => {
-                        setCategory(option.value);
                         onInputChange("category", option.value);
                         setCategoryDropdownOpen(false);
                       }}
@@ -520,8 +514,8 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
               </div>
               <SearchInput
                 placeholder={"검색어를 입력하세요"}
-                value={keyword}
-                onChange={(e) => setKeyword(e.target.value)}
+                value={filters.keyword}
+                onChange={(e) => onInputChange("keyword", e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") handleSearch();
                 }}
