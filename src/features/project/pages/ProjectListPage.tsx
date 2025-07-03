@@ -242,7 +242,7 @@ export default function ProjectListPage() {
       startDate: "",
       endDate: "",
       keyword: "",
-      category: "nameProject",
+      category: "projectName",
     });
     fetchProjects(0); // 초기화 시 기본 API 사용
     setCurrentPage(1);
