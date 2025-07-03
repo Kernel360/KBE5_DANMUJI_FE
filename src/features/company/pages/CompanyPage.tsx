@@ -286,6 +286,20 @@ export default function CompanyPage() {
     fetchCompanies(newPage);
   };
 
+  // 10개씩 앞뒤로 가는 함수
+  const handleJumpForward = () => {
+    const totalPages = page?.totalPages ?? 0;
+    const currentPage = page?.number ?? 0;
+    const newPage = Math.min(currentPage + 10, totalPages - 1);
+    handlePageChange(newPage);
+  };
+
+  const handleJumpBackward = () => {
+    const currentPage = page?.number ?? 0;
+    const newPage = Math.max(currentPage - 10, 0);
+    handlePageChange(newPage);
+  };
+
   const fetchCompanies = async (pageNumber: number = 0) => {
     try {
       setLoading(true);
@@ -616,6 +630,20 @@ export default function CompanyPage() {
       </TableContainer>
       <PaginationContainer>
         <PaginationNav>
+          {/* 첫 페이지로 이동 버튼 */}
+          {page && page.number > 0 && (
+            <PaginationButton onClick={() => handlePageChange(0)}>
+              맨 처음
+            </PaginationButton>
+          )}
+
+          {/* 10개씩 뒤로 가기 버튼 */}
+          {page && page.number >= 10 && (
+            <PaginationButton onClick={handleJumpBackward}>
+              -10
+            </PaginationButton>
+          )}
+
           {/* 첫 페이지가 아니면 이전 버튼 렌더 */}
           {page && page.number > 0 && (
             <PaginationButton onClick={() => handlePageChange(page.number - 1)}>
@@ -640,6 +668,20 @@ export default function CompanyPage() {
           {page && page.number + 1 < (page?.totalPages ?? 0) && (
             <PaginationButton onClick={() => handlePageChange(page.number + 1)}>
               다음
+            </PaginationButton>
+          )}
+
+          {/* 10개씩 앞으로 가기 버튼 */}
+          {page && page.number + 10 < (page?.totalPages ?? 0) && (
+            <PaginationButton onClick={handleJumpForward}>+10</PaginationButton>
+          )}
+
+          {/* 마지막 페이지로 이동 버튼 */}
+          {page && page.number + 1 < (page?.totalPages ?? 0) && (
+            <PaginationButton
+              onClick={() => handlePageChange((page?.totalPages ?? 0) - 1)}
+            >
+              맨 마지막
             </PaginationButton>
           )}
         </PaginationNav>

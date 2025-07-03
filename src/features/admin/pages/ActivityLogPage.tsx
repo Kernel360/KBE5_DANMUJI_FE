@@ -354,6 +354,17 @@ export default function ActivityLogPage() {
     fetchActivityLogs(newPage);
   };
 
+  // 10개씩 앞뒤로 가는 함수
+  const handleJumpForward = () => {
+    const newPage = Math.min(currentPage + 10, pageInfo.totalPages - 1);
+    handlePageChange(newPage);
+  };
+
+  const handleJumpBackward = () => {
+    const newPage = Math.max(currentPage - 10, 0);
+    handlePageChange(newPage);
+  };
+
   // 검색어 입력 시 실시간 검색 (엔터키 또는 검색 버튼 클릭 시)
   const handleSearchKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
@@ -846,6 +857,13 @@ export default function ActivityLogPage() {
             </PaginationButton>
           )}
 
+          {/* 10개씩 뒤로 가기 버튼 */}
+          {currentPage >= 10 && (
+            <PaginationButton onClick={handleJumpBackward}>
+              -10
+            </PaginationButton>
+          )}
+
           {/* 이전 버튼 */}
           {currentPage > 0 && (
             <PaginationButton onClick={() => handlePageChange(currentPage - 1)}>
@@ -927,6 +945,11 @@ export default function ActivityLogPage() {
             <PaginationButton onClick={() => handlePageChange(currentPage + 1)}>
               다음
             </PaginationButton>
+          )}
+
+          {/* 10개씩 앞으로 가기 버튼 */}
+          {currentPage + 10 < pageInfo.totalPages && (
+            <PaginationButton onClick={handleJumpForward}>+10</PaginationButton>
           )}
 
           {/* 마지막 페이지로 이동 버튼 */}
