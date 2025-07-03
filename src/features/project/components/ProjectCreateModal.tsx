@@ -11,8 +11,9 @@ import {
   Input,
   TextArea,
   Button,
-  CloseButton
+  CloseButton,
 } from "./ProjectCreateModal.styled";
+import type { ProjectDetailResponse } from "../services/projectService";
 
 type Member = {
   id: number;
@@ -40,13 +41,26 @@ type SelectedClientCompany = {
   }[];
 };
 
+// 프로젝트 수정 폼 타입 정의
+interface ProjectEditForm {
+  name: string;
+  description: string;
+  projectCost: string;
+  startDate: string;
+  endDate: string;
+  devManagerId: string;
+  clientManagerId: string;
+  devUserId: string;
+  clientUserId: string;
+}
+
 interface ProjectCreateModalProps {
   open: boolean;
   onClose: () => void;
   fetchProjects?: (page?: number) => void;
   editMode?: boolean;
-  projectData?: any;
-  onSave?: (form: any) => void;
+  projectData?: ProjectDetailResponse;
+  onSave?: (form: ProjectEditForm) => void;
 }
 
 // 프로젝트 등록 모달 컴포넌트
@@ -58,7 +72,7 @@ export default function ProjectCreateModal({
   projectData,
   onSave,
 }: ProjectCreateModalProps) {
-  const initialForm = {
+  const initialForm: ProjectEditForm = {
     name: "",
     description: "",
     startDate: "",
@@ -69,7 +83,7 @@ export default function ProjectCreateModal({
     clientUserId: "",
     projectCost: "",
   };
-  const [form, setForm] = useState(initialForm);
+  const [form, setForm] = useState<ProjectEditForm>(initialForm);
   const {
     showCompanyMemberModal,
     setShowCompanyMemberModal,
@@ -79,7 +93,7 @@ export default function ProjectCreateModal({
     setEditMembers,
     modalType,
     openCompanyMemberModal,
-    closeCompanyMemberModal
+    closeCompanyMemberModal,
   } = useCompanyMemberSelect();
   const [selectedDevCompanies, setSelectedDevCompanies] = useState<
     SelectedDevCompany[]
@@ -129,33 +143,35 @@ export default function ProjectCreateModal({
 
       // clients 데이터 파싱하여 selectedClientCompanies 설정
       if (projectData.clients && Array.isArray(projectData.clients)) {
-        const parsedClientCompanies: SelectedClientCompany[] = projectData.clients.map((client: any) => ({
-          company: {
-            id: client.id,
-            name: client.companyName
-          },
-          members: client.assignUsers.map((user: any) => ({
-            id: user.id,
-            name: user.name,
-            type: user.userType === "MANAGER" ? "manager" : "member"
-          }))
-        }));
+        const parsedClientCompanies: SelectedClientCompany[] =
+          projectData.clients.map((client) => ({
+            company: {
+              id: client.id,
+              name: client.companyName,
+            },
+            members: client.assignUsers.map((user) => ({
+              id: user.id,
+              name: user.name,
+              type: user.userType === "MANAGER" ? "manager" : "member",
+            })),
+          }));
         setSelectedClientCompanies(parsedClientCompanies);
       }
 
       // developers 데이터 파싱하여 selectedDevCompanies 설정
       if (projectData.developers && Array.isArray(projectData.developers)) {
-        const parsedDevCompanies: SelectedDevCompany[] = projectData.developers.map((developer: any) => ({
-          company: {
-            id: developer.id,
-            name: developer.companyName
-          },
-          members: developer.assignUsers.map((user: any) => ({
-            id: user.id,
-            name: user.name,
-            type: user.userType === "MANAGER" ? "manager" : "member"
-          }))
-        }));
+        const parsedDevCompanies: SelectedDevCompany[] =
+          projectData.developers.map((developer) => ({
+            company: {
+              id: developer.id,
+              name: developer.companyName,
+            },
+            members: developer.assignUsers.map((user) => ({
+              id: user.id,
+              name: user.name,
+              type: user.userType === "MANAGER" ? "manager" : "member",
+            })),
+          }));
         setSelectedDevCompanies(parsedDevCompanies);
       }
     } else if (!editMode) {
@@ -255,9 +271,9 @@ export default function ProjectCreateModal({
 
   // 외부에서 전달된 handleCreateProjectOuter를 사용
   const handleCreateProjectOuter = async (
-    form: any,
-    onClose: any,
-    fetchProjects: any
+    form: ProjectEditForm,
+    onClose: () => void,
+    fetchProjects: (page?: number) => void
   ) => {
     try {
       const payload = {
@@ -269,25 +285,25 @@ export default function ProjectCreateModal({
         devManagerId: form.devManagerId
           ? form.devManagerId
               .split(",")
-              .map((s: any) => Number(s.trim()))
+              .map((s: string) => Number(s.trim()))
               .filter(Boolean)
           : [],
         clientManagerId: form.clientManagerId
           ? form.clientManagerId
               .split(",")
-              .map((s: any) => Number(s.trim()))
+              .map((s: string) => Number(s.trim()))
               .filter(Boolean)
           : [],
         devUserId: form.devUserId
           ? form.devUserId
               .split(",")
-              .map((s: any) => Number(s.trim()))
+              .map((s: string) => Number(s.trim()))
               .filter(Boolean)
           : [],
         clientUserId: form.clientUserId
           ? form.clientUserId
               .split(",")
-              .map((s: any) => Number(s.trim()))
+              .map((s: string) => Number(s.trim()))
               .filter(Boolean)
           : [],
       };
@@ -313,11 +329,13 @@ export default function ProjectCreateModal({
         <ModalHeader>
           <ModalTitle>
             {/* 아이콘 등 추가 가능 */}
-            새 프로젝트 생성
+            {editMode ? "프로젝트 수정" : "새 프로젝트 생성"}
           </ModalTitle>
         </ModalHeader>
         <ModalDescription>
-          새로운 프로젝트의 정보를 입력해주세요
+          {editMode
+            ? "프로젝트 정보를 수정해주세요"
+            : "새로운 프로젝트의 정보를 입력해주세요"}
         </ModalDescription>
         <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
           {/* 프로젝트명, 개요 */}
@@ -333,14 +351,18 @@ export default function ProjectCreateModal({
             <TextArea
               placeholder="프로젝트 개요를 상세히 입력하세요..."
               value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, description: e.target.value })
+              }
               rows={4}
               maxLength={255}
             />
           </div>
           {/* 프로젝트 금액 */}
           <div>
-            <div style={{ fontWeight: 600, marginBottom: 8 }}>프로젝트 금액</div>
+            <div style={{ fontWeight: 600, marginBottom: 8 }}>
+              프로젝트 금액
+            </div>
             <Input
               type="text"
               placeholder="프로젝트 금액을 입력하세요"
@@ -468,7 +490,12 @@ export default function ProjectCreateModal({
                         수정
                       </Button>
                       <Button
-                        style={{ marginLeft: 8, fontSize: 18, background: "transparent", color: "#888" }}
+                        style={{
+                          marginLeft: 8,
+                          fontSize: 18,
+                          background: "transparent",
+                          color: "#888",
+                        }}
                         $variant={undefined}
                         type="button"
                         onClick={() =>
@@ -499,7 +526,7 @@ export default function ProjectCreateModal({
                 >
                   <span style={{ fontWeight: 500 }}>고객사 선택 *</span>
                   <Button
-                    style={{ marginLeft: 12}}
+                    style={{ marginLeft: 12 }}
                     $variant="primary"
                     type="button"
                     onClick={() => {
@@ -544,7 +571,12 @@ export default function ProjectCreateModal({
                         수정
                       </Button>
                       <Button
-                        style={{ marginLeft: 8, fontSize: 18, background: "transparent", color: "#888" }}
+                        style={{
+                          marginLeft: 8,
+                          fontSize: 18,
+                          background: "transparent",
+                          color: "#888",
+                        }}
                         $variant={undefined}
                         type="button"
                         onClick={() =>
@@ -594,7 +626,11 @@ export default function ProjectCreateModal({
         {showCompanyMemberModal && (
           <CompanyMemberSelectModal
             onClose={closeCompanyMemberModal}
-            onDone={modalType === "dev" ? handleDevCompanyDone : handleClientCompanyDone}
+            onDone={
+              modalType === "dev"
+                ? handleDevCompanyDone
+                : handleClientCompanyDone
+            }
             selectedCompany={editCompany}
             selectedMembers={editMembers}
             selectedDevCompanies={selectedDevCompanies}

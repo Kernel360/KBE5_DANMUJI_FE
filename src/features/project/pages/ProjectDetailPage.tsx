@@ -67,6 +67,32 @@ const ErrorContainer = styled.div`
   color: #ef4444;
 `;
 
+// 프로젝트 수정 폼 타입 정의
+interface ProjectEditForm {
+  name: string;
+  description: string;
+  projectCost: string;
+  startDate: string;
+  endDate: string;
+  devManagerId: string;
+  clientManagerId: string;
+  devUserId: string;
+  clientUserId: string;
+}
+
+// 프로젝트 수정 요청 페이로드 타입
+interface ProjectEditPayload {
+  name: string;
+  description: string;
+  projectCost: number;
+  startDate: string;
+  endDate: string;
+  devManagerId: number[];
+  clientManagerId: number[];
+  devUserId: number[];
+  clientUserId: number[];
+}
+
 const ProjectDetailPage = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const [projectDetail, setProjectDetail] =
@@ -128,11 +154,11 @@ const ProjectDetailPage = () => {
   };
 
   // 편집 저장 핸들러
-  const handleEditSave = async (form: any) => {
+  const handleEditSave = async (form: ProjectEditForm) => {
     if (!projectId) return;
     try {
       // 필드 변환 및 PUT 요청
-      const payload = {
+      const payload: ProjectEditPayload = {
         name: form.name,
         description: form.description,
         projectCost: form.projectCost ? Number(form.projectCost) : 0,
@@ -141,25 +167,25 @@ const ProjectDetailPage = () => {
         devManagerId: form.devManagerId
           ? form.devManagerId
               .split(",")
-              .map((s: any) => Number(s.trim()))
+              .map((s: string) => Number(s.trim()))
               .filter(Boolean)
           : [],
         clientManagerId: form.clientManagerId
           ? form.clientManagerId
               .split(",")
-              .map((s: any) => Number(s.trim()))
+              .map((s: string) => Number(s.trim()))
               .filter(Boolean)
           : [],
         devUserId: form.devUserId
           ? form.devUserId
               .split(",")
-              .map((s: any) => Number(s.trim()))
+              .map((s: string) => Number(s.trim()))
               .filter(Boolean)
           : [],
         clientUserId: form.clientUserId
           ? form.clientUserId
               .split(",")
-              .map((s: any) => Number(s.trim()))
+              .map((s: string) => Number(s.trim()))
               .filter(Boolean)
           : [],
       };
@@ -167,7 +193,7 @@ const ProjectDetailPage = () => {
       setEditModalOpen(false);
       fetchProjectDetail();
     } catch (e) {
-      alert("프로젝트 수정에 실패했습니다.");
+      alert("프로젝트 수정에 실패했습니다." + e);
     }
   };
 
@@ -225,8 +251,7 @@ const ProjectDetailPage = () => {
           selectedStepId={selectedStepId}
           canEditStep={
             // projectDetail.myUserType === "MANAGER" &&
-            projectDetail.myCompanyType === "DEVELOPER" ||
-            role === "ROLE_ADMIN"
+            projectDetail.myCompanyType === "DEVELOPER" || role === "ROLE_ADMIN"
           }
           onStepOrderSaved={fetchProjectDetail}
         />
@@ -246,8 +271,8 @@ const ProjectDetailPage = () => {
         open={editModalOpen}
         onClose={() => setEditModalOpen(false)}
         editMode={true}
-        projectData={projectDetail as any}
-        onSave={handleEditSave as any}
+        projectData={projectDetail}
+        onSave={handleEditSave}
       />
     </DetailPageContainer>
   );
