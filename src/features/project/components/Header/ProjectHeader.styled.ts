@@ -319,3 +319,184 @@ export const BackButton = styled.button`
     border-color: #d1d5db;
   }
 `;
+
+// Header top bar (flex row for back button and admin actions)
+export const HeaderTopBar = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  margin-right: 24px;
+`;
+
+// Admin button group
+export const AdminButtonGroup = styled.div`
+  display: flex;
+  gap: 8px;
+`;
+
+// Edit button
+export const EditButton = styled.button`
+  background: #fdb924;
+  color: #fff;
+  border: 0;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.2s ease;
+  &:hover {
+    background: #f59e0b;
+  }
+`;
+
+// Deactivate button
+export const DeactivateButton = styled.button`
+  background: #aaa;
+  color: #fff;
+  border: 0;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0.7;
+`;
+
+// Project cost display
+export const ProjectCost = styled.div`
+  font-size: 1.08rem;
+  color: #4338ca;
+  font-weight: 600;
+  margin: 0 0 8px 24px;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
+`;
+
+// Company/member list section
+export const CompanyMemberSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 12px 0 0 0;
+  font-size: 0.95rem;
+  color: #6b7280;
+  font-weight: 400;
+  line-height: 1.7;
+  padding: 0 24px;
+`;
+
+export const CompanyRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+export const CompanyIcon = styled.span`
+  display: flex;
+  align-items: center;
+  margin-right: 4px;
+  color: #9ca3af;
+`;
+
+export const CompanyLabel = styled.span`
+  color: #9ca3af;
+  margin-right: 6px;
+`;
+
+export const CompanyName = styled.span<{ $type: 'client' | 'dev' }>`
+  color: ${({ $type }) => ($type === 'client' ? '#2563eb' : '#19c37d')};
+  font-weight: 600;
+  cursor: pointer;
+  margin-right: 8px;
+`;
+
+export const CompanyDivider = styled.span`
+  color: #d1d5db;
+  margin: 0 4px;
+`;
+
+export const CompanyUnassigned = styled.span`
+  color: #aaa;
+`;
+
+// Member list modal overlay
+export const MemberListModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.3);
+  z-index: 3000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+// Member list modal content
+export const MemberListModalContent = styled.div`
+  background: #fff;
+  border-radius: 12px;
+  min-width: 340px;
+  max-width: 400px;
+  width: 90vw;
+  padding: 28px;
+  position: relative;
+`;
+
+export const MemberListModalTitle = styled.div`
+  font-weight: 700;
+  font-size: 20px;
+  margin-bottom: 16px;
+`;
+
+export const MemberListItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  transition: background 0.2s;
+  background: #f9fafb;
+`;
+
+export const MemberName = styled.span`
+  font-weight: 600;
+`;
+
+export const MemberPosition = styled.span`
+  color: #888;
+  font-size: 13px;
+`;
+
+export const MemberType = styled.span`
+  color: #aaa;
+  font-size: 12px;
+  margin-left: auto;
+`;
+
+export const MemberListEmpty = styled.div`
+  color: #aaa;
+  text-align: center;
+  padding: 20px;
+`;
+
+export const MemberListModalClose = styled.button`
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: transparent;
+  border: 0;
+  font-size: 22px;
+  cursor: pointer;
+`;
