@@ -33,7 +33,7 @@ const NotificationDropdown: React.FC<Props> = ({
   markAsRead,
   error,
   onDelete,
-  onMarkAllAsRead
+  onMarkAllAsRead,
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -44,7 +44,10 @@ const NotificationDropdown: React.FC<Props> = ({
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
@@ -56,8 +59,10 @@ const NotificationDropdown: React.FC<Props> = ({
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   const handleNotificationClick = (notification: SseNotification) => {
-    console.log(notification);
-    if (notification.type === "PROJECT_CREATE_ASSIGNMENT" && notification.projectId) {
+    if (
+      notification.type === "PROJECT_CREATE_ASSIGNMENT" &&
+      notification.projectId
+    ) {
       navigate(`/projects/${notification.projectId}/detail`);
       setIsOpen(false);
     } else if (
@@ -65,12 +70,31 @@ const NotificationDropdown: React.FC<Props> = ({
         "PROJECT_POST_CREATED",
         "POST_REPLY_CREATED",
         "COMMENT_POST_CREATED",
-        "COMMENT_REPLY_CREATED"
-      ].includes(notification.type) && notification.postId
+        "COMMENT_REPLY_CREATED",
+        "POST_RESTORED",
+      ].includes(notification.type) &&
+      notification.postId
     ) {
       navigate(`/projects/${notification.projectId}/detail`);
       setModalPostId(notification.postId);
       setIsOpen(false);
+    } else if (notification.type === "MENTIONED") {
+      // 멘션 알림 처리
+      if (notification.postId) {
+        navigate(`/projects/${notification.projectId}/detail`);
+        setModalPostId(notification.postId);
+        setIsOpen(false);
+      }
+    } else if (
+      notification.type === "STEP_APPROVAL_REQUEST" ||
+      notification.type === "STEP_APPROVAL_ACCEPTED" ||
+      notification.type === "STEP_APPROVAL_REJECTED"
+    ) {
+      // 단계 승인 관련 알림 처리
+      if (notification.projectId) {
+        navigate(`/projects/${notification.projectId}/detail`);
+        setIsOpen(false);
+      }
     }
     markAsRead(notification.id);
   };
@@ -89,15 +113,19 @@ const NotificationDropdown: React.FC<Props> = ({
         key={n.id}
         $isRead={n.isRead}
         onClick={() => handleNotificationClick(n)}
-        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
       >
         <NotificationMessage>{n.message}</NotificationMessage>
         <NotificationTime>{n.time}</NotificationTime>
         {onDelete && (
           <button
-            onClick={e => {
+            onClick={(e) => {
               e.stopPropagation();
-              if (window.confirm('정말 삭제할까요?')) {
+              if (window.confirm("정말 삭제할까요?")) {
                 onDelete(n.id);
               }
             }}
@@ -106,7 +134,7 @@ const NotificationDropdown: React.FC<Props> = ({
               border: "none",
               cursor: "pointer",
               marginLeft: "8px",
-              color: "#888"
+              color: "#888",
             }}
             title="알림 삭제"
           >
@@ -136,9 +164,7 @@ const NotificationDropdown: React.FC<Props> = ({
                 </MarkAllAsReadButton>
               )}
             </NotificationHeader>
-            <NotificationList>
-              {renderContent()}
-            </NotificationList>
+            <NotificationList>{renderContent()}</NotificationList>
           </DropdownMenu>
         )}
       </DropdownContainer>

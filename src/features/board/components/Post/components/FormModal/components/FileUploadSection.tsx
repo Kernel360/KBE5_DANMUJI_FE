@@ -24,7 +24,7 @@ interface FileUploadSectionProps {
   files: File[];
   existingFiles: PostFile[];
   isDragOver: boolean;
-  fileInputRef: React.RefObject<HTMLInputElement>;
+  fileInputRef: React.RefObject<HTMLInputElement | null>;
   handleFileDrop: (e: React.DragEvent) => void;
   handleDragOver: (e: React.DragEvent) => void;
   handleDragLeave: (e: React.DragEvent) => void;

@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from "react";
 import * as S from "../styled/UserDashboardPage.styled";
 import { MdAccessTime, MdComment, MdReply, MdPostAdd } from "react-icons/md";
-import { FiRotateCcw, FiAtSign, FiBell } from "react-icons/fi";
+import {
+  FiRotateCcw,
+  FiAtSign,
+  FiBell,
+  FiCheckSquare,
+  FiCheck,
+  FiX,
+  FiPackage,
+} from "react-icons/fi";
 import {
   getMyMentions,
   markNotificationAsRead,
@@ -130,6 +138,16 @@ const MentionedPostsSection = () => {
         return <MdReply size={14} style={{ color: "#f59e0b" }} />;
       case "PROJECT_POST_CREATED":
         return <MdPostAdd size={14} style={{ color: "#8b5cf6" }} />;
+      case "POST_RESTORED":
+        return <FiRotateCcw size={14} style={{ color: "#8b5cf6" }} />;
+      case "STEP_APPROVAL_REQUEST":
+        return <FiCheckSquare size={14} style={{ color: "#f59e0b" }} />;
+      case "STEP_APPROVAL_ACCEPTED":
+        return <FiCheck size={14} style={{ color: "#10b981" }} />;
+      case "STEP_APPROVAL_REJECTED":
+        return <FiX size={14} style={{ color: "#ef4444" }} />;
+      case "PROJECT_CREATE_ASSIGNMENT":
+        return <FiPackage size={14} style={{ color: "#3b82f6" }} />;
       default:
         return <FiAtSign size={14} style={{ color: "#6b7280" }} />;
     }
@@ -147,6 +165,16 @@ const MentionedPostsSection = () => {
         return "답글 알림";
       case "PROJECT_POST_CREATED":
         return "새 게시글";
+      case "POST_RESTORED":
+        return "게시글 복구";
+      case "STEP_APPROVAL_REQUEST":
+        return "단계 승인 요청";
+      case "STEP_APPROVAL_ACCEPTED":
+        return "단계 승인 완료";
+      case "STEP_APPROVAL_REJECTED":
+        return "단계 승인 거절";
+      case "PROJECT_CREATE_ASSIGNMENT":
+        return "프로젝트 배정";
       default:
         return "알림";
     }
@@ -159,7 +187,6 @@ const MentionedPostsSection = () => {
       const data = await getMyMentions();
       setMentions(data);
     } catch (err) {
-      console.error("알림 조회 실패:", err);
       setError("알림을 불러오는데 실패했습니다.");
     } finally {
       setLoading(false);
@@ -167,8 +194,6 @@ const MentionedPostsSection = () => {
   };
 
   const handleMentionClick = async (mention: MyMentionListResponse) => {
-    console.log("알림 클릭:", mention);
-
     // 읽지 않은 알림인 경우 읽음 처리
     if (!mention.isRead) {
       try {
@@ -182,7 +207,6 @@ const MentionedPostsSection = () => {
           )
         );
       } catch (error) {
-        console.error("알림 읽음 처리 실패:", error);
         // 읽음 처리 실패해도 계속 진행
       }
     }
@@ -191,61 +215,55 @@ const MentionedPostsSection = () => {
     switch (mention.type) {
       case "MENTIONED":
         // 멘션된 게시글로 이동
-        console.log("멘션된 게시글로 이동:", mention.postId);
         if (mention.postId) {
           setSelectedPostId(mention.postId);
           setIsDetailModalOpen(true);
-        } else {
-          console.error("postId가 없어서 게시글 상세로 이동할 수 없습니다.");
         }
         break;
 
       case "COMMENT_POST_CREATED":
         // 내 게시글에 댓글이 달린 경우
-        console.log("내 게시글에 댓글이 달린 경우:", mention.postId);
         if (mention.postId) {
           setSelectedPostId(mention.postId);
           setIsDetailModalOpen(true);
-        } else {
-          console.error("postId가 없어서 게시글 상세로 이동할 수 없습니다.");
         }
         break;
 
       case "COMMENT_REPLY_CREATED":
         // 내 댓글에 대댓글이 달린 경우 - 해당 게시글 상세로 이동
-        console.log("댓글이 달린 게시글 상세로 이동:", mention.postId);
         if (mention.postId) {
           setSelectedPostId(mention.postId);
           setIsDetailModalOpen(true);
-        } else {
-          console.error("postId가 없어서 게시글 상세로 이동할 수 없습니다.");
         }
         break;
 
       case "POST_REPLY_CREATED":
         // 내 게시글에 답글이 달린 경우 - 해당 게시글 상세로 이동
-        console.log("내 게시글에 답글이 달린 경우:", mention.postId);
         if (mention.postId) {
           setSelectedPostId(mention.postId);
           setIsDetailModalOpen(true);
-        } else {
-          console.error("postId가 없어서 게시글 상세로 이동할 수 없습니다.");
         }
         break;
 
       case "PROJECT_POST_CREATED":
         // 프로젝트에 새로운 게시글이 등록된 경우 - 게시글 상세로 이동
-        console.log("새 게시글 상세로 이동:", mention.postId);
         if (mention.postId) {
           setSelectedPostId(mention.postId);
           setIsDetailModalOpen(true);
-        } else {
-          console.error("postId가 없어서 게시글 상세로 이동할 수 없습니다.");
+        }
+        break;
+
+      case "POST_RESTORED":
+        // 게시글이 복구된 경우 - 해당 게시글 상세로 이동
+        if (mention.postId) {
+          setSelectedPostId(mention.postId);
+          setIsDetailModalOpen(true);
         }
         break;
 
       default:
-        console.log("알 수 없는 알림 타입:", mention.type);
+        // 알 수 없는 알림 타입은 무시
+        break;
     }
   };
 

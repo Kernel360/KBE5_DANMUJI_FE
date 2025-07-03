@@ -74,7 +74,7 @@ export type ProjectDetailResponse = {
   endDate: string;
   projectCost: string;
   projectStatus: string;
-  progress : number;
+  progress: number;
   clients: ProjectCompany[];
   developers: ProjectCompany[];
   steps: ProjectDetailStep[];
@@ -88,8 +88,8 @@ export type ProjectStatusResponse = {
   description: string;
   startDate: string;
   endDate: string;
-  progress : number;
-  status : string;
+  progress: number;
+  status: string;
 };
 
 // 프로젝트 상세 조회 응답 타입
@@ -116,7 +116,7 @@ export type ProjectResponse = {
   startDate: string;
   endDate: string;
   projectStatus: string;
-  progress : number;
+  progress: number;
   assignClientCompanies: CompanySummaryResponse[];
   assignDevCompanies: CompanySummaryResponse[];
 };
@@ -165,16 +165,21 @@ export const getProjects = async (
     keyword?: string;
     sort?: string;
   } = {}
-): Promise<ApiResponse<{ content: ProjectResponse[]; page: PageMetadata; }>> => {
+): Promise<ApiResponse<{ content: ProjectResponse[]; page: PageMetadata }>> => {
   try {
-    const response = await api.get<ApiResponse<{ content: ProjectResponse[]; page: PageMetadata; }>>("/api/projects", {
+    const response = await api.get<
+      ApiResponse<{ content: ProjectResponse[]; page: PageMetadata }>
+    >("/api/projects", {
       params: {
         page,
         size,
         ...params,
       },
     });
-    return handleApiResponse<{ content: ProjectResponse[]; page: PageMetadata; }>(response);
+    return handleApiResponse<{
+      content: ProjectResponse[];
+      page: PageMetadata;
+    }>(response);
   } catch (error) {
     if (error instanceof ApiError) throw error;
     if (error instanceof AxiosError) {
@@ -215,16 +220,21 @@ export const searchProjects = async (
   keyword: string,
   page: number = 0,
   size: number = 10
-): Promise<ApiResponse<{ content: ProjectResponse[]; page: PageMetadata; }>> => {
+): Promise<ApiResponse<{ content: ProjectResponse[]; page: PageMetadata }>> => {
   try {
-    const response = await api.get<ApiResponse<{ content: ProjectResponse[]; page: PageMetadata; }>>("/api/projects/search", {
+    const response = await api.get<
+      ApiResponse<{ content: ProjectResponse[]; page: PageMetadata }>
+    >("/api/projects/search", {
       params: {
         keyword,
         page,
         size,
       },
     });
-    return handleApiResponse<{ content: ProjectResponse[]; page: PageMetadata; }>(response);
+    return handleApiResponse<{
+      content: ProjectResponse[];
+      page: PageMetadata;
+    }>(response);
   } catch (error) {
     if (error instanceof ApiError) throw error;
     if (error instanceof AxiosError) {
@@ -243,9 +253,12 @@ export const getProjectStatusByStatus = async (
   status: string
 ): Promise<ApiResponse<ProjectStatusResponse[]>> => {
   try {
-    const response = await api.get<ApiResponse<ProjectStatusResponse[]>>(`/api/projects/status`, {
-      params: { status },
-    });
+    const response = await api.get<ApiResponse<ProjectStatusResponse[]>>(
+      `/api/projects/status`,
+      {
+        params: { status },
+      }
+    );
     return handleApiResponse<ProjectStatusResponse[]>(response);
   } catch (error) {
     if (error instanceof ApiError) throw error;
@@ -256,6 +269,30 @@ export const getProjectStatusByStatus = async (
         error.response?.status
       );
     }
-    throw new ApiError("프로젝트 상태별 현황 조회 중 알 수 없는 오류가 발생했습니다.");
+    throw new ApiError(
+      "프로젝트 상태별 현황 조회 중 알 수 없는 오류가 발생했습니다."
+    );
+  }
+};
+
+// 프로젝트 복구
+export const restoreProject = async (
+  projectId: number
+): Promise<ApiResponse<any>> => {
+  try {
+    const response = await api.put<ApiResponse<any>>(
+      `/api/projects/${projectId}/restore`
+    );
+    return handleApiResponse<any>(response);
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
+    if (error instanceof AxiosError) {
+      throw new ApiError(
+        error.response?.data?.message ||
+          "프로젝트 복구 중 오류가 발생했습니다.",
+        error.response?.status
+      );
+    }
+    throw new ApiError("프로젝트 복구 중 알 수 없는 오류가 발생했습니다.");
   }
 };
