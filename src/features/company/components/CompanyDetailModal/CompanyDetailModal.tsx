@@ -260,23 +260,23 @@ const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
             </button>
           </SectionTitle>
           <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 8 }}>
-            {loading ? (
-              <div style={{ color: '#888', padding: '8px 0' }}>구성원 정보를 불러오는 중...</div>
-            ) : members.length === 0 ? (
-              <div style={{ color: '#888', padding: '8px 0' }}>구성원이 없습니다.</div>
-            ) : (
-              <>
-                <table style={{ width: '100%', fontSize: 13, borderCollapse: 'collapse', tableLayout: 'fixed' }}>
-                  <thead>
-                    <tr style={{ background: '#f9fafb' }}>
-                      <th style={{ width: 120, textAlign: 'left', padding: '4px 8px' }}>회원</th>
-                      <th style={{ width: 180, textAlign: 'left', padding: '4px 8px' }}>이메일</th>
-                      <th style={{ width: 120, textAlign: 'left', padding: '4px 8px' }}>전화번호</th>
-                      <th style={{ width: 80, textAlign: 'left', padding: '4px 8px' }}>직책</th>
+            <div style={{ position: 'relative' }}>
+              <table style={{ width: '100%', fontSize: 13, borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+                <thead>
+                  <tr style={{ background: '#f9fafb' }}>
+                    <th style={{ width: 120, textAlign: 'left', padding: '4px 8px' }}>회원</th>
+                    <th style={{ width: 180, textAlign: 'left', padding: '4px 8px' }}>이메일</th>
+                    <th style={{ width: 120, textAlign: 'left', padding: '4px 8px' }}>전화번호</th>
+                    <th style={{ width: 80, textAlign: 'left', padding: '4px 8px' }}>직책</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {members.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} style={{ color: '#888', padding: '8px 0', textAlign: 'center' }}>구성원이 없습니다.</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {members.map((member) => (
+                  ) : (
+                    members.map((member) => (
                       <tr key={member.username} style={{ borderBottom: '1px solid #f3f4f6' }}>
                         <td style={{ width: 120, padding: '4px 8px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                           {member.name} <span style={{ color: '#888', fontSize: 12 }}>({member.username})</span>
@@ -285,32 +285,49 @@ const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
                         <td style={{ width: 120, padding: '4px 8px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{formatTelNo(member.phone)}</td>
                         <td style={{ width: 80, padding: '4px 8px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{member.position}</td>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 12, marginTop: 12 }}>
-                  {/* 이전 버튼: 첫 페이지(0)에서는 숨김 */}
-                  {page > 0 && (
-                    <button
-                      onClick={() => setPage((p) => p - 1)}
-                      style={{ padding: '4px 12px', borderRadius: 6, border: '1px solid #e5e7eb', background: '#fff', color: '#374151', cursor: 'pointer' }}
-                    >
-                      이전
-                    </button>
+                    ))
                   )}
-                  <span style={{ fontSize: 13, color: '#6b7280' }}>{page + 1} / {totalPages}</span>
-                  {/* 다음 버튼: 마지막 페이지에서는 숨김 */}
-                  {page < totalPages - 1 && (
-                    <button
-                      onClick={() => setPage((p) => p + 1)}
-                      style={{ padding: '4px 12px', borderRadius: 6, border: '1px solid #e5e7eb', background: '#fff', color: '#374151', cursor: 'pointer' }}
-                    >
-                      다음
-                    </button>
-                  )}
+                </tbody>
+              </table>
+              {loading && (
+                <div style={{
+                  position: 'absolute',
+                  top: 0, left: 0, right: 0, bottom: 0,
+                  background: 'rgba(255,255,255,0.6)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  zIndex: 1
+                }}>
+                  <div style={{
+                    width: 32, height: 32, border: '4px solid #f3f3f3',
+                    borderTop: '4px solid #fbbf24', borderRadius: '50%',
+                    animation: 'spin 1s linear infinite'
+                  }} />
                 </div>
-              </>
-            )}
+              )}
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 12, marginTop: 12 }}>
+              {/* 이전 버튼: 첫 페이지(0)에서는 숨김 */}
+              {page > 0 && (
+                <button
+                  onClick={() => setPage((p) => p - 1)}
+                  style={{ padding: '4px 12px', borderRadius: 6, border: '1px solid #e5e7eb', background: '#fff', color: '#374151', cursor: 'pointer' }}
+                >
+                  이전
+                </button>
+              )}
+              <span style={{ fontSize: 13, color: '#6b7280' }}>{page + 1} / {totalPages}</span>
+              {/* 다음 버튼: 마지막 페이지에서는 숨김 */}
+              {page < totalPages - 1 && (
+                <button
+                  onClick={() => setPage((p) => p + 1)}
+                  style={{ padding: '4px 12px', borderRadius: 6, border: '1px solid #e5e7eb', background: '#fff', color: '#374151', cursor: 'pointer' }}
+                >
+                  다음
+                </button>
+              )}
+            </div>
           </div>
         </Section>
 
