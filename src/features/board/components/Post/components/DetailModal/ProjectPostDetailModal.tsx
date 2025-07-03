@@ -60,7 +60,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
   onEditPost,
   onReplyPost,
 }) => {
-  const { user } = useAuth();
+  const { user, role } = useAuth();
   const [commentText, setCommentText] = useState("");
   const [post, setPost] = useState<Post | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
@@ -436,6 +436,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
             <ModalHeaderButtonGroup>
               {post && (
                 <>
+                  {/* 작성자 본인인 경우: 수정/삭제 버튼 모두 표시 */}
                   {isAuthor(post.author?.id || post.authorId) && (
                     <>
                       <ModalHeaderActionButton
@@ -454,6 +455,17 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                       </ModalHeaderActionButton>
                     </>
                   )}
+                  {/* 관리자가 다른 사용자의 게시글을 조회하는 경우: 삭제 버튼만 표시 */}
+                  {!isAuthor(post.author?.id || post.authorId) &&
+                    role === "ROLE_ADMIN" && (
+                      <ModalHeaderActionButton
+                        onClick={handleDeletePost}
+                        title="삭제"
+                      >
+                        <FaTrash />
+                        삭제
+                      </ModalHeaderActionButton>
+                    )}
                   <ModalHeaderActionButton
                     onClick={handleReplyPost}
                     title="답글"
