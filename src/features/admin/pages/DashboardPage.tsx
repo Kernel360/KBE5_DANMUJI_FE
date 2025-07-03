@@ -175,9 +175,9 @@ export default function DashboardPage() {
     const fetchData = async () => {
       try {
         // Fetch Company Count
-        const companyResponse = await api.get("/api/companies/all");
-        const companies = companyResponse.data?.data || [];
-        setCompanyCount(Array.isArray(companies) ? companies.length : 0);
+        const companyResponse = await api.get("/api/companies/counts");
+        const companies = companyResponse.data?.data || 0;
+        setCompanyCount(companies);
 
         // Fetch Member Count
         const memberResponse = await api.get("/api/admin/allUsers");

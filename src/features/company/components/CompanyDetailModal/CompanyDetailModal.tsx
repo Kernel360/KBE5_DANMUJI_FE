@@ -308,25 +308,37 @@ const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
               )}
             </div>
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 12, marginTop: 12 }}>
-              {/* 이전 버튼: 첫 페이지(0)에서는 숨김 */}
-              {page > 0 && (
-                <button
-                  onClick={() => setPage((p) => p - 1)}
-                  style={{ padding: '4px 12px', borderRadius: 6, border: '1px solid #e5e7eb', background: '#fff', color: '#374151', cursor: 'pointer' }}
-                >
-                  이전
-                </button>
-              )}
-              <span style={{ fontSize: 13, color: '#6b7280' }}>{page + 1} / {totalPages}</span>
-              {/* 다음 버튼: 마지막 페이지에서는 숨김 */}
-              {page < totalPages - 1 && (
-                <button
-                  onClick={() => setPage((p) => p + 1)}
-                  style={{ padding: '4px 12px', borderRadius: 6, border: '1px solid #e5e7eb', background: '#fff', color: '#374151', cursor: 'pointer' }}
-                >
-                  다음
-                </button>
-              )}
+              <button
+                onClick={() => setPage((p) => p - 1)}
+                disabled={page === 0}
+                style={{
+                  padding: '4px 12px',
+                  borderRadius: 6,
+                  border: '1px solid #e5e7eb',
+                  background: page === 0 ? '#f3f4f6' : '#fff',
+                  color: '#374151',
+                  cursor: page === 0 ? 'not-allowed' : 'pointer',
+                  minWidth: 48
+                }}
+              >
+                이전
+              </button>
+              <span style={{ fontSize: 13, color: '#6b7280', minWidth: 48, textAlign: 'center' }}>{page + 1} / {totalPages}</span>
+              <button
+                onClick={() => setPage((p) => p + 1)}
+                disabled={page >= totalPages - 1}
+                style={{
+                  padding: '4px 12px',
+                  borderRadius: 6,
+                  border: '1px solid #e5e7eb',
+                  background: page >= totalPages - 1 ? '#f3f4f6' : '#fff',
+                  color: '#374151',
+                  cursor: page >= totalPages - 1 ? 'not-allowed' : 'pointer',
+                  minWidth: 48
+                }}
+              >
+                다음
+              </button>
             </div>
           </div>
         </Section>
