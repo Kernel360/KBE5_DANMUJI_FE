@@ -51,6 +51,7 @@ import {
   FiGrid,
   FiMessageSquare,
   FiCheckSquare,
+  FiRefreshCw,
 } from "react-icons/fi";
 import { FiPackage } from "react-icons/fi";
 import { LuUserRoundCog } from "react-icons/lu";
@@ -126,6 +127,7 @@ export default function ActivityLogPage() {
     { value: "CREATED", label: "생성", icon: FiPlusCircle, color: "#10b981" },
     { value: "UPDATED", label: "수정", icon: FiEdit, color: "#3b82f6" },
     { value: "DELETED", label: "삭제", icon: FiTrash, color: "#ef4444" },
+    { value: "RESTORED", label: "복구", icon: FiRefreshCw, color: "#8b5cf6" },
   ];
 
   const LOG_TYPE_OPTIONS = [
@@ -292,6 +294,15 @@ export default function ActivityLogPage() {
         return {
           backgroundColor: "#fee2e2",
           color: "#991b1b",
+          fontWeight: "600",
+          padding: "2px 8px",
+          borderRadius: "12px",
+          fontSize: "0.7rem",
+        };
+      case "RESTORED":
+        return {
+          backgroundColor: "#f3e8ff",
+          color: "#7c3aed",
           fontWeight: "600",
           padding: "2px 8px",
           borderRadius: "12px",
@@ -759,6 +770,7 @@ export default function ActivityLogPage() {
                     {log.action === "CREATED" && "생성"}
                     {log.action === "UPDATED" && "수정"}
                     {log.action === "DELETED" && "삭제"}
+                    {log.action === "RESTORED" && "복구"}
                   </StatusBadge>
                 </TableCell>
                 <TableCell style={{ width: "200px" }}>

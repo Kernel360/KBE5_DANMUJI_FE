@@ -21,9 +21,11 @@ import {
 import { RiUserSettingsLine } from "react-icons/ri";
 import { FiPackage } from "react-icons/fi";
 import { getActivityLogDetail } from "../services/activityLogService";
+import { restorePost } from "@/features/project-d/services/postService";
 import { formatFullDateTime } from "@/utils/dateUtils";
 import type { ActivityLogDetail } from "../types/activityLog";
 import { LoadingSpinner } from "../../../styles/common/LoadingSpinner.styled";
+import { showSuccessToast, showErrorToast } from "@/utils/errorHandler";
 
 interface ActivityLogDetailModalProps {
   isOpen: boolean;
@@ -174,6 +176,8 @@ const StatusBadge = styled.span<{ $type: string }>`
         return "#dbeafe";
       case "DELETED":
         return "#fee2e2";
+      case "RESTORED":
+        return "#f3e8ff";
       default:
         return "#f3f4f6";
     }
@@ -186,6 +190,8 @@ const StatusBadge = styled.span<{ $type: string }>`
         return "#1e40af";
       case "DELETED":
         return "#991b1b";
+      case "RESTORED":
+        return "#7c3aed";
       default:
         return "#374151";
     }
@@ -270,16 +276,6 @@ const RestoreButton = styled.button`
   }
 `;
 
-const ErrorMessage = styled.div`
-  color: #ef4444;
-  font-size: 0.875rem;
-  margin-top: 8px;
-  padding: 8px 12px;
-  background-color: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 6px;
-`;
-
 const ChangesGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -334,12 +330,13 @@ export default function ActivityLogDetailModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [restoring, setRestoring] = useState(false);
-  const [restoreError, setRestoreError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [isRestored, setIsRestored] = useState(false);
 
   useEffect(() => {
     if (isOpen && historyId) {
       fetchDetail();
+      setIsRestored(false);
     }
   }, [isOpen, historyId]);
 
@@ -377,21 +374,48 @@ export default function ActivityLogDetailModal({
   const handleRestore = async () => {
     if (!detail) return;
 
+    // 프로젝트와 업체는 아직 API 연동이 안 되어있으므로 토스트 메시지로 안내
+    if (detail.domainType === "PROJECT" || detail.domainType === "COMPANY") {
+      showErrorToast("아직 게시글 복구 밖에 연동을 못했습니다 죄송ㅎㅎ");
+      return;
+    }
+
     setRestoring(true);
-    setRestoreError(null);
 
     try {
-      // TODO: 실제 복구 API 호출
-      // const response = await restoreData(detail.id);
+      let response;
 
-      // 임시로 성공 메시지 표시
-      console.log("데이터 복구 요청:", detail.id);
+      // 도메인 타입에 따라 다른 복구 API 호출
+      switch (detail.domainType) {
+        case "POST":
+          response = await restorePost(detail.domainId);
+          break;
+        case "PROJECT":
+          // 프로젝트는 아직 연동 안됨
+          showErrorToast("아직 연동을 못했습니다 죄송ㅎㅎ");
+          return;
+        case "COMPANY":
+          // 업체는 아직 연동 안됨
+          showErrorToast("아직 연동을 못했습니다 죄송ㅎㅎ");
+          return;
+        default:
+          throw new Error("복구할 수 없는 도메인 타입입니다.");
+      }
 
-      // 성공 시 모달 닫기
-      onClose();
+      if (response.success || response.code === "P210") {
+        const domainTypeName = getDomainTypeDisplayName(detail.domainType);
+        showSuccessToast(`${domainTypeName} 복구가 완료되었습니다.`);
+        setIsRestored(true);
+        // onClose(); // 복구 후 모달을 닫지 않고 상태만 변경
+      } else {
+        // 에러 메시지가 있으면 해당 메시지만 표시, 없으면 토스트 표시 안함
+        if (response.message) {
+          showErrorToast(response.message);
+        }
+      }
     } catch (err) {
       console.error("데이터 복구 실패:", err);
-      setRestoreError("데이터 복구에 실패했습니다. 다시 시도해주세요.");
+      // 에러 발생 시 토스트 표시 안함
     } finally {
       setRestoring(false);
     }
@@ -417,6 +441,8 @@ export default function ActivityLogDetailModal({
         return <FiEdit />;
       case "DELETED":
         return <FiTrash />;
+      case "RESTORED":
+        return <FiRotateCcw />;
       default:
         return <FiEdit />;
     }
@@ -430,6 +456,8 @@ export default function ActivityLogDetailModal({
         return "수정";
       case "DELETED":
         return "삭제";
+      case "RESTORED":
+        return "복구";
       default:
         return historyType;
     }
@@ -486,6 +514,13 @@ export default function ActivityLogDetailModal({
         if (data.after && typeof data.after === "object") {
           return data.after as Record<string, string | number | boolean | null>;
         }
+        // 중첩된 after 구조 처리 (after.after 형태)
+        if (data.after && typeof data.after === "object" && data.after.after) {
+          return data.after.after as Record<
+            string,
+            string | number | boolean | null
+          >;
+        }
         // 직접 데이터가 있는 경우
         return data;
       }
@@ -535,8 +570,8 @@ export default function ActivityLogDetailModal({
       );
     }
 
-    // 삭제 작업인 경우 after 데이터만 표시 (before 텍스트로 표시)
-    if (detail.historyType === "DELETED") {
+    // 복구 작업인 경우 after 데이터만 표시
+    if (detail.historyType === "RESTORED") {
       if (!afterData || Object.keys(afterData).length === 0) {
         return null;
       }
@@ -545,13 +580,73 @@ export default function ActivityLogDetailModal({
         <ChangesSection>
           <SectionTitle>
             <SectionTitleContent>
+              <FiRotateCcw style={{ color: "#fdb924" }} />
+              복구된 데이터
+            </SectionTitleContent>
+          </SectionTitle>
+          <DataContainer>
+            <DataDisplay>
+              {Object.entries(afterData)
+                .filter(
+                  ([key]) =>
+                    !key.startsWith("_") &&
+                    key !== "delete" &&
+                    key !== "deletedAt" &&
+                    key !== "updatedAt" &&
+                    key !== "password" &&
+                    key !== "confirmPassword" &&
+                    key !== "oldPassword" &&
+                    key !== "newPassword"
+                )
+                .map(([key, value]) => (
+                  <DataRow key={key}>
+                    <DataLabel>{getFieldDisplayName(key)}</DataLabel>
+                    <DataValue>{formatFieldValue(key, value)}</DataValue>
+                  </DataRow>
+                ))}
+            </DataDisplay>
+          </DataContainer>
+        </ChangesSection>
+      );
+    }
+
+    // 삭제 작업인 경우 after 데이터만 표시 (before 텍스트로 표시)
+    if (detail.historyType === "DELETED") {
+      if (!afterData || Object.keys(afterData).length === 0) {
+        return null;
+      }
+
+      // 복구 가능한 도메인 타입인지 확인
+      const isRestorableType = ["PROJECT", "POST", "COMPANY"].includes(
+        detail.domainType
+      );
+
+      return (
+        <ChangesSection>
+          <SectionTitle>
+            <SectionTitleContent>
               <FiTrash2 style={{ color: "#fdb924" }} />
               삭제된 데이터
             </SectionTitleContent>
-            <RestoreButton onClick={handleRestore} disabled={restoring}>
-              <FiRotateCcw />
-              {restoring ? "복구 중..." : "복구"}
-            </RestoreButton>
+            {isRestorableType && (
+              <RestoreButton
+                onClick={handleRestore}
+                disabled={restoring || isRestored}
+                style={
+                  isRestored
+                    ? {
+                        backgroundColor: "#10b981",
+                        cursor: "default",
+                        color: "white",
+                        opacity: 0.8,
+                      }
+                    : {}
+                }
+              >
+                <FiRotateCcw style={isRestored ? { opacity: 0.7 } : {}} />
+                {restoring ? "복구 중..." : isRestored ? "복구됨" : "복구"}
+              </RestoreButton>
+            )}
           </SectionTitle>
           <DataContainer>
             <DataDisplay>
@@ -615,10 +710,6 @@ export default function ActivityLogDetailModal({
               <FiEdit style={{ color: "#fdb924" }} />
               변경된 내용
             </SectionTitleContent>
-            <RestoreButton onClick={handleRestore} disabled={restoring}>
-              <FiRotateCcw />
-              {restoring ? "복구 중..." : "복구"}
-            </RestoreButton>
           </SectionTitle>
           <ChangesGrid>
             <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
@@ -931,80 +1022,78 @@ export default function ActivityLogDetailModal({
     // 파일 객체 처리 (fileName 추출)
     if (typeof value === "object" && value !== null) {
       // 파일 배열 처리
-      if (Array.isArray(value)) {
+      if (fieldName === "files" && Array.isArray(value)) {
         if (value.length === 0) {
-          return "-";
+          return "첨부파일 없음";
         }
-
-        // 링크 배열 처리
-        if (fieldName === "links" || fieldName === "newLinks") {
-          if (value.length === 0) return "-";
-
-          // 링크 객체 배열인 경우 (기존 링크)
-          if (value[0] && typeof value[0] === "object" && "url" in value[0]) {
-            return value.map((link: any) => link.url).join(", ");
-          }
-
-          // 문자열 배열인 경우 (새 링크)
-          if (typeof value[0] === "string") {
-            return value.join(", ");
-          }
-
-          return value.join(", ");
-        }
-
-        // 링크 ID 배열 처리 (삭제된 링크)
-        if (fieldName === "linkIdsToDelete") {
-          if (value.length === 0) return "-";
-          return value.join(", ");
-        }
-
-        // 배열의 첫 번째 파일 객체에서 fileName 추출
-        const firstFile = value[0];
-        if (
-          firstFile &&
-          typeof firstFile === "object" &&
-          "fileName" in firstFile
-        ) {
-          return firstFile.fileName || "-";
-        }
-        return "-";
+        return `${value.length}개 파일`;
       }
 
-      // 단일 파일 객체 처리
-      if ("fileName" in value) {
-        return (value as any).fileName || "-";
+      // 링크 배열 처리
+      if (fieldName === "links" && Array.isArray(value)) {
+        if (value.length === 0) {
+          return "첨부 링크 없음";
+        }
+        return `${value.length}개 링크`;
       }
 
-      // 단일 링크 객체 처리
-      if ("url" in value) {
-        return (value as any).url || "-";
+      // 링크 ID 배열 처리 (삭제된 링크)
+      if (fieldName === "linkIdsToDelete") {
+        if (value.length === 0) return "-";
+        return value.join(", ");
       }
 
-      // 다른 객체 타입의 경우 JSON 문자열로 변환하지 않고 "-" 반환
+      // 배열의 첫 번째 파일 객체에서 fileName 추출
+      const firstFile = value[0];
+      if (
+        firstFile &&
+        typeof firstFile === "object" &&
+        "fileName" in firstFile
+      ) {
+        return firstFile.fileName || "-";
+      }
       return "-";
     }
 
-    // 날짜 필드 처리
+    // 단일 파일 객체 처리
+    if (typeof value === "object" && value !== null && "fileName" in value) {
+      return (value as any).fileName || "-";
+    }
+
+    // 단일 링크 객체 처리
+    if (typeof value === "object" && value !== null && "url" in value) {
+      return (value as any).url || "-";
+    }
+
+    // 날짜 형식 처리
     if (
-      fieldName.includes("createdAt") ||
-      fieldName.includes("changedAt") ||
-      fieldName.includes("updatedAt") ||
-      fieldName.includes("deletedAt")
+      fieldName === "createdAt" ||
+      fieldName === "updatedAt" ||
+      fieldName === "deletedAt" ||
+      fieldName === "changedAt" ||
+      fieldName === "startDate" ||
+      fieldName === "endDate"
     ) {
-      try {
-        const date = new Date(value as string);
-        return date.toLocaleString("ko-KR", {
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-        });
-      } catch {
-        return String(value);
+      if (typeof value === "string") {
+        try {
+          return formatDate(value);
+        } catch {
+          return value;
+        }
       }
+    }
+
+    // 부모 ID 처리
+    if (fieldName === "parentId") {
+      if (value === null || value === undefined) {
+        return "없음";
+      }
+      return value.toString();
+    }
+
+    // 삭제 여부 처리
+    if (fieldName === "delete") {
+      return value ? "삭제됨" : "활성";
     }
 
     // 불린 값 처리
@@ -1186,10 +1275,7 @@ export default function ActivityLogDetailModal({
             {renderChanges()}
 
             {/* 수정/삭제 작업에만 복구 버튼 표시 */}
-            {(detail.historyType === "UPDATED" ||
-              detail.historyType === "DELETED") && (
-              <>{restoreError && <ErrorMessage>{restoreError}</ErrorMessage>}</>
-            )}
+            {/* 에러 메시지는 토스트로 처리하므로 제거 */}
           </>
         )}
       </ModalContent>

@@ -28,7 +28,7 @@ interface PageResponse<T> {
 
 interface HistorySimpleResponse {
   id: string;
-  historyType: "CREATED" | "UPDATED" | "DELETED";
+  historyType: "CREATED" | "UPDATED" | "DELETED" | "RESTORED";
   domainType:
     | "POST"
     | "USER"
@@ -130,6 +130,8 @@ export const transformHistoryToActivityLog = (
         return "수정";
       case "DELETED":
         return "삭제";
+      case "RESTORED":
+        return "복구";
       default:
         return historyType;
     }
@@ -258,12 +260,9 @@ export const getPostsDueSoon = async (): Promise<
     );
 
     // 백엔드 응답 구조 확인 - status가 "OK"인 경우 성공
-    if (
-      response.data.status === "OK" ||
-      response.data.status === "SUCCESS" 
-    ) {
+    if (response.data.status === "OK" || response.data.status === "SUCCESS") {
       // data 필드가 없으면 빈 배열 반환
-      return response.data.data ||  [];
+      return response.data.data || [];
     } else {
       throw new Error(response.data.message || "게시글 조회에 실패했습니다.");
     }
@@ -281,12 +280,9 @@ export const getMyMentions = async (): Promise<MyMentionListResponse[]> => {
     );
 
     // 백엔드 응답 구조 확인 - status가 "OK"인 경우 성공
-    if (
-      response.data.status === "OK" ||
-      response.data.status === "SUCCESS" 
-    ) {
+    if (response.data.status === "OK" || response.data.status === "SUCCESS") {
       // data 필드가 없으면 빈 배열 반환
-      return response.data.data ||  [];
+      return response.data.data || [];
     } else {
       throw new Error(response.data.message || "멘션 조회에 실패했습니다.");
     }
@@ -302,7 +298,6 @@ export const markNotificationAsRead = async (
 ): Promise<void> => {
   try {
     await api.put(`/api/notifications/read/${notificationId}`);
-
   } catch (error) {
     console.error("알림 읽음 처리 실패:", error);
     throw error;

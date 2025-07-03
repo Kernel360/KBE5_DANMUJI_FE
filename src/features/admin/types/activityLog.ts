@@ -21,7 +21,7 @@ export interface PageResponse<T> {
 // 백엔드 이력 응답 타입
 export interface HistorySimpleResponse {
   id: string;
-  historyType: "CREATED" | "UPDATED" | "DELETED";
+  historyType: "CREATED" | "UPDATED" | "DELETED" | "RESTORED";
   domainType:
     | "USER"
     | "COMPANY"
@@ -45,7 +45,7 @@ export interface HistorySimpleResponse {
 // 백엔드 이력 상세 응답 타입
 export interface HistoryDetailResponse {
   id: string;
-  historyType: "CREATED" | "UPDATED" | "DELETED";
+  historyType: "CREATED" | "UPDATED" | "DELETED" | "RESTORED";
   domainType:
     | "USER"
     | "COMPANY"
