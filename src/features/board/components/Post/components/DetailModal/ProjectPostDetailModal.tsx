@@ -629,8 +629,8 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
         onClose={handleEditModalClose}
         mode="edit"
         postId={postId || undefined}
-        projectId={post?.project?.projectId || 1}
-        stepId={post?.projectStepId || 1}
+        projectId={post?.project?.projectId}
+        stepId={post?.projectStepId}
         onSuccess={handleEditSuccess}
         colorTheme={{ main: "#fdb924", sub: "#f59e0b" }}
       />

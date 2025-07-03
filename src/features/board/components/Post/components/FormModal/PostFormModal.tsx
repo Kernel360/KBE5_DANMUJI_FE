@@ -76,19 +76,19 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
   mode,
   postId,
   parentId,
-  stepId = 1, // 기본값 1
-  projectId = 1, // 기본값 1
+  stepId,
+  projectId,
   onSuccess,
   colorTheme = { main: "#fdb924", sub: "#f59e0b" },
 }) => {
   const [formData, setFormData] = useState<PostCreateData & PostUpdateRequest>({
-    projectId: projectId,
+    projectId: projectId || 1, // projectId가 없을 때만 기본값 사용
     title: "",
     content: "",
     type: PostType.GENERAL,
     priority: PostPriority.LOW,
     status: PostStatus.PENDING,
-    stepId: stepId,
+    stepId: stepId || 1, // stepId가 없을 때만 기본값 사용
     parentId: parentId || null,
   });
   const [loading, setLoading] = useState(false);
@@ -457,13 +457,13 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
 
   const handleCancel = () => {
     setFormData({
-      projectId: projectId,
+      projectId: projectId || 1,
       title: "",
       content: "",
       type: PostType.GENERAL,
       priority: PostPriority.LOW,
       status: PostStatus.PENDING,
-      stepId: stepId,
+      stepId: stepId || 1,
       parentId: parentId || null,
     });
     setFiles([]);
