@@ -51,7 +51,9 @@ const PostcodeButton = styled.button`
 // window.daum 타입 선언 (최상단에 추가)
 declare global {
   interface Window {
-    daum: any;
+    daum: {
+      Postcode: new (options: { oncomplete: (data: DaumPostcodeData) => void }) => { open: () => void };
+    };
   }
 }
 
@@ -275,6 +277,17 @@ interface Props {
   onRegisterSuccess?: () => void;
 }
 
+// zonecode input width 조정
+const ZoneCodeInput = styled(Input)`
+  width: 120px;
+  margin-bottom: 3px;
+`;
+
+// 주소 입력란(기본주소, 상세주소)에도 margin-bottom 추가
+const AddressInput = styled(Input)`
+  margin-bottom: 3px;
+`;
+
 export default function CompanyRegisterModal({
   open,
   onClose,
@@ -286,6 +299,19 @@ export default function CompanyRegisterModal({
   const formRef = useRef<HTMLFormElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
 
+  const [form, setForm] = useState({
+    name: "",
+    reg1: "",
+    reg2: "",
+    reg3: "",
+    zonecode: "",
+    address: "",
+    addressDetail: "",
+    ceoName: "",
+    email: "",
+    tel: "",
+    bio: "",
+  });
   const [fieldErrors, setFieldErrors] = useState<FieldError[]>([]);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -317,15 +343,22 @@ export default function CompanyRegisterModal({
 
   if (!open) return null;
 
+  // 입력값 변경 핸들러
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
   const handleRegInput = (
     e: React.ChangeEvent<HTMLInputElement>,
     len: number,
     nextRef?: React.RefObject<HTMLInputElement | null>
   ) => {
-    const target = e.target as HTMLInputElement;
-    let value = target.value.replace(/[^0-9]/g, "");
+    let value = e.target.value.replace(/[^0-9]/g, "");
     if (value.length > len) value = value.slice(0, len);
-    target.value = value;
+    setForm((prev) => ({ ...prev, [e.target.name]: value }));
     if (value.length === len && nextRef?.current) {
       nextRef.current.focus();
     }
@@ -335,21 +368,37 @@ export default function CompanyRegisterModal({
     setErrorMessage(null);
     setSuccessMessage(null);
     setFieldErrors([]);
+    setForm({
+      name: "",
+      reg1: "",
+      reg2: "",
+      reg3: "",
+      zonecode: "",
+      address: "",
+      addressDetail: "",
+      ceoName: "",
+      email: "",
+      tel: "",
+      bio: "",
+    });
     onClose();
   };
 
   const handleOpenPostcode = () => {
-    new (window as any).daum.Postcode({
+    new (window as Window).daum.Postcode({
       oncomplete: (data: DaumPostcodeData) => {
-        const form = formRef.current;
-        if (!form) return;
-        const zoneCodeInput = form.querySelector("input[name='zonecode']") as HTMLInputElement;
-        const addressInput = form.querySelector("input[name='address']") as HTMLInputElement;
-        const addressDetailInput = form.querySelector("input[name='addressDetail']") as HTMLInputElement;
-  
-        zoneCodeInput.value = data.zonecode;
-        addressInput.value = data.roadAddress || data.jibunAddress;
-        addressDetailInput?.focus();
+        setForm((prev) => ({
+          ...prev,
+          zonecode: data.zonecode,
+          address: data.roadAddress || data.jibunAddress,
+        }));
+        // 상세주소로 포커스 이동
+        setTimeout(() => {
+          const detailInput = document.querySelector(
+            "input[name='addressDetail']"
+          ) as HTMLInputElement;
+          detailInput?.focus();
+        }, 100);
       },
     }).open();
   };
@@ -361,97 +410,43 @@ export default function CompanyRegisterModal({
     setSuccessMessage(null);
     setFieldErrors([]);
 
-    const formData = new FormData(e.currentTarget);
-    const data = Object.fromEntries(formData) as { [key: string]: string };
-
+    const data = form;
     const bizNo = `${data.reg1}${data.reg2}${data.reg3}`;
-
-    // 전화번호 숫자만 필터링
     const cleanedTel = data.tel.replace(/\D/g, "");
-
-    // 프론트 유효성 검사
     const newFieldErrors: FieldError[] = [];
-
     if (!data.name.trim()) {
-      newFieldErrors.push({
-        field: "name",
-        value: data.name,
-        reason: "업체명은 필수입니다.",
-      });
+      newFieldErrors.push({ field: "name", value: data.name, reason: "업체명은 필수입니다." });
     }
     if (!data.ceoName?.trim()) {
-      newFieldErrors.push({
-        field: "ceoName",
-        value: data.ceoName,
-        reason: "대표자명은 필수입니다.",
-      });
+      newFieldErrors.push({ field: "ceoName", value: data.ceoName, reason: "대표자명은 필수입니다." });
     }
     if (!data.bio.trim()) {
-      newFieldErrors.push({
-        field: "bio",
-        value: data.bio,
-        reason: "업체 소개는 필수입니다.",
-      });
+      newFieldErrors.push({ field: "bio", value: data.bio, reason: "업체 소개는 필수입니다." });
     }
-    if (
-      !/^\d{3}$/.test(data.reg1) ||
-      !/^\d{2}$/.test(data.reg2) ||
-      !/^\d{5}$/.test(data.reg3)
-    ) {
-      newFieldErrors.push({
-        field: "bizNo",
-        value: bizNo,
-        reason: "사업자등록번호 형식이 올바르지 않습니다.",
-      });
+    if (!/^\d{3}$/.test(data.reg1) || !/^\d{2}$/.test(data.reg2) || !/^\d{5}$/.test(data.reg3)) {
+      newFieldErrors.push({ field: "bizNo", value: bizNo, reason: "사업자등록번호 형식이 올바르지 않습니다." });
     }
     if (!data.zonecode?.trim()) {
-      newFieldErrors.push({
-        field: "zonecode",
-        value: data.zonecode,
-        reason: "우편번호는 필수입니다.",
-      });
+      newFieldErrors.push({ field: "zonecode", value: data.zonecode, reason: "우편번호는 필수입니다." });
     }
     if (!data.address?.trim()) {
-      newFieldErrors.push({
-        field: "address",
-        value: data.address,
-        reason: "주소는 필수입니다.",
-      });
+      newFieldErrors.push({ field: "address", value: data.address, reason: "주소는 필수입니다." });
     }
     if (!data.addressDetail?.trim()) {
-      newFieldErrors.push({
-        field: "addressDetail",
-        value: data.addressDetail,
-        reason: "상세주소는 필수입니다.",
-      });
+      newFieldErrors.push({ field: "addressDetail", value: data.addressDetail, reason: "상세주소는 필수입니다." });
     }
     if (!data.email?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
-      newFieldErrors.push({
-        field: "email",
-        value: data.email,
-        reason: "올바른 이메일 형식이 아닙니다.",
-      });
+      newFieldErrors.push({ field: "email", value: data.email, reason: "올바른 이메일 형식이 아닙니다." });
     }
     if (!cleanedTel || !/^\d{9,11}$/.test(cleanedTel)) {
-      newFieldErrors.push({
-        field: "tel",
-        value: data.tel,
-        reason:
-          "전화번호는 9~11자리의 숫자로 입력하세요. 예: 021231234, 01012345678",
-      });
+      newFieldErrors.push({ field: "tel", value: data.tel, reason: "전화번호는 9~11자리의 숫자로 입력하세요. 예: 021231234, 01012345678" });
     }
-
     if (newFieldErrors.length > 0) {
       setFieldErrors(newFieldErrors);
       notify("입력값을 확인해주세요.", false);
       return;
     }
-
-    
-    const fullAddress = [data.address?.trim(), data.addressDetail?.trim()]
-      .filter(Boolean)
-      .join(", ");
-
+    const fullAddress = [data.address?.trim(), data.addressDetail?.trim()].filter(Boolean).join(", ");
     const requestBody = {
       name: data.name,
       bizNo,
@@ -462,7 +457,6 @@ export default function CompanyRegisterModal({
       tel: cleanedTel,
       bio: data.bio,
     };
-
     try {
       await api.post("/api/companies", requestBody);
       showSuccessToast("업체 등록이 완료되었습니다!");
@@ -471,31 +465,16 @@ export default function CompanyRegisterModal({
     } catch (err: unknown) {
       if (axios.isAxiosError(err) && err.response?.data) {
         const errorData = err.response.data as ErrorResponse;
-
-        // 🔽 필드 에러가 있으면 세팅
         if (errorData?.data?.errors) {
           setFieldErrors(errorData.data.errors);
         } else {
-          setErrorMessage(
-            errorData.message || "업체 등록 중 오류가 발생했습니다."
-          );
+          setErrorMessage(errorData.message || "업체 등록 중 오류가 발생했습니다.");
         }
       } else {
         setErrorMessage("업체 등록 중 오류가 발생했습니다.");
       }
     }
   };
-
-  // zonecode input width 조정
-  const ZoneCodeInput = styled(Input)`
-    width: 120px;
-    margin-bottom: 3px;
-  `;
-
-  // 주소 입력란(기본주소, 상세주소)에도 margin-bottom 추가
-  const AddressInput = styled(Input)`
-    margin-bottom: 3px;
-  `;
 
   return ReactDOM.createPortal(
     <ModalOverlay ref={modalRef} className="custom-modal-class">
@@ -516,7 +495,7 @@ export default function CompanyRegisterModal({
               <FiHome size={14} />
               업체명
             </Label>
-            <Input name="name" placeholder="업체명을 입력하세요" />
+            <Input name="name" placeholder="업체명을 입력하세요" value={form.name} onChange={handleInputChange} />
             {fieldErrors.find((e) => e.field === "name") && (
               <p style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>
                 {fieldErrors.find((e) => e.field === "name")?.reason}
@@ -534,6 +513,7 @@ export default function CompanyRegisterModal({
                 ref={reg1}
                 maxLength={3}
                 placeholder="000"
+                value={form.reg1}
                 onChange={(e) => handleRegInput(e, 3, reg2)}
                 inputMode="numeric"
                 pattern="[0-9]*"
@@ -544,6 +524,7 @@ export default function CompanyRegisterModal({
                 ref={reg2}
                 maxLength={2}
                 placeholder="00"
+                value={form.reg2}
                 onChange={(e) => handleRegInput(e, 2, reg3)}
                 inputMode="numeric"
                 pattern="[0-9]*"
@@ -554,6 +535,7 @@ export default function CompanyRegisterModal({
                 ref={reg3}
                 maxLength={5}
                 placeholder="00000"
+                value={form.reg3}
                 onChange={(e) => handleRegInput(e, 5)}
                 inputMode="numeric"
                 pattern="[0-9]*"
@@ -571,14 +553,14 @@ export default function CompanyRegisterModal({
               주소
             </Label>
             <PostcodeRow>
-              <ZoneCodeInput name="zonecode" placeholder="우편번호" readOnly />
+              <ZoneCodeInput name="zonecode" placeholder="우편번호" readOnly value={form.zonecode} />
               <PostcodeButton type="button" onClick={handleOpenPostcode}>
                 <FiSearch size={14} />
                 우편번호 찾기
               </PostcodeButton>
             </PostcodeRow>
-            <AddressInput name="address" placeholder="기본주소를 입력하세요" readOnly />
-            <AddressInput name="addressDetail" placeholder="상세주소를 입력하세요" />
+            <AddressInput name="address" placeholder="기본주소를 입력하세요" readOnly value={form.address} />
+            <AddressInput name="addressDetail" placeholder="상세주소를 입력하세요" value={form.addressDetail} onChange={handleInputChange} />
             {fieldErrors.find((e) => e.field === "address") && (
               <p style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>
                 {fieldErrors.find((e) => e.field === "address")?.reason}
@@ -590,7 +572,7 @@ export default function CompanyRegisterModal({
               <FiUser size={14} />
               대표자명
             </Label>
-            <Input name="ceoName" placeholder="대표자명을 입력하세요" />
+            <Input name="ceoName" placeholder="대표자명을 입력하세요" value={form.ceoName} onChange={handleInputChange} />
             {fieldErrors.find((e) => e.field === "ceoName") && (
               <p style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>
                 {fieldErrors.find((e) => e.field === "ceoName")?.reason}
@@ -606,6 +588,8 @@ export default function CompanyRegisterModal({
               name="email"
               type="email"
               placeholder="이메일을 입력하세요"
+              value={form.email}
+              onChange={handleInputChange}
             />
             {fieldErrors.find((e) => e.field === "email") && (
               <p style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>
@@ -623,6 +607,8 @@ export default function CompanyRegisterModal({
               type="tel"
               placeholder="전화번호를 입력하세요"
               inputMode="numeric"
+              value={form.tel}
+              onChange={handleInputChange}
             />
             {fieldErrors.find((e) => e.field === "tel") && (
               <p style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>
@@ -639,6 +625,8 @@ export default function CompanyRegisterModal({
               name="bio"
               rows={3}
               placeholder="간단한 설명을 입력하세요"
+              value={form.bio}
+              onChange={handleInputChange}
             />
             {fieldErrors.find((e) => e.field === "bio") && (
               <p style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>
