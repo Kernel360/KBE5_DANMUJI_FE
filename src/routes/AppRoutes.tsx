@@ -1,6 +1,7 @@
 // src/AppRoutes.tsxMore actions
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import PrivateRoute from "./PrvateRoute";
 
 // pages
 import LoginPage from "@/features/auth/pages/LoginPage";
@@ -47,6 +48,7 @@ import ProjectListPage from "@/features/project/pages/ProjectListPage";
 
 const AppRoutes = () => {
   const { role } = useAuth();
+  console.log("role:", role);
 
   return (
     <Routes>
@@ -54,9 +56,9 @@ const AppRoutes = () => {
         path="/"
         element={
           role === null ? (
-            <Navigate to="/dashboard" replace />
-          ) : (
             <Navigate to="/login" replace />
+          ) : (
+            <Navigate to="/dashboard" replace />
           )
         }
       />
@@ -65,7 +67,7 @@ const AppRoutes = () => {
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route
         path="/dashboard"
-        element={
+        element={ role !== null &&
           role === "ROLE_ADMIN" ? (
             <AdminDashboardPage />
           ) : role === "ROLE_USER" ||
@@ -80,8 +82,8 @@ const AppRoutes = () => {
       />
 
       {/* 관리자 전용 */}
-      {role === "ROLE_ADMIN" && (
-        <>
+      <Route element={<PrivateRoute allowedRoles={["ROLE_ADMIN"]}/>}>
+    
           <Route path="/company" element={<CompanyPage />} />
           <Route path="/company/:id" element={<CompanyDetailPage />} />
           <Route path="/members" element={<MemberPage />} />
@@ -94,23 +96,27 @@ const AppRoutes = () => {
             element={<EditProjectPage />}
           />
           <Route path="/projects" element={<AdminProjectPage />} /> */}
-        </>
-      )}
+      </Route>
 
-      {/* 공용 페이지 */}
-      <Route path="/posts/:stepId" element={<PostListPage />} />
-      {/* <Route path="/projects/all" element={<MemberProjectPage />} /> */}
-      <Route
-        path="/projects/:projectId/detail"
-        element={<ProjectDetailPage />}
-      />
-      <Route path="/projects" element={<ProjectListPage />} />
-      {/* <Route path="/projects/completed" element={<CompletedProject />} />
-      <Route path="/projects/inprogress" element={<InProgressProject />} />
-      <Route path="/projects/active" element={<InProgressProject />} /> */}
-      <Route path="/my" element={<UserProfilePage />} />
-      <Route path="/my-inquiry" element={<UserInquiryPage />} />
-      <Route path="/inquiry/:inquiryId" element={<InquiryDetailPage />} />
+      {/* 사용자 전용 */}
+      <Route element={<PrivateRoute allowedRoles={["ROLE_USER"]}/>}>
+          <Route path="/posts/:stepId" element={<PostListPage />} />
+          {/* <Route path="/projects/all" element={<MemberProjectPage />} /> */}
+          <Route
+            path="/projects/:projectId/detail"
+            element={<ProjectDetailPage />}
+          />
+          <Route path="/projects" element={<ProjectListPage />} />
+          {/* <Route path="/projects/completed" element={<CompletedProject />} />
+          <Route path="/projects/inprogress" element={<InProgressProject />} />
+          <Route path="/projects/active" element={<InProgressProject />} /> */}
+          <Route path="/my" element={<UserProfilePage />} />
+          <Route path="/my-inquiry" element={<UserInquiryPage />} />
+          <Route path="/inquiry/:inquiryId" element={<InquiryDetailPage />} />
+      </Route>
+      
+      {/* 잘못된 경로는 로그인으로 */}
+      <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );
 };
