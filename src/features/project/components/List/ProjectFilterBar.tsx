@@ -27,17 +27,6 @@ import {
   SelectButton,
   SelectDropdown,
   SelectOption,
-  ModalOverlay,
-  ClientModal,
-  ModalHeader,
-  ModalTitle,
-  ModalSubtitle,
-  ModalBody,
-  SearchInputWrapper,
-  ModalSearchInput,
-  SearchIcon,
-  ModalFooter,
-  ModalButton,
   StatusDropdownContainer,
   StatusDropdownButton,
   StatusDropdownMenu,
@@ -49,7 +38,7 @@ const STATUS_MAP = {
   "": { label: "전체", icon: FiGrid, color: "#6b7280" },
   IN_PROGRESS: { label: "진행중", icon: FiClock, color: "#3b82f6" },
   COMPLETED: { label: "완료", icon: FiCheckCircle, color: "#10b981" },
-  DELAYED: { label: "지연", icon: FiAlertTriangle, color: "#ef4444" },
+  DELAY: { label: "지연", icon: FiAlertTriangle, color: "#ef4444" },
   DUE_SOON: { label: "기한임박", icon: FiAlertCircle, color: "#f59e42" },
 } as const;
 
@@ -59,8 +48,8 @@ const SORT_OPTIONS = [
 ];
 
 const SEARCH_CATEGORY_OPTIONS = [ // all 일때로 나중에 수정
-  { value: "nameProject", label: "제목" },
-  { value: "nameCompany", label: "업체" },
+  { value: "projectName", label: "제목" },
+  { value: "companyName", label: "업체" },
 ];
 
 interface ProjectFilterBarProps {
