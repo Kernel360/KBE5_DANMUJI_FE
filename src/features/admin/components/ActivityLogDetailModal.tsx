@@ -23,6 +23,7 @@ import { FiPackage } from "react-icons/fi";
 import {
   getActivityLogDetail,
   restoreCompany,
+  restoreProject,
 } from "../services/activityLogService";
 import { restorePost } from "@/features/project-d/services/postService";
 import { formatFullDateTime } from "@/utils/dateUtils";
@@ -379,12 +380,6 @@ export default function ActivityLogDetailModal({
   const handleRestore = async () => {
     if (!detail) return;
 
-    // 프로젝트는 아직 API 연동이 안 되어있으므로 토스트 메시지로 안내
-    if (detail.domainType === "PROJECT") {
-      showErrorToast("아직 프로젝트 복구는 연동을 못했습니다 죄송ㅎㅎ");
-      return;
-    }
-
     // 디버깅을 위해 domainId 출력
     console.log(
       "복구 시도 - domainType:",
@@ -409,9 +404,10 @@ export default function ActivityLogDetailModal({
           console.log("회사 복구 API 응답:", response);
           break;
         case "PROJECT":
-          // 프로젝트는 아직 연동 안됨
-          showErrorToast("아직 프로젝트 복구는 연동을 못했습니다 죄송ㅎㅎ");
-          return;
+          console.log("프로젝트 복구 API 호출 - projectId:", detail.domainId);
+          response = await restoreProject(detail.domainId);
+          console.log("프로젝트 복구 API 응답:", response);
+          break;
         default:
           throw new Error("복구할 수 없는 도메인 타입입니다.");
       }
@@ -419,7 +415,8 @@ export default function ActivityLogDetailModal({
       if (
         response.success ||
         response.code === "P210" ||
-        response.code === "COMP208"
+        response.code === "COMP208" ||
+        response.code === "PJ211"
       ) {
         const domainTypeName = getDomainTypeDisplayName(detail.domainType);
         showSuccessToast(`${domainTypeName} 복구가 완료되었습니다.`);

@@ -319,3 +319,19 @@ export const restoreCompany = async (
     throw error;
   }
 };
+
+// 프로젝트 복구 API
+export const restoreProject = async (
+  projectId: number
+): Promise<ApiResponse<void>> => {
+  try {
+    const response = await api.put<ApiResponse<void>>(
+      `/api/projects/${projectId}/restore`
+    );
+    return response.data;
+  } catch (error: any) {
+    console.error("프로젝트 복구 실패:", error);
+    // 에러를 그대로 throw하여 상위에서 처리하도록 함
+    throw error;
+  }
+};
