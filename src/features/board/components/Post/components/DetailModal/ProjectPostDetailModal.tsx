@@ -50,6 +50,7 @@ interface PostDetailModalProps {
   onPostDelete?: (deletedPostId: number) => void;
   onEditPost?: (postId: number) => void;
   onReplyPost?: (parentId: number) => void;
+  onEditSuccess?: () => void;
 }
 
 const PostDetailModal: React.FC<PostDetailModalProps> = ({
@@ -61,6 +62,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
   onPostDelete,
   onEditPost,
   onReplyPost,
+  onEditSuccess,
 }) => {
   const { user, role } = useAuth();
   const [commentText, setCommentText] = useState("");
@@ -261,6 +263,9 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
       }
     }
     setIsEditModalOpen(false);
+
+    // 부모 컴포넌트에 수정 완료 알림
+    onEditSuccess?.();
   };
 
   // 게시글 답글 핸들러

@@ -334,6 +334,7 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
         onEditPost={handleEditPost}
         onReplyPost={handleReplyPost}
         onPostDelete={handlePostDelete}
+        onEditSuccess={handleFormModalSuccess}
       />
 
       <PostFormModal
