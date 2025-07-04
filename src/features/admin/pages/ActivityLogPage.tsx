@@ -753,7 +753,7 @@ export default function ActivityLogPage() {
           <TableHead>
             <TableRow>
               <TableHeader style={{ width: "120px" }}>작업</TableHeader>
-              <TableHeader style={{ width: "200px" }}>변경자</TableHeader>
+              <TableHeader style={{ width: "200px" }}>변경자 권한</TableHeader>
               <TableHeader style={{ width: "180px" }}>대상</TableHeader>
               <TableHeader style={{ width: "300px" }}>상세내용</TableHeader>
               <TableHeader style={{ width: "200px" }}>
