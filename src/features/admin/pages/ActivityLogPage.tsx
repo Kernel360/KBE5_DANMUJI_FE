@@ -164,8 +164,6 @@ export default function ActivityLogPage() {
       icon: RiUserSettingsLine,
       color: "#8b5cf6",
     },
-    { value: "ROLE_DEV", label: "개발자", icon: FiUser, color: "#3b82f6" },
-    { value: "ROLE_CLIENT", label: "고객", icon: FiUser, color: "#10b981" },
     { value: "ROLE_USER", label: "사용자", icon: FiUser, color: "#6b7280" },
   ];
 
@@ -803,9 +801,6 @@ export default function ActivityLogPage() {
                         ({log.changerUsername})
                       </span>
                     )}
-                    <span style={{ fontSize: "12px", color: "#6b7280" }}>
-                      ({log.userRole === "ROLE_ADMIN" ? "관리자" : "사용자"})
-                    </span>
                   </div>
                 </TableCell>
                 <TableCell style={{ width: "180px" }}>
