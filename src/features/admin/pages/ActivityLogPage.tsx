@@ -974,6 +974,7 @@ export default function ActivityLogPage() {
         isOpen={detailModalOpen}
         onClose={handleDetailModalClose}
         historyId={selectedHistoryId}
+        onRestoreSuccess={fetchActivityLogs}
       />
     </PageContainer>
   );
