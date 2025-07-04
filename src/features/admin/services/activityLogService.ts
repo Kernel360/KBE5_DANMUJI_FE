@@ -303,3 +303,19 @@ export const markNotificationAsRead = async (
     throw error;
   }
 };
+
+// 회사 복구 API
+export const restoreCompany = async (
+  companyId: number
+): Promise<ApiResponse<void>> => {
+  try {
+    const response = await api.put<ApiResponse<void>>(
+      `/api/companies/${companyId}/restore`
+    );
+    return response.data;
+  } catch (error: any) {
+    console.error("회사 복구 실패:", error);
+    // 에러를 그대로 throw하여 상위에서 처리하도록 함
+    throw error;
+  }
+};
