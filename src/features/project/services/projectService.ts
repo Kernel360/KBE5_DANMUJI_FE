@@ -221,18 +221,23 @@ export const getProjectDetail = async (
 
 // 프로젝트 검색
 export const searchProjects = async (
-  keyword: string,
-  page: number = 0,
-  size: number = 10
+  params: {
+    keyword?: string;
+    category?: string;
+    projectStatus?: string;
+    startDate?: string;
+    endDate?: string;
+    sort?: string;
+    page?: number;
+    size?: number;
+  }
 ): Promise<ApiResponse<{ content: ProjectResponse[]; page: PageMetadata }>> => {
   try {
     const response = await api.get<
       ApiResponse<{ content: ProjectResponse[]; page: PageMetadata }>
     >("/api/projects/search", {
       params: {
-        keyword,
-        page,
-        size,
+        ...params,
       },
     });
     return handleApiResponse<{

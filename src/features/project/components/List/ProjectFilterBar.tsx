@@ -27,17 +27,6 @@ import {
   SelectButton,
   SelectDropdown,
   SelectOption,
-  ModalOverlay,
-  ClientModal,
-  ModalHeader,
-  ModalTitle,
-  ModalSubtitle,
-  ModalBody,
-  SearchInputWrapper,
-  ModalSearchInput,
-  SearchIcon,
-  ModalFooter,
-  ModalButton,
   StatusDropdownContainer,
   StatusDropdownButton,
   StatusDropdownMenu,
@@ -49,7 +38,7 @@ const STATUS_MAP = {
   "": { label: "전체", icon: FiGrid, color: "#6b7280" },
   IN_PROGRESS: { label: "진행중", icon: FiClock, color: "#3b82f6" },
   COMPLETED: { label: "완료", icon: FiCheckCircle, color: "#10b981" },
-  DELAYED: { label: "지연", icon: FiAlertTriangle, color: "#ef4444" },
+  DELAY: { label: "지연", icon: FiAlertTriangle, color: "#ef4444" },
   DUE_SOON: { label: "기한임박", icon: FiAlertCircle, color: "#f59e42" },
 } as const;
 
@@ -58,11 +47,9 @@ const SORT_OPTIONS = [
   { value: "oldest", label: "오래된순" },
 ];
 
-const SEARCH_CATEGORY_OPTIONS = [
-  { value: "all", label: "전체" },
-  { value: "name", label: "제목" },
-  { value: "clientCompany", label: "고객사" },
-  { value: "developerCompany", label: "개발사" },
+const SEARCH_CATEGORY_OPTIONS = [ // all 일때로 나중에 수정
+  { value: "projectName", label: "제목" },
+  { value: "companyName", label: "업체" },
 ];
 
 interface ProjectFilterBarProps {
@@ -91,8 +78,6 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
   const [clientModalOpen, setClientModalOpen] = useState(false);
   const [clientSearchTerm, setClientSearchTerm] = useState("");
   const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
-  const [keyword, setKeyword] = useState("");
-  const [category, setCategory] = useState(filters.category || "all");
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
 
   const statusDropdownRef = useRef<HTMLDivElement>(null);
@@ -100,12 +85,10 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
   const categoryDropdownRef = useRef<HTMLDivElement>(null);
 
   const handleSearch = () => {
-    onInputChange("keyword", keyword);
     onSearch();
   };
 
   const handleResetFilters = () => {
-    setKeyword("");
     onInputChange("keyword", "");
     onReset();
   };
@@ -491,15 +474,15 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
                 <SelectButton
                   type="button"
                   onClick={() => setCategoryDropdownOpen((prev) => !prev)}
-                  $hasValue={!!category}
+                  $hasValue={!!filters.category}
                   $color="#3b82f6"
                   className={categoryDropdownOpen ? "open" : ""}
                   style={{ paddingLeft: 10, paddingRight: 10, minWidth: 90 }}
                 >
                   <span className="select-value">
                     {SEARCH_CATEGORY_OPTIONS.find(
-                      (opt) => opt.value === category
-                    )?.label || "전체"}
+                      (opt) => opt.value === filters.category
+                    )?.label || "제목"}
                   </span>
                   <FiChevronDown size={16} />
                 </SelectButton>
@@ -507,9 +490,8 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
                   {SEARCH_CATEGORY_OPTIONS.map((option) => (
                     <SelectOption
                       key={option.value}
-                      $isSelected={category === option.value}
+                      $isSelected={filters.category === option.value}
                       onClick={() => {
-                        setCategory(option.value);
                         onInputChange("category", option.value);
                         setCategoryDropdownOpen(false);
                       }}
@@ -521,8 +503,8 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
               </div>
               <SearchInput
                 placeholder={"검색어를 입력하세요"}
-                value={keyword}
-                onChange={(e) => setKeyword(e.target.value)}
+                value={filters.keyword}
+                onChange={(e) => onInputChange("keyword", e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") handleSearch();
                 }}
@@ -537,40 +519,6 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
           </FilterGroup>
         </div>
       </FilterBar>
-
-      {/* 고객사 선택 모달 */}
-      <ModalOverlay $isOpen={clientModalOpen} onClick={handleClientModalClose}>
-        <ClientModal
-          $isOpen={clientModalOpen}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <ModalHeader>
-            <ModalTitle>고객사 선택</ModalTitle>
-            <ModalSubtitle>
-              프로젝트를 진행할 고객사를 선택해주세요
-            </ModalSubtitle>
-          </ModalHeader>
-          <ModalBody>
-            <SearchInputWrapper>
-              <SearchIcon>
-                <FiSearch size={16} />
-              </SearchIcon>
-              <ModalSearchInput
-                placeholder="고객사명 또는 설명으로 검색..."
-                value={clientSearchTerm}
-                onChange={(e) => setClientSearchTerm(e.target.value)}
-                autoFocus
-              />
-            </SearchInputWrapper>
-          </ModalBody>
-          <ModalFooter>
-            <ModalButton onClick={handleClientModalClose}>취소</ModalButton>
-            <ModalButton $primary onClick={handleClientConfirm}>
-              선택 완료
-            </ModalButton>
-          </ModalFooter>
-        </ClientModal>
-      </ModalOverlay>
     </DatePickerStyles>
   );
 };
