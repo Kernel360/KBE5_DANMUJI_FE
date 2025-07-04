@@ -19,6 +19,17 @@ const ProjectBoardPagination: React.FC<ProjectBoardPaginationProps> = ({
   totalElements,
   onPageChange,
 }) => {
+  // 10개씩 앞뒤로 가는 함수
+  const handleJumpForward = () => {
+    const newPage = Math.min(currentPage + 10, totalPages - 1);
+    onPageChange(newPage);
+  };
+
+  const handleJumpBackward = () => {
+    const newPage = Math.max(currentPage - 10, 0);
+    onPageChange(newPage);
+  };
+
   return (
     <PaginationContainer>
       <PaginationNav>
@@ -27,6 +38,11 @@ const ProjectBoardPagination: React.FC<ProjectBoardPaginationProps> = ({
           <PaginationButton onClick={() => onPageChange(0)}>
             맨 처음
           </PaginationButton>
+        )}
+
+        {/* 10개씩 뒤로 가기 버튼 */}
+        {currentPage >= 10 && (
+          <PaginationButton onClick={handleJumpBackward}>-10</PaginationButton>
         )}
 
         {/* 이전 버튼 */}
@@ -108,6 +124,11 @@ const ProjectBoardPagination: React.FC<ProjectBoardPaginationProps> = ({
           <PaginationButton onClick={() => onPageChange(currentPage + 1)}>
             다음
           </PaginationButton>
+        )}
+
+        {/* 10개씩 앞으로 가기 버튼 */}
+        {currentPage + 10 < totalPages && (
+          <PaginationButton onClick={handleJumpForward}>+10</PaginationButton>
         )}
 
         {/* 마지막 페이지로 이동 버튼 */}

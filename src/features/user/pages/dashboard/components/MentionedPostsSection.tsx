@@ -394,7 +394,12 @@ const MentionedPostsSection = () => {
                     color: mention.isRead ? "#9ca3af" : "#374151",
                     lineHeight: "1.4",
                     marginBottom: "4px",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                    maxWidth: "300px",
                   }}
+                  title={mention.content}
                 >
                   {mention.content}
                 </div>

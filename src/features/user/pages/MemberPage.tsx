@@ -588,6 +588,18 @@ export default function MemberPage() {
     setCurrentPage(newPage);
   };
 
+  // 10개씩 앞뒤로 가는 함수
+  const handleJumpForward = () => {
+    const totalPages = Math.ceil(totalMembers / pageSize);
+    const newPage = Math.min(currentPage + 10, totalPages - 1);
+    handlePageChange(newPage);
+  };
+
+  const handleJumpBackward = () => {
+    const newPage = Math.max(currentPage - 10, 0);
+    handlePageChange(newPage);
+  };
+
   const getPaginationInfo = () => {
     const start = currentPage * pageSize + 1;
     const end = Math.min((currentPage + 1) * pageSize, totalMembers);
@@ -1018,6 +1030,20 @@ export default function MemberPage() {
 
       <PaginationContainer>
         <PaginationNav>
+          {/* 첫 페이지로 이동 버튼 */}
+          {currentPage > 0 && (
+            <PaginationButton onClick={() => handlePageChange(0)}>
+              맨 처음
+            </PaginationButton>
+          )}
+
+          {/* 10개씩 뒤로 가기 버튼 */}
+          {currentPage >= 10 && (
+            <PaginationButton onClick={handleJumpBackward}>
+              -10
+            </PaginationButton>
+          )}
+
           <PaginationButton
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 0}
@@ -1036,6 +1062,22 @@ export default function MemberPage() {
           >
             다음
           </PaginationButton>
+
+          {/* 10개씩 앞으로 가기 버튼 */}
+          {currentPage + 10 < Math.ceil(totalMembers / pageSize) && (
+            <PaginationButton onClick={handleJumpForward}>+10</PaginationButton>
+          )}
+
+          {/* 마지막 페이지로 이동 버튼 */}
+          {currentPage < Math.ceil(totalMembers / pageSize) - 1 && (
+            <PaginationButton
+              onClick={() =>
+                handlePageChange(Math.ceil(totalMembers / pageSize) - 1)
+              }
+            >
+              맨 마지막
+            </PaginationButton>
+          )}
         </PaginationNav>
         <PaginationInfo>{getPaginationInfo()}</PaginationInfo>
       </PaginationContainer>

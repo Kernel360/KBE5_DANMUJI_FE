@@ -193,9 +193,9 @@ const SearchInput = styled.input`
 `;
 
 const STATUS_OPTIONS = [
-  { value: '', label: '전체' },
-  { value: '답변대기', label: '답변대기' },
-  { value: '답변완료', label: '답변완료' },
+  { value: "", label: "전체" },
+  { value: "답변대기", label: "답변대기" },
+  { value: "답변완료", label: "답변완료" },
 ];
 
 const SEARCH_FIELD_OPTIONS = [
@@ -225,8 +225,15 @@ interface InquiryFilterBarProps {
   onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 }
 
-function InquiryFilterBar({ filters, onChange, onSearch, onReset, onKeyDown }: InquiryFilterBarProps) {
-  const [searchFieldDropdownOpen, setSearchFieldDropdownOpen] = React.useState(false);
+function InquiryFilterBar({
+  filters,
+  onChange,
+  onSearch,
+  onReset,
+  onKeyDown,
+}: InquiryFilterBarProps) {
+  const [searchFieldDropdownOpen, setSearchFieldDropdownOpen] =
+    React.useState(false);
   const searchFieldDropdownRef = React.useRef<HTMLDivElement>(null);
   const [statusDropdownOpen, setStatusDropdownOpen] = React.useState(false);
   const statusDropdownRef = React.useRef<HTMLDivElement>(null);
@@ -311,9 +318,23 @@ function InquiryFilterBar({ filters, onChange, onSearch, onReset, onKeyDown }: I
   return (
     <DatePickerStyles>
       <FilterBar>
-        <FilterGroup style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 6, minWidth: 220 }}>
+        <FilterGroup
+          style={{
+            flexDirection: "column",
+            alignItems: "flex-start",
+            gap: 6,
+            minWidth: 220,
+          }}
+        >
           <FilterLabel>검색</FilterLabel>
-          <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-end', gap: 8 }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "flex-end",
+              gap: 8,
+            }}
+          >
             <div style={{ position: "relative" }} ref={searchFieldDropdownRef}>
               <SelectButton
                 type="button"
@@ -322,10 +343,15 @@ function InquiryFilterBar({ filters, onChange, onSearch, onReset, onKeyDown }: I
                 style={{ paddingLeft: 10, paddingRight: 10, width: 100 }}
                 $hasValue={false}
               >
-                <span className="select-value">{getSearchFieldLabel(filters.searchField)}</span>
+                <span className="select-value">
+                  {getSearchFieldLabel(filters.searchField)}
+                </span>
                 <FiChevronDown size={16} />
               </SelectButton>
-              <SelectDropdown $isOpen={searchFieldDropdownOpen} style={{ minWidth: 100 }}>
+              <SelectDropdown
+                $isOpen={searchFieldDropdownOpen}
+                style={{ minWidth: 100 }}
+              >
                 {SEARCH_FIELD_OPTIONS.map((option) => (
                   <SelectOption
                     key={option.value}
@@ -342,9 +368,13 @@ function InquiryFilterBar({ filters, onChange, onSearch, onReset, onKeyDown }: I
             </div>
             <SearchInput
               type="text"
-              placeholder={filters.searchField === 'title' ? '제목을 입력하세요' : '작성자를 입력하세요'}
+              placeholder={
+                filters.searchField === "title"
+                  ? "제목을 입력하세요"
+                  : "작성자를 입력하세요"
+              }
               value={filters.searchValue}
-              onChange={e => onChange("searchValue", e.target.value)}
+              onChange={(e) => onChange("searchValue", e.target.value)}
               onKeyDown={onKeyDown}
             />
           </div>
@@ -359,10 +389,15 @@ function InquiryFilterBar({ filters, onChange, onSearch, onReset, onKeyDown }: I
               style={{ paddingLeft: 10, paddingRight: 10, width: 100 }}
               $hasValue={false}
             >
-              <span className="select-value">{getStatusLabel(filters.status)}</span>
+              <span className="select-value">
+                {getStatusLabel(filters.status)}
+              </span>
               <FiChevronDown size={16} />
             </SelectButton>
-            <SelectDropdown $isOpen={statusDropdownOpen} style={{ minWidth: 100 }}>
+            <SelectDropdown
+              $isOpen={statusDropdownOpen}
+              style={{ minWidth: 100 }}
+            >
               {STATUS_OPTIONS.map((option) => (
                 <SelectOption
                   key={option.value}
@@ -391,7 +426,9 @@ function InquiryFilterBar({ filters, onChange, onSearch, onReset, onKeyDown }: I
                 $hasValue={!!filters.startDate}
               >
                 <span>시작일</span>
-                <span className="date-value">{formatDate(filters.startDate)}</span>
+                <span className="date-value">
+                  {formatDate(filters.startDate)}
+                </span>
               </DateButton>
               {startDateOpen && (
                 <div
@@ -404,12 +441,18 @@ function InquiryFilterBar({ filters, onChange, onSearch, onReset, onKeyDown }: I
                   }}
                 >
                   <DatePicker
-                    selected={filters.startDate ? new Date(filters.startDate) : null}
+                    selected={
+                      filters.startDate ? new Date(filters.startDate) : null
+                    }
                     onChange={handleStartDateChange}
                     selectsStart
-                    startDate={filters.startDate ? new Date(filters.startDate) : null}
+                    startDate={
+                      filters.startDate ? new Date(filters.startDate) : null
+                    }
                     endDate={filters.endDate ? new Date(filters.endDate) : null}
-                    maxDate={filters.endDate ? new Date(filters.endDate) : undefined}
+                    maxDate={
+                      filters.endDate ? new Date(filters.endDate) : undefined
+                    }
                     dateFormat="yyyy-MM-dd"
                     placeholderText="시작일 선택"
                     inline
@@ -421,7 +464,16 @@ function InquiryFilterBar({ filters, onChange, onSearch, onReset, onKeyDown }: I
                 </div>
               )}
             </div>
-            <span style={{ color: '#6b7280', fontWeight: 600, fontSize: '0.9rem', padding: '0 4px' }}>~</span>
+            <span
+              style={{
+                color: "#6b7280",
+                fontWeight: 600,
+                fontSize: "0.9rem",
+                padding: "0 4px",
+              }}
+            >
+              ~
+            </span>
             <div style={{ position: "relative" }}>
               <DateButton
                 type="button"
@@ -432,7 +484,9 @@ function InquiryFilterBar({ filters, onChange, onSearch, onReset, onKeyDown }: I
                 $hasValue={!!filters.endDate}
               >
                 <span>종료일</span>
-                <span className="date-value">{formatDate(filters.endDate)}</span>
+                <span className="date-value">
+                  {formatDate(filters.endDate)}
+                </span>
               </DateButton>
               {endDateOpen && (
                 <div
@@ -445,12 +499,20 @@ function InquiryFilterBar({ filters, onChange, onSearch, onReset, onKeyDown }: I
                   }}
                 >
                   <DatePicker
-                    selected={filters.endDate ? new Date(filters.endDate) : null}
+                    selected={
+                      filters.endDate ? new Date(filters.endDate) : null
+                    }
                     onChange={handleEndDateChange}
                     selectsEnd
-                    startDate={filters.startDate ? new Date(filters.startDate) : null}
+                    startDate={
+                      filters.startDate ? new Date(filters.startDate) : null
+                    }
                     endDate={filters.endDate ? new Date(filters.endDate) : null}
-                    minDate={filters.startDate ? new Date(filters.startDate) : undefined}
+                    minDate={
+                      filters.startDate
+                        ? new Date(filters.startDate)
+                        : undefined
+                    }
                     dateFormat="yyyy-MM-dd"
                     placeholderText="종료일 선택"
                     inline
@@ -464,7 +526,7 @@ function InquiryFilterBar({ filters, onChange, onSearch, onReset, onKeyDown }: I
             </div>
           </DateRangeGroup>
         </FilterGroup>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: "flex", gap: 8 }}>
           <NewButton
             style={{
               minWidth: "auto",
@@ -565,7 +627,7 @@ export default function InquiryPage() {
   useEffect(() => {
     const fetchInquiries = async () => {
       try {
-        const response = await api.get('/api/inquiries/all');
+        const response = await api.get("/api/inquiries/all");
         if (response.data && response.data.data) {
           const inquiriesData = response.data.data;
           setAllInquiries(inquiriesData);
@@ -583,37 +645,42 @@ export default function InquiryPage() {
   };
 
   const handleFilterChange = (field: string, value: string) => {
-    setFilters(prev => ({ ...prev, [field]: value }));
+    setFilters((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSearch = () => {
     let result = allInquiries;
 
     if (filters.searchValue) {
-      if (filters.searchField === 'title') {
-        result = result.filter(i => i.title.includes(filters.searchValue));
-      } else if (filters.searchField === 'author') {
-        result = result.filter(i => i.authorName.includes(filters.searchValue));
+      if (filters.searchField === "title") {
+        result = result.filter((i) => i.title.includes(filters.searchValue));
+      } else if (filters.searchField === "author") {
+        result = result.filter((i) =>
+          i.authorName.includes(filters.searchValue)
+        );
       }
     }
 
     if (filters.status) {
-        result = result.filter(i => {
-            const statusText = i.inquiryStatus === 'WAITING' ? '답변대기' : '답변완료';
-            return statusText === filters.status;
-        });
+      result = result.filter((i) => {
+        const statusText =
+          i.inquiryStatus === "WAITING" ? "답변대기" : "답변완료";
+        return statusText === filters.status;
+      });
     }
 
     if (filters.startDate) {
-      result = result.filter(i => new Date(i.createdAt) >= new Date(filters.startDate));
+      result = result.filter(
+        (i) => new Date(i.createdAt) >= new Date(filters.startDate)
+      );
     }
 
     if (filters.endDate) {
-        const endDate = new Date(filters.endDate);
-        endDate.setHours(23, 59, 59, 999);
-        result = result.filter(i => new Date(i.createdAt) <= endDate);
+      const endDate = new Date(filters.endDate);
+      endDate.setHours(23, 59, 59, 999);
+      result = result.filter((i) => new Date(i.createdAt) <= endDate);
     }
-    
+
     setFilteredInquiries(result);
     setPage(1);
   };
@@ -637,8 +704,22 @@ export default function InquiryPage() {
     return `총 ${filteredInquiries.length}개의 문의 중 ${start}-${end}개 표시`;
   };
 
+  // 10개씩 앞뒤로 가는 함수
+  const handleJumpForward = () => {
+    const newPage = Math.min(page + 10, pageCount);
+    setPage(newPage);
+  };
+
+  const handleJumpBackward = () => {
+    const newPage = Math.max(page - 10, 1);
+    setPage(newPage);
+  };
+
   const pageCount = Math.ceil(filteredInquiries.length / pageSize);
-  const pagedData = filteredInquiries.slice((page - 1) * pageSize, page * pageSize);
+  const pagedData = filteredInquiries.slice(
+    (page - 1) * pageSize,
+    page * pageSize
+  );
 
   return (
     <Container>
@@ -652,9 +733,9 @@ export default function InquiryPage() {
         onSearch={handleSearch}
         onReset={handleReset}
         onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              handleSearch();
-            }
+          if (e.key === "Enter") {
+            handleSearch();
+          }
         }}
       />
       <TableContainer>
@@ -669,39 +750,58 @@ export default function InquiryPage() {
           </TableHead>
           <TableBody>
             {pagedData.map((inq) => {
-                const statusText = inq.inquiryStatus === 'WAITING' ? '답변대기' : '답변완료';
-                const formattedDate = new Date(inq.createdAt).toLocaleDateString('ko-KR');
-                return (
-                  <TableRow key={inq.id}>
-                    <InquiryTitleCell onClick={() => handleTitleClick(inq.id)}>
-                      {inq.title}
-                    </InquiryTitleCell>
-                    <TableCell>{inq.authorName}</TableCell>
-                    <TableCell>{formattedDate}</TableCell>
-                    <TableCell>
-                      <StatusBadge $status={statusText}>{statusText}</StatusBadge>
-                    </TableCell>
-                  </TableRow>
-                );
+              const statusText =
+                inq.inquiryStatus === "WAITING" ? "답변대기" : "답변완료";
+              const formattedDate = new Date(inq.createdAt).toLocaleDateString(
+                "ko-KR"
+              );
+              return (
+                <TableRow key={inq.id}>
+                  <InquiryTitleCell onClick={() => handleTitleClick(inq.id)}>
+                    {inq.title}
+                  </InquiryTitleCell>
+                  <TableCell>{inq.authorName}</TableCell>
+                  <TableCell>{formattedDate}</TableCell>
+                  <TableCell>
+                    <StatusBadge $status={statusText}>{statusText}</StatusBadge>
+                  </TableCell>
+                </TableRow>
+              );
             })}
-            {Array.from({ length: pageSize - pagedData.length }).map((_, idx) => (
-              <TableRow key={`empty-${idx}`}>
-                <TableCell
-                  colSpan={4}
-                  style={{
-                    height: 48,
-                    background: "#f9fafb",
-                    borderBottom: "1px solid #f3f4f6"
-                  }}
-                />
-              </TableRow>
-            ))}
+            {Array.from({ length: pageSize - pagedData.length }).map(
+              (_, idx) => (
+                <TableRow key={`empty-${idx}`}>
+                  <TableCell
+                    colSpan={4}
+                    style={{
+                      height: 48,
+                      background: "#f9fafb",
+                      borderBottom: "1px solid #f3f4f6",
+                    }}
+                  />
+                </TableRow>
+              )
+            )}
           </TableBody>
         </Table>
       </TableContainer>
       <PaginationContainer>
         {filteredInquiries.length > 0 && (
           <PaginationNav>
+            {/* 첫 페이지로 이동 버튼 */}
+            {page > 1 && (
+              <PaginationButton onClick={() => setPage(1)}>
+                맨 처음
+              </PaginationButton>
+            )}
+
+            {/* 10개씩 뒤로 가기 버튼 */}
+            {page > 10 && (
+              <PaginationButton onClick={handleJumpBackward}>
+                -10
+              </PaginationButton>
+            )}
+
             {page > 1 && (
               <PaginationButton onClick={() => setPage(page - 1)}>
                 이전
@@ -726,10 +826,24 @@ export default function InquiryPage() {
                 다음
               </PaginationButton>
             )}
+
+            {/* 10개씩 앞으로 가기 버튼 */}
+            {page + 10 <= pageCount && (
+              <PaginationButton onClick={handleJumpForward}>
+                +10
+              </PaginationButton>
+            )}
+
+            {/* 마지막 페이지로 이동 버튼 */}
+            {page < pageCount && (
+              <PaginationButton onClick={() => setPage(pageCount)}>
+                맨 마지막
+              </PaginationButton>
+            )}
           </PaginationNav>
         )}
         <PaginationInfo>{getPaginationInfo()}</PaginationInfo>
       </PaginationContainer>
     </Container>
   );
-} 
+}

@@ -47,7 +47,6 @@ export default function ProjectListPage() {
       const response = await getProjects(page, PAGE_SIZE);
 
       if (response.data) {
-
         // 백엔드 응답을 기존 Project 타입으로 변환
         const convertedProjects: Project[] = response.data.content.map(
           (project: ProjectResponse) => {
@@ -217,6 +216,9 @@ export default function ProjectListPage() {
   };
 
   const handleSearch = () => {
+    alert("필터링 작업 연동중");
+    navigate("/projects");
+    return;
     // 검색 조건이 있으면 검색 API 사용, 없으면 초기 로딩
     const hasSearchConditions =
       filters.keyword ||
@@ -250,6 +252,17 @@ export default function ProjectListPage() {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+  };
+
+  // 10개씩 앞뒤로 가는 함수
+  const handleJumpForward = () => {
+    const newPage = Math.min(currentPage + 10, totalPages);
+    handlePageChange(newPage);
+  };
+
+  const handleJumpBackward = () => {
+    const newPage = Math.max(currentPage - 10, 1);
+    handlePageChange(newPage);
   };
 
   // 페이지 번호 배열 생성 (최대 5개)
@@ -363,6 +376,20 @@ export default function ProjectListPage() {
             {Math.min(currentPage * PAGE_SIZE, totalElements)}개 표시
           </PaginationInfo>
           <PaginationNav>
+            {/* 첫 페이지로 이동 버튼 */}
+            {currentPage > 1 && (
+              <PaginationButton onClick={() => handlePageChange(1)}>
+                맨 처음
+              </PaginationButton>
+            )}
+
+            {/* 10개씩 뒤로 가기 버튼 */}
+            {currentPage > 10 && (
+              <PaginationButton onClick={handleJumpBackward}>
+                -10
+              </PaginationButton>
+            )}
+
             <PaginationButton
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
@@ -392,6 +419,20 @@ export default function ProjectListPage() {
             >
               다음
             </PaginationButton>
+
+            {/* 10개씩 앞으로 가기 버튼 */}
+            {currentPage + 10 <= totalPages && (
+              <PaginationButton onClick={handleJumpForward}>
+                +10
+              </PaginationButton>
+            )}
+
+            {/* 마지막 페이지로 이동 버튼 */}
+            {currentPage < totalPages && (
+              <PaginationButton onClick={() => handlePageChange(totalPages)}>
+                맨 마지막
+              </PaginationButton>
+            )}
           </PaginationNav>
         </PaginationContainer>
       )}

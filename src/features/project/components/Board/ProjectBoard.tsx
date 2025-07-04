@@ -329,10 +329,12 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
         open={detailModalOpen}
         postId={selectedPostId}
         stepName={stepName}
+        projectId={projectId}
         onClose={() => setDetailModalOpen(false)}
         onEditPost={handleEditPost}
         onReplyPost={handleReplyPost}
         onPostDelete={handlePostDelete}
+        onEditSuccess={handleFormModalSuccess}
       />
 
       <PostFormModal

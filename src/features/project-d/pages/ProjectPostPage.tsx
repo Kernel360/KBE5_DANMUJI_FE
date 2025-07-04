@@ -49,7 +49,7 @@ import {
 export default function ProjectPostPage() {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, role } = useAuth();
   const [posts, setPosts] = useState<Post[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -389,6 +389,7 @@ export default function ProjectPostPage() {
                   </TableCell>
                   <TableCell>{formatDate(post.createdAt)}</TableCell>
                   <TableCell>
+                    {/* 작성자 본인인 경우: 수정/삭제 버튼 모두 표시 */}
                     {isAuthor(post) && (
                       <ActionButtons>
                         <EditButton
@@ -397,6 +398,17 @@ export default function ProjectPostPage() {
                         >
                           수정
                         </EditButton>
+                        <DeleteButton
+                          onClick={() => handleDeletePost(post.postId)}
+                          disabled={loading}
+                        >
+                          삭제
+                        </DeleteButton>
+                      </ActionButtons>
+                    )}
+                    {/* 관리자가 다른 사용자의 게시글을 조회하는 경우: 삭제 버튼만 표시 */}
+                    {!isAuthor(post) && role === "ROLE_ADMIN" && (
+                      <ActionButtons>
                         <DeleteButton
                           onClick={() => handleDeletePost(post.postId)}
                           disabled={loading}

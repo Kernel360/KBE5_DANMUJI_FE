@@ -26,10 +26,25 @@ export const POST_PRIORITY_LABELS: Record<PostPriority, string> = {
   URGENT: "긴급",
 };
 
+// ContentType enum (백엔드와 동일하게 정의)
+export enum ContentType {
+  POST = "POST",
+  CHECKLIST = "CHECKLIST",
+  ANSWER = "ANSWER",
+}
+
+// ContentType 설명 매핑
+export const CONTENT_TYPE_DESCRIPTIONS: Record<ContentType, string> = {
+  [ContentType.POST]: "게시글",
+  [ContentType.CHECKLIST]: "체크리스트",
+  [ContentType.ANSWER]: "답변",
+};
+
 // 파일 타입
 export type PostFile = {
   id: number;
-  postId: number;
+  contentType: ContentType;
+  referenceId: number;
   fileName: string;
   fileUrl: string;
   fileType: string;

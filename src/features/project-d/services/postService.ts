@@ -277,7 +277,7 @@ export const updatePost = async (
       type: postData.type,
       status: postData.status,
       priority: postData.priority,
-      stepId: postData.stepId || 1,
+      stepId: postData.stepId,
       ...(postData.fileIdsToDelete &&
         postData.fileIdsToDelete.length > 0 && {
           fileIdsToDelete: postData.fileIdsToDelete,
