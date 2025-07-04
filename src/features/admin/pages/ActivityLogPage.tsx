@@ -797,7 +797,13 @@ export default function ActivityLogPage() {
                     )}
                     <span style={{ fontWeight: "500" }}>{log.userName}</span>
                     {log.changerUsername && (
-                      <span style={{ fontSize: "12px", color: "#6b7280" }}>
+                      <span
+                        style={{
+                          fontSize: "11px",
+                          color: "#6b7280",
+                          marginLeft: "-7px",
+                        }}
+                      >
                         ({log.changerUsername})
                       </span>
                     )}
