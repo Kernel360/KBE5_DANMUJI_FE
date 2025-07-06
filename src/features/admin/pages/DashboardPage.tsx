@@ -173,9 +173,8 @@ export default function DashboardPage() {
         setCompanyCount(companies);
 
         // Fetch Member Count
-        const memberResponse = await api.get("/api/admin/allUsers");
-        const members = memberResponse.data?.data?.page?.totalElements || 0;
-        setMemberCount(members);
+        const memberResponse = await api.get("/api/admin/counts");
+        setMemberCount(memberResponse.data?.data || 0);
 
         // Fetch Project Counts
         const projectCountsResponse = await api.get("/api/projects/status-count");
