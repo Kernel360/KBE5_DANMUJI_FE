@@ -76,19 +76,19 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
   mode,
   postId,
   parentId,
-  stepId = 1, // 기본값 1
-  projectId = 1, // 기본값 1
+  stepId,
+  projectId,
   onSuccess,
   colorTheme = { main: "#fdb924", sub: "#f59e0b" },
 }) => {
   const [formData, setFormData] = useState<PostCreateData & PostUpdateRequest>({
-    projectId: projectId,
+    projectId: projectId || 1, // projectId가 없을 때만 기본값 사용
     title: "",
     content: "",
     type: PostType.GENERAL,
     priority: PostPriority.LOW,
     status: PostStatus.PENDING,
-    stepId: stepId,
+    stepId: stepId || 1, // stepId가 없을 때만 기본값 사용
     parentId: parentId || null,
   });
   const [loading, setLoading] = useState(false);
@@ -154,6 +154,21 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
               stepId: targetStepId,
             }));
           }
+          // 수정 모드에서는 기존 게시글의 stepId가 유효한지 확인하고,
+          // 유효하지 않으면 첫 번째 단계로 설정
+          else if (mode === "edit") {
+            const currentStepId = formData.stepId;
+            const isValidStep = response.data.steps.some(
+              (step) => step.id === currentStepId
+            );
+
+            if (!isValidStep && response.data.steps.length > 0) {
+              setFormData((prev) => ({
+                ...prev,
+                stepId: response.data.steps[0].id,
+              }));
+            }
+          }
         }
         return response;
       }, "프로젝트 단계 정보를 불러오는데 실패했습니다.");
@@ -179,6 +194,17 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
             // (기존 게시글이 속한 단계가 기본으로 선택되도록)
             const currentStepId = post.projectStepId || stepId;
 
+            // 프로젝트 단계 정보가 이미 로드되어 있다면 유효성 검사
+            let validStepId = currentStepId;
+            if (projectSteps.length > 0) {
+              const isValidStep = projectSteps.some(
+                (step) => step.id === currentStepId
+              );
+              if (!isValidStep) {
+                validStepId = projectSteps[0].id;
+              }
+            }
+
             setFormData({
               projectId: projectId,
               title: post.title,
@@ -186,7 +212,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
               type: post.type as PostType,
               priority: post.priority as PostPriority,
               status: post.status,
-              stepId: currentStepId, // 기존 게시글의 stepId를 우선 사용
+              stepId: validStepId, // 유효성 검사를 거친 stepId 사용
               parentId: post.parentId || null,
             });
             // 기존 파일 정보 설정
@@ -263,7 +289,7 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
       setNewLinks([]);
       setDeletedLinkIds([]);
     }
-  }, [open, mode, postId, parentId, stepId, projectId]);
+  }, [open, mode, postId, parentId, stepId, projectId, projectSteps]);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -457,13 +483,13 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
 
   const handleCancel = () => {
     setFormData({
-      projectId: projectId,
+      projectId: projectId || 1,
       title: "",
       content: "",
       type: PostType.GENERAL,
       priority: PostPriority.LOW,
       status: PostStatus.PENDING,
-      stepId: stepId,
+      stepId: stepId || 1,
       parentId: parentId || null,
     });
     setFiles([]);
@@ -583,11 +609,10 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
     };
   }, [open, onClose, isFullScreenModal]);
 
-  // 모달 바깥 클릭 처리
-  const handleOverlayClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
+  // 모달 바깥 클릭 처리 - 바깥 클릭 시 모달 닫지 않음
+  const handleOverlayClick = () => {
+    // 바깥 클릭 시 모달을 닫지 않도록 아무것도 하지 않음
+    // ESC 키로만 모달을 닫을 수 있음
   };
 
   if (!open) return null;

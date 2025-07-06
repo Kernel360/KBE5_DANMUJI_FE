@@ -29,14 +29,14 @@ import type { PostFile } from "@/features/project-d/types/post";
 
 interface PostAttachmentsProps {
   files: PostFile[];
-  onFileDownload: (file: PostFile, postId: number) => void;
-  postId: number;
+  onFileDownload: (file: PostFile, referenceId: number) => void;
+  referenceId: number;
 }
 
 const PostAttachments: React.FC<PostAttachmentsProps> = ({
   files,
   onFileDownload,
-  postId,
+  referenceId,
 }) => {
   const getFileIcon = (file: PostFile) => {
     const fileType = file.fileType.toLowerCase();
@@ -150,7 +150,7 @@ const PostAttachments: React.FC<PostAttachmentsProps> = ({
                 </FileInfo>
                 <FileActions>
                   <FileActionButton
-                    onClick={() => onFileDownload(file, postId)}
+                    onClick={() => onFileDownload(file, referenceId)}
                     title="다운로드"
                   >
                     <FiDownload size={16} />

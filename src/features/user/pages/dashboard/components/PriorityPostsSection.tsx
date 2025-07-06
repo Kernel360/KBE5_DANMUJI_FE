@@ -387,7 +387,14 @@ const PriorityPostsSection = () => {
                       color: "#1f2937",
                       fontWeight: "600",
                       marginLeft: "6px",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      minWidth: "120px",
+                      maxWidth: "180px",
+                      flex: "1 1 auto",
                     }}
+                    title={post.title}
                   >
                     {post.title}
                   </span>

@@ -2,9 +2,17 @@ import styled from "styled-components";
 
 // 전체 컨테이너
 export const Container = styled.div`
-  padding: 32px;
+  padding: 16px;
   min-height: 100vh;
   background: #fafbfc;
+
+  @media (min-width: 768px) {
+    padding: 24px;
+  }
+
+  @media (min-width: 1024px) {
+    padding: 32px;
+  }
 `;
 
 export const MainContent = styled.div`
@@ -17,12 +25,16 @@ export const DashboardHeader = styled.div`
 `;
 
 export const DashboardTitle = styled.h1`
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 700;
   margin-bottom: 8px;
   padding-left: 16px;
   position: relative;
   color: #222;
+
+  @media (min-width: 768px) {
+    font-size: 1.5rem;
+  }
 
   &::before {
     content: "";
@@ -39,38 +51,66 @@ export const DashboardTitle = styled.h1`
 
 export const DashboardDescription = styled.div`
   color: #bdbdbd;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   margin-bottom: 18px;
   margin-left: 0px;
+
+  @media (min-width: 768px) {
+    font-size: 0.9rem;
+  }
 `;
 
 // 레이아웃 구조
 export const LayoutGrid = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
+  grid-template-columns: 1fr;
+  gap: 16px;
   align-items: flex-start;
+
+  @media (min-width: 1024px) {
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
 `;
 
 export const LeftColumn = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
+
+  @media (min-width: 1024px) {
+    gap: 24px;
+  }
 `;
 
 export const RightColumn = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
+
+  @media (min-width: 1024px) {
+    gap: 24px;
+  }
 `;
 
 // 공통 섹션
 export const Section = styled.section`
   background: #fff;
-  border-radius: 16px;
+  border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  padding: 28px 32px 24px;
-  min-height: 400px;
+  padding: 20px 16px 20px;
+  min-height: 300px;
+
+  @media (min-width: 768px) {
+    border-radius: 16px;
+    padding: 24px 24px 20px;
+    min-height: 350px;
+  }
+
+  @media (min-width: 1024px) {
+    padding: 28px 32px 24px;
+    min-height: 400px;
+  }
 `;
 
 export const ProgressSectionTitleRow = styled.div`
@@ -80,9 +120,13 @@ export const ProgressSectionTitleRow = styled.div`
 `;
 
 export const ProgressSectionTitle = styled.div`
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 700;
   color: #1abc7b;
+
+  @media (min-width: 768px) {
+    font-size: 1.1rem;
+  }
 `;
 
 export const ViewAllButton = styled.button`
@@ -92,12 +136,17 @@ export const ViewAllButton = styled.button`
   background: #e6f9f0;
   border: none;
   color: #1abc7b;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 500;
-  padding: 6px 14px;
+  padding: 6px 12px;
   border-radius: 999px;
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
+
+  @media (min-width: 768px) {
+    font-size: 0.95rem;
+    padding: 6px 14px;
+  }
 
   &:hover {
     background: #1abc7b;
@@ -119,38 +168,75 @@ export const ViewAllButtonIcon = styled.span`
 export const ProgressList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  min-height: 360px;
+  gap: 14px;
+  min-height: 280px;
+
+  @media (min-width: 768px) {
+    gap: 16px;
+    min-height: 320px;
+  }
+
+  @media (min-width: 1024px) {
+    gap: 18px;
+    min-height: 360px;
+  }
 `;
 
 export const ProgressListEmpty = styled.div`
   color: #bdbdbd;
   text-align: center;
-  gap: 18px;
-  min-height: 360px;
+  gap: 14px;
+  min-height: 280px;
   display: flex;
   align-items: center;
   justify-content: center;
+
+  @media (min-width: 768px) {
+    gap: 16px;
+    min-height: 320px;
+  }
+
+  @media (min-width: 1024px) {
+    gap: 18px;
+    min-height: 360px;
+  }
 `;
 
 export const ProgressItem = styled.div`
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 12px;
+
+  @media (min-width: 768px) {
+    gap: 16px;
+  }
+
+  @media (min-width: 1024px) {
+    gap: 18px;
+  }
 `;
 
 export const ProgressLabel = styled.div`
   flex: 1.5;
-  font-size: 1.05rem;
+  font-size: 0.95rem;
   color: #222;
+
+  @media (min-width: 768px) {
+    font-size: 1.05rem;
+  }
 `;
 
 export const ProgressPercent = styled.div`
-  width: 48px;
-  font-size: 1.05rem;
+  width: 40px;
+  font-size: 0.95rem;
   font-weight: 600;
   color: #1abc7b;
   text-align: right;
+
+  @media (min-width: 768px) {
+    width: 48px;
+    font-size: 1.05rem;
+  }
 `;
 
 export const ProgressBarWrap = styled.div`
@@ -346,10 +432,19 @@ export const LatestTag = styled.div<{ color: "blue" | "yellow" | "green" }>`
 `;
 
 export const SectionTitle = styled.div<{ color?: string }>`
-  font-size: 1.15rem;
+  font-size: 1rem;
   font-weight: 700;
-  margin-bottom: 18px;
+  margin-bottom: 16px;
   color: ${({ color }) => color || "#222"};
+
+  @media (min-width: 768px) {
+    font-size: 1.1rem;
+    margin-bottom: 18px;
+  }
+
+  @media (min-width: 1024px) {
+    font-size: 1.15rem;
+  }
 `;
 
 // 프로젝트 카드 및 관련 컴포넌트
@@ -357,13 +452,17 @@ export const ProjectCard = styled.div`
   background: #fff;
   border-radius: 8px;
   border: 1px solid #e5e7eb;
-  padding: 10px;
+  padding: 8px;
   margin-bottom: 8px;
   display: flex;
   flex-direction: column;
   gap: 4px;
   transition: all 0.2s ease;
   cursor: pointer;
+
+  @media (min-width: 768px) {
+    padding: 10px;
+  }
 
   &:hover {
     background: #f9fafb;
@@ -381,10 +480,14 @@ export const ProjectHeaderRow = styled.div`
 `;
 
 export const ProjectTitle = styled.div`
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: #1f2937;
   line-height: 1.4;
+
+  @media (min-width: 768px) {
+    font-size: 1rem;
+  }
 `;
 
 export const StatusBadge = styled.span<{ $status: string }>`
@@ -406,17 +509,27 @@ export const StatusBadge = styled.span<{ $status: string }>`
 
 export const ProjectMeta = styled.div`
   display: flex;
-  gap: 12px;
-  font-size: 0.9rem;
+  gap: 8px;
+  font-size: 0.85rem;
   color: #6b7280;
   line-height: 1.4;
+
+  @media (min-width: 768px) {
+    gap: 12px;
+    font-size: 0.9rem;
+  }
 `;
 
 export const CompanyRow = styled.div`
   display: flex;
-  gap: 18px;
-  font-size: 0.97rem;
+  gap: 12px;
+  font-size: 0.9rem;
   color: #8b95a1;
+
+  @media (min-width: 768px) {
+    gap: 18px;
+    font-size: 0.97rem;
+  }
 `;
 
 export const CompanyName = styled.span`
@@ -432,36 +545,46 @@ export const Divider = styled.div`
 
 // ViewAllButton은 그대로 두고, 주의 프로젝트 탭에만 적용할 새로운 스타일 추가
 export const WarningTabButton = styled.button<{ $selected?: boolean }>`
-  padding: 6px 16px;
+  padding: 6px 12px;
   border: none;
   border-radius: 0;
   background: ${({ $selected }) => ($selected ? "#fff" : "#f4f6fa")};
   color: ${({ $selected }) => ($selected ? "#e74c3c" : "#bdbdbd")};
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   border-bottom: 2px solid
     ${({ $selected }) => ($selected ? "#e74c3c" : "transparent")};
   box-shadow: none;
   transition: background 0.2s, color 0.2s, border-bottom 0.2s;
   margin-bottom: -2px;
   cursor: pointer;
+
+  @media (min-width: 768px) {
+    padding: 6px 16px;
+    font-size: 0.95rem;
+  }
 `;
 
 // 프로젝트 상태 탭 버튼 (주의 프로젝트 탭과 완전히 동일하게)
 export const ProjectStatusTabButton = styled.button<{ $selected?: boolean }>`
-  padding: 6px 16px;
+  padding: 6px 12px;
   border: none;
   border-radius: 0;
   background: ${({ $selected }) => ($selected ? "#fff" : "#f4f6fa")};
   color: ${({ $selected }) => ($selected ? "#1abc7b" : "#bdbdbd")};
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   border-bottom: 2px solid
     ${({ $selected }) => ($selected ? "#1abc7b" : "transparent")};
   box-shadow: none;
   transition: background 0.2s, color 0.2s, border-bottom 0.2s;
   margin-bottom: -2px;
   cursor: pointer;
+
+  @media (min-width: 768px) {
+    padding: 6px 16px;
+    font-size: 0.95rem;
+  }
 `;
 
 export const ProjectGoButton = styled.button`
@@ -473,13 +596,18 @@ export const ProjectGoButton = styled.button`
   background: #f4f6fa;
   color: #444;
   font-weight: 600;
-  font-size: 0.97rem;
-  padding: 4px 13px 4px 8px;
+  font-size: 0.9rem;
+  padding: 4px 10px 4px 6px;
   cursor: pointer;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
   transition: background 0.18s, color 0.18s, box-shadow 0.18s, border 0.18s,
     transform 0.12s;
   outline: none;
+
+  @media (min-width: 768px) {
+    font-size: 0.97rem;
+    padding: 4px 13px 4px 8px;
+  }
 
   &:hover,
   &:focus {
@@ -503,26 +631,43 @@ export const ProjectProgressInfo = styled.div`
   align-items: center;
   justify-content: space-between;
   margin-top: 6px;
-  gap: 10px;
+  gap: 8px;
+
+  @media (min-width: 768px) {
+    gap: 10px;
+  }
 `;
 
 export const ProjectProgressStep = styled.span`
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: #6b7280;
   font-weight: 500;
+
+  @media (min-width: 768px) {
+    font-size: 0.9rem;
+  }
 `;
 
 export const ProjectProgressPercent = styled.span<{ $percent: number }>`
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: ${({ $percent }) =>
     $percent === 100 ? "#10b981" : $percent < 50 ? "#fdb924" : "#1abc7b"};
-  min-width: 42px;
+  min-width: 38px;
   text-align: right;
+
+  @media (min-width: 768px) {
+    font-size: 0.95rem;
+    min-width: 42px;
+  }
 `;
 
 export const ProjectDate = styled.div`
   color: #6b7280;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   margin-bottom: 4px;
+
+  @media (min-width: 768px) {
+    font-size: 0.9rem;
+  }
 `;

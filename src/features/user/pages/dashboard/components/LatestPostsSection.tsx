@@ -402,7 +402,18 @@ const LatestPostsSection = () => {
                       {getTypeText(post.type)}
                     </TypeBadge>
                   </div>
-                  <S.LatestTitle style={{ marginLeft: "6px" }}>
+                  <S.LatestTitle
+                    style={{
+                      marginLeft: "6px",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      minWidth: "120px",
+                      maxWidth: "180px",
+                      flex: "1 1 auto",
+                    }}
+                    title={post.title}
+                  >
                     {post.title}
                   </S.LatestTitle>
                 </div>

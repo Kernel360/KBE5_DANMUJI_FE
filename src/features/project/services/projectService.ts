@@ -80,6 +80,10 @@ export type ProjectDetailResponse = {
   steps: ProjectDetailStep[];
   myUserType: string;
   myCompanyType: string;
+  devManagerId?: string;
+  clientManagerId?: string;
+  devUserId?: string;
+  clientUserId?: string;
 };
 
 export type ProjectStatusResponse = {
@@ -217,18 +221,23 @@ export const getProjectDetail = async (
 
 // 프로젝트 검색
 export const searchProjects = async (
-  keyword: string,
-  page: number = 0,
-  size: number = 10
+  params: {
+    keyword?: string;
+    category?: string;
+    projectStatus?: string;
+    startDate?: string;
+    endDate?: string;
+    sort?: string;
+    page?: number;
+    size?: number;
+  }
 ): Promise<ApiResponse<{ content: ProjectResponse[]; page: PageMetadata }>> => {
   try {
     const response = await api.get<
       ApiResponse<{ content: ProjectResponse[]; page: PageMetadata }>
     >("/api/projects/search", {
       params: {
-        keyword,
-        page,
-        size,
+        ...params,
       },
     });
     return handleApiResponse<{
@@ -275,15 +284,23 @@ export const getProjectStatusByStatus = async (
   }
 };
 
+// 프로젝트 복구 응답 타입
+export type ProjectRestoreResponse = {
+  id: number;
+  name: string;
+  projectStatus: string;
+  message: string;
+};
+
 // 프로젝트 복구
 export const restoreProject = async (
   projectId: number
-): Promise<ApiResponse<any>> => {
+): Promise<ApiResponse<ProjectRestoreResponse>> => {
   try {
-    const response = await api.put<ApiResponse<any>>(
+    const response = await api.put<ApiResponse<ProjectRestoreResponse>>(
       `/api/projects/${projectId}/restore`
     );
-    return handleApiResponse<any>(response);
+    return handleApiResponse<ProjectRestoreResponse>(response);
   } catch (error) {
     if (error instanceof ApiError) throw error;
     if (error instanceof AxiosError) {

@@ -14,8 +14,7 @@ import type { Project } from "../types/Types";
 import ProjectFilterBar from "../components/List/ProjectFilterBar";
 import ProjectCard from "../components/Card/ProjectCard";
 import ProjectCreateModal from "../components/ProjectCreateModal";
-import { getProjects, type ProjectResponse } from "../services/projectService";
-import api from "@/api/axios";
+import { getProjects, searchProjects as searchProjectsApi, type ProjectResponse } from "../services/projectService";
 import { SubmitButton } from "@/features/board/components/Post/styles/PostFormModal.styled";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
@@ -48,7 +47,6 @@ export default function ProjectListPage() {
       const response = await getProjects(page, PAGE_SIZE);
 
       if (response.data) {
-
         // 백엔드 응답을 기존 Project 타입으로 변환
         const convertedProjects: Project[] = response.data.content.map(
           (project: ProjectResponse) => {
@@ -113,24 +111,21 @@ export default function ProjectListPage() {
       setError(null);
 
       // 검색 파라미터 구성
-      const searchParams: any = {};
-      if (filters.keyword) searchParams.keyword = filters.keyword;
-      if (filters.projectStatus)
-        searchParams.projectStatus = filters.projectStatus;
-      if (filters.startDate) searchParams.startDate = filters.startDate;
-      if (filters.endDate) searchParams.endDate = filters.endDate;
-      if (filters.sort) searchParams.sort = filters.sort;
-      if (filters.category) searchParams.category = filters.category;
+      const searchParams: any = {
+        ...filters,
+        page,
+        size: PAGE_SIZE,
+      };
+      // 빈 값은 params에서 제거
+      Object.keys(searchParams).forEach(
+        (key) => (searchParams[key] === "" || searchParams[key] === undefined) && delete searchParams[key]
+      );
 
-      const response = await api.get("/api/projects/search", {
-        params: {
-          page,
-          size: PAGE_SIZE,
-          ...searchParams,
-        },
-      });
+      // 실제 API로 보내는 params 콘솔 출력
+      console.log("[API 요청]", searchParams);
+      const response = await searchProjectsApi(searchParams);
 
-      if (response.data?.data) {
+      if (response.data) {
         const convertedProjects: Project[] = response.data.content.map(
           (project: ProjectResponse) => {
             // 상태 매핑
@@ -187,8 +182,19 @@ export default function ProjectListPage() {
     }
   };
 
+  // 페이지 변경 시 필터 조건에 따라 fetchProjects 또는 searchProjects 호출
   useEffect(() => {
-    fetchProjects(currentPage - 1); // 백엔드는 0-based pagination 사용
+    const hasSearchConditions =
+      filters.keyword ||
+      filters.projectStatus ||
+      filters.startDate ||
+      filters.endDate ||
+      filters.category;
+    if (hasSearchConditions) {
+      searchProjects(currentPage - 1);
+    } else {
+      fetchProjects(currentPage - 1);
+    }
   }, [currentPage]);
 
   const handleInputChange = (field: string, value: string) => {
@@ -203,22 +209,26 @@ export default function ProjectListPage() {
       ) {
         newFilters.endDate = "";
       }
-
+      // 필터 선택 시 콘솔 출력
+      console.log("[필터 선택]", field, value, "전체 필터:", newFilters);
       return newFilters;
     });
   };
 
   const handleSearch = () => {
-    alert('필터링 작업 연동중');
-    navigate('/projects');
+    alert("필터링 작업 연동중");
+    navigate("/projects");
     return;
     // 검색 조건이 있으면 검색 API 사용, 없으면 초기 로딩
     const hasSearchConditions =
       filters.keyword ||
       filters.projectStatus ||
       filters.startDate ||
-      filters.endDate;
+      filters.endDate ||
+      filters.category;
 
+    // 검색 버튼 클릭 시 현재 필터 콘솔 출력
+    console.log("[검색 버튼 클릭] 현재 필터:", filters);
     if (hasSearchConditions) {
       searchProjects(0); // 검색 시 첫 페이지부터
     } else {
@@ -234,7 +244,7 @@ export default function ProjectListPage() {
       startDate: "",
       endDate: "",
       keyword: "",
-      category: "",
+      category: "projectName",
     });
     fetchProjects(0); // 초기화 시 기본 API 사용
     setCurrentPage(1);
@@ -242,6 +252,17 @@ export default function ProjectListPage() {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+  };
+
+  // 10개씩 앞뒤로 가는 함수
+  const handleJumpForward = () => {
+    const newPage = Math.min(currentPage + 10, totalPages);
+    handlePageChange(newPage);
+  };
+
+  const handleJumpBackward = () => {
+    const newPage = Math.max(currentPage - 10, 1);
+    handlePageChange(newPage);
   };
 
   // 페이지 번호 배열 생성 (최대 5개)
@@ -355,6 +376,20 @@ export default function ProjectListPage() {
             {Math.min(currentPage * PAGE_SIZE, totalElements)}개 표시
           </PaginationInfo>
           <PaginationNav>
+            {/* 첫 페이지로 이동 버튼 */}
+            {currentPage > 1 && (
+              <PaginationButton onClick={() => handlePageChange(1)}>
+                맨 처음
+              </PaginationButton>
+            )}
+
+            {/* 10개씩 뒤로 가기 버튼 */}
+            {currentPage > 10 && (
+              <PaginationButton onClick={handleJumpBackward}>
+                -10
+              </PaginationButton>
+            )}
+
             <PaginationButton
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
@@ -384,6 +419,20 @@ export default function ProjectListPage() {
             >
               다음
             </PaginationButton>
+
+            {/* 10개씩 앞으로 가기 버튼 */}
+            {currentPage + 10 <= totalPages && (
+              <PaginationButton onClick={handleJumpForward}>
+                +10
+              </PaginationButton>
+            )}
+
+            {/* 마지막 페이지로 이동 버튼 */}
+            {currentPage < totalPages && (
+              <PaginationButton onClick={() => handlePageChange(totalPages)}>
+                맨 마지막
+              </PaginationButton>
+            )}
           </PaginationNav>
         </PaginationContainer>
       )}

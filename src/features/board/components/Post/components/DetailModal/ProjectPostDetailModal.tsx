@@ -46,9 +46,11 @@ interface PostDetailModalProps {
   onClose: () => void;
   postId: number | null;
   stepName?: string;
+  projectId?: number;
   onPostDelete?: (deletedPostId: number) => void;
   onEditPost?: (postId: number) => void;
   onReplyPost?: (parentId: number) => void;
+  onEditSuccess?: () => void;
 }
 
 const PostDetailModal: React.FC<PostDetailModalProps> = ({
@@ -56,11 +58,13 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
   onClose,
   postId,
   stepName,
+  projectId,
   onPostDelete,
   onEditPost,
   onReplyPost,
+  onEditSuccess,
 }) => {
-  const { user } = useAuth();
+  const { user, role } = useAuth();
   const [commentText, setCommentText] = useState("");
   const [post, setPost] = useState<Post | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
@@ -259,6 +263,9 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
       }
     }
     setIsEditModalOpen(false);
+
+    // 부모 컴포넌트에 수정 완료 알림
+    onEditSuccess?.();
   };
 
   // 게시글 답글 핸들러
@@ -272,7 +279,11 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
   const handleDeletePost = async () => {
     if (!postId) return;
 
-    if (!window.confirm("정말로 이 게시글을 삭제하시겠습니까?")) {
+    if (
+      !window.confirm(
+        "정말로 이 게시글을 삭제하시겠습니까?\n\n삭제된 게시글은 관리자에게 문의하여 복구가 가능합니다."
+      )
+    ) {
       return;
     }
 
@@ -343,11 +354,14 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
   };
 
   // 파일 다운로드 핸들러
-  const handleFileDownload = async (file: PostFile, postId: number) => {
+  const handleFileDownload = async (file: PostFile, referenceId: number) => {
     try {
-      const response = await api.get(`/api/posts/${postId}/files/${file.id}`, {
-        responseType: "blob",
-      });
+      const response = await api.get(
+        `/api/posts/${referenceId}/files/${file.id}`,
+        {
+          responseType: "blob",
+        }
+      );
 
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
@@ -432,6 +446,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
             <ModalHeaderButtonGroup>
               {post && (
                 <>
+                  {/* 작성자 본인인 경우: 수정/삭제 버튼 모두 표시 */}
                   {isAuthor(post.author?.id || post.authorId) && (
                     <>
                       <ModalHeaderActionButton
@@ -450,6 +465,17 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                       </ModalHeaderActionButton>
                     </>
                   )}
+                  {/* 관리자가 다른 사용자의 게시글을 조회하는 경우: 삭제 버튼만 표시 */}
+                  {!isAuthor(post.author?.id || post.authorId) &&
+                    role === "ROLE_ADMIN" && (
+                      <ModalHeaderActionButton
+                        onClick={handleDeletePost}
+                        title="삭제"
+                      >
+                        <FaTrash />
+                        삭제
+                      </ModalHeaderActionButton>
+                    )}
                   <ModalHeaderActionButton
                     onClick={handleReplyPost}
                     title="답글"
@@ -502,7 +528,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                 <PostAttachments
                   files={post.files}
                   onFileDownload={handleFileDownload}
-                  postId={post.postId}
+                  referenceId={post.postId}
                 />
                 <PostLinks links={post.links} />
                 <CommentSection
@@ -610,8 +636,8 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
         onClose={handleEditModalClose}
         mode="edit"
         postId={postId || undefined}
-        projectId={post?.project?.projectId || 1}
-        stepId={post?.projectStepId || 1}
+        projectId={projectId || post?.project?.projectId}
+        stepId={post?.projectStepId}
         onSuccess={handleEditSuccess}
         colorTheme={{ main: "#fdb924", sub: "#f59e0b" }}
       />

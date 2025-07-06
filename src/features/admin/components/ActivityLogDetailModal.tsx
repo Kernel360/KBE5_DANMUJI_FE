@@ -31,6 +31,7 @@ interface ActivityLogDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   historyId: string;
+  onRestoreSuccess?: () => void;
 }
 
 const ModalOverlay = styled.div<{ $isOpen: boolean }>`
@@ -325,6 +326,7 @@ export default function ActivityLogDetailModal({
   isOpen,
   onClose,
   historyId,
+  onRestoreSuccess,
 }: ActivityLogDetailModalProps) {
   const [detail, setDetail] = useState<ActivityLogDetail | null>(null);
   const [loading, setLoading] = useState(false);
@@ -406,7 +408,8 @@ export default function ActivityLogDetailModal({
         const domainTypeName = getDomainTypeDisplayName(detail.domainType);
         showSuccessToast(`${domainTypeName} 복구가 완료되었습니다.`);
         setIsRestored(true);
-        // onClose(); // 복구 후 모달을 닫지 않고 상태만 변경
+        // 복구 성공 시 콜백 함수 호출하여 이력목록 새로고침
+        onRestoreSuccess?.();
       } else {
         // 에러 메시지가 있으면 해당 메시지만 표시, 없으면 토스트 표시 안함
         if (response.message) {
