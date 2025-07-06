@@ -48,13 +48,6 @@ interface RecentProject {
   createdAt: string;
 }
 
-interface RecentInquiry {
-  id: number;
-  title: string;
-  createdAt: string;
-  inquiryStatus: string;
-}
-
 // 커스텀 라벨 컴포넌트
 interface CustomLabelProps {
   cx: number;
@@ -213,27 +206,15 @@ export default function DashboardPage() {
         setRecentProjects(recentProjectsResponse.data?.data || []);
 
         // Fetch Inquiry Count (실제 데이터)
-        const inquiriesResponse = await api.get("/api/inquiries/all");
-        const inquiries: RecentInquiry[] = inquiriesResponse.data?.data || [];
-        setInquiryCount(Array.isArray(inquiries) ? inquiries.length : 0);
-        setWaitingInquiryCount(
-          Array.isArray(inquiries)
-            ? inquiries.filter((inq) => inq?.inquiryStatus === "WAITING").length
-            : 0
-        );
-        setAnsweredInquiryCount(
-          Array.isArray(inquiries)
-            ? inquiries.filter((inq) => inq?.inquiryStatus === "ANSWERED")
-                .length
-            : 0
-        );
+        const inquiriesResponse = await api.get("/api/inquiries/counts");
+        const inquiryCounts = inquiriesResponse.data?.data || { total: 0, waitingCnt: 0, answeredCnt: 0 };
+        setInquiryCount(inquiryCounts.total || 0);
+        setWaitingInquiryCount(inquiryCounts.waitingCnt || 0);
+        setAnsweredInquiryCount(inquiryCounts.answeredCnt || 0);
 
         // Fetch Recent Inquiries
-        const sortedInquiries = [...inquiries].sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
-        setRecentInquiries(sortedInquiries.slice(0, 5));
+        const recentInquiriesResponse = await api.get("/api/inquiries/recent-inquiries");
+        setRecentInquiries(recentInquiriesResponse.data?.data || []);
 
         // Fetch Project List
         await fetchProjectList(selectedStatus);
