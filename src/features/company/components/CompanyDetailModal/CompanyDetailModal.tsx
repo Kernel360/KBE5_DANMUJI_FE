@@ -60,12 +60,11 @@ const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
 }) => {
   const [registerOpen, setRegisterOpen] = useState(false);
   const [members, setMembers] = useState<CompanyMember[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [totalPages, setTotalPages] = useState(1);
   const [page, setPage] = useState(0);
   const pageSize = 4;
-  const totalPages = Math.ceil(members.length / pageSize);
-  const pagedMembers = members.slice(page * pageSize, (page + 1) * pageSize);
   const [company, setCompany] = useState<Company | null>(null);
+  const [loading, setLoading] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<FieldError[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -78,20 +77,20 @@ const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
     api.get(`/api/companies/${companyId}`)
       .then(res => {
         setCompany(res.data.data);
-        return api.get(`/api/companies/${companyId}/userLists`);
+        return api.get(`/api/companies/${companyId}/userLists`, {
+          params: { page, size: pageSize }
+        });
       })
       .then(res => {
-        setMembers(res.data.data || []);
+        const pageData = res.data.data;
+        setMembers(pageData.content || []);
+        setTotalPages((pageData.page && pageData.page.totalPages) || 1);
       })
       .catch(err => {
         console.error('구성원 정보를 불러오지 못했습니다.', err);
       })
       .finally(() => setLoading(false));
-  }, [open, companyId, refreshKey]);
-
-  useEffect(() => {
-    setPage(0);
-  }, [members]);
+  }, [open, companyId, refreshKey, page]);
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -261,53 +260,86 @@ const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
             </button>
           </SectionTitle>
           <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 8 }}>
-            {loading ? (
-              <div style={{ color: '#888', padding: '8px 0' }}>구성원 정보를 불러오는 중...</div>
-            ) : members.length === 0 ? (
-              <div style={{ color: '#888', padding: '8px 0' }}>구성원이 없습니다.</div>
-            ) : (
-              <>
-                <table style={{ width: '100%', fontSize: 13, borderCollapse: 'collapse' }}>
-                  <thead>
-                    <tr style={{ background: '#f9fafb' }}>
-                      <th style={{ textAlign: 'left', padding: '4px 8px' }}>회원</th>
-                      <th style={{ textAlign: 'left', padding: '4px 8px' }}>이메일</th>
-                      <th style={{ textAlign: 'left', padding: '4px 8px' }}>전화번호</th>
-                      <th style={{ textAlign: 'left', padding: '4px 8px' }}>직책</th>
+            <div style={{ position: 'relative' }}>
+              <table style={{ width: '100%', fontSize: 13, borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+                <thead>
+                  <tr style={{ background: '#f9fafb' }}>
+                    <th style={{ width: 120, textAlign: 'left', padding: '4px 8px' }}>회원</th>
+                    <th style={{ width: 180, textAlign: 'left', padding: '4px 8px' }}>이메일</th>
+                    <th style={{ width: 120, textAlign: 'left', padding: '4px 8px' }}>전화번호</th>
+                    <th style={{ width: 80, textAlign: 'left', padding: '4px 8px' }}>직책</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {members.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} style={{ color: '#888', padding: '8px 0', textAlign: 'center' }}>구성원이 없습니다.</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {pagedMembers.map((member) => (
+                  ) : (
+                    members.map((member) => (
                       <tr key={member.username} style={{ borderBottom: '1px solid #f3f4f6' }}>
-                        <td style={{ padding: '4px 8px' }}>
+                        <td style={{ width: 120, padding: '4px 8px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                           {member.name} <span style={{ color: '#888', fontSize: 12 }}>({member.username})</span>
                         </td>
-                        <td style={{ padding: '4px 8px' }}>{member.email}</td>
-                        <td style={{ padding: '4px 8px' }}>{formatTelNo(member.phone)}</td>
-                        <td style={{ padding: '4px 8px' }}>{member.position}</td>
+                        <td style={{ width: 180, padding: '4px 8px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{member.email}</td>
+                        <td style={{ width: 120, padding: '4px 8px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{formatTelNo(member.phone)}</td>
+                        <td style={{ width: 80, padding: '4px 8px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{member.position}</td>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 12, marginTop: 12 }}>
-                  <button
-                    onClick={() => setPage((p) => Math.max(0, p - 1))}
-                    disabled={page === 0}
-                    style={{ padding: '4px 12px', borderRadius: 6, border: '1px solid #e5e7eb', background: page === 0 ? '#f3f4f6' : '#fff', color: '#374151', cursor: page === 0 ? 'not-allowed' : 'pointer' }}
-                  >
-                    이전
-                  </button>
-                  <span style={{ fontSize: 13, color: '#6b7280' }}>{page + 1} / {totalPages}</span>
-                  <button
-                    onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-                    disabled={page >= totalPages - 1}
-                    style={{ padding: '4px 12px', borderRadius: 6, border: '1px solid #e5e7eb', background: page >= totalPages - 1 ? '#f3f4f6' : '#fff', color: '#374151', cursor: page >= totalPages - 1 ? 'not-allowed' : 'pointer' }}
-                  >
-                    다음
-                  </button>
+                    ))
+                  )}
+                </tbody>
+              </table>
+              {loading && (
+                <div style={{
+                  position: 'absolute',
+                  top: 0, left: 0, right: 0, bottom: 0,
+                  background: 'rgba(255,255,255,0.6)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  zIndex: 1
+                }}>
+                  <div style={{
+                    width: 32, height: 32, border: '4px solid #f3f3f3',
+                    borderTop: '4px solid #fbbf24', borderRadius: '50%',
+                    animation: 'spin 1s linear infinite'
+                  }} />
                 </div>
-              </>
-            )}
+              )}
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 12, marginTop: 12 }}>
+              <button
+                onClick={() => setPage((p) => p - 1)}
+                disabled={page === 0}
+                style={{
+                  padding: '4px 12px',
+                  borderRadius: 6,
+                  border: '1px solid #e5e7eb',
+                  background: page === 0 ? '#f3f4f6' : '#fff',
+                  color: '#374151',
+                  cursor: page === 0 ? 'not-allowed' : 'pointer',
+                  minWidth: 48
+                }}
+              >
+                이전
+              </button>
+              <span style={{ fontSize: 13, color: '#6b7280', minWidth: 48, textAlign: 'center' }}>{page + 1} / {totalPages}</span>
+              <button
+                onClick={() => setPage((p) => p + 1)}
+                disabled={page >= totalPages - 1}
+                style={{
+                  padding: '4px 12px',
+                  borderRadius: 6,
+                  border: '1px solid #e5e7eb',
+                  background: page >= totalPages - 1 ? '#f3f4f6' : '#fff',
+                  color: '#374151',
+                  cursor: page >= totalPages - 1 ? 'not-allowed' : 'pointer',
+                  minWidth: 48
+                }}
+              >
+                다음
+              </button>
+            </div>
           </div>
         </Section>
 
