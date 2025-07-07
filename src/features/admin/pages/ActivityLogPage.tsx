@@ -164,8 +164,6 @@ export default function ActivityLogPage() {
       icon: RiUserSettingsLine,
       color: "#8b5cf6",
     },
-    { value: "ROLE_DEV", label: "개발자", icon: FiUser, color: "#3b82f6" },
-    { value: "ROLE_CLIENT", label: "고객", icon: FiUser, color: "#10b981" },
     { value: "ROLE_USER", label: "사용자", icon: FiUser, color: "#6b7280" },
   ];
 
@@ -755,7 +753,7 @@ export default function ActivityLogPage() {
           <TableHead>
             <TableRow>
               <TableHeader style={{ width: "120px" }}>작업</TableHeader>
-              <TableHeader style={{ width: "200px" }}>변경자</TableHeader>
+              <TableHeader style={{ width: "200px" }}>변경자 권한</TableHeader>
               <TableHeader style={{ width: "180px" }}>대상</TableHeader>
               <TableHeader style={{ width: "300px" }}>상세내용</TableHeader>
               <TableHeader style={{ width: "200px" }}>
@@ -799,13 +797,16 @@ export default function ActivityLogPage() {
                     )}
                     <span style={{ fontWeight: "500" }}>{log.userName}</span>
                     {log.changerUsername && (
-                      <span style={{ fontSize: "12px", color: "#6b7280" }}>
+                      <span
+                        style={{
+                          fontSize: "11px",
+                          color: "#6b7280",
+                          marginLeft: "-7px",
+                        }}
+                      >
                         ({log.changerUsername})
                       </span>
                     )}
-                    <span style={{ fontSize: "12px", color: "#6b7280" }}>
-                      ({log.userRole === "ROLE_ADMIN" ? "관리자" : "사용자"})
-                    </span>
                   </div>
                 </TableCell>
                 <TableCell style={{ width: "180px" }}>

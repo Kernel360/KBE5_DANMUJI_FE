@@ -20,7 +20,11 @@ import {
 } from "react-icons/fi";
 import { RiUserSettingsLine } from "react-icons/ri";
 import { FiPackage } from "react-icons/fi";
-import { getActivityLogDetail } from "../services/activityLogService";
+import {
+  getActivityLogDetail,
+  restoreCompany,
+  restoreProject,
+} from "../services/activityLogService";
 import { restorePost } from "@/features/project-d/services/postService";
 import { formatFullDateTime } from "@/utils/dateUtils";
 import type { ActivityLogDetail } from "../types/activityLog";
@@ -376,11 +380,13 @@ export default function ActivityLogDetailModal({
   const handleRestore = async () => {
     if (!detail) return;
 
-    // 프로젝트와 업체는 아직 API 연동이 안 되어있으므로 토스트 메시지로 안내
-    if (detail.domainType === "PROJECT" || detail.domainType === "COMPANY") {
-      showErrorToast("아직 게시글 복구 밖에 연동을 못했습니다 죄송ㅎㅎ");
-      return;
-    }
+    // 디버깅을 위해 domainId 출력
+    console.log(
+      "복구 시도 - domainType:",
+      detail.domainType,
+      "domainId:",
+      detail.domainId
+    );
 
     setRestoring(true);
 
@@ -392,33 +398,46 @@ export default function ActivityLogDetailModal({
         case "POST":
           response = await restorePost(detail.domainId);
           break;
-        case "PROJECT":
-          // 프로젝트는 아직 연동 안됨
-          showErrorToast("아직 연동을 못했습니다 죄송ㅎㅎ");
-          return;
         case "COMPANY":
-          // 업체는 아직 연동 안됨
-          showErrorToast("아직 연동을 못했습니다 죄송ㅎㅎ");
-          return;
+          console.log("회사 복구 API 호출 - companyId:", detail.domainId);
+          response = await restoreCompany(detail.domainId);
+          console.log("회사 복구 API 응답:", response);
+          break;
+        case "PROJECT":
+          console.log("프로젝트 복구 API 호출 - projectId:", detail.domainId);
+          response = await restoreProject(detail.domainId);
+          console.log("프로젝트 복구 API 응답:", response);
+          break;
         default:
           throw new Error("복구할 수 없는 도메인 타입입니다.");
       }
 
-      if (response.success || response.code === "P210") {
+      if (
+        response.success ||
+        response.code === "P210" ||
+        response.code === "COMP208" ||
+        response.code === "PJ211"
+      ) {
         const domainTypeName = getDomainTypeDisplayName(detail.domainType);
         showSuccessToast(`${domainTypeName} 복구가 완료되었습니다.`);
         setIsRestored(true);
         // 복구 성공 시 콜백 함수 호출하여 이력목록 새로고침
         onRestoreSuccess?.();
       } else {
-        // 에러 메시지가 있으면 해당 메시지만 표시, 없으면 토스트 표시 안함
+        // 에러 메시지가 있으면 해당 메시지를 표시
         if (response.message) {
           showErrorToast(response.message);
+        } else {
+          showErrorToast("복구 중 오류가 발생했습니다.");
         }
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("데이터 복구 실패:", err);
-      // 에러 발생 시 토스트 표시 안함
+      // catch 블록에서는 네트워크 에러나 예상치 못한 에러만 처리
+      // 백엔드에서 반환하는 에러 메시지는 위의 else 블록에서 처리됨
+      if (!err.response) {
+        showErrorToast("복구 중 오류가 발생했습니다.");
+      }
     } finally {
       setRestoring(false);
     }
