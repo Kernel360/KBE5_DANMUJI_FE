@@ -43,12 +43,9 @@ export default function UserProfilePage() {
 
   const formatDateTime = (date: string) => {
     const d = new Date(date);
-    const kstDate = new Date(d.getTime() + 9 * 60 * 60 * 1000);
     return (
-      `${kstDate.getFullYear()}년 ${
-        kstDate.getMonth() + 1
-      }월 ${kstDate.getDate()}일 ` +
-      `${kstDate.getHours()}시 ${kstDate.getMinutes()}분`
+      `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일 ` +
+      `${d.getHours()}시 ${d.getMinutes()}분`
     );
   };
 

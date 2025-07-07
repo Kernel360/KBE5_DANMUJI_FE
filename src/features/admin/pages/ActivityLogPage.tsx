@@ -143,16 +143,16 @@ export default function ActivityLogPage() {
     { value: "COMPANY", label: "회사", icon: FiHome, color: "#f59e0b" },
     { value: "STEP", label: "단계", icon: FiLayers, color: "#ef4444" },
     {
-      value: "INQUIRY",
-      label: "문의",
-      icon: FiMessageSquare,
-      color: "#06b6d4",
-    },
-    {
-      value: "CHECK_LIST",
+      value: "CHECKLIST",
       label: "체크리스트",
       icon: FiCheckSquare,
       color: "#84cc16",
+    },
+    {
+      value: "INQUIRY",
+      label: "관리자 문의",
+      icon: FiMessageSquare,
+      color: "#06b6d4",
     },
   ];
 
@@ -261,7 +261,7 @@ export default function ActivityLogPage() {
         return <FiFileText style={{ color: "#10b981" }} />;
       case "INQUIRY":
         return <FiMessageSquare style={{ color: "#f59e0b" }} />;
-      case "CHECK_LIST":
+      case "CHECKLIST":
         return <FiCheckSquare style={{ color: "#ec4899" }} />;
       default:
         return <FiGrid style={{ color: "#6b7280" }} />;

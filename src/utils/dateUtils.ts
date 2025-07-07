@@ -1,14 +1,12 @@
 // 시간 관련 유틸리티 함수들
-// 모든 시간에 +9시간(KST)을 적용
 
 /**
- * UTC 시간을 KST(한국 표준시)로 변환
- * @param dateString - UTC 시간 문자열
- * @returns KST Date 객체
+ * 날짜 객체 반환 (시간대 변환 없음)
+ * @param dateString - 시간 문자열
+ * @returns Date 객체
  */
 export const toKST = (dateString: string | Date): Date => {
-  const date = new Date(dateString);
-  return new Date(date.getTime() + 9 * 60 * 60 * 1000);
+  return new Date(dateString);
 };
 
 /**
@@ -119,9 +117,9 @@ export const formatDateForPicker = (dateString: string | Date): string => {
 };
 
 /**
- * 현재 시간을 KST로 반환
- * @returns 현재 KST 시간
+ * 현재 시간을 반환
+ * @returns 현재 시간
  */
 export const getCurrentKST = (): Date => {
-  return new Date(new Date().getTime() + 9 * 60 * 60 * 1000);
+  return new Date();
 };

@@ -177,7 +177,6 @@ const PostHeader: React.FC<PostHeaderProps> = ({
       // 'YYYY-MM-DD HH:mm:ss' → 'YYYY-MM-DDTHH:mm:ssZ'로 변환 후 UTC로 파싱
       date = new Date(dateString.replace(" ", "T") + "Z");
     }
-    date.setHours(date.getHours() + 9);
 
     return date.toLocaleDateString("ko-KR", {
       year: "numeric",
