@@ -281,3 +281,11 @@ export const CompanyRow = styled.div`
 export const CompanyCardTitle = styled.div`
   font-weight: 600;
 `;
+
+export const DateSeparator = styled.span`
+  color: #6b7280;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0 4px;
+  flex-shrink: 0;
+`;

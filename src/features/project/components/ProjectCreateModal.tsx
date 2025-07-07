@@ -22,8 +22,14 @@ import {
   CompanyCardHeader,
   CompanyCardTitle,
   CompanyCardMembers,
+  CompanySection,
+  DatePickerWrapper,
+  DateButton,
+  DateSeparator,
 } from "./ProjectCreateModal.styled";
 import type { ProjectDetailResponse } from "../services/projectService";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 type SelectedDevCompany = {
   company: { id: number; name: string };
@@ -67,6 +73,29 @@ interface ProjectCreateModalProps {
   onSave?: (form: ProjectEditForm) => void;
 }
 
+// 날짜 문자열 <-> Date 객체 변환 함수
+function parseDate(str?: string) {
+  if (!str) return null;
+  const [y, m, d] = str.split("-").map(Number);
+  if (!y || !m || !d) return null;
+  return new Date(y, m - 1, d);
+}
+function formatDate(date?: string | Date | null) {
+  if (!date) return "";
+  const d = typeof date === "string" ? parseDate(date) : date;
+  if (!d) return "";
+  return d.toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" });
+}
+
+// 날짜를 YYYY-MM-DD로 변환 (로컬 기준)
+function toDateStringLocal(date: Date | null) {
+  if (!date) return "";
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 // 프로젝트 등록 모달 컴포넌트
 export default function ProjectCreateModal({
   open,
@@ -105,6 +134,28 @@ export default function ProjectCreateModal({
   const [selectedClientCompanies, setSelectedClientCompanies] = useState<
     SelectedClientCompany[]
   >([]);
+
+  // DatePicker 팝업 상태
+  const [startDateOpen, setStartDateOpen] = useState(false);
+  const [endDateOpen, setEndDateOpen] = useState(false);
+
+  const handleStartDateClick = () => setStartDateOpen((v) => !v);
+  const handleEndDateClick = () => setEndDateOpen((v) => !v);
+  const handleStartDateChange = (date: Date | null) => {
+    setForm((prev) => ({
+      ...prev,
+      startDate: date ? toDateStringLocal(date) : "",
+      endDate: "", // 시작일 바뀌면 마감일 초기화
+    }));
+    setStartDateOpen(false);
+  };
+  const handleEndDateChange = (date: Date | null) => {
+    setForm((prev) => ({
+      ...prev,
+      endDate: date ? toDateStringLocal(date) : "",
+    }));
+    setEndDateOpen(false);
+  };
 
   // devManagerId, devUserId, clientManagerId, clientUserId 동기화
   useEffect(() => {
@@ -380,55 +431,59 @@ export default function ProjectCreateModal({
         {/* 프로젝트 기간 */}
         <div>
           <FieldLabel>프로젝트 기간 *</FieldLabel>
-          <PeriodRow>
-            <PeriodCol>
-              <PeriodLabel>시작일 *</PeriodLabel>
-              <div
-                style={{ width: "100%" }}
-                onClick={(e) => {
-                  const input = e.currentTarget.querySelector(
-                    "input"
-                  ) as HTMLInputElement;
-                  if (input) input.showPicker && input.showPicker();
-                }}
-              >
-                <Input
-                  as="input"
-                  type="date"
-                  value={form.startDate}
-                  onChange={(e) =>
-                     setForm((prev) => ({
-                       ...prev,
-                       startDate: e.target.value,
-                       endDate: "",
-                     }))
-                  }
+          <DatePickerWrapper>
+            <DateButton
+              type="button"
+              onClick={handleStartDateClick}
+              $hasValue={!!form.startDate}
+            >
+              <span>시작일</span>
+              <span className="date-value">{formatDate(form.startDate)}</span>
+            </DateButton>
+            {startDateOpen && (
+              <div style={{ position: "absolute", top: "100%", left: 0, zIndex: 1000, marginTop: 4 }}>
+                <DatePicker
+                  selected={form.startDate ? parseDate(form.startDate) : null}
+                  onChange={handleStartDateChange}
+                  selectsStart
+                  startDate={form.startDate ? parseDate(form.startDate) : null}
+                  endDate={form.endDate ? parseDate(form.endDate) : null}
+                  dateFormat="yyyy-MM-dd"
+                  placeholderText="시작일 선택"
+                  inline
+                  onClickOutside={() => setStartDateOpen(false)}
+                  onKeyDown={(e) => { if (e.key === "Escape") setStartDateOpen(false); }}
                 />
               </div>
-            </PeriodCol>
-            <PeriodCol>
-              <PeriodLabel>마감일 *</PeriodLabel>
-              <div
-                style={{ width: "100%" }}
-                onClick={(e) => {
-                  const input = e.currentTarget.querySelector(
-                    "input"
-                  ) as HTMLInputElement;
-                  if (input) input.showPicker && input.showPicker();
-                }}
-              >
-                <Input
-                  as="input"
-                  type="date"
-                  value={form.endDate}
-                  onChange={(e) =>
-                    setForm({ ...form, endDate: e.target.value })
-                  }
-                  min={form.startDate || undefined}
+            )}
+            <DateSeparator>~</DateSeparator>
+            <DateButton
+              type="button"
+              onClick={handleEndDateClick}
+              $hasValue={!!form.endDate}
+            >
+              <span>마감일</span>
+              <span className="date-value">{formatDate(form.endDate)}</span>
+            </DateButton>
+            {endDateOpen && (
+              <div style={{ position: "absolute", top: "100%", left: 0, zIndex: 1000, marginTop: 4 }}>
+                <DatePicker
+                  selected={form.endDate ? parseDate(form.endDate) : null}
+                  onChange={handleEndDateChange}
+                  selectsEnd
+                  startDate={form.startDate ? parseDate(form.startDate) : null}
+                  endDate={form.endDate ? parseDate(form.endDate) : null}
+                  minDate={form.startDate ? parseDate(form.startDate) ?? undefined : undefined}
+                  dateFormat="yyyy-MM-dd"
+                  placeholderText="마감일 선택"
+                  inline
+                  onClickOutside={() => setEndDateOpen(false)}
+                  onKeyDown={(e) => { if (e.key === "Escape") setEndDateOpen(false); }}
+                  popperPlacement="bottom-start"
                 />
               </div>
-            </PeriodCol>
-          </PeriodRow>
+            )}
+          </DatePickerWrapper>
         </div>
         {/* 담당 정보 */}
         <div>
