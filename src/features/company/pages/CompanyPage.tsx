@@ -283,7 +283,7 @@ export default function CompanyPage() {
   );
 
   const handlePageChange = (newPage: number) => {
-    fetchCompanies(newPage);
+    fetchCompanies(newPage, filters.sort);
   };
 
   // 10개씩 앞뒤로 가는 함수
@@ -300,10 +300,22 @@ export default function CompanyPage() {
     handlePageChange(newPage);
   };
 
-  const fetchCompanies = async (pageNumber: number = 0) => {
+  const fetchCompanies = async (pageNumber: number = 0, sortKey?: string, keyword?: string) => {
     try {
       setLoading(true);
-      const response = await api.get(`/api/companies?page=${pageNumber}`);
+      const sort = sortKey || filters.sort;
+      let sortParam = "createdAt,desc";
+      if (sort === "name") sortParam = "name,asc";
+      else if (sort === "ceo") sortParam = "ceoName,asc";
+      else if (sort === "latest") sortParam = "createdAt,desc";
+
+      // keyword가 있으면 검색 API, 없으면 전체 목록 API
+      let response;
+      if (keyword && keyword.trim() !== "") {
+        response = await api.get(`/api/companies/search?name=${encodeURIComponent(keyword)}&page=${pageNumber}&sort=${sortParam}`);
+      } else {
+        response = await api.get(`/api/companies?page=${pageNumber}&sort=${sortParam}`);
+      }
       const responseData = response.data;
       setCompanies(responseData.data.content);
       setPage(responseData.data.page);
@@ -325,11 +337,21 @@ export default function CompanyPage() {
     fetchCompanies();
   }, []);
 
+  // 엔터로만 검색 실행
+  const handleKeywordSearch = () => {
+    fetchCompanies(0, filters.sort, filters.keyword);
+  };
+
   const handleFilterChange = (field: string, value: string) => {
     setFilters((prev) => ({
       ...prev,
       [field]: value,
     }));
+    // 정렬 기준 변경 시 현재 검색 상태에 맞게 fetchCompanies 호출
+    if (field === "sort") {
+      fetchCompanies(0, value, filters.keyword);
+    }
+    // keyword 변경 시에는 fetchCompanies를 호출하지 않음 (엔터에서만 호출)
   };
 
   const handleClose = () => {
@@ -346,26 +368,8 @@ export default function CompanyPage() {
     fetchCompanies();
   };
 
-  // 필터링된 업체 목록
-  const filteredCompanies = companies.filter((company) => {
-    if (!filters.keyword) return true;
-
-    const keyword = filters.keyword.toLowerCase();
-    return company.name.toLowerCase().includes(keyword);
-  });
-
-  // 정렬된 업체 목록
-  const sortedCompanies = [...filteredCompanies].sort((a, b) => {
-    switch (filters.sort) {
-      case "name":
-        return a.name.localeCompare(b.name);
-      case "ceo":
-        return a.ceoName.localeCompare(b.ceoName);
-      case "latest":
-      default:
-        return b.id - a.id;
-    }
-  });
+  // 프론트 필터링 없이 API에서 받아온 companies만 사용
+  const sortedCompanies = companies;
 
   // 페이지네이션 정보 계산
   const getPaginationInfo = () => {
@@ -479,6 +483,7 @@ export default function CompanyPage() {
         onInputChange={handleFilterChange}
         onReset={handleResetFilters}
         onRegisterClick={() => setModalOpen(true)}
+        onKeywordSearch={handleKeywordSearch}
       />
 
       <TableContainer>

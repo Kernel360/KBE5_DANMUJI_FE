@@ -54,16 +54,10 @@ const Badge = styled.span<{ $type: "status" | "role" }>`
       : "#e0e7ff"};
 `;
 
-const Title = styled.h1`
-  font-size: 28px;
-  font-weight: 700;
-  color: #111827;
-  margin: 0 0 12px;
-`;
-
 const MetaInfo = styled.div`
   font-size: 14px;
   color: #6b7280;
+  margin-top: 16px;
   & > span:not(:last-child)::after {
     content: "|";
     margin: 0 12px;
@@ -444,13 +438,28 @@ export default function InquiryDetailPage() {
             </Badge>
           </StatusBadges>
           {isEditing ? (
-            <input 
+            <input
               value={editedTitle}
               onChange={e => setEditedTitle(e.target.value)}
-              style={{fontSize: '28px', fontWeight: 700, border: '1px solid #ccc', borderRadius: '8px', padding: '8px'}}
+              style={{
+                width: '100%',
+                fontSize: '28px',
+                fontWeight: 700,
+                border: '1px solid #ccc',
+                borderRadius: '8px',
+                padding: '8px',
+                fontFamily: 'Pretendard, Noto Sans KR, Roboto, Arial, sans-serif',
+                lineHeight: 1.2
+              }}
+              maxLength={100}
             />
           ) : (
-            <Title>{inquiry.title}</Title>
+            <div style={{
+              fontSize: '28px',
+              fontWeight: 700,
+              fontFamily: 'Pretendard, Noto Sans KR, Roboto, Arial, sans-serif',
+              lineHeight: 1.2
+            }}>{inquiry.title}</div>
           )}
           
           <MetaInfo>
@@ -493,7 +502,7 @@ export default function InquiryDetailPage() {
 
       <ContentSection>
         {isEditing ? (
-          <input value={editedContent} onChange={e => setEditedContent(e.target.value)} style={{width: '100%', minHeight: 120, padding: 12, border: '1px solid #d1d5db', borderRadius: 8, fontSize: 15}} />
+          <TextArea value={editedContent} onChange={e => setEditedContent(e.target.value)} style={{minHeight: 120}} />
         ) : (
           <p>{inquiry.content}</p>
         )}
