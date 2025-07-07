@@ -298,9 +298,11 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ projectId, onClose, onS
                     
                     <TrashIcon>
                       <FaTrashAlt size={14} color="#e11d48" title="단계 삭제" onClick={async () => {
-                        if (window.confirm("정말 삭제할까요?")) {
+                        if (window.confirm("단계를 정말 삭제할까요?")) {
                           try {
-                            await api.delete(`/api/project-steps/${step.id}`);
+                            await api.delete(`/api/project-steps/${step.id}`, {
+                              params: { projectId: projectId }
+                            });
                             setStepList(list => list.filter((s) => s.id !== step.id));
                             showSuccessToast("삭제되었습니다");
                           } catch (e) {

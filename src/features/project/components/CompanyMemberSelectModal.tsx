@@ -9,7 +9,7 @@ type Member = {
   position: string;
 };
 
-type Company = { id: number; name: string };
+type Company = { id: number; name: string, userCount: number };
 
 type SelectedMember = {
   id: number;
@@ -233,7 +233,7 @@ const CompanyMemberSelectModal: React.FC<CompanyMemberSelectModalProps> = ({
                     }}
                     onClick={() => setSelectedCompanyState(c)}
                   >
-                    {c.name}
+                    {c.name} (회원수: {c.userCount})
                   </div>
                 ))}
               {!loading && companies.length > 0 && (
