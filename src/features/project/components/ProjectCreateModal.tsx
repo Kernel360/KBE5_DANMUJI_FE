@@ -148,10 +148,12 @@ export default function ProjectCreateModal({
             company: {
               id: client.id,
               name: client.companyName,
+              userCount: 0,
             },
             members: client.assignUsers.map((user) => ({
               id: user.id,
               name: user.name,
+              position: user.positon,
               type: user.userType === "MANAGER" ? "manager" : "member",
             })),
           }));
@@ -165,10 +167,12 @@ export default function ProjectCreateModal({
             company: {
               id: developer.id,
               name: developer.companyName,
+              userCount: 0,
             },
             members: developer.assignUsers.map((user) => ({
               id: user.id,
               name: user.name,
+              position: user.positon,
               type: user.userType === "MANAGER" ? "manager" : "member",
             })),
           }));
@@ -631,10 +635,16 @@ export default function ProjectCreateModal({
                 ? handleDevCompanyDone
                 : handleClientCompanyDone
             }
-            selectedCompany={editCompany}
+            selectedCompany={editCompany ? { ...editCompany, userCount: 0 } : undefined}
             selectedMembers={editMembers}
-            selectedDevCompanies={selectedDevCompanies}
-            selectedClientCompanies={selectedClientCompanies}
+            selectedDevCompanies={selectedDevCompanies.map(dev => ({
+              ...dev,
+              company: { ...dev.company, userCount: 0 }
+            }))}
+            selectedClientCompanies={selectedClientCompanies.map(client => ({
+              ...client,
+              company: { ...client.company, userCount: 0 }
+            }))}
           />
         )}
       </ModalPanel>
