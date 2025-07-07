@@ -35,8 +35,8 @@ interface HistorySimpleResponse {
     | "PROJECT"
     | "COMPANY"
     | "STEP"
-    | "INQUIRY"
-    | "CHECK_LIST";
+    | "CHECKLIST"
+    | "INQUIRY";
   domainId: number;
   changedAt: string;
   changerId: string;
@@ -139,20 +139,20 @@ export const transformHistoryToActivityLog = (
 
   const getTargetTypeDisplayName = (domainType: string) => {
     switch (domainType) {
-      case "USER":
-        return "회원";
-      case "COMPANY":
-        return "업체";
-      case "PROJECT":
-        return "프로젝트";
-      case "STEP":
-        return "프로젝트 단계";
       case "POST":
         return "게시글";
-      case "INQUIRY":
-        return "문의";
-      case "CHECK_LIST":
+      case "USER":
+        return "회원";
+      case "PROJECT":
+        return "프로젝트";
+      case "COMPANY":
+        return "업체";
+      case "STEP":
+        return "단계";
+      case "CHECKLIST":
         return "체크리스트";
+      case "INQUIRY":
+        return "관리자 문의";
       default:
         return domainType;
     }

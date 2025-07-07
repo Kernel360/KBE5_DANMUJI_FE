@@ -487,26 +487,20 @@ export default function ActivityLogDetailModal({
 
   const getDomainTypeDisplayName = (domainType: string) => {
     switch (domainType) {
-      case "USER":
-        return "회원";
-      case "COMPANY":
-        return "업체";
-      case "PROJECT":
-        return "프로젝트";
-      case "PROJECT_STEP":
-        return "프로젝트 단계";
-      case "STEP":
-        return "프로젝트 단계";
       case "POST":
         return "게시글";
-      case "QUESTION":
-        return "문의";
-      case "INQUIRY":
-        return "문의";
-      case "CHAT":
-        return "채팅";
-      case "CHECK_LIST":
+      case "USER":
+        return "회원";
+      case "PROJECT":
+        return "프로젝트";
+      case "COMPANY":
+        return "업체";
+      case "STEP":
+        return "단계";
+      case "CHECKLIST":
         return "체크리스트";
+      case "INQUIRY":
+        return "관리자 문의";
       default:
         return domainType;
     }
@@ -1168,20 +1162,20 @@ export default function ActivityLogDetailModal({
   // 대상 유형에 따른 아이콘 반환
   const getDomainTypeIcon = (domainType: string) => {
     switch (domainType) {
-      case "USER":
-        return <FiUser size={14} style={{ color: "#8b5cf6" }} />;
-      case "COMPANY":
-        return <FiHome size={14} style={{ color: "#8b5cf6" }} />;
-      case "PROJECT":
-        return <FiPackage size={14} style={{ color: "#3b82f6" }} />;
-      case "STEP":
-        return <FiLayers size={14} style={{ color: "#6366f1" }} />;
       case "POST":
         return <FiFileText size={14} style={{ color: "#10b981" }} />;
+      case "USER":
+        return <FiUser size={14} style={{ color: "#8b5cf6" }} />;
+      case "PROJECT":
+        return <FiPackage size={14} style={{ color: "#3b82f6" }} />;
+      case "COMPANY":
+        return <FiHome size={14} style={{ color: "#8b5cf6" }} />;
+      case "STEP":
+        return <FiLayers size={14} style={{ color: "#6366f1" }} />;
+      case "CHECKLIST":
+        return <FiCheckSquare size={14} style={{ color: "#ec4899" }} />;
       case "INQUIRY":
         return <FiMessageSquare size={14} style={{ color: "#f59e0b" }} />;
-      case "CHECK_LIST":
-        return <FiCheckSquare size={14} style={{ color: "#ec4899" }} />;
       default:
         return <FiUser size={14} style={{ color: "#6b7280" }} />;
     }

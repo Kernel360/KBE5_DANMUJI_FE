@@ -23,15 +23,13 @@ export interface HistorySimpleResponse {
   id: string;
   historyType: "CREATED" | "UPDATED" | "DELETED" | "RESTORED";
   domainType:
-    | "USER"
-    | "COMPANY"
-    | "PROJECT"
-    | "PROJECT_STEP"
     | "POST"
-    | "QUESTION"
-    | "CHAT"
-    | "INQUIRY"
-    | "CHECK_LIST";
+    | "USER"
+    | "PROJECT"
+    | "COMPANY"
+    | "STEP"
+    | "CHECKLIST"
+    | "INQUIRY";
   domainId: number;
   changedAt: string;
   changedBy: string;
@@ -47,15 +45,13 @@ export interface HistoryDetailResponse {
   id: string;
   historyType: "CREATED" | "UPDATED" | "DELETED" | "RESTORED";
   domainType:
-    | "USER"
-    | "COMPANY"
-    | "PROJECT"
-    | "PROJECT_STEP"
     | "POST"
-    | "QUESTION"
-    | "CHAT"
-    | "INQUIRY"
-    | "CHECK_LIST";
+    | "USER"
+    | "PROJECT"
+    | "COMPANY"
+    | "STEP"
+    | "CHECKLIST"
+    | "INQUIRY";
   domainId: number;
   changedAt: string;
   changerId: string;
