@@ -14,7 +14,11 @@ import type { Project } from "../types/Types";
 import ProjectFilterBar from "../components/List/ProjectFilterBar";
 import ProjectCard from "../components/Card/ProjectCard";
 import ProjectCreateModal from "../components/ProjectCreateModal";
-import { getProjects, searchProjects as searchProjectsApi, type ProjectResponse } from "../services/projectService";
+import {
+  getProjects,
+  searchProjects as searchProjectsApi,
+  type ProjectResponse,
+} from "../services/projectService";
 import { SubmitButton } from "@/features/board/components/Post/styles/PostFormModal.styled";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
@@ -118,7 +122,9 @@ export default function ProjectListPage() {
       };
       // 빈 값은 params에서 제거
       Object.keys(searchParams).forEach(
-        (key) => (searchParams[key] === "" || searchParams[key] === undefined) && delete searchParams[key]
+        (key) =>
+          (searchParams[key] === "" || searchParams[key] === undefined) &&
+          delete searchParams[key]
       );
 
       // 실제 API로 보내는 params 콘솔 출력
