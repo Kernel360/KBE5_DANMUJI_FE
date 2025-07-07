@@ -18,6 +18,7 @@ import {
   Cell,
   Tooltip,
   ResponsiveContainer,
+  Sector,
 } from "recharts";
 import {
   FaUsers,
@@ -46,13 +47,6 @@ interface RecentProject {
   id: number;
   name: string;
   createdAt: string;
-}
-
-interface RecentInquiry {
-  id: number;
-  title: string;
-  createdAt: string;
-  inquiryStatus: string;
 }
 
 // 커스텀 라벨 컴포넌트
@@ -129,6 +123,7 @@ export default function DashboardPage() {
   const [projectList, setProjectList] = useState<ProjectListItem[]>([]);
   const [loadingProjects, setLoadingProjects] = useState(false);
   const [projectListError, setProjectListError] = useState<string | null>(null);
+  const [activeIndex, setActiveIndex] = useState(-1);
   const navigate = useNavigate();
 
   // 차트용 데이터
@@ -143,6 +138,53 @@ export default function DashboardPage() {
     { name: "지연", value: delayedProjectCount, fill: "#fef3c7", stroke: "#f59e0b" },
     { name: "마감임박", value: dueSoonProjectCount, fill: "#fee2e2", stroke: "#ef4444" },
   ];
+
+  // 전체 프로젝트 수(퍼센티지 계산용)
+  const totalForPercent =
+    inProgressProjectCount + completedProjectCount + delayedProjectCount + dueSoonProjectCount;
+
+  // 커스텀 툴팁
+  const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: { payload: { name: string; value: number } }[] }) => {
+    if (active && payload && payload.length) {
+      const { name, value } = payload[0].payload;
+      const percent = totalForPercent > 0 ? ((value / totalForPercent) * 100).toFixed(1) : 0;
+      return (
+        <div style={{
+          background: '#fff',
+          border: '1px solid #e5e7eb',
+          borderRadius: 8,
+          padding: '10px 16px',
+          fontWeight: 600,
+          fontSize: 14,
+          color: '#374151',
+          boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'
+        }}>
+          <div>{name}</div>
+          <div style={{ color: '#fdb924', fontWeight: 700 }}>{value.toLocaleString()}건</div>
+          <div style={{ color: '#3b82f6', fontWeight: 600 }}>{percent}%</div>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  // Pie의 activeShape(섹터 확대)
+  const renderActiveShape = (props: any) => {
+    const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } = props;
+    return (
+      <g>
+        <Sector
+          cx={cx}
+          cy={cy}
+          innerRadius={innerRadius}
+          outerRadius={outerRadius + 10}
+          startAngle={startAngle}
+          endAngle={endAngle}
+          fill={fill}
+        />
+      </g>
+    );
+  };
 
   // 최근 등록된 업체만 다시 불러오는 함수
   const fetchRecentCompanies = useCallback(async () => {
@@ -175,14 +217,13 @@ export default function DashboardPage() {
     const fetchData = async () => {
       try {
         // Fetch Company Count
-        const companyResponse = await api.get("/api/companies/all");
-        const companies = companyResponse.data?.data || [];
-        setCompanyCount(Array.isArray(companies) ? companies.length : 0);
+        const companyResponse = await api.get("/api/companies/counts");
+        const companies = companyResponse.data?.data || 0;
+        setCompanyCount(companies);
 
         // Fetch Member Count
-        const memberResponse = await api.get("/api/admin/allUsers");
-        const members = memberResponse.data?.data?.page?.totalElements || 0;
-        setMemberCount(members);
+        const memberResponse = await api.get("/api/admin/counts");
+        setMemberCount(memberResponse.data?.data || 0);
 
         // Fetch Project Counts
         const projectCountsResponse = await api.get("/api/projects/status-count");
@@ -213,27 +254,15 @@ export default function DashboardPage() {
         setRecentProjects(recentProjectsResponse.data?.data || []);
 
         // Fetch Inquiry Count (실제 데이터)
-        const inquiriesResponse = await api.get("/api/inquiries/all");
-        const inquiries: RecentInquiry[] = inquiriesResponse.data?.data || [];
-        setInquiryCount(Array.isArray(inquiries) ? inquiries.length : 0);
-        setWaitingInquiryCount(
-          Array.isArray(inquiries)
-            ? inquiries.filter((inq) => inq?.inquiryStatus === "WAITING").length
-            : 0
-        );
-        setAnsweredInquiryCount(
-          Array.isArray(inquiries)
-            ? inquiries.filter((inq) => inq?.inquiryStatus === "ANSWERED")
-                .length
-            : 0
-        );
+        const inquiriesResponse = await api.get("/api/inquiries/counts");
+        const inquiryCounts = inquiriesResponse.data?.data || { total: 0, waitingCnt: 0, answeredCnt: 0 };
+        setInquiryCount(inquiryCounts.total || 0);
+        setWaitingInquiryCount(inquiryCounts.waitingCnt || 0);
+        setAnsweredInquiryCount(inquiryCounts.answeredCnt || 0);
 
         // Fetch Recent Inquiries
-        const sortedInquiries = [...inquiries].sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
-        setRecentInquiries(sortedInquiries.slice(0, 5));
+        const recentInquiriesResponse = await api.get("/api/inquiries/recent-inquiries");
+        setRecentInquiries(recentInquiriesResponse.data?.data || []);
 
         // Fetch Project List
         await fetchProjectList(selectedStatus);
@@ -592,6 +621,10 @@ export default function DashboardPage() {
                     strokeWidth={1}
                     labelLine={false}
                     isAnimationActive={false}
+                    activeIndex={activeIndex}
+                    activeShape={renderActiveShape}
+                    onMouseEnter={(_, idx) => setActiveIndex(idx)}
+                    onMouseLeave={() => setActiveIndex(-1)}
                   >
                     {projectStatusData.map((entry, index) => (
                       <Cell
@@ -608,20 +641,7 @@ export default function DashboardPage() {
                       />
                     ))}
                   </Pie>
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "#ffffff",
-                      border: "1px solid #e5e7eb",
-                      borderRadius: "8px",
-                      boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-                      fontSize: "14px",
-                      fontWeight: "600",
-                    }}
-                    labelStyle={{
-                      color: "#374151",
-                      fontWeight: "600",
-                    }}
-                  />
+                  <Tooltip content={(props) => <CustomTooltip {...props} />} />
                 </PieChart>
               </ResponsiveContainer>
             </div>

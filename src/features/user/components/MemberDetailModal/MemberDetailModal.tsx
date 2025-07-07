@@ -116,7 +116,7 @@ const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
 
   const handleDelete = async () => {
     if (!member) return;
-    if (!window.confirm("정말 이 회원을 삭제하시겠습니까?")) return;
+    if (!window.confirm("삭제하시겠습니까? (관리자에게 문의하여 복구할 수 있습니다.)")) return;
     try {
       await api.delete(`/api/admin/${member.id}`);
       notify("회원이 성공적으로 삭제되었습니다.", true);
