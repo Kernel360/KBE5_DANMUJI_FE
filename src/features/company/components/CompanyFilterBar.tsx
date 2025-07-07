@@ -26,12 +26,14 @@ interface CompanyFilterBarProps {
   onInputChange: (field: string, value: string) => void;
   onReset: () => void;
   onRegisterClick?: () => void;
+  onKeywordSearch?: () => void;
 }
 
 const CompanyFilterBar: React.FC<CompanyFilterBarProps> = ({
   filters,
   onInputChange,
   onRegisterClick,
+  onKeywordSearch,
 }) => {
   const [addressModalOpen, setAddressModalOpen] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
@@ -145,6 +147,11 @@ const CompanyFilterBar: React.FC<CompanyFilterBarProps> = ({
             placeholder="업체명을 입력하세요"
             value={filters.keyword}
             onChange={(e) => onInputChange("keyword", e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && typeof onKeywordSearch === "function") {
+                onKeywordSearch();
+              }
+            }}
           />
         </FilterGroup>
       </div>
