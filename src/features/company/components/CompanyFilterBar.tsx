@@ -13,7 +13,7 @@ import {
 
 const SORT_OPTIONS = [
   { value: "latest", label: "최근 등록 순" },
-  { value: "name", label: "이름순" },
+  { value: "name", label: "이름 순" },
 ];
 
 interface CompanyFilterBarProps {

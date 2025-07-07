@@ -283,7 +283,7 @@ export default function CompanyPage() {
   );
 
   const handlePageChange = (newPage: number) => {
-    fetchCompanies(newPage);
+    fetchCompanies(newPage, filters.sort);
   };
 
   // 10개씩 앞뒤로 가는 함수
@@ -300,10 +300,18 @@ export default function CompanyPage() {
     handlePageChange(newPage);
   };
 
-  const fetchCompanies = async (pageNumber: number = 0) => {
+  const fetchCompanies = async (pageNumber: number = 0, sortKey?: string) => {
     try {
       setLoading(true);
-      const response = await api.get(`/api/companies?page=${pageNumber}`);
+      // sortKey가 없으면 filters.sort 사용
+      const sort = sortKey || filters.sort;
+      // sort 파라미터 결정
+      let sortParam = "createdAt,desc"; // 기본값: 최근 등록순
+      if (sort === "name") sortParam = "name,asc";
+      else if (sort === "ceo") sortParam = "ceoName,asc";
+      else if (sort === "latest") sortParam = "createdAt,desc";
+
+      const response = await api.get(`/api/companies?page=${pageNumber}&sort=${sortParam}`);
       const responseData = response.data;
       setCompanies(responseData.data.content);
       setPage(responseData.data.page);
@@ -330,6 +338,9 @@ export default function CompanyPage() {
       ...prev,
       [field]: value,
     }));
+    if (field === "sort") {
+      fetchCompanies(0, value); // 정렬 기준 바뀌면 첫 페이지로 이동
+    }
   };
 
   const handleClose = () => {
@@ -354,18 +365,19 @@ export default function CompanyPage() {
     return company.name.toLowerCase().includes(keyword);
   });
 
-  // 정렬된 업체 목록
-  const sortedCompanies = [...filteredCompanies].sort((a, b) => {
-    switch (filters.sort) {
-      case "name":
-        return a.name.localeCompare(b.name);
-      case "ceo":
-        return a.ceoName.localeCompare(b.ceoName);
-      case "latest":
-      default:
-        return b.id - a.id;
-    }
-  });
+  // 정렬된 업체 목록 (API에서 정렬하므로 프론트 정렬 제거)
+  // const sortedCompanies = [...filteredCompanies].sort((a, b) => {
+  //   switch (filters.sort) {
+  //     case "name":
+  //       return a.name.localeCompare(b.name);
+  //     case "ceo":
+  //       return a.ceoName.localeCompare(b.ceoName);
+  //     case "latest":
+  //     default:
+  //       return b.id - a.id;
+  //   }
+  // });
+  const sortedCompanies = filteredCompanies;
 
   // 페이지네이션 정보 계산
   const getPaginationInfo = () => {
