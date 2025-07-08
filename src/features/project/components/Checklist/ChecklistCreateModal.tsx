@@ -11,8 +11,16 @@ import {
   Input,
   TextArea,
   ButtonGroup,
-  Button
+  Button,
+  UserListWrap,
+  UserCard,
+  UserName,
+  UserUsername,
+  CompanySection,
+  CompanyNameHeader,
+  CheckCircle
 } from './ChecklistCreateModal.styled';
+import { FaCheckCircle } from 'react-icons/fa';
 // import CompanyMemberSelectModal from '../CompanyMemberSelectModal';
 import { getUsersByProject } from '@/features/user/services/userService';
 import type { UserSummaryResponse } from '@/features/user/services/userService';
@@ -43,6 +51,7 @@ interface ChecklistCreateModalProps {
   onSubmit: (data: {
     title: string;
     content: string;
+    approvalIds: number[];
   }) => void;
   projectId: number;
 }
@@ -53,6 +62,7 @@ export default function ChecklistCreateModal({ open, onClose, onSubmit, projectI
   const [users, setUsers] = useState<UserSummaryResponse[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [userError, setUserError] = useState<string | null>(null);
+  const [selected, setSelected] = useState<{ [userId: number]: boolean }>({});
 
   useEffect(() => {
     if (!open) return;
@@ -71,14 +81,21 @@ export default function ChecklistCreateModal({ open, onClose, onSubmit, projectI
     alert(`${user.name}님에게 승인요청! (stub)`);
   };
 
+  const handleUserToggle = (userId: number) => {
+    setSelected(prev => ({ ...prev, [userId]: !prev[userId] }));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const approvalIds = users.filter(u => selected[u.id]).map(u => u.id);
     onSubmit({
       title,
       content,
+      approvalIds,
     });
     setTitle('');
     setContent('');
+    setSelected({});
     onClose();
   };
 
@@ -129,18 +146,29 @@ export default function ChecklistCreateModal({ open, onClose, onSubmit, projectI
             ) : users.length === 0 ? (
               <div style={{ color: '#bbb', fontSize: '0.98rem' }}>유저가 없습니다.</div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {users.map(user => (
-                  <div key={user.id} style={{ display: 'flex', alignItems: 'center', gap: 12, background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: 8, padding: '8px 12px' }}>
-                    <span style={{ fontWeight: 500 }}>{user.name}</span>
-                    <span style={{ color: '#888', fontSize: '0.97rem' }}>({user.username})</span>
-                    <span style={{ color: '#bbb', fontSize: '0.97rem' }}>{user.role}</span>
-                    <Button type="button" style={{ marginLeft: 'auto', background: '#fdb924', color: '#fff', fontWeight: 600, padding: '4px 12px', borderRadius: 6, border: 'none', cursor: 'pointer' }} onClick={() => handleRequestApproval(user)}>
-                      승인요청
-                    </Button>
-                  </div>
+              <UserListWrap>
+                {Object.entries(
+                  users.reduce((acc, user) => {
+                    const key = user.companyId + '-' + user.companyName;
+                    if (!acc[key]) acc[key] = { companyName: user.companyName, users: [] };
+                    acc[key].users.push(user);
+                    return acc;
+                  }, {} as Record<string, { companyName: string; users: typeof users }>)
+                ).map(([key, group]) => (
+                  <CompanySection key={key}>
+                    <CompanyNameHeader>{group.companyName}</CompanyNameHeader>
+                    {group.users.map(user => (
+                      <UserCard key={user.id} selected={!!selected[user.id]} onClick={() => handleUserToggle(user.id)}>
+                        <CheckCircle selected={!!selected[user.id]}>
+                          {selected[user.id] && <FaCheckCircle />}
+                        </CheckCircle>
+                        <UserName>{user.name}</UserName>
+                        <UserUsername>({user.username})</UserUsername>
+                      </UserCard>
+                    ))}
+                  </CompanySection>
                 ))}
-              </div>
+              </UserListWrap>
             )}
           </FormGroup>
 
