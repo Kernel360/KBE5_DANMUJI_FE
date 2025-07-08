@@ -7,7 +7,7 @@ import {
   FiTarget,
   FiPlay,
 } from "react-icons/fi";
-import * as S from "./ProjectDetailPage.styled";
+import * as S from "../../project/pages/ProjectDetailPage.styled";
 import api from "@/api/axios";
 import { getPosts } from "@/features/project-d/services/postService";
 

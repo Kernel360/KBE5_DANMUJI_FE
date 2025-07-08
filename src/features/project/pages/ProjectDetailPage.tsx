@@ -12,61 +12,10 @@ import ProjectCreateModal from "../components/ProjectCreateModal";
 import api from "@/api/axios";
 import { useAuth } from "@/hooks/useAuth";
 import KanbanBoard from "../components/Checklist/KanbanBoard";
+import { DetailPageContainer, PageTitle, PageDescription, LoadingContainer, ErrorContainer } from "./ProjectDetailPage.styled";
 // import ProjectMemberList from "../components/MemberList/ProjectMemberList";
 // import ProjectFileList from '../components/FileList/ProjectFileList';
 
-const DetailPageContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 100vh;
-  padding: 32px 32px;
-`;
-
-const PageTitle = styled.h1`
-  font-size: 1.4rem;
-  font-weight: 700;
-  margin-bottom: -7px;
-  padding-left: 16px;
-  position: relative;
-  color: #111827;
-
-  &::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 4px;
-    height: 1.4rem;
-    background: #fdb924;
-    border-radius: 2px;
-  }
-`;
-
-const PageDescription = styled.p`
-  color: #bdbdbd;
-  font-size: 0.9rem;
-  margin-bottom: 18px;
-`;
-
-const LoadingContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 400px;
-  font-size: 1.1rem;
-  color: #666;
-`;
-
-const ErrorContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 400px;
-  font-size: 1.1rem;
-  color: #ef4444;
-`;
 
 // 프로젝트 수정 폼 타입 정의
 interface ProjectEditForm {
@@ -95,29 +44,29 @@ interface ProjectEditPayload {
 }
 
 // 토글 버튼 스타일
-const ToggleWrapper = styled.div`
+export const TabButton = styled.button<{ $active: boolean }>`
+  padding: 6px 18px;
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+  font-weight: ${(props) => (props.$active ? 700 : 500)};
+  color: ${(props) => (props.$active ? "#f59e0b" : "#bdbdbd")};
+  border-bottom: ${(props) => (props.$active ? "2px solid #fdb924" : "none")};
+  cursor: pointer;
+  transition: color 0.18s, border-bottom 0.18s, background 0.18s;
+  border-radius: 0;
+  margin: 0 0 0 0;
+  &:hover {
+    background: #fffbe8;
+    color: #f59e0b;
+  }
+`;
+const ToggleTabGroup = styled.div`
   display: flex;
   justify-content: flex-end;
-  align-items: center;
+  align-items: flex-end;
+  gap: 0;
   margin: 18px 0 18px 0;
-  gap: 8px;
-`;
-const ToggleButton = styled.button<{ active: boolean }>`
-  padding: 7px 18px;
-  font-size: 1rem;
-  font-weight: 600;
-  border-radius: 6px;
-  border: 1.5px solid #e5e7eb;
-  background: ${({ active }) => (active ? '#fff' : '#f3f4f6')};
-  color: ${({ active }) => (active ? '#3b82f6' : '#888')};
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s, border 0.15s;
-  box-shadow: none;
-  &:hover {
-    background: #e0e7ef;
-    color: #2563eb;
-    border-color: #3b82f6;
-  }
 `;
 
 const ProjectDetailPage = () => {
@@ -283,10 +232,10 @@ const ProjectDetailPage = () => {
           }
           onStepOrderSaved={fetchProjectDetail}
         />
-        <ToggleWrapper>
-          <ToggleButton active={viewType === 'post'} onClick={() => setViewType('post')}>게시글</ToggleButton>
-          <ToggleButton active={viewType === 'checklist'} onClick={() => setViewType('checklist')}>체크리스트</ToggleButton>
-        </ToggleWrapper>
+        <ToggleTabGroup>
+          <TabButton $active={viewType === 'post'} onClick={() => setViewType('post')}>게시글</TabButton>
+          <TabButton $active={viewType === 'checklist'} onClick={() => setViewType('checklist')}>체크리스트</TabButton>
+        </ToggleTabGroup>
         {viewType === 'post' ? (
           <ProjectBoard projectId={projectDetail.id} selectedStepId={selectedStepId} />
         ) : (
