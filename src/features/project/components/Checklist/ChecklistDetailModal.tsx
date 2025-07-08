@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import api from '@/api/axios';
 import {
   ModalOverlay,
   ModalContainer,
@@ -58,6 +59,18 @@ const ChecklistDetailModal = ({ open, loading, data, onClose }: ChecklistDetailM
   // 승인/반려 UI 상태를 approval별로 관리
   const [rejectStates, setRejectStates] = useState<{ [approvalId: number]: boolean }>({});
   const [rejectReasons, setRejectReasons] = useState<{ [approvalId: number]: string }>({});
+  const [actionLoading, setActionLoading] = useState<{ [approvalId: number]: boolean }>({});
+  const [localApprovals, setLocalApprovals] = useState<any[] | null>(null);
+
+  React.useEffect(() => {
+    // 모달 열릴 때마다 approval 상태 초기화
+    if (data && Array.isArray(data.approvals)) {
+      setLocalApprovals(data.approvals);
+      setRejectStates({});
+      setRejectReasons({});
+      setActionLoading({});
+    }
+  }, [data, open]);
 
   const handleShowReject = (approvalId: number) => {
     setRejectStates((prev) => ({ ...prev, [approvalId]: true }));
@@ -70,7 +83,84 @@ const ChecklistDetailModal = ({ open, loading, data, onClose }: ChecklistDetailM
     setRejectReasons((prev) => ({ ...prev, [approvalId]: value }));
   };
 
+  // 승인 처리
+  const handleApprove = async (approvalId: number) => {
+    setActionLoading((prev) => ({ ...prev, [approvalId]: true }));
+    try {
+      await api.put(`/api/checklists/approvals/${approvalId}`, {
+        status: 'APPROVED',
+        message: '',
+      });
+      // UI 갱신: localApprovals 상태 변경
+      setLocalApprovals((prev) =>
+        prev
+          ? prev.map((a) =>
+              a.id === approvalId
+                ? { ...a, status: 'APPROVED', message: '', respondedAt: new Date().toISOString() }
+                : a
+            )
+          : prev
+      );
+      setRejectStates((prev) => ({ ...prev, [approvalId]: false }));
+      setRejectReasons((prev) => ({ ...prev, [approvalId]: '' }));
+    } catch (e) {
+      let msg = '승인 처리에 실패했습니다.';
+      if (e && typeof e === 'object') {
+        const err = e as any;
+        if ('response' in err && err.response && err.response.data && err.response.data.message) {
+          msg = err.response.data.message;
+        } else if ('data' in err && err.data && err.data.message) {
+          msg = err.data.message;
+        } else if ('message' in err) {
+          msg = err.message as string;
+        }
+      }
+      alert(msg);
+    } finally {
+      setActionLoading((prev) => ({ ...prev, [approvalId]: false }));
+    }
+  };
+
+  // 반려 처리
+  const handleReject = async (approvalId: number) => {
+    if (!rejectReasons[approvalId] || rejectReasons[approvalId].trim() === '') return;
+    setActionLoading((prev) => ({ ...prev, [approvalId]: true }));
+    try {
+      await api.put(`/api/checklists/approvals/${approvalId}`, {
+        status: 'REJECTED',
+        message: rejectReasons[approvalId],
+      });
+      setLocalApprovals((prev) =>
+        prev
+          ? prev.map((a) =>
+              a.id === approvalId
+                ? { ...a, status: 'REJECTED', message: rejectReasons[approvalId], respondedAt: new Date().toISOString() }
+                : a
+            )
+          : prev
+      );
+      setRejectStates((prev) => ({ ...prev, [approvalId]: false }));
+      setRejectReasons((prev) => ({ ...prev, [approvalId]: '' }));
+    } catch (e) {
+      let msg = '반려 처리에 실패했습니다.';
+      if (e && typeof e === 'object') {
+        const err = e as any;
+        if ('response' in err && err.response && err.response.data && err.response.data.message) {
+          msg = err.response.data.message;
+        } else if ('data' in err && err.data && err.data.message) {
+          msg = err.data.message;
+        } else if ('message' in err) {
+          msg = err.message as string;
+        }
+      }
+      alert(msg);
+    } finally {
+      setActionLoading((prev) => ({ ...prev, [approvalId]: false }));
+    }
+  };
+
   if (!open) return null;
+  const approvals = localApprovals ?? (data && Array.isArray(data.approvals) ? data.approvals : []);
   return (
     <ModalOverlay>
       <ModalContainer>
@@ -120,8 +210,8 @@ const ChecklistDetailModal = ({ open, loading, data, onClose }: ChecklistDetailM
               <ApprovalsSection>
                 <div style={{ fontWeight: 700, fontSize: '1.08rem', marginBottom: 12 }}>승인자 목록</div>
                 <ApprovalCardList>
-                  {Array.isArray(data.approvals) && data.approvals.length > 0 ? (
-                    data.approvals.map((appr: any) => (
+                  {Array.isArray(approvals) && approvals.length > 0 ? (
+                    approvals.map((appr: any) => (
                       <ApprovalCard key={appr.id}>
                         <ApprovalCardHeader>
                           <ApprovalName>{appr.username}</ApprovalName>
@@ -139,10 +229,16 @@ const ChecklistDetailModal = ({ open, loading, data, onClose }: ChecklistDetailM
                             <ApprovalActions>
                               {!rejectStates[appr.id] ? (
                                 <>
-                                  <ApprovalButton>
-                                    승인
+                                  <ApprovalButton
+                                    disabled={!!actionLoading[appr.id]}
+                                    onClick={() => handleApprove(appr.id)}
+                                  >
+                                    {actionLoading[appr.id] ? '처리 중...' : '승인'}
                                   </ApprovalButton>
-                                  <ApprovalButtonSecondary onClick={() => handleShowReject(appr.id)}>
+                                  <ApprovalButtonSecondary
+                                    disabled={!!actionLoading[appr.id]}
+                                    onClick={() => handleShowReject(appr.id)}
+                                  >
                                     반려
                                   </ApprovalButtonSecondary>
                                 </>
@@ -152,13 +248,22 @@ const ChecklistDetailModal = ({ open, loading, data, onClose }: ChecklistDetailM
                                     value={rejectReasons[appr.id] || ''}
                                     onChange={e => handleRejectReasonChange(appr.id, e.target.value)}
                                     placeholder="반려 사유 입력"
+                                    disabled={!!actionLoading[appr.id]}
                                   />
                                   <div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
-                                    <ApprovalButtonSecondary onClick={() => handleHideReject(appr.id)}>
+                                    <ApprovalButtonSecondary
+                                      disabled={!!actionLoading[appr.id]}
+                                      onClick={() => handleHideReject(appr.id)}
+                                    >
                                       취소
                                     </ApprovalButtonSecondary>
-                                    <ApprovalButton disabled={!rejectReasons[appr.id] || rejectReasons[appr.id].trim() === ''}>
-                                      반려 제출
+                                    <ApprovalButton
+                                      disabled={
+                                        !!actionLoading[appr.id] || !rejectReasons[appr.id] || rejectReasons[appr.id].trim() === ''
+                                      }
+                                      onClick={() => handleReject(appr.id)}
+                                    >
+                                      {actionLoading[appr.id] ? '처리 중...' : '반려 제출'}
                                     </ApprovalButton>
                                   </div>
                                 </>

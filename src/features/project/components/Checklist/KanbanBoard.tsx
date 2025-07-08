@@ -55,52 +55,6 @@ const COLUMNS = [
   },
 ];
 
-// 예시 데이터
-const MOCK_CARDS: ChecklistCardType[] = [
-  {
-    id: 1,
-    title: '기획서 작성',
-    assignee: '홍길동',
-    username: 'hong',
-    createdAt: '2024-06-01',
-    status: 'waiting',
-  },
-  {
-    id: 2,
-    title: '디자인 시안 검토',
-    assignee: '김디자',
-    username: 'kimdesign',
-    createdAt: '2024-06-02',
-    status: 'approved',
-  },
-  {
-    id: 3,
-    title: 'API 명세서 작성',
-    assignee: '이개발',
-    username: 'leedev',
-    createdAt: '2024-06-03',
-    status: 'rejected',
-    rejectReason: '내용 미흡',
-  },
-  {
-    id: 4,
-    title: '테스트 케이스 작성',
-    assignee: '박테스터',
-    username: 'parktest',
-    createdAt: '2024-06-04',
-    status: 'waiting',
-  },
-  {
-    id: 5,
-    title: '승인 요청 예시',
-    assignee: '최승인',
-    username: 'choiapprove',
-    createdAt: '2024-06-05',
-    status: 'waiting',
-    approvalRequest: true,
-  },
-];
-
 // 담당자 이니셜 생성
 function getInitials(name: string) {
   if (!name) return '';
