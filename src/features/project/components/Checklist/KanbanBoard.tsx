@@ -23,7 +23,7 @@ import ChecklistDetailModal from './ChecklistDetailModal';
 
 // 카드 타입 명확화
 export type ChecklistCardType = {
-  id: string;
+  id: number;
   title: string;
   assignee: string;
   username: string;
@@ -58,7 +58,7 @@ const COLUMNS = [
 // 예시 데이터
 const MOCK_CARDS: ChecklistCardType[] = [
   {
-    id: '1',
+    id: 1,
     title: '기획서 작성',
     assignee: '홍길동',
     username: 'hong',
@@ -66,7 +66,7 @@ const MOCK_CARDS: ChecklistCardType[] = [
     status: 'waiting',
   },
   {
-    id: '2',
+    id: 2,
     title: '디자인 시안 검토',
     assignee: '김디자',
     username: 'kimdesign',
@@ -74,7 +74,7 @@ const MOCK_CARDS: ChecklistCardType[] = [
     status: 'approved',
   },
   {
-    id: '3',
+    id: 3,
     title: 'API 명세서 작성',
     assignee: '이개발',
     username: 'leedev',
@@ -83,7 +83,7 @@ const MOCK_CARDS: ChecklistCardType[] = [
     rejectReason: '내용 미흡',
   },
   {
-    id: '4',
+    id: 4,
     title: '테스트 케이스 작성',
     assignee: '박테스터',
     username: 'parktest',
@@ -91,7 +91,7 @@ const MOCK_CARDS: ChecklistCardType[] = [
     status: 'waiting',
   },
   {
-    id: '5',
+    id: 5,
     title: '승인 요청 예시',
     assignee: '최승인',
     username: 'choiapprove',
@@ -110,7 +110,7 @@ function getInitials(name: string) {
 }
 
 // 카드 컴포넌트에 클릭 핸들러 추가 (정의 위치 이동)
-function ChecklistCard({ card, onClick }: { card: ChecklistCardType; onClick: (id: string) => void }) {
+function ChecklistCard({ card, onClick }: { card: ChecklistCardType; onClick: (id: number) => void }) {
   return (
     <CardBox $status={card.status} onClick={() => onClick(card.id)} style={{ cursor: 'pointer' }}>
       <CardTop>
@@ -136,7 +136,7 @@ function ChecklistCard({ card, onClick }: { card: ChecklistCardType; onClick: (i
 }
 
 // 컬럼 컴포넌트
-function Column({ column, cards, onCardClick }: { column: typeof COLUMNS[number]; cards: ChecklistCardType[]; onCardClick: (id: string) => void }) {
+function Column({ column, cards, onCardClick }: { column: typeof COLUMNS[number]; cards: ChecklistCardType[]; onCardClick: (id: number) => void }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', alignSelf: 'stretch', flex: 1 }}>
       <ColumnHeader>
@@ -150,7 +150,7 @@ function Column({ column, cards, onCardClick }: { column: typeof COLUMNS[number]
             <ChecklistCard
               key={card.id}
               card={card}
-              onClick={onCardClick}
+              onClick={(id: number) => onCardClick(id)}
             />
           ))}
         </div>
@@ -282,7 +282,7 @@ export default function KanbanBoard({ projectId, selectedStepId }: KanbanBoardPr
               key={col.key}
               column={col}
               cards={cards.filter((c) => c.status === col.key)}
-              onCardClick={handleCardClick}
+              onCardClick={(id: number) => handleCardClick(id)}
             />
           ))
         )}
