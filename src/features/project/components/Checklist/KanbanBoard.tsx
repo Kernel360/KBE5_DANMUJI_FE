@@ -166,32 +166,38 @@ interface KanbanBoardProps {
 export default function KanbanBoard({ projectId, selectedStepId }: KanbanBoardProps) {
   const [cards, setCards] = useState<ChecklistCardType[]>([]);
   const [loading, setLoading] = useState(false);
-
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  useEffect(() => {
+  // 카드 목록을 불러오는 함수 분리
+  const fetchCards = async () => {
     if (!selectedStepId) return;
     setLoading(true);
-    api.get(`/api/checklists/${selectedStepId}`)
-      .then(res => {
-        // Transform API data to ChecklistCardType[] if needed
-        const apiCards = Array.isArray(res.data.data) ? res.data.data : [];
-        setCards(apiCards.map((item: any) => ({
-          id: String(item.id),
-          title: item.title || '', // title이 없으면 빈 문자열
-          userId: item.userId,
-          username: item.username || '',
-          createdAt: item.createdAt ? item.createdAt.slice(0, 10) : '', // createdAt이 null일 수 있음
-          status:
-            item.status === 'PENDING'
-              ? 'waiting'
-              : item.status === 'APPROVED'
-              ? 'approved'
-              : 'rejected',
-        })));
-      })
-      .catch(() => setCards([]))
-      .finally(() => setLoading(false));
+    try {
+      const res = await api.get(`/api/checklists/${selectedStepId}`);
+      const apiCards = Array.isArray(res.data.data) ? res.data.data : [];
+      setCards(apiCards.map((item: any) => ({
+        id: String(item.id),
+        title: item.title || '',
+        userId: item.userId,
+        username: item.username || '',
+        createdAt: item.createdAt ? item.createdAt.slice(0, 10) : '',
+        status:
+          item.status === 'PENDING'
+            ? 'waiting'
+            : item.status === 'APPROVED'
+            ? 'approved'
+            : 'rejected',
+      })));
+    } catch {
+      setCards([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCards();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedStepId]);
 
   const handleCreateChecklist = async (data: {
@@ -205,9 +211,9 @@ export default function KanbanBoard({ projectId, selectedStepId }: KanbanBoardPr
         content: data.content,
         approvalIds: data.approvalIds,
       });
-      // TODO: 성공 시 카드 목록 새로고침 등
-      console.log(selectedStepId)
-      console.log('체크리스트 생성 성공');
+      // 체크리스트 생성 성공 시 카드 목록 새로고침
+      await fetchCards();
+      setIsModalOpen(false);
     } catch (e) {
       console.log(data)
       console.error('체크리스트 생성 실패', e);
