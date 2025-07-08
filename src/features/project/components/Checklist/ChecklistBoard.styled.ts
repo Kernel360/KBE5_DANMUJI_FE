@@ -5,8 +5,9 @@ export const BoardWrapper = styled.div`
   gap: 24px;
   padding: 24px;
   width: 100%;
-  align-items: flex-start;
-  @media (max-width: 900px) {
+  align-items: stretch;
+  justify-content: space-between;
+  @media (max-width: 768px) {
     flex-direction: column;
     gap: 18px;
     padding: 12px;
@@ -17,17 +18,18 @@ export const ColumnBox = styled.div<{ bg: string }>`
   background: ${({ bg }) => bg};
   border-radius: 18px;
   box-shadow: 0 4px 16px 0 rgba(80, 80, 120, 0.10);
-  min-width: 0;
-  max-width: none;
+  width: 100%;
   flex: 1;
+  min-height: 400px;
   padding: 18px 14px 22px 14px;
   display: flex;
   flex-direction: column;
   gap: 14px;
-  @media (max-width: 900px) {
-    min-width: 0;
-    max-width: 100%;
+  align-self: stretch;
+  @media (max-width: 768px) {
     width: 100%;
+    min-height: 200px;
+    flex: none;
   }
 `;
 

@@ -161,23 +161,25 @@ function ChecklistCard({ card, onApprove, onReject }: { card: ChecklistCardType;
 // 컬럼 컴포넌트
 function Column({ column, cards, onApprove, onReject }: { column: typeof COLUMNS[number]; cards: ChecklistCardType[]; onApprove: (id: string) => void; onReject: (id: string, reason: string) => void }) {
   return (
-    <ColumnBox bg={column.bg}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', alignSelf: 'stretch', flex: 1 }}>
       <ColumnHeader>
         <StatusDot color={column.dot} />
         <ColumnTitle>{column.title}</ColumnTitle>
         <ColumnCount>{cards.length}</ColumnCount>
       </ColumnHeader>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-        {cards.map((card) => (
-          <ChecklistCard
-            key={card.id}
-            card={card}
-            onApprove={onApprove}
-            onReject={onReject}
-          />
-        ))}
-      </div>
-    </ColumnBox>
+      <ColumnBox bg={column.bg}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14, flex: 1 }}>
+          {cards.map((card) => (
+            <ChecklistCard
+              key={card.id}
+              card={card}
+              onApprove={onApprove}
+              onReject={onReject}
+            />
+          ))}
+        </div>
+      </ColumnBox>
+    </div>
   );
 }
 
