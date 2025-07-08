@@ -107,10 +107,7 @@ function getInitials(name: string) {
 }
 
 // 카드 컴포넌트
-function ChecklistCard({ card, onApprove, onReject }: { card: ChecklistCardType; onApprove: (id: string) => void; onReject: (id: string, reason: string) => void }) {
-  const [rejectInput, setRejectInput] = useState('');
-  const [showRejectInput, setShowRejectInput] = useState(false);
-
+function ChecklistCard({ card }: { card: ChecklistCardType }) {
   return (
     <CardBox status={card.status}>
       <CardTop>
@@ -125,34 +122,6 @@ function ChecklistCard({ card, onApprove, onReject }: { card: ChecklistCardType;
         <span>{card.assignee} ({card.username})</span>
         <span>{card.createdAt}</span>
       </CardMeta>
-      {/* 승인 요청 카드일 때만 버튼 노출 */}
-      {card.approvalRequest && card.status === 'waiting' && (
-        <CardActions>
-          <ApproveButton onClick={() => onApprove(card.id)}>승인</ApproveButton>
-          <RejectButton
-            onClick={() => setShowRejectInput((v) => !v)}
-            style={{ minWidth: 0 }}
-          >
-            반려
-          </RejectButton>
-        </CardActions>
-      )}
-      {/* 반려 버튼 클릭 시 사유 입력 */}
-      {showRejectInput && (
-        <RejectInput
-          placeholder="반려 사유 입력"
-          value={rejectInput}
-          onChange={(e) => setRejectInput(e.target.value)}
-          onBlur={() => setShowRejectInput(false)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              onReject(card.id, rejectInput);
-              setShowRejectInput(false);
-              setRejectInput('');
-            }
-          }}
-        />
-      )}
       {/* 반려 사유 표시 */}
       {card.status === 'rejected' && card.rejectReason && (
         <div style={{ color: '#ef4444', fontSize: '0.95rem', marginTop: 4 }}>
@@ -164,7 +133,7 @@ function ChecklistCard({ card, onApprove, onReject }: { card: ChecklistCardType;
 }
 
 // 컬럼 컴포넌트
-function Column({ column, cards, onApprove, onReject }: { column: typeof COLUMNS[number]; cards: ChecklistCardType[]; onApprove: (id: string) => void; onReject: (id: string, reason: string) => void }) {
+function Column({ column, cards }: { column: typeof COLUMNS[number]; cards: ChecklistCardType[] }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', alignSelf: 'stretch', flex: 1 }}>
       <ColumnHeader>
@@ -178,8 +147,6 @@ function Column({ column, cards, onApprove, onReject }: { column: typeof COLUMNS
             <ChecklistCard
               key={card.id}
               card={card}
-              onApprove={onApprove}
-              onReject={onReject}
             />
           ))}
         </div>
@@ -190,28 +157,7 @@ function Column({ column, cards, onApprove, onReject }: { column: typeof COLUMNS
 
 // 메인 보드
 export default function KanbanBoard() {
-  const [cards, setCards] = useState<ChecklistCardType[]>(MOCK_CARDS);
-
-  // 승인 처리
-  const handleApprove = (id: string) => {
-    setCards((prev) =>
-      prev.map((c) =>
-        c.id === id
-          ? { ...c, status: 'approved', approvalRequest: undefined, rejectReason: undefined }
-          : c
-      )
-    );
-  };
-  // 반려 처리
-  const handleReject = (id: string, reason: string) => {
-    setCards((prev) =>
-      prev.map((c) =>
-        c.id === id
-          ? { ...c, status: 'rejected', approvalRequest: undefined, rejectReason: reason }
-          : c
-      )
-    );
-  };
+  const [cards] = useState<ChecklistCardType[]>(MOCK_CARDS);
 
   return (
     <BoardWrapper>
@@ -220,8 +166,6 @@ export default function KanbanBoard() {
           key={col.key}
           column={col}
           cards={cards.filter((c) => c.status === col.key)}
-          onApprove={handleApprove}
-          onReject={handleReject}
         />
       ))}
     </BoardWrapper>
