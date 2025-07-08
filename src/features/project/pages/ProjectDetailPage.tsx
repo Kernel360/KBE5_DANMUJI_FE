@@ -11,6 +11,7 @@ import styled from "styled-components";
 import ProjectCreateModal from "../components/ProjectCreateModal";
 import api from "@/api/axios";
 import { useAuth } from "@/hooks/useAuth";
+import KanbanBoard from "../components/Checklist/KanbanBoard";
 // import ProjectMemberList from "../components/MemberList/ProjectMemberList";
 // import ProjectFileList from '../components/FileList/ProjectFileList';
 
@@ -93,6 +94,32 @@ interface ProjectEditPayload {
   clientUserId: number[];
 }
 
+// 토글 버튼 스타일
+const ToggleWrapper = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin: 18px 0 18px 0;
+  gap: 8px;
+`;
+const ToggleButton = styled.button<{ active: boolean }>`
+  padding: 7px 18px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 6px;
+  border: 1.5px solid #e5e7eb;
+  background: ${({ active }) => (active ? '#fff' : '#f3f4f6')};
+  color: ${({ active }) => (active ? '#3b82f6' : '#888')};
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border 0.15s;
+  box-shadow: none;
+  &:hover {
+    background: #e0e7ef;
+    color: #2563eb;
+    border-color: #3b82f6;
+  }
+`;
+
 const ProjectDetailPage = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const [projectDetail, setProjectDetail] =
@@ -104,6 +131,7 @@ const ProjectDetailPage = () => {
   );
   const [editModalOpen, setEditModalOpen] = useState(false);
   const { role } = useAuth();
+  const [viewType, setViewType] = useState<'post' | 'checklist'>('post');
   // 프로젝트 상세 정보 가져오기
   const fetchProjectDetail = async () => {
     if (!projectId) {
@@ -255,7 +283,16 @@ const ProjectDetailPage = () => {
           }
           onStepOrderSaved={fetchProjectDetail}
         />
-        <div style={{ display: "flex", gap: 24, padding: "0 24px 24px" }}>
+        <ToggleWrapper>
+          <ToggleButton active={viewType === 'post'} onClick={() => setViewType('post')}>게시글</ToggleButton>
+          <ToggleButton active={viewType === 'checklist'} onClick={() => setViewType('checklist')}>체크리스트</ToggleButton>
+        </ToggleWrapper>
+        {viewType === 'post' ? (
+          <ProjectBoard projectId={projectDetail.id} selectedStepId={selectedStepId} />
+        ) : (
+          <KanbanBoard />
+        )}
+        {/* <div style={{ display: "flex", gap: 24, padding: "0 24px 24px" }}>
           <div style={{ flex: 2 }}>
             <ProjectBoard
               projectId={projectDetail.id}
@@ -264,8 +301,7 @@ const ProjectDetailPage = () => {
             {/* <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 24 }}>
                         <ProjectFileList />
                     </div> */}
-          </div>
-        </div>
+        {/* </div> */}
       </div>
       <ProjectCreateModal
         open={editModalOpen}
