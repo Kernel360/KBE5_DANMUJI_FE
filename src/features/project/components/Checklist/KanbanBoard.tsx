@@ -19,6 +19,7 @@ import {
   RejectInput,
 } from './ChecklistBoard.styled';
 import ChecklistCreateModal from './ChecklistCreateModal';
+import ChecklistDetailModal from './ChecklistDetailModal';
 
 // 카드 타입 명확화
 export type ChecklistCardType = {
@@ -108,33 +109,10 @@ function getInitials(name: string) {
   return parts.map((p) => p[0]).join('').slice(0, 2);
 }
 
-// 컬럼 컴포넌트
-function Column({ column, cards }: { column: typeof COLUMNS[number]; cards: ChecklistCardType[] }) {
+// 카드 컴포넌트에 클릭 핸들러 추가 (정의 위치 이동)
+function ChecklistCard({ card, onClick }: { card: ChecklistCardType; onClick: (id: string) => void }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', alignSelf: 'stretch', flex: 1 }}>
-      <ColumnHeader>
-        <StatusDot color={column.dot} />
-        <ColumnTitle>{column.title}</ColumnTitle>
-        <ColumnCount>{cards.length}</ColumnCount>
-      </ColumnHeader>
-      <ColumnBox $bg={column.bg}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14, flex: 1 }}>
-          {cards.map((card) => (
-            <ChecklistCard
-              key={card.id}
-              card={card}
-            />
-          ))}
-        </div>
-      </ColumnBox>
-    </div>
-  );
-}
-
-// 카드 컴포넌트
-function ChecklistCard({ card }: { card: ChecklistCardType }) {
-  return (
-    <CardBox $status={card.status}>
+    <CardBox $status={card.status} onClick={() => onClick(card.id)} style={{ cursor: 'pointer' }}>
       <CardTop>
         <CardTitle>{card.title}</CardTitle>
         <StatusBadge status={card.status}>
@@ -157,6 +135,30 @@ function ChecklistCard({ card }: { card: ChecklistCardType }) {
   );
 }
 
+// 컬럼 컴포넌트
+function Column({ column, cards, onCardClick }: { column: typeof COLUMNS[number]; cards: ChecklistCardType[]; onCardClick: (id: string) => void }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', alignSelf: 'stretch', flex: 1 }}>
+      <ColumnHeader>
+        <StatusDot color={column.dot} />
+        <ColumnTitle>{column.title}</ColumnTitle>
+        <ColumnCount>{cards.length}</ColumnCount>
+      </ColumnHeader>
+      <ColumnBox $bg={column.bg}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14, flex: 1 }}>
+          {cards.map((card) => (
+            <ChecklistCard
+              key={card.id}
+              card={card}
+              onClick={onCardClick}
+            />
+          ))}
+        </div>
+      </ColumnBox>
+    </div>
+  );
+}
+
 // 메인 보드
 interface KanbanBoardProps {
   projectId: number;
@@ -167,6 +169,10 @@ export default function KanbanBoard({ projectId, selectedStepId }: KanbanBoardPr
   const [cards, setCards] = useState<ChecklistCardType[]>([]);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  // 상세 모달 상태
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [detailData, setDetailData] = useState<any>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
 
   // 카드 목록을 불러오는 함수 분리
   const fetchCards = async () => {
@@ -199,6 +205,25 @@ export default function KanbanBoard({ projectId, selectedStepId }: KanbanBoardPr
     fetchCards();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedStepId]);
+
+  // 카드 클릭 핸들러
+  const handleCardClick = async (checklistId: number) => {
+    setDetailLoading(true);
+    setDetailModalOpen(true);
+    try {
+      const res = await api.get(`/api/checklists/${checklistId}/info`);
+      setDetailData(res.data.data);
+    } catch (e) {
+      setDetailData(null);
+    } finally {
+      setDetailLoading(false);
+    }
+  };
+
+  const handleDetailModalClose = () => {
+    setDetailModalOpen(false);
+    setDetailData(null);
+  };
 
   const handleCreateChecklist = async (data: {
     title: string;
@@ -257,6 +282,7 @@ export default function KanbanBoard({ projectId, selectedStepId }: KanbanBoardPr
               key={col.key}
               column={col}
               cards={cards.filter((c) => c.status === col.key)}
+              onCardClick={handleCardClick}
             />
           ))
         )}
@@ -268,6 +294,13 @@ export default function KanbanBoard({ projectId, selectedStepId }: KanbanBoardPr
         onSubmit={handleCreateChecklist}
         projectId={projectId}
         stepId={selectedStepId}
+      />
+      {/* 상세 모달 */}
+      <ChecklistDetailModal
+        open={detailModalOpen}
+        loading={detailLoading}
+        data={detailData}
+        onClose={handleDetailModalClose}
       />
     </div>
   );
