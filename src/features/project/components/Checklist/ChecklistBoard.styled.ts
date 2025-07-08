@@ -44,9 +44,14 @@ export const ColumnWrapper = styled.div<{ color?: string }>`
 
 export const ColumnHeader = styled.div`
   display: flex;
+  flex-direction: row;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 8px;
+  gap: 6px;
+  background: none;
+  box-shadow: none;
+  border: none;
+  padding: 0;
+  margin-bottom: 10px;
 `;
 
 export const ColumnDot = styled.span<{ dot: string }>`
@@ -60,10 +65,12 @@ export const ColumnDot = styled.span<{ dot: string }>`
     `}
 `;
 
-export const ColumnTitle = styled.span`
-  font-weight: 700;
-  font-size: 1.08rem;
-  color: #23272f;
+export const ColumnTitle = styled.span<{ color?: string }>`
+  font-weight: 600;
+  font-size: 1rem;
+  color: ${({ color }) => color || '#111'};
+  padding: 0;
+  background: none;
 `;
 
 export const ColumnCount = styled.span`

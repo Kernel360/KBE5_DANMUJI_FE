@@ -1,35 +1,10 @@
-import React, { useState } from 'react';
-import {
-  CardWrapper,
-  Tag,
-  CardTitle,
-  CardBottom,
-  CardCode,
-  Badge,
-  Avatar,
-  CardActions,
-  ApproveButton,
-  RejectButton,
-  RejectInput,
-} from './ChecklistBoard.styled';
-
-interface TagType {
-  label: string;
-  color: string;
-}
-
-interface BadgeType {
-  type: 'priority' | 'progress' | 'approval';
-  value: number | null;
-}
+import React from 'react';
 
 interface Item {
   id: string;
-  tags: TagType[];
   title: string;
-  code: string;
-  badge: BadgeType;
-  assignee: string;
+  userId: string;
+  createdAt: string;
 }
 
 interface ChecklistCardProps {
@@ -37,58 +12,25 @@ interface ChecklistCardProps {
   columnId?: string;
 }
 
-export default function ChecklistCard({ item, columnId }: ChecklistCardProps) {
-  const [showRejectReason, setShowRejectReason] = useState(false);
-  const [rejectReason, setRejectReason] = useState('');
-
-  // 승인/반려 버튼 핸들러 (실제 로직은 추후 구현)
-  const handleApprove = () => {
-    alert('승인 처리!');
-  };
-  const handleReject = () => {
-    if (!showRejectReason) setShowRejectReason(true);
-    else alert(`반려 사유: ${rejectReason}`);
-  };
-
+export default function ChecklistCard({ item }: ChecklistCardProps) {
   return (
-    <CardWrapper>
-      {/* 태그 */}
-      <div style={{ display: 'flex', gap: 0, marginBottom: 2 }}>
-        {item.tags.map((tag) => (
-          <Tag key={tag.label} color={tag.color}>{tag.label}</Tag>
-        ))}
+    <div style={{
+      background: '#f9fafb',
+      borderRadius: 10,
+      padding: '16px',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+      border: '1.5px solid #e5e7eb',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 8,
+      marginBottom: 4,
+      minHeight: 60,
+    }}>
+      <div style={{ fontWeight: 700, fontSize: '1.05rem', color: '#23272f', marginBottom: 6 }}>{item.title}</div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontSize: '0.97rem', color: '#888' }}>
+        <span style={{ fontWeight: 500 }}>{item.userId}</span>
+        <span style={{ fontSize: 13, color: '#bdbdbd' }}>{item.createdAt}</span>
       </div>
-      {/* 제목 */}
-      <CardTitle>{item.title}</CardTitle>
-      {/* 코드, 뱃지, 담당자 */}
-      <CardBottom>
-        <CardCode>{item.code}</CardCode>
-        {item.badge.type === 'priority' && (
-          <Badge type="priority">{item.badge.value}</Badge>
-        )}
-        {item.badge.type === 'progress' && (
-          <Badge type="progress">{item.badge.value}%</Badge>
-        )}
-        {item.badge.type === 'approval' && (
-          <Badge type="approval">승인요청</Badge>
-        )}
-        <Avatar>{item.assignee}</Avatar>
-      </CardBottom>
-      {/* 승인/반려 버튼 (승인요청 상태에서만) */}
-      {item.badge.type === 'approval' && columnId === 'review' && (
-        <CardActions>
-          <ApproveButton onClick={handleApprove}>승인</ApproveButton>
-          <RejectButton onClick={handleReject}>반려</RejectButton>
-        </CardActions>
-      )}
-      {/* 반려 사유 입력 */}
-      {showRejectReason && (
-        <RejectInput
-          placeholder="반려 사유를 입력하세요"
-          value={rejectReason}
-          onChange={e => setRejectReason(e.target.value)}
-        />
-      )}
-    </CardWrapper>
+    </div>
   );
 } 

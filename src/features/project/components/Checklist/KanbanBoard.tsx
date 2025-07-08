@@ -2,123 +2,42 @@ import React, { useState } from 'react';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import Column from './Column';
-import { BoardWrapper } from './ChecklistBoard.styled';
+import { BoardWrapper, ColumnTitle } from './ChecklistBoard.styled';
+import ChecklistCard from './ChecklistCard';
 
 // 샘플 데이터
+const columnDefs = [
+  { id: 'waiting', title: '대기' },
+  { id: 'approved', title: '승인' },
+  { id: 'rejected', title: '반려' },
+];
+
 const initialData = [
   {
-    id: 'todo',
-    title: '해야 할 일',
-    color: '',
-    dot: '',
+    id: 'waiting',
     items: [
-      {
-        id: 'NUC-001',
-        tags: [
-          { label: '양식', color: 'bg-green-100 text-green-700' },
-          { label: '높음', color: 'bg-red-100 text-red-700' },
-        ],
-        title: '웹사이트 예약 기능 스펙 작성',
-        code: 'NUC-001',
-        badge: { type: 'priority' as const, value: 1 },
-        assignee: '김',
-      },
-      {
-        id: 'NUC-002',
-        tags: [
-          { label: '청구', color: 'bg-purple-100 text-purple-700' },
-        ],
-        title: '결제 시스템 연동 방안 검토',
-        code: 'NUC-002',
-        badge: { type: 'priority' as const, value: 2 },
-        assignee: '이',
-      },
-      {
-        id: 'NUC-003',
-        tags: [
-          { label: '디자인', color: 'bg-yellow-100 text-yellow-700' },
-        ],
-        title: 'UI/UX 가이드라인 정의',
-        code: 'NUC-003',
-        badge: { type: 'priority' as const, value: 3 },
-        assignee: '박',
-      },
+      { id: '1', title: '기능 명세서 작성', userId: 'kim', createdAt: '2024-07-01' },
+      { id: '2', title: 'API 설계', userId: 'lee', createdAt: '2024-07-02' },
     ],
   },
   {
-    id: 'doing',
-    title: '진행 중',
-    color: '',
-    dot: '',
+    id: 'approved',
     items: [
-      {
-        id: 'NUC-004',
-        tags: [
-          { label: '개발', color: 'bg-green-100 text-green-700' },
-          { label: '50%', color: 'bg-blue-100 text-blue-700' },
-        ],
-        title: '데이터베이스 스키마 설계',
-        code: 'NUC-004',
-        badge: { type: 'progress' as const, value: 50 },
-        assignee: '최',
-      },
-      {
-        id: 'NUC-005',
-        tags: [
-          { label: '테스트', color: 'bg-yellow-100 text-yellow-700' },
-        ],
-        title: '사용자 시나리오 테스트',
-        code: 'NUC-005',
-        badge: { type: 'priority' as const, value: 2 },
-        assignee: '정',
-      },
+      { id: '3', title: '디자인 시안 확정', userId: 'park', createdAt: '2024-07-03' },
     ],
   },
   {
-    id: 'review',
-    title: '승인 요청됨',
-    color: '',
-    dot: '',
+    id: 'rejected',
     items: [
-      {
-        id: 'NUC-006',
-        tags: [
-          { label: '문서', color: 'bg-green-100 text-green-700' },
-          { label: '긴급', color: 'bg-red-100 text-red-700' },
-        ],
-        title: 'API 문서 작성 완료',
-        code: 'NUC-006',
-        badge: { type: 'approval' as const, value: null },
-        assignee: '김',
-      },
-      {
-        id: 'NUC-007',
-        tags: [
-          { label: '검토', color: 'bg-purple-100 text-purple-700' },
-        ],
-        title: '보안 정책 수립',
-        code: 'NUC-007',
-        badge: { type: 'approval' as const, value: null },
-        assignee: '이',
-      },
-      {
-        id: 'NUC-008',
-        tags: [
-          { label: '배포', color: 'bg-orange-100 text-orange-700' },
-        ],
-        title: '운영 환경 설정',
-        code: 'NUC-008',
-        badge: { type: 'approval' as const, value: null },
-        assignee: '오',
-      },
+      { id: '4', title: '테스트 케이스 작성', userId: 'choi', createdAt: '2024-07-04' },
     ],
   },
 ];
 
 const columnColors = {
-  todo: { bg: '#f3f4f6', dot: '#a3a3a3' },
-  doing: { bg: '#e3f0fd', dot: '#60a5fa' },
-  review: { bg: '#fff7e6', dot: '#fbbf24' },
+  waiting: { bg: '#fffbe8', dot: '#fbbf24', title: '#fbbf24' },
+  approved: { bg: '#fffde7', dot: '#fde68a', title: '#f59e0b' },
+  rejected: { bg: '#fff7e6', dot: '#f59e0b', title: '#f59e0b' },
 };
 
 export default function KanbanBoard() {
@@ -133,15 +52,71 @@ export default function KanbanBoard() {
   };
 
   return (
-    <BoardWrapper>
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        {columns.map((col) => (
-          <Column
+    <div style={{ width: '100%' }}>
+      {/* 상단 고정 타이틀 row */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: 0,
+        padding: '0 0 12px 0',
+        borderBottom: '1px solid #f3f4f6',
+        background: 'transparent'
+      }}>
+        {columnDefs.map((col) => (
+          <ColumnTitle
             key={col.id}
-            column={{ ...col, color: columnColors[col.id as keyof typeof columnColors]?.bg, dot: columnColors[col.id as keyof typeof columnColors]?.dot }}
-          />
+            style={{
+              flex: 1,
+              textAlign: 'center',
+              fontSize: '1.05rem',
+              fontWeight: 700,
+              color: '#222',
+              letterSpacing: '-0.5px'
+            }}
+          >
+            {col.title}
+          </ColumnTitle>
         ))}
-      </DndContext>
-    </BoardWrapper>
+      </div>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        gap: 24,
+        width: '100%',
+        margin: '0 auto',
+        padding: '24px 0'
+      }}>
+        {columns.map((col) => (
+          <div
+            key={col.id}
+            style={{
+              minWidth: 300,
+              maxWidth: 340,
+              background: '#fff',
+              borderRadius: 10,
+              border: '1px solid #ececec',
+              boxShadow: '0 1px 4px rgba(0,0,0,0.03)',
+              padding: 18,
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 12,
+              alignItems: 'stretch',
+              transition: 'box-shadow 0.18s, border 0.18s'
+            }}
+          >
+            {(col.items && col.items.length > 0) ? (
+              col.items.map((item) => (
+                <ChecklistCard key={item.id} item={item} columnId={col.id} />
+              ))
+            ) : (
+              <div style={{ color: '#bbb', fontSize: '0.97rem', textAlign: 'center', margin: '32px 0' }}>카드가 없습니다</div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
   );
 } 
