@@ -1,175 +1,109 @@
 import styled, { css } from 'styled-components';
 
-// 전체 보드
 export const BoardWrapper = styled.div`
   display: flex;
-  gap: 20px;
+  gap: 24px;
+  padding: 24px;
   width: 100%;
-  overflow-x: auto;
-  padding: 24px 8px 24px 8px;
-  background: #fafbfc;
-  min-height: 100vh;
-  border-radius: 0;
-  box-shadow: none;
+  align-items: flex-start;
   @media (max-width: 900px) {
     flex-direction: column;
-    gap: 16px;
-    padding: 16px 0;
+    gap: 18px;
+    padding: 12px;
   }
 `;
 
-// 컬럼(리스트)
-export const ColumnWrapper = styled.div<{ color?: string }>`
+export const ColumnBox = styled.div<{ bg: string }>`
+  background: ${({ bg }) => bg};
+  border-radius: 18px;
+  box-shadow: 0 4px 16px 0 rgba(80, 80, 120, 0.10);
+  min-width: 320px;
+  max-width: 360px;
+  flex: 1 1 0;
+  padding: 18px 14px 22px 14px;
   display: flex;
   flex-direction: column;
-  min-width: 300px;
-  max-width: 340px;
-  background: ${({ color }) => color || '#fff'};
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  padding: 18px 10px 18px 10px;
   gap: 14px;
-  border: 1px solid #e5e7eb;
-  transition: box-shadow 0.15s, transform 0.15s, border-color 0.15s;
-  &:hover {
-    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-    border-color: #3b82f6;
-    transform: translateY(-1px);
-  }
   @media (max-width: 900px) {
-    min-width: 100%;
+    min-width: 0;
     max-width: 100%;
+    width: 100%;
   }
 `;
 
 export const ColumnHeader = styled.div`
   display: flex;
-  flex-direction: row;
   align-items: center;
-  gap: 6px;
-  background: none;
-  box-shadow: none;
-  border: none;
-  padding: 0;
-  margin-bottom: 10px;
+  gap: 10px;
+  margin-bottom: 8px;
 `;
 
-export const ColumnDot = styled.span<{ dot: string }>`
-  width: 12px;
-  height: 12px;
+export const StatusDot = styled.span<{ color: string }>`
+  width: 13px;
+  height: 13px;
   border-radius: 50%;
-  ${({ dot }) =>
-    dot &&
-    css`
-      background: ${dot};
-    `}
+  background: ${({ color }) => color};
 `;
 
-export const ColumnTitle = styled.span<{ color?: string }>`
-  font-weight: 600;
-  font-size: 1rem;
-  color: ${({ color }) => color || '#111'};
-  padding: 0;
-  background: none;
+export const ColumnTitle = styled.span`
+  font-weight: 700;
+  font-size: 1.08rem;
+  color: #23272f;
 `;
 
 export const ColumnCount = styled.span`
   margin-left: 8px;
   font-size: 0.92rem;
-  background: #f3f4f6;
-  color: #7b7f8a;
+  background: #fff;
+  color: #bdbdbd;
   border-radius: 999px;
   padding: 2px 10px;
   font-weight: 600;
 `;
 
-// 카드
-export const CardWrapper = styled.div`
+export const CardBox = styled.div<{ status?: string }>`
   background: #fff;
-  border-radius: 10px;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  padding: 14px 14px 10px 14px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  border: 1.5px solid #f3f4f6;
+  padding: 16px 14px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  min-height: 80px;
-  transition: box-shadow 0.15s, border-color 0.15s, transform 0.15s;
+  gap: 10px;
+  min-height: 60px;
+  transition: box-shadow 0.18s, transform 0.18s;
   &:hover {
-    background: #f9fafb;
-    border-color: #3b82f6;
-    box-shadow: 0 4px 16px rgba(59,130,246,0.10);
-    transform: translateY(-1px);
+    box-shadow: 0 6px 24px 0 rgba(80, 80, 120, 0.13);
+    transform: translateY(-2px) scale(1.015);
   }
 `;
 
-export const Tag = styled.span<{ color: string }>`
-  font-size: 0.92rem;
-  font-weight: 600;
-  border-radius: 8px;
-  padding: 2px 10px;
-  ${({ color }) =>
-    color &&
-    css`
-      background: ${color};
-      color: #555;
-    `}
-  margin-right: 6px;
+export const CardTop = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
 `;
 
 export const CardTitle = styled.div`
   font-weight: 700;
-  font-size: 1.02rem;
+  font-size: 1.05rem;
   color: #23272f;
+  flex: 1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 `;
 
-export const CardBottom = styled.div`
+export const CardMeta = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-top: 2px;
-  gap: 8px;
-`;
-
-export const CardCode = styled.span`
-  font-size: 0.92rem;
-  color: #b0b0b0;
-  font-family: 'Fira Mono', 'Consolas', monospace;
-`;
-
-export const Badge = styled.span<{ type: string }>`
-  font-size: 0.92rem;
-  font-weight: 600;
-  border-radius: 8px;
-  padding: 2px 10px;
-  ${({ type }) => {
-    switch (type) {
-      case 'priority':
-        return css`
-          background: #e6f9f0;
-          color: #1abc7b;
-        `;
-      case 'progress':
-        return css`
-          background: #e3f0fd;
-          color: #1976d2;
-        `;
-      case 'approval':
-        return css`
-          background: #fff3cd;
-          color: #ff9800;
-        `;
-      default:
-        return css``;
-    }
-  }}
+  gap: 10px;
+  font-size: 0.97rem;
+  color: #888;
 `;
 
 export const Avatar = styled.span`
-  margin-left: 8px;
   width: 28px;
   height: 28px;
   display: flex;
@@ -182,6 +116,33 @@ export const Avatar = styled.span`
   font-size: 1rem;
 `;
 
+export const StatusBadge = styled.span<{ status: string }>`
+  font-size: 0.92rem;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 2px 10px;
+  ${({ status }) => {
+    switch (status) {
+      case 'approved':
+        return css`
+          background: #ecfdf5;
+          color: #10b981;
+        `;
+      case 'rejected':
+        return css`
+          background: #fef2f2;
+          color: #ef4444;
+        `;
+      case 'waiting':
+      default:
+        return css`
+          background: #fffbea;
+          color: #fbbf24;
+        `;
+    }
+  }}
+`;
+
 export const CardActions = styled.div`
   display: flex;
   gap: 8px;
@@ -190,17 +151,17 @@ export const CardActions = styled.div`
 
 export const ApproveButton = styled.button`
   flex: 1;
-  background: #1abc7b;
+  background: #10b981;
   color: #fff;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   padding: 7px 0;
   font-size: 0.98rem;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s;
   &:hover {
-    background: #159c5b;
+    background: #059669;
   }
 `;
 
@@ -209,14 +170,14 @@ export const RejectButton = styled.button`
   background: #ef4444;
   color: #fff;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   padding: 7px 0;
   font-size: 0.98rem;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s;
   &:hover {
-    background: #dc2626;
+    background: #b91c1c;
   }
 `;
 
