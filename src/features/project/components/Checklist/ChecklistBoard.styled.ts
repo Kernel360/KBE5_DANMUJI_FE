@@ -17,9 +17,9 @@ export const ColumnBox = styled.div<{ bg: string }>`
   background: ${({ bg }) => bg};
   border-radius: 18px;
   box-shadow: 0 4px 16px 0 rgba(80, 80, 120, 0.10);
-  min-width: 320px;
-  max-width: 360px;
-  flex: 1 1 0;
+  min-width: 0;
+  max-width: none;
+  flex: 1;
   padding: 18px 14px 22px 14px;
   display: flex;
   flex-direction: column;
@@ -34,8 +34,10 @@ export const ColumnBox = styled.div<{ bg: string }>`
 export const ColumnHeader = styled.div`
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
   margin-bottom: 8px;
+  position: relative;
 `;
 
 export const StatusDot = styled.span<{ color: string }>`
@@ -47,8 +49,9 @@ export const StatusDot = styled.span<{ color: string }>`
 
 export const ColumnTitle = styled.span`
   font-weight: 700;
-  font-size: 1.08rem;
+  font-size: 1.1rem;
   color: #23272f;
+  text-align: center;
 `;
 
 export const ColumnCount = styled.span`
