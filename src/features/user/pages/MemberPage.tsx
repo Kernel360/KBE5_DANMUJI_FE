@@ -458,6 +458,29 @@ export default function MemberPage() {
 
   const { notify } = useNotification();
 
+  // 전체 직책 목록 상태 추가
+  const [allPositions, setAllPositions] = useState<string[]>([]);
+  // 선택된 직책 상태 추가
+  const [selectedPosition, setSelectedPosition] = useState<string>("");
+  // 선택된 업체 상태 추가
+  const [selectedCompanyId, setSelectedCompanyId] = useState<number | null>(null);
+  // 검색어 상태 추가
+  const [searchKeyword, setSearchKeyword] = useState<string>("");
+
+  // 전체 직책 목록 불러오기
+  const fetchAllPositions = async () => {
+    try {
+      const response = await api.get("/api/admin/positions");
+      if (Array.isArray(response.data.data)) {
+        setAllPositions(response.data.data.map((item: { position: string }) => item.position));
+      } else {
+        setAllPositions([]);
+      }
+    } catch {
+      setAllPositions([]);
+    }
+  };
+
   const fetchMembers = async () => {
     try {
       setLoading(true);
@@ -483,8 +506,15 @@ export default function MemberPage() {
 
   const fetchCompanies = async () => {
     try {
-      const response = await api.get("/api/companies/all"); // 충분한 크기로 모든 업체 데이터를 가져옴
-      setCompanies(Array.isArray(response.data.data) ? response.data.data : []);
+      const response = await api.get("/api/companies/name");
+      if (Array.isArray(response.data.data)) {
+        setCompanies(response.data.data.map((item: { companyId: number, companyName: string }) => ({
+          id: item.companyId,
+          name: item.companyName
+        })));
+      } else {
+        setCompanies([]);
+      }
       setCompanyError(null);
     } catch (err: unknown) {
       setCompanies([]); // 업체가 없을 때도 빈 배열로
@@ -496,8 +526,8 @@ export default function MemberPage() {
   };
 
   useEffect(() => {
-    fetchMembers();
     fetchCompanies();
+    fetchAllPositions(); // 직책 목록도 함께 불러오기
   }, []);
 
   // 페이지 변경 시 회원 목록 새로고침
@@ -515,11 +545,6 @@ export default function MemberPage() {
   //   setTotalMembers(filtered.length);
   //   setCurrentPage(0); // 필터 변경 시 첫 페이지로 이동
   // }, [filtered.length]);
-
-  // 고유한 직책 목록 계산
-  const uniquePositions = Array.from(
-    new Set(members.map((member) => member.position).filter(Boolean))
-  ).sort();
 
   // 이름 클릭 시 모달 오픈
   const handleMemberClick = (member: Member) => {
@@ -620,6 +645,7 @@ export default function MemberPage() {
       }
       await fetchMembers();
       await fetchCompanies();
+      await fetchAllPositions(); // 회원 등록 후 회사/직책 목록도 새로고침
       setRegisterModalOpen(false);
       notify("회원이 성공적으로 등록되었습니다.", true);
     } catch {
@@ -682,14 +708,19 @@ export default function MemberPage() {
           >
             <FiHome size={16} />
             <span className="select-value">
-              {"모든 업체"}
+              {selectedCompanyId === null
+                ? "모든 업체"
+                : (companies.find((c) => c.id === selectedCompanyId)?.name || "")}
             </span>
             <FiChevronDown size={16} />
           </SelectButton>
           <SelectDropdown $isOpen={companyDropdownOpen}>
             <SelectOption
-              $isSelected={true}
-              onClick={() => setCompanyDropdownOpen(false)}
+              $isSelected={false}
+              onClick={() => {
+                setSelectedCompanyId(null);
+                setCompanyDropdownOpen(false);
+              }}
             >
               모든 업체
             </SelectOption>
@@ -702,7 +733,10 @@ export default function MemberPage() {
                 <SelectOption
                   key={company.id}
                   $isSelected={false}
-                  onClick={() => setCompanyDropdownOpen(false)}
+                  onClick={() => {
+                    setSelectedCompanyId(company.id);
+                    setCompanyDropdownOpen(false);
+                  }}
                 >
                   {company.name}
                 </SelectOption>
@@ -719,22 +753,28 @@ export default function MemberPage() {
           >
             <FiUsers size={16} />
             <span className="select-value">
-              {"모든 직책"}
+              {selectedPosition || "모든 직책"}
             </span>
             <FiChevronDown size={16} />
           </SelectButton>
           <SelectDropdown $isOpen={positionDropdownOpen}>
             <SelectOption
-              $isSelected={true}
-              onClick={() => setPositionDropdownOpen(false)}
+              $isSelected={false}
+              onClick={() => {
+                setSelectedPosition("");
+                setPositionDropdownOpen(false);
+              }}
             >
               모든 직책
             </SelectOption>
-            {uniquePositions.map((position) => (
+            {allPositions.map((position) => (
               <SelectOption
                 key={position}
                 $isSelected={false}
-                onClick={() => setPositionDropdownOpen(false)}
+                onClick={() => {
+                  setSelectedPosition(position);
+                  setPositionDropdownOpen(false);
+                }}
               >
                 {position}
               </SelectOption>
@@ -747,9 +787,13 @@ export default function MemberPage() {
             <SearchInput
               type="text"
               placeholder="회원 이름 검색..."
-              value={""}
-              onChange={() => {}}
-              onKeyDown={() => {}}
+              value={searchKeyword}
+              onChange={(e) => setSearchKeyword(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  // 검색 버튼 클릭과 동일하게 처리할 수 있음
+                }
+              }}
             />
             <NewButton
               style={{
@@ -761,12 +805,19 @@ export default function MemberPage() {
                 alignItems: "center",
                 justifyContent: "center",
               }}
-              onClick={() => {}}
+              onClick={() => {
+                // 검색 버튼 클릭 시 selectedCompanyId, selectedPosition, searchKeyword 값을 사용
+                // TODO: 이 값들로 API 요청 구현 예정
+              }}
             >
               <FiSearch size={16} />
             </NewButton>
             <NewButton
-              onClick={() => {}}
+              onClick={() => {
+                setSelectedCompanyId(null);
+                setSelectedPosition("");
+                setSearchKeyword("");
+              }}
               style={{
                 minWidth: "auto",
                 padding: "10px",
