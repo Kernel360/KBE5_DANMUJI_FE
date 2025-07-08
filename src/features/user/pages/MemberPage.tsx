@@ -445,13 +445,6 @@ export default function MemberPage() {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [companyError, setCompanyError] = useState<string | null>(null);
 
-  // 필터 상태 추가
-  const [filters, setFilters] = useState({
-    companyId: "",
-    position: "",
-    keyword: "",
-  });
-
   // 드롭다운 상태 관리
   const [companyDropdownOpen, setCompanyDropdownOpen] = useState(false);
   const [positionDropdownOpen, setPositionDropdownOpen] = useState(false);
@@ -468,13 +461,14 @@ export default function MemberPage() {
   const fetchMembers = async () => {
     try {
       setLoading(true);
-      // 전체 회원 목록을 반환하는 새로운 API 응답 구조에 맞게 수정
-      const response = await api.get(`/api/admin/all`);
-      setMembers(Array.isArray(response.data.data) ? response.data.data : []);
-      setTotalMembers(
-        Array.isArray(response.data.data) ? response.data.data.length : 0
-      );
-      console.log("Current members:", response.data.data);
+      // 서버 페이징 구조에 맞게 page, size 파라미터로 요청
+      const response = await api.get("/api/admin/allUsers", {
+        params: { page: currentPage, size: pageSize },
+      });
+      const pageData = response.data.data.page;
+      setMembers(Array.isArray(response.data.data.content) ? response.data.data.content : []);
+      setTotalMembers(pageData?.totalElements ?? 0);
+      // console.log("Current members:", response.data.data.content);
     } catch (err: unknown) {
       let errorMessage = "An unknown error occurred";
       if (err instanceof Error) {
@@ -509,73 +503,23 @@ export default function MemberPage() {
   // 페이지 변경 시 회원 목록 새로고침
   useEffect(() => {
     fetchMembers();
-  }, [currentPage]);
+  }, [currentPage, pageSize]);
 
   // 필터링된 회원 목록
-  const filtered = members.filter((member) => {
-    const matchesCompany =
-      filters.companyId === "" ||
-      member.companyId === parseInt(filters.companyId);
-    const matchesPosition =
-      filters.position === "" || member.position === filters.position;
-    const matchesKeyword =
-      filters.keyword === "" ||
-      member.name.toLowerCase().includes(filters.keyword.toLowerCase()) ||
-      member.username.toLowerCase().includes(filters.keyword.toLowerCase());
-
-    return matchesCompany && matchesPosition && matchesKeyword;
-  });
+  // 서버에서 이미 페이징된 데이터만 오므로, filtered는 members 그대로 사용
+  const filtered = members;
 
   // 필터링된 결과에 대한 totalMembers 업데이트
-  useEffect(() => {
-    setTotalMembers(filtered.length);
-    setCurrentPage(0); // 필터 변경 시 첫 페이지로 이동
-  }, [filtered.length]);
+  // (서버에서 totalElements로 관리하므로 필요 없음)
+  // useEffect(() => {
+  //   setTotalMembers(filtered.length);
+  //   setCurrentPage(0); // 필터 변경 시 첫 페이지로 이동
+  // }, [filtered.length]);
 
   // 고유한 직책 목록 계산
   const uniquePositions = Array.from(
     new Set(members.map((member) => member.position).filter(Boolean))
   ).sort();
-
-  const handleInputChange = (field: string, value: string) => {
-    setFilters({ ...filters, [field]: value });
-  };
-
-  const handleSearch = () => {
-    // 검색 로직은 이미 filtered에서 처리됨
-  };
-
-  const handleReset = () => {
-    setFilters({
-      companyId: "",
-      position: "",
-      keyword: "",
-    });
-  };
-
-  // 드롭다운 토글 함수들
-  const handleCompanyDropdownToggle = () => {
-    setCompanyDropdownOpen(!companyDropdownOpen);
-    setPositionDropdownOpen(false);
-  };
-
-  const handlePositionDropdownToggle = () => {
-    setPositionDropdownOpen(!positionDropdownOpen);
-    setCompanyDropdownOpen(false);
-  };
-
-  const handleCompanySelect = (companyId: number) => {
-    setFilters({
-      ...filters,
-      companyId: companyId === 0 ? "" : companyId.toString(),
-    });
-    setCompanyDropdownOpen(false);
-  };
-
-  const handlePositionSelect = (position: string) => {
-    setFilters({ ...filters, position });
-    setPositionDropdownOpen(false);
-  };
 
   // 이름 클릭 시 모달 오픈
   const handleMemberClick = (member: Member) => {
@@ -732,23 +676,20 @@ export default function MemberPage() {
         <FilterGroup>
           <FilterLabel>업체</FilterLabel>
           <SelectButton
-            $hasValue={filters.companyId !== ""}
-            onClick={handleCompanyDropdownToggle}
+            $hasValue={false}
+            onClick={() => setCompanyDropdownOpen(!companyDropdownOpen)}
             className={companyDropdownOpen ? "open" : ""}
           >
             <FiHome size={16} />
             <span className="select-value">
-              {(Array.isArray(companies) &&
-                companies.find((c) => c.id === parseInt(filters.companyId))
-                  ?.name) ||
-                "모든 업체"}
+              {"모든 업체"}
             </span>
             <FiChevronDown size={16} />
           </SelectButton>
           <SelectDropdown $isOpen={companyDropdownOpen}>
             <SelectOption
-              $isSelected={filters.companyId === ""}
-              onClick={() => handleCompanySelect(0)}
+              $isSelected={true}
+              onClick={() => setCompanyDropdownOpen(false)}
             >
               모든 업체
             </SelectOption>
@@ -760,8 +701,8 @@ export default function MemberPage() {
               (Array.isArray(companies) ? companies : []).map((company) => (
                 <SelectOption
                   key={company.id}
-                  $isSelected={company.id === parseInt(filters.companyId)}
-                  onClick={() => handleCompanySelect(company.id)}
+                  $isSelected={false}
+                  onClick={() => setCompanyDropdownOpen(false)}
                 >
                   {company.name}
                 </SelectOption>
@@ -772,28 +713,28 @@ export default function MemberPage() {
         <FilterGroup>
           <FilterLabel>직책</FilterLabel>
           <SelectButton
-            $hasValue={filters.position !== ""}
-            onClick={handlePositionDropdownToggle}
+            $hasValue={false}
+            onClick={() => setPositionDropdownOpen(!positionDropdownOpen)}
             className={positionDropdownOpen ? "open" : ""}
           >
             <FiUsers size={16} />
             <span className="select-value">
-              {filters.position || "모든 직책"}
+              {"모든 직책"}
             </span>
             <FiChevronDown size={16} />
           </SelectButton>
           <SelectDropdown $isOpen={positionDropdownOpen}>
             <SelectOption
-              $isSelected={filters.position === ""}
-              onClick={() => handlePositionSelect("")}
+              $isSelected={true}
+              onClick={() => setPositionDropdownOpen(false)}
             >
               모든 직책
             </SelectOption>
             {uniquePositions.map((position) => (
               <SelectOption
                 key={position}
-                $isSelected={position === filters.position}
-                onClick={() => handlePositionSelect(position)}
+                $isSelected={false}
+                onClick={() => setPositionDropdownOpen(false)}
               >
                 {position}
               </SelectOption>
@@ -806,11 +747,9 @@ export default function MemberPage() {
             <SearchInput
               type="text"
               placeholder="회원 이름 검색..."
-              value={filters.keyword}
-              onChange={(e) => handleInputChange("keyword", e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleSearch();
-              }}
+              value={""}
+              onChange={() => {}}
+              onKeyDown={() => {}}
             />
             <NewButton
               style={{
@@ -822,12 +761,12 @@ export default function MemberPage() {
                 alignItems: "center",
                 justifyContent: "center",
               }}
-              onClick={handleSearch}
+              onClick={() => {}}
             >
               <FiSearch size={16} />
             </NewButton>
             <NewButton
-              onClick={handleReset}
+              onClick={() => {}}
               style={{
                 minWidth: "auto",
                 padding: "10px",
@@ -861,9 +800,7 @@ export default function MemberPage() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {filtered
-              .slice(currentPage * pageSize, (currentPage + 1) * pageSize)
-              .map((member) => (
+            {filtered.map((member) => (
                 <TableRow key={member.id}>
                   <TableCell>
                     <div
