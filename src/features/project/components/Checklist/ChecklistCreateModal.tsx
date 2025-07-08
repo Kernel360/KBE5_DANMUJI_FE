@@ -56,9 +56,10 @@ interface ChecklistCreateModalProps {
     approvalIds: number[];
   }) => void;
   projectId: number;
+  stepId: number;
 }
 
-export default function ChecklistCreateModal({ open, onClose, onSubmit, projectId }: ChecklistCreateModalProps) {
+export default function ChecklistCreateModal({ open, onClose, onSubmit, projectId, stepId }: ChecklistCreateModalProps) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [users, setUsers] = useState<UserSummaryResponse[]>([]);

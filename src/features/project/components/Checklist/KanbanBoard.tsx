@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import api from '@/api/axios';
 import {
   BoardWrapper,
   ColumnBox,
@@ -143,7 +144,7 @@ function ChecklistCard({ card }: { card: ChecklistCardType }) {
         </StatusBadge>
       </CardTop>
       <CardMeta>
-        <span>{card.assignee} ({card.username})</span>
+        <span>{card.username}</span>
         <span>{card.createdAt}</span>
       </CardMeta>
       {/* 반려 사유 표시 */}
@@ -159,19 +160,58 @@ function ChecklistCard({ card }: { card: ChecklistCardType }) {
 // 메인 보드
 interface KanbanBoardProps {
   projectId: number;
+  selectedStepId: number;
 }
 
-export default function KanbanBoard({ projectId }: KanbanBoardProps) {
-  const [cards] = useState<ChecklistCardType[]>(MOCK_CARDS);
+export default function KanbanBoard({ projectId, selectedStepId }: KanbanBoardProps) {
+  const [cards, setCards] = useState<ChecklistCardType[]>([]);
+  const [loading, setLoading] = useState(false);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleCreateChecklist = (data: {
+  useEffect(() => {
+    if (!selectedStepId) return;
+    setLoading(true);
+    api.get(`/api/checklists/${selectedStepId}`)
+      .then(res => {
+        // Transform API data to ChecklistCardType[] if needed
+        const apiCards = Array.isArray(res.data.data) ? res.data.data : [];
+        setCards(apiCards.map((item: any) => ({
+          id: String(item.id),
+          title: item.title || '', // title이 없으면 빈 문자열
+          userId: item.userId,
+          username: item.username || '',
+          createdAt: item.createdAt ? item.createdAt.slice(0, 10) : '', // createdAt이 null일 수 있음
+          status:
+            item.status === 'PENDING'
+              ? 'waiting'
+              : item.status === 'APPROVED'
+              ? 'approved'
+              : 'rejected',
+        })));
+      })
+      .catch(() => setCards([]))
+      .finally(() => setLoading(false));
+  }, [selectedStepId]);
+
+  const handleCreateChecklist = async (data: {
     title: string;
     content: string;
+    approvalIds: number[];
   }) => {
-    console.log('새 체크리스트 생성:', data);
-    // TODO: API 호출하여 체크리스트 생성
-    // 생성 후 카드 목록 새로고침
+    try {
+      await api.post(`/api/checklists/${selectedStepId}`, {
+        title: data.title,
+        content: data.content,
+        approvalIds: data.approvalIds,
+      });
+      // TODO: 성공 시 카드 목록 새로고침 등
+      console.log(selectedStepId)
+      console.log('체크리스트 생성 성공');
+    } catch (e) {
+      console.log(data)
+      console.error('체크리스트 생성 실패', e);
+    }
   };
 
   return (
@@ -203,13 +243,17 @@ export default function KanbanBoard({ projectId }: KanbanBoardProps) {
       </div>
       
       <BoardWrapper>
-        {COLUMNS.map((col) => (
-          <Column
-            key={col.key}
-            column={col}
-            cards={cards.filter((c) => c.status === col.key)}
-          />
-        ))}
+        {loading ? (
+          <div style={{ width: '100%', textAlign: 'center', padding: '48px 0', color: '#bbb', fontSize: '1.1rem' }}>로딩 중...</div>
+        ) : (
+          COLUMNS.map((col) => (
+            <Column
+              key={col.key}
+              column={col}
+              cards={cards.filter((c) => c.status === col.key)}
+            />
+          ))
+        )}
       </BoardWrapper>
 
       <ChecklistCreateModal
@@ -217,6 +261,7 @@ export default function KanbanBoard({ projectId }: KanbanBoardProps) {
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleCreateChecklist}
         projectId={projectId}
+        stepId={selectedStepId}
       />
     </div>
   );
