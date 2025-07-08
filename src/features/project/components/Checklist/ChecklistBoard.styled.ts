@@ -14,8 +14,8 @@ export const BoardWrapper = styled.div`
   }
 `;
 
-export const ColumnBox = styled.div<{ bg: string }>`
-  background: ${({ bg }) => bg};
+export const ColumnBox = styled.div<{ $bg: string }>`
+  background: ${({ $bg }) => $bg};
   border-radius: 18px;
   box-shadow: 0 4px 16px 0 rgba(80, 80, 120, 0.10);
   width: 100%;
@@ -66,7 +66,7 @@ export const ColumnCount = styled.span`
   font-weight: 600;
 `;
 
-export const CardBox = styled.div<{ status?: string }>`
+export const CardBox = styled.div<{ $status?: string }>`
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.07);

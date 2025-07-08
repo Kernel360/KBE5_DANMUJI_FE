@@ -239,7 +239,7 @@ const ProjectDetailPage = () => {
         {viewType === 'post' ? (
           <ProjectBoard projectId={projectDetail.id} selectedStepId={selectedStepId} />
         ) : (
-          <KanbanBoard />
+          <KanbanBoard projectId={projectDetail.id} />
         )}
         {/* <div style={{ display: "flex", gap: 24, padding: "0 24px 24px" }}>
           <div style={{ flex: 2 }}>
