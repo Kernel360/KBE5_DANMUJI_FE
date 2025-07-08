@@ -18,7 +18,9 @@ import {
   UserUsername,
   CompanySection,
   CompanyNameHeader,
-  CheckCircle
+  CheckCircle,
+  Avatar,
+  UserInfoBlock
 } from './ChecklistCreateModal.styled';
 import { FaCheckCircle } from 'react-icons/fa';
 // import CompanyMemberSelectModal from '../CompanyMemberSelectModal';
@@ -138,7 +140,7 @@ export default function ChecklistCreateModal({ open, onClose, onSubmit, projectI
           </FormGroup>
 
           <FormGroup>
-            <Label>유저 리스트</Label>
+            <Label>승인자 선택</Label>
             {loadingUsers ? (
               <div style={{ color: '#888', fontSize: '0.98rem' }}>유저 목록 불러오는 중...</div>
             ) : userError ? (
@@ -162,8 +164,9 @@ export default function ChecklistCreateModal({ open, onClose, onSubmit, projectI
                         <CheckCircle selected={!!selected[user.id]}>
                           {selected[user.id] && <FaCheckCircle />}
                         </CheckCircle>
-                        <UserName>{user.name}</UserName>
-                        <UserUsername>({user.username})</UserUsername>
+                        <UserName>
+                          {user.name} <UserUsername>({user.username})</UserUsername>
+                        </UserName>
                       </UserCard>
                     ))}
                   </CompanySection>
@@ -177,7 +180,7 @@ export default function ChecklistCreateModal({ open, onClose, onSubmit, projectI
               취소
             </Button>
             <Button type="submit" variant="primary">
-              작성 완료
+              저장
             </Button>
           </ButtonGroup>
         </Form>
