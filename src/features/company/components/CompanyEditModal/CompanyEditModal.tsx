@@ -266,6 +266,41 @@ declare global {
   }
 }
 
+// 전화번호 자동 하이픈 함수
+function formatPhoneNumber(value: string): string {
+  const cleaned = value.replace(/\D/g, "");
+  // 1588-1588, 1544-1234 등 8자리 대표번호
+  if (/^1[0-9]{3}[0-9]{4}$/.test(cleaned)) {
+    return cleaned.replace(/(\d{4})(\d{4})/, '$1-$2');
+  }
+  // 02-xxxx-xxxx (서울 2자리 지역번호)
+  if (/^02\d{8}$/.test(cleaned)) {
+    return cleaned.replace(/(02)(\d{4})(\d{4})/, '$1-$2-$3');
+  }
+  // 02-xxx-xxxx (서울 2자리 지역번호, 7자리)
+  if (/^02\d{7}$/.test(cleaned)) {
+    return cleaned.replace(/(02)(\d{3})(\d{4})/, '$1-$2-$3');
+  }
+  // 0xx-xxx-xxxx (3자리 지역번호)
+  if (/^0\d{2}\d{3}\d{4}$/.test(cleaned)) {
+    return cleaned.replace(/(0\d{2})(\d{3})(\d{4})/, '$1-$2-$3');
+  }
+  // 0xx-xxxx-xxxx (3자리 지역번호, 11자리)
+  if (/^0\d{2}\d{4}\d{4}$/.test(cleaned)) {
+    return cleaned.replace(/(0\d{2})(\d{4})(\d{4})/, '$1-$2-$3');
+  }
+  // 010-xxxx-xxxx (휴대폰)
+  if (/^01[016789]\d{7,8}$/.test(cleaned)) {
+    if (cleaned.length === 11) {
+      return cleaned.replace(/(01[016789])(\d{4})(\d{4})/, '$1-$2-$3');
+    } else {
+      return cleaned.replace(/(01[016789])(\d{3})(\d{4})/, '$1-$2-$3');
+    }
+  }
+  // fallback: 그냥 숫자만
+  return cleaned;
+}
+
 export default function CompanyEditModal({
   open,
   onClose,
@@ -313,7 +348,7 @@ export default function CompanyEditModal({
         ceoName: initialData.ceoName,
         email: initialData.email,
         bio: initialData.bio,
-        tel: initialData.tel,
+        tel: formatPhoneNumber(initialData.tel || ""),
       });
       setReg1(String(initialData.bizNo).padStart(10, "0").slice(0, 3));
       setReg2(String(initialData.bizNo).padStart(10, "0").slice(3, 5));
@@ -384,7 +419,12 @@ export default function CompanyEditModal({
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => {
+      if (name === "tel") {
+        return { ...prev, tel: formatPhoneNumber(value) };
+      }
+      return { ...prev, [name]: value };
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -459,12 +499,13 @@ export default function CompanyEditModal({
         reason: "올바른 이메일 형식이 아닙니다.",
       });
     }
-    const telRegex = /^\d{9,11}$/;
-    if (!cleanedTel || !telRegex.test(cleanedTel)) {
+    // 전화번호 유효성 검사: 010-0000-0000, 02-000-0000, 02-0000-0000, 1588-1588 등 다양한 패턴 허용
+    const phonePattern = /^(01[016789]-\d{3,4}-\d{4}|0\d{1,2}-\d{3,4}-\d{4}|1\d{3}-\d{4})$/;
+    if (!phonePattern.test(formData.tel)) {
       newFieldErrors.push({
         field: "tel",
         value: formData.tel,
-        reason: "전화번호는 9~11자리의 숫자로 입력해주세요.",
+        reason: "전화번호 형식이 올바르지 않습니다. 예: 010-1234-5678, 02-123-4567, 1588-1588 등",
       });
     }
 
