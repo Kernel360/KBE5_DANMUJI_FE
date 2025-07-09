@@ -120,6 +120,10 @@ const TableCell = styled.td`
   color: #374151;
   vertical-align: middle;
   text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
 `;
 
 const PaginationContainer = styled.div`
@@ -543,12 +547,7 @@ export default function CompanyPage() {
                     >
                       <FiHome size={14} style={{ color: "#8b5cf6" }} />
                       <span
-                        style={{
-                          fontSize: "14px",
-                          color: "#374151",
-                          fontWeight: "500",
-                        }}
-                      >
+                        style={{whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',maxWidth:'150px',display:'block',fontSize:'14px',color:'#374151',fontWeight:'500'}}>
                         {c.name}
                       </span>
                     </div>
@@ -579,12 +578,7 @@ export default function CompanyPage() {
                     >
                       <FiUser size={14} style={{ color: "#3b82f6" }} />
                       <span
-                        style={{
-                          fontSize: "14px",
-                          color: "#374151",
-                          fontWeight: "500",
-                        }}
-                      >
+                        style={{whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',maxWidth:'150px',display:'block',fontSize:'14px',color:'#374151',fontWeight:'500'}}>
                         {c.ceoName}
                       </span>
                     </div>

@@ -281,6 +281,10 @@ const TableCell = styled.td`
   color: #374151;
   vertical-align: middle;
   text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
 `;
 
 // const MemberNameCell = styled(TableCell)`
@@ -932,7 +936,7 @@ export default function MemberPage() {
                       ) : (
                         <FiUser size={14} style={{ color: "#6b7280" }} />
                       )}
-                      <span style={{ fontWeight: "500" }}>{member.name}</span>
+                      <span style={{ fontWeight: "500", whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '150px', display: 'block' }}>{member.name}</span>
                       <span style={{ fontSize: "12px", color: "#6b7280" }}>
                         ({member.username})
                       </span>
@@ -965,11 +969,8 @@ export default function MemberPage() {
                       onClick={() => handleMemberClick(member)}
                     >
                       <FiHome size={14} style={{ color: "#8b5cf6" }} />
-                      <span style={{ fontWeight: "500" }}>
-                        {(companies &&
-                          companies.find((c) => c.id === member.companyId)
-                            ?.name) ||
-                          "N/A"}
+                      <span style={{ fontWeight: "500", whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '150px', display: 'block' }}>
+                        {(companies && companies.find((c) => c.id === member.companyId)?.name) || 'N/A'}
                       </span>
                     </div>
                   </TableCell>
@@ -1005,7 +1006,7 @@ export default function MemberPage() {
                       ) : (
                         <FiUser size={14} style={{ color: "#6b7280" }} />
                       )}
-                      <span style={{ fontWeight: "500" }}>
+                      <span style={{ fontWeight: "500", whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '150px', display: 'block' }}>
                         {member.position}
                       </span>
                     </div>

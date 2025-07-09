@@ -178,6 +178,11 @@ export default function MemberEditModal({
       return;
     }
 
+    if (formData.name.length < 2 || formData.name.length > 30) {
+      alert("이름은 2자 이상 30자 이하로 입력해주세요.");
+      return;
+    }
+
     onEdit({
       ...formData,
       phone: formData.phone.replace(/\D/g, ""),
@@ -240,6 +245,7 @@ export default function MemberEditModal({
                     value={formData.username || ""}
                     onChange={handleChange}
                     readOnly
+                    maxLength={50}
                   />
                 </FormGroup>
                 <FormGroup />
@@ -354,6 +360,7 @@ export default function MemberEditModal({
                     placeholder="직책을 입력하세요"
                     value={formData.position || ""}
                     onChange={handleChange}
+                    maxLength={50}
                   />
                 </FormGroup>
               </FormRow>
@@ -373,6 +380,8 @@ export default function MemberEditModal({
                     placeholder="이름을 입력하세요"
                     value={formData.name || ""}
                     onChange={handleChange}
+                    minLength={2}
+                    maxLength={30}
                   />
                 </FormGroup>
                 <FormGroup>
@@ -407,6 +416,7 @@ export default function MemberEditModal({
                     placeholder="이메일을 입력하세요"
                     value={formData.email || ""}
                     onChange={handleChange}
+                    maxLength={50}
                   />
                 </FormGroup>
                 <FormGroup>
@@ -422,6 +432,7 @@ export default function MemberEditModal({
                     onChange={handleChange}
                     type="tel"
                     inputMode="numeric"
+                    maxLength={13}
                   />
                 </FormGroup>
               </FormRow>
