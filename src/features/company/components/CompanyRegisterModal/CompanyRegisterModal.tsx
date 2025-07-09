@@ -351,6 +351,7 @@ export default function CompanyRegisterModal({
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const { notify } = useNotification();
+  // 1. telMaxLength 상태 및 관련 setTelMaxLength 로직 제거
 
   // 🔹 카카오 우편번호 API 스크립트 로딩
   useEffect(() => {
@@ -383,12 +384,11 @@ export default function CompanyRegisterModal({
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setForm((prev) => {
-      if (name === "tel") {
-        return { ...prev, tel: formatPhoneNumber(value) };
-      }
-      return { ...prev, [name]: value };
-    });
+    if (name === "tel") {
+      setForm((prev) => ({ ...prev, tel: formatPhoneNumber(value) }));
+      return;
+    }
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleRegInput = (
@@ -537,7 +537,7 @@ export default function CompanyRegisterModal({
               <FiHome size={14} />
               업체명
             </Label>
-            <Input name="name" placeholder="업체명을 입력하세요" value={form.name} onChange={handleInputChange} />
+            <Input name="name" placeholder="업체명을 입력하세요" value={form.name} onChange={handleInputChange} maxLength={50} />
             {fieldErrors.find((e) => e.field === "name") && (
               <p style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>
                 {fieldErrors.find((e) => e.field === "name")?.reason}
@@ -602,7 +602,7 @@ export default function CompanyRegisterModal({
               </PostcodeButton>
             </PostcodeRow>
             <AddressInput name="address" placeholder="기본주소를 입력하세요" readOnly value={form.address} />
-            <AddressInput name="addressDetail" placeholder="상세주소를 입력하세요" value={form.addressDetail} onChange={handleInputChange} />
+            <AddressInput name="addressDetail" placeholder="상세주소를 입력하세요" value={form.addressDetail} onChange={handleInputChange} maxLength={50} />
             {fieldErrors.find((e) => e.field === "address") && (
               <p style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>
                 {fieldErrors.find((e) => e.field === "address")?.reason}
@@ -614,7 +614,7 @@ export default function CompanyRegisterModal({
               <FiUser size={14} />
               대표자명
             </Label>
-            <Input name="ceoName" placeholder="대표자명을 입력하세요" value={form.ceoName} onChange={handleInputChange} />
+            <Input name="ceoName" placeholder="대표자명을 입력하세요" value={form.ceoName} onChange={handleInputChange} maxLength={50} />
             {fieldErrors.find((e) => e.field === "ceoName") && (
               <p style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>
                 {fieldErrors.find((e) => e.field === "ceoName")?.reason}
@@ -632,6 +632,7 @@ export default function CompanyRegisterModal({
               placeholder="이메일을 입력하세요"
               value={form.email}
               onChange={handleInputChange}
+              maxLength={50}
             />
             {fieldErrors.find((e) => e.field === "email") && (
               <p style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>
@@ -651,6 +652,7 @@ export default function CompanyRegisterModal({
               inputMode="numeric"
               value={form.tel}
               onChange={handleInputChange}
+              maxLength={13}
             />
             {fieldErrors.find((e) => e.field === "tel") && (
               <p style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>
@@ -669,6 +671,7 @@ export default function CompanyRegisterModal({
               placeholder="간단한 설명을 입력하세요"
               value={form.bio}
               onChange={handleInputChange}
+              maxLength={255}
             />
             {fieldErrors.find((e) => e.field === "bio") && (
               <p style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>

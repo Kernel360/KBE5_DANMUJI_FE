@@ -330,6 +330,7 @@ export default function CompanyEditModal({
   const [reg1, setReg1] = useState("");
   const [reg2, setReg2] = useState("");
   const [reg3, setReg3] = useState("");
+  // 1. telMaxLength 상태 및 관련 setTelMaxLength 로직 제거
 
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -415,16 +416,16 @@ export default function CompanyEditModal({
     }
   };
 
+  // 2. handleChange에서 tel 관련 maxLength 동적 변경 로직 제거
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => {
-      if (name === "tel") {
-        return { ...prev, tel: formatPhoneNumber(value) };
-      }
-      return { ...prev, [name]: value };
-    });
+    if (name === "tel") {
+      setFormData((prev) => ({ ...prev, tel: formatPhoneNumber(value) }));
+      return;
+    }
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -556,13 +557,7 @@ export default function CompanyEditModal({
               <FiHome size={14} />
               업체명
             </Label>
-            <Input
-              name="name"
-              required
-              placeholder="업체명을 입력하세요"
-              value={formData.name || ""}
-              onChange={handleChange}
-            />
+            <Input name="name" required placeholder="업체명을 입력하세요" value={formData.name || ""} onChange={handleChange} maxLength={50} />
             {fieldErrors.find((e) => e.field === "name") && (
               <p style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>
                 {fieldErrors.find((e) => e.field === "name")?.reason}
@@ -621,7 +616,7 @@ export default function CompanyEditModal({
               </PostcodeButton>
             </PostcodeRow>
             <AddressInput name="baseAddress" placeholder="기본주소" value={formData.baseAddress} readOnly onChange={handleChange} />
-            <AddressInput name="detailAddress" placeholder="상세주소" value={formData.detailAddress} onChange={handleChange} />
+            <AddressInput name="detailAddress" placeholder="상세주소" value={formData.detailAddress} onChange={handleChange} maxLength={50} />
             {fieldErrors.find((e) => e.field === "address") && (
               <p style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>
                 {fieldErrors.find((e) => e.field === "address")?.reason}
@@ -639,6 +634,7 @@ export default function CompanyEditModal({
               placeholder="대표자명을 입력하세요"
               value={formData.ceoName || ""}
               onChange={handleChange}
+              maxLength={50}
             />
           </FormGroup>
           <FormGroup>
@@ -653,6 +649,7 @@ export default function CompanyEditModal({
               placeholder="이메일을 입력하세요"
               value={formData.email || ""}
               onChange={handleChange}
+              maxLength={50}
             />
           </FormGroup>
           <FormGroup>
@@ -667,6 +664,7 @@ export default function CompanyEditModal({
               placeholder="전화번호를 입력하세요"
               value={formData.tel || ""}
               onChange={handleChange}
+              maxLength={13}
             />
           </FormGroup>
           <FormGroup>
@@ -680,6 +678,7 @@ export default function CompanyEditModal({
               placeholder="간단한 설명을 입력하세요"
               value={formData.bio || ""}
               onChange={handleChange}
+              maxLength={255}
             />
           </FormGroup>
           <SubmitButton type="submit">
