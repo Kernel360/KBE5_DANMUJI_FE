@@ -3,6 +3,9 @@ import api from "@/api/axios";
 import CompanyMemberSelectModal from "./CompanyMemberSelectModal";
 import useCompanyMemberSelect from "./useCompanyMemberSelect.ts";
 import {
+  FiCalendar,
+} from "react-icons/fi";
+import {
   ModalOverlay,
   ModalPanel,
   ModalHeader,
@@ -14,22 +17,18 @@ import {
   CloseButton,
   SectionTitle,
   FieldLabel,
-  PeriodRow,
-  PeriodCol,
-  PeriodLabel,
   CompanyRow,
   CompanyCard,
   CompanyCardHeader,
   CompanyCardTitle,
   CompanyCardMembers,
-  CompanySection,
-  DatePickerWrapper,
   DateButton,
   DateSeparator,
 } from "./ProjectCreateModal.styled";
 import type { ProjectDetailResponse } from "../services/projectService";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { FaArchive } from "react-icons/fa";
 
 type SelectedDevCompany = {
   company: { id: number; name: string };
@@ -394,7 +393,12 @@ export default function ProjectCreateModal({
         <SectionTitle as="div" style={{ fontWeight: 400, marginBottom: 0, gap: 0 }} />
         <div>
           {/* 프로젝트명, 개요 */}
-          <FieldLabel>프로젝트명 *</FieldLabel>
+          <FieldLabel>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <FaArchive size={16} color="#fdb924" />
+              <span>프로젝트명 *</span>
+            </div>
+          </FieldLabel>
           <Input
             placeholder="프로젝트 이름을 입력하세요"
             value={form.name}
@@ -430,60 +434,65 @@ export default function ProjectCreateModal({
         </div>
         {/* 프로젝트 기간 */}
         <div>
+        <FiCalendar size={16} />
           <FieldLabel>프로젝트 기간 *</FieldLabel>
-          <DatePickerWrapper>
-            <DateButton
-              type="button"
-              onClick={handleStartDateClick}
-              $hasValue={!!form.startDate}
-            >
-              <span>시작일</span>
-              <span className="date-value">{formatDate(form.startDate)}</span>
-            </DateButton>
-            {startDateOpen && (
-              <div style={{ position: "absolute", top: "100%", left: 0, zIndex: 1000, marginTop: 4 }}>
-                <DatePicker
-                  selected={form.startDate ? parseDate(form.startDate) : null}
-                  onChange={handleStartDateChange}
-                  selectsStart
-                  startDate={form.startDate ? parseDate(form.startDate) : null}
-                  endDate={form.endDate ? parseDate(form.endDate) : null}
-                  dateFormat="yyyy-MM-dd"
-                  placeholderText="시작일 선택"
-                  inline
-                  onClickOutside={() => setStartDateOpen(false)}
-                  onKeyDown={(e) => { if (e.key === "Escape") setStartDateOpen(false); }}
-                />
-              </div>
-            )}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ flex: 1, position: 'relative' }}>
+              <DateButton
+                type="button"
+                onClick={handleStartDateClick}
+                $hasValue={!!form.startDate}
+              >
+                <span>시작일</span>
+                <span className="date-value">{formatDate(form.startDate)}</span>
+              </DateButton>
+              {startDateOpen && (
+                <div style={{ position: "absolute", top: "100%", left: 0, zIndex: 1000, marginTop: 4 }}>
+                  <DatePicker
+                    selected={form.startDate ? parseDate(form.startDate) : null}
+                    onChange={handleStartDateChange}
+                    selectsStart
+                    startDate={form.startDate ? parseDate(form.startDate) : null}
+                    endDate={form.endDate ? parseDate(form.endDate) : null}
+                    dateFormat="yyyy-MM-dd"
+                    placeholderText="시작일 선택"
+                    inline
+                    onClickOutside={() => setStartDateOpen(false)}
+                    onKeyDown={(e) => { if (e.key === "Escape") setStartDateOpen(false); }}
+                  />
+                </div>
+              )}
+            </div>
             <DateSeparator>~</DateSeparator>
-            <DateButton
-              type="button"
-              onClick={handleEndDateClick}
-              $hasValue={!!form.endDate}
-            >
-              <span>마감일</span>
-              <span className="date-value">{formatDate(form.endDate)}</span>
-            </DateButton>
-            {endDateOpen && (
-              <div style={{ position: "absolute", top: "100%", left: 0, zIndex: 1000, marginTop: 4 }}>
-                <DatePicker
-                  selected={form.endDate ? parseDate(form.endDate) : null}
-                  onChange={handleEndDateChange}
-                  selectsEnd
-                  startDate={form.startDate ? parseDate(form.startDate) : null}
-                  endDate={form.endDate ? parseDate(form.endDate) : null}
-                  minDate={form.startDate ? parseDate(form.startDate) ?? undefined : undefined}
-                  dateFormat="yyyy-MM-dd"
-                  placeholderText="마감일 선택"
-                  inline
-                  onClickOutside={() => setEndDateOpen(false)}
-                  onKeyDown={(e) => { if (e.key === "Escape") setEndDateOpen(false); }}
-                  popperPlacement="bottom-start"
-                />
-              </div>
-            )}
-          </DatePickerWrapper>
+            <div style={{ flex: 1, position: 'relative' }}>
+              <DateButton
+                type="button"
+                onClick={handleEndDateClick}
+                $hasValue={!!form.endDate}
+              >
+                <span>마감일</span>
+                <span className="date-value">{formatDate(form.endDate)}</span>
+              </DateButton>
+              {endDateOpen && (
+                <div style={{ position: "absolute", top: "100%", left: 0, zIndex: 1000, marginTop: 4 }}>
+                  <DatePicker
+                    selected={form.endDate ? parseDate(form.endDate) : null}
+                    onChange={handleEndDateChange}
+                    selectsEnd
+                    startDate={form.startDate ? parseDate(form.startDate) : null}
+                    endDate={form.endDate ? parseDate(form.endDate) : null}
+                    minDate={form.startDate ? parseDate(form.startDate) ?? undefined : undefined}
+                    dateFormat="yyyy-MM-dd"
+                    placeholderText="마감일 선택"
+                    inline
+                    onClickOutside={() => setEndDateOpen(false)}
+                    onKeyDown={(e) => { if (e.key === "Escape") setEndDateOpen(false); }}
+                    popperPlacement="bottom-start"
+                  />
+                </div>
+              )}
+            </div>
+          </div>
         </div>
         {/* 담당 정보 */}
         <div>
