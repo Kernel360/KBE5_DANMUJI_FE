@@ -172,7 +172,7 @@ export default function DashboardPage() {
   const renderActiveShape = (props: any) => {
     const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } = props;
     return (
-      <g>
+      <g tabIndex={-1}>
         <Sector
           cx={cx}
           cy={cy}
@@ -181,6 +181,8 @@ export default function DashboardPage() {
           startAngle={startAngle}
           endAngle={endAngle}
           fill={fill}
+          stroke="none" // 검은색 테두리 제거
+          style={{ outline: "none" }} // outline도 제거
         />
       </g>
     );
@@ -625,6 +627,12 @@ export default function DashboardPage() {
                     activeShape={renderActiveShape}
                     onMouseEnter={(_, idx) => setActiveIndex(idx)}
                     onMouseLeave={() => setActiveIndex(-1)}
+                    onClick={(_, idx) => {
+                      if (typeof idx === "number" && idx >= 0) {
+                        const statusKey = ["IN_PROGRESS", "COMPLETED", "DELAY", "DUE_SOON"][idx] as ProjectStatusKey;
+                        setSelectedStatus(statusKey);
+                      }
+                    }}
                   >
                     {projectStatusData.map((entry, index) => (
                       <Cell
@@ -632,12 +640,8 @@ export default function DashboardPage() {
                         fill={entry.fill}
                         stroke={entry.stroke}
                         strokeWidth={1}
-                        onClick={() => {
-                          const statusKey = ["IN_PROGRESS", "COMPLETED", "DELAY", "DUE_SOON"][index] as ProjectStatusKey;
-                          setSelectedStatus(statusKey);
-                        }}
-                        style={{ cursor: "pointer", outline: "none" }}
-                        tabIndex={-1}
+                        // onClick 제거, tabIndex/outine 스타일 제거
+                        style={{ cursor: "pointer" }}
                       />
                     ))}
                   </Pie>
