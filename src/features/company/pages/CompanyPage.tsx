@@ -223,6 +223,10 @@ export const formatBizNo = (bizNo: string) => {
 export const formatTelNo = (telNo: string) => {
   if (!telNo) return telNo;
   const cleaned = ("" + telNo).replace(/\D/g, "");
+  // 대표번호(8자리) 15881588 -> 1588-1588
+  if (/^1[0-9]{3}[0-9]{4}$/.test(cleaned)) {
+    return cleaned.replace(/(\d{4})(\d{4})/, '$1-$2');
+  }
   // 11자리(휴대폰) 01012345678 -> 010-1234-5678
   if (cleaned.length === 11) {
     const match = cleaned.match(/^(\d{3})(\d{4})(\d{4})$/);
@@ -240,7 +244,7 @@ export const formatTelNo = (telNo: string) => {
       }
     } else {
       // 그 외 3자리 지역번호
-      const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
+      const match = cleaned.match(/^([0-9]{3})([0-9]{3})([0-9]{4})$/);
       if (match) {
         return `${match[1]}-${match[2]}-${match[3]}`;
       }

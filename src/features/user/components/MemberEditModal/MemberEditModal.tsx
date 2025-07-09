@@ -52,6 +52,41 @@ interface Props {
   initialData: Member | null;
 }
 
+// 전화번호 자동 하이픈 함수
+function formatPhoneNumber(value: string): string {
+  const cleaned = value.replace(/\D/g, "");
+  // 1588-1588, 1544-1234 등 8자리 대표번호
+  if (/^1[0-9]{3}[0-9]{4}$/.test(cleaned)) {
+    return cleaned.replace(/(\d{4})(\d{4})/, '$1-$2');
+  }
+  // 02-xxxx-xxxx (서울 2자리 지역번호)
+  if (/^02\d{8}$/.test(cleaned)) {
+    return cleaned.replace(/(02)(\d{4})(\d{4})/, '$1-$2-$3');
+  }
+  // 02-xxx-xxxx (서울 2자리 지역번호, 7자리)
+  if (/^02\d{7}$/.test(cleaned)) {
+    return cleaned.replace(/(02)(\d{3})(\d{4})/, '$1-$2-$3');
+  }
+  // 0xx-xxx-xxxx (3자리 지역번호)
+  if (/^0\d{2}\d{3}\d{4}$/.test(cleaned)) {
+    return cleaned.replace(/(0\d{2})(\d{3})(\d{4})/, '$1-$2-$3');
+  }
+  // 0xx-xxxx-xxxx (3자리 지역번호, 11자리)
+  if (/^0\d{2}\d{4}\d{4}$/.test(cleaned)) {
+    return cleaned.replace(/(0\d{2})(\d{4})(\d{4})/, '$1-$2-$3');
+  }
+  // 010-xxxx-xxxx (휴대폰)
+  if (/^01[016789]\d{7,8}$/.test(cleaned)) {
+    if (cleaned.length === 11) {
+      return cleaned.replace(/(01[016789])(\d{4})(\d{4})/, '$1-$2-$3');
+    } else {
+      return cleaned.replace(/(01[016789])(\d{3})(\d{4})/, '$1-$2-$3');
+    }
+  }
+  // fallback: 그냥 숫자만
+  return cleaned;
+}
+
 export default function MemberEditModal({
   onClose,
   onEdit,
@@ -83,7 +118,7 @@ export default function MemberEditModal({
             : Number(initialData.companyId),
         role: initialData.role,
         position: initialData.position,
-        phone: initialData.phone,
+        phone: formatPhoneNumber(initialData.phone || ""),
         email: initialData.email,
       });
     }
@@ -107,12 +142,19 @@ export default function MemberEditModal({
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]:
-        name === "companyId" ? (value === "" ? "" : Number(value)) : value,
-      role: name === "role" ? (value as "Manager" | "Member") : prev.role,
-    }));
+    setFormData((prev) => {
+      if (name === "companyId") {
+        return { ...prev, [name]: value === "" ? "" : Number(value), role: prev.role };
+      }
+      if (name === "phone") {
+        return { ...prev, phone: formatPhoneNumber(value), role: prev.role };
+      }
+      return {
+        ...prev,
+        [name]: value,
+        role: name === "role" ? (value as "Manager" | "Member") : prev.role,
+      };
+    });
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -375,7 +417,7 @@ export default function MemberEditModal({
                   <Input
                     name="phone"
                     required
-                    placeholder="전화번호를 입력하세요"
+                    placeholder="전화번호를 입력하세요 ('-'없이 입력)"
                     value={formData.phone || ""}
                     onChange={handleChange}
                     type="tel"
