@@ -3,6 +3,9 @@ import api from "@/api/axios";
 import CompanyMemberSelectModal from "./CompanyMemberSelectModal";
 import useCompanyMemberSelect from "./useCompanyMemberSelect.ts";
 import {
+  FiCalendar,
+} from "react-icons/fi";
+import {
   ModalOverlay,
   ModalPanel,
   ModalHeader,
@@ -12,14 +15,20 @@ import {
   TextArea,
   Button,
   CloseButton,
+  SectionTitle,
+  FieldLabel,
+  CompanyRow,
+  CompanyCard,
+  CompanyCardHeader,
+  CompanyCardTitle,
+  CompanyCardMembers,
+  DateButton,
+  DateSeparator,
 } from "./ProjectCreateModal.styled";
 import type { ProjectDetailResponse } from "../services/projectService";
-
-type Member = {
-  id: number;
-  name: string;
-  position: string;
-};
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { FaArchive } from "react-icons/fa";
 
 type SelectedDevCompany = {
   company: { id: number; name: string };
@@ -63,6 +72,29 @@ interface ProjectCreateModalProps {
   onSave?: (form: ProjectEditForm) => void;
 }
 
+// 날짜 문자열 <-> Date 객체 변환 함수
+function parseDate(str?: string) {
+  if (!str) return null;
+  const [y, m, d] = str.split("-").map(Number);
+  if (!y || !m || !d) return null;
+  return new Date(y, m - 1, d);
+}
+function formatDate(date?: string | Date | null) {
+  if (!date) return "";
+  const d = typeof date === "string" ? parseDate(date) : date;
+  if (!d) return "";
+  return d.toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" });
+}
+
+// 날짜를 YYYY-MM-DD로 변환 (로컬 기준)
+function toDateStringLocal(date: Date | null) {
+  if (!date) return "";
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 // 프로젝트 등록 모달 컴포넌트
 export default function ProjectCreateModal({
   open,
@@ -102,6 +134,28 @@ export default function ProjectCreateModal({
     SelectedClientCompany[]
   >([]);
 
+  // DatePicker 팝업 상태
+  const [startDateOpen, setStartDateOpen] = useState(false);
+  const [endDateOpen, setEndDateOpen] = useState(false);
+
+  const handleStartDateClick = () => setStartDateOpen((v) => !v);
+  const handleEndDateClick = () => setEndDateOpen((v) => !v);
+  const handleStartDateChange = (date: Date | null) => {
+    setForm((prev) => ({
+      ...prev,
+      startDate: date ? toDateStringLocal(date) : "",
+      endDate: "", // 시작일 바뀌면 마감일 초기화
+    }));
+    setStartDateOpen(false);
+  };
+  const handleEndDateChange = (date: Date | null) => {
+    setForm((prev) => ({
+      ...prev,
+      endDate: date ? toDateStringLocal(date) : "",
+    }));
+    setEndDateOpen(false);
+  };
+
   // devManagerId, devUserId, clientManagerId, clientUserId 동기화
   useEffect(() => {
     const allDevMembers = selectedDevCompanies.flatMap((c) => c.members);
@@ -119,11 +173,6 @@ export default function ProjectCreateModal({
         .join(","),
       clientUserId: allClientMembers.map((m) => m.id).join(","),
     }));
-  }, [selectedDevCompanies, selectedClientCompanies]);
-
-  useEffect(() => {
-    const allDevMembers = selectedDevCompanies.flatMap((c) => c.members);
-    const allClientMembers = selectedClientCompanies.flatMap((c) => c.members);
   }, [selectedDevCompanies, selectedClientCompanies]);
 
   // editMode일 때 projectData로 form 초기화
@@ -148,10 +197,12 @@ export default function ProjectCreateModal({
             company: {
               id: client.id,
               name: client.companyName,
+              userCount: 0,
             },
             members: client.assignUsers.map((user) => ({
               id: user.id,
               name: user.name,
+              position: user.positon,
               type: user.userType === "MANAGER" ? "manager" : "member",
             })),
           }));
@@ -165,10 +216,12 @@ export default function ProjectCreateModal({
             company: {
               id: developer.id,
               name: developer.companyName,
+              userCount: 0,
             },
             members: developer.assignUsers.map((user) => ({
               id: user.id,
               name: user.name,
+              position: user.positon,
               type: user.userType === "MANAGER" ? "manager" : "member",
             })),
           }));
@@ -337,278 +390,230 @@ export default function ProjectCreateModal({
             ? "프로젝트 정보를 수정해주세요"
             : "새로운 프로젝트의 정보를 입력해주세요"}
         </ModalDescription>
-        <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+        <SectionTitle as="div" style={{ fontWeight: 400, marginBottom: 0, gap: 0 }} />
+        <div>
           {/* 프로젝트명, 개요 */}
-          <div>
-            <div style={{ fontWeight: 600, marginBottom: 8 }}>프로젝트명 *</div>
-            <Input
-              placeholder="프로젝트 이름을 입력하세요"
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-              maxLength={255}
-            />
-            <div style={{ fontWeight: 600, marginBottom: 8 }}>개요 *</div>
-            <TextArea
-              placeholder="프로젝트 개요를 상세히 입력하세요..."
-              value={form.description}
-              onChange={(e) =>
-                setForm({ ...form, description: e.target.value })
+          <FieldLabel>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <FaArchive size={16} color="#fdb924" />
+              <span>프로젝트명 *</span>
+            </div>
+          </FieldLabel>
+          <Input
+            placeholder="프로젝트 이름을 입력하세요"
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            maxLength={255}
+          />
+          <FieldLabel>개요 *</FieldLabel>
+          <TextArea
+            placeholder="프로젝트 개요를 상세히 입력하세요..."
+            value={form.description}
+            onChange={(e) =>
+              setForm({ ...form, description: e.target.value })
+            }
+            rows={4}
+            maxLength={255}
+          />
+        </div>
+        {/* 프로젝트 금액 */}
+        <div>
+          <FieldLabel>프로젝트 금액</FieldLabel>
+          <Input
+            type="text"
+            placeholder="프로젝트 금액을 입력하세요"
+            value={Number(form.projectCost).toLocaleString()}
+            onChange={(e) => {
+              const value = e.target.value.replace(/,/g, "");
+              if (!isNaN(Number(value))) {
+                setForm({ ...form, projectCost: value });
               }
-              rows={4}
-              maxLength={255}
-            />
-          </div>
-          {/* 프로젝트 금액 */}
-          <div>
-            <div style={{ fontWeight: 600, marginBottom: 8 }}>
-              프로젝트 금액
-            </div>
-            <Input
-              type="text"
-              placeholder="프로젝트 금액을 입력하세요"
-              value={Number(form.projectCost).toLocaleString()}
-              onChange={(e) => {
-                const value = e.target.value.replace(/,/g, "");
-                if (!isNaN(Number(value))) {
-                  setForm({ ...form, projectCost: value });
-                }
-              }}
-              maxLength={20}
-            />
-          </div>
-          {/* 프로젝트 기간 */}
-          <div>
-            <div style={{ fontWeight: 600, marginBottom: 8 }}>
-              프로젝트 기간 *
-            </div>
-            <div style={{ display: "flex", gap: 16 }}>
-              <div style={{ flex: 1 }}>
-                <div style={{ marginBottom: 4 }}>시작일 *</div>
-                <div
-                  style={{ width: "100%" }}
-                  onClick={(e) => {
-                    const input = e.currentTarget.querySelector(
-                      "input"
-                    ) as HTMLInputElement;
-                    if (input) input.showPicker && input.showPicker();
-                  }}
-                >
-                  <Input
-                    as="input"
-                    type="date"
-                    value={form.startDate}
-                    onChange={(e) =>
-                      setForm((prev) => ({
-                        ...prev,
-                        startDate: e.target.value,
-                        endDate: "",
-                      }))
-                    }
+            }}
+            maxLength={20}
+          />
+        </div>
+        {/* 프로젝트 기간 */}
+        <div>
+        <FiCalendar size={16} />
+          <FieldLabel>프로젝트 기간 *</FieldLabel>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ flex: 1, position: 'relative' }}>
+              <DateButton
+                type="button"
+                onClick={handleStartDateClick}
+                $hasValue={!!form.startDate}
+              >
+                <span>시작일</span>
+                <span className="date-value">{formatDate(form.startDate)}</span>
+              </DateButton>
+              {startDateOpen && (
+                <div style={{ position: "absolute", top: "100%", left: 0, zIndex: 1000, marginTop: 4 }}>
+                  <DatePicker
+                    selected={form.startDate ? parseDate(form.startDate) : null}
+                    onChange={handleStartDateChange}
+                    selectsStart
+                    startDate={form.startDate ? parseDate(form.startDate) : null}
+                    endDate={form.endDate ? parseDate(form.endDate) : null}
+                    dateFormat="yyyy-MM-dd"
+                    placeholderText="시작일 선택"
+                    inline
+                    onClickOutside={() => setStartDateOpen(false)}
+                    onKeyDown={(e) => { if (e.key === "Escape") setStartDateOpen(false); }}
                   />
                 </div>
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ marginBottom: 4 }}>마감일 *</div>
-                <div
-                  style={{ width: "100%" }}
-                  onClick={(e) => {
-                    const input = e.currentTarget.querySelector(
-                      "input"
-                    ) as HTMLInputElement;
-                    if (input) input.showPicker && input.showPicker();
-                  }}
-                >
-                  <Input
-                    as="input"
-                    type="date"
-                    value={form.endDate}
-                    onChange={(e) =>
-                      setForm({ ...form, endDate: e.target.value })
-                    }
-                    min={form.startDate || undefined}
+              )}
+            </div>
+            <DateSeparator>~</DateSeparator>
+            <div style={{ flex: 1, position: 'relative' }}>
+              <DateButton
+                type="button"
+                onClick={handleEndDateClick}
+                $hasValue={!!form.endDate}
+              >
+                <span>마감일</span>
+                <span className="date-value">{formatDate(form.endDate)}</span>
+              </DateButton>
+              {endDateOpen && (
+                <div style={{ position: "absolute", top: "100%", left: 0, zIndex: 1000, marginTop: 4 }}>
+                  <DatePicker
+                    selected={form.endDate ? parseDate(form.endDate) : null}
+                    onChange={handleEndDateChange}
+                    selectsEnd
+                    startDate={form.startDate ? parseDate(form.startDate) : null}
+                    endDate={form.endDate ? parseDate(form.endDate) : null}
+                    minDate={form.startDate ? parseDate(form.startDate) ?? undefined : undefined}
+                    dateFormat="yyyy-MM-dd"
+                    placeholderText="마감일 선택"
+                    inline
+                    onClickOutside={() => setEndDateOpen(false)}
+                    onKeyDown={(e) => { if (e.key === "Escape") setEndDateOpen(false); }}
+                    popperPlacement="bottom-start"
                   />
                 </div>
-              </div>
-            </div>
-          </div>
-          {/* 담당 정보 */}
-          <div>
-            <div style={{ fontWeight: 600, marginBottom: 8 }}>담당 정보</div>
-            <div style={{ display: "flex", gap: 24 }}>
-              <div style={{ flex: 1 }}>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    marginBottom: 8,
-                  }}
-                >
-                  <span style={{ fontWeight: 500 }}>개발사 선택 *</span>
-                  <Button
-                    style={{ marginLeft: 12 }}
-                    $variant="primary"
-                    type="button"
-                    onClick={() => {
-                      openCompanyMemberModal("dev", true);
-                    }}
-                  >
-                    + 개발사 추가
-                  </Button>
-                </div>
-                {/* 여러 개발사/멤버 표시 (이동) */}
-                {selectedDevCompanies.map(({ company, members }) => (
-                  <div
-                    key={company.id}
-                    style={{
-                      marginBottom: 16,
-                      background: "#f4f6fa",
-                      borderRadius: 8,
-                      padding: 16,
-                      position: "relative",
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        marginBottom: 4,
-                      }}
-                    >
-                      <div style={{ fontWeight: 600 }}>
-                        선택된 개발사: {company.name}
-                      </div>
-                      <Button
-                        style={{ marginLeft: 8 }}
-                        $variant="secondary"
-                        type="button"
-                        onClick={() => {
-                          setEditCompany(company);
-                          setEditMembers(members);
-                          openCompanyMemberModal("dev", false);
-                        }}
-                      >
-                        수정
-                      </Button>
-                      <Button
-                        style={{
-                          marginLeft: 8,
-                          fontSize: 18,
-                          background: "transparent",
-                          color: "#888",
-                        }}
-                        $variant={undefined}
-                        type="button"
-                        onClick={() =>
-                          setSelectedDevCompanies((prev) =>
-                            prev.filter((c) => c.company.id !== company.id)
-                          )
-                        }
-                        aria-label="삭제"
-                      >
-                        ×
-                      </Button>
-                    </div>
-                    <div
-                      style={{ marginTop: 8, color: "#555", fontWeight: 500 }}
-                    >
-                      선택된 멤버: {members.length}명
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div style={{ flex: 1 }}>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    marginBottom: 8,
-                  }}
-                >
-                  <span style={{ fontWeight: 500 }}>고객사 선택 *</span>
-                  <Button
-                    style={{ marginLeft: 12 }}
-                    $variant="primary"
-                    type="button"
-                    onClick={() => {
-                      openCompanyMemberModal("client", true);
-                    }}
-                  >
-                    + 고객사 추가
-                  </Button>
-                </div>
-                {/* 여러 고객사/멤버 표시 (이동) */}
-                {selectedClientCompanies.map(({ company, members }) => (
-                  <div
-                    key={company.id}
-                    style={{
-                      marginBottom: 16,
-                      background: "#eaf6ff",
-                      borderRadius: 8,
-                      padding: 16,
-                      position: "relative",
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        marginBottom: 4,
-                      }}
-                    >
-                      <div style={{ fontWeight: 600 }}>
-                        선택된 고객사: {company.name}
-                      </div>
-                      <Button
-                        style={{ marginLeft: 8 }}
-                        $variant="secondary"
-                        type="button"
-                        onClick={() => {
-                          setEditCompany(company);
-                          setEditMembers(members);
-                          openCompanyMemberModal("client", false);
-                        }}
-                      >
-                        수정
-                      </Button>
-                      <Button
-                        style={{
-                          marginLeft: 8,
-                          fontSize: 18,
-                          background: "transparent",
-                          color: "#888",
-                        }}
-                        $variant={undefined}
-                        type="button"
-                        onClick={() =>
-                          setSelectedClientCompanies((prev) =>
-                            prev.filter((c) => c.company.id !== company.id)
-                          )
-                        }
-                        aria-label="삭제"
-                      >
-                        ×
-                      </Button>
-                    </div>
-                    <div
-                      style={{ marginTop: 8, color: "#555", fontWeight: 500 }}
-                    >
-                      선택된 멤버: {members.length}명
-                    </div>
-                  </div>
-                ))}
-              </div>
+              )}
             </div>
           </div>
         </div>
+        {/* 담당 정보 */}
+        <div>
+          <FieldLabel>담당 정보</FieldLabel>
+          <CompanyRow>
+            <div style={{ flex: 1 }}>
+              <CompanyCardHeader>
+                <span style={{ fontWeight: 500 }}>개발사 선택 *</span>
+                <Button
+                  style={{ marginLeft: 12 }}
+                  $variant="primary"
+                  type="button"
+                  onClick={() => {
+                    openCompanyMemberModal("dev", true);
+                  }}
+                >
+                  + 개발사 추가
+                </Button>
+              </CompanyCardHeader>
+              {/* 여러 개발사/멤버 표시 (이동) */}
+              {selectedDevCompanies.map(({ company, members }) => (
+                <CompanyCard key={company.id} $type="dev">
+                  <CompanyCardHeader>
+                    <CompanyCardTitle>선택된 개발사: {company.name}</CompanyCardTitle>
+                    <Button
+                      style={{ marginLeft: 8 }}
+                      $variant="secondary"
+                      type="button"
+                      onClick={() => {
+                        setEditCompany(company);
+                        setEditMembers(members);
+                        openCompanyMemberModal("dev", false);
+                      }}
+                    >
+                      수정
+                    </Button>
+                    <Button
+                      style={{
+                        marginLeft: 8,
+                        fontSize: 18,
+                        background: "transparent",
+                        color: "#888",
+                      }}
+                      $variant={undefined}
+                      type="button"
+                      onClick={() =>
+                        setSelectedDevCompanies((prev) =>
+                          prev.filter((c) => c.company.id !== company.id)
+                        )
+                      }
+                      aria-label="삭제"
+                    >
+                      ×
+                    </Button>
+                  </CompanyCardHeader>
+                  <CompanyCardMembers>
+                    선택된 멤버: {members.length}명
+                  </CompanyCardMembers>
+                </CompanyCard>
+              ))}
+            </div>
+            <div style={{ flex: 1 }}>
+              <CompanyCardHeader>
+                <span style={{ fontWeight: 500 }}>고객사 선택 *</span>
+                <Button
+                  style={{ marginLeft: 12 }}
+                  $variant="primary"
+                  type="button"
+                  onClick={() => {
+                    openCompanyMemberModal("client", true);
+                  }}
+                >
+                  + 고객사 추가
+                </Button>
+              </CompanyCardHeader>
+              {/* 여러 고객사/멤버 표시 (이동) */}
+              {selectedClientCompanies.map(({ company, members }) => (
+                <CompanyCard key={company.id} $type="client">
+                  <CompanyCardHeader>
+                    <CompanyCardTitle>선택된 고객사: {company.name}</CompanyCardTitle>
+                    <Button
+                      style={{ marginLeft: 8 }}
+                      $variant="secondary"
+                      type="button"
+                      onClick={() => {
+                        setEditCompany(company);
+                        setEditMembers(members);
+                        openCompanyMemberModal("client", false);
+                      }}
+                    >
+                      수정
+                    </Button>
+                    <Button
+                      style={{
+                        marginLeft: 8,
+                        fontSize: 18,
+                        background: "transparent",
+                        color: "#888",
+                      }}
+                      $variant={undefined}
+                      type="button"
+                      onClick={() =>
+                        setSelectedClientCompanies((prev) =>
+                          prev.filter((c) => c.company.id !== company.id)
+                        )
+                      }
+                      aria-label="삭제"
+                    >
+                      ×
+                    </Button>
+                  </CompanyCardHeader>
+                  <CompanyCardMembers>
+                    선택된 멤버: {members.length}명
+                  </CompanyCardMembers>
+                </CompanyCard>
+              ))}
+            </div>
+          </CompanyRow>
+        </div>
         {/* 하단 버튼 */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            gap: 12,
-            marginTop: 40,
-          }}
-        >
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, marginTop: 40 }}>
           <Button $variant={undefined} onClick={onClose}>
             취소
           </Button>
@@ -631,10 +636,16 @@ export default function ProjectCreateModal({
                 ? handleDevCompanyDone
                 : handleClientCompanyDone
             }
-            selectedCompany={editCompany}
+            selectedCompany={editCompany ? { ...editCompany, userCount: 0 } : undefined}
             selectedMembers={editMembers}
-            selectedDevCompanies={selectedDevCompanies}
-            selectedClientCompanies={selectedClientCompanies}
+            selectedDevCompanies={selectedDevCompanies.map(dev => ({
+              ...dev,
+              company: { ...dev.company, userCount: 0 }
+            }))}
+            selectedClientCompanies={selectedClientCompanies.map(client => ({
+              ...client,
+              company: { ...client.company, userCount: 0 }
+            }))}
           />
         )}
       </ModalPanel>

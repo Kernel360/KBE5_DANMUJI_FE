@@ -20,7 +20,7 @@ export const ModalPanel = styled.div`
   min-width: 900px;
   max-width: 1100px;
   width: 90vw;
-  max-height: 800px;
+  max-height: 900px;
   overflow-y: auto;
   box-shadow: 0 2px 32px rgba(0,0,0,0.18);
   position: relative;
@@ -119,3 +119,173 @@ export const CloseButton = styled.button`
     color: #ef4444;
   }
 `; 
+
+export const DateButton = styled.button<{ $hasValue: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  background: ${({ $hasValue }) => ($hasValue ? "#fef3c7" : "#f9fafb")};
+  border: 2px solid ${({ $hasValue }) => ($hasValue ? "#fdb924" : "#e5e7eb")};
+  border-radius: 8px;
+  color: ${({ $hasValue }) => ($hasValue ? "#a16207" : "#374151")};
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  justify-content: space-between;
+
+  svg {
+    flex-shrink: 0;
+    color: ${({ $hasValue }) => ($hasValue ? "#fdb924" : "#6b7280")};
+  }
+
+  &:hover {
+    background: ${({ $hasValue }) => ($hasValue ? "#fef9c3" : "#f3f4f6")};
+    border-color: ${({ $hasValue }) => ($hasValue ? "#fdb924" : "#d1d5db")};
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.1);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+`;
+
+export const DatePickerWrapper = styled.div`
+  position: relative;
+  width: 100%;
+
+  .react-datepicker {
+    font-family: inherit;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+  }
+
+  .react-datepicker-popper {
+    z-index: 1000 !important;
+  }
+
+  .react-datepicker__header {
+    background-color: #f8fafc;
+    border-bottom: 1px solid #e5e7eb;
+    border-radius: 8px 8px 0 0;
+  }
+
+  .react-datepicker__day--selected {
+    background-color: #fdb924;
+    color: white;
+  }
+`;
+
+export const DateRow = styled.div`
+  display: flex;
+  gap: 16px;
+`;
+
+export const DateCol = styled.div`
+  flex: 1;
+`;
+
+export const DateTilde = styled.span`
+  align-self: center;
+  font-weight: 600;
+`;
+
+export const FormSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+`;
+
+export const FormRow = styled.div`
+  display: flex;
+  gap: 16px;
+`;
+
+export const FormLabel = styled.label`
+  font-weight: 600;
+  margin-bottom: 8px;
+`;
+
+export const FormActions = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 40px;
+`;
+
+export const CompanySection = styled.div`  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+export const CompanyCard = styled.div<{ $type: 'dev' | 'client' }>`
+  margin-bottom: 8px;
+  background: ${({ $type }) => $type === 'dev' ? '#f4f6fa' : '#eaf6ff'};
+  border-radius: 8px;
+  padding: 16px;
+  position: relative;
+`;
+
+export const CompanyCardHeader = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+  font-weight: 600;
+`;
+
+export const CompanyCardMembers = styled.div`
+  margin-top: 8px;
+  color: #555;
+  font-weight: 500;
+`;
+
+export const SectionTitle = styled.div`
+  font-weight: 600;
+  margin-bottom: 8px;
+`;
+
+export const FieldLabel = styled.div`
+  font-weight: 600;
+  margin-bottom: 8px;
+`;
+
+export const PeriodRow = styled.div`
+  display: flex;
+  gap: 16px;
+`;
+
+export const PeriodCol = styled.div`
+  flex: 1;
+`;
+
+export const PeriodLabel = styled.div`
+  margin-bottom: 4px;
+`;
+
+export const CompanyRow = styled.div`
+  display: flex;
+  gap: 24px;
+`;
+
+export const CompanyCardTitle = styled.div`
+  font-weight: 600;
+`;
+
+export const DateSeparator = styled.span`
+  color: #6b7280;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0 4px;
+  flex-shrink: 0;
+`;

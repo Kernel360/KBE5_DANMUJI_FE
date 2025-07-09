@@ -222,9 +222,7 @@ export default function ProjectListPage() {
   };
 
   const handleSearch = () => {
-    alert("필터링 작업 연동중");
-    navigate("/projects");
-    return;
+
     // 검색 조건이 있으면 검색 API 사용, 없으면 초기 로딩
     const hasSearchConditions =
       filters.keyword ||
