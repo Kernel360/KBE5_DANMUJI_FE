@@ -525,6 +525,40 @@ export default function MemberPage() {
     }
   };
 
+  // 필터링된 회원 목록 불러오기
+  const fetchFilteredMembers = async (page = 0) => {
+    try {
+      setLoading(true);
+      setError(null);
+      // 쿼리 파라미터 타입 명확화
+      const params: {
+        page: number;
+        size: number;
+        companyId?: number;
+        position?: string;
+        name?: string;
+      } = { page, size: pageSize };
+      if (selectedCompanyId !== null) params.companyId = selectedCompanyId;
+      if (selectedPosition) params.position = selectedPosition;
+      if (searchKeyword) params.name = searchKeyword;
+      const response = await api.get("/api/admin/filtering", { params });
+      const pageData = response.data.data.page;
+      setMembers(Array.isArray(response.data.data.content) ? response.data.data.content : []);
+      setTotalMembers(pageData?.totalElements ?? 0);
+    } catch (err: unknown) {
+      let errorMessage = "An unknown error occurred";
+      if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+      setError(errorMessage);
+      setMembers([]);
+      setTotalMembers(0);
+      console.error("Failed to fetch filtered members:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchCompanies();
     fetchAllPositions(); // 직책 목록도 함께 불러오기
@@ -532,7 +566,11 @@ export default function MemberPage() {
 
   // 페이지 변경 시 회원 목록 새로고침
   useEffect(() => {
-    fetchMembers();
+    if (searchKeyword || selectedCompanyId !== null || selectedPosition) {
+      fetchFilteredMembers(currentPage);
+    } else {
+      fetchMembers();
+    }
   }, [currentPage, pageSize]);
 
   // 필터링된 회원 목록
@@ -657,6 +695,12 @@ export default function MemberPage() {
     setModalOpen(false);
     setSelectedMemberId(null);
     fetchMembers();
+  };
+
+  // 검색 버튼 클릭 핸들러
+  const handleSearch = () => {
+    setCurrentPage(0);
+    fetchFilteredMembers(0);
   };
 
   if (loading)
@@ -805,10 +849,7 @@ export default function MemberPage() {
                 alignItems: "center",
                 justifyContent: "center",
               }}
-              onClick={() => {
-                // 검색 버튼 클릭 시 selectedCompanyId, selectedPosition, searchKeyword 값을 사용
-                // TODO: 이 값들로 API 요청 구현 예정
-              }}
+              onClick={handleSearch}
             >
               <FiSearch size={16} />
             </NewButton>
@@ -817,6 +858,8 @@ export default function MemberPage() {
                 setSelectedCompanyId(null);
                 setSelectedPosition("");
                 setSearchKeyword("");
+                setCurrentPage(0);
+                fetchMembers();
               }}
               style={{
                 minWidth: "auto",
