@@ -1,7 +1,43 @@
 import React, { useState, useEffect } from "react";
+import { IoPeopleOutline, IoSearch } from "react-icons/io5";
 import api from "@/api/axios";
 import CompanyRegisterModal from "@/features/company/components/CompanyRegisterModal/CompanyRegisterModal";
 import MemberRegisterModal from "@/features/user/components/MemberRegisterModal/MemberRegisterModal";
+import {
+  ModalOverlay,
+  ModalContainer,
+  ModalHeader,
+  ModalTitle,
+  HeaderButtons,
+  PrimaryButton,
+  SuccessButton,
+  SearchContainer,
+  SearchInput,
+  SearchButton,
+  CompanyList,
+  CompanyItem,
+  PaginationContainer,
+  PaginationButton,
+  PaginationText,
+  SelectedCompanyHeader,
+  SelectedCompanyName,
+  BackButton,
+  MemberSearchInput,
+  MemberList,
+  MemberItem,
+  MemberInfo,
+  MemberAvatar,
+  MemberDetails,
+  MemberName,
+  MemberPosition,
+  MemberButtons,
+  ManagerButton,
+  MemberButton,
+  RegisterButton,
+  CloseButton,
+  LoadingText,
+  EmptyText,
+} from "./CompanyMemberSelectModal.styled";
 
 type Member = {
   id: number;
@@ -146,73 +182,42 @@ const CompanyMemberSelectModal: React.FC<CompanyMemberSelectModalProps> = ({
   };
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100vw",
-        height: "100vh",
-        background: "rgba(0,0,0,0.3)",
-        zIndex: 2000,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-      onClick={handleOverlayClick}
-    >
-      <div
-        style={{
-          background: "#fff",
-          borderRadius: 12,
-          padding: 32,
-          minWidth: 400,
-          maxWidth: 500,
-          width: "90vw",
-          boxShadow: "0 2px 32px rgba(0,0,0,0.18)",
-          position: "relative",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-          <h3 style={{ fontSize: 22, fontWeight: 700, marginBottom: 0 }}>업체 선택</h3>
-          <div style={{ display: "flex", gap: 8 }}>
-            <button style={{ background: "#2563eb", color: "#fff", border: 0, borderRadius: 4, padding: "6px 16px", fontWeight: 500, fontSize: 15, cursor: "pointer" }}
-              onClick={() => setCompanyModalOpen(true)}>
+    <ModalOverlay onClick={handleOverlayClick}>
+      <ModalContainer>
+        <ModalHeader>
+          <ModalTitle>업체 선택</ModalTitle>
+          <HeaderButtons>
+            <PrimaryButton onClick={() => setCompanyModalOpen(true)}>
               업체 등록
-            </button>
-            <button style={{ background: "#19c37d", color: "#fff", border: 0, borderRadius: 4, padding: "6px 16px", fontWeight: 500, fontSize: 15, cursor: "pointer" }}
-              onClick={() => setMemberModalOpen(true)}>
+            </PrimaryButton>
+            <SuccessButton onClick={() => setMemberModalOpen(true)}>
               멤버 생성
-            </button>
-          </div>
-        </div>
+            </SuccessButton>
+          </HeaderButtons>
+        </ModalHeader>
 
         {!selectedCompanyState ? (
           <>
             {/* ✅ 검색 input + 버튼 */}
-            <div style={{ display: "flex", alignItems: "center", marginBottom: 16 }}>
-              <input
-                style={{ width: "100%", padding: 10, borderRadius: 6, border: "1px solid #eee", fontSize: 15 }}
+            <SearchContainer>
+              <SearchInput
                 placeholder="업체명 검색"
                 value={inputValue}
                 onChange={e => setInputValue(e.target.value)}
                 autoFocus
                 onKeyDown={e => {
-                  if (e.key === "Enter") handleSearch(); // 🔍 Enter 검색
+                  if (e.key === "Enter") handleSearch();
                 }}
               />
-              <button
-                style={{ marginLeft: 8, background: "#2563eb", color: "#fff", border: 0, borderRadius: 4, padding: "6px 16px", fontWeight: 500, fontSize: 15, cursor: "pointer" }}
-                onClick={handleSearch} // 🔍 버튼 검색
-              >
-                검색
-              </button>
-            </div>
+              <SearchButton onClick={handleSearch}>
+                <IoSearch />검색
+              </SearchButton>
+            </SearchContainer>
 
             {/* ✅ 업체 목록 */}
-            <div style={{ maxHeight: 300, overflowY: "auto", display: "flex", flexDirection: "column", gap: 8 }}>
-              {loading && <div style={{ textAlign: "center", color: "#888" }}>불러오는 중...</div>}
-              {!loading && companies.length === 0 && <div style={{ textAlign: "center", color: "#aaa" }}>검색 결과 없음</div>}
+            <CompanyList>
+              {loading && <LoadingText>불러오는 중...</LoadingText>}
+              {!loading && companies.length === 0 && <EmptyText>검색 결과 없음</EmptyText>}
               {companies
                 .filter(
                   (c) =>
@@ -220,60 +225,44 @@ const CompanyMemberSelectModal: React.FC<CompanyMemberSelectModalProps> = ({
                     !selectedClientCompanies.some((cli) => cli.company.id === c.id)
                 )
                 .map((c) => (
-                  <div
+                  <CompanyItem
                     key={c.id}
-                    style={{
-                      padding: 14,
-                      border: "1px solid #eee",
-                      borderRadius: 8,
-                      background: "#fafbfc",
-                      cursor: "pointer",
-                      fontWeight: 500,
-                      boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
-                    }}
                     onClick={() => setSelectedCompanyState(c)}
                   >
-                    {c.name} (회원수: {c.userCount})
-                  </div>
+                    <span>{c.name}</span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#666', fontSize: '14px' }}>
+                      (<IoPeopleOutline />
+                      : {c.userCount}명)
+                    </span>
+                  </CompanyItem>
                 ))}
               {!loading && companies.length > 0 && (
                 // ✅ 페이지네이션
-                <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 12, marginTop: 12 }}>
-                  <button
-                    style={{ background: "#eee", border: 0, borderRadius: 4, padding: "4px 12px", fontWeight: 500, fontSize: 14, cursor: page === 0 ? "not-allowed" : "pointer", color: page === 0 ? "#bbb" : "#222" }}
+                <PaginationContainer>
+                  <PaginationButton
                     disabled={page === 0}
                     onClick={() => setPage(page - 1)}
                   >
-                    이전
-                  </button>
-                  <span style={{ fontWeight: 500, fontSize: 15 }}>{page + 1} / {totalPages}</span>
-                  <button
-                    style={{ background: "#eee", border: 0, borderRadius: 4, padding: "4px 12px", fontWeight: 500, fontSize: 14, cursor: page + 1 >= totalPages ? "not-allowed" : "pointer", color: page + 1 >= totalPages ? "#bbb" : "#222" }}
+                    ◀ 이전
+                  </PaginationButton>
+                  <PaginationText>{page + 1} / {totalPages}</PaginationText>
+                  <PaginationButton
                     disabled={page + 1 >= totalPages}
                     onClick={() => setPage(page + 1)}
                   >
-                    다음
-                  </button>
-                </div>
+                    다음 ▶
+                  </PaginationButton>
+                </PaginationContainer>
               )}
-            </div>
+            </CompanyList>
           </>
         ) : (
           <>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-              <div style={{ fontWeight: 600 }}>{selectedCompanyState.name}</div>
-              <button
-                style={{
-                  background: '#eee',
-                  color: '#222',
-                  border: 0,
-                  borderRadius: 4,
-                  padding: '4px 12px',
-                  fontWeight: 500,
-                  fontSize: 14,
-                  cursor: 'pointer',
-                  marginLeft: 8,
-                }}
+            <SelectedCompanyHeader>
+              <SelectedCompanyName>
+                {selectedCompanyState.name}
+              </SelectedCompanyName>
+              <BackButton
                 onClick={() => {
                   setSelectedCompanyState(null);
                   setMembers([]);
@@ -281,61 +270,46 @@ const CompanyMemberSelectModal: React.FC<CompanyMemberSelectModalProps> = ({
                 }}
               >
                 업체 다시 선택
-              </button>
-            </div>
-            <div style={{ margin: "12px 0 16px 0" }}>
-              <input
-                placeholder="멤버 이름 검색"
-                value={memberSearch}
-                onChange={(e) => setMemberSearch(e.target.value)}
-                style={{ width: "100%", padding: 8, borderRadius: 6, border: "1px solid #eee" }}
-              />
-            </div>
-            <div style={{ maxHeight: 300, overflowY: "auto", display: "flex", flexDirection: "column", gap: 12 }}>
-              {loading && <div style={{ textAlign: "center", color: "#888" }}>불러오는 중...</div>}
-              {!loading && filteredMembers.length === 0 && <div style={{ textAlign: "center", color: "#aaa" }}>멤버 없음</div>}
+              </BackButton>
+            </SelectedCompanyHeader>
+            <MemberSearchInput
+              placeholder="멤버 이름 검색"
+              value={memberSearch}
+              onChange={(e) => setMemberSearch(e.target.value)}
+            />
+            <MemberList>
+              {loading && <LoadingText>불러오는 중...</LoadingText>}
+              {!loading && filteredMembers.length === 0 && <EmptyText>멤버 없음</EmptyText>}
               {filteredMembers.map((member) => {
                 const sel = selectedMembersState.find((m) => m.id === member.id);
                 return (
-                  <div key={member.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", border: "1px solid #eee", borderRadius: 8, padding: 14, background: "#fafbfc" }}>
-                    <div>
-                      <div style={{ fontWeight: 600 }}>{member.name}</div>
-                      <div style={{ color: "#888" }}>{member.position}</div>
-                    </div>
-                    <div style={{ display: "flex", gap: 8 }}>
-                      <button
-                        style={{
-                          border: 0,
-                          borderRadius: 4,
-                          background: sel?.type === "manager" ? "#4338ca" : "#eee",
-                          color: sel?.type === "manager" ? "#fff" : "#222",
-                          padding: "4px 12px",
-                          cursor: "pointer",
-                        }}
+                  <MemberItem key={member.id}>
+                    <MemberInfo>
+                      <MemberAvatar>{member.name.charAt(0)}</MemberAvatar>
+                      <MemberDetails>
+                        <MemberName>{member.name}</MemberName>
+                        <MemberPosition>{member.position}</MemberPosition>
+                      </MemberDetails>
+                    </MemberInfo>
+                    <MemberButtons>
+                      <ManagerButton
+                        selected={sel?.type === "manager"}
                         onClick={() => handleMemberType(member, "manager")}
                       >
                         담당자
-                      </button>
-                      <button
-                        style={{
-                          border: 0,
-                          borderRadius: 4,
-                          background: sel?.type === "member" ? "#19c37d" : "#eee",
-                          color: sel?.type === "member" ? "#fff" : "#222",
-                          padding: "4px 12px",
-                          cursor: "pointer",
-                        }}
+                      </ManagerButton>
+                      <MemberButton
+                        selected={sel?.type === "member"}
                         onClick={() => handleMemberType(member, "member")}
                       >
                         멤버
-                      </button>
-                    </div>
-                  </div>
+                      </MemberButton>
+                    </MemberButtons>
+                  </MemberItem>
                 );
               })}
-            </div>
-            <button
-              style={{ marginTop: 24, width: "100%", border: 0, borderRadius: 6, background: "#4338ca", color: "#fff", padding: 10, fontWeight: 500, cursor: "pointer" }}
+            </MemberList>
+            <RegisterButton
               onClick={() => {
                 if (selectedMembersState.length === 0) {
                   alert("한 명 이상 선택해야 합니다");
@@ -345,16 +319,12 @@ const CompanyMemberSelectModal: React.FC<CompanyMemberSelectModalProps> = ({
               }}
             >
               등록
-            </button>
+            </RegisterButton>
           </>
         )}
-        <button
-          style={{ position: "absolute", top: 16, right: 16, background: "transparent", border: 0, fontSize: 22, cursor: "pointer" }}
-          onClick={onClose}
-          aria-label="닫기"
-        >
+        <CloseButton onClick={onClose} aria-label="닫기">
           ×
-        </button>
+        </CloseButton>
         {companyModalOpen && (
           <CompanyRegisterModal
             open={companyModalOpen}
@@ -388,6 +358,7 @@ const CompanyMemberSelectModal: React.FC<CompanyMemberSelectModalProps> = ({
                 }
                 setMemberModalOpen(false);
                 setMemberRefreshKey((k) => k + 1); // 멤버 목록 강제 새로고침
+                setRefreshKey((k) => k + 1); // 회사 목록 강제 새로고침
                 alert("멤버가 성공적으로 등록되었습니다.");
               } catch (e) {
                 alert("멤버 등록에 실패했습니다.");
@@ -396,8 +367,8 @@ const CompanyMemberSelectModal: React.FC<CompanyMemberSelectModalProps> = ({
             initialCompanyId={selectedCompanyState?.id}
           />
         )}
-      </div>
-    </div>
+      </ModalContainer>
+    </ModalOverlay>
   );
 };
 
