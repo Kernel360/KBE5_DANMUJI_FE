@@ -6,6 +6,10 @@ import {
   FiHome,
   FiGrid,
   FiPackage,
+  FiClock,
+  FiCheckCircle,
+  FiAlertTriangle,
+  FiAlertCircle,
 } from "react-icons/fi";
 import React, { useState, useEffect } from "react";
 import type { ProjectStatusResponse } from "@/features/project/services/projectService";
@@ -41,8 +45,35 @@ export interface ProjectStatusSectionProps {
 
 const STATUS_TABS = [
   { key: "IN_PROGRESS", label: "진행중" },
+  { key: "DUE_SOON", label: "기한임박" },
+  { key: "DELAY", label: "지연" },
   { key: "COMPLETED", label: "완료" },
 ];
+
+// 프로젝트 상태별 아이콘 반환 함수 (ProjectListPage와 동일하게)
+const getStatusIcon = (status: string) => {
+  switch (status) {
+    case "IN_PROGRESS":
+      return <FiClock size={13} style={{ marginRight: 2, color: "#3b82f6" }} />;
+    case "COMPLETED":
+      return (
+        <FiCheckCircle size={13} style={{ marginRight: 2, color: "#10b981" }} />
+      );
+    case "DELAY":
+      return (
+        <FiAlertTriangle
+          size={13}
+          style={{ marginRight: 2, color: "#ef4444" }}
+        />
+      );
+    case "DUE_SOON":
+      return (
+        <FiAlertCircle size={13} style={{ marginRight: 2, color: "#f59e0b" }} />
+      );
+    default:
+      return null;
+  }
+};
 
 const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
   projectTabs,
@@ -51,12 +82,10 @@ const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
   getProgressPercent,
   navigate,
 }) => {
-  // 필터링 로직
-  const filteredProjects = projectTabs.filter((project) => {
-    if (selectedStatusTab === "IN_PROGRESS") return project.status === "IN_PROGRESS";
-    if (selectedStatusTab === "COMPLETED") return project.status === "COMPLETED";
-    return false;
-  });
+  // 필터링 로직 (선택된 탭과 status가 일치하는 프로젝트만)
+  const filteredProjects = projectTabs.filter(
+    (project) => project.status === selectedStatusTab
+  );
 
   // 진행중 탭에서만 animatedPercents 배열 사용
   // const [animatedPercents, setAnimatedPercents] = useState<number[]>([]);
@@ -148,19 +177,18 @@ const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
                       {project.name}
                     </S.ProjectTitle>
                   </div>
-                  {selectedStatusTab !== "IN_PROGRESS" && (
-                    <S.StatusBadge $status={project.status}>
-                      {project.status === "COMPLETED" && "완료"}
-                      {project.status === "IN_PROGRESS" && "진행중"}
-                      {project.status === "DELAY" && "지연"}
-                      {project.status === "DUE_SOON" && "기한임박"}
-                      {project.status !== "COMPLETED" &&
-                        project.status !== "IN_PROGRESS" &&
-                        project.status !== "DELAY" &&
-                        project.status !== "DUE_SOON" &&
-                        project.status}
-                    </S.StatusBadge>
-                  )}
+                  <S.StatusBadge $status={project.status}>
+                    {getStatusIcon(project.status)}
+                    {project.status === "COMPLETED" && "완료"}
+                    {project.status === "IN_PROGRESS" && "진행중"}
+                    {project.status === "DELAY" && "지연"}
+                    {project.status === "DUE_SOON" && "기한임박"}
+                    {project.status !== "COMPLETED" &&
+                      project.status !== "IN_PROGRESS" &&
+                      project.status !== "DELAY" &&
+                      project.status !== "DUE_SOON" &&
+                      project.status}
+                  </S.StatusBadge>
                 </S.ProjectHeaderRow>
                 <div
                   style={{
