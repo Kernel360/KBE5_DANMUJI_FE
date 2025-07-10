@@ -12,10 +12,15 @@ import ProjectCreateModal from "../components/ProjectCreateModal";
 import api from "@/api/axios";
 import { useAuth } from "@/hooks/useAuth";
 import KanbanBoard from "../components/Checklist/KanbanBoard";
-import { DetailPageContainer, PageTitle, PageDescription, LoadingContainer, ErrorContainer } from "./ProjectDetailPage.styled";
+import {
+  DetailPageContainer,
+  PageTitle,
+  PageDescription,
+  LoadingContainer,
+  ErrorContainer,
+} from "./ProjectDetailPage.styled";
 // import ProjectMemberList from "../components/MemberList/ProjectMemberList";
 // import ProjectFileList from '../components/FileList/ProjectFileList';
-
 
 // 프로젝트 수정 폼 타입 정의
 interface ProjectEditForm {
@@ -66,7 +71,7 @@ const ToggleTabGroup = styled.div`
   justify-content: flex-start;
   align-items: flex-end;
   gap: 0;
-  margin: 18px;
+  margin: 18px 0 0px 33px;
 `;
 
 const ProjectDetailPage = () => {
@@ -81,7 +86,7 @@ const ProjectDetailPage = () => {
   );
   const [editModalOpen, setEditModalOpen] = useState(false);
   const { role } = useAuth();
-  const [viewType, setViewType] = useState<'post' | 'checklist'>('post');
+  const [viewType, setViewType] = useState<"post" | "checklist">("post");
   // 프로젝트 상세 정보 가져오기
   const fetchProjectDetail = async () => {
     if (!projectId) {
@@ -120,9 +125,9 @@ const ProjectDetailPage = () => {
 
   // URL 파라미터에서 tab=checklist가 있으면 체크리스트 탭으로 설정
   useEffect(() => {
-    const tab = searchParams.get('tab');
-    if (tab === 'checklist') {
-      setViewType('checklist');
+    const tab = searchParams.get("tab");
+    if (tab === "checklist") {
+      setViewType("checklist");
     }
   }, [searchParams]);
 
@@ -242,16 +247,32 @@ const ProjectDetailPage = () => {
           onStepOrderSaved={fetchProjectDetail}
         />
         <ToggleTabGroup>
-          <TabButton $active={viewType === 'post'} onClick={() => setViewType('post')}>게시글</TabButton>
-          <TabButton $active={viewType === 'checklist'} onClick={() => setViewType('checklist')}>체크리스트</TabButton>
+          <TabButton
+            $active={viewType === "post"}
+            onClick={() => setViewType("post")}
+          >
+            게시글
+          </TabButton>
+          <TabButton
+            $active={viewType === "checklist"}
+            onClick={() => setViewType("checklist")}
+          >
+            체크리스트
+          </TabButton>
         </ToggleTabGroup>
-        {viewType === 'post' ? (
-          <ProjectBoard projectId={projectDetail.id} selectedStepId={selectedStepId} />
+        {viewType === "post" ? (
+          <ProjectBoard
+            projectId={projectDetail.id}
+            selectedStepId={selectedStepId}
+          />
         ) : (
-          <KanbanBoard 
-            projectId={projectDetail.id} 
-            selectedStepId={selectedStepId ?? 0} 
-            canEditStep={projectDetail.myCompanyType === "DEVELOPER" || role === "ROLE_ADMIN"}
+          <KanbanBoard
+            projectId={projectDetail.id}
+            selectedStepId={selectedStepId ?? 0}
+            canEditStep={
+              projectDetail.myCompanyType === "DEVELOPER" ||
+              role === "ROLE_ADMIN"
+            }
           />
         )}
         {/* <div style={{ display: "flex", gap: 24, padding: "0 24px 24px" }}>

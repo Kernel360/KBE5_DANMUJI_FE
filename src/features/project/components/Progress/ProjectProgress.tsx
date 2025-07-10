@@ -92,14 +92,34 @@ const ProjectProgress: React.FC<ProjectProgressProps> = ({
           <button
             onClick={() => setStepOrderModalOpen(true)}
             style={{
-              background: "none",
-              border: "none",
+              background: "#f3f4f6",
+              border: "1.5px solid #e5e7eb",
+              borderRadius: "8px",
               cursor: "pointer",
-              padding: 20,
+              padding: "10px 16px",
+              transition: "background 0.18s, border 0.18s, color 0.18s",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
             title="단계 수정"
+            onMouseOver={(e) => {
+              e.currentTarget.style.background = "#fdb924";
+              e.currentTarget.style.color = "#fff";
+              e.currentTarget.style.border = "1.5px solid #fdb924";
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.background = "#f3f4f6";
+              e.currentTarget.style.color = "#6b7280";
+              e.currentTarget.style.border = "1.5px solid #e5e7eb";
+            }}
           >
-            <FaPen size={18} color="#6b7280" />
+            <FaPen
+              size={18}
+              color="#6b7280"
+              style={{ transition: "color 0.18s" }}
+            />
           </button>
         )}
       </div>
