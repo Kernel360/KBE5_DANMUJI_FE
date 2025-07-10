@@ -27,6 +27,10 @@ import {
 } from "@/features/project-d/services/questionService";
 import type { Answer } from "@/features/project-d/types/question";
 import { useAuth } from "@/hooks/useAuth";
+import MentionTextArea from "@/components/MentionTextArea";
+import ClickableMentionedUsername from "@/components/ClickableMentionedUsername";
+import ClickableUsername from "@/components/ClickableUsername";
+import { formatDetailedDateTime } from "@/utils/dateUtils";
 
 interface AnswerDetailModalProps {
   open: boolean;
@@ -210,28 +214,25 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return "";
-    const date = new Date(dateString);
-    const kstDate = new Date(date.getTime() + 9 * 60 * 60 * 1000);
-    const options: Intl.DateTimeFormatOptions = {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    };
-    return kstDate.toLocaleDateString("ko-KR", options);
+    return formatDetailedDateTime(dateString);
   };
 
   // 댓글 내용에서 @태그와 "답글" 텍스트에 색상을 적용하는 함수
   const formatAnswerContent = (content: string) => {
     // @태그와 답글 텍스트를 파싱하여 색상을 적용
-    const parts = content.split(/(@\w+|답글)/);
+    const parts = content.split(/(@\w+(?=\s|$|[^\w@])|답글)/);
     return parts.map((part, index) => {
       if (part.startsWith("@")) {
+        const username = part.substring(1); // @ 제거하여 사용자명만 추출
         return (
-          <span key={index} style={{ color: "#fdb924", fontWeight: "600" }}>
-            {part}
-          </span>
+          <ClickableMentionedUsername
+            key={index}
+            username={username}
+            onClick={(event, username) => {
+              // 사용자 프로필 클릭 핸들러
+              console.log("사용자 프로필 클릭:", username);
+            }}
+          />
         );
       } else if (part === "답글") {
         return (
@@ -319,13 +320,32 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
                     }}
                   >
                     <FaUser style={{ marginRight: "0.5rem" }} />
-                    {answer.author?.name || "알 수 없는 사용자"}
+                    <ClickableUsername
+                      username={
+                        answer.authorName || answer.author?.name || "undefined"
+                      }
+                      userId={answer.author?.id || answer.authorId}
+                      onClick={onUserProfileClick}
+                      style={{ color: "#111827" }}
+                    />
+                    {answer.authorUsername && (
+                      <span
+                        style={{
+                          fontSize: 11,
+                          color: "#6b7280",
+                          marginLeft: 1,
+                          fontWeight: 400,
+                        }}
+                      >
+                        ({answer.authorUsername})
+                      </span>
+                    )}
                     <span
                       style={{
-                        fontSize: "0.75rem",
-                        color: "#6b7280",
-                        marginLeft: "0.5rem",
-                        fontWeight: "400",
+                        fontSize: 11,
+                        color: "#b0b0b0",
+                        marginLeft: 6,
+                        fontWeight: 400,
                       }}
                     >
                       {answer.authorIp}
@@ -595,11 +615,11 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
                     댓글 작성
                   </div>
                   <AnswerForm>
-                    <AnswerTextArea
-                      placeholder="댓글을 입력하세요..."
+                    <MentionTextArea
+                      placeholder="댓글을 입력하세요. @를 입력하여 사용자를 언급할 수 있습니다."
                       value={replyText}
-                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                        setReplyText(e.target.value)
+                      onChange={(newContent: string) =>
+                        setReplyText(newContent)
                       }
                       disabled={submittingReply}
                       style={{
@@ -753,12 +773,10 @@ const AnswerDetailModal: React.FC<AnswerDetailModalProps> = ({
               답변 작성
             </h4>
             <AnswerForm>
-              <AnswerTextArea
-                placeholder="답변을 입력하세요..."
+              <MentionTextArea
+                placeholder="답변을 입력하세요. @를 입력하여 사용자를 언급할 수 있습니다."
                 value={answerText}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                  setAnswerText(e.target.value)
-                }
+                onChange={(newContent: string) => setAnswerText(newContent)}
                 disabled={submittingAnswer}
                 style={{
                   border: "1px solid #d1d5db",

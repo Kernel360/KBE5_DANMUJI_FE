@@ -1,6 +1,7 @@
 import api from "@/api/axios";
 import type { AxiosResponse } from "axios";
 import { AxiosError } from "axios";
+import type { User } from "../types/Types";
 
 // API 에러 타입
 export class ApiError extends Error {
@@ -23,7 +24,7 @@ export type ProjectStep = {
   id: number;
   projectId: number;
   userId: number | null;
-  user: any | null;
+  user: User | null;
   name: string;
   stepOrder: number;
   projectStepStatus: string;
@@ -43,6 +44,7 @@ export type AssignUser = {
   id: number;
   name: string;
   positon: string;
+  userType: string;
 };
 
 // 프로젝트 상세 조회용 회사 타입
@@ -60,7 +62,7 @@ export type ProjectDetailStep = {
   projectStepStatus: string;
   projectFeedbackStepStatus: string | null;
   isDeleted: boolean;
-  user: any | null;
+  user: User | null;
 };
 
 // 프로젝트 상세 응답 타입
@@ -70,10 +72,37 @@ export type ProjectDetailResponse = {
   description: string;
   startDate: string;
   endDate: string;
+  projectCost: string;
   projectStatus: string;
+  progress: number;
   clients: ProjectCompany[];
   developers: ProjectCompany[];
   steps: ProjectDetailStep[];
+  myUserType: string;
+  myCompanyType: string;
+  devManagerId?: string;
+  clientManagerId?: string;
+  devUserId?: string;
+  clientUserId?: string;
+};
+
+// 프로젝트 클라이언트 사용자 응답 타입
+export type ProjectClientUserResponse = {
+  id: number;
+  name: string;
+  username: string;
+  companyId: number;
+  companyName: string;
+};
+
+export type ProjectStatusResponse = {
+  id: number;
+  name: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  progress: number;
+  status: string;
 };
 
 // 프로젝트 상세 조회 응답 타입
@@ -85,6 +114,24 @@ export type ApiResponse<T> = {
   code: string;
   message: string;
   data?: T;
+};
+
+// 회사 요약 응답 타입
+export type CompanySummaryResponse = {
+  companyId: number;
+  companyName: string;
+};
+
+// 프로젝트 응답 타입
+export type ProjectResponse = {
+  projectId: number;
+  name: string;
+  startDate: string;
+  endDate: string;
+  projectStatus: string;
+  progress: number;
+  assignClientCompanies: CompanySummaryResponse[];
+  assignDevCompanies: CompanySummaryResponse[];
 };
 
 // 프로젝트 목록 응답 타입
@@ -122,16 +169,30 @@ const handleApiResponse = async <T>(
 // 프로젝트 목록 조회
 export const getProjects = async (
   page: number = 0,
-  size: number = 10
-): Promise<ProjectListResponse> => {
+  size: number = 10,
+  params: {
+    projectStatus?: string;
+    client?: string;
+    startDate?: string;
+    endDate?: string;
+    keyword?: string;
+    sort?: string;
+  } = {}
+): Promise<ApiResponse<{ content: ProjectResponse[]; page: PageMetadata }>> => {
   try {
-    const response = await api.get<ProjectListResponse>("/api/projects", {
+    const response = await api.get<
+      ApiResponse<{ content: ProjectResponse[]; page: PageMetadata }>
+    >("/api/projects", {
       params: {
         page,
         size,
+        ...params,
       },
     });
-    return handleApiResponse<ProjectListResponse["data"]>(response);
+    return handleApiResponse<{
+      content: ProjectResponse[];
+      page: PageMetadata;
+    }>(response);
   } catch (error) {
     if (error instanceof ApiError) throw error;
     if (error instanceof AxiosError) {
@@ -164,5 +225,124 @@ export const getProjectDetail = async (
       );
     }
     throw new ApiError("프로젝트 상세 조회 중 알 수 없는 오류가 발생했습니다.");
+  }
+};
+
+// 프로젝트 검색
+export const searchProjects = async (
+  params: {
+    keyword?: string;
+    category?: string;
+    projectStatus?: string;
+    startDate?: string;
+    endDate?: string;
+    sort?: string;
+    page?: number;
+    size?: number;
+  }
+): Promise<ApiResponse<{ content: ProjectResponse[]; page: PageMetadata }>> => {
+  try {
+    const response = await api.get<
+      ApiResponse<{ content: ProjectResponse[]; page: PageMetadata }>
+    >("/api/projects/search", {
+      params: {
+        ...params,
+      },
+    });
+    return handleApiResponse<{
+      content: ProjectResponse[];
+      page: PageMetadata;
+    }>(response);
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
+    if (error instanceof AxiosError) {
+      throw new ApiError(
+        error.response?.data?.message ||
+          "프로젝트 검색 중 오류가 발생했습니다.",
+        error.response?.status
+      );
+    }
+    throw new ApiError("프로젝트 검색 중 알 수 없는 오류가 발생했습니다.");
+  }
+};
+
+// 프로젝트 상태별 현황 조회
+export const getProjectStatusByStatus = async (
+  status: string
+): Promise<ApiResponse<ProjectStatusResponse[]>> => {
+  try {
+    const response = await api.get<ApiResponse<ProjectStatusResponse[]>>(
+      `/api/projects/status`,
+      {
+        params: { status },
+      }
+    );
+    return handleApiResponse<ProjectStatusResponse[]>(response);
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
+    if (error instanceof AxiosError) {
+      throw new ApiError(
+        error.response?.data?.message ||
+          "프로젝트 상태별 현황 조회 중 오류가 발생했습니다.",
+        error.response?.status
+      );
+    }
+    throw new ApiError(
+      "프로젝트 상태별 현황 조회 중 알 수 없는 오류가 발생했습니다."
+    );
+  }
+};
+
+// 프로젝트 복구 응답 타입
+export type ProjectRestoreResponse = {
+  id: number;
+  name: string;
+  projectStatus: string;
+  message: string;
+};
+
+// 프로젝트 복구
+export const restoreProject = async (
+  projectId: number
+): Promise<ApiResponse<ProjectRestoreResponse>> => {
+  try {
+    const response = await api.put<ApiResponse<ProjectRestoreResponse>>(
+      `/api/projects/${projectId}/restore`
+    );
+    return handleApiResponse<ProjectRestoreResponse>(response);
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
+    if (error instanceof AxiosError) {
+      throw new ApiError(
+        error.response?.data?.message ||
+          "프로젝트 복구 중 오류가 발생했습니다.",
+        error.response?.status
+      );
+    }
+    throw new ApiError("프로젝트 복구 중 알 수 없는 오류가 발생했습니다.");
+  }
+};
+
+// 프로젝트 클라이언트 사용자 조회 (체크리스트 승인자용)
+export const getProjectClientUsers = async (
+  projectId: number
+): Promise<ApiResponse<ProjectClientUserResponse[]>> => {
+  try {
+    const response = await api.get<ApiResponse<ProjectClientUserResponse[]>>(
+      `/api/projects/${projectId}/client-user`
+    );
+    return handleApiResponse<ProjectClientUserResponse[]>(response);
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
+    if (error instanceof AxiosError) {
+      throw new ApiError(
+        error.response?.data?.message ||
+          "프로젝트 클라이언트 사용자 조회 중 오류가 발생했습니다.",
+        error.response?.status
+      );
+    }
+    throw new ApiError(
+      "프로젝트 클라이언트 사용자 조회 중 알 수 없는 오류가 발생했습니다."
+    );
   }
 };

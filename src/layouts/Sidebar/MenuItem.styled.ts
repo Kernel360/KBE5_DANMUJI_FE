@@ -1,19 +1,45 @@
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
-export const MenuItemContainer = styled.div<{ $isActive: boolean }>`
-  padding: 12px 16px;
+export const MenuItemContainer = styled.div<{ $active?: boolean }>`
+  padding: 12px 32px;
   display: flex;
   align-items: center;
   gap: 12px;
   cursor: pointer;
-  color: ${({ $isActive }) => ($isActive ? "#111827" : "#6b7280")};
-  background-color: ${({ $isActive }) =>
-    $isActive ? "#f3f4f6" : "transparent"};
-  border-radius: 6px;
+  color: #888;
+  background: #fff;
+  border-left: 4px solid transparent;
+  border-radius: 0 6px 6px 0;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background 0.2s, color 0.2s, border-left 0.2s;
+
+  ${({ $active }) =>
+    $active &&
+    css`
+      color: #ffb300;
+      background: #fffbe6;
+      border-left: 4px solid #ffb300 !important;
+      font-weight: 600;
+    `}
 
   &:hover {
-    background-color: #f3f4f6;
-    color: #111827;
+    background: #f3f4f6;
+    color: #222;
+  }
+
+  ${({ $active }) =>
+    $active &&
+    css`
+      &:hover {
+        background: #fffbe6;
+        color: #ffb300;
+      }
+    `}
+
+  svg {
+    color: inherit;
+    transition: color 0.2s;
   }
 `;
 
@@ -23,10 +49,10 @@ export const IconWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  /* Add color based on active state if needed */
 `;
 
 export const MenuText = styled.div`
   font-size: 14px;
   font-weight: 500;
+  color: inherit;
 `;

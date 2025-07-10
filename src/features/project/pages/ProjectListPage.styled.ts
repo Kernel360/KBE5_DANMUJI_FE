@@ -37,16 +37,10 @@ export const Description = styled.div`
 
 export const CardGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(4, minmax(220px, 1fr));
-  gap: 16px;
-  margin-bottom: 32px;
-
-  @media (max-width: 900px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  @media (max-width: 600px) {
-    grid-template-columns: 1fr;
-  }
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+  min-height: 470px; /* 2 rows of cards height */
+  align-content: start; /* Prevent items from stretching vertically */
 `;
 
 export const PaginationContainer = styled.div`

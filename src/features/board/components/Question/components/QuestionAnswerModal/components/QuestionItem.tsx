@@ -21,6 +21,7 @@ import {
 } from "@/features/project-d/services/questionService";
 import type { Question } from "@/features/project-d/types/question";
 import { useAuth } from "@/hooks/useAuth";
+import ClickableUsername from "@/components/ClickableUsername";
 
 interface QuestionItemProps {
   question: Question;
@@ -170,8 +171,7 @@ const QuestionItem: React.FC<QuestionItemProps> = ({
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    const kstDate = new Date(date.getTime() + 9 * 60 * 60 * 1000);
-    return kstDate.toLocaleDateString("ko-KR", {
+    return date.toLocaleDateString("ko-KR", {
       year: "numeric",
       month: "2-digit",
       day: "2-digit",
@@ -185,7 +185,26 @@ const QuestionItem: React.FC<QuestionItemProps> = ({
       <QuestionHeader>
         <div>
           <QuestionAuthor>
-            {question.author?.name}
+            <ClickableUsername
+              username={
+                question.authorName || question.author?.name || "undefined"
+              }
+              userId={question.author?.id || question.authorId}
+              onClick={() => {}} // 질문에서는 프로필 클릭 기능 없음
+              style={{ color: "#111827" }}
+            />
+            {question.authorUsername && (
+              <span
+                style={{
+                  fontSize: 11,
+                  color: "#6b7280",
+                  marginLeft: 1,
+                  fontWeight: 400,
+                }}
+              >
+                ({question.authorUsername})
+              </span>
+            )}
             <span
               style={{
                 fontSize: 11,

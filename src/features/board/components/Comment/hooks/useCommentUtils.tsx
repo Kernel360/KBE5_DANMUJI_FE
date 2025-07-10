@@ -1,28 +1,55 @@
 import React from "react";
+import styled from "styled-components";
 import type { Comment } from "@/features/project-d/types/post";
+import ClickableMentionedUsername from "@/components/ClickableMentionedUsername";
+import { formatFullDateTime } from "@/utils/dateUtils";
+
+const MentionSpan = styled.span`
+  color: #fdb924;
+  font-weight: 500;
+`;
 
 // 날짜 포맷팅 함수
 export const formatCommentDate = (dateString: string) => {
-  const options: Intl.DateTimeFormatOptions = {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  };
-  return new Date(dateString).toLocaleDateString("ko-KR", options);
+  return formatFullDateTime(dateString);
 };
 
 // 댓글 내용에서 @태그와 "답글" 텍스트에 색상을 적용하는 함수
-export const formatCommentContent = (content: string): React.ReactNode[] => {
-  const parts = content.split(/(@\w+|답글)/);
+export const formatCommentContent = (
+  content: string,
+  allProjectUsers: string[] = [],
+  completedMentions: string[] = [],
+  onUsernameClick?: (
+    event: React.MouseEvent,
+    username: string,
+    userId?: number
+  ) => void
+): React.ReactNode[] => {
+  const parts = content.split(/(@\w+(?=\s|$|[^\w@])|답글)/);
   return parts.map((part, index) => {
     if (part.startsWith("@")) {
-      return (
-        <span key={index} style={{ color: "#fdb924", fontWeight: "600" }}>
-          {part}
-        </span>
-      );
+      const username = part.substring(1); // @ 제거하여 사용자명만 추출
+
+      // 실제 존재하는 유저이고 완료된 멘션인지 확인
+      const isExistingUser = allProjectUsers.includes(username);
+      const isCompletedMention = completedMentions.includes(username);
+
+      if (isExistingUser && isCompletedMention) {
+        if (onUsernameClick) {
+          return (
+            <ClickableMentionedUsername
+              key={index}
+              username={username}
+              onClick={onUsernameClick}
+            />
+          );
+        } else {
+          return <MentionSpan key={index}>{part}</MentionSpan>;
+        }
+      } else {
+        // 존재하지 않는 유저이거나 완료되지 않은 멘션은 일반 텍스트로 표시
+        return <span key={index}>{part}</span>;
+      }
     } else if (part === "답글") {
       return (
         <span key={index} style={{ color: "#9ca3af", fontSize: "0.75rem" }}>

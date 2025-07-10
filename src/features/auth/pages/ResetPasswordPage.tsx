@@ -15,8 +15,12 @@ import {
 } from "../components/UserPage.styled";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import api from "@/api/axios";
-import { AxiosError } from "axios";
 import { CheckCircle, Circle } from "lucide-react";
+import {
+  showErrorToast,
+  showSuccessToast,
+  withErrorHandling,
+} from "@/utils/errorHandler";
 
 export default function ForgotPasswordPage() {
   const [searchParams] = useSearchParams();
@@ -54,6 +58,7 @@ export default function ForgotPasswordPage() {
     if (value.length < 8) return "8자 이상 입력해주세요.";
     if (!/[A-Z]/.test(value)) return "대문자를 포함해야 합니다.";
     if (!/[0-9]/.test(value)) return "숫자를 포함해야 합니다.";
+    if (!/[@$!%*#?&]/.test(value)) return "특수문자를 포함해야 합니다.";
     return "";
   };
 
@@ -63,29 +68,27 @@ export default function ForgotPasswordPage() {
     const mismatch = newPassword !== newPasswordConfirm;
 
     if (passwordError || mismatch) {
-      if (passwordError) setPasswordError(passwordError);
-      if (mismatch) setPasswordMismatch(true);
-      alert(passwordError || "비밀번호가 일치하지 않습니다.");
+      if (passwordError) {
+        showErrorToast(passwordError);
+        setPasswordError(passwordError);
+      }
+      if (mismatch) {
+        showErrorToast("비밀번호가 일치하지 않습니다.");
+        setPasswordMismatch(true);
+      }
       return;
     }
 
-    try {
+    const result = await withErrorHandling(async () => {
       await api.post("/api/users/password/reset-mail/confirm", {
         token,
         newPassword,
       });
 
-      setSubmitted(true); 
-    } catch (error: unknown) {
-      const axiosError = error as AxiosError<{ code: string; message: string }>;
-      const code = axiosError.response?.data?.code;
-      const message = axiosError.response?.data?.message;
-      if (code === "U004") {
-        alert(message || "인증에 실패했습니다.");
-      } else {
-        alert("비밀번호 재설정에 실패했습니다. 다시 시도해주세요.");
-      }
-    }
+      setSubmitted(true);
+      showSuccessToast("비밀번호가 성공적으로 재설정되었습니다.");
+      return null;
+    }, "비밀번호 재설정에 실패했습니다.");
   };
 
   return (
@@ -188,6 +191,10 @@ const PasswordRequirements = ({ password }: { password: string }) => {
     {
       label: "최소 1자의 숫자 사용",
       valid: /[0-9]/.test(password),
+    },
+    {
+      label: "최소 1자의 특수문자(@$!%*#?&) 사용",
+      valid: /[@$!%*#?&]/.test(password),
     },
   ];
 

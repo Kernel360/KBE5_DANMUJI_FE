@@ -24,6 +24,9 @@ export type Question = {
   id: number;
   postId: number;
   authorIp: string;
+  authorId?: number;
+  authorName?: string;
+  authorUsername?: string;
   author: Author;
   content: string;
   status: QuestionStatus;
@@ -35,18 +38,20 @@ export type Question = {
 
 // 답변 타입
 export type Answer = {
-  deletedAt: any;
-  deletedAt: boolean;
   id: number;
   questionId: number;
   parentId?: number | null; // 부모 답변 ID (댓글 기능을 위해 추가)
   authorIp: string;
+  authorId?: number;
+  authorName?: string;
+  authorUsername?: string;
   author: Author;
   content: string;
   status: AnswerStatus;
   isBestAnswer: boolean;
   createdAt: string;
   updatedAt: string;
+  deletedAt: string | null;
 };
 
 // 질문 생성 요청 데이터 타입

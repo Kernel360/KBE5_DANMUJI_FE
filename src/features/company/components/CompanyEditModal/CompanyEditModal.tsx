@@ -10,9 +10,12 @@ import {
   FiHash,
   FiFileText,
   FiEdit3,
+  FiSearch,
 } from "react-icons/fi";
 import type { CompanyFormData } from "../../pages/CompanyPage";
 import type { Company } from "../../pages/CompanyPage";
+import axios from "axios";
+import type { ErrorResponse } from "react-router-dom";
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -197,11 +200,105 @@ const SubmitButton = styled.button`
   }
 `;
 
+interface FieldError {
+  field: string;
+  value: string;
+  reason: string;
+}
+
 interface Props {
   open: boolean;
   onClose: () => void;
-  onSave: (data: CompanyFormData) => void;
+  onSave: (data: CompanyFormData) => Promise<void>;
   initialData: Company | null;
+  fieldErrors: FieldError[];
+  setFieldErrors: React.Dispatch<React.SetStateAction<FieldError[]>>;
+}
+
+// PostcodeRow, PostcodeButton styled-components 정의
+const PostcodeRow = styled.div`
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: space-between;
+`;
+const PostcodeButton = styled.button`
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 7px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+  &:hover {
+    background: #e0e7ef;
+  }
+  svg {
+    margin-right: 2px;
+    font-size: 14px;
+    vertical-align: middle;
+  }
+`;
+const ZonecodeInput = styled(Input)`
+  width: 120px;
+  margin-bottom: 3px;
+`;
+const AddressInput = styled(Input)`
+  margin-bottom: 3px;
+`;
+
+// 카카오 우편번호 API 타입 선언
+interface DaumPostcodeData {
+  zonecode: string;
+  roadAddress: string;
+  jibunAddress: string;
+}
+
+// window.daum 타입 선언 (최상단에 추가)
+declare global {
+  interface Window {
+    daum: any;
+  }
+}
+
+// 전화번호 자동 하이픈 함수
+function formatPhoneNumber(value: string): string {
+  const cleaned = value.replace(/\D/g, "");
+  // 1588-1588, 1544-1234 등 8자리 대표번호
+  if (/^1[0-9]{3}[0-9]{4}$/.test(cleaned)) {
+    return cleaned.replace(/(\d{4})(\d{4})/, '$1-$2');
+  }
+  // 02-xxxx-xxxx (서울 2자리 지역번호)
+  if (/^02\d{8}$/.test(cleaned)) {
+    return cleaned.replace(/(02)(\d{4})(\d{4})/, '$1-$2-$3');
+  }
+  // 02-xxx-xxxx (서울 2자리 지역번호, 7자리)
+  if (/^02\d{7}$/.test(cleaned)) {
+    return cleaned.replace(/(02)(\d{3})(\d{4})/, '$1-$2-$3');
+  }
+  // 0xx-xxx-xxxx (3자리 지역번호)
+  if (/^0\d{2}\d{3}\d{4}$/.test(cleaned)) {
+    return cleaned.replace(/(0\d{2})(\d{3})(\d{4})/, '$1-$2-$3');
+  }
+  // 0xx-xxxx-xxxx (3자리 지역번호, 11자리)
+  if (/^0\d{2}\d{4}\d{4}$/.test(cleaned)) {
+    return cleaned.replace(/(0\d{2})(\d{4})(\d{4})/, '$1-$2-$3');
+  }
+  // 010-xxxx-xxxx (휴대폰)
+  if (/^01[016789]\d{7,8}$/.test(cleaned)) {
+    if (cleaned.length === 11) {
+      return cleaned.replace(/(01[016789])(\d{4})(\d{4})/, '$1-$2-$3');
+    } else {
+      return cleaned.replace(/(01[016789])(\d{3})(\d{4})/, '$1-$2-$3');
+    }
+  }
+  // fallback: 그냥 숫자만
+  return cleaned;
 }
 
 export default function CompanyEditModal({
@@ -209,6 +306,8 @@ export default function CompanyEditModal({
   onClose,
   onSave,
   initialData,
+  fieldErrors,
+  setFieldErrors,
 }: Props) {
   const reg1Ref = useRef<HTMLInputElement>(null);
   const reg2Ref = useRef<HTMLInputElement>(null);
@@ -219,6 +318,9 @@ export default function CompanyEditModal({
     reg1: "",
     reg2: "",
     reg3: "",
+    zonecode: "",
+    baseAddress: "",
+    detailAddress: "",
     address: "",
     ceoName: "",
     email: "",
@@ -228,30 +330,39 @@ export default function CompanyEditModal({
   const [reg1, setReg1] = useState("");
   const [reg2, setReg2] = useState("");
   const [reg3, setReg3] = useState("");
+  // 1. telMaxLength 상태 및 관련 setTelMaxLength 로직 제거
+
+  const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (open && initialData) {
-      const mappedData: CompanyFormData = {
+      const [base, detail] = (initialData.address || '').split(',').map(s => s.trim());
+      setFormData({
         name: initialData.name,
         reg1: String(initialData.bizNo).padStart(10, "0").slice(0, 3),
         reg2: String(initialData.bizNo).padStart(10, "0").slice(3, 5),
         reg3: String(initialData.bizNo).padStart(10, "0").slice(5),
-        address: initialData.address,
+        zonecode: initialData.zonecode || '',
+        baseAddress: base || '',
+        detailAddress: detail || '',
+        address: initialData.address || '',
         ceoName: initialData.ceoName,
         email: initialData.email,
         bio: initialData.bio,
-        tel: initialData.tel,
-      };
-      setFormData(mappedData);
-      setReg1(mappedData.reg1);
-      setReg2(mappedData.reg2);
-      setReg3(mappedData.reg3);
+        tel: formatPhoneNumber(initialData.tel || ""),
+      });
+      setReg1(String(initialData.bizNo).padStart(10, "0").slice(0, 3));
+      setReg2(String(initialData.bizNo).padStart(10, "0").slice(3, 5));
+      setReg3(String(initialData.bizNo).padStart(10, "0").slice(5));
     } else if (!open) {
       setFormData({
         name: "",
         reg1: "",
         reg2: "",
         reg3: "",
+        zonecode: "",
+        baseAddress: "",
+        detailAddress: "",
         address: "",
         ceoName: "",
         email: "",
@@ -261,8 +372,33 @@ export default function CompanyEditModal({
       setReg1("");
       setReg2("");
       setReg3("");
+      setFieldErrors([]);
     }
-  }, [open, initialData]);
+  }, [open, initialData, setFieldErrors]);
+
+  // 카카오 우편번호 API 스크립트 로딩 useEffect
+  useEffect(() => {
+    if (document.getElementById("daum-postcode-script")) return;
+    const script = document.createElement("script");
+    script.src = "//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
+    script.id = "daum-postcode-script";
+    document.body.appendChild(script);
+  }, []);
+
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        const modals = document.querySelectorAll('.custom-modal-class');
+        if (modals.length && modals[modals.length - 1] === modalRef.current) {
+          onClose();
+        }
+      }
+    };
+    window.addEventListener("keydown", handleEsc);
+    return () => {
+      window.removeEventListener("keydown", handleEsc);
+    };
+  }, [onClose]);
 
   if (!open) return null;
 
@@ -280,47 +416,153 @@ export default function CompanyEditModal({
     }
   };
 
+  // 2. handleChange에서 tel 관련 maxLength 동적 변경 로직 제거
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
+    if (name === "tel") {
+      setFormData((prev) => ({ ...prev, tel: formatPhoneNumber(value) }));
+      return;
+    }
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const bizNo = `${reg1}${reg2}${reg3}`;
+    const cleanedTel = formData.tel.replace(/\D/g, "");
+    const address = [formData.baseAddress, formData.detailAddress].filter(Boolean).join(', ');
     const finalData: CompanyFormData = {
       ...formData,
-      reg1: reg1,
-      reg2: reg2,
-      reg3: reg3,
+      reg1,
+      reg2,
+      reg3,
+      tel: cleanedTel,
+      address,
     };
-    onSave(finalData);
+    // 프론트 유효성 검사
+    const newFieldErrors: FieldError[] = [];
+
+    if (!formData.name.trim()) {
+      newFieldErrors.push({
+        field: "name",
+        value: formData.name,
+        reason: "업체명은 필수입니다.",
+      });
+    }
+    if (!formData.ceoName?.trim()) {
+      newFieldErrors.push({
+        field: "ceoName",
+        value: formData.ceoName,
+        reason: "대표자명은 필수입니다.",
+      });
+    }
+    if (!formData.bio.trim()) {
+      newFieldErrors.push({
+        field: "bio",
+        value: formData.bio,
+        reason: "업체 소개는 필수입니다.",
+      });
+    }
+    if (
+      !/^\d{3}$/.test(reg1) ||
+      !/^\d{2}$/.test(reg2) ||
+      !/^\d{5}$/.test(reg3)
+    ) {
+      newFieldErrors.push({
+        field: "bizNo",
+        value: bizNo,
+        reason: "사업자등록번호 형식이 올바르지 않습니다.",
+      });
+    }
+    if (!formData.zonecode?.trim()) {
+      newFieldErrors.push({
+        field: "zonecode",
+        value: formData.zonecode,
+        reason: "우편번호는 필수입니다.",
+      });
+    }
+    if (!formData.address?.trim()) {
+      newFieldErrors.push({
+        field: "address",
+        value: formData.address,
+        reason: "주소는 필수입니다.",
+      });
+    }
+    if (
+      !formData.email?.trim() ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)
+    ) {
+      newFieldErrors.push({
+        field: "email",
+        value: formData.email,
+        reason: "올바른 이메일 형식이 아닙니다.",
+      });
+    }
+    // 전화번호 유효성 검사: 010-0000-0000, 02-000-0000, 02-0000-0000, 1588-1588 등 다양한 패턴 허용
+    const phonePattern = /^(01[016789]-\d{3,4}-\d{4}|0\d{1,2}-\d{3,4}-\d{4}|1\d{3}-\d{4})$/;
+    if (!phonePattern.test(formData.tel)) {
+      newFieldErrors.push({
+        field: "tel",
+        value: formData.tel,
+        reason: "전화번호 형식이 올바르지 않습니다. 예: 010-1234-5678, 02-123-4567, 1588-1588 등",
+      });
+    }
+
+    if (newFieldErrors.length > 0) {
+      setFieldErrors(newFieldErrors);
+      return;
+    }
+
+    try {
+      await onSave(finalData);
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        const errorData = err.response?.data as ErrorResponse | undefined;
+        if (errorData?.data?.errors) {
+          setFieldErrors(errorData.data.errors);
+          return;
+        }
+      }
+      throw err;
+    }
+  };
+
+  const handleOpenPostcode = () => {
+    new (window as any).daum.Postcode({
+      oncomplete: (data: DaumPostcodeData) => {
+        setFormData(prev => ({
+          ...prev,
+          zonecode: data.zonecode,
+          baseAddress: data.roadAddress || data.jibunAddress
+        }));
+      },
+    }).open();
   };
 
   return (
-    <ModalOverlay>
+    <ModalOverlay ref={modalRef} className="custom-modal-class">
       <ModalContent>
         <CloseButton onClick={onClose}>
           <FiX size={18} />
         </CloseButton>
         <Title>
           <FiEdit3 size={20} />
-          회사 정보 수정
+          업체 정보 수정
         </Title>
         <Form onSubmit={handleSubmit}>
           <FormGroup>
             <Label>
               <FiHome size={14} />
-              회사명
+              업체명
             </Label>
-            <Input
-              name="name"
-              required
-              placeholder="회사명을 입력하세요"
-              value={formData.name || ""}
-              onChange={handleChange}
-            />
+            <Input name="name" required placeholder="업체명을 입력하세요" value={formData.name || ""} onChange={handleChange} maxLength={50} />
+            {fieldErrors.find((e) => e.field === "name") && (
+              <p style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>
+                {fieldErrors.find((e) => e.field === "name")?.reason}
+              </p>
+            )}
           </FormGroup>
           <FormGroup>
             <Label>
@@ -355,19 +597,31 @@ export default function CompanyEditModal({
                 onInput={(e) => handleRegInput(e, 5, setReg3)}
               />
             </RegNumberRow>
+            {fieldErrors.find((e) => e.field === "bizNo") && (
+              <p style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>
+                {fieldErrors.find((e) => e.field === "bizNo")?.reason}
+              </p>
+            )}
           </FormGroup>
           <FormGroup>
             <Label>
               <FiMapPin size={14} />
               주소
             </Label>
-            <Input
-              name="address"
-              required
-              placeholder="주소를 입력하세요"
-              value={formData.address || ""}
-              onChange={handleChange}
-            />
+            <PostcodeRow>
+              <ZonecodeInput name="zonecode" placeholder="우편번호" required value={formData.zonecode} readOnly onChange={handleChange} />
+              <PostcodeButton type="button" onClick={handleOpenPostcode}>
+                <FiSearch size={14} />
+                우편번호 찾기
+              </PostcodeButton>
+            </PostcodeRow>
+            <AddressInput name="baseAddress" placeholder="기본주소" value={formData.baseAddress} readOnly onChange={handleChange} />
+            <AddressInput name="detailAddress" placeholder="상세주소" value={formData.detailAddress} onChange={handleChange} maxLength={50} />
+            {fieldErrors.find((e) => e.field === "address") && (
+              <p style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>
+                {fieldErrors.find((e) => e.field === "address")?.reason}
+              </p>
+            )}
           </FormGroup>
           <FormGroup>
             <Label>
@@ -380,6 +634,7 @@ export default function CompanyEditModal({
               placeholder="대표자명을 입력하세요"
               value={formData.ceoName || ""}
               onChange={handleChange}
+              maxLength={50}
             />
           </FormGroup>
           <FormGroup>
@@ -394,11 +649,12 @@ export default function CompanyEditModal({
               placeholder="이메일을 입력하세요"
               value={formData.email || ""}
               onChange={handleChange}
+              maxLength={50}
             />
           </FormGroup>
           <FormGroup>
             <Label>
-              <FiPhone size={14} />
+              <FiPhone size={14} style={{ color: "#10b981" }} />
               전화번호
             </Label>
             <Input
@@ -408,12 +664,13 @@ export default function CompanyEditModal({
               placeholder="전화번호를 입력하세요"
               value={formData.tel || ""}
               onChange={handleChange}
+              maxLength={13}
             />
           </FormGroup>
           <FormGroup>
             <Label>
               <FiFileText size={14} />
-              회사소개
+              업체소개
             </Label>
             <TextArea
               name="bio"
@@ -421,6 +678,7 @@ export default function CompanyEditModal({
               placeholder="간단한 설명을 입력하세요"
               value={formData.bio || ""}
               onChange={handleChange}
+              maxLength={255}
             />
           </FormGroup>
           <SubmitButton type="submit">

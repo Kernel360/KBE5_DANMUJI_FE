@@ -53,7 +53,7 @@ export const ModalPanel = styled.div<{
 `;
 
 export const ModalHeader = styled.div`
-  padding: 1rem;
+  padding: 1rem 1rem 0.7rem 1rem;
   border-bottom: 1px solid #e5e7eb;
   display: flex;
   justify-content: space-between;
@@ -338,14 +338,13 @@ export const CommentActionButton = styled.button`
   color: #6b7280;
   font-size: 0.75rem;
   cursor: pointer;
-  padding: 0.15rem 0.4rem;
+  padding: 0.1rem 0.1rem;
   border-radius: 0.25rem;
   transition: all 0.2s;
-  width: 55px;
+  width: 35px;
 
   &:hover {
-    background-color: #f3f4f6;
-    color: #374151;
+    color: #fdb924;
   }
 `;
 
@@ -424,11 +423,33 @@ export const CommentSubmitButton = styled.button`
 
 export const LoadingSpinner = styled.div`
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 200px;
   font-size: 1.125rem;
   color: #6b7280;
+  gap: 1rem;
+
+  &::before {
+    content: "";
+    width: 32px;
+    height: 32px;
+    background-image: url("/favicon.ico");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
 `;
 
 export const ErrorMessage = styled.div`
@@ -446,15 +467,16 @@ export const ModalHeaderActionButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 3px;
   background: none;
   color: #888;
   border: none;
   border-radius: 5px;
-  padding: 0 10px;
+  padding: 0 8px;
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
-  height: 28px;
+  height: 32px;
   min-width: 0;
   box-shadow: none;
   white-space: nowrap;

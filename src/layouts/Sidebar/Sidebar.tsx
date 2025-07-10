@@ -1,8 +1,7 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { UserProfile } from "../Header/UserProfile";
+import { UserProfile } from "@/layouts/Header/profile/UserProfile";
 import { MenuItem } from "./MenuItem";
-import { MenuItemSide } from "./MenuItemSide";
 
 import {
   SidebarContainer,
@@ -14,14 +13,12 @@ import {
 import styled from "styled-components";
 
 // Import necessary icons from react-icons
-import { MdDashboard } from "react-icons/md";
 import { HiBuildingOffice2 } from "react-icons/hi2";
 import { HiUsers } from "react-icons/hi2";
-import { MdReport } from "react-icons/md";
-import { FaPlay } from "react-icons/fa";
-import { FaAlignLeft } from "react-icons/fa";
 import { FaArchive } from "react-icons/fa";
 import { FiHelpCircle } from "react-icons/fi";
+import { FaHistory } from "react-icons/fa";
+import { IoHome } from "react-icons/io5";
 
 import { useAuth } from "@/hooks/useAuth";
 
@@ -48,13 +45,13 @@ export const Sidebar: React.FC = () => {
         <LogoImage src="/danmuji_logo.png" alt="Danmuji Logo" />
       </LogoArea>
       <Divider />
-      <ProfileArea>
+      <ProfileArea onClick={() => handleMenuItemClick("프로필", "/my")}>
         <UserProfile />
       </ProfileArea>
       <Divider />
       <MainMenu>
         <MenuItem
-          icon={MdDashboard}
+          icon={IoHome}
           text="대시보드"
           isActive={location.pathname === "/dashboard"}
           onClick={() => handleMenuItemClick("대시보드", "/dashboard")}
@@ -69,9 +66,9 @@ export const Sidebar: React.FC = () => {
           <>
             <MenuItem
               icon={HiBuildingOffice2}
-              text="회사 관리"
-              isActive={location.pathname === "/company"}
-              onClick={() => handleMenuItemClick("회사 관리", "/company")}
+              text="업체 관리"
+              isActive={location.pathname.startsWith("/company")}
+              onClick={() => handleMenuItemClick("업체 관리", "/company")}
             />
             <MenuItem
               icon={HiUsers}
@@ -80,19 +77,25 @@ export const Sidebar: React.FC = () => {
               onClick={() => handleMenuItemClick("회원 관리", "/members")}
             />
             <MenuItem
+              icon={FaHistory}
+              text="이력 관리"
+              isActive={location.pathname === "/activity-log"}
+              onClick={() => handleMenuItemClick("이력 관리", "/activity-log")}
+            />
+            <MenuItem
               icon={FiHelpCircle}
-              text="문의 목록"
-              isActive={location.pathname === "/contact-admin"}
-              onClick={() => handleMenuItemClick("문의 목록", "/contact-admin")}
+              text="문의사항 관리"
+              isActive={location.pathname.startsWith("/inquiry")}
+              onClick={() => handleMenuItemClick("문의사항 관리", "/inquiry")}
             />
           </>
         ) : (
           <MenuItem
             icon={FiHelpCircle}
             text="관리자에게 문의하기"
-            isActive={location.pathname === "/contact-admin"}
+            isActive={location.pathname.startsWith("/my-inquiry") || location.pathname.startsWith("/inquiry/")}
             onClick={() =>
-              handleMenuItemClick("관리자에게 문의하기", "/contact-admin")
+              handleMenuItemClick("관리자에게 문의하기", "/my-inquiry")
             }
           />
         )}

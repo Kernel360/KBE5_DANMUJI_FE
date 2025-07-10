@@ -8,8 +8,7 @@ export enum PostStatus {
 // 게시글 유형 enum
 export enum PostType {
   GENERAL = "GENERAL",
-  NOTICE = "NOTICE",
-  REPORT = "REPORT",
+  QUESTION = "QUESTION",
 }
 
 // 우선순위 enum
@@ -24,6 +23,7 @@ export enum PostPriority {
 export type Author = {
   id: number;
   name: string;
+  username?: string;
   email?: string;
   role?: string;
 };
@@ -50,6 +50,8 @@ export type Comment = {
   authorIp: string;
   authorId?: number;
   authorName?: string;
+  authorUsername?: string;
+  role?: string;
   author?: Author;
   content: string;
   createdAt: string;
@@ -67,6 +69,7 @@ export type PostCreateData = {
   priority: PostPriority;
   stepId: number;
   parentId?: number | null;
+  newLinks?: string[];
 };
 
 // 게시글 타입 (기존 Post와 PostDetail 통합)
@@ -77,6 +80,8 @@ export type Post = {
   projectStepId: number;
   authorIp: string;
   authorId: number;
+  authorName?: string;
+  authorUsername?: string;
   author: Author;
   approver?: Author;
   project?: Project;
@@ -95,6 +100,7 @@ export type Post = {
   isDeleted?: boolean;
   delete?: boolean;
   files?: PostFile[];
+  links?: PostLink[];
 };
 
 // API 응답 타입
@@ -146,8 +152,10 @@ export type PostUpdateRequest = {
   type?: PostType;
   status?: PostStatus;
   priority?: PostPriority;
-  stepId?: number;
+  stepId: number;
   fileIdsToDelete?: number[];
+  linkIdsToDelete?: number[];
+  newLinks?: string[];
 };
 
 // 게시글 검색 요청 데이터 타입
@@ -164,45 +172,55 @@ export type PostSearchRequest = {
   endDate?: string;
 };
 
+// ContentType enum (백엔드와 동일하게 정의)
+export enum ContentType {
+  POST = "POST",
+  CHECKLIST = "CHECKLIST",
+  ANSWER = "ANSWER",
+}
+
+// ContentType 설명 매핑
+export const CONTENT_TYPE_DESCRIPTIONS: Record<ContentType, string> = {
+  [ContentType.POST]: "게시글",
+  [ContentType.CHECKLIST]: "체크리스트",
+  [ContentType.ANSWER]: "답변",
+};
+
 export interface PostFile {
   id: number;
-  postId: number;
+  contentType: ContentType;
+  referenceId: number;
   fileName: string;
   fileUrl: string;
   fileType: string;
   fileSize: string;
 }
 
-export interface PostDetailReadResponse {
+export interface PostLink {
+  id: number;
   postId: number;
-  parentId: number | null;
-  projectId: number;
-  projectStepId: number;
-  authorIp: string;
-  authorId: number;
-  authorName: string;
-  title: string;
-  content: string;
-  type: string;
-  priority: string;
-  createdAt: string;
-  updatedAt: string;
-  files: PostFile[];
-  delete: boolean;
+  url: string;
 }
 
-export interface PostSummaryReadResponse {
-  postId: number;
+export interface PostDetailReadResponse {
+  postId: number | null;
   parentId: number | null;
-  projectId: number;
-  projectStepId: number;
-  authorId: number;
+  projectId: number | null;
+  projectStepId: number | null;
+  authorIp: string | null;
+  authorId: number | null;
   authorName: string;
+  authorUsername?: string;
   title: string;
-  type: string;
-  priority: string;
+  content: string | null;
+  type: PostType;
+  priority: PostPriority;
   createdAt: string;
-  comments?: Comment[];
+  updatedAt: string | null;
+  files: PostFile[] | null;
+  delete: boolean;
+  links?: PostLink[];
+  commentCount?: number;
 }
 
 export interface PageInfo {
@@ -215,4 +233,19 @@ export interface PageInfo {
 export interface PageResponse<T> {
   content: T[];
   page: PageInfo;
+}
+
+export interface PostSummaryReadResponse {
+  postId: number;
+  parentId: number | null;
+  projectId: number;
+  projectStepId: number;
+  authorId: number;
+  authorName: string;
+  authorUsername: string;
+  title: string;
+  type: PostType;
+  priority: PostPriority;
+  createdAt: string;
+  commentCount: number;
 }

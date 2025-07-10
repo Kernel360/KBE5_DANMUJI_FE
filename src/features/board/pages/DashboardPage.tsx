@@ -23,7 +23,6 @@ import {
   PaginationNav,
   PaginationButton,
 } from "./DashboardPage.styled";
-import { AiOutlineSearch } from "react-icons/ai";
 import { useState } from "react";
 
 interface Project {
@@ -35,6 +34,16 @@ interface Project {
   startDate: string;
   endDate: string;
   progress: number;
+}
+
+// 포스트 타입 정의
+interface Post {
+  id: number;
+  title: string;
+  content: string;
+  author: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // Mock Data (추후 API 연동 필요)
@@ -98,12 +107,12 @@ export default function DashboardPage() {
     setCurrentPage(pageNumber);
   };
 
-  const handleEdit = (post: any) => {
+  const handleEdit = (post: Post) => {
     // TODO: Implement edit functionality
     console.log("Edit:", post);
   };
 
-  const handleDelete = (post: any) => {
+  const handleDelete = (post: Post) => {
     // TODO: Implement delete functionality
     console.log("Delete:", post);
   };

@@ -231,26 +231,27 @@ export const PaginationNav = styled.nav`
 `;
 
 export const PaginationButton = styled.button<{ $active?: boolean }>`
-  padding: 0.32rem 0.7rem;
+  padding: 0.32rem 0.6rem;
   border: none;
-  background: ${({ $active }) => ($active ? "#fdb924" : "#f9fafb")};
-  color: ${({ $active }) => ($active ? "#fff" : "#374151")};
+  background: transparent;
+  color: ${({ $active }) => ($active ? "#fff" : "#111827")};
   border-radius: 1.2rem;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   font-weight: 500;
   box-shadow: none;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
   outline: none;
-  &:hover:not(:disabled) {
-    background: #fbbf24;
-    color: #fff;
-  }
-  &:disabled {
-    background: #f3f4f6;
-    color: #9ca3af;
-    cursor: not-allowed;
-  }
+  min-width: 28px;
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  ${({ $active }) =>
+    $active &&
+    `
+      background: #fdb924;
+      color: #fff;
+    `}
 `;
 
 export const VoteCount = styled.span`
@@ -260,11 +261,33 @@ export const VoteCount = styled.span`
 
 export const LoadingSpinner = styled.div`
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 200px;
   font-size: 1.125rem;
   color: #6b7280;
+  gap: 1rem;
+
+  &::before {
+    content: "";
+    width: 32px;
+    height: 32px;
+    background-image: url("/favicon.ico");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
 `;
 
 export const ErrorMessage = styled.div`

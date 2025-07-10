@@ -1,17 +1,28 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "@/api/axios";
 import { type Member, formatTelNo } from "../pages/MemberPage";
-import MemberEditModal from '../components/MemberEditModal/MemberEditModal';
-import { type MemberFormData } from '../pages/MemberPage';
+import MemberEditModal from "../components/MemberEditModal/MemberEditModal";
+import { showErrorToast, showSuccessToast } from "@/utils/errorHandler";
+import { FiUser, FiMail, FiPhone, FiBriefcase, FiTag } from "react-icons/fi";
 
 interface Company {
   id: number;
   name: string;
 }
 
-// 전체 페이지 컨테이너
+interface MemberUpdateFormData {
+  username: string;
+  name: string;
+  role: string;
+  companyId?: number;
+  position: string;
+  phone: string;
+  email: string;
+}
+
+// 스타일 컴포넌트들 (CompanyDetailPage와 유사하게)
 const PageContainer = styled.div`
   padding: 32px;
   background-color: #f9fafb;
@@ -21,24 +32,36 @@ const PageContainer = styled.div`
   gap: 20px;
 `;
 
-// 메인 헤더 섹션 (회원 정보 타이틀 및 서브타이틀)
 const PageHeaderSection = styled.div`
-  margin-bottom: 20px;
+  margin-bottom: 0px;
 `;
 
 const PageTitle = styled.h1`
-  font-size: 24px;
+  font-size: 1.4rem;
   font-weight: 700;
   color: #1f2937;
   margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+
+  &::before {
+    content: "";
+    display: inline-block;
+    width: 4px;
+    height: 1.4rem;
+    background-color: #fdb924;
+    margin-right: 12px;
+    border-radius: 2px;
+  }
 `;
 
 const PageSubtitle = styled.p`
-  color: #6b7280;
-  font-size: 14px;
+  color: #bdbdbd;
+  font-size: 0.9rem;
+  margin-top: 6.6px;
+  margin-bottom: 18px;
 `;
 
-// 메인 콘텐츠 영역 (하얀색 카드)
 const MainContentArea = styled.div`
   background-color: white;
   padding: 32px;
@@ -47,7 +70,6 @@ const MainContentArea = styled.div`
   flex-grow: 1;
 `;
 
-// 프로필 헤더 (사용자 프로필 타이틀 및 버튼)
 const ProfileHeader = styled.div`
   display: flex;
   justify-content: space-between;
@@ -66,7 +88,7 @@ const ProfileTitle = styled.h2`
 const ButtonGroup = styled.div`
   display: flex;
   gap: 8px;
-  align-items: center; /* 버튼 그룹 내 요소들을 수직 중앙 정렬 */
+  align-items: center;
 `;
 
 const ActionButton = styled.button`
@@ -76,7 +98,7 @@ const ActionButton = styled.button`
   font-weight: 600;
   border: none;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s ease;
 `;
 
 const DeleteButton = styled(ActionButton)`
@@ -88,80 +110,101 @@ const DeleteButton = styled(ActionButton)`
 `;
 
 const EditButton = styled(ActionButton)`
-  background: #1f2937;
-  color: #fff;
+  background: #f9fafb;
+  color: #374151;
+  border: 2px solid #e5e7eb;
+  box-shadow: 0 2px 4px rgba(107, 114, 128, 0.2);
+
   &:hover {
-    background: #374151;
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    border-color: #fef3c7;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(251, 191, 36, 0.3);
+    color: #fff;
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(251, 191, 36, 0.2);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2);
   }
 `;
 
 const BackButton = styled(ActionButton)`
-  background: #e5e7eb; /* 뒤로가기 버튼 색상 조정 */
+  background: #e5e7eb;
   color: #374151;
-  margin-right: 20px; /* 뒤로가기 버튼과 회원 삭제/수정 버튼 간 간격 */
   &:hover {
     background: #d1d5db;
   }
 `;
 
-// 사용자 프로필 섹션
-const UserProfileSection = styled.div`
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: 32px;
+const MemberHeader = styled.div`
+  padding: 24px;
+  background-color: #fdfbf5;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  border: 1px solid #fdecc8;
 `;
 
-const ProfileImagePlaceholder = styled.div`
-  width: 100px;
-  height: 100px;
-  background-color: #e5e7eb;
-  border-radius: 50%;
+const MemberName = styled.h1`
+  font-size: 28px;
+  font-weight: 700;
+  color: #111827;
   display: flex;
-  justify-content: center;
   align-items: center;
-  font-size: 48px;
-  color: #9ca3af;
-  font-weight: bold;
-  margin-right: 32px;
-  flex-shrink: 0;
-`;
-
-const ProfileDetails = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-`;
-
-const RoleTag = styled.span`
-  background-color: #e0e7ff;
-  color: #4338ca;
-  padding: 4px 12px;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-`;
-
-// 정보 섹션 그리드
-const InfoGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 20px;
-`;
-
-const InfoColumn = styled.div`
-  display: flex;
-  flex-direction: column;
   gap: 12px;
-`;
-
-const SectionTitle = styled.h3`
-  font-size: 16px;
-  font-weight: 600;
-  color: #1f2937;
   margin-bottom: 8px;
 `;
 
+const MemberInfo = styled.p`
+  font-size: 15px;
+  color: #6b7280;
+  padding-left: 40px;
+`;
+
+const InfoGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 24px;
+`;
+
+const InfoCard = styled.div`
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.08);
+  }
+`;
+
+const CardTitle = styled.h3`
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 16px 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f3f4f6;
+`;
+
 const DetailItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 0;
+`;
+
+const DetailIcon = styled.div`
+  color: #9ca3af;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
 `;
@@ -169,13 +212,14 @@ const DetailItem = styled.div`
 const DetailLabel = styled.span`
   font-weight: 500;
   color: #4b5563;
-  width: 80px; /* 레이블 너비 고정 */
+  width: 120px;
   flex-shrink: 0;
 `;
 
 const DetailValue = styled.span`
   color: #374151;
   flex-grow: 1;
+  word-break: break-all;
 `;
 
 const ResetPasswordLink = styled.a`
@@ -199,39 +243,37 @@ const MemberDetailPage: React.FC = () => {
   const [editData, setEditData] = useState<Member | null>(null);
   const [companies, setCompanies] = useState<Company[]>([]);
 
-  useEffect(() => {
-    const fetchMemberDetail = async () => {
-      if (!id) {
-        setError("회원 ID가 누락되었습니다.");
-        setLoading(false);
-        return;
-      }
-      try {
-        setLoading(true);
-        const response = await api.get(`/api/admin/${id}`); // Adjust API endpoint if necessary
-        setMember(response.data.data);
-      } catch (err: unknown) {
-        let errorMessage = "회원 상세 정보를 가져오는 중 알 수 없는 오류가 발생했습니다.";
-        if (err instanceof Error) {
-          errorMessage = err.message;
-        }
-        setError(errorMessage);
-        console.error("회원 상세 정보 가져오기 실패:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchMemberDetail();
+  const fetchMemberDetail = useCallback(async () => {
+    if (!id) {
+      setError("회원 ID가 누락되었습니다.");
+      setLoading(false);
+      return;
+    }
+    try {
+      setLoading(true);
+      const response = await api.get(`/api/admin/${id}`);
+      setMember(response.data.data);
+    } catch (err: unknown) {
+      let errorMessage = "회원 정보를 가져오는 중 오류가 발생했습니다.";
+      if (err instanceof Error) errorMessage = err.message;
+      setError(errorMessage);
+      console.error("회원 정보 가져오기 실패:", err);
+    } finally {
+      setLoading(false);
+    }
   }, [id]);
+
+  useEffect(() => {
+    fetchMemberDetail();
+  }, [fetchMemberDetail]);
 
   useEffect(() => {
     const fetchCompanies = async () => {
       try {
-        const response = await api.get('/api/companies'); // 모든 회사를 가져오기 위해 size를 충분히 크게 설정
+        const response = await api.get("/api/companies?size=1000"); // Fetch all companies
         setCompanies(response.data.data.content);
       } catch (error) {
-        console.error('Failed to fetch companies:', error);
-        alert('회사 목록을 불러오는 데 실패했습니다.');
+        console.error("업체 목록을 불러오는 데 실패했습니다.:", error);
       }
     };
     fetchCompanies();
@@ -245,131 +287,49 @@ const MemberDetailPage: React.FC = () => {
   };
 
   const handleDeleteMember = async () => {
-    if (member && window.confirm('정말로 이 회원을 삭제하시겠습니까?')) {
+    if (!member) return;
+    if (window.confirm("정말 이 회원을 삭제하시겠습니까?")) {
       try {
         await api.delete(`/api/admin/${member.id}`);
-        alert("회원 삭제가 완료되었습니다!");
+        showSuccessToast("회원이 성공적으로 삭제되었습니다.");
         navigate("/members");
-      } catch (error: unknown) {
-        console.error('Error deleting member:', error);
-        alert("회원 삭제 중 오류가 발생했습니다.");
+      } catch (error) {
+        showErrorToast("회원 삭제에 실패했습니다.");
+        console.error("삭제 실패:", error);
       }
     }
   };
 
-  const handleUpdateMember = async (data: MemberFormData) => {
+  const handleUpdateMember = async (data: MemberUpdateFormData) => {
+    if (!editData) return;
     try {
-      const memberToUpdate = {
-        id: member?.id,
-        username: data.username,
-        name: data.name,
-        companyId: data.companyId,
-        role: data.role,
-        position: data.position,
-        phone: data.phone,
-        email: data.email,
-      };
-      await api.put(`/api/admin/${member?.id}`, memberToUpdate);
-      alert("회원 정보가 성공적으로 수정되었습니다!");
+      await api.put(`/api/admin/${editData.id}`, {
+        ...data,
+        phone: data.phone.replace(/\D/g, ""),
+      });
       setEditModalOpen(false);
-      const response = await api.get(`/api/admin/${member?.id}`);
-      setMember(response.data.data);
-    } catch (error: unknown) {
-      console.error('Error updating member:', error);
-      alert("회원 정보 수정 중 오류가 발생했습니다.");
+      setEditData(null);
+      showSuccessToast("회원 정보가 성공적으로 수정되었습니다.");
+      fetchMemberDetail(); // Re-fetch data
+    } catch {
+      showErrorToast("회원 정보 수정에 실패했습니다.");
     }
   };
 
   const handleResetPassword = () => {
-    alert("비밀번호 초기화 버튼 클릭됨");
-    // TODO: 비밀번호 초기화 로직 추가
+    // 비밀번호 재설정 로직 (미구현)
+    alert("비밀번호 재설정 기능은 현재 준비 중입니다.");
   };
 
   if (loading) return <PageContainer>로딩 중...</PageContainer>;
-  if (error) return <PageContainer>에러: {error}</PageContainer>;
-  if (!member) return <PageContainer>회원 정보를 찾을 수 없습니다.</PageContainer>;
+  if (error) return <PageContainer>오류: {error}</PageContainer>;
+  if (!member) return <PageContainer>회원을 찾을 수 없습니다.</PageContainer>;
 
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth() + 1;
-  const day = today.getDate();
-  const formattedDate = `${year}년 ${month}월 ${day}일`;
-
-  const hours = today.getHours();
-  const minutes = today.getMinutes();
-  const ampm = hours >= 12 ? '오후' : '오전';
-  const formattedTime = `${ampm} ${hours % 12 || 12}:${minutes < 10 ? '0' + minutes : minutes}`;
-
-  const companyName = companies.find(c => c.id === member.companyId)?.name || 'N/A';
+  const companyName =
+    companies.find((c) => c.id === member.companyId)?.name || "소속 없음";
 
   return (
     <PageContainer>
-      <PageHeaderSection>
-        <PageTitle>회원 상세 정보</PageTitle>
-        <PageSubtitle>회원 정보 ({formattedDate} {formattedTime})</PageSubtitle>
-      </PageHeaderSection>
-
-      <MainContentArea>
-        <ProfileHeader>
-          <ProfileTitle>사용자 프로필</ProfileTitle>
-          <ButtonGroup>
-            <BackButton onClick={() => navigate("/members")}>뒤로가기</BackButton>
-            <DeleteButton onClick={handleDeleteMember}>회원 삭제</DeleteButton>
-            <EditButton onClick={handleEditMember}>회원 정보 수정</EditButton>
-          </ButtonGroup>
-        </ProfileHeader>
-
-        <UserProfileSection>
-          <ProfileImagePlaceholder>{member.name.charAt(0)}</ProfileImagePlaceholder>
-          <ProfileDetails>
-            <ProfileTitle>{member.name}</ProfileTitle>
-            <RoleTag>{member.role}</RoleTag>
-            <ResetPasswordLink onClick={handleResetPassword}>비밀번호 초기화</ResetPasswordLink>
-          </ProfileDetails>
-        </UserProfileSection>
-
-        <InfoGrid>
-          <InfoColumn>
-            <SectionTitle>기본 정보</SectionTitle>
-            <DetailItem>
-              <DetailLabel>이름:</DetailLabel>
-              <DetailValue>{member.name}</DetailValue>
-            </DetailItem>
-            <DetailItem>
-              <DetailLabel>회사:</DetailLabel>
-              <DetailValue>{companyName}</DetailValue>
-            </DetailItem>
-            <DetailItem>
-              <DetailLabel>직책:</DetailLabel>
-              <DetailValue>{member.position}</DetailValue>
-            </DetailItem>
-          </InfoColumn>
-
-          <InfoColumn>
-            <SectionTitle>연락처 정보</SectionTitle>
-            <DetailItem>
-              <DetailLabel>이메일:</DetailLabel>
-              <DetailValue>{member.email}</DetailValue>
-            </DetailItem>
-            <DetailItem>
-              <DetailLabel>연락처:</DetailLabel>
-              <DetailValue>{formatTelNo(member.phone)}</DetailValue>
-            </DetailItem>
-          </InfoColumn>
-
-          <InfoColumn>
-            <SectionTitle>계정 정보</SectionTitle>
-            <DetailItem>
-              <DetailLabel>아이디:</DetailLabel>
-              <DetailValue>{member.username}</DetailValue>
-            </DetailItem>
-            <DetailItem>
-              <DetailLabel>등록일:</DetailLabel>
-              <DetailValue>{new Date(member.createdAt).toLocaleDateString()}</DetailValue>
-            </DetailItem>
-          </InfoColumn>
-        </InfoGrid>
-      </MainContentArea>
       {editModalOpen && editData && (
         <MemberEditModal
           onClose={() => setEditModalOpen(false)}
@@ -377,8 +337,80 @@ const MemberDetailPage: React.FC = () => {
           initialData={editData}
         />
       )}
+      <PageHeaderSection>
+        <PageTitle>회원 상세 정보</PageTitle>
+        <PageSubtitle>
+          프로젝트 관리 시스템의 회원 정보를 한눈에 확인하세요
+        </PageSubtitle>
+      </PageHeaderSection>
+
+      <MainContentArea>
+        <ProfileHeader>
+          <ProfileTitle>회원 프로필</ProfileTitle>
+          <ButtonGroup>
+            <BackButton onClick={() => navigate(-1)}>뒤로가기</BackButton>
+            <DeleteButton onClick={handleDeleteMember}>회원 삭제</DeleteButton>
+            <EditButton onClick={handleEditMember}>회원 정보 수정</EditButton>
+          </ButtonGroup>
+        </ProfileHeader>
+
+        <MemberHeader>
+          <MemberName>
+            <FiUser size={26} />
+            {member.name}
+          </MemberName>
+          <MemberInfo>
+            {companyName} / {member.position}
+          </MemberInfo>
+        </MemberHeader>
+
+        <InfoGrid>
+          <InfoCard>
+            <CardTitle>기본 정보</CardTitle>
+            <DetailItem>
+              <DetailIcon>
+                <FiBriefcase size={18} />
+              </DetailIcon>
+              <DetailLabel>소속 업체</DetailLabel>
+              <DetailValue>{companyName}</DetailValue>
+            </DetailItem>
+            <DetailItem>
+              <DetailIcon>
+                <FiTag size={18} />
+              </DetailIcon>
+              <DetailLabel>직책</DetailLabel>
+              <DetailValue>{member.position}</DetailValue>
+            </DetailItem>
+          </InfoCard>
+          <InfoCard>
+            <CardTitle>연락처 정보</CardTitle>
+            <DetailItem>
+              <DetailIcon>
+                <FiMail size={18} />
+              </DetailIcon>
+              <DetailLabel>이메일</DetailLabel>
+              <DetailValue>{member.email}</DetailValue>
+            </DetailItem>
+            <DetailItem>
+              <DetailIcon>
+                <FiPhone size={18} style={{ color: "#10b981" }} />
+              </DetailIcon>
+              <DetailLabel>연락처</DetailLabel>
+              <DetailValue>{formatTelNo(member.phone)}</DetailValue>
+            </DetailItem>
+            <DetailItem>
+              <DetailLabel>비밀번호 재설정</DetailLabel>
+              <DetailValue>
+                <ResetPasswordLink onClick={handleResetPassword}>
+                  재설정 링크 보내기
+                </ResetPasswordLink>
+              </DetailValue>
+            </DetailItem>
+          </InfoCard>
+        </InfoGrid>
+      </MainContentArea>
     </PageContainer>
   );
 };
 
-export default MemberDetailPage; 
+export default MemberDetailPage;

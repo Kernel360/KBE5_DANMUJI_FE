@@ -8,6 +8,7 @@ import {
 } from "../hooks/useCommentUtils";
 import CommentActions from "./CommentActions";
 import CommentForm from "./CommentForm";
+import MentionTextArea from "@/components/MentionTextArea";
 import {
   CommentItemContainer,
   CommentAuthor,
@@ -28,6 +29,8 @@ interface CommentItemProps {
   onReply: (parentId: number, content: string) => void;
   isSubmitting?: boolean;
   depth?: number;
+  allProjectUsers?: string[];
+  completedMentions?: string[];
 }
 
 const CommentItem: React.FC<CommentItemProps> = ({
@@ -38,6 +41,8 @@ const CommentItem: React.FC<CommentItemProps> = ({
   onReply,
   isSubmitting = false,
   depth = 0,
+  allProjectUsers = [],
+  completedMentions = [],
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isReplying, setIsReplying] = useState(false);
@@ -78,6 +83,10 @@ const CommentItem: React.FC<CommentItemProps> = ({
     setIsReplying(false);
   };
 
+  const handleEditContentChange = (newContent: string) => {
+    setEditContent(newContent);
+  };
+
   if (isDeleted) {
     return (
       <CommentItemContainer $depth={depth}>
@@ -113,21 +122,20 @@ const CommentItem: React.FC<CommentItemProps> = ({
       <CommentContent>
         {isEditing ? (
           <div style={{ marginTop: "0.75rem" }}>
-            <textarea
+            <MentionTextArea
               value={editContent}
-              onChange={(e) => setEditContent(e.target.value)}
+              onChange={handleEditContentChange}
+              placeholder="댓글 내용을 수정하세요. @를 입력하여 사용자를 언급할 수 있습니다."
+              rows={3}
               style={{
                 width: "100%",
-                minHeight: "60px",
-                padding: "0.5rem",
-                border: "1px solid #d1d5db",
+                border: "1.5px solid #fdb924",
                 borderRadius: "0.375rem",
-                fontSize: "0.875rem",
-                resize: "vertical",
-                backgroundColor: "#ffffff",
-                color: "#374151",
+                background: "#fffdfa",
+                color: "#222",
+                fontSize: "0.95em",
+                padding: "0.75rem",
               }}
-              placeholder="댓글 내용을 수정하세요"
             />
             <CommentActions
               isAuthor={isAuthor}
@@ -142,7 +150,13 @@ const CommentItem: React.FC<CommentItemProps> = ({
           </div>
         ) : (
           <>
-            <CommentText>{formatCommentContent(comment.content)}</CommentText>
+            <CommentText>
+              {formatCommentContent(
+                comment.content,
+                allProjectUsers,
+                completedMentions
+              )}
+            </CommentText>
             <CommentActions
               isAuthor={isAuthor}
               isEditing={false}
@@ -157,7 +171,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
 
       {isReplying && (
         <CommentForm
-          placeholder="답글을 입력하세요..."
+          placeholder="답글을 입력하세요. @를 입력하여 사용자를 언급할 수 있습니다."
           initialValue={`@${comment.authorName || "알 수 없는 사용자"} `}
           onSubmit={handleReplySubmit}
           onCancel={handleReplyCancel}

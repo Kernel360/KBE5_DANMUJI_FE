@@ -1,7 +1,8 @@
 import React from "react";
-import { useLocation } from "react-router-dom";
-import NotificationDropdown from "../Header/NotificationDropdown";
-import { ProfileDropdown } from "../Header/ProfileDropdown";
+// import { useLocation } from "react-router-dom";
+import NotificationDropdown from "../Header/notification/NotificationDropdown";
+import { ProfileDropdown } from "../Header/dropdown/ProfileDropdown";
+import { useSseNotification } from "@/contexts/SseNotificationContext";
 
 import {
   TopbarContainer,
@@ -10,36 +11,26 @@ import {
   UserDropdown,
 } from "./Topbar.styles";
 
-import type { Notification } from "@/layouts/Topbar/Topbar.types";
+export const Topbar: React.FC = () => {
+  const { sseNotifications, markAsRead, sseError, deleteNotification, markAllAsRead } = useSseNotification();
 
-interface TopbarProps {
-  notifications: Notification[];
-  markAsRead: (id: string) => void;
-  error: string | null;
-}
+  // const location = useLocation();
 
-export const Topbar: React.FC<TopbarProps> = ({
-  notifications,
-  markAsRead,
-  error,
-}) => {
-  const location = useLocation();
-
-  const getPageTitle = () => {
-    if (location.pathname === "/members") {
-      return "회원 관리";
-    } else if (location.pathname.startsWith("/member/")) {
-      return "회원 정보";
-    } else if (location.pathname === "/dashboard") {
-      return "대시보드";
-    } else if (location.pathname === "/projects") {
-      return "프로젝트 관리";
-    } else if (location.pathname === "/company") {
-      return "회사 관리";
-    } else {
-      return "대시보드";
-    }
-  };
+  // const getPageTitle = () => {
+  //   if (location.pathname === "/members") {
+  //     return "회원 관리";
+  //   } else if (location.pathname.startsWith("/member/")) {
+  //     return "회원 정보";
+  //   } else if (location.pathname === "/dashboard") {
+  //     return "대시보드";
+  //   } else if (location.pathname === "/projects") {
+  //     return "프로젝트 관리";
+  //   } else if (location.pathname === "/company") {
+  //     return "회사 관리";
+  //   } else {
+  //     return "대시보드";
+  //   }
+  // };
 
   return (
     <TopbarContainer>
@@ -49,9 +40,11 @@ export const Topbar: React.FC<TopbarProps> = ({
           <ProfileDropdown />
         </UserDropdown>
         <NotificationDropdown
-          notifications={notifications}
+          notifications={sseNotifications}
           markAsRead={markAsRead}
-          error={error}
+          error={sseError}
+          onDelete={deleteNotification}
+          onMarkAllAsRead={markAllAsRead}
         />
       </UserInfo>
     </TopbarContainer>

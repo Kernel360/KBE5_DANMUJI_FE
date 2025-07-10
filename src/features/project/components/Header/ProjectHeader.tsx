@@ -3,34 +3,76 @@ import React from "react";
 import { FaBuilding, FaUsers } from "react-icons/fa";
 import {
   FiCalendar,
-  FiPlay,
-  FiGrid,
   FiClock,
   FiCheckCircle,
   FiAlertTriangle,
+  FiAlertCircle,
   FiArrowLeft,
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import {
   ProjectHeaderContainer,
   ProjectTitle,
-  ProjectSubtitle,
   ProjectMeta,
   ProjectPeriod,
-  ProjectStatusBadge,
   BackButton,
+  ProjectDescription,
+  HeaderTopBar,
+  AdminButtonGroup,
+  EditButton,
+  DeactivateButton,
+  ProjectCost,
+  CompanyMemberSection,
+  CompanyRow,
+  CompanyIcon,
+  CompanyLabel,
+  CompanyName,
+  CompanyDivider,
+  CompanyUnassigned,
+  MemberListModalOverlay,
+  MemberListModalContent,
+  MemberListModalTitle,
+  MemberListItem,
+  MemberName,
+  MemberPosition,
+  MemberType,
+  MemberListEmpty,
+  MemberListModalClose,
 } from "./ProjectHeader.styled";
 import type { ProjectDetailResponse } from "../../services/projectService";
+import { useAuth } from "@/hooks/useAuth";
+import api from "@/api/axios";
+import MemberDetailModal from "@/features/user/components/MemberDetailModal/MemberDetailModal";
+import { useState } from "react";
 
 interface ProjectHeaderProps {
   projectDetail: ProjectDetailResponse;
+  onEdit: () => void;
 }
 
-const ProjectHeader: React.FC<ProjectHeaderProps> = ({ projectDetail }) => {
+const ProjectHeader: React.FC<ProjectHeaderProps> = ({
+  projectDetail,
+  onEdit,
+}) => {
+  const { role } = useAuth();
   const navigate = useNavigate();
+  const [memberListModal, setMemberListModal] = useState<{ open: boolean; company: any; members: any[]; type: 'client' | 'dev' | null }>({ open: false, company: null, members: [], type: null });
+  const [memberDetailModal, setMemberDetailModal] = useState<{ open: boolean; memberId: number | null }>({ open: false, memberId: null });
 
   const handleBack = () => {
     navigate("/projects");
+  };
+
+  const handleDeactivate = async () => {
+    if (!window.confirm("정말 이 프로젝트를 비활성화하시겠습니까? \n이력관리에서 복구 가능합니다.")) return;
+    try {
+      const id = projectDetail.id;
+      await api.delete(`/api/projects/${id}`);
+      alert("프로젝트가 비활성화되었습니다.");
+      navigate("/projects");
+    } catch (e) {
+      alert("비활성화에 실패했습니다.");
+    }
   };
 
   // 상태별 아이콘 반환 함수
@@ -42,6 +84,8 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = ({ projectDetail }) => {
         return <FiCheckCircle size={14} style={{ marginRight: 4 }} />;
       case "DELAY":
         return <FiAlertTriangle size={14} style={{ marginRight: 4 }} />;
+      case "DUE_SOON":
+        return <FiAlertCircle size={14} style={{ marginRight: 4 }} />;
       default:
         return null;
     }
@@ -56,6 +100,8 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = ({ projectDetail }) => {
         return "완료";
       case "DELAY":
         return "지연";
+      case "DUE_SOON":
+        return "기한 임박";
       default:
         return status;
     }
@@ -70,6 +116,8 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = ({ projectDetail }) => {
         return "#059669";
       case "DELAY":
         return "#ef4444";
+      case "DUE_SOON":
+        return "#f59e0b";
       default:
         return "#6b7280";
     }
@@ -80,15 +128,35 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = ({ projectDetail }) => {
 
   return (
     <ProjectHeaderContainer>
-      <BackButton onClick={handleBack}>
-        <FiArrowLeft size={16} />
-        목록으로
-      </BackButton>
+      <HeaderTopBar>
+        <BackButton onClick={handleBack}>
+          <FiArrowLeft size={16} />
+          목록으로
+        </BackButton>
+        {role === "ROLE_ADMIN" && (
+          <AdminButtonGroup>
+            <EditButton
+              onClick={onEdit}
+            >
+              편집
+            </EditButton>
+            <DeactivateButton
+              onClick={handleDeactivate}
+            >
+              비활성화
+            </DeactivateButton>
+          </AdminButtonGroup>
+        )}
+      </HeaderTopBar>
       <ProjectTitle>{projectDetail.name}</ProjectTitle>
       {projectDetail.description && (
-        <ProjectSubtitle>{projectDetail.description}</ProjectSubtitle>
+        <ProjectDescription>{projectDetail.description}</ProjectDescription>
       )}
-
+      {typeof projectDetail.projectCost !== 'undefined' && projectDetail.projectCost !== null && (
+        <ProjectCost>
+          프로젝트 금액: {Number(projectDetail.projectCost).toLocaleString()}원
+        </ProjectCost>
+      )}
       <ProjectMeta>
         <ProjectPeriod>
           <FiCalendar size={14} />
@@ -109,63 +177,64 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = ({ projectDetail }) => {
         </span>
       </ProjectMeta>
 
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: 4,
-          margin: "12px 0 0 0",
-          fontSize: "0.95rem",
-          color: "#6b7280",
-          fontWeight: 400,
-          lineHeight: 1.7,
-          padding: "0 24px",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <FaBuilding size={17} style={{ marginRight: 4, color: "#9ca3af" }} />
-          <span style={{ color: "#9ca3af", marginRight: 6 }}>고객사</span>
-          <span style={{ color: "#222", fontWeight: 500 }}>
-            {projectDetail.clients[0]?.companyName || "미지정"}
-          </span>
-          {projectDetail.clients[0]?.assignUsers[0] && (
-            <>
-              <span style={{ color: "#d1d5db", margin: "0 6px" }}>|</span>
-              <span style={{ color: "#9ca3af", marginRight: 6 }}>담당자</span>
-              <span style={{ color: "#222", fontWeight: 500 }}>
-                {projectDetail.clients[0].assignUsers[0].name}
-              </span>
-            </>
+      <CompanyMemberSection>
+        <CompanyRow>
+          <CompanyIcon><FaBuilding size={17} /></CompanyIcon>
+          <CompanyLabel>고객사</CompanyLabel>
+          {projectDetail.clients && projectDetail.clients.length > 0 ? (
+            projectDetail.clients.map((client, idx) => (
+              <CompanyName
+                key={client.id}
+                $type="client"
+                onClick={() => setMemberListModal({ open: true, company: client, members: client.assignUsers, type: 'client' })}
+              >
+                {client.companyName}
+                {idx < projectDetail.clients.length - 1 && <CompanyDivider>|</CompanyDivider>}
+              </CompanyName>
+            ))
+          ) : (
+            <CompanyUnassigned>미지정</CompanyUnassigned>
           )}
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <FaUsers size={17} style={{ marginRight: 4, color: "#9ca3af" }} />
-          <span style={{ color: "#9ca3af", marginRight: 6 }}>개발사</span>
-          <span style={{ color: "#222", fontWeight: 500 }}>
-            {projectDetail.developers[0]?.companyName || "미지정"}
-          </span>
-          {projectDetail.developers[0]?.assignUsers.length > 0 && (
-            <>
-              <span style={{ color: "#d1d5db", margin: "0 6px" }}>|</span>
-              <span style={{ color: "#9ca3af", marginRight: 6 }}>개발팀</span>
-              {projectDetail.developers[0].assignUsers.map((dev, idx) => (
-                <span key={dev.id}>
-                  <span style={{ color: "#222", fontWeight: 500 }}>
-                    {dev.name}
-                  </span>
-                  <span style={{ color: "#9ca3af", margin: "0 2px" }}>
-                    ({dev.positon})
-                  </span>
-                  {idx !==
-                    projectDetail.developers[0].assignUsers.length - 1 && (
-                    <span style={{ color: "#d1d5db", margin: "0 6px" }}>,</span>
-                  )}
-                </span>
-              ))}
-            </>
+        </CompanyRow>
+        <CompanyRow>
+          <CompanyIcon><FaUsers size={17} /></CompanyIcon>
+          <CompanyLabel>개발사</CompanyLabel>
+          {projectDetail.developers && projectDetail.developers.length > 0 ? (
+            projectDetail.developers.map((dev, idx) => (
+              <CompanyName
+                key={dev.id}
+                $type="dev"
+                onClick={() => setMemberListModal({ open: true, company: dev, members: dev.assignUsers, type: 'dev' })}
+              >
+                {dev.companyName}
+                {idx < projectDetail.developers.length - 1 && <CompanyDivider>|</CompanyDivider>}
+              </CompanyName>
+            ))
+          ) : (
+            <CompanyUnassigned>미지정</CompanyUnassigned>
           )}
-        </div>
-      </div>
+        </CompanyRow>
+      </CompanyMemberSection>
+      {/* 멤버 리스트 모달 */}
+      {memberListModal.open && (
+        <MemberListModalOverlay onClick={() => setMemberListModal({ open: false, company: null, members: [], type: null })}>
+          <MemberListModalContent onClick={e => e.stopPropagation()}>
+            <MemberListModalTitle>{memberListModal.company?.companyName} 멤버 목록</MemberListModalTitle>
+            {memberListModal.members && memberListModal.members.length > 0 ? (
+              memberListModal.members.map((m) => (
+                <MemberListItem key={m.id}>
+                  <MemberName>{m.name}</MemberName>
+                  <MemberPosition>{m.positon || m.position}</MemberPosition>
+                  <MemberType>{m.userType === 'MANAGER' ? '담당자' : '멤버'}</MemberType>
+                </MemberListItem>
+              ))
+            ) : (
+              <MemberListEmpty>멤버 없음</MemberListEmpty>
+            )}
+            <MemberListModalClose onClick={() => setMemberListModal({ open: false, company: null, members: [], type: null })}>×</MemberListModalClose>
+          </MemberListModalContent>
+        </MemberListModalOverlay>
+      )}
     </ProjectHeaderContainer>
   );
 };

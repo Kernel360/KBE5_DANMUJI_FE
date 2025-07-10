@@ -18,8 +18,8 @@ export const ModalPanel = styled.div`
   padding: 30px;
   border-radius: 12px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  width: 90%;
-  max-width: 600px;
+  width: 95%;
+  max-width: 900px;
   max-height: 90vh;
   overflow-y: auto;
   position: relative;

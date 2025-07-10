@@ -207,26 +207,25 @@ export const PaginationNav = styled.nav`
 `;
 
 export const PaginationButton = styled.button<{ $active?: boolean }>`
-  padding: 8px 12px;
-  border: 1px solid #d1d5db;
-  border-right: none;
-  background-color: white;
-  color: ${(props) => (props.$active ? "#ffffff" : "#6b7280")};
-  background-color: ${(props) => (props.$active ? "#4f46e5" : "white")};
-  border-color: ${(props) => (props.$active ? "#4f46e5" : "#d1d5db")};
-  font-weight: ${(props) => (props.$active ? "600" : "400")};
+  padding: 0.32rem 0.6rem;
+  border: none;
+  background: transparent;
+  color: ${({ $active }) => ($active ? "#fff" : "#111827")};
+  border-radius: 1.2rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  box-shadow: none;
   cursor: pointer;
-
-  &:last-child {
-    border-right: 1px solid #d1d5db;
-  }
-
-  &:hover {
-    background-color: ${(props) => (props.$active ? "#4338ca" : "#f9fafb")};
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+  outline: none;
+  min-width: 28px;
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  ${({ $active }) =>
+    $active &&
+    `
+      background: #fdb924;
+      color: #fff;
+    `}
 `;

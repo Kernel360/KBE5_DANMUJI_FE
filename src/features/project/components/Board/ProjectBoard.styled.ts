@@ -139,6 +139,8 @@ export const Thead = styled.thead`
 export const Tbody = styled.tbody``;
 
 export const Tr = styled.tr`
+  cursor: pointer;
+
   &:hover {
     background-color: #fefdf4;
     transition: background-color 0.2s ease;
@@ -147,7 +149,7 @@ export const Tr = styled.tr`
 
 export const Th = styled.th`
   text-align: left;
-  padding: 12px;
+  padding: 8px 6px;
   color: #6b7280;
   font-weight: 500;
   font-size: 13px;
@@ -155,45 +157,45 @@ export const Th = styled.th`
 
   &:nth-child(1) {
     /* 제목 */
-    width: 300px;
+    width: 200px;
     text-align: left;
   }
   &:nth-child(2) {
     /* 댓글 */
-    width: 50px;
+    width: 12px;
     text-align: center;
   }
   &:nth-child(3) {
     /* 작성자 */
-    width: 100px;
+    width: 5px;
     text-align: center;
   }
   &:nth-child(4) {
     /* 유형 */
-    width: 65px;
+    width: 5px;
     text-align: center;
   }
   &:nth-child(5) {
     /* 우선순위 */
-    width: 65px;
+    width: 5px;
     text-align: center;
   }
   &:nth-child(6) {
     /* 작성일 */
-    width: 150px;
+    width: 120px;
     text-align: center;
   }
 `;
 
 export const Td = styled.td`
-  padding: 12px;
+  padding: 10px 6px;
   color: #374151;
   border-bottom: 1px solid #f3f4f6;
 
   &:nth-child(1) {
     /* 제목 */
-    width: 300px;
-    max-width: 300px;
+    width: 100px;
+    max-width: 100px;
     text-align: left;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -201,50 +203,50 @@ export const Td = styled.td`
   }
   &:nth-child(2) {
     /* 댓글 */
-    width: 50px;
+    width: 12px;
     text-align: center;
   }
   &:nth-child(3) {
     /* 작성자 */
-    width: 100px;
+    width: 5px;
     text-align: center;
   }
   &:nth-child(4) {
     /* 유형 */
-    width: 65px;
+    width: 5px;
     text-align: center;
   }
   &:nth-child(5) {
     /* 우선순위 */
-    width: 65px;
+    width: 5px;
     text-align: center;
   }
   &:nth-child(6) {
     /* 작성일 */
-    width: 150px;
+    width: 120px;
     text-align: center;
   }
 `;
 
-export const StatusBadge = styled.span<{ priority: PostPriority }>`
+export const StatusBadge = styled.span<{ $priority: PostPriority }>`
   padding: 4px 8px;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 500;
-  color: ${({ priority }) =>
-    priority === "LOW"
+  color: ${({ $priority }) =>
+    $priority === "LOW"
       ? "#065f46"
-      : priority === "MEDIUM"
+      : $priority === "MEDIUM"
       ? "#92400e"
-      : priority === "HIGH"
+      : $priority === "HIGH"
       ? "#a21caf"
       : "#991b1b"};
-  background-color: ${({ priority }) =>
-    priority === "LOW"
+  background-color: ${({ $priority }) =>
+    $priority === "LOW"
       ? "#d1fae5"
-      : priority === "MEDIUM"
+      : $priority === "MEDIUM"
       ? "#fef3c7"
-      : priority === "HIGH"
+      : $priority === "HIGH"
       ? "#fce7f3"
       : "#fee2e2"};
 `;
@@ -315,7 +317,7 @@ export const StatusButton = styled.button<{ $active: boolean; $color: string }>`
 
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 3px ${({ $color }) => `${$color}20`};
+    box-shadow: none;
   }
 `;
 
@@ -341,12 +343,21 @@ export const DropdownButton = styled.button<{
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  min-width: 120px;
+  width: 140px;
   justify-content: space-between;
+
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+    text-align: left;
+  }
 
   svg {
     transition: transform 0.2s;
     transform: ${({ $isOpen }) => ($isOpen ? "rotate(180deg)" : "none")};
+    flex-shrink: 0;
   }
 
   &:hover {
@@ -365,18 +376,26 @@ export const DropdownMenu = styled.div<{ $isOpen: boolean }>`
   position: absolute;
   top: 100%;
   left: 0;
-  right: 0;
+  width: 140px;
   background: #ffffff;
   border: 2px solid #e5e7eb;
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
+  z-index: 9999;
   opacity: ${({ $isOpen }) => ($isOpen ? 1 : 0)};
   visibility: ${({ $isOpen }) => ($isOpen ? "visible" : "hidden")};
   transform: ${({ $isOpen }) =>
     $isOpen ? "translateY(0)" : "translateY(-10px)"};
   transition: all 0.2s ease;
   margin-top: 4px;
+
+  /* 화면 아래쪽에 가까울 때 위쪽으로 나타나도록 조정 */
+  @media (max-height: 600px) {
+    top: auto;
+    bottom: 100%;
+    margin-top: 0;
+    margin-bottom: 4px;
+  }
 `;
 
 export const DropdownItem = styled.div<{
@@ -395,20 +414,28 @@ export const DropdownItem = styled.div<{
   cursor: pointer;
   transition: all 0.2s ease;
 
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+  }
+
+  svg {
+    flex-shrink: 0;
+  }
+
   &:hover {
     background: ${({ $active, $color }) =>
       $active ? `${$color}25` : "#f9fafb"};
-    border: none;
   }
 
   &:first-child {
-    border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
+    border-radius: 8px 8px 0 0;
   }
 
   &:last-child {
-    border-bottom-left-radius: 8px;
-    border-bottom-right-radius: 8px;
+    border-radius: 0 0 8px 8px;
   }
 `;
 
@@ -580,48 +607,54 @@ export const EmptyContainer = styled.div`
 
 export const PaginationContainer = styled.div`
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 20px;
-  border-top: 1px solid #e5e7eb;
-  background: #f9fafb;
+  margin-top: 32px;
+  gap: 0.7rem;
 `;
 
-export const PaginationButton = styled.button<{ $disabled?: boolean }>`
+export const PaginationInfo = styled.div`
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.825rem;
+  margin-top: 0.75rem;
+  margin-bottom: 0.1rem;
+`;
+
+export const PaginationNav = styled.nav`
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 12px;
-  background: ${({ $disabled }) => ($disabled ? "#f3f4f6" : "#ffffff")};
-  color: ${({ $disabled }) => ($disabled ? "#9ca3af" : "#374151")};
-  font-size: 14px;
-  font-weight: 500;
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
-  cursor: ${({ $disabled }) => ($disabled ? "not-allowed" : "pointer")};
-  transition: all 0.2s ease;
-
-  &:hover:not(:disabled) {
-    background: #f9fafb;
-    border-color: #d1d5db;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-
-  &:active:not(:disabled) {
-    transform: translateY(0);
-  }
-
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.1);
-  }
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
 `;
 
-export const PaginationInfo = styled.span`
-  padding: 8px 12px;
-  color: #6b7280;
-  font-size: 14px;
+export const PaginationButton = styled.button<{ $active?: boolean }>`
+  padding: 0.32rem 0.6rem;
+  border: none;
+  background: transparent;
+  color: ${({ $active }) => ($active ? "#fff" : "#111827")};
+  border-radius: 1.2rem;
+  font-size: 0.75rem;
   font-weight: 500;
+  box-shadow: none;
+  cursor: pointer;
+  outline: none;
+  min-width: 28px;
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+
+  ${({ $active }) =>
+    $active &&
+    `
+      background: #fdb924;
+      color: #fff;
+    `}
+
+  &:hover {
+    background-color: ${({ $active }) => ($active ? "#fdb924" : "#e5e7eb")};
+  }
 `;

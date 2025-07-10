@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import ProjectHeader from "../components/Header/ProjectHeader";
 import ProjectProgress from "../components/Progress/ProjectProgress";
 import ProjectBoard from "../components/Board/ProjectBoard";
@@ -8,64 +8,70 @@ import {
   type ProjectDetailResponse,
 } from "../services/projectService";
 import styled from "styled-components";
+import ProjectCreateModal from "../components/ProjectCreateModal";
+import api from "@/api/axios";
+import { useAuth } from "@/hooks/useAuth";
+import KanbanBoard from "../components/Checklist/KanbanBoard";
+import { DetailPageContainer, PageTitle, PageDescription, LoadingContainer, ErrorContainer } from "./ProjectDetailPage.styled";
 // import ProjectMemberList from "../components/MemberList/ProjectMemberList";
 // import ProjectFileList from '../components/FileList/ProjectFileList';
 
-const DetailPageContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 100vh;
-  padding: 32px 32px;
-`;
 
-const PageTitle = styled.h1`
-  font-size: 1.4rem;
-  font-weight: 700;
-  margin-bottom: -7px;
-  padding-left: 16px;
-  position: relative;
-  color: #111827;
+// 프로젝트 수정 폼 타입 정의
+interface ProjectEditForm {
+  name: string;
+  description: string;
+  projectCost: string;
+  startDate: string;
+  endDate: string;
+  devManagerId: string;
+  clientManagerId: string;
+  devUserId: string;
+  clientUserId: string;
+}
 
-  &::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 4px;
-    height: 1.4rem;
-    background: #fdb924;
-    border-radius: 2px;
+// 프로젝트 수정 요청 페이로드 타입
+interface ProjectEditPayload {
+  name: string;
+  description: string;
+  projectCost: number;
+  startDate: string;
+  endDate: string;
+  devManagerId: number[];
+  clientManagerId: number[];
+  devUserId: number[];
+  clientUserId: number[];
+}
+
+// 토글 버튼 스타일
+export const TabButton = styled.button<{ $active: boolean }>`
+  padding: 6px 18px;
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+  font-weight: ${(props) => (props.$active ? 700 : 500)};
+  color: ${(props) => (props.$active ? "#f59e0b" : "#bdbdbd")};
+  border-bottom: ${(props) => (props.$active ? "2px solid #fdb924" : "none")};
+  cursor: pointer;
+  transition: color 0.18s, border-bottom 0.18s, background 0.18s;
+  border-radius: 0;
+  margin: 0 0 0 0;
+  &:hover {
+    background: #fffbe8;
+    color: #f59e0b;
   }
 `;
-
-const PageDescription = styled.p`
-  color: #bdbdbd;
-  font-size: 0.9rem;
-  margin-bottom: 18px;
-`;
-
-const LoadingContainer = styled.div`
+const ToggleTabGroup = styled.div`
   display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 400px;
-  font-size: 1.1rem;
-  color: #666;
-`;
-
-const ErrorContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 400px;
-  font-size: 1.1rem;
-  color: #ef4444;
+  justify-content: flex-start;
+  align-items: flex-end;
+  gap: 0;
+  margin: 18px;
 `;
 
 const ProjectDetailPage = () => {
   const { projectId } = useParams<{ projectId: string }>();
+  const [searchParams] = useSearchParams();
   const [projectDetail, setProjectDetail] =
     useState<ProjectDetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -73,7 +79,9 @@ const ProjectDetailPage = () => {
   const [selectedStepId, setSelectedStepId] = useState<number | undefined>(
     undefined
   );
-
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const { role } = useAuth();
+  const [viewType, setViewType] = useState<'post' | 'checklist'>('post');
   // 프로젝트 상세 정보 가져오기
   const fetchProjectDetail = async () => {
     if (!projectId) {
@@ -110,11 +118,69 @@ const ProjectDetailPage = () => {
     fetchProjectDetail();
   }, [projectId]);
 
+  // URL 파라미터에서 tab=checklist가 있으면 체크리스트 탭으로 설정
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'checklist') {
+      setViewType('checklist');
+    }
+  }, [searchParams]);
+
   const handleStepSelect = (stepId: number) => {
     setSelectedStepId(stepId);
-    // 여기에 스텝 선택 시 추가 로직을 구현할 수 있습니다
-    // 예: 해당 스텝의 게시글만 필터링, 스텝별 상세 정보 표시 등
-    console.log(`Selected step: ${stepId}`);
+    // 선택된 단계 정보 로깅
+    const selectedStep = projectDetail?.steps.find(
+      (step) => step.id === stepId
+    );
+    console.log(`Selected step: ${stepId} - ${selectedStep?.name}`);
+
+    // ProjectBoard가 자동으로 해당 단계의 게시글을 필터링하여 표시합니다
+    // selectedStepId가 변경되면 ProjectBoard의 useEffect가 트리거되어
+    // 해당 단계의 게시글만 가져오게 됩니다
+  };
+
+  // 편집 저장 핸들러
+  const handleEditSave = async (form: ProjectEditForm) => {
+    if (!projectId) return;
+    try {
+      // 필드 변환 및 PUT 요청
+      const payload: ProjectEditPayload = {
+        name: form.name,
+        description: form.description,
+        projectCost: form.projectCost ? Number(form.projectCost) : 0,
+        startDate: form.startDate,
+        endDate: form.endDate,
+        devManagerId: form.devManagerId
+          ? form.devManagerId
+              .split(",")
+              .map((s: string) => Number(s.trim()))
+              .filter(Boolean)
+          : [],
+        clientManagerId: form.clientManagerId
+          ? form.clientManagerId
+              .split(",")
+              .map((s: string) => Number(s.trim()))
+              .filter(Boolean)
+          : [],
+        devUserId: form.devUserId
+          ? form.devUserId
+              .split(",")
+              .map((s: string) => Number(s.trim()))
+              .filter(Boolean)
+          : [],
+        clientUserId: form.clientUserId
+          ? form.clientUserId
+              .split(",")
+              .map((s: string) => Number(s.trim()))
+              .filter(Boolean)
+          : [],
+      };
+      await api.put(`/api/projects/${projectId}`, payload);
+      setEditModalOpen(false);
+      fetchProjectDetail();
+    } catch (e) {
+      alert("프로젝트 수정에 실패했습니다." + e);
+    }
   };
 
   if (loading) {
@@ -145,7 +211,7 @@ const ProjectDetailPage = () => {
 
   return (
     <DetailPageContainer>
-      <PageTitle>{projectDetail.name}</PageTitle>
+      <PageTitle>프로젝트 상세</PageTitle>
       <PageDescription>
         프로젝트의 상세 정보와 진행 상황을 확인하세요.
       </PageDescription>
@@ -160,14 +226,35 @@ const ProjectDetailPage = () => {
           overflow: "hidden",
         }}
       >
-        <ProjectHeader projectDetail={projectDetail} />
+        <ProjectHeader
+          projectDetail={projectDetail}
+          onEdit={() => setEditModalOpen(true)}
+        />
         {/* <ProjectMemberList projectDetail={projectDetail} /> */}
         <ProjectProgress
           projectDetail={projectDetail}
           onStepSelect={handleStepSelect}
           selectedStepId={selectedStepId}
+          canEditStep={
+            // projectDetail.myUserType === "MANAGER" &&
+            projectDetail.myCompanyType === "DEVELOPER" || role === "ROLE_ADMIN"
+          }
+          onStepOrderSaved={fetchProjectDetail}
         />
-        <div style={{ display: "flex", gap: 24, padding: "0 24px 24px" }}>
+        <ToggleTabGroup>
+          <TabButton $active={viewType === 'post'} onClick={() => setViewType('post')}>게시글</TabButton>
+          <TabButton $active={viewType === 'checklist'} onClick={() => setViewType('checklist')}>체크리스트</TabButton>
+        </ToggleTabGroup>
+        {viewType === 'post' ? (
+          <ProjectBoard projectId={projectDetail.id} selectedStepId={selectedStepId} />
+        ) : (
+          <KanbanBoard 
+            projectId={projectDetail.id} 
+            selectedStepId={selectedStepId ?? 0} 
+            canEditStep={projectDetail.myCompanyType === "DEVELOPER" || role === "ROLE_ADMIN"}
+          />
+        )}
+        {/* <div style={{ display: "flex", gap: 24, padding: "0 24px 24px" }}>
           <div style={{ flex: 2 }}>
             <ProjectBoard
               projectId={projectDetail.id}
@@ -176,9 +263,15 @@ const ProjectDetailPage = () => {
             {/* <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 24 }}>
                         <ProjectFileList />
                     </div> */}
-          </div>
-        </div>
+        {/* </div> */}
       </div>
+      <ProjectCreateModal
+        open={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        editMode={true}
+        projectData={projectDetail}
+        onSave={handleEditSave}
+      />
     </DetailPageContainer>
   );
 };

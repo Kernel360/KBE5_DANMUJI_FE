@@ -103,33 +103,16 @@ export const Input = styled.input`
 
 export const TextArea = styled.textarea`
   width: 100%;
+  min-height: 200px;
   padding: 0.75rem;
   border: 1px solid #d1d5db;
   border-radius: 0.5rem;
   font-size: 0.875rem;
   background-color: white;
   color: #374151;
-  resize: both;
+  resize: none;
   background: white;
   position: relative;
-  padding-bottom: 2.2em;
-
-  &::-webkit-resizer {
-    display: none;
-  }
-  &::-moz-resizer {
-    display: none;
-  }
-  &::-ms-resizer {
-    display: none;
-  }
-  &::resizer {
-    display: none;
-  }
-  &:hover {
-    cursor: se-resize;
-    box-shadow: 0 0 0 2px #fdb92433;
-  }
 
   &:focus {
     outline: none;
@@ -226,21 +209,45 @@ export const ErrorMessage = styled.div`
 
 export const LoadingSpinner = styled.div`
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   padding: 2rem;
   color: #6b7280;
   font-size: 0.875rem;
+  gap: 1rem;
+
+  &::before {
+    content: "";
+    width: 32px;
+    height: 32px;
+    background-image: url("/favicon.ico");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
 `;
 
-export const FileUploadArea = styled.div<{ isDragOver: boolean }>`
-  border: 2px dashed ${({ isDragOver }) => (isDragOver ? "#fdb924" : "#d1d5db")};
+export const FileUploadArea = styled.div<{ $isDragOver: boolean }>`
+  border: 2px dashed
+    ${({ $isDragOver }) => ($isDragOver ? "#fdb924" : "#d1d5db")};
   border-radius: 0.5rem;
   padding: 1rem;
   text-align: center;
   cursor: pointer;
   transition: all 0.2s ease;
-  background-color: ${({ isDragOver }) => (isDragOver ? "#fef3c7" : "#f9fafb")};
+  background-color: ${({ $isDragOver }) =>
+    $isDragOver ? "#fef3c7" : "#f9fafb"};
 
   &:hover {
     border-color: #fdb924;

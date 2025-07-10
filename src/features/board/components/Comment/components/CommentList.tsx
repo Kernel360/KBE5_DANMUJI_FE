@@ -22,6 +22,8 @@ interface CommentListProps {
   onCommentEdit: (commentId: number, content: string) => void;
   onCommentDelete: (commentId: number) => void;
   isSubmitting?: boolean;
+  allProjectUsers?: string[];
+  completedMentions?: string[];
 }
 
 const CommentList: React.FC<CommentListProps> = ({
@@ -31,6 +33,8 @@ const CommentList: React.FC<CommentListProps> = ({
   onCommentEdit,
   onCommentDelete,
   isSubmitting = false,
+  allProjectUsers = [],
+  completedMentions = [],
 }) => {
   const [showCommentForm, setShowCommentForm] = useState(false);
 
@@ -59,6 +63,8 @@ const CommentList: React.FC<CommentListProps> = ({
           onReply={(parentId, content) => onCommentSubmit(content, parentId)}
           isSubmitting={isSubmitting}
           depth={depth}
+          allProjectUsers={allProjectUsers}
+          completedMentions={completedMentions}
         />
         {comment.replies && comment.replies.length > 0 && (
           <div>

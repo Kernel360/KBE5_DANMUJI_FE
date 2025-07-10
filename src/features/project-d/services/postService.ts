@@ -12,7 +12,6 @@ import type {
   PostType,
   PostPriority,
   PostUpdateRequest,
-  PostDetailReadResponse,
   PostSummaryReadResponse,
   PageResponse,
   PostFile,
@@ -54,6 +53,7 @@ const handleApiResponse = async <T>(
     "COMMENT_CREATE_SUCCESS",
     "COMMENT_UPDATE_SUCCESS",
     "COMMENT_DELETE_SUCCESS",
+    "비활성화 게시글 복구 완료",
   ];
 
   // success가 false이고, 메시지가 성공 메시지가 아닌 경우에만 에러로 처리
@@ -86,6 +86,7 @@ export const createPost = async (
       status: postData.status,
       priority: postData.priority,
       ...(postData.parentId && { parentId: postData.parentId }),
+      ...(postData.newLinks && { newLinks: postData.newLinks }),
     };
 
     formData.append(
@@ -102,10 +103,6 @@ export const createPost = async (
       });
     }
 
-    console.log("=== createPost API 호출 ===");
-    console.log("요청 데이터:", jsonData);
-    console.log("파일 개수:", files?.length || 0);
-
     const response = await api.post<ApiResponse<PostCreateResponse>>(
       "/api/posts",
       formData,
@@ -116,15 +113,8 @@ export const createPost = async (
       }
     );
 
-    console.log("API 응답:", response);
-    console.log("응답 데이터:", response.data);
-    console.log("======================");
-
     return handleApiResponse<PostCreateResponse>(response);
   } catch (error) {
-    console.error("=== createPost 에러 ===");
-    console.error("에러:", error);
-
     if (error instanceof ApiError) throw error;
     if (error instanceof AxiosError) {
       console.error(
@@ -292,6 +282,14 @@ export const updatePost = async (
         postData.fileIdsToDelete.length > 0 && {
           fileIdsToDelete: postData.fileIdsToDelete,
         }),
+      ...(postData.linkIdsToDelete &&
+        postData.linkIdsToDelete.length > 0 && {
+          linkIdsToDelete: postData.linkIdsToDelete,
+        }),
+      ...(postData.newLinks &&
+        postData.newLinks.length > 0 && {
+          newLinks: postData.newLinks,
+        }),
     };
 
     formData.append(
@@ -308,11 +306,6 @@ export const updatePost = async (
       });
     }
 
-    console.log("=== updatePost API 호출 ===");
-    console.log("요청 데이터:", jsonData);
-    console.log("새로 추가된 파일 개수:", files?.length || 0);
-    console.log("삭제할 파일 ID:", postData.fileIdsToDelete);
-
     const response = await api.put<ApiResponse<Post>>(
       `/api/posts/${postId}`,
       formData,
@@ -322,10 +315,6 @@ export const updatePost = async (
         },
       }
     );
-
-    console.log("API 응답:", response);
-    console.log("응답 데이터:", response.data);
-    console.log("======================");
 
     return handleApiResponse<Post>(response);
   } catch (error) {
@@ -402,6 +391,8 @@ export const getComments = async (
         return {
           success: true,
           data: [],
+          status: "OK",
+          code: "OK",
           message: "댓글 목록이 비어있습니다.",
         };
       }
@@ -484,41 +475,59 @@ export const deleteComment = async (
   }
 };
 
-// 게시글 검색
+// 댓글 상세 조회
+export const getCommentDetail = async (
+  commentId: number
+): Promise<CommentResponse> => {
+  try {
+    const response = await api.get<CommentResponse>(
+      `/api/comments/${commentId}`
+    );
+    return handleApiResponse<Comment>(response);
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
+    if (error instanceof AxiosError) {
+      throw new ApiError(
+        error.response?.data?.message ||
+          "댓글 상세 조회 중 오류가 발생했습니다.",
+        error.response?.status
+      );
+    }
+    throw new ApiError("댓글 상세 조회 중 알 수 없는 오류가 발생했습니다.");
+  }
+};
+
+// 게시글 검색 (백엔드 API)
 export const searchPosts = async (
-  stepId: number,
+  projectId: number,
+  stepId: number | null,
   searchParams: {
     title?: string;
     author?: string;
     clientCompany?: string;
     developerCompany?: string;
     priority?: PostPriority;
-    status?: PostStatus;
     type?: PostType;
   },
   page: number = 0,
   size: number = 10
-): Promise<PostListResponse> => {
+): Promise<ApiResponse<PageResponse<PostSummaryReadResponse>>> => {
   try {
-    console.log("=== searchPosts 함수 호출 ===");
-    console.log("stepId:", stepId);
-    console.log("검색 파라미터:", searchParams);
-    console.log("페이지:", page, "크기:", size);
+    const requestParams = {
+      projectId,
+      stepId,
+      ...searchParams,
+      page,
+      size,
+    };
 
-    const response = await api.get<PostListResponse>(`/api/posts/all/search`, {
-      params: {
-        stepId,
-        ...searchParams,
-        page,
-        size,
-      },
+    const response = await api.get<
+      ApiResponse<PageResponse<PostSummaryReadResponse>>
+    >(`/api/posts/search`, {
+      params: requestParams,
     });
 
-    console.log("API 응답:", response);
-    console.log("응답 데이터:", response.data);
-    console.log("======================");
-
-    return handleApiResponse<PostListResponse["data"]>(response);
+    return response.data;
   } catch (error) {
     console.error("=== searchPosts 에러 ===");
     console.error("에러:", error);
@@ -539,45 +548,23 @@ export const searchPosts = async (
   }
 };
 
-// 단계별 게시글 목록 조회 (댓글 포함)
-export const getPostsByProjectStep = async (
-  projectId: number,
-  stepId: number,
-  page: number = 0,
-  size: number = 10
-): Promise<PageResponse<PostSummaryReadResponse>> => {
+// 게시글 복구
+export const restorePost = async (
+  postId: number
+): Promise<ApiResponse<any>> => {
   try {
-    const response = await api.get<
-      ApiResponse<PageResponse<PostSummaryReadResponse>>
-    >(
-      `/api/posts/projects/${projectId}/steps/${stepId}?page=${page}&size=${size}`
+    const response = await api.put<ApiResponse<any>>(
+      `/api/posts/${postId}/restore`
     );
-
-    // 각 게시글의 댓글 정보를 가져오기
-    const postsWithComments = await Promise.all(
-      response.data.data.content.map(async (post) => {
-        try {
-          const commentsResponse = await getComments(post.postId);
-          return {
-            ...post,
-            comments: commentsResponse.data || [],
-          };
-        } catch (error) {
-          console.error(`게시글 ${post.postId} 댓글 로드 실패:`, error);
-          return {
-            ...post,
-            comments: [],
-          };
-        }
-      })
-    );
-
-    return {
-      ...response.data.data,
-      content: postsWithComments,
-    };
+    return handleApiResponse<any>(response);
   } catch (error) {
-    console.error("단계별 게시글 조회 실패:", error);
-    throw error;
+    if (error instanceof ApiError) throw error;
+    if (error instanceof AxiosError) {
+      throw new ApiError(
+        error.response?.data?.message || "게시글 복구 중 오류가 발생했습니다.",
+        error.response?.status
+      );
+    }
+    throw new ApiError("게시글 복구 중 알 수 없는 오류가 발생했습니다.");
   }
 };

@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import {
   AnswerFormContainer,
   AnswerFormTitle,
-  AnswerTextArea,
   AnswerFormActions,
   AnswerSubmitButton,
   AnswerCancelButton,
 } from "../styles/AnswerForm.styled";
+import MentionTextArea from "@/components/MentionTextArea";
 
 interface AnswerFormProps {
   placeholder?: string;
@@ -39,6 +39,10 @@ const AnswerForm: React.FC<AnswerFormProps> = ({
     }
   };
 
+  const handleContentChange = (newContent: string) => {
+    setContent(newContent);
+  };
+
   const handleCancel = () => {
     setContent("");
     onCancel?.();
@@ -48,13 +52,12 @@ const AnswerForm: React.FC<AnswerFormProps> = ({
     <AnswerFormContainer>
       {title && <AnswerFormTitle>{title}</AnswerFormTitle>}
       <form onSubmit={handleSubmit}>
-        <AnswerTextArea
+        <MentionTextArea
           value={content}
-          onChange={(e) => setContent(e.target.value)}
+          onChange={handleContentChange}
           placeholder={placeholder}
           disabled={isSubmitting}
           rows={3}
-          required
         />
         <AnswerFormActions>
           <AnswerSubmitButton

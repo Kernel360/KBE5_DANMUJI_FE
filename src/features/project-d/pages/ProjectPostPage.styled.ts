@@ -158,7 +158,7 @@ export const Step = styled.div`
   flex: 1;
 `;
 
-export const StepCircle = styled.div<{ $active: boolean }>`
+export const StepCircle = styled.button<{ $active: boolean }>`
   width: 18px;
   height: 18px;
   border-radius: 50%;
@@ -171,6 +171,23 @@ export const StepCircle = styled.div<{ $active: boolean }>`
   margin-bottom: 8px;
   border: none;
   box-shadow: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: none;
+  }
 `;
 
 export const StepLabel = styled.span`
