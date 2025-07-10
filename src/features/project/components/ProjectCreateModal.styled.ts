@@ -141,7 +141,7 @@ export const DateButton = styled.button<{ $hasValue: boolean }>`
   padding: 12px;
   margin-bottom: 20px;
   margin-top: 10px;
-  background: ${({ $hasValue }) => ($hasValue ? "#fef3c7" : "#f9fafb")};
+  background: ${({ $hasValue }) => ($hasValue ? "#fef3c7" : "#ffffff")};
   border: 2px solid ${({ $hasValue }) => ($hasValue ? "#fdb924" : "#e5e7eb")};
   border-radius: 8px;
   color: ${({ $hasValue }) => ($hasValue ? "#a16207" : "#374151")};
@@ -284,15 +284,17 @@ export const CompanySection = styled.div`  flex: 1;
 
 export const CompanyCard = styled.div<{ $type: 'dev' | 'client' }>`
   margin-bottom: 8px;
-  background: ${({ $type }) => $type === 'dev' ? '#f4f6fa' : '#eaf6ff'};
+  background: #ffffff;
   border-radius: 8px;
   padding: 16px;
   position: relative;
+  border: 1px solid #e5e7eb;
 `;
 
 export const CompanyCardHeader = styled.div`
   display: flex;
   align-items: center;
+  justify-content: space-between;
   margin-bottom: 4px;
   font-weight: 600;
 `;
@@ -370,7 +372,7 @@ export const CompanySectionLabel = styled.div`
     left: 0;
     width: 100%;
     height: 1px;
-    background: linear-gradient(90deg, #fef3c7 0%, #fde68a 100%);
+    
     border-radius: 0.5px;
   }
 `;
@@ -381,7 +383,7 @@ export const AddCompanyButton = styled.button`
   border: 1px solid #fdb924;
   background: linear-gradient(135deg, #fdb924 0%, #fbbf24 100%);
   color: white;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -414,4 +416,136 @@ export const DateLabel = styled.span`
   background: #ffffff;
   margin-bottom: 4px;
   display: block;
+`;
+
+export const EditButton = styled.button`
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: 2px solid #e5e7eb;
+  background: #f9fafb;
+  color: #374151;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    border-color: #fef3c7;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(251, 191, 36, 0.3);
+    color: #fff;
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(251, 191, 36, 0.2);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2);
+  }
+`;
+
+export const DeleteButton = styled.button`
+  padding: 6px 12px;
+  border-radius: 4px;
+ border: 2px solid #e5e7eb;
+  background: #f9fafb;
+  color: #374151;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  height: 28px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    border-color: #fef3c7;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(251, 191, 36, 0.3);
+    color: #fff;
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(251, 191, 36, 0.2);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2);
+  }
+`;
+
+export const ProjectCreateButton = styled.button`
+  padding: 10px 28px;
+  border-radius: 6px;
+  border: 0;
+  font-weight: 500;
+  font-size: 16px;
+  cursor: pointer;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: #ffffff;
+  box-shadow: 0 2px 4px rgba(251, 191, 36, 0.2);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(251, 191, 36, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  svg {
+    color: #ffffff;
+  }
+`;
+
+export const CancelButton = styled.button`
+  padding: 10px 28px;
+  border-radius: 6px;
+  border: 0;
+  font-weight: 500;
+  font-size: 16px;
+  cursor: pointer;
+  border: 2px solid #e5e7eb;
+  background: #ffffff;
+  color: #374151;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+`;
+
+export const ButtonGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
 `;

@@ -2,13 +2,11 @@ import React, { useState, useEffect } from "react";
 import api from "@/api/axios";
 import CompanyMemberSelectModal from "./CompanyMemberSelectModal";
 import useCompanyMemberSelect from "./useCompanyMemberSelect.ts";
-import {
-  FiCalendar,
-} from "react-icons/fi";
 import { SiGoogledocs } from "react-icons/si";
 import { FaSackDollar } from "react-icons/fa6";
 import { IoCalendarNumber, IoClose, IoPerson } from "react-icons/io5";
 import { MdPeople } from "react-icons/md";
+import { HiBuildingOffice2 } from "react-icons/hi2";
 import {
   ModalOverlay,
   ModalPanel,
@@ -31,6 +29,11 @@ import {
   DatePickerWrapper,
   CompanySectionLabel,
   AddCompanyButton,
+  EditButton,
+  DeleteButton,
+  ProjectCreateButton,
+  CancelButton,
+  ButtonGroup,
 } from "./ProjectCreateModal.styled";
 import type { ProjectDetailResponse } from "../services/projectService";
 import DatePicker from "react-datepicker";
@@ -524,17 +527,17 @@ export default function ProjectCreateModal({
         </div>
         {/* 담당 정보 */}
         <div>
-          <FieldLabel>
+          {/* <FieldLabel>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <MdPeople size={16} color="#fdb924" />
               <span>담당 정보</span>
             </div>
-          </FieldLabel>
+          </FieldLabel> */}
           <CompanyRow>
             <div style={{ flex: 1 }}>
               <CompanyCardHeader>
                 <CompanySectionLabel>
-                  <IoPerson size={12} color="#fdb924" />
+                  <IoPerson size={16} color="#fdb924" />
                   개발사 선택 *
                 </CompanySectionLabel>
                 <AddCompanyButton
@@ -543,55 +546,48 @@ export default function ProjectCreateModal({
                     openCompanyMemberModal("dev", true);
                   }}
                 >
-                  + 개발사 추가
+                  + 개발사
                 </AddCompanyButton>
               </CompanyCardHeader>
               {/* 여러 개발사/멤버 표시 (이동) */}
               {selectedDevCompanies.map(({ company, members }) => (
-                <CompanyCard key={company.id} $type="dev">
-                  <CompanyCardHeader>
-                    <CompanyCardTitle>선택된 개발사: {company.name}</CompanyCardTitle>
-                    <Button
-                      style={{ marginLeft: 8 }}
-                      $variant="secondary"
-                      type="button"
-                      onClick={() => {
-                        setEditCompany(company);
-                        setEditMembers(members);
-                        openCompanyMemberModal("dev", false);
-                      }}
-                    >
-                      수정
-                    </Button>
-                    <Button
-                      style={{
-                        marginLeft: 8,
-                        fontSize: 18,
-                        background: "transparent",
-                        color: "#888",
-                      }}
-                      $variant={undefined}
-                      type="button"
-                      onClick={() =>
-                        setSelectedDevCompanies((prev) =>
-                          prev.filter((c) => c.company.id !== company.id)
-                        )
-                      }
-                      aria-label="삭제"
-                    >
-                      ×
-                    </Button>
-                  </CompanyCardHeader>
-                  <CompanyCardMembers>
-                    선택된 멤버: {members.length}명
-                  </CompanyCardMembers>
-                </CompanyCard>
+                   <CompanyCard key={company.id} $type="dev">
+                    <CompanyCardHeader>
+                      <CompanyCardTitle><HiBuildingOffice2 size={16} color="#fdb924" />  {company.name}</CompanyCardTitle>
+                      <ButtonGroup>
+                        <EditButton
+                          type="button"
+                          onClick={() => {
+                            setEditCompany(company);
+                            setEditMembers(members);
+                            openCompanyMemberModal("dev", false);
+                          }}
+                        >
+                          수정
+                        </EditButton>
+                        <DeleteButton
+                          type="button"
+                          onClick={() =>
+                            setSelectedDevCompanies((prev) =>
+                              prev.filter((c) => c.company.id !== company.id)
+                            )
+                          }
+                          aria-label="삭제"
+                        >
+                          삭제
+                        </DeleteButton>
+                      </ButtonGroup>
+                    </CompanyCardHeader>
+                    <CompanyCardMembers style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <MdPeople size={16} color="#fdb924" /> {members.map(member => member.name).join(', ')}
+                    </CompanyCardMembers>
+                  </CompanyCard>
               ))}
             </div>
             <div style={{ flex: 1 }}>
               <CompanyCardHeader>
                 <CompanySectionLabel>
-                  <IoPerson size={12} color="#fdb924" />
+                  <IoPerson size={16} color="#fdb924" />
                   고객사 선택 *
                 </CompanySectionLabel>
                 <AddCompanyButton
@@ -600,64 +596,57 @@ export default function ProjectCreateModal({
                     openCompanyMemberModal("client", true);
                   }}
                 >
-                  + 고객사 추가
+                  + 고객사
                 </AddCompanyButton>
               </CompanyCardHeader>
               {/* 여러 고객사/멤버 표시 (이동) */}
               {selectedClientCompanies.map(({ company, members }) => (
-                <CompanyCard key={company.id} $type="client">
-                  <CompanyCardHeader>
-                    <CompanyCardTitle>선택된 고객사: {company.name}</CompanyCardTitle>
-                    <Button
-                      style={{ marginLeft: 8 }}
-                      $variant="secondary"
-                      type="button"
-                      onClick={() => {
-                        setEditCompany(company);
-                        setEditMembers(members);
-                        openCompanyMemberModal("client", false);
-                      }}
-                    >
-                      수정
-                    </Button>
-                    <Button
-                      style={{
-                        marginLeft: 8,
-                        fontSize: 18,
-                        background: "transparent",
-                        color: "#888",
-                      }}
-                      $variant={undefined}
-                      type="button"
-                      onClick={() =>
-                        setSelectedClientCompanies((prev) =>
-                          prev.filter((c) => c.company.id !== company.id)
-                        )
-                      }
-                      aria-label="삭제"
-                    >
-                      ×
-                    </Button>
-                  </CompanyCardHeader>
-                  <CompanyCardMembers>
-                    선택된 멤버: {members.length}명
-                  </CompanyCardMembers>
-                </CompanyCard>
+                                                    <CompanyCard key={company.id} $type="client">
+                    <CompanyCardHeader>
+                      <CompanyCardTitle><HiBuildingOffice2 size={16} color="#fdb924" />  {company.name}</CompanyCardTitle>
+                      <ButtonGroup>
+                        <EditButton
+                          type="button"
+                          onClick={() => {
+                            setEditCompany(company);
+                            setEditMembers(members);
+                            openCompanyMemberModal("client", false);
+                          }}
+                        >
+                          수정
+                        </EditButton>
+                        <DeleteButton
+                          type="button"
+                          onClick={() =>
+                            setSelectedClientCompanies((prev) =>
+                              prev.filter((c) => c.company.id !== company.id)
+                            )
+                          }
+                          aria-label="삭제"
+                        >
+                          <IoClose />
+                        </DeleteButton>
+                      </ButtonGroup>
+                    </CompanyCardHeader>
+                    <CompanyCardMembers style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <MdPeople size={16} color="#fdb924" /> {members.map(member => member.name).join(', ')}
+                    </CompanyCardMembers>
+                  </CompanyCard>
               ))}
             </div>
           </CompanyRow>
         </div>
         {/* 하단 버튼 */}
         <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, marginTop: 40 }}>
-          <Button $variant={undefined} onClick={onClose}>
+          <CancelButton onClick={onClose}>
             취소
-          </Button>
+          </CancelButton>
           <Button $variant="secondary" onClick={handleReset}>
             초기화
           </Button>
-          <Button $variant="primary" onClick={handleCreateProject}>
+          <ProjectCreateButton onClick={handleCreateProject}>
             {editMode ? "편집" : "프로젝트 생성"}
-          </Button>
+          </ProjectCreateButton>
         </div>
         {/* 닫기 버튼 (오른쪽 상단) */}
         <CloseButton onClick={onClose} aria-label="닫기">
