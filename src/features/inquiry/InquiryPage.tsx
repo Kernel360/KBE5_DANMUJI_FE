@@ -7,7 +7,6 @@ import {
   FiChevronDown,
   FiFileText,
   FiUser,
-  FiList,
   FiCheckCircle,
   FiClock,
   FiCalendar,
@@ -242,8 +241,26 @@ const STATUS_OPTION_META = {
 };
 
 const SEARCH_FIELD_OPTIONS = [
-  { value: "title", label: "제목" },
-  { value: "author", label: "작성자" },
+  {
+    value: "title",
+    label: "제목",
+    icon: () => (
+      <FiFileText
+        size={16}
+        style={{ marginRight: 8, color: "#f59e0b", flexShrink: 0 }}
+      />
+    ),
+  },
+  {
+    value: "author",
+    label: "작성자",
+    icon: () => (
+      <FiUser
+        size={16}
+        style={{ marginRight: 8, color: "#2563eb", flexShrink: 0 }}
+      />
+    ),
+  },
 ];
 
 interface Inquiry {
@@ -400,7 +417,7 @@ function InquiryFilterBar({
     setEndDateOpen(false);
   };
   const formatDate = (dateString: string) => {
-    if (!dateString) return "선택 안함";
+    if (!dateString) return "선택";
     const date = new Date(dateString);
     return date.toLocaleDateString("ko-KR", {
       year: "numeric",
@@ -445,18 +462,26 @@ function InquiryFilterBar({
                   display: "flex",
                   alignItems: "center",
                   gap: 0,
-                  background: STATUS_OPTION_META[filters.status]?.bg,
-                  color: STATUS_OPTION_META[filters.status]?.color,
-                  border: STATUS_OPTION_META[filters.status]?.border,
+                  background:
+                    STATUS_OPTION_META[
+                      filters.status as keyof typeof STATUS_OPTION_META
+                    ]?.bg,
+                  color:
+                    STATUS_OPTION_META[
+                      filters.status as keyof typeof STATUS_OPTION_META
+                    ]?.color,
+                  border:
+                    STATUS_OPTION_META[
+                      filters.status as keyof typeof STATUS_OPTION_META
+                    ]?.border,
                   fontWeight: filters.status ? 700 : 500,
                   transition: "all 0.18s",
                 }}
                 $hasValue={!!filters.status}
               >
-                {(
-                  STATUS_OPTION_META[filters.status]?.icon ||
-                  STATUS_OPTION_META[""]?.icon
-                )?.()}
+                {STATUS_OPTION_META[
+                  filters.status as keyof typeof STATUS_OPTION_META
+                ]?.icon?.()}
                 <span
                   className="select-value"
                   style={{
@@ -473,7 +498,9 @@ function InquiryFilterBar({
                   style={{
                     flexShrink: 0,
                     color:
-                      STATUS_OPTION_META[filters.status]?.color || "#bdbdbd",
+                      STATUS_OPTION_META[
+                        filters.status as keyof typeof STATUS_OPTION_META
+                      ]?.color || "#bdbdbd",
                   }}
                 />
               </SelectButton>
@@ -492,8 +519,14 @@ function InquiryFilterBar({
                     style={
                       filters.status === option.value
                         ? {
-                            background: STATUS_OPTION_META[option.value]?.bg,
-                            color: STATUS_OPTION_META[option.value]?.color,
+                            background:
+                              STATUS_OPTION_META[
+                                option.value as keyof typeof STATUS_OPTION_META
+                              ]?.bg,
+                            color:
+                              STATUS_OPTION_META[
+                                option.value as keyof typeof STATUS_OPTION_META
+                              ]?.color,
                             fontWeight: 700,
                           }
                         : {}
@@ -504,10 +537,15 @@ function InquiryFilterBar({
                         display: "inline-flex",
                         alignItems: "center",
                         marginRight: 6,
-                        color: STATUS_OPTION_META[option.value]?.color,
+                        color:
+                          STATUS_OPTION_META[
+                            option.value as keyof typeof STATUS_OPTION_META
+                          ]?.color,
                       }}
                     >
-                      {STATUS_OPTION_META[option.value]?.icon?.()}
+                      {STATUS_OPTION_META[
+                        option.value as keyof typeof STATUS_OPTION_META
+                      ]?.icon?.()}
                     </span>
                     {option.label}
                   </SelectOption>
@@ -582,7 +620,7 @@ function InquiryFilterBar({
                   color: "#6b7280",
                   fontWeight: 600,
                   fontSize: "0.9rem",
-                  padding: "0 4px",
+                  padding: "0 8px 0 8px",
                 }}
               >
                 ~
@@ -595,7 +633,11 @@ function InquiryFilterBar({
                     setEndDateOpen((prev) => !prev);
                   }}
                   $hasValue={!!filters.endDate}
-                  style={{ display: "flex", alignItems: "center", gap: 6 }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                  }}
                 >
                   <FiCalendar
                     size={16}
@@ -650,7 +692,13 @@ function InquiryFilterBar({
             </DateRangeGroup>
           </FilterGroup>
           {/* 초기화 버튼 */}
-          <div style={{ display: "flex", alignItems: "center", marginLeft: 8 }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginLeft: "-10px",
+            }}
+          >
             <NewButton
               style={{
                 minWidth: "auto",
@@ -736,6 +784,15 @@ function InquiryFilterBar({
                       setSearchFieldDropdownOpen(false);
                     }}
                   >
+                    <span
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        marginRight: 6,
+                      }}
+                    >
+                      {option.icon?.()}
+                    </span>
                     {option.label}
                   </SelectOption>
                 ))}
