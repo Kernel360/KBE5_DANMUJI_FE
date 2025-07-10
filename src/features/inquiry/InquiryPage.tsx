@@ -750,8 +750,14 @@ export default function InquiryPage() {
                 "ko-KR"
               );
               return (
-                <TableRow key={inq.id}>
-                  <InquiryTitleCell onClick={() => handleTitleClick(inq.id)}>
+                <TableRow
+                  key={inq.id}
+                  onClick={() => handleTitleClick(inq.id)}
+                  style={{ cursor: 'pointer' }}
+                  onMouseOver={e => (e.currentTarget.style.background = '#f9fafb')}
+                  onMouseOut={e => (e.currentTarget.style.background = '')}
+                >
+                  <InquiryTitleCell>
                     {inq.title}
                   </InquiryTitleCell>
                   <TableCell>{inq.authorName}</TableCell>
