@@ -48,6 +48,7 @@ const SORT_OPTIONS = [
 ];
 
 const SEARCH_CATEGORY_OPTIONS = [ // all 일때로 나중에 수정
+  { value: "all", label: "전체" },
   { value: "projectName", label: "제목" },
   { value: "companyName", label: "업체" },
 ];
