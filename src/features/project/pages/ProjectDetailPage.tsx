@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import ProjectHeader from "../components/Header/ProjectHeader";
 import ProjectProgress from "../components/Progress/ProjectProgress";
 import ProjectBoard from "../components/Board/ProjectBoard";
@@ -11,61 +11,11 @@ import styled from "styled-components";
 import ProjectCreateModal from "../components/ProjectCreateModal";
 import api from "@/api/axios";
 import { useAuth } from "@/hooks/useAuth";
+import KanbanBoard from "../components/Checklist/KanbanBoard";
+import { DetailPageContainer, PageTitle, PageDescription, LoadingContainer, ErrorContainer } from "./ProjectDetailPage.styled";
 // import ProjectMemberList from "../components/MemberList/ProjectMemberList";
 // import ProjectFileList from '../components/FileList/ProjectFileList';
 
-const DetailPageContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 100vh;
-  padding: 32px 32px;
-`;
-
-const PageTitle = styled.h1`
-  font-size: 1.4rem;
-  font-weight: 700;
-  margin-bottom: -7px;
-  padding-left: 16px;
-  position: relative;
-  color: #111827;
-
-  &::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 4px;
-    height: 1.4rem;
-    background: #fdb924;
-    border-radius: 2px;
-  }
-`;
-
-const PageDescription = styled.p`
-  color: #bdbdbd;
-  font-size: 0.9rem;
-  margin-bottom: 18px;
-`;
-
-const LoadingContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 400px;
-  font-size: 1.1rem;
-  color: #666;
-`;
-
-const ErrorContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 400px;
-  font-size: 1.1rem;
-  color: #ef4444;
-`;
 
 // 프로젝트 수정 폼 타입 정의
 interface ProjectEditForm {
@@ -93,8 +43,35 @@ interface ProjectEditPayload {
   clientUserId: number[];
 }
 
+// 토글 버튼 스타일
+export const TabButton = styled.button<{ $active: boolean }>`
+  padding: 6px 18px;
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+  font-weight: ${(props) => (props.$active ? 700 : 500)};
+  color: ${(props) => (props.$active ? "#f59e0b" : "#bdbdbd")};
+  border-bottom: ${(props) => (props.$active ? "2px solid #fdb924" : "none")};
+  cursor: pointer;
+  transition: color 0.18s, border-bottom 0.18s, background 0.18s;
+  border-radius: 0;
+  margin: 0 0 0 0;
+  &:hover {
+    background: #fffbe8;
+    color: #f59e0b;
+  }
+`;
+const ToggleTabGroup = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-end;
+  gap: 0;
+  margin: 18px;
+`;
+
 const ProjectDetailPage = () => {
   const { projectId } = useParams<{ projectId: string }>();
+  const [searchParams] = useSearchParams();
   const [projectDetail, setProjectDetail] =
     useState<ProjectDetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -104,6 +81,7 @@ const ProjectDetailPage = () => {
   );
   const [editModalOpen, setEditModalOpen] = useState(false);
   const { role } = useAuth();
+  const [viewType, setViewType] = useState<'post' | 'checklist'>('post');
   // 프로젝트 상세 정보 가져오기
   const fetchProjectDetail = async () => {
     if (!projectId) {
@@ -139,6 +117,14 @@ const ProjectDetailPage = () => {
   useEffect(() => {
     fetchProjectDetail();
   }, [projectId]);
+
+  // URL 파라미터에서 tab=checklist가 있으면 체크리스트 탭으로 설정
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'checklist') {
+      setViewType('checklist');
+    }
+  }, [searchParams]);
 
   const handleStepSelect = (stepId: number) => {
     setSelectedStepId(stepId);
@@ -255,7 +241,20 @@ const ProjectDetailPage = () => {
           }
           onStepOrderSaved={fetchProjectDetail}
         />
-        <div style={{ display: "flex", gap: 24, padding: "0 24px 24px" }}>
+        <ToggleTabGroup>
+          <TabButton $active={viewType === 'post'} onClick={() => setViewType('post')}>게시글</TabButton>
+          <TabButton $active={viewType === 'checklist'} onClick={() => setViewType('checklist')}>체크리스트</TabButton>
+        </ToggleTabGroup>
+        {viewType === 'post' ? (
+          <ProjectBoard projectId={projectDetail.id} selectedStepId={selectedStepId} />
+        ) : (
+          <KanbanBoard 
+            projectId={projectDetail.id} 
+            selectedStepId={selectedStepId ?? 0} 
+            canEditStep={projectDetail.myCompanyType === "DEVELOPER" || role === "ROLE_ADMIN"}
+          />
+        )}
+        {/* <div style={{ display: "flex", gap: 24, padding: "0 24px 24px" }}>
           <div style={{ flex: 2 }}>
             <ProjectBoard
               projectId={projectDetail.id}
@@ -264,8 +263,7 @@ const ProjectDetailPage = () => {
             {/* <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 24 }}>
                         <ProjectFileList />
                     </div> */}
-          </div>
-        </div>
+        {/* </div> */}
       </div>
       <ProjectCreateModal
         open={editModalOpen}

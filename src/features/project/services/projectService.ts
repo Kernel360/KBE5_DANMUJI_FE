@@ -86,6 +86,15 @@ export type ProjectDetailResponse = {
   clientUserId?: string;
 };
 
+// 프로젝트 클라이언트 사용자 응답 타입
+export type ProjectClientUserResponse = {
+  id: number;
+  name: string;
+  username: string;
+  companyId: number;
+  companyName: string;
+};
+
 export type ProjectStatusResponse = {
   id: number;
   name: string;
@@ -311,5 +320,29 @@ export const restoreProject = async (
       );
     }
     throw new ApiError("프로젝트 복구 중 알 수 없는 오류가 발생했습니다.");
+  }
+};
+
+// 프로젝트 클라이언트 사용자 조회 (체크리스트 승인자용)
+export const getProjectClientUsers = async (
+  projectId: number
+): Promise<ApiResponse<ProjectClientUserResponse[]>> => {
+  try {
+    const response = await api.get<ApiResponse<ProjectClientUserResponse[]>>(
+      `/api/projects/${projectId}/client-user`
+    );
+    return handleApiResponse<ProjectClientUserResponse[]>(response);
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
+    if (error instanceof AxiosError) {
+      throw new ApiError(
+        error.response?.data?.message ||
+          "프로젝트 클라이언트 사용자 조회 중 오류가 발생했습니다.",
+        error.response?.status
+      );
+    }
+    throw new ApiError(
+      "프로젝트 클라이언트 사용자 조회 중 알 수 없는 오류가 발생했습니다."
+    );
   }
 };

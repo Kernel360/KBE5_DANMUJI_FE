@@ -130,6 +130,7 @@ export interface MyMentionListResponse {
   clientId: number;
   projectId: number | null;
   postId: number | null;
+  referenceId: number | null;
   content: string;
   type: string;
   isRead: boolean;

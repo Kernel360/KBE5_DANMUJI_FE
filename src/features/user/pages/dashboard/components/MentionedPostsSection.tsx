@@ -215,48 +215,48 @@ const MentionedPostsSection = () => {
     switch (mention.type) {
       case "MENTIONED":
         // 멘션된 게시글로 이동
-        if (mention.postId) {
-          setSelectedPostId(mention.postId);
+        if (mention.referenceId) {
+          setSelectedPostId(mention.referenceId);
           setIsDetailModalOpen(true);
         }
         break;
 
       case "COMMENT_POST_CREATED":
         // 내 게시글에 댓글이 달린 경우
-        if (mention.postId) {
-          setSelectedPostId(mention.postId);
+        if (mention.referenceId) {
+          setSelectedPostId(mention.referenceId);
           setIsDetailModalOpen(true);
         }
         break;
 
       case "COMMENT_REPLY_CREATED":
         // 내 댓글에 대댓글이 달린 경우 - 해당 게시글 상세로 이동
-        if (mention.postId) {
-          setSelectedPostId(mention.postId);
+        if (mention.referenceId) {
+          setSelectedPostId(mention.referenceId);
           setIsDetailModalOpen(true);
         }
         break;
 
       case "POST_REPLY_CREATED":
         // 내 게시글에 답글이 달린 경우 - 해당 게시글 상세로 이동
-        if (mention.postId) {
-          setSelectedPostId(mention.postId);
+        if (mention.referenceId) {
+          setSelectedPostId(mention.referenceId);
           setIsDetailModalOpen(true);
         }
         break;
 
       case "PROJECT_POST_CREATED":
         // 프로젝트에 새로운 게시글이 등록된 경우 - 게시글 상세로 이동
-        if (mention.postId) {
-          setSelectedPostId(mention.postId);
+        if (mention.referenceId) {
+          setSelectedPostId(mention.referenceId);
           setIsDetailModalOpen(true);
         }
         break;
 
       case "POST_RESTORED":
         // 게시글이 복구된 경우 - 해당 게시글 상세로 이동
-        if (mention.postId) {
-          setSelectedPostId(mention.postId);
+        if (mention.referenceId) {
+          setSelectedPostId(mention.referenceId);
           setIsDetailModalOpen(true);
         }
         break;

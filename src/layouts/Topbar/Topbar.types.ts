@@ -5,7 +5,7 @@ export interface SseNotification {
   time: string;
   isRead: boolean;
   projectId: number | null;
-  postId: number | null;
+  referenceId: number | null;
 }
 
 export interface UserProfile {

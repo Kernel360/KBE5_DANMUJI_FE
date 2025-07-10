@@ -58,6 +58,8 @@ export interface UserSummaryResponse {
   username: string;
   name: string;
   role: string;
+  companyId: number;
+  companyName: string;
 }
 
 // 프로젝트의 모든 사용자 조회
