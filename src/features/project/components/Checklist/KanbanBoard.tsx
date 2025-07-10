@@ -117,9 +117,10 @@ function Column({ column, cards, onCardClick }: { column: typeof COLUMNS[number]
 interface KanbanBoardProps {
   projectId: number;
   selectedStepId: number;
+  canEditStep?: boolean;
 }
 
-export default function KanbanBoard({ projectId, selectedStepId }: KanbanBoardProps) {
+export default function KanbanBoard({ projectId, selectedStepId, canEditStep }: KanbanBoardProps) {
   const [cards, setCards] = useState<ChecklistCardType[]>([]);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -201,31 +202,33 @@ export default function KanbanBoard({ projectId, selectedStepId }: KanbanBoardPr
 
   return (
     <div style={{ width: '100%' }}>
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'flex-end', 
-        marginBottom: '16px',
-        padding: '0 24px'
-      }}>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          style={{
-            backgroundColor: '#fdb924',
-            color: 'white',
-            border: 'none',
-            borderRadius: '6px',
-            padding: '8px 16px',
-            fontSize: '14px',
-            fontWeight: '500',
-            cursor: 'pointer',
-            transition: 'background-color 0.2s'
-          }}
-          onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f59e0b'}
-          onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#fdb924'}
-        >
-          체크리스트 작성
-        </button>
-      </div>
+      {canEditStep && (
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'flex-end', 
+          marginBottom: '16px',
+          padding: '0 24px'
+        }}>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            style={{
+              backgroundColor: '#fdb924',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              padding: '8px 16px',
+              fontSize: '14px',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'background-color 0.2s'
+            }}
+            onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f59e0b'}
+            onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#fdb924'}
+          >
+            체크리스트 작성
+          </button>
+        </div>
+      )}
       
       <BoardWrapper>
         {loading ? (

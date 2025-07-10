@@ -248,7 +248,11 @@ const ProjectDetailPage = () => {
         {viewType === 'post' ? (
           <ProjectBoard projectId={projectDetail.id} selectedStepId={selectedStepId} />
         ) : (
-          <KanbanBoard projectId={projectDetail.id} selectedStepId={selectedStepId ?? 0} />
+          <KanbanBoard 
+            projectId={projectDetail.id} 
+            selectedStepId={selectedStepId ?? 0} 
+            canEditStep={projectDetail.myCompanyType === "DEVELOPER" || role === "ROLE_ADMIN"}
+          />
         )}
         {/* <div style={{ display: "flex", gap: 24, padding: "0 24px 24px" }}>
           <div style={{ flex: 2 }}>
