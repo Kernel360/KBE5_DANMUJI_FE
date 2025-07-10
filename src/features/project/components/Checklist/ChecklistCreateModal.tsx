@@ -24,28 +24,8 @@ import {
 } from './ChecklistCreateModal.styled';
 import { FaCheckCircle } from 'react-icons/fa';
 // import CompanyMemberSelectModal from '../CompanyMemberSelectModal';
-import { getUsersByProject } from '@/features/user/services/userService';
-import type { UserSummaryResponse } from '@/features/user/services/userService';
-
-// 타입 정의
-interface SelectedApprover {
-  id: number;
-  name: string;
-  username: string;
-  companyName: string;
-}
-
-interface UserListCompany {
-  id: number;
-  companyName: string;
-  assignUsers: {
-    id: number;
-    name: string;
-    position: string;
-    userType: 'MANAGER' | 'MEMBER';
-    username?: string;
-  }[];
-}
+import { getProjectClientUsers } from '@/features/project/services/projectService';
+import type { ProjectClientUserResponse } from '@/features/project/services/projectService';
 
 interface ChecklistCreateModalProps {
   open: boolean;
@@ -62,7 +42,7 @@ interface ChecklistCreateModalProps {
 export default function ChecklistCreateModal({ open, onClose, onSubmit, projectId, stepId }: ChecklistCreateModalProps) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [users, setUsers] = useState<UserSummaryResponse[]>([]);
+  const [users, setUsers] = useState<ProjectClientUserResponse[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [userError, setUserError] = useState<string | null>(null);
   const [selected, setSelected] = useState<{ [userId: number]: boolean }>({});
@@ -71,18 +51,13 @@ export default function ChecklistCreateModal({ open, onClose, onSubmit, projectI
     if (!open) return;
     setLoadingUsers(true);
     setUserError(null);
-    getUsersByProject(projectId)
-      .then(res => setUsers(res.data))
+    getProjectClientUsers(projectId)
+      .then(res => setUsers(res.data || []))
       .catch(err => setUserError('유저 목록을 불러오지 못했습니다.'))
       .finally(() => setLoadingUsers(false));
   }, [open, projectId]);
 
   if (!open) return null;
-
-  const handleRequestApproval = (user: UserSummaryResponse) => {
-    // TODO: 실제 승인요청 로직 구현
-    alert(`${user.name}님에게 승인요청! (stub)`);
-  };
 
   const handleUserToggle = (userId: number) => {
     setSelected(prev => ({ ...prev, [userId]: !prev[userId] }));
