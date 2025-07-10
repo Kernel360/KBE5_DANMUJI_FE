@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import api from '@/api/axios';
+import { useAuth } from '@/hooks/useAuth';
 import {
   ModalOverlay,
   ModalContainer,
@@ -57,6 +58,7 @@ interface ChecklistDetailModalProps {
 }
 
 const ChecklistDetailModal = ({ open, loading, data, onClose, onRefresh }: ChecklistDetailModalProps) => {
+  const { user } = useAuth();
   // 승인/반려 UI 상태를 approval별로 관리
   const [rejectStates, setRejectStates] = useState<{ [approvalId: number]: boolean }>({});
   const [rejectReasons, setRejectReasons] = useState<{ [approvalId: number]: string }>({});
@@ -233,8 +235,8 @@ const ChecklistDetailModal = ({ open, loading, data, onClose, onRefresh }: Check
                           <ApprovalDate>
                             {appr.respondedAt ? `응답일: ${formatDate(appr.respondedAt)}` : '응답 대기'}
                           </ApprovalDate>
-                          {/* 승인/반려 UI: 대기 상태일 때만 노출 */}
-                          {appr.status === 'PENDING' && (
+                          {/* 승인/반려 UI: 대기 상태이고 본인이 할당된 승인자일 때만 노출 */}
+                          {appr.status === 'PENDING' && appr.userId === user?.id && (
                             <ApprovalActions>
                               {!rejectStates[appr.id] ? (
                                 <>
