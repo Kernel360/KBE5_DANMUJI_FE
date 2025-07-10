@@ -20,10 +20,14 @@ export const ModalContainer = styled.div`
   min-width: 600px;
   max-width: 700px;
   width: 90vw;
-  max-height: 80vh;
+  height: 600px;
+  min-height: 600px;
+  max-height: 600px;
   overflow-y: auto;
   box-shadow: 0 2px 32px rgba(0, 0, 0, 0.18);
   position: relative;
+  display: flex;
+  flex-direction: column;
 `;
 
 export const ModalHeader = styled.div`
@@ -34,9 +38,14 @@ export const ModalHeader = styled.div`
 `;
 
 export const ModalTitle = styled.h3`
-  font-size: 22px;
-  font-weight: 700;
   margin-bottom: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
 `;
 
 export const HeaderButtons = styled.div`
@@ -45,13 +54,14 @@ export const HeaderButtons = styled.div`
 `;
 
 export const PrimaryButton = styled.button`
-  background: #2563eb;
-  color: #fff;
-  border: 0;
-  border-radius: 4px;
+  background: #f9fafb;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+  border: 2px solid #e5e7eb;
+  border-radius: 6px;
+
   padding: 6px 16px;
-  font-weight: 500;
-  font-size: 15px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -59,46 +69,121 @@ export const PrimaryButton = styled.button`
   transition: background-color 0.2s;
 
   &:hover {
-    background: #1d4ed8;
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    border-color: #fef3c7;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(251, 191, 36, 0.3);
+    color: #fff;
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(251, 191, 36, 0.2);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2);
   }
 `;
 
 export const SuccessButton = styled(PrimaryButton)`
-  background: #19c37d;
+  background: #f9fafb;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+  border: 2px solid #e5e7eb;
+  border-radius: 6px;
+
+  padding: 6px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.2s;
 
   &:hover {
-    background: #16a362;
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    border-color: #fef3c7;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(251, 191, 36, 0.3);
+    color: #fff;
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(251, 191, 36, 0.2);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2);
   }
 `;
 
 export const SearchContainer = styled.div`
   display: flex;
   align-items: center;
+  
   margin-bottom: 16px;
 `;
 
 export const SearchInput = styled.input`
   width: 100%;
-  padding: 10px;
+  padding: 10px 16px;
+  font-size: 14px;
   border-radius: 6px;
-  border: 1px solid #eee;
-  font-size: 15px;
+  border: 2px solid #e5e7eb;
+   background-color: #ffffff;
+  color: #374151;
+
   outline: none;
   transition: border-color 0.2s;
 
+  &::placeholder {
+    color: #9ca3af;
+  }
+
   &:focus {
-    border-color: #2563eb;
+    border-color: #fdb924;
+    box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.1);
+  }
+
+  &:hover {
+    border-color: #d1d5db;
   }
 `;
 
 export const SearchButton = styled(PrimaryButton)`
   margin-left: 8px;
-  padding: 10px 26px;
+  padding: 10px 24px;
   min-width: 100px;
+  background: #f9fafb;
+  color: #374151;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+
+  &:hover {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    border-color: #fef3c7;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(251, 191, 36, 0.3);
+    color: #fff;
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(251, 191, 36, 0.2);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2);
+  }
 `;
 
 export const CompanyList = styled.div`
-  max-height: 300px;
+  max-height: 500px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -120,7 +205,7 @@ export const CompanyItem = styled.div`
 
   &:hover {
     background: #f1f5f9;
-    border-color: #2563eb;
+    color: #fdb924;
     transform: translateY(-1px);
   }
 `;
@@ -202,16 +287,29 @@ export const BackButton = styled.button`
 `;
 
 export const MemberSearchInput = styled.input`
-  width: 100%;
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid #eee;
   margin: 12px 0 16px 0;
+  width: 100%;
+  padding: 10px 16px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 2px solid #e5e7eb;
+   background-color: #ffffff;
+  color: #374151;
+
   outline: none;
   transition: border-color 0.2s;
 
+  &::placeholder {
+    color: #9ca3af;
+  }
+
   &:focus {
-    border-color: #2563eb;
+    border-color: #fdb924;
+    box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.1);
+  }
+
+  &:hover {
+    border-color: #d1d5db;
   }
 `;
 
@@ -221,6 +319,7 @@ export const MemberList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
+  flex: 1 1 auto;
 `;
 
 export const MemberItem = styled.div`
@@ -247,14 +346,14 @@ export const MemberInfo = styled.div`
 export const MemberAvatar = styled.div`
   width: 32px;
   height: 32px;
-  background: #2563eb;
+  background: #fdb924;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   font-weight: bold;
-  font-size: 14px;
+  font-size: 15px;
 `;
 
 export const MemberDetails = styled.div``;
@@ -276,7 +375,7 @@ export const MemberButtons = styled.div`
 export const ManagerButton = styled.button<{ selected?: boolean }>`
   border: 0;
   border-radius: 4px;
-  background: ${props => props.selected ? "#4338ca" : "#eee"};
+  background: ${props => props.selected ? "#fdb924" : "#eee"};
   color: ${props => props.selected ? "#fff" : "#222"};
   padding: 4px 12px;
   cursor: pointer;
@@ -286,44 +385,62 @@ export const ManagerButton = styled.button<{ selected?: boolean }>`
   gap: 4px;
 
   &:hover {
-    background: ${props => props.selected ? "#3730a3" : "#ddd"};
+    background: ${props => props.selected ? "#fdb924" : "#ddd"};
   }
 `;
 
 export const MemberButton = styled(ManagerButton)<{ selected?: boolean }>`
-  background: ${props => props.selected ? "#19c37d" : "#eee"};
+  background: ${props => props.selected ? "#fdb924" : "#eee"};
   color: ${props => props.selected ? "#fff" : "#222"};
 
   &:hover {
-    background: ${props => props.selected ? "#16a362" : "#ddd"};
+    background: ${props => props.selected ? "#fdb924" : "#ddd"};
   }
 `;
 
 export const RegisterButton = styled.button`
-  margin-top: 24px;
+  margin-top: 28px;
   width: 100%;
   border: 0;
   border-radius: 6px;
-  background: #4338ca;
-  color: #fff;
-  padding: 10px;
-  font-weight: 500;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 8px 0;
   cursor: pointer;
   transition: background-color 0.2s;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 4px;
+  min-width: 120px;
+  max-width: 180px;
+  align-self: stretch;
 
   &:hover {
-    background: #3730a3;
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(251, 191, 36, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  svg {
+    color: #ffffff;
+    vertical-align: middle;
+    margin-bottom: 1px;
+    font-size: 1.1em;
+    display: inline-block;
   }
 `;
 
 export const CloseButton = styled.button`
   position: absolute;
-  top: 16px;
-  right: 16px;
+  top: 12px;
+  right: 32px;
   background: transparent;
   border: 0;
   font-size: 22px;

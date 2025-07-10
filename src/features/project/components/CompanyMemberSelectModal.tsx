@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { IoPeopleOutline, IoSearch } from "react-icons/io5";
+import React, { useState, useEffect, useRef } from "react";
+import { IoPeopleOutline, IoClose } from "react-icons/io5";
+import { FiSearch, FiHome, FiRotateCcw} from "react-icons/fi";
+import { FaUserPlus } from "react-icons/fa";
 import api from "@/api/axios";
 import CompanyRegisterModal from "@/features/company/components/CompanyRegisterModal/CompanyRegisterModal";
 import MemberRegisterModal from "@/features/user/components/MemberRegisterModal/MemberRegisterModal";
@@ -85,6 +87,7 @@ const CompanyMemberSelectModal: React.FC<CompanyMemberSelectModalProps> = ({
   const [memberModalOpen, setMemberModalOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0); // 업체 목록 강제 새로고침용
   const [memberRefreshKey, setMemberRefreshKey] = useState(0); // 멤버 목록 강제 새로고침용
+  const companyListRef = useRef<HTMLDivElement>(null);
 
   // ✅ 검색 버튼 or Enter 입력 시 호출되는 함수
   const handleSearch = () => {
@@ -181,17 +184,24 @@ const CompanyMemberSelectModal: React.FC<CompanyMemberSelectModalProps> = ({
     if (e.target === e.currentTarget) onClose();
   };
 
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+    setTimeout(() => {
+      companyListRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+    }, 0);
+  };
+
   return (
     <ModalOverlay onClick={handleOverlayClick}>
       <ModalContainer>
         <ModalHeader>
-          <ModalTitle>업체 선택</ModalTitle>
+          <ModalTitle> <FiHome size={18} color="#fdb924" />업체 선택</ModalTitle>
           <HeaderButtons>
             <PrimaryButton onClick={() => setCompanyModalOpen(true)}>
               업체 등록
             </PrimaryButton>
             <SuccessButton onClick={() => setMemberModalOpen(true)}>
-              멤버 생성
+              멤버 등록
             </SuccessButton>
           </HeaderButtons>
         </ModalHeader>
@@ -201,7 +211,7 @@ const CompanyMemberSelectModal: React.FC<CompanyMemberSelectModalProps> = ({
             {/* ✅ 검색 input + 버튼 */}
             <SearchContainer>
               <SearchInput
-                placeholder="업체명 검색"
+                placeholder="업체명 검색..."
                 value={inputValue}
                 onChange={e => setInputValue(e.target.value)}
                 autoFocus
@@ -210,12 +220,12 @@ const CompanyMemberSelectModal: React.FC<CompanyMemberSelectModalProps> = ({
                 }}
               />
               <SearchButton onClick={handleSearch}>
-                <IoSearch />검색
+              <FiSearch size={16} />검색
               </SearchButton>
             </SearchContainer>
 
             {/* ✅ 업체 목록 */}
-            <CompanyList>
+            <CompanyList ref={companyListRef}>
               {loading && <LoadingText>불러오는 중...</LoadingText>}
               {!loading && companies.length === 0 && <EmptyText>검색 결과 없음</EmptyText>}
               {companies
@@ -241,14 +251,14 @@ const CompanyMemberSelectModal: React.FC<CompanyMemberSelectModalProps> = ({
                 <PaginationContainer>
                   <PaginationButton
                     disabled={page === 0}
-                    onClick={() => setPage(page - 1)}
+                    onClick={() => handlePageChange(page - 1)}
                   >
                     ◀ 이전
                   </PaginationButton>
                   <PaginationText>{page + 1} / {totalPages}</PaginationText>
                   <PaginationButton
                     disabled={page + 1 >= totalPages}
-                    onClick={() => setPage(page + 1)}
+                    onClick={() => handlePageChange(page + 1)}
                   >
                     다음 ▶
                   </PaginationButton>
@@ -269,11 +279,12 @@ const CompanyMemberSelectModal: React.FC<CompanyMemberSelectModalProps> = ({
                   setSelectedMembersState([]);
                 }}
               >
-                업체 다시 선택
+                <FiRotateCcw />
+                업체 변경
               </BackButton>
             </SelectedCompanyHeader>
             <MemberSearchInput
-              placeholder="멤버 이름 검색"
+              placeholder="멤버 이름 검색..."
               value={memberSearch}
               onChange={(e) => setMemberSearch(e.target.value)}
             />
@@ -309,21 +320,24 @@ const CompanyMemberSelectModal: React.FC<CompanyMemberSelectModalProps> = ({
                 );
               })}
             </MemberList>
-            <RegisterButton
-              onClick={() => {
-                if (selectedMembersState.length === 0) {
-                  alert("한 명 이상 선택해야 합니다");
-                  return;
-                }
-                onDone(selectedCompanyState, selectedMembersState);
-              }}
-            >
-              등록
-            </RegisterButton>
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <RegisterButton
+                onClick={() => {
+                  if (selectedMembersState.length === 0) {
+                    alert("한 명 이상 선택해야 합니다");
+                    return;
+                  }
+                  onDone(selectedCompanyState, selectedMembersState);
+                }}
+              >
+                <FaUserPlus />
+                등록
+              </RegisterButton>
+            </div>
           </>
         )}
         <CloseButton onClick={onClose} aria-label="닫기">
-          ×
+          <IoClose size={23} />
         </CloseButton>
         {companyModalOpen && (
           <CompanyRegisterModal
