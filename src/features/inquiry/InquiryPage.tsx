@@ -293,14 +293,20 @@ function InquiryFilterBar({
 
   const handleStartDateChange = (date: Date | null) => {
     if (date) {
-      const formattedDate = date.toISOString().split("T")[0];
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const formattedDate = `${year}-${month}-${day}`;
       onChange("startDate", formattedDate);
     }
     setStartDateOpen(false);
   };
   const handleEndDateChange = (date: Date | null) => {
     if (date) {
-      const formattedDate = date.toISOString().split("T")[0];
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const formattedDate = `${year}-${month}-${day}`;
       onChange("endDate", formattedDate);
     }
     setEndDateOpen(false);
@@ -611,8 +617,14 @@ const PaginationButton = styled.button<{ $active?: boolean }>`
 `;
 
 export default function InquiryPage() {
-  const [allInquiries, setAllInquiries] = useState<Inquiry[]>([]);
-  const [filteredInquiries, setFilteredInquiries] = useState<Inquiry[]>([]);
+  const [inquiries, setInquiries] = useState<Inquiry[]>([]);
+  const [page, setPage] = useState(0); // 0-based
+  const [pageInfo, setPageInfo] = useState({
+    size: 10,
+    number: 0,
+    totalElements: 0,
+    totalPages: 1,
+  });
   const [filters, setFilters] = useState({
     searchField: "title",
     searchValue: "",
@@ -620,23 +632,56 @@ export default function InquiryPage() {
     endDate: "",
     status: "",
   });
-  const [page, setPage] = useState(1);
-  const pageSize = 10;
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchInquiries = async () => {
-      try {
-        const response = await api.get("/api/inquiries/all");
-        if (response.data && response.data.data) {
-          const inquiriesData = response.data.data;
-          setAllInquiries(inquiriesData);
-          setFilteredInquiries(inquiriesData);
-        }
-      } catch (error) {
-        console.error("문의사항 목록을 불러오는데 실패했습니다.", error);
+  const fetchInquiries = async (pageNumber = 0) => {
+    try {
+      const response = await api.get(`/api/inquiries?page=${pageNumber}&size=10&sort=createdAt,desc`);
+      const data = response.data.data;
+      setInquiries(data.content);
+      setPageInfo(data.page);
+      setPage(data.page.number);
+    } catch (error) {
+      console.error("문의사항 목록을 불러오는데 실패했습니다.", error);
+    }
+  };
+
+  const fetchFilteredInquiries = async (pageNumber = 0) => {
+    try {
+      const params = new URLSearchParams();
+      params.append("page", String(pageNumber));
+      params.append("size", "10");
+      params.append("sort", "createdAt,desc");
+      if (filters.searchField === "title" && filters.searchValue) {
+        params.append("title", filters.searchValue);
       }
-    };
+      if (filters.searchField === "author" && filters.searchValue) {
+        params.append("authorName", filters.searchValue);
+      }
+      // 답변 상태 변환
+      let statusParam = filters.status;
+      if (statusParam === "답변완료") statusParam = "ANSWERED";
+      if (statusParam === "답변대기") statusParam = "WAITING";
+      if (statusParam) {
+        params.append("status", statusParam);
+      }
+      if (filters.startDate) {
+        params.append("startDate", filters.startDate);
+      }
+      if (filters.endDate) {
+        params.append("endDate", filters.endDate);
+      }
+      const response = await api.get(`/api/inquiries/filtering?${params.toString()}`);
+      const data = response.data.data;
+      setInquiries(data.content);
+      setPageInfo(data.page);
+      setPage(data.page.number);
+    } catch (error) {
+      console.error("필터링된 문의사항 목록을 불러오는데 실패했습니다.", error);
+    }
+  };
+
+  useEffect(() => {
     fetchInquiries();
   }, []);
 
@@ -648,78 +693,16 @@ export default function InquiryPage() {
     setFilters((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSearch = () => {
-    let result = allInquiries;
-
-    if (filters.searchValue) {
-      if (filters.searchField === "title") {
-        result = result.filter((i) => i.title.includes(filters.searchValue));
-      } else if (filters.searchField === "author") {
-        result = result.filter((i) =>
-          i.authorName.includes(filters.searchValue)
-        );
-      }
-    }
-
-    if (filters.status) {
-      result = result.filter((i) => {
-        const statusText =
-          i.inquiryStatus === "WAITING" ? "답변대기" : "답변완료";
-        return statusText === filters.status;
-      });
-    }
-
-    if (filters.startDate) {
-      result = result.filter(
-        (i) => new Date(i.createdAt) >= new Date(filters.startDate)
-      );
-    }
-
-    if (filters.endDate) {
-      const endDate = new Date(filters.endDate);
-      endDate.setHours(23, 59, 59, 999);
-      result = result.filter((i) => new Date(i.createdAt) <= endDate);
-    }
-
-    setFilteredInquiries(result);
-    setPage(1);
-  };
-
-  const handleReset = () => {
-    setFilters({
-      searchField: "title",
-      searchValue: "",
-      startDate: "",
-      endDate: "",
-      status: "",
-    });
-    setFilteredInquiries(allInquiries);
-    setPage(1);
+  const handleFilteredPageChange = (newPage: number) => {
+    fetchFilteredInquiries(newPage);
   };
 
   const getPaginationInfo = () => {
-    if (filteredInquiries.length === 0) return "표시할 문의가 없습니다.";
-    const start = (page - 1) * pageSize + 1;
-    const end = Math.min(page * pageSize, filteredInquiries.length);
-    return `총 ${filteredInquiries.length}개의 문의 중 ${start}-${end}개 표시`;
+    if (pageInfo.totalElements === 0) return "표시할 문의가 없습니다.";
+    const start = pageInfo.number * pageInfo.size + 1;
+    const end = Math.min((pageInfo.number + 1) * pageInfo.size, pageInfo.totalElements);
+    return `총 ${pageInfo.totalElements}개의 문의 중 ${start}-${end}개 표시`;
   };
-
-  // 10개씩 앞뒤로 가는 함수
-  const handleJumpForward = () => {
-    const newPage = Math.min(page + 10, pageCount);
-    setPage(newPage);
-  };
-
-  const handleJumpBackward = () => {
-    const newPage = Math.max(page - 10, 1);
-    setPage(newPage);
-  };
-
-  const pageCount = Math.ceil(filteredInquiries.length / pageSize);
-  const pagedData = filteredInquiries.slice(
-    (page - 1) * pageSize,
-    page * pageSize
-  );
 
   return (
     <Container>
@@ -730,11 +713,22 @@ export default function InquiryPage() {
       <InquiryFilterBar
         filters={filters}
         onChange={handleFilterChange}
-        onSearch={handleSearch}
-        onReset={handleReset}
+        onSearch={() => {
+          fetchFilteredInquiries(0);
+        }}
+        onReset={() => {
+          setFilters({
+            searchField: "title",
+            searchValue: "",
+            startDate: "",
+            endDate: "",
+            status: "",
+          });
+          fetchInquiries(0);
+        }}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
-            handleSearch();
+            fetchFilteredInquiries(0);
           }
         }}
       />
@@ -749,7 +743,7 @@ export default function InquiryPage() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {pagedData.map((inq) => {
+            {inquiries.map((inq) => {
               const statusText =
                 inq.inquiryStatus === "WAITING" ? "답변대기" : "답변완료";
               const formattedDate = new Date(inq.createdAt).toLocaleDateString(
@@ -768,7 +762,7 @@ export default function InquiryPage() {
                 </TableRow>
               );
             })}
-            {Array.from({ length: pageSize - pagedData.length }).map(
+            {Array.from({ length: pageInfo.size - inquiries.length }).map(
               (_, idx) => (
                 <TableRow key={`empty-${idx}`}>
                   <TableCell
@@ -786,57 +780,57 @@ export default function InquiryPage() {
         </Table>
       </TableContainer>
       <PaginationContainer>
-        {filteredInquiries.length > 0 && (
+        {pageInfo.totalElements > 0 && (
           <PaginationNav>
             {/* 첫 페이지로 이동 버튼 */}
-            {page > 1 && (
-              <PaginationButton onClick={() => setPage(1)}>
+            {page > 0 && (
+              <PaginationButton onClick={() => handleFilteredPageChange(0)}>
                 맨 처음
               </PaginationButton>
             )}
 
             {/* 10개씩 뒤로 가기 버튼 */}
-            {page > 10 && (
-              <PaginationButton onClick={handleJumpBackward}>
+            {page >= 10 && (
+              <PaginationButton onClick={() => handleFilteredPageChange(Math.max(page - 10, 0))}>
                 -10
               </PaginationButton>
             )}
 
-            {page > 1 && (
-              <PaginationButton onClick={() => setPage(page - 1)}>
+            {page > 0 && (
+              <PaginationButton onClick={() => handleFilteredPageChange(page - 1)}>
                 이전
               </PaginationButton>
             )}
-            {Array.from({ length: pageCount }, (_, idx) =>
-              idx + 1 === page ? (
-                <PaginationButton key={idx + 1} $active>
+            {Array.from({ length: pageInfo.totalPages }, (_, idx) =>
+              idx === page ? (
+                <PaginationButton key={idx} $active>
                   {idx + 1}
                 </PaginationButton>
               ) : (
                 <PaginationButton
-                  key={idx + 1}
-                  onClick={() => setPage(idx + 1)}
+                  key={idx}
+                  onClick={() => handleFilteredPageChange(idx)}
                 >
                   {idx + 1}
                 </PaginationButton>
               )
             )}
-            {page < pageCount && (
-              <PaginationButton onClick={() => setPage(page + 1)}>
+            {page + 1 < pageInfo.totalPages && (
+              <PaginationButton onClick={() => handleFilteredPageChange(page + 1)}>
                 다음
               </PaginationButton>
             )}
 
             {/* 10개씩 앞으로 가기 버튼 */}
-            {page + 10 <= pageCount && (
-              <PaginationButton onClick={handleJumpForward}>
+            {page + 10 < pageInfo.totalPages && (
+              <PaginationButton onClick={() => handleFilteredPageChange(Math.min(page + 10, pageInfo.totalPages - 1))}>
                 +10
               </PaginationButton>
             )}
 
             {/* 마지막 페이지로 이동 버튼 */}
-            {page < pageCount && (
-              <PaginationButton onClick={() => setPage(pageCount)}>
+            {page + 1 < pageInfo.totalPages && (
+              <PaginationButton onClick={() => handleFilteredPageChange(pageInfo.totalPages - 1)}>
                 맨 마지막
               </PaginationButton>
             )}

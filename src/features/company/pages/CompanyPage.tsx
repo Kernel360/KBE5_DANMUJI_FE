@@ -120,6 +120,10 @@ const TableCell = styled.td`
   color: #374151;
   vertical-align: middle;
   text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
 `;
 
 const PaginationContainer = styled.div`
@@ -223,6 +227,10 @@ export const formatBizNo = (bizNo: string) => {
 export const formatTelNo = (telNo: string) => {
   if (!telNo) return telNo;
   const cleaned = ("" + telNo).replace(/\D/g, "");
+  // 대표번호(8자리) 15881588 -> 1588-1588
+  if (/^1[0-9]{3}[0-9]{4}$/.test(cleaned)) {
+    return cleaned.replace(/(\d{4})(\d{4})/, '$1-$2');
+  }
   // 11자리(휴대폰) 01012345678 -> 010-1234-5678
   if (cleaned.length === 11) {
     const match = cleaned.match(/^(\d{3})(\d{4})(\d{4})$/);
@@ -240,7 +248,7 @@ export const formatTelNo = (telNo: string) => {
       }
     } else {
       // 그 외 3자리 지역번호
-      const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
+      const match = cleaned.match(/^([0-9]{3})([0-9]{3})([0-9]{4})$/);
       if (match) {
         return `${match[1]}-${match[2]}-${match[3]}`;
       }
@@ -539,12 +547,7 @@ export default function CompanyPage() {
                     >
                       <FiHome size={14} style={{ color: "#8b5cf6" }} />
                       <span
-                        style={{
-                          fontSize: "14px",
-                          color: "#374151",
-                          fontWeight: "500",
-                        }}
-                      >
+                        style={{whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',maxWidth:'150px',display:'block',fontSize:'14px',color:'#374151',fontWeight:'500'}}>
                         {c.name}
                       </span>
                     </div>
@@ -575,12 +578,7 @@ export default function CompanyPage() {
                     >
                       <FiUser size={14} style={{ color: "#3b82f6" }} />
                       <span
-                        style={{
-                          fontSize: "14px",
-                          color: "#374151",
-                          fontWeight: "500",
-                        }}
-                      >
+                        style={{whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',maxWidth:'150px',display:'block',fontSize:'14px',color:'#374151',fontWeight:'500'}}>
                         {c.ceoName}
                       </span>
                     </div>

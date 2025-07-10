@@ -17,14 +17,18 @@ const PageContainer = styled.div`
 
 const Header = styled.div`
   display: flex;
+  flex-direction: row;
   justify-content: space-between;
   align-items: flex-start;
   border-bottom: 1px solid #e5e7eb;
   padding-bottom: 24px;
   margin-bottom: 24px;
+  gap: 24px;
 `;
 
 const HeaderInfo = styled.div`
+  flex: 1 1 0;
+  min-width: 0;
   display: flex;
   flex-direction: column;
 `;
@@ -66,7 +70,11 @@ const MetaInfo = styled.div`
 
 const HeaderActions = styled.div`
   display: flex;
+  flex-direction: row;
   gap: 12px;
+  align-items: flex-start;
+  margin-left: 16px;
+  white-space: nowrap;
 `;
 
 const ActionButton = styled.button<{ $variant: "primary" | "danger" | "default" }>`
@@ -439,8 +447,9 @@ export default function InquiryDetailPage() {
           </StatusBadges>
           {isEditing ? (
             <input
+              type="text"
               value={editedTitle}
-              onChange={e => setEditedTitle(e.target.value)}
+              onChange={(e) => setEditedTitle(e.target.value)}
               style={{
                 width: '100%',
                 fontSize: '28px',
@@ -454,18 +463,19 @@ export default function InquiryDetailPage() {
               maxLength={100}
             />
           ) : (
-            <div style={{
-              fontSize: '28px',
-              fontWeight: 700,
-              fontFamily: 'Pretendard, Noto Sans KR, Roboto, Arial, sans-serif',
-              lineHeight: 1.2
-            }}>{inquiry.title}</div>
+            <>
+              <div style={{
+                fontSize: '28px',
+                fontWeight: 700,
+                fontFamily: 'Pretendard, Noto Sans KR, Roboto, Arial, sans-serif',
+                lineHeight: 1.2
+              }}>{inquiry.title}</div>
+              <MetaInfo>
+                <span>작성자 {inquiry.authorName}</span>
+                <span>작성일 {formatDate(inquiry.createdAt)}</span>
+              </MetaInfo>
+            </>
           )}
-          
-          <MetaInfo>
-            <span>작성자 {inquiry.authorName}</span>
-            <span>작성일 {formatDate(inquiry.createdAt)}</span>
-          </MetaInfo>
         </HeaderInfo>
         <HeaderActions>
           {isEditing ? (
@@ -502,7 +512,12 @@ export default function InquiryDetailPage() {
 
       <ContentSection>
         {isEditing ? (
-          <TextArea value={editedContent} onChange={e => setEditedContent(e.target.value)} style={{minHeight: 120}} />
+          <TextArea
+            value={editedContent}
+            onChange={e => setEditedContent(e.target.value)}
+            style={{minHeight: 120}}
+            maxLength={255}
+          />
         ) : (
           <p>{inquiry.content}</p>
         )}
@@ -547,6 +562,7 @@ export default function InquiryDetailPage() {
                       value={editedAnswerContent}
                       onChange={e => setEditedAnswerContent(e.target.value)}
                       rows={4}
+                      maxLength={255}
                     />
                     <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
                       <ActionButton $variant="primary" onClick={() => handleSaveAnswer(answer.id)}>

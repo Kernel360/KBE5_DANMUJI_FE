@@ -266,6 +266,41 @@ declare global {
   }
 }
 
+// 전화번호 자동 하이픈 함수
+function formatPhoneNumber(value: string): string {
+  const cleaned = value.replace(/\D/g, "");
+  // 1588-1588, 1544-1234 등 8자리 대표번호
+  if (/^1[0-9]{3}[0-9]{4}$/.test(cleaned)) {
+    return cleaned.replace(/(\d{4})(\d{4})/, '$1-$2');
+  }
+  // 02-xxxx-xxxx (서울 2자리 지역번호)
+  if (/^02\d{8}$/.test(cleaned)) {
+    return cleaned.replace(/(02)(\d{4})(\d{4})/, '$1-$2-$3');
+  }
+  // 02-xxx-xxxx (서울 2자리 지역번호, 7자리)
+  if (/^02\d{7}$/.test(cleaned)) {
+    return cleaned.replace(/(02)(\d{3})(\d{4})/, '$1-$2-$3');
+  }
+  // 0xx-xxx-xxxx (3자리 지역번호)
+  if (/^0\d{2}\d{3}\d{4}$/.test(cleaned)) {
+    return cleaned.replace(/(0\d{2})(\d{3})(\d{4})/, '$1-$2-$3');
+  }
+  // 0xx-xxxx-xxxx (3자리 지역번호, 11자리)
+  if (/^0\d{2}\d{4}\d{4}$/.test(cleaned)) {
+    return cleaned.replace(/(0\d{2})(\d{4})(\d{4})/, '$1-$2-$3');
+  }
+  // 010-xxxx-xxxx (휴대폰)
+  if (/^01[016789]\d{7,8}$/.test(cleaned)) {
+    if (cleaned.length === 11) {
+      return cleaned.replace(/(01[016789])(\d{4})(\d{4})/, '$1-$2-$3');
+    } else {
+      return cleaned.replace(/(01[016789])(\d{3})(\d{4})/, '$1-$2-$3');
+    }
+  }
+  // fallback: 그냥 숫자만
+  return cleaned;
+}
+
 export default function CompanyEditModal({
   open,
   onClose,
@@ -295,6 +330,7 @@ export default function CompanyEditModal({
   const [reg1, setReg1] = useState("");
   const [reg2, setReg2] = useState("");
   const [reg3, setReg3] = useState("");
+  // 1. telMaxLength 상태 및 관련 setTelMaxLength 로직 제거
 
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -313,7 +349,7 @@ export default function CompanyEditModal({
         ceoName: initialData.ceoName,
         email: initialData.email,
         bio: initialData.bio,
-        tel: initialData.tel,
+        tel: formatPhoneNumber(initialData.tel || ""),
       });
       setReg1(String(initialData.bizNo).padStart(10, "0").slice(0, 3));
       setReg2(String(initialData.bizNo).padStart(10, "0").slice(3, 5));
@@ -380,10 +416,15 @@ export default function CompanyEditModal({
     }
   };
 
+  // 2. handleChange에서 tel 관련 maxLength 동적 변경 로직 제거
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
+    if (name === "tel") {
+      setFormData((prev) => ({ ...prev, tel: formatPhoneNumber(value) }));
+      return;
+    }
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -459,12 +500,13 @@ export default function CompanyEditModal({
         reason: "올바른 이메일 형식이 아닙니다.",
       });
     }
-    const telRegex = /^\d{9,11}$/;
-    if (!cleanedTel || !telRegex.test(cleanedTel)) {
+    // 전화번호 유효성 검사: 010-0000-0000, 02-000-0000, 02-0000-0000, 1588-1588 등 다양한 패턴 허용
+    const phonePattern = /^(01[016789]-\d{3,4}-\d{4}|0\d{1,2}-\d{3,4}-\d{4}|1\d{3}-\d{4})$/;
+    if (!phonePattern.test(formData.tel)) {
       newFieldErrors.push({
         field: "tel",
         value: formData.tel,
-        reason: "전화번호는 9~11자리의 숫자로 입력해주세요.",
+        reason: "전화번호 형식이 올바르지 않습니다. 예: 010-1234-5678, 02-123-4567, 1588-1588 등",
       });
     }
 
@@ -515,13 +557,7 @@ export default function CompanyEditModal({
               <FiHome size={14} />
               업체명
             </Label>
-            <Input
-              name="name"
-              required
-              placeholder="업체명을 입력하세요"
-              value={formData.name || ""}
-              onChange={handleChange}
-            />
+            <Input name="name" required placeholder="업체명을 입력하세요" value={formData.name || ""} onChange={handleChange} maxLength={50} />
             {fieldErrors.find((e) => e.field === "name") && (
               <p style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>
                 {fieldErrors.find((e) => e.field === "name")?.reason}
@@ -580,7 +616,7 @@ export default function CompanyEditModal({
               </PostcodeButton>
             </PostcodeRow>
             <AddressInput name="baseAddress" placeholder="기본주소" value={formData.baseAddress} readOnly onChange={handleChange} />
-            <AddressInput name="detailAddress" placeholder="상세주소" value={formData.detailAddress} onChange={handleChange} />
+            <AddressInput name="detailAddress" placeholder="상세주소" value={formData.detailAddress} onChange={handleChange} maxLength={50} />
             {fieldErrors.find((e) => e.field === "address") && (
               <p style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>
                 {fieldErrors.find((e) => e.field === "address")?.reason}
@@ -598,6 +634,7 @@ export default function CompanyEditModal({
               placeholder="대표자명을 입력하세요"
               value={formData.ceoName || ""}
               onChange={handleChange}
+              maxLength={50}
             />
           </FormGroup>
           <FormGroup>
@@ -612,6 +649,7 @@ export default function CompanyEditModal({
               placeholder="이메일을 입력하세요"
               value={formData.email || ""}
               onChange={handleChange}
+              maxLength={50}
             />
           </FormGroup>
           <FormGroup>
@@ -626,6 +664,7 @@ export default function CompanyEditModal({
               placeholder="전화번호를 입력하세요"
               value={formData.tel || ""}
               onChange={handleChange}
+              maxLength={13}
             />
           </FormGroup>
           <FormGroup>
@@ -639,6 +678,7 @@ export default function CompanyEditModal({
               placeholder="간단한 설명을 입력하세요"
               value={formData.bio || ""}
               onChange={handleChange}
+              maxLength={255}
             />
           </FormGroup>
           <SubmitButton type="submit">
