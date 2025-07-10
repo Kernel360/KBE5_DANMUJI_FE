@@ -7,6 +7,11 @@ import {
   FiChevronDown,
   FiFileText,
   FiUser,
+  FiList,
+  FiCheckCircle,
+  FiClock,
+  FiCalendar,
+  FiGrid,
 } from "react-icons/fi";
 import {
   SelectButton,
@@ -111,7 +116,7 @@ const TableRow = styled.tr`
 `;
 
 const TableCell = styled.td`
-  padding: 10px 12px;
+  padding: 10px 14px;
   text-align: left;
   color: #374151;
   vertical-align: middle;
@@ -135,17 +140,13 @@ const StatusBadge = styled.span<{ $status: string }>`
   font-size: 12px;
   font-weight: 600;
   color: ${({ $status }: { $status: string }) =>
-    $status === "답변완료"
+    $status === "완료"
       ? "#16a34a"
-      : $status === "답변대기"
+      : $status === "대기"
       ? "#d97706"
       : "#4b5565"};
   background-color: ${({ $status }: { $status: string }) =>
-    $status === "답변완료"
-      ? "#dcfce7"
-      : $status === "답변대기"
-      ? "#fef3c7"
-      : "#fff"};
+    $status === "완료" ? "#dcfce7" : $status === "대기" ? "#fef3c7" : "#fff"};
 `;
 
 const FilterBar = styled.div`
@@ -178,7 +179,7 @@ const FilterLabel = styled.label`
 const SearchInput = styled.input`
   min-width: 120px;
   max-width: 220px;
-  padding: 10px 16px;
+  padding: 7px 16px;
   font-size: 14px;
   border: 2px solid #e5e7eb;
   border-radius: 10px;
@@ -200,9 +201,45 @@ const SearchInput = styled.input`
 
 const STATUS_OPTIONS = [
   { value: "", label: "전체" },
-  { value: "답변대기", label: "답변대기" },
-  { value: "답변완료", label: "답변완료" },
+  { value: "대기", label: "답변대기" },
+  { value: "완료", label: "답변완료" },
 ];
+
+const STATUS_OPTION_META = {
+  "": {
+    color: "#374151",
+    bg: "#fff",
+    border: "2px solid #e5e7eb",
+    icon: () => (
+      <FiGrid
+        size={16}
+        style={{ marginRight: 8, color: "#6b7280", flexShrink: 0 }}
+      />
+    ),
+  },
+  완료: {
+    color: "#10b981",
+    bg: "#ecfdf5",
+    border: "2px solid #10b981",
+    icon: () => (
+      <FiCheckCircle
+        size={16}
+        style={{ marginRight: 8, color: "#10b981", flexShrink: 0 }}
+      />
+    ),
+  },
+  대기: {
+    color: "#f59e0b",
+    bg: "#fffbe8",
+    border: "2px solid #f59e0b",
+    icon: () => (
+      <FiClock
+        size={16}
+        style={{ marginRight: 8, color: "#f59e0b", flexShrink: 0 }}
+      />
+    ),
+  },
+};
 
 const SEARCH_FIELD_OPTIONS = [
   { value: "title", label: "제목" },
@@ -374,16 +411,272 @@ function InquiryFilterBar({
 
   return (
     <DatePickerStyles>
-      <FilterBar>
-        <FilterGroup
+      <FilterBar
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "flex-end",
+          justifyContent: "space-between",
+          gap: 24,
+        }}
+      >
+        {/* 왼쪽: 답변상태, 날짜, 초기화 */}
+        <div
           style={{
-            flexDirection: "column",
-            alignItems: "flex-start",
-            gap: 6,
-            minWidth: 220,
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "flex-end",
+            gap: 20,
           }}
         >
-          <FilterLabel>검색</FilterLabel>
+          {/* 답변상태 필터 */}
+          <FilterGroup>
+            <FilterLabel>답변 상태</FilterLabel>
+            <div style={{ position: "relative" }} ref={statusDropdownRef}>
+              <SelectButton
+                type="button"
+                onClick={() => setStatusDropdownOpen((prev) => !prev)}
+                className={statusDropdownOpen ? "open" : ""}
+                style={{
+                  padding: "0 12px",
+                  width: 123,
+                  height: 36,
+                  minHeight: 36,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 0,
+                  background: STATUS_OPTION_META[filters.status]?.bg,
+                  color: STATUS_OPTION_META[filters.status]?.color,
+                  border: STATUS_OPTION_META[filters.status]?.border,
+                  fontWeight: filters.status ? 700 : 500,
+                  transition: "all 0.18s",
+                }}
+                $hasValue={!!filters.status}
+              >
+                {(
+                  STATUS_OPTION_META[filters.status]?.icon ||
+                  STATUS_OPTION_META[""]?.icon
+                )?.()}
+                <span
+                  className="select-value"
+                  style={{
+                    marginRight: 8,
+                    minWidth: 43,
+                    textAlign: "left",
+                    display: "inline-block",
+                  }}
+                >
+                  {getStatusLabel(filters.status)}
+                </span>
+                <FiChevronDown
+                  size={16}
+                  style={{
+                    flexShrink: 0,
+                    color:
+                      STATUS_OPTION_META[filters.status]?.color || "#bdbdbd",
+                  }}
+                />
+              </SelectButton>
+              <SelectDropdown
+                $isOpen={statusDropdownOpen}
+                style={{ minWidth: 100 }}
+              >
+                {STATUS_OPTIONS.map((option) => (
+                  <SelectOption
+                    key={option.value}
+                    $isSelected={filters.status === option.value}
+                    onClick={() => {
+                      onChange("status", option.value);
+                      setStatusDropdownOpen(false);
+                    }}
+                    style={
+                      filters.status === option.value
+                        ? {
+                            background: STATUS_OPTION_META[option.value]?.bg,
+                            color: STATUS_OPTION_META[option.value]?.color,
+                            fontWeight: 700,
+                          }
+                        : {}
+                    }
+                  >
+                    <span
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        marginRight: 6,
+                        color: STATUS_OPTION_META[option.value]?.color,
+                      }}
+                    >
+                      {STATUS_OPTION_META[option.value]?.icon?.()}
+                    </span>
+                    {option.label}
+                  </SelectOption>
+                ))}
+              </SelectDropdown>
+            </div>
+          </FilterGroup>
+          {/* 날짜 필터 */}
+          <FilterGroup>
+            <FilterLabel>작성일</FilterLabel>
+            <DateRangeGroup>
+              <div style={{ position: "relative" }}>
+                <DateButton
+                  type="button"
+                  onClick={() => {
+                    setEndDateOpen(false);
+                    setStartDateOpen((prev) => !prev);
+                  }}
+                  $hasValue={!!filters.startDate}
+                  style={{ display: "flex", alignItems: "center", gap: 6 }}
+                >
+                  <FiCalendar
+                    size={16}
+                    style={{
+                      color: filters.startDate ? "#fdb924" : "#bdbdbd",
+                      marginRight: 4,
+                    }}
+                  />
+                  <span>시작일</span>
+                  <span className="date-value">
+                    {formatDate(filters.startDate)}
+                  </span>
+                </DateButton>
+                {startDateOpen && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "100%",
+                      left: 0,
+                      zIndex: 1000,
+                      marginTop: 4,
+                    }}
+                  >
+                    <DatePicker
+                      selected={
+                        filters.startDate ? new Date(filters.startDate) : null
+                      }
+                      onChange={handleStartDateChange}
+                      selectsStart
+                      startDate={
+                        filters.startDate ? new Date(filters.startDate) : null
+                      }
+                      endDate={
+                        filters.endDate ? new Date(filters.endDate) : null
+                      }
+                      maxDate={
+                        filters.endDate ? new Date(filters.endDate) : undefined
+                      }
+                      dateFormat="yyyy-MM-dd"
+                      placeholderText="시작일 선택"
+                      inline
+                      onClickOutside={() => setStartDateOpen(false)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Escape") setStartDateOpen(false);
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+              <span
+                style={{
+                  color: "#6b7280",
+                  fontWeight: 600,
+                  fontSize: "0.9rem",
+                  padding: "0 4px",
+                }}
+              >
+                ~
+              </span>
+              <div style={{ position: "relative" }}>
+                <DateButton
+                  type="button"
+                  onClick={() => {
+                    setStartDateOpen(false);
+                    setEndDateOpen((prev) => !prev);
+                  }}
+                  $hasValue={!!filters.endDate}
+                  style={{ display: "flex", alignItems: "center", gap: 6 }}
+                >
+                  <FiCalendar
+                    size={16}
+                    style={{
+                      color: filters.endDate ? "#fdb924" : "#bdbdbd",
+                      marginRight: 4,
+                    }}
+                  />
+                  <span>종료일</span>
+                  <span className="date-value">
+                    {formatDate(filters.endDate)}
+                  </span>
+                </DateButton>
+                {endDateOpen && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "100%",
+                      left: 0,
+                      zIndex: 1000,
+                      marginTop: 4,
+                    }}
+                  >
+                    <DatePicker
+                      selected={
+                        filters.endDate ? new Date(filters.endDate) : null
+                      }
+                      onChange={handleEndDateChange}
+                      selectsEnd
+                      startDate={
+                        filters.startDate ? new Date(filters.startDate) : null
+                      }
+                      endDate={
+                        filters.endDate ? new Date(filters.endDate) : null
+                      }
+                      minDate={
+                        filters.startDate
+                          ? new Date(filters.startDate)
+                          : undefined
+                      }
+                      dateFormat="yyyy-MM-dd"
+                      placeholderText="종료일 선택"
+                      inline
+                      onClickOutside={() => setEndDateOpen(false)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Escape") setEndDateOpen(false);
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+            </DateRangeGroup>
+          </FilterGroup>
+          {/* 초기화 버튼 */}
+          <div style={{ display: "flex", alignItems: "center", marginLeft: 8 }}>
+            <NewButton
+              style={{
+                minWidth: "auto",
+                padding: "10px",
+                width: "40px",
+                height: "40px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+              onClick={onReset}
+              title="초기화"
+            >
+              <FiRotateCcw size={16} />
+            </NewButton>
+          </div>
+        </div>
+        {/* 오른쪽: 검색 옵션 드롭다운+검색창, 검색버튼 */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "flex-end",
+            gap: 8,
+          }}
+        >
           <div
             style={{
               display: "flex",
@@ -460,155 +753,6 @@ function InquiryFilterBar({
               onKeyDown={onKeyDown}
             />
           </div>
-        </FilterGroup>
-        <FilterGroup>
-          <FilterLabel>답변 상태</FilterLabel>
-          <div style={{ position: "relative" }} ref={statusDropdownRef}>
-            <SelectButton
-              type="button"
-              onClick={() => setStatusDropdownOpen((prev) => !prev)}
-              className={statusDropdownOpen ? "open" : ""}
-              style={{ paddingLeft: 10, paddingRight: 10, width: 100 }}
-              $hasValue={false}
-            >
-              <span className="select-value">
-                {getStatusLabel(filters.status)}
-              </span>
-              <FiChevronDown size={16} />
-            </SelectButton>
-            <SelectDropdown
-              $isOpen={statusDropdownOpen}
-              style={{ minWidth: 100 }}
-            >
-              {STATUS_OPTIONS.map((option) => (
-                <SelectOption
-                  key={option.value}
-                  $isSelected={filters.status === option.value}
-                  onClick={() => {
-                    onChange("status", option.value);
-                    setStatusDropdownOpen(false);
-                  }}
-                >
-                  {option.label}
-                </SelectOption>
-              ))}
-            </SelectDropdown>
-          </div>
-        </FilterGroup>
-        <FilterGroup>
-          <FilterLabel>작성일</FilterLabel>
-          <DateRangeGroup>
-            <div style={{ position: "relative" }}>
-              <DateButton
-                type="button"
-                onClick={() => {
-                  setEndDateOpen(false);
-                  setStartDateOpen((prev) => !prev);
-                }}
-                $hasValue={!!filters.startDate}
-              >
-                <span>시작일</span>
-                <span className="date-value">
-                  {formatDate(filters.startDate)}
-                </span>
-              </DateButton>
-              {startDateOpen && (
-                <div
-                  style={{
-                    position: "absolute",
-                    top: "100%",
-                    left: 0,
-                    zIndex: 1000,
-                    marginTop: 4,
-                  }}
-                >
-                  <DatePicker
-                    selected={
-                      filters.startDate ? new Date(filters.startDate) : null
-                    }
-                    onChange={handleStartDateChange}
-                    selectsStart
-                    startDate={
-                      filters.startDate ? new Date(filters.startDate) : null
-                    }
-                    endDate={filters.endDate ? new Date(filters.endDate) : null}
-                    maxDate={
-                      filters.endDate ? new Date(filters.endDate) : undefined
-                    }
-                    dateFormat="yyyy-MM-dd"
-                    placeholderText="시작일 선택"
-                    inline
-                    onClickOutside={() => setStartDateOpen(false)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Escape") setStartDateOpen(false);
-                    }}
-                  />
-                </div>
-              )}
-            </div>
-            <span
-              style={{
-                color: "#6b7280",
-                fontWeight: 600,
-                fontSize: "0.9rem",
-                padding: "0 4px",
-              }}
-            >
-              ~
-            </span>
-            <div style={{ position: "relative" }}>
-              <DateButton
-                type="button"
-                onClick={() => {
-                  setStartDateOpen(false);
-                  setEndDateOpen((prev) => !prev);
-                }}
-                $hasValue={!!filters.endDate}
-              >
-                <span>종료일</span>
-                <span className="date-value">
-                  {formatDate(filters.endDate)}
-                </span>
-              </DateButton>
-              {endDateOpen && (
-                <div
-                  style={{
-                    position: "absolute",
-                    top: "100%",
-                    left: 0,
-                    zIndex: 1000,
-                    marginTop: 4,
-                  }}
-                >
-                  <DatePicker
-                    selected={
-                      filters.endDate ? new Date(filters.endDate) : null
-                    }
-                    onChange={handleEndDateChange}
-                    selectsEnd
-                    startDate={
-                      filters.startDate ? new Date(filters.startDate) : null
-                    }
-                    endDate={filters.endDate ? new Date(filters.endDate) : null}
-                    minDate={
-                      filters.startDate
-                        ? new Date(filters.startDate)
-                        : undefined
-                    }
-                    dateFormat="yyyy-MM-dd"
-                    placeholderText="종료일 선택"
-                    inline
-                    onClickOutside={() => setEndDateOpen(false)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Escape") setEndDateOpen(false);
-                    }}
-                  />
-                </div>
-              )}
-            </div>
-          </DateRangeGroup>
-        </FilterGroup>
-        <div style={{ display: "flex", gap: 8 }}>
           <NewButton
             style={{
               minWidth: "auto",
@@ -622,21 +766,6 @@ function InquiryFilterBar({
             onClick={onSearch}
           >
             <FiSearch size={16} />
-          </NewButton>
-          <NewButton
-            style={{
-              minWidth: "auto",
-              padding: "10px",
-              width: "40px",
-              height: "40px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-            onClick={onReset}
-            title="초기화"
-          >
-            <FiRotateCcw size={16} />
           </NewButton>
         </div>
       </FilterBar>
@@ -738,8 +867,8 @@ export default function InquiryPage() {
       }
       // 답변 상태 변환
       let statusParam = filters.status;
-      if (statusParam === "답변완료") statusParam = "ANSWERED";
-      if (statusParam === "답변대기") statusParam = "WAITING";
+      if (statusParam === "완료") statusParam = "ANSWERED";
+      if (statusParam === "대기") statusParam = "WAITING";
       if (statusParam) {
         params.append("status", statusParam);
       }
@@ -828,7 +957,7 @@ export default function InquiryPage() {
           <TableBody>
             {inquiries.map((inq) => {
               const statusText =
-                inq.inquiryStatus === "WAITING" ? "답변대기" : "답변완료";
+                inq.inquiryStatus === "WAITING" ? "대기" : "완료";
               const formattedDate = new Date(inq.createdAt).toLocaleDateString(
                 "ko-KR"
               );
