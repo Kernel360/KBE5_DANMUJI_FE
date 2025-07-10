@@ -147,6 +147,12 @@ const MemberRegisterModal: React.FC<MemberRegisterModalProps> = ({
       return;
     }
 
+    // 이름 유효성 검사: 2자 이상 30자 이하
+    if (formData.name.length < 2 || formData.name.length > 30) {
+      alert("이름은 2자 이상 30자 이하로 입력해주세요.");
+      return;
+    }
+
     // 전화번호 유효성 검사: 010-0000-0000, 02-000-0000, 02-0000-0000, 1588-1588 등 다양한 패턴 허용
     const phoneRegex = /^(01[016789]-\d{3,4}-\d{4}|0\d{1,2}-\d{3,4}-\d{4}|1\d{3}-\d{4})$/;
     if (!phoneRegex.test(formData.phone)) {
@@ -212,6 +218,7 @@ const MemberRegisterModal: React.FC<MemberRegisterModalProps> = ({
                     onChange={handleInputChange}
                     placeholder="아이디를 입력하세요"
                     required
+                    maxLength={50}
                   />
                 </S.FormGroup>
                 <S.FormGroup />
@@ -320,6 +327,7 @@ const MemberRegisterModal: React.FC<MemberRegisterModalProps> = ({
                     value={formData.position}
                     onChange={handleInputChange}
                     placeholder="직책을 입력하세요"
+                    maxLength={50}
                   />
                 </S.FormGroup>
               </S.FormRow>
@@ -338,6 +346,8 @@ const MemberRegisterModal: React.FC<MemberRegisterModalProps> = ({
                     onChange={handleInputChange}
                     placeholder="이름을 입력하세요"
                     required
+                    minLength={2}
+                    maxLength={30}
                   />
                 </S.FormGroup>
                 <S.FormGroup />
@@ -357,6 +367,7 @@ const MemberRegisterModal: React.FC<MemberRegisterModalProps> = ({
                     onChange={handleInputChange}
                     placeholder="전화번호를 입력하세요 ('-'없이 입력)"
                     required
+                    maxLength={13}
                   />
                 </S.FormGroup>
                 <S.FormGroup>
@@ -371,6 +382,7 @@ const MemberRegisterModal: React.FC<MemberRegisterModalProps> = ({
                     onChange={handleInputChange}
                     placeholder="이메일을 입력하세요"
                     required
+                    maxLength={50}
                   />
                 </S.FormGroup>
               </S.FormRow>

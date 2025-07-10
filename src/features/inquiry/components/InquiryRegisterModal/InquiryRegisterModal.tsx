@@ -228,7 +228,7 @@ export default function InquiryRegisterModal({ onClose, onSuccess }: Props) {
               onChange={(e) => setTitle(e.target.value)}
               placeholder="문의 제목을 입력하세요"
               required
-              maxLength={255}
+              maxLength={100}
             />
           </FormGroup>
           <FormGroup>
