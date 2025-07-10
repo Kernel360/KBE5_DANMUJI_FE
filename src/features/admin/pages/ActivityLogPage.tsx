@@ -56,11 +56,7 @@ import {
 import { FiPackage } from "react-icons/fi";
 import { LuUserRoundCog } from "react-icons/lu";
 import ActivityLogDetailModal from "../components/ActivityLogDetailModal";
-import {
-  formatDateOnly,
-  formatTimeOnly,
-  formatFullDateTime,
-} from "@/utils/dateUtils";
+import { formatDateOnly, formatTimeOnly } from "@/utils/dateUtils";
 import {
   getActivityLogs,
   transformHistoryToActivityLog,
