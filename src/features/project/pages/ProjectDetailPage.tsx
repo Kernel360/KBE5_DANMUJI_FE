@@ -63,10 +63,10 @@ export const TabButton = styled.button<{ $active: boolean }>`
 `;
 const ToggleTabGroup = styled.div`
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
   align-items: flex-end;
   gap: 0;
-  margin: 18px 0 18px 0;
+  margin: 18px;
 `;
 
 const ProjectDetailPage = () => {
