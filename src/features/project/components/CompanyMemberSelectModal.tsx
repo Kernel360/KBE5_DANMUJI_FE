@@ -372,10 +372,23 @@ const CompanyMemberSelectModal: React.FC<CompanyMemberSelectModalProps> = ({
             onClose={() => setMemberModalOpen(false)}
             onRegister={async (memberData) => {
               try {
-                await api.post("/api/admin", memberData);
+                const response = await api.post("/api/admin", memberData);
+                // 파일 저장 로직 추가
+                const { username, password } = response.data.data || {};
+                if (username && password) {
+                  const fileContent = `Username: ${username}\nPassword: ${password}`;
+                  const blob = new Blob([fileContent], { type: "text/plain" });
+                  const fileUrl = URL.createObjectURL(blob);
+                  const link = document.createElement("a");
+                  link.href = fileUrl;
+                  link.download = "member_credentials.txt";
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                }
                 setMemberModalOpen(false);
                 setMemberRefreshKey((k) => k + 1); // 멤버 목록 강제 새로고침
-                // 성공 알림 등 필요시 추가
+                alert("멤버가 성공적으로 등록되었습니다.");
               } catch (e) {
                 alert("멤버 등록에 실패했습니다.");
               }
