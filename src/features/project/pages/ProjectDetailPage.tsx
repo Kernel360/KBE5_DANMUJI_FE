@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import ProjectHeader from "../components/Header/ProjectHeader";
 import ProjectProgress from "../components/Progress/ProjectProgress";
 import ProjectBoard from "../components/Board/ProjectBoard";
@@ -71,6 +71,7 @@ const ToggleTabGroup = styled.div`
 
 const ProjectDetailPage = () => {
   const { projectId } = useParams<{ projectId: string }>();
+  const [searchParams] = useSearchParams();
   const [projectDetail, setProjectDetail] =
     useState<ProjectDetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -116,6 +117,14 @@ const ProjectDetailPage = () => {
   useEffect(() => {
     fetchProjectDetail();
   }, [projectId]);
+
+  // URL 파라미터에서 tab=checklist가 있으면 체크리스트 탭으로 설정
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'checklist') {
+      setViewType('checklist');
+    }
+  }, [searchParams]);
 
   const handleStepSelect = (stepId: number) => {
     setSelectedStepId(stepId);

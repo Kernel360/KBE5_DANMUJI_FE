@@ -60,12 +60,6 @@ const NotificationDropdown: React.FC<Props> = ({
 
   const handleNotificationClick = (notification: SseNotification) => {
     if (
-      notification.type === "PROJECT_CREATE_ASSIGNMENT" &&
-      notification.projectId
-    ) {
-      navigate(`/projects/${notification.projectId}/detail`);
-      setIsOpen(false);
-    } else if (
       [
         "PROJECT_POST_CREATED",
         "POST_REPLY_CREATED",
@@ -73,16 +67,16 @@ const NotificationDropdown: React.FC<Props> = ({
         "COMMENT_REPLY_CREATED",
         "POST_RESTORED",
       ].includes(notification.type) &&
-      notification.postId
+      notification.referenceId
     ) {
       navigate(`/projects/${notification.projectId}/detail`);
-      setModalPostId(notification.postId);
+      setModalPostId(notification.referenceId);
       setIsOpen(false);
     } else if (notification.type === "MENTIONED") {
       // 멘션 알림 처리
-      if (notification.postId) {
+      if (notification.referenceId) {
         navigate(`/projects/${notification.projectId}/detail`);
-        setModalPostId(notification.postId);
+        setModalPostId(notification.referenceId);
         setIsOpen(false);
       }
     } else if (
@@ -91,6 +85,22 @@ const NotificationDropdown: React.FC<Props> = ({
       notification.type === "STEP_APPROVAL_REJECTED"
     ) {
       // 단계 승인 관련 알림 처리
+      if (notification.projectId) {
+        navigate(`/projects/${notification.projectId}/detail`);
+        setIsOpen(false);
+      }
+    } else if (
+      notification.type === "CHECKLIST_REQUEST" ||
+      notification.type === "CHECKLIST_ACCEPTED" ||
+      notification.type === "CHECKLIST_REJECTED"
+    ) {
+      // 체크리스트 관련 알림 처리
+      if (notification.projectId) {
+        navigate(`/projects/${notification.projectId}/detail?tab=checklist`);
+        setIsOpen(false);
+      }
+    } else if (notification.type === "PROJECT_CREATE_ASSIGNMENT") {
+      // 새 프로젝트 배정 알림 처리 - 기본 post 탭으로 이동
       if (notification.projectId) {
         navigate(`/projects/${notification.projectId}/detail`);
         setIsOpen(false);
