@@ -255,6 +255,7 @@ export default function KanbanBoard({ projectId, selectedStepId }: KanbanBoardPr
         loading={detailLoading}
         data={detailData}
         onClose={handleDetailModalClose}
+        onRefresh={fetchCards}
       />
     </div>
   );

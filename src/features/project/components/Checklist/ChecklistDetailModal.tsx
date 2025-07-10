@@ -53,9 +53,10 @@ interface ChecklistDetailModalProps {
   loading: boolean;
   data: any;
   onClose: () => void;
+  onRefresh?: () => void;
 }
 
-const ChecklistDetailModal = ({ open, loading, data, onClose }: ChecklistDetailModalProps) => {
+const ChecklistDetailModal = ({ open, loading, data, onClose, onRefresh }: ChecklistDetailModalProps) => {
   // 승인/반려 UI 상태를 approval별로 관리
   const [rejectStates, setRejectStates] = useState<{ [approvalId: number]: boolean }>({});
   const [rejectReasons, setRejectReasons] = useState<{ [approvalId: number]: string }>({});
@@ -103,6 +104,10 @@ const ChecklistDetailModal = ({ open, loading, data, onClose }: ChecklistDetailM
       );
       setRejectStates((prev) => ({ ...prev, [approvalId]: false }));
       setRejectReasons((prev) => ({ ...prev, [approvalId]: '' }));
+      // 체크리스트 목록 새로고침
+      if (onRefresh) {
+        onRefresh();
+      }
     } catch (e) {
       let msg = '승인 처리에 실패했습니다.';
       if (e && typeof e === 'object') {
@@ -141,6 +146,10 @@ const ChecklistDetailModal = ({ open, loading, data, onClose }: ChecklistDetailM
       );
       setRejectStates((prev) => ({ ...prev, [approvalId]: false }));
       setRejectReasons((prev) => ({ ...prev, [approvalId]: '' }));
+      // 체크리스트 목록 새로고침
+      if (onRefresh) {
+        onRefresh();
+      }
     } catch (e) {
       let msg = '반려 처리에 실패했습니다.';
       if (e && typeof e === 'object') {
