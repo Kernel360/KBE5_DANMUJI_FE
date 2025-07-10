@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
-import { FiSearch, FiRotateCcw, FiChevronDown } from "react-icons/fi";
+import {
+  FiSearch,
+  FiRotateCcw,
+  FiChevronDown,
+  FiFileText,
+  FiUser,
+} from "react-icons/fi";
 import {
   SelectButton,
   SelectDropdown,
@@ -291,11 +297,56 @@ function InquiryFilterBar({
     return option ? option.label : "전체";
   };
 
+  // 드롭다운 버튼 색상/아이콘 분기 함수
+  const getSearchFieldMeta = (field: string) => {
+    if (field === "title") {
+      return {
+        border: "2px solid #fdb924",
+        color: "#f59e0b",
+        bg: "#fffbe8",
+        icon: (
+          <FiFileText
+            size={16}
+            style={{ marginRight: 8, color: "#f59e0b", flexShrink: 0 }}
+          />
+        ),
+        chevron: "#f59e0b",
+      };
+    } else if (field === "author") {
+      return {
+        border: "2px solid #2563eb",
+        color: "#2563eb",
+        bg: "#e0f2fe",
+        icon: (
+          <FiUser
+            size={16}
+            style={{ marginRight: 8, color: "#2563eb", flexShrink: 0 }}
+          />
+        ),
+        chevron: "#2563eb",
+      };
+    }
+    return {
+      border: "2px solid #e5e7eb",
+      color: "#374151",
+      bg: "#fff",
+      icon: (
+        <FiFileText
+          size={16}
+          style={{ marginRight: 8, color: "#bdbdbd", flexShrink: 0 }}
+        />
+      ),
+      chevron: "#bdbdbd",
+    };
+  };
+
+  const searchFieldMeta = getSearchFieldMeta(filters.searchField);
+
   const handleStartDateChange = (date: Date | null) => {
     if (date) {
       const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
       const formattedDate = `${year}-${month}-${day}`;
       onChange("startDate", formattedDate);
     }
@@ -304,8 +355,8 @@ function InquiryFilterBar({
   const handleEndDateChange = (date: Date | null) => {
     if (date) {
       const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
       const formattedDate = `${year}-${month}-${day}`;
       onChange("endDate", formattedDate);
     }
@@ -346,13 +397,38 @@ function InquiryFilterBar({
                 type="button"
                 onClick={() => setSearchFieldDropdownOpen((prev) => !prev)}
                 className={searchFieldDropdownOpen ? "open" : ""}
-                style={{ paddingLeft: 10, paddingRight: 10, width: 100 }}
-                $hasValue={false}
+                style={{
+                  padding: "0 12px",
+                  width: 110,
+                  height: 36,
+                  minHeight: 36,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 0,
+                  background: searchFieldMeta.bg,
+                  color: searchFieldMeta.color,
+                  border: searchFieldMeta.border,
+                  fontWeight: filters.searchField ? 700 : 500,
+                  transition: "all 0.18s",
+                }}
+                $hasValue={!!filters.searchField}
               >
-                <span className="select-value">
+                {searchFieldMeta.icon}
+                <span
+                  className="select-value"
+                  style={{
+                    marginRight: 8,
+                    minWidth: 36,
+                    textAlign: "left",
+                    display: "inline-block",
+                  }}
+                >
                   {getSearchFieldLabel(filters.searchField)}
                 </span>
-                <FiChevronDown size={16} />
+                <FiChevronDown
+                  size={16}
+                  style={{ flexShrink: 0, color: searchFieldMeta.chevron }}
+                />
               </SelectButton>
               <SelectDropdown
                 $isOpen={searchFieldDropdownOpen}
@@ -636,7 +712,9 @@ export default function InquiryPage() {
 
   const fetchInquiries = async (pageNumber = 0) => {
     try {
-      const response = await api.get(`/api/inquiries?page=${pageNumber}&size=10&sort=createdAt,desc`);
+      const response = await api.get(
+        `/api/inquiries?page=${pageNumber}&size=10&sort=createdAt,desc`
+      );
       const data = response.data.data;
       setInquiries(data.content);
       setPageInfo(data.page);
@@ -671,7 +749,9 @@ export default function InquiryPage() {
       if (filters.endDate) {
         params.append("endDate", filters.endDate);
       }
-      const response = await api.get(`/api/inquiries/filtering?${params.toString()}`);
+      const response = await api.get(
+        `/api/inquiries/filtering?${params.toString()}`
+      );
       const data = response.data.data;
       setInquiries(data.content);
       setPageInfo(data.page);
@@ -700,7 +780,10 @@ export default function InquiryPage() {
   const getPaginationInfo = () => {
     if (pageInfo.totalElements === 0) return "표시할 문의가 없습니다.";
     const start = pageInfo.number * pageInfo.size + 1;
-    const end = Math.min((pageInfo.number + 1) * pageInfo.size, pageInfo.totalElements);
+    const end = Math.min(
+      (pageInfo.number + 1) * pageInfo.size,
+      pageInfo.totalElements
+    );
     return `총 ${pageInfo.totalElements}개의 문의 중 ${start}-${end}개 표시`;
   };
 
@@ -753,13 +836,13 @@ export default function InquiryPage() {
                 <TableRow
                   key={inq.id}
                   onClick={() => handleTitleClick(inq.id)}
-                  style={{ cursor: 'pointer' }}
-                  onMouseOver={e => (e.currentTarget.style.background = '#f9fafb')}
-                  onMouseOut={e => (e.currentTarget.style.background = '')}
+                  style={{ cursor: "pointer" }}
+                  onMouseOver={(e) =>
+                    (e.currentTarget.style.background = "#f9fafb")
+                  }
+                  onMouseOut={(e) => (e.currentTarget.style.background = "")}
                 >
-                  <InquiryTitleCell>
-                    {inq.title}
-                  </InquiryTitleCell>
+                  <InquiryTitleCell>{inq.title}</InquiryTitleCell>
                   <TableCell>{inq.authorName}</TableCell>
                   <TableCell>{formattedDate}</TableCell>
                   <TableCell>
@@ -797,13 +880,17 @@ export default function InquiryPage() {
 
             {/* 10개씩 뒤로 가기 버튼 */}
             {page >= 10 && (
-              <PaginationButton onClick={() => handleFilteredPageChange(Math.max(page - 10, 0))}>
+              <PaginationButton
+                onClick={() => handleFilteredPageChange(Math.max(page - 10, 0))}
+              >
                 -10
               </PaginationButton>
             )}
 
             {page > 0 && (
-              <PaginationButton onClick={() => handleFilteredPageChange(page - 1)}>
+              <PaginationButton
+                onClick={() => handleFilteredPageChange(page - 1)}
+              >
                 이전
               </PaginationButton>
             )}
@@ -822,21 +909,33 @@ export default function InquiryPage() {
               )
             )}
             {page + 1 < pageInfo.totalPages && (
-              <PaginationButton onClick={() => handleFilteredPageChange(page + 1)}>
+              <PaginationButton
+                onClick={() => handleFilteredPageChange(page + 1)}
+              >
                 다음
               </PaginationButton>
             )}
 
             {/* 10개씩 앞으로 가기 버튼 */}
             {page + 10 < pageInfo.totalPages && (
-              <PaginationButton onClick={() => handleFilteredPageChange(Math.min(page + 10, pageInfo.totalPages - 1))}>
+              <PaginationButton
+                onClick={() =>
+                  handleFilteredPageChange(
+                    Math.min(page + 10, pageInfo.totalPages - 1)
+                  )
+                }
+              >
                 +10
               </PaginationButton>
             )}
 
             {/* 마지막 페이지로 이동 버튼 */}
             {page + 1 < pageInfo.totalPages && (
-              <PaginationButton onClick={() => handleFilteredPageChange(pageInfo.totalPages - 1)}>
+              <PaginationButton
+                onClick={() =>
+                  handleFilteredPageChange(pageInfo.totalPages - 1)
+                }
+              >
                 맨 마지막
               </PaginationButton>
             )}
