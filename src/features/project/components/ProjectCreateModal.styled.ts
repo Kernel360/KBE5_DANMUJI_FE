@@ -6,7 +6,7 @@ export const ModalOverlay = styled.div`
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0,0,0,0.3);
+  background: rgba(0, 0, 0, 0.3);
   z-index: 1000;
   display: flex;
   align-items: center;
@@ -22,7 +22,7 @@ export const ModalPanel = styled.div`
   width: 90vw;
   max-height: 900px;
   overflow-y: auto;
-  box-shadow: 0 2px 32px rgba(0,0,0,0.18);
+  box-shadow: 0 2px 32px rgba(0, 0, 0, 0.18);
   position: relative;
 `;
 
@@ -36,14 +36,29 @@ export const ModalHeader = styled.div`
 export const ModalTitle = styled.h2`
   font-size: 28px;
   font-weight: 700;
-  color: #4338ca;
+  color: #111827;
   display: flex;
   align-items: center;
   gap: 10px;
+  position: relative;
+  padding-left: 14px;
+  &::before {
+    content: "";
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 1.2em;
+    background: #fdb924;
+    border-radius: 2px;
+  }
 `;
 
 export const ModalDescription = styled.div`
   color: #888;
+  margin-top: -20px;
   margin-bottom: 32px;
 `;
 
@@ -82,7 +97,9 @@ export const TextArea = styled.textarea`
   }
 `;
 
-export const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
+export const Button = styled.button<{
+  $variant?: "primary" | "secondary" | "danger";
+}>`
   padding: 10px 28px;
   border-radius: 6px;
   border: 0;
@@ -90,18 +107,29 @@ export const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'dang
   font-size: 16px;
   cursor: pointer;
   background: ${({ $variant }) =>
-    $variant === 'primary' ? '#fdb924' :
-    $variant === 'secondary' ? '#aaa' :
-    $variant === 'danger' ? '#ef4444' : '#fff'};
+    $variant === "primary"
+      ? "#fdb924"
+      : $variant === "secondary"
+      ? "#aaa"
+      : $variant === "danger"
+      ? "#ef4444"
+      : "#fff"};
   color: ${({ $variant }) =>
-    $variant === 'primary' || $variant === 'secondary' || $variant === 'danger' ? '#fff' : '#222'};
-  border: ${({ $variant }) => $variant === undefined ? '1px solid #eee' : 'none'};
+    $variant === "primary" || $variant === "secondary" || $variant === "danger"
+      ? "#fff"
+      : "#222"};
+  border: ${({ $variant }) =>
+    $variant === undefined ? "1px solid #eee" : "none"};
   transition: background 0.2s, color 0.2s;
   &:hover {
     background: ${({ $variant }) =>
-      $variant === 'primary' ? '#3730a3' :
-      $variant === 'secondary' ? '#888' :
-      $variant === 'danger' ? '#dc2626' : '#f3f4f6'};
+      $variant === "primary"
+        ? "#3730a3"
+        : $variant === "secondary"
+        ? "#888"
+        : $variant === "danger"
+        ? "#dc2626"
+        : "#f3f4f6"};
     color: #fff;
   }
 `;
@@ -118,7 +146,7 @@ export const CloseButton = styled.button`
   &:hover {
     color: #ef4444;
   }
-`; 
+`;
 
 export const DateButton = styled.button<{ $hasValue: boolean }>`
   display: flex;
@@ -223,15 +251,16 @@ export const FormActions = styled.div`
   margin-top: 40px;
 `;
 
-export const CompanySection = styled.div`  flex: 1;
+export const CompanySection = styled.div`
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 12px;
 `;
 
-export const CompanyCard = styled.div<{ $type: 'dev' | 'client' }>`
+export const CompanyCard = styled.div<{ $type: "dev" | "client" }>`
   margin-bottom: 8px;
-  background: ${({ $type }) => $type === 'dev' ? '#f4f6fa' : '#eaf6ff'};
+  background: ${({ $type }) => ($type === "dev" ? "#f4f6fa" : "#eaf6ff")};
   border-radius: 8px;
   padding: 16px;
   position: relative;

@@ -2,9 +2,7 @@ import React, { useState, useEffect } from "react";
 import api from "@/api/axios";
 import CompanyMemberSelectModal from "./CompanyMemberSelectModal";
 import useCompanyMemberSelect from "./useCompanyMemberSelect.ts";
-import {
-  FiCalendar,
-} from "react-icons/fi";
+import { FiCalendar } from "react-icons/fi";
 import {
   ModalOverlay,
   ModalPanel,
@@ -29,6 +27,7 @@ import type { ProjectDetailResponse } from "../services/projectService";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { FaArchive } from "react-icons/fa";
+import { FiFileText, FiDollarSign, FiAlignLeft } from "react-icons/fi";
 
 type SelectedDevCompany = {
   company: { id: number; name: string };
@@ -83,7 +82,11 @@ function formatDate(date?: string | Date | null) {
   if (!date) return "";
   const d = typeof date === "string" ? parseDate(date) : date;
   if (!d) return "";
-  return d.toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" });
+  return d.toLocaleDateString("ko-KR", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
 }
 
 // 날짜를 YYYY-MM-DD로 변환 (로컬 기준)
@@ -381,7 +384,6 @@ export default function ProjectCreateModal({
       <ModalPanel>
         <ModalHeader>
           <ModalTitle>
-            {/* 아이콘 등 추가 가능 */}
             {editMode ? "프로젝트 수정" : "새 프로젝트 생성"}
           </ModalTitle>
         </ModalHeader>
@@ -390,13 +392,16 @@ export default function ProjectCreateModal({
             ? "프로젝트 정보를 수정해주세요"
             : "새로운 프로젝트의 정보를 입력해주세요"}
         </ModalDescription>
-        <SectionTitle as="div" style={{ fontWeight: 400, marginBottom: 0, gap: 0 }} />
+        <SectionTitle
+          as="div"
+          style={{ fontWeight: 400, marginBottom: 0, gap: 0 }}
+        />
         <div>
           {/* 프로젝트명, 개요 */}
           <FieldLabel>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <FaArchive size={16} color="#fdb924" />
-              <span>프로젝트명 *</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <FiFileText size={18} color="#fdb924" style={{ flexShrink: 0 }} />
+              <span>프로젝트명</span>
             </div>
           </FieldLabel>
           <Input
@@ -405,23 +410,39 @@ export default function ProjectCreateModal({
             onChange={(e) => setForm({ ...form, name: e.target.value })}
             maxLength={255}
           />
-          <FieldLabel>개요 *</FieldLabel>
+          <FieldLabel>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <FiAlignLeft
+                size={18}
+                color="#fdb924"
+                style={{ flexShrink: 0 }}
+              />
+              <span>개요</span>
+            </div>
+          </FieldLabel>
           <TextArea
             placeholder="프로젝트 개요를 상세히 입력하세요..."
             value={form.description}
-            onChange={(e) =>
-              setForm({ ...form, description: e.target.value })
-            }
+            onChange={(e) => setForm({ ...form, description: e.target.value })}
             rows={4}
             maxLength={255}
           />
         </div>
-        {/* 프로젝트 금액 */}
+        {/* 프로젝트 예산 */}
         <div>
-          <FieldLabel>프로젝트 금액</FieldLabel>
+          <FieldLabel>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <FiDollarSign
+                size={18}
+                color="#fdb924"
+                style={{ flexShrink: 0 }}
+              />
+              <span>프로젝트 예산</span>
+            </div>
+          </FieldLabel>
           <Input
             type="text"
-            placeholder="프로젝트 금액을 입력하세요"
+            placeholder="프로젝트 예산을 입력하세요"
             value={Number(form.projectCost).toLocaleString()}
             onChange={(e) => {
               const value = e.target.value.replace(/,/g, "");
@@ -434,10 +455,14 @@ export default function ProjectCreateModal({
         </div>
         {/* 프로젝트 기간 */}
         <div>
-        <FiCalendar size={16} />
-          <FieldLabel>프로젝트 기간 *</FieldLabel>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{ flex: 1, position: 'relative' }}>
+          <FieldLabel>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <FiCalendar size={18} color="#fdb924" style={{ flexShrink: 0 }} />
+              <span>프로젝트 기간</span>
+            </div>
+          </FieldLabel>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{ flex: 1, position: "relative" }}>
               <DateButton
                 type="button"
                 onClick={handleStartDateClick}
@@ -447,24 +472,36 @@ export default function ProjectCreateModal({
                 <span className="date-value">{formatDate(form.startDate)}</span>
               </DateButton>
               {startDateOpen && (
-                <div style={{ position: "absolute", top: "100%", left: 0, zIndex: 1000, marginTop: 4 }}>
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "100%",
+                    left: 0,
+                    zIndex: 1000,
+                    marginTop: 4,
+                  }}
+                >
                   <DatePicker
                     selected={form.startDate ? parseDate(form.startDate) : null}
                     onChange={handleStartDateChange}
                     selectsStart
-                    startDate={form.startDate ? parseDate(form.startDate) : null}
+                    startDate={
+                      form.startDate ? parseDate(form.startDate) : null
+                    }
                     endDate={form.endDate ? parseDate(form.endDate) : null}
                     dateFormat="yyyy-MM-dd"
                     placeholderText="시작일 선택"
                     inline
                     onClickOutside={() => setStartDateOpen(false)}
-                    onKeyDown={(e) => { if (e.key === "Escape") setStartDateOpen(false); }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Escape") setStartDateOpen(false);
+                    }}
                   />
                 </div>
               )}
             </div>
             <DateSeparator>~</DateSeparator>
-            <div style={{ flex: 1, position: 'relative' }}>
+            <div style={{ flex: 1, position: "relative" }}>
               <DateButton
                 type="button"
                 onClick={handleEndDateClick}
@@ -474,19 +511,35 @@ export default function ProjectCreateModal({
                 <span className="date-value">{formatDate(form.endDate)}</span>
               </DateButton>
               {endDateOpen && (
-                <div style={{ position: "absolute", top: "100%", left: 0, zIndex: 1000, marginTop: 4 }}>
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "100%",
+                    left: 0,
+                    zIndex: 1000,
+                    marginTop: 4,
+                  }}
+                >
                   <DatePicker
                     selected={form.endDate ? parseDate(form.endDate) : null}
                     onChange={handleEndDateChange}
                     selectsEnd
-                    startDate={form.startDate ? parseDate(form.startDate) : null}
+                    startDate={
+                      form.startDate ? parseDate(form.startDate) : null
+                    }
                     endDate={form.endDate ? parseDate(form.endDate) : null}
-                    minDate={form.startDate ? parseDate(form.startDate) ?? undefined : undefined}
+                    minDate={
+                      form.startDate
+                        ? parseDate(form.startDate) ?? undefined
+                        : undefined
+                    }
                     dateFormat="yyyy-MM-dd"
                     placeholderText="마감일 선택"
                     inline
                     onClickOutside={() => setEndDateOpen(false)}
-                    onKeyDown={(e) => { if (e.key === "Escape") setEndDateOpen(false); }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Escape") setEndDateOpen(false);
+                    }}
                     popperPlacement="bottom-start"
                   />
                 </div>
@@ -516,7 +569,9 @@ export default function ProjectCreateModal({
               {selectedDevCompanies.map(({ company, members }) => (
                 <CompanyCard key={company.id} $type="dev">
                   <CompanyCardHeader>
-                    <CompanyCardTitle>선택된 개발사: {company.name}</CompanyCardTitle>
+                    <CompanyCardTitle>
+                      선택된 개발사: {company.name}
+                    </CompanyCardTitle>
                     <Button
                       style={{ marginLeft: 8 }}
                       $variant="secondary"
@@ -572,7 +627,9 @@ export default function ProjectCreateModal({
               {selectedClientCompanies.map(({ company, members }) => (
                 <CompanyCard key={company.id} $type="client">
                   <CompanyCardHeader>
-                    <CompanyCardTitle>선택된 고객사: {company.name}</CompanyCardTitle>
+                    <CompanyCardTitle>
+                      선택된 고객사: {company.name}
+                    </CompanyCardTitle>
                     <Button
                       style={{ marginLeft: 8 }}
                       $variant="secondary"
@@ -613,7 +670,14 @@ export default function ProjectCreateModal({
           </CompanyRow>
         </div>
         {/* 하단 버튼 */}
-        <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, marginTop: 40 }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            gap: 12,
+            marginTop: 40,
+          }}
+        >
           <Button $variant={undefined} onClick={onClose}>
             취소
           </Button>
@@ -636,15 +700,17 @@ export default function ProjectCreateModal({
                 ? handleDevCompanyDone
                 : handleClientCompanyDone
             }
-            selectedCompany={editCompany ? { ...editCompany, userCount: 0 } : undefined}
+            selectedCompany={
+              editCompany ? { ...editCompany, userCount: 0 } : undefined
+            }
             selectedMembers={editMembers}
-            selectedDevCompanies={selectedDevCompanies.map(dev => ({
+            selectedDevCompanies={selectedDevCompanies.map((dev) => ({
               ...dev,
-              company: { ...dev.company, userCount: 0 }
+              company: { ...dev.company, userCount: 0 },
             }))}
-            selectedClientCompanies={selectedClientCompanies.map(client => ({
+            selectedClientCompanies={selectedClientCompanies.map((client) => ({
               ...client,
-              company: { ...client.company, userCount: 0 }
+              company: { ...client.company, userCount: 0 },
             }))}
           />
         )}

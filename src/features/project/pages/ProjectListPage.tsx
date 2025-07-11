@@ -222,7 +222,6 @@ export default function ProjectListPage() {
   };
 
   const handleSearch = () => {
-
     // 검색 조건이 있으면 검색 API 사용, 없으면 초기 로딩
     const hasSearchConditions =
       filters.keyword ||
