@@ -33,8 +33,12 @@ import {
   FiUsers,
   FiBriefcase,
   FiPlus,
+  FiUser,
+  FiUserCheck,
 } from "react-icons/fi";
-import { TbMoneybag } from "react-icons/tb";
+import { TbMoneybag, TbUserCode, TbUserCog } from "react-icons/tb";
+import { RiUserSettingsLine } from "react-icons/ri";
+import { LuUserRoundPen } from "react-icons/lu";
 
 type SelectedDevCompany = {
   company: { id: number; name: string };
@@ -610,7 +614,11 @@ export default function ProjectCreateModal({
                   <CompanyCard key={dev.company.id}>
                     <CompanyCardHeader>
                       <CompanyCardTitle>
-                        <FiUsers size={15} style={{ marginRight: 4 }} />
+                        {/* 개발사 업체 아이콘 */}
+                        <FiUsers
+                          size={15}
+                          style={{ marginRight: 4, color: "#3b82f6" }}
+                        />
                         {dev.company.name}
                       </CompanyCardTitle>
                     </CompanyCardHeader>
@@ -625,12 +633,39 @@ export default function ProjectCreateModal({
                             fontSize: 13,
                           }}
                         >
-                          {m.type === "manager" ? (
-                            <FaArchive size={12} style={{ marginRight: 2 }} />
+                          {m.type === "admin" ? (
+                            <RiUserSettingsLine
+                              size={14}
+                              style={{ color: "#8b5cf6", marginRight: 2 }}
+                            />
+                          ) : m.type === "manager" ? (
+                            <FiUserCheck
+                              size={14}
+                              style={{ color: "#ec4899", marginRight: 2 }}
+                            />
+                          ) : m.type === "dev_employee" ? (
+                            <TbUserCode
+                              size={14}
+                              style={{ color: "#3b82f6", marginRight: 2 }}
+                            />
                           ) : (
-                            <FiUsers size={12} style={{ marginRight: 2 }} />
+                            <FiUser
+                              size={14}
+                              style={{ color: "#6b7280", marginRight: 2 }}
+                            />
                           )}
                           {m.name}({m.position})
+                          {m.type === "manager" && (
+                            <span
+                              style={{
+                                color: "#ec4899",
+                                fontWeight: 600,
+                                marginLeft: 3,
+                              }}
+                            >
+                              담당자
+                            </span>
+                          )}
                         </span>
                       ))}
                     </CompanyCardMembers>
@@ -693,7 +728,11 @@ export default function ProjectCreateModal({
                   <CompanyCard key={client.company.id}>
                     <CompanyCardHeader>
                       <CompanyCardTitle>
-                        <FiBriefcase size={15} style={{ marginRight: 4 }} />
+                        {/* 고객사 업체 아이콘 */}
+                        <FiBriefcase
+                          size={15}
+                          style={{ marginRight: 4, color: "#10b981" }}
+                        />
                         {client.company.name}
                       </CompanyCardTitle>
                     </CompanyCardHeader>
@@ -708,12 +747,39 @@ export default function ProjectCreateModal({
                             fontSize: 13,
                           }}
                         >
-                          {m.type === "manager" ? (
-                            <FaArchive size={12} style={{ marginRight: 2 }} />
+                          {m.type === "admin" ? (
+                            <RiUserSettingsLine
+                              size={14}
+                              style={{ color: "#8b5cf6", marginRight: 2 }}
+                            />
+                          ) : m.type === "manager" ? (
+                            <FiUserCheck
+                              size={14}
+                              style={{ color: "#ec4899", marginRight: 2 }}
+                            />
+                          ) : m.type === "dev_employee" ? (
+                            <TbUserCode
+                              size={14}
+                              style={{ color: "#3b82f6", marginRight: 2 }}
+                            />
                           ) : (
-                            <FiUsers size={12} style={{ marginRight: 2 }} />
+                            <FiUser
+                              size={14}
+                              style={{ color: "#6b7280", marginRight: 2 }}
+                            />
                           )}
                           {m.name}({m.position})
+                          {m.type === "manager" && (
+                            <span
+                              style={{
+                                color: "#ec4899",
+                                fontWeight: 600,
+                                marginLeft: 3,
+                              }}
+                            >
+                              담당자
+                            </span>
+                          )}
                         </span>
                       ))}
                     </CompanyCardMembers>
