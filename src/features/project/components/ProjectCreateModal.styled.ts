@@ -16,11 +16,11 @@ export const ModalOverlay = styled.div`
 export const ModalPanel = styled.div`
   background: #fff;
   border-radius: 16px;
-  padding: 40px;
-  min-width: 900px;
-  max-width: 1100px;
-  width: 90vw;
-  max-height: 900px;
+  padding: 32px;
+  min-width: 480px;
+  max-width: 600px;
+  width: 96vw;
+  max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 2px 32px rgba(0, 0, 0, 0.18);
   position: relative;
@@ -91,6 +91,7 @@ export const TextArea = styled.textarea`
   color: #222;
   font-size: 1rem;
   transition: border 0.2s;
+  margin-bottom: 18px;
   &:focus {
     border-color: #4338ca;
     outline: none;

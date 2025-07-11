@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import api from "@/api/axios";
 import CompanyMemberSelectModal from "./CompanyMemberSelectModal";
 import useCompanyMemberSelect from "./useCompanyMemberSelect.ts";
-import { FiCalendar } from "react-icons/fi";
 import {
   ModalOverlay,
   ModalPanel,
@@ -27,7 +26,14 @@ import type { ProjectDetailResponse } from "../services/projectService";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { FaArchive } from "react-icons/fa";
-import { FiFileText, FiDollarSign, FiAlignLeft } from "react-icons/fi";
+import {
+  FiFileText,
+  FiCalendar,
+  FiAlignLeft,
+  FiUsers,
+  FiBriefcase,
+} from "react-icons/fi";
+import { TbMoneybag } from "react-icons/tb";
 
 type SelectedDevCompany = {
   company: { id: number; name: string };
@@ -432,11 +438,7 @@ export default function ProjectCreateModal({
         <div>
           <FieldLabel>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <FiDollarSign
-                size={18}
-                color="#fdb924"
-                style={{ flexShrink: 0 }}
-              />
+              <TbMoneybag size={18} color="#fdb924" style={{ flexShrink: 0 }} />
               <span>프로젝트 예산</span>
             </div>
           </FieldLabel>
@@ -549,7 +551,8 @@ export default function ProjectCreateModal({
         </div>
         {/* 담당 정보 */}
         <div>
-          <FieldLabel>담당 정보</FieldLabel>
+          {/* 개발사 선택 */}
+          <FieldLabel>개발사 선택 *</FieldLabel>
           <CompanyRow>
             <div style={{ flex: 1 }}>
               <CompanyCardHeader>

@@ -161,10 +161,15 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
   };
 
   const formatDate = (dateString: string) => {
-    if (!dateString) return "연도.연.월";
-    const date = parseDate(dateString);
-    if (!date) return "연도.연.월";
-    return formatDateOnly(date.toISOString());
+    if (!dateString) return "선택";
+    // 기존: 2024.05.01 → '선택'으로, 선택 시 yyyy-MM-dd로
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "선택";
+    return date.toLocaleDateString("ko-KR", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
   };
 
   // 날짜 변환
