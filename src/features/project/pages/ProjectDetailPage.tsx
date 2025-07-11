@@ -273,6 +273,7 @@ const ProjectDetailPage = () => {
               projectDetail.myCompanyType === "DEVELOPER" ||
               role === "ROLE_ADMIN"
             }
+            projectSteps={projectDetail.steps} // 단계 목록 전달
           />
         )}
         {/* <div style={{ display: "flex", gap: 24, padding: "0 24px 24px" }}>

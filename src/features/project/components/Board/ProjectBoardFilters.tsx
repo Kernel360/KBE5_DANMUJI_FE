@@ -46,6 +46,14 @@ interface ProjectBoardFiltersProps {
   onSearch: () => void;
   onResetFilters: () => void;
   onCreatePost: () => void;
+  // 추가: 체크리스트 작성 버튼 핸들러 및 표시 여부
+  onCreateChecklist?: () => void;
+  showChecklistButton?: boolean;
+  // 추가: 각 필터/버튼 노출 여부
+  showTypeFilter?: boolean;
+  showCreatePost?: boolean;
+  showKeywordFilter?: boolean;
+  showSearchButton?: boolean;
 }
 
 const ProjectBoardFilters: React.FC<ProjectBoardFiltersProps> = ({
@@ -63,6 +71,13 @@ const ProjectBoardFilters: React.FC<ProjectBoardFiltersProps> = ({
   onSearch,
   onResetFilters,
   onCreatePost,
+  onCreateChecklist,
+  showChecklistButton,
+  // 추가: 각 필터/버튼 노출 여부
+  showTypeFilter = true,
+  showCreatePost = true,
+  showKeywordFilter = true,
+  showSearchButton = true,
 }) => {
   // 드롭다운 상태
   const [isTypeDropdownOpen, setIsTypeDropdownOpen] = useState(false);
@@ -218,77 +233,81 @@ const ProjectBoardFilters: React.FC<ProjectBoardFiltersProps> = ({
     <Filters>
       <FilterLeft>
         <FilterGroup>
-          <FilterLabel>게시글 유형</FilterLabel>
-          <DropdownContainer
-            ref={typeDropdownRef}
-            className="dropdown-container"
-          >
-            <DropdownButton
-              $active={typeFilter !== "ALL"}
-              $color={
-                typeFilter === "ALL"
-                  ? "#6b7280"
-                  : typeFilter === PostType.GENERAL
-                  ? "#3b82f6"
-                  : "#f59e0b"
-              }
-              $isOpen={isTypeDropdownOpen}
-              onClick={handleTypeDropdownToggle}
-            >
-              {typeFilter === "ALL" ? (
-                <FiGrid size={16} />
-              ) : typeFilter === PostType.GENERAL ? (
-                <FiMessageCircle size={16} />
-              ) : (
-                <FiFlag size={16} />
-              )}
-              <span>
-                {typeFilter === "ALL"
-                  ? "전체"
-                  : typeFilter === PostType.GENERAL
-                  ? "일반"
-                  : "질문"}
-              </span>
-              <FiChevronDown size={16} />
-            </DropdownButton>
-            <DropdownMenu $isOpen={isTypeDropdownOpen} data-dropdown-menu>
-              <DropdownItem
-                $active={typeFilter === "ALL"}
-                $color={"#6b7280"}
-                onClick={() => {
-                  setTypeFilter("ALL");
-                  setIsTypeDropdownOpen(false);
-                }}
+          {/* 게시글 유형 필터 */}
+          {showTypeFilter && (
+            <>
+              <FilterLabel>게시글 유형</FilterLabel>
+              <DropdownContainer
+                ref={typeDropdownRef}
+                className="dropdown-container"
               >
-                <FiGrid size={16} />
-                <span>전체</span>
-              </DropdownItem>
-              <DropdownItem
-                $active={typeFilter === PostType.GENERAL}
-                $color={"#3b82f6"}
-                onClick={() => {
-                  setTypeFilter(PostType.GENERAL);
-                  setIsTypeDropdownOpen(false);
-                }}
-              >
-                <FiMessageCircle size={16} />
-                <span>일반</span>
-              </DropdownItem>
-              <DropdownItem
-                $active={typeFilter === PostType.QUESTION}
-                $color={"#f59e0b"}
-                onClick={() => {
-                  setTypeFilter(PostType.QUESTION);
-                  setIsTypeDropdownOpen(false);
-                }}
-              >
-                <FiFlag size={16} />
-                <span>질문</span>
-              </DropdownItem>
-            </DropdownMenu>
-          </DropdownContainer>
+                <DropdownButton
+                  $active={typeFilter !== "ALL"}
+                  $color={
+                    typeFilter === "ALL"
+                      ? "#6b7280"
+                      : typeFilter === PostType.GENERAL
+                      ? "#3b82f6"
+                      : "#f59e0b"
+                  }
+                  $isOpen={isTypeDropdownOpen}
+                  onClick={handleTypeDropdownToggle}
+                >
+                  {typeFilter === "ALL" ? (
+                    <FiGrid size={16} />
+                  ) : typeFilter === PostType.GENERAL ? (
+                    <FiMessageCircle size={16} />
+                  ) : (
+                    <FiFlag size={16} />
+                  )}
+                  <span>
+                    {typeFilter === "ALL"
+                      ? "전체"
+                      : typeFilter === PostType.GENERAL
+                      ? "일반"
+                      : "질문"}
+                  </span>
+                  <FiChevronDown size={16} />
+                </DropdownButton>
+                <DropdownMenu $isOpen={isTypeDropdownOpen} data-dropdown-menu>
+                  <DropdownItem
+                    $active={typeFilter === "ALL"}
+                    $color={"#6b7280"}
+                    onClick={() => {
+                      setTypeFilter("ALL");
+                      setIsTypeDropdownOpen(false);
+                    }}
+                  >
+                    <FiGrid size={16} />
+                    <span>전체</span>
+                  </DropdownItem>
+                  <DropdownItem
+                    $active={typeFilter === PostType.GENERAL}
+                    $color={"#3b82f6"}
+                    onClick={() => {
+                      setTypeFilter(PostType.GENERAL);
+                      setIsTypeDropdownOpen(false);
+                    }}
+                  >
+                    <FiMessageCircle size={16} />
+                    <span>일반</span>
+                  </DropdownItem>
+                  <DropdownItem
+                    $active={typeFilter === PostType.QUESTION}
+                    $color={"#f59e0b"}
+                    onClick={() => {
+                      setTypeFilter(PostType.QUESTION);
+                      setIsTypeDropdownOpen(false);
+                    }}
+                  >
+                    <FiFlag size={16} />
+                    <span>질문</span>
+                  </DropdownItem>
+                </DropdownMenu>
+              </DropdownContainer>
+            </>
+          )}
         </FilterGroup>
-
         <FilterGroup>
           <FilterLabel>우선순위</FilterLabel>
           <DropdownContainer
@@ -394,7 +413,6 @@ const ProjectBoardFilters: React.FC<ProjectBoardFiltersProps> = ({
             </DropdownMenu>
           </DropdownContainer>
         </FilterGroup>
-
         <FilterGroup>
           <FilterLabel>단계</FilterLabel>
           <DropdownContainer
@@ -468,98 +486,114 @@ const ProjectBoardFilters: React.FC<ProjectBoardFiltersProps> = ({
             </DropdownMenu>
           </DropdownContainer>
         </FilterGroup>
-
-        <FilterGroup>
-          <FilterLabel>키워드</FilterLabel>
-          <DropdownContainer
-            ref={keywordDropdownRef}
-            className="dropdown-container"
-          >
-            <DropdownButton
-              $active={true}
-              $color={keywordType === "title" ? "#3b82f6" : "#10b981"}
-              $isOpen={isKeywordDropdownOpen}
-              onClick={handleKeywordDropdownToggle}
+        {/* 키워드/검색/초기화 버튼을 한 줄로 묶어서 별도 div로 분리 */}
+        {showKeywordFilter && (
+          <div style={{ display: "flex", alignItems: "flex-end", gap: 8 }}>
+            <FilterGroup style={{ marginBottom: 0 }}>
+              <FilterLabel>키워드</FilterLabel>
+              <DropdownContainer
+                ref={keywordDropdownRef}
+                className="dropdown-container"
+              >
+                <DropdownButton
+                  $active={true}
+                  $color={keywordType === "title" ? "#3b82f6" : "#10b981"}
+                  $isOpen={isKeywordDropdownOpen}
+                  onClick={handleKeywordDropdownToggle}
+                >
+                  {keywordType === "title" ? (
+                    <FiFileText size={16} />
+                  ) : (
+                    <FiUser size={16} />
+                  )}
+                  <span>{keywordType === "title" ? "제목" : "작성자"}</span>
+                  <FiChevronDown size={16} />
+                </DropdownButton>
+                <DropdownMenu
+                  $isOpen={isKeywordDropdownOpen}
+                  data-dropdown-menu
+                >
+                  <DropdownItem
+                    $active={keywordType === "title"}
+                    $color={"#3b82f6"}
+                    onClick={() => {
+                      setKeywordType("title");
+                      setIsKeywordDropdownOpen(false);
+                    }}
+                  >
+                    <FiFileText size={16} />
+                    <span>제목</span>
+                  </DropdownItem>
+                  <DropdownItem
+                    $active={keywordType === "writer"}
+                    $color={"#10b981"}
+                    onClick={() => {
+                      setKeywordType("writer");
+                      setIsKeywordDropdownOpen(false);
+                    }}
+                  >
+                    <FiUser size={16} />
+                    <span>작성자</span>
+                  </DropdownItem>
+                </DropdownMenu>
+              </DropdownContainer>
+            </FilterGroup>
+            <SearchInput
+              placeholder={
+                keywordType === "title" ? "제목으로 검색" : "작성자로 검색"
+              }
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") onSearch();
+              }}
+            />
+            {showSearchButton && (
+              <NewButton
+                style={{
+                  minWidth: "auto",
+                  padding: "10px",
+                  width: "40px",
+                  height: "40px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+                onClick={onSearch}
+              >
+                <FiSearch size={16} />
+              </NewButton>
+            )}
+            <NewButton
+              onClick={onResetFilters}
+              style={{
+                minWidth: "auto",
+                padding: "10px",
+                width: "40px",
+                height: "40px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
             >
-              {keywordType === "title" ? (
-                <FiFileText size={16} />
-              ) : (
-                <FiUser size={16} />
-              )}
-              <span>{keywordType === "title" ? "제목" : "작성자"}</span>
-              <FiChevronDown size={16} />
-            </DropdownButton>
-            <DropdownMenu $isOpen={isKeywordDropdownOpen} data-dropdown-menu>
-              <DropdownItem
-                $active={keywordType === "title"}
-                $color={"#3b82f6"}
-                onClick={() => {
-                  setKeywordType("title");
-                  setIsKeywordDropdownOpen(false);
-                }}
-              >
-                <FiFileText size={16} />
-                <span>제목</span>
-              </DropdownItem>
-              <DropdownItem
-                $active={keywordType === "writer"}
-                $color={"#10b981"}
-                onClick={() => {
-                  setKeywordType("writer");
-                  setIsKeywordDropdownOpen(false);
-                }}
-              >
-                <FiUser size={16} />
-                <span>작성자</span>
-              </DropdownItem>
-            </DropdownMenu>
-          </DropdownContainer>
-        </FilterGroup>
-
-        <SearchInput
-          placeholder={
-            keywordType === "title" ? "제목으로 검색" : "작성자로 검색"
-          }
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") onSearch();
-          }}
-        />
-        <NewButton
-          style={{
-            minWidth: "auto",
-            padding: "10px",
-            width: "40px",
-            height: "40px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-          onClick={onSearch}
-        >
-          <FiSearch size={16} />
-        </NewButton>
-        <NewButton
-          onClick={onResetFilters}
-          style={{
-            minWidth: "auto",
-            padding: "10px",
-            width: "40px",
-            height: "40px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <FiRotateCcw size={16} />
-        </NewButton>
+              <FiRotateCcw size={16} />
+            </NewButton>
+          </div>
+        )}
       </FilterLeft>
       <FilterSearchRight>
-        <NewButton onClick={onCreatePost}>
-          <FiPlus size={16} />
-          게시글 작성
-        </NewButton>
+        {showCreatePost && (
+          <NewButton onClick={onCreatePost}>
+            <FiPlus size={16} />
+            게시글 작성
+          </NewButton>
+        )}
+        {showChecklistButton && onCreateChecklist && (
+          <NewButton onClick={onCreateChecklist} style={{ marginLeft: 8 }}>
+            <FiPlus size={16} />
+            체크리스트 작성
+          </NewButton>
+        )}
       </FilterSearchRight>
     </Filters>
   );

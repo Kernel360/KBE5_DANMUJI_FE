@@ -36,9 +36,8 @@ import {
   FiUser,
   FiUserCheck,
 } from "react-icons/fi";
-import { TbMoneybag, TbUserCode, TbUserCog } from "react-icons/tb";
+import { TbMoneybag, TbUserCode } from "react-icons/tb";
 import { RiUserSettingsLine } from "react-icons/ri";
-import { LuUserRoundPen } from "react-icons/lu";
 
 type SelectedDevCompany = {
   company: { id: number; name: string };
