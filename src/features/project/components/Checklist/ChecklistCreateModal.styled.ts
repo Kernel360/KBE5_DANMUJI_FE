@@ -1,4 +1,4 @@
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes } from "styled-components";
 
 // Fade-in animation for modal
 const fadeIn = keyframes`
@@ -8,8 +8,11 @@ const fadeIn = keyframes`
 
 export const ModalOverlay = styled.div`
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.28);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.28);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -22,11 +25,15 @@ export const ModalContent = styled.div`
   border-radius: 1.25rem; /* rounded-2xl */
   max-width: 480px;
   width: 100%;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.18), 0 1.5px 6px rgba(0,0,0,0.07);
-  animation: ${fadeIn} 0.28s cubic-bezier(.4,0,.2,1);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18), 0 1.5px 6px rgba(0, 0, 0, 0.07);
+  animation: ${fadeIn} 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  max-height: 80vh;
+  min-height: 320px;
+  overflow-y: auto;
   @media (max-width: 600px) {
     padding: 18px 4vw 16px 4vw;
     max-width: 98vw;
+    max-height: 92vh;
   }
 `;
 
@@ -158,12 +165,15 @@ export const Avatar = styled.div`
 export const UserCard = styled.div<{ selected?: boolean }>`
   display: flex;
   align-items: center;
-  background: ${({ selected }) => (selected ? '#fffbe8' : '#fff')};
-  border: 2px solid ${({ selected }) => (selected ? '#fdb924' : '#e5e7eb')};
+  background: ${({ selected }) => (selected ? "#fffbe8" : "#fff")};
+  border: 2px solid ${({ selected }) => (selected ? "#fdb924" : "#e5e7eb")};
   border-radius: 14px;
   padding: 12px 18px;
   min-height: 48px;
-  box-shadow: ${({ selected }) => (selected ? '0 2px 8px rgba(253,185,36,0.08)' : '0 1px 4px rgba(0,0,0,0.03)')};
+  box-shadow: ${({ selected }) =>
+    selected
+      ? "0 2px 8px rgba(253,185,36,0.08)"
+      : "0 1px 4px rgba(0,0,0,0.03)"};
   transition: background 0.18s, border 0.18s, box-shadow 0.18s;
   cursor: pointer;
   user-select: none;
@@ -171,7 +181,7 @@ export const UserCard = styled.div<{ selected?: boolean }>`
   &:hover {
     background: #f9fafb;
     border-color: #fdb924;
-    box-shadow: 0 2.5px 12px rgba(253, 185, 36, 0.10);
+    box-shadow: 0 2.5px 12px rgba(253, 185, 36, 0.1);
   }
 `;
 
@@ -203,8 +213,8 @@ export const CheckCircle = styled.span<{ selected: boolean }>`
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: ${({ selected }) => (selected ? '#fdb924' : '#e5e7eb')};
-  color: ${({ selected }) => (selected ? '#fff' : '#bbb')};
+  background: ${({ selected }) => (selected ? "#fdb924" : "#e5e7eb")};
+  color: ${({ selected }) => (selected ? "#fff" : "#bbb")};
   font-size: 1.05rem;
   margin-right: 12px;
   flex-shrink: 0;
@@ -223,7 +233,7 @@ export const ButtonGroup = styled.div`
   margin-top: 3px;
 `;
 
-export const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
+export const Button = styled.button<{ variant?: "primary" | "secondary" }>`
   flex: 1 1 0;
   min-width: 0;
   padding: 8px 0;
@@ -235,7 +245,7 @@ export const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
   transition: all 0.18s;
   box-shadow: 0 1.5px 6px rgba(253, 185, 36, 0.07);
   ${({ variant }) =>
-    variant === 'primary'
+    variant === "primary"
       ? `
         background-color: #fdb924;
         color: #fff;
