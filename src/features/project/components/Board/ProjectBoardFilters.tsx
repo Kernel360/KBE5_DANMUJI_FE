@@ -502,76 +502,95 @@ const ProjectBoardFilters: React.FC<ProjectBoardFiltersProps> = ({
         </FilterGroup>
         <FilterGroup>
           <FilterLabel>단계</FilterLabel>
-          <DropdownContainer
-            ref={stepDropdownRef}
-            className="dropdown-container"
-          >
-            <DropdownButton
-              $active={stepFilter !== "ALL"}
-              $color={
-                stepFilter === "ALL"
-                  ? "#6b7280"
-                  : (() => {
-                      const selectedStep = projectSteps.find(
-                        (step) => step.id === stepFilter
-                      );
-                      if (!selectedStep) return "#6b7280";
-
-                      switch (selectedStep.projectStepStatus) {
-                        case "IN_PROGRESS":
-                          return "#fdb924";
-                        case "COMPLETED":
-                          return "#10b981";
-                        case "PENDING":
-                          return "#6b7280";
-                        default:
-                          return "#6b7280";
-                      }
-                    })()
-              }
-              $isOpen={isStepDropdownOpen}
-              onClick={handleStepDropdownToggle}
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <DropdownContainer
+              ref={stepDropdownRef}
+              className="dropdown-container"
             >
-              <FiTarget size={16} />
-              <span>
-                {stepFilter === "ALL"
-                  ? "전체"
-                  : projectSteps.find((step) => step.id === stepFilter)?.name ||
-                    "알 수 없음"}
-              </span>
-              <FiChevronDown size={16} />
-            </DropdownButton>
-            <DropdownMenu $isOpen={isStepDropdownOpen} data-dropdown-menu>
-              <DropdownItem
-                $active={stepFilter === "ALL"}
-                $color={"#6b7280"}
-                onClick={() => {
-                  setStepFilter("ALL");
-                  setIsStepDropdownOpen(false);
-                }}
+              <DropdownButton
+                $active={stepFilter !== "ALL"}
+                $color={
+                  stepFilter === "ALL"
+                    ? "#6b7280"
+                    : (() => {
+                        const selectedStep = projectSteps.find(
+                          (step) => step.id === stepFilter
+                        );
+                        if (!selectedStep) return "#6b7280";
+
+                        switch (selectedStep.projectStepStatus) {
+                          case "IN_PROGRESS":
+                            return "#fdb924";
+                          case "COMPLETED":
+                            return "#10b981";
+                          case "PENDING":
+                            return "#6b7280";
+                          default:
+                            return "#6b7280";
+                        }
+                      })()
+                }
+                $isOpen={isStepDropdownOpen}
+                onClick={handleStepDropdownToggle}
               >
                 <FiTarget size={16} />
-                <span>전체</span>
-              </DropdownItem>
-              {projectSteps
-                .filter((step) => !step.isDeleted)
-                .sort((a, b) => a.stepOrder - b.stepOrder)
-                .map((step) => (
-                  <DropdownItem
-                    key={step.id}
-                    $active={stepFilter === step.id}
-                    $color={"#10b981"}
-                    onClick={() => {
-                      setStepFilter(step.id);
-                      setIsStepDropdownOpen(false);
-                    }}
-                  >
-                    <FiTarget size={16} />
-                    <span>{step.name}</span>
-                  </DropdownItem>
-                ))}
-            </DropdownMenu>
-          </DropdownContainer>
+                <span>
+                  {stepFilter === "ALL"
+                    ? "전체"
+                    : projectSteps.find((step) => step.id === stepFilter)
+                        ?.name || "알 수 없음"}
+                </span>
+                <FiChevronDown size={16} />
+              </DropdownButton>
+              <DropdownMenu $isOpen={isStepDropdownOpen} data-dropdown-menu>
+                <DropdownItem
+                  $active={stepFilter === "ALL"}
+                  $color={"#6b7280"}
+                  onClick={() => {
+                    setStepFilter("ALL");
+                    setIsStepDropdownOpen(false);
+                  }}
+                >
+                  <FiTarget size={16} />
+                  <span>전체</span>
+                </DropdownItem>
+                {projectSteps
+                  .filter((step) => !step.isDeleted)
+                  .sort((a, b) => a.stepOrder - b.stepOrder)
+                  .map((step) => (
+                    <DropdownItem
+                      key={step.id}
+                      $active={stepFilter === step.id}
+                      $color={"#10b981"}
+                      onClick={() => {
+                        setStepFilter(step.id);
+                        setIsStepDropdownOpen(false);
+                      }}
+                    >
+                      <FiTarget size={16} />
+                      <span>{step.name}</span>
+                    </DropdownItem>
+                  ))}
+              </DropdownMenu>
+            </DropdownContainer>
+            {/* checklistMode일 때만 단계 옆에 초기화 버튼 노출 */}
+            {checklistMode && (
+              <NewButton
+                onClick={onResetFilters}
+                style={{
+                  minWidth: "auto",
+                  padding: "10px",
+                  width: "40px",
+                  height: "40px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <FiRotateCcw size={16} />
+              </NewButton>
+            )}
+          </div>
         </FilterGroup>
         {/* 키워드/검색/초기화 버튼을 한 줄로 묶어서 별도 div로 분리 */}
         {showKeywordFilter && (
