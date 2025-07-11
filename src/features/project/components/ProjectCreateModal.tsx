@@ -32,6 +32,7 @@ import {
   FiAlignLeft,
   FiUsers,
   FiBriefcase,
+  FiPlus,
 } from "react-icons/fi";
 import { TbMoneybag } from "react-icons/tb";
 
@@ -463,7 +464,7 @@ export default function ProjectCreateModal({
               <span>프로젝트 기간</span>
             </div>
           </FieldLabel>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
             <div style={{ flex: 1, position: "relative" }}>
               <DateButton
                 type="button"
@@ -551,58 +552,174 @@ export default function ProjectCreateModal({
           style={{
             display: "flex",
             gap: 16,
-            alignItems: "flex-end",
+            alignItems: "flex-start",
             marginTop: 18,
           }}
         >
           <div style={{ flex: 1 }}>
-            <FieldLabel>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <FiUsers size={18} color="#fdb924" style={{ flexShrink: 0 }} />
-                <span>개발사 선택</span>
-              </div>
-            </FieldLabel>
+            <div style={{ minHeight: 32 }}>
+              <FieldLabel>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    minHeight: 32,
+                  }}
+                >
+                  <FiUsers
+                    size={18}
+                    color="#fdb924"
+                    style={{ flexShrink: 0 }}
+                  />
+                  <span>개발사 선택</span>
+                  <Button
+                    $variant="primary"
+                    onClick={() => openCompanyMemberModal("dev")}
+                    style={{
+                      padding: "4px 8px",
+                      fontSize: 13,
+                      minWidth: 0,
+                      height: 28,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      marginLeft: 8,
+                    }}
+                  >
+                    <FiPlus size={16} />
+                  </Button>
+                </div>
+              </FieldLabel>
+            </div>
             <CompanyRow>
-              <div style={{ flex: 1 }}>{/* 개발사 목록 등 */}</div>
-              <Button
-                $variant="primary"
-                onClick={openCompanyMemberModal}
+              <div
                 style={{
-                  padding: "4px 10px",
-                  fontSize: "0.95rem",
-                  minWidth: 0,
-                  height: 32,
+                  flex: 1,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 8,
                 }}
               >
-                개발사 추가
-              </Button>
+                {selectedDevCompanies.length === 0 && (
+                  <span style={{ color: "#aaa", fontSize: 13 }}>
+                    개발사를 추가하세요
+                  </span>
+                )}
+                {selectedDevCompanies.map((dev) => (
+                  <CompanyCard key={dev.company.id}>
+                    <CompanyCardHeader>
+                      <CompanyCardTitle>
+                        <FiUsers size={15} style={{ marginRight: 4 }} />
+                        {dev.company.name}
+                      </CompanyCardTitle>
+                    </CompanyCardHeader>
+                    <CompanyCardMembers>
+                      {dev.members.map((m) => (
+                        <span
+                          key={m.id}
+                          style={{
+                            marginRight: 8,
+                            display: "inline-flex",
+                            alignItems: "center",
+                            fontSize: 13,
+                          }}
+                        >
+                          {m.type === "manager" ? (
+                            <FaArchive size={12} style={{ marginRight: 2 }} />
+                          ) : (
+                            <FiUsers size={12} style={{ marginRight: 2 }} />
+                          )}
+                          {m.name}({m.position})
+                        </span>
+                      ))}
+                    </CompanyCardMembers>
+                  </CompanyCard>
+                ))}
+              </div>
             </CompanyRow>
           </div>
           <div style={{ flex: 1 }}>
-            <FieldLabel>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <FiBriefcase
-                  size={18}
-                  color="#fdb924"
-                  style={{ flexShrink: 0 }}
-                />
-                <span>고객사 선택</span>
-              </div>
-            </FieldLabel>
+            <div style={{ minHeight: 32 }}>
+              <FieldLabel>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    minHeight: 32,
+                  }}
+                >
+                  <FiBriefcase
+                    size={18}
+                    color="#fdb924"
+                    style={{ flexShrink: 0 }}
+                  />
+                  <span>고객사 선택</span>
+                  <Button
+                    $variant="primary"
+                    onClick={() => openCompanyMemberModal("client")}
+                    style={{
+                      padding: "4px 8px",
+                      fontSize: 13,
+                      minWidth: 0,
+                      height: 28,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      marginLeft: 8,
+                    }}
+                  >
+                    <FiPlus size={16} />
+                  </Button>
+                </div>
+              </FieldLabel>
+            </div>
             <CompanyRow>
-              <div style={{ flex: 1 }}>{/* 고객사 목록 등 */}</div>
-              <Button
-                $variant="primary"
-                onClick={openCompanyMemberModal}
+              <div
                 style={{
-                  padding: "4px 10px",
-                  fontSize: "0.95rem",
-                  minWidth: 0,
-                  height: 32,
+                  flex: 1,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 8,
                 }}
               >
-                고객사 추가
-              </Button>
+                {selectedClientCompanies.length === 0 && (
+                  <span style={{ color: "#aaa", fontSize: 13 }}>
+                    고객사를 추가하세요
+                  </span>
+                )}
+                {selectedClientCompanies.map((client) => (
+                  <CompanyCard key={client.company.id}>
+                    <CompanyCardHeader>
+                      <CompanyCardTitle>
+                        <FiBriefcase size={15} style={{ marginRight: 4 }} />
+                        {client.company.name}
+                      </CompanyCardTitle>
+                    </CompanyCardHeader>
+                    <CompanyCardMembers>
+                      {client.members.map((m) => (
+                        <span
+                          key={m.id}
+                          style={{
+                            marginRight: 8,
+                            display: "inline-flex",
+                            alignItems: "center",
+                            fontSize: 13,
+                          }}
+                        >
+                          {m.type === "manager" ? (
+                            <FaArchive size={12} style={{ marginRight: 2 }} />
+                          ) : (
+                            <FiUsers size={12} style={{ marginRight: 2 }} />
+                          )}
+                          {m.name}({m.position})
+                        </span>
+                      ))}
+                    </CompanyCardMembers>
+                  </CompanyCard>
+                ))}
+              </div>
             </CompanyRow>
           </div>
         </div>
@@ -615,13 +732,40 @@ export default function ProjectCreateModal({
             marginTop: 40,
           }}
         >
-          <Button $variant={undefined} onClick={onClose}>
+          <Button
+            $variant={undefined}
+            onClick={onClose}
+            style={{
+              padding: "6px 16px",
+              fontSize: 14,
+              height: 32,
+              minWidth: 0,
+            }}
+          >
             취소
           </Button>
-          <Button $variant="secondary" onClick={handleReset}>
+          <Button
+            $variant="secondary"
+            onClick={handleReset}
+            style={{
+              padding: "6px 16px",
+              fontSize: 14,
+              height: 32,
+              minWidth: 0,
+            }}
+          >
             초기화
           </Button>
-          <Button $variant="primary" onClick={handleCreateProject}>
+          <Button
+            $variant="primary"
+            onClick={handleCreateProject}
+            style={{
+              padding: "6px 16px",
+              fontSize: 14,
+              height: 32,
+              minWidth: 0,
+            }}
+          >
             {editMode ? "편집" : "프로젝트 생성"}
           </Button>
         </div>
