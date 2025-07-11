@@ -4,7 +4,7 @@ import CompanyRegisterModal from "@/features/company/components/CompanyRegisterM
 import MemberRegisterModal from "@/features/user/components/MemberRegisterModal/MemberRegisterModal";
 import styled from "styled-components";
 import { ModalTitle, Button as ModalButton } from "./ProjectCreateModal.styled";
-import { FiHome, FiUser } from "react-icons/fi";
+import { FiHome, FiUser, FiUsers, FiBriefcase } from "react-icons/fi";
 
 type Member = {
   id: number;
@@ -335,8 +335,15 @@ const CompanyMemberSelectModal: React.FC<CompanyMemberSelectModalProps> = ({
                       alignItems: "center",
                       justifyContent: "space-between",
                       gap: 10,
+                      transition: "background 0.18s",
                     }}
                     onClick={() => setSelectedCompanyState(c)}
+                    onMouseOver={(e) =>
+                      (e.currentTarget.style.background = "#f3f4f6")
+                    }
+                    onMouseOut={(e) =>
+                      (e.currentTarget.style.background = "#fafbfc")
+                    }
                   >
                     <span
                       style={{ display: "flex", alignItems: "center", gap: 7 }}
@@ -421,19 +428,34 @@ const CompanyMemberSelectModal: React.FC<CompanyMemberSelectModalProps> = ({
                 alignItems: "center",
                 justifyContent: "space-between",
                 marginBottom: 12,
+                background: "#f9fafb",
+                borderRadius: 10,
+                padding: "14px 18px 14px 18px",
+                boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
               }}
             >
-              <div style={{ fontWeight: 600 }}>{selectedCompanyState.name}</div>
-              <button
+              <span
                 style={{
-                  background: "#eee",
-                  color: "#222",
-                  border: 0,
-                  borderRadius: 4,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 7,
+                  fontWeight: 600,
+                  fontSize: 17,
+                }}
+              >
+                <FiHome
+                  size={16}
+                  style={{ color: "#fdb924", marginRight: 4 }}
+                />
+                {selectedCompanyState.name}
+              </span>
+              <ModalButton
+                $variant="secondary"
+                style={{
                   padding: "4px 12px",
-                  fontWeight: 500,
                   fontSize: 14,
-                  cursor: "pointer",
+                  height: 32,
+                  minWidth: 0,
                   marginLeft: 8,
                 }}
                 onClick={() => {
@@ -443,7 +465,7 @@ const CompanyMemberSelectModal: React.FC<CompanyMemberSelectModalProps> = ({
                 }}
               >
                 업체 다시 선택
-              </button>
+              </ModalButton>
             </div>
             <div style={{ margin: "12px 0 16px 0" }}>
               <input
@@ -455,6 +477,10 @@ const CompanyMemberSelectModal: React.FC<CompanyMemberSelectModalProps> = ({
                   padding: 8,
                   borderRadius: 6,
                   border: "1px solid #eee",
+                  background: "#fff",
+                  color: "#222",
+                  fontSize: 15,
+                  transition: "border 0.18s, box-shadow 0.18s",
                 }}
               />
             </div>
@@ -481,6 +507,32 @@ const CompanyMemberSelectModal: React.FC<CompanyMemberSelectModalProps> = ({
                 const sel = selectedMembersState.find(
                   (m) => m.id === member.id
                 );
+                // 개발자/고객사 구분 아이콘
+                let roleIcon = (
+                  <FiUser
+                    size={16}
+                    style={{ color: "#6b7280", marginRight: 6 }}
+                  />
+                );
+                if (member.position?.includes("개발")) {
+                  roleIcon = (
+                    <FiUsers
+                      size={16}
+                      style={{ color: "#3b82f6", marginRight: 6 }}
+                    />
+                  );
+                } else if (
+                  member.position?.includes("고객") ||
+                  member.position?.includes("클라이언트") ||
+                  member.position?.toLowerCase().includes("client")
+                ) {
+                  roleIcon = (
+                    <FiBriefcase
+                      size={16}
+                      style={{ color: "#f59e0b", marginRight: 6 }}
+                    />
+                  );
+                }
                 return (
                   <div
                     key={member.id}
@@ -494,9 +546,16 @@ const CompanyMemberSelectModal: React.FC<CompanyMemberSelectModalProps> = ({
                       background: "#fafbfc",
                     }}
                   >
-                    <div>
-                      <div style={{ fontWeight: 600 }}>{member.name}</div>
-                      <div style={{ color: "#888" }}>{member.position}</div>
+                    <div
+                      style={{ display: "flex", alignItems: "center", gap: 8 }}
+                    >
+                      {roleIcon}
+                      <div>
+                        <div style={{ fontWeight: 600 }}>{member.name}</div>
+                        <div style={{ color: "#888", fontSize: 14 }}>
+                          {member.position}
+                        </div>
+                      </div>
                     </div>
                     <div style={{ display: "flex", gap: 8 }}>
                       <button
@@ -532,18 +591,14 @@ const CompanyMemberSelectModal: React.FC<CompanyMemberSelectModalProps> = ({
                 );
               })}
             </div>
-            <button
+            <ModalButton
+              $variant="primary"
               style={{
                 marginTop: 24,
                 width: "100%",
-                border: 0,
-                borderRadius: 6,
-                background: "#4338ca",
-                color: "#fff",
-                padding: 10,
-                fontWeight: 500,
-                cursor: "pointer",
                 fontSize: 16,
+                padding: 10,
+                borderRadius: 6,
               }}
               onClick={() => {
                 if (selectedMembersState.length === 0) {
@@ -554,7 +609,7 @@ const CompanyMemberSelectModal: React.FC<CompanyMemberSelectModalProps> = ({
               }}
             >
               등록
-            </button>
+            </ModalButton>
           </>
         )}
         {companyModalOpen && (
