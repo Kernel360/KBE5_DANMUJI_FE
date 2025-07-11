@@ -27,6 +27,7 @@ import {
   FiGrid,
   FiPlus,
   FiTarget,
+  FiCheckCircle,
 } from "react-icons/fi";
 import { PostPriority, PostType } from "../../../project-d/types/post";
 import type { ProjectDetailStep } from "../../services/projectService";
@@ -34,8 +35,8 @@ import type { ProjectDetailStep } from "../../services/projectService";
 interface ProjectBoardFiltersProps {
   typeFilter: "ALL" | PostType;
   setTypeFilter: (filter: "ALL" | PostType) => void;
-  priorityFilter: "ALL" | PostPriority;
-  setPriorityFilter: (filter: "ALL" | PostPriority) => void;
+  priorityFilter: any; // 게시글: PostPriority, 체크리스트: 'ALL'|'waiting'|'approved'|'rejected'
+  setPriorityFilter: (filter: any) => void;
   stepFilter: number | "ALL";
   setStepFilter: (filter: number | "ALL") => void;
   keywordType: "title" | "writer";
@@ -54,6 +55,7 @@ interface ProjectBoardFiltersProps {
   showCreatePost?: boolean;
   showKeywordFilter?: boolean;
   showSearchButton?: boolean;
+  checklistMode?: boolean; // 체크리스트 모드 여부
 }
 
 const ProjectBoardFilters: React.FC<ProjectBoardFiltersProps> = ({
@@ -78,6 +80,7 @@ const ProjectBoardFilters: React.FC<ProjectBoardFiltersProps> = ({
   showCreatePost = true,
   showKeywordFilter = true,
   showSearchButton = true,
+  checklistMode = false,
 }) => {
   // 드롭다운 상태
   const [isTypeDropdownOpen, setIsTypeDropdownOpen] = useState(false);
@@ -309,7 +312,7 @@ const ProjectBoardFilters: React.FC<ProjectBoardFiltersProps> = ({
           )}
         </FilterGroup>
         <FilterGroup>
-          <FilterLabel>우선순위</FilterLabel>
+          <FilterLabel>{checklistMode ? "상태" : "우선순위"}</FilterLabel>
           <DropdownContainer
             ref={priorityDropdownRef}
             className="dropdown-container"
@@ -317,7 +320,17 @@ const ProjectBoardFilters: React.FC<ProjectBoardFiltersProps> = ({
             <DropdownButton
               $active={priorityFilter !== "ALL"}
               $color={
-                priorityFilter === "ALL"
+                checklistMode
+                  ? priorityFilter === "ALL"
+                    ? "#6b7280"
+                    : priorityFilter === "waiting"
+                    ? "#fbbf24"
+                    : priorityFilter === "approved"
+                    ? "#10b981"
+                    : priorityFilter === "rejected"
+                    ? "#ef4444"
+                    : "#6b7280"
+                  : priorityFilter === "ALL"
                   ? "#6b7280"
                   : priorityFilter === PostPriority.LOW
                   ? "#10b981"
@@ -330,7 +343,19 @@ const ProjectBoardFilters: React.FC<ProjectBoardFiltersProps> = ({
               $isOpen={isPriorityDropdownOpen}
               onClick={handlePriorityDropdownToggle}
             >
-              {priorityFilter === "ALL" ? (
+              {checklistMode ? (
+                priorityFilter === "ALL" ? (
+                  <FiGrid size={16} />
+                ) : priorityFilter === "waiting" ? (
+                  <FiAlertTriangle size={16} />
+                ) : priorityFilter === "approved" ? (
+                  <FiCheckCircle size={16} />
+                ) : priorityFilter === "rejected" ? (
+                  <FiFlag size={16} />
+                ) : (
+                  <FiGrid size={16} />
+                )
+              ) : priorityFilter === "ALL" ? (
                 <FiGrid size={16} />
               ) : priorityFilter === PostPriority.LOW ? (
                 <FiArrowDown size={16} />
@@ -342,7 +367,17 @@ const ProjectBoardFilters: React.FC<ProjectBoardFiltersProps> = ({
                 <FiAlertTriangle size={16} />
               )}
               <span>
-                {priorityFilter === "ALL"
+                {checklistMode
+                  ? priorityFilter === "ALL"
+                    ? "전체"
+                    : priorityFilter === "waiting"
+                    ? "대기"
+                    : priorityFilter === "approved"
+                    ? "승인"
+                    : priorityFilter === "rejected"
+                    ? "반려"
+                    : ""
+                  : priorityFilter === "ALL"
                   ? "전체"
                   : priorityFilter === PostPriority.LOW
                   ? "낮음"
@@ -355,61 +390,113 @@ const ProjectBoardFilters: React.FC<ProjectBoardFiltersProps> = ({
               <FiChevronDown size={16} />
             </DropdownButton>
             <DropdownMenu $isOpen={isPriorityDropdownOpen} data-dropdown-menu>
-              <DropdownItem
-                $active={priorityFilter === "ALL"}
-                $color={"#6b7280"}
-                onClick={() => {
-                  setPriorityFilter("ALL");
-                  setIsPriorityDropdownOpen(false);
-                }}
-              >
-                <FiGrid size={16} />
-                <span>전체</span>
-              </DropdownItem>
-              <DropdownItem
-                $active={priorityFilter === PostPriority.LOW}
-                $color={"#10b981"}
-                onClick={() => {
-                  setPriorityFilter(PostPriority.LOW);
-                  setIsPriorityDropdownOpen(false);
-                }}
-              >
-                <FiArrowDown size={16} />
-                <span>낮음</span>
-              </DropdownItem>
-              <DropdownItem
-                $active={priorityFilter === PostPriority.MEDIUM}
-                $color={"#fbbf24"}
-                onClick={() => {
-                  setPriorityFilter(PostPriority.MEDIUM);
-                  setIsPriorityDropdownOpen(false);
-                }}
-              >
-                <FiMinus size={16} />
-                <span>보통</span>
-              </DropdownItem>
-              <DropdownItem
-                $active={priorityFilter === PostPriority.HIGH}
-                $color={"#a21caf"}
-                onClick={() => {
-                  setPriorityFilter(PostPriority.HIGH);
-                  setIsPriorityDropdownOpen(false);
-                }}
-              >
-                <FiArrowUp size={16} />
-                <span>높음</span>
-              </DropdownItem>
-              <DropdownItem
-                $active={priorityFilter === PostPriority.URGENT}
-                $color={"#ef4444"}
-                onClick={() => {
-                  setPriorityFilter(PostPriority.URGENT);
-                  setIsPriorityDropdownOpen(false);
-                }}
-              >
-                <FiAlertTriangle size={16} />
-                <span>긴급</span>
-              </DropdownItem>
+              {checklistMode ? (
+                <>
+                  <DropdownItem
+                    $active={priorityFilter === "ALL"}
+                    $color={"#6b7280"}
+                    onClick={() => {
+                      setPriorityFilter("ALL");
+                      setIsPriorityDropdownOpen(false);
+                    }}
+                  >
+                    <FiGrid size={16} />
+                    <span>전체</span>
+                  </DropdownItem>
+                  <DropdownItem
+                    $active={priorityFilter === "waiting"}
+                    $color={"#fbbf24"}
+                    onClick={() => {
+                      setPriorityFilter("waiting");
+                      setIsPriorityDropdownOpen(false);
+                    }}
+                  >
+                    <FiAlertTriangle size={16} />
+                    <span>대기</span>
+                  </DropdownItem>
+                  <DropdownItem
+                    $active={priorityFilter === "approved"}
+                    $color={"#10b981"}
+                    onClick={() => {
+                      setPriorityFilter("approved");
+                      setIsPriorityDropdownOpen(false);
+                    }}
+                  >
+                    <FiCheckCircle size={16} />
+                    <span>승인</span>
+                  </DropdownItem>
+                  <DropdownItem
+                    $active={priorityFilter === "rejected"}
+                    $color={"#ef4444"}
+                    onClick={() => {
+                      setPriorityFilter("rejected");
+                      setIsPriorityDropdownOpen(false);
+                    }}
+                  >
+                    <FiFlag size={16} />
+                    <span>반려</span>
+                  </DropdownItem>
+                </>
+              ) : (
+                <>
+                  {/* 기존 게시글 우선순위 옵션 */}
+                  <DropdownItem
+                    $active={priorityFilter === "ALL"}
+                    $color={"#6b7280"}
+                    onClick={() => {
+                      setPriorityFilter("ALL");
+                      setIsPriorityDropdownOpen(false);
+                    }}
+                  >
+                    <FiGrid size={16} />
+                    <span>전체</span>
+                  </DropdownItem>
+                  <DropdownItem
+                    $active={priorityFilter === PostPriority.LOW}
+                    $color={"#10b981"}
+                    onClick={() => {
+                      setPriorityFilter(PostPriority.LOW);
+                      setIsPriorityDropdownOpen(false);
+                    }}
+                  >
+                    <FiArrowDown size={16} />
+                    <span>낮음</span>
+                  </DropdownItem>
+                  <DropdownItem
+                    $active={priorityFilter === PostPriority.MEDIUM}
+                    $color={"#fbbf24"}
+                    onClick={() => {
+                      setPriorityFilter(PostPriority.MEDIUM);
+                      setIsPriorityDropdownOpen(false);
+                    }}
+                  >
+                    <FiMinus size={16} />
+                    <span>보통</span>
+                  </DropdownItem>
+                  <DropdownItem
+                    $active={priorityFilter === PostPriority.HIGH}
+                    $color={"#a21caf"}
+                    onClick={() => {
+                      setPriorityFilter(PostPriority.HIGH);
+                      setIsPriorityDropdownOpen(false);
+                    }}
+                  >
+                    <FiArrowUp size={16} />
+                    <span>높음</span>
+                  </DropdownItem>
+                  <DropdownItem
+                    $active={priorityFilter === PostPriority.URGENT}
+                    $color={"#ef4444"}
+                    onClick={() => {
+                      setPriorityFilter(PostPriority.URGENT);
+                      setIsPriorityDropdownOpen(false);
+                    }}
+                  >
+                    <FiAlertTriangle size={16} />
+                    <span>긴급</span>
+                  </DropdownItem>
+                </>
+              )}
             </DropdownMenu>
           </DropdownContainer>
         </FilterGroup>

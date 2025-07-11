@@ -68,12 +68,12 @@ export default function ChecklistCreateModal({
     if (!open) return;
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        handleClose();
+        onClose();
       }
     };
     window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
-  }, [open]);
+  }, [open, onClose]);
 
   if (!open) return null;
 

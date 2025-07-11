@@ -157,7 +157,10 @@ export default function KanbanBoard({
 }: KanbanBoardProps) {
   // 필터 상태 추가
   const [typeFilter, setTypeFilter] = useState<"ALL" | string>("ALL");
-  const [priorityFilter, setPriorityFilter] = useState<"ALL" | string>("ALL");
+  // 상태 필터: ALL | waiting | approved | rejected
+  const [statusFilter, setStatusFilter] = useState<
+    "ALL" | "waiting" | "approved" | "rejected"
+  >("ALL");
   const [stepFilter, setStepFilter] = useState<number | "ALL">(
     selectedStepId || "ALL"
   );
@@ -253,7 +256,7 @@ export default function KanbanBoard({
   };
   const handleResetFilters = () => {
     setTypeFilter("ALL");
-    setPriorityFilter("ALL");
+    setStatusFilter("ALL");
     setStepFilter("ALL");
     setKeywordType("title");
     setKeyword("");
@@ -270,28 +273,38 @@ export default function KanbanBoard({
   return (
     <div style={{ width: "100%" }}>
       {/* 필터/버튼 UI 상단에 추가 */}
-      <ProjectBoardFilters
-        typeFilter={typeFilter}
-        setTypeFilter={setTypeFilter}
-        priorityFilter={priorityFilter}
-        setPriorityFilter={setPriorityFilter}
-        stepFilter={stepFilter}
-        setStepFilter={setStepFilter}
-        keywordType={keywordType}
-        setKeywordType={setKeywordType}
-        keyword={keyword}
-        setKeyword={setKeyword}
-        projectSteps={projectSteps}
-        onSearch={handleSearch}
-        onResetFilters={handleResetFilters}
-        onCreatePost={() => {}}
-        onCreateChecklist={() => setIsModalOpen(true)}
-        showChecklistButton={true}
-        showTypeFilter={false}
-        showCreatePost={false}
-        showKeywordFilter={false}
-        showSearchButton={false}
-      />
+      <div
+        style={{
+          padding: "0 24px",
+          maxWidth: 1200,
+          margin: "24px auto 0 auto",
+        }}
+      >
+        <ProjectBoardFilters
+          typeFilter={typeFilter}
+          setTypeFilter={setTypeFilter}
+          // 상태 필터를 priorityFilter prop에 맞춰 전달
+          priorityFilter={statusFilter}
+          setPriorityFilter={setStatusFilter}
+          stepFilter={stepFilter}
+          setStepFilter={setStepFilter}
+          keywordType={keywordType}
+          setKeywordType={setKeywordType}
+          keyword={keyword}
+          setKeyword={setKeyword}
+          projectSteps={projectSteps}
+          onSearch={handleSearch}
+          onResetFilters={handleResetFilters}
+          onCreatePost={() => {}}
+          onCreateChecklist={() => setIsModalOpen(true)}
+          showChecklistButton={true}
+          showTypeFilter={false}
+          showCreatePost={false}
+          showKeywordFilter={false}
+          showSearchButton={false}
+          checklistMode={true}
+        />
+      </div>
       {/* 기존 체크리스트 작성 버튼 영역 삭제 */}
       <BoardWrapper>
         {loading ? (
