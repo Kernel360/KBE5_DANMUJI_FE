@@ -427,7 +427,7 @@ export default function ProjectCreateModal({
             </div>
           </FieldLabel>
           <TextArea
-            placeholder="프로젝트 개요를 상세히 입력하세요..."
+            placeholder="프로젝트 개요를 상세히 입력하세요"
             value={form.description}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
             rows={4}
@@ -509,7 +509,7 @@ export default function ProjectCreateModal({
                 onClick={handleEndDateClick}
                 $hasValue={!!form.endDate}
               >
-                <span>마감일</span>
+                <span>종료일</span>
                 <span className="date-value">{formatDate(form.endDate)}</span>
               </DateButton>
               {endDateOpen && (
@@ -531,146 +531,80 @@ export default function ProjectCreateModal({
                     }
                     endDate={form.endDate ? parseDate(form.endDate) : null}
                     minDate={
-                      form.startDate
-                        ? parseDate(form.startDate) ?? undefined
-                        : undefined
+                      form.startDate ? parseDate(form.startDate) : undefined
                     }
                     dateFormat="yyyy-MM-dd"
-                    placeholderText="마감일 선택"
+                    placeholderText="종료일 선택"
                     inline
                     onClickOutside={() => setEndDateOpen(false)}
                     onKeyDown={(e) => {
                       if (e.key === "Escape") setEndDateOpen(false);
                     }}
-                    popperPlacement="bottom-start"
                   />
                 </div>
               )}
             </div>
           </div>
         </div>
-        {/* 담당 정보 */}
-        <div>
-          {/* 개발사 선택 */}
-          <FieldLabel>개발사 선택 *</FieldLabel>
-          <CompanyRow>
-            <div style={{ flex: 1 }}>
-              <CompanyCardHeader>
-                <span style={{ fontWeight: 500 }}>개발사 선택 *</span>
-                <Button
-                  style={{ marginLeft: 12 }}
-                  $variant="primary"
-                  type="button"
-                  onClick={() => {
-                    openCompanyMemberModal("dev", true);
-                  }}
-                >
-                  + 개발사 추가
-                </Button>
-              </CompanyCardHeader>
-              {/* 여러 개발사/멤버 표시 (이동) */}
-              {selectedDevCompanies.map(({ company, members }) => (
-                <CompanyCard key={company.id} $type="dev">
-                  <CompanyCardHeader>
-                    <CompanyCardTitle>
-                      선택된 개발사: {company.name}
-                    </CompanyCardTitle>
-                    <Button
-                      style={{ marginLeft: 8 }}
-                      $variant="secondary"
-                      type="button"
-                      onClick={() => {
-                        setEditCompany(company);
-                        setEditMembers(members);
-                        openCompanyMemberModal("dev", false);
-                      }}
-                    >
-                      수정
-                    </Button>
-                    <Button
-                      style={{
-                        marginLeft: 8,
-                        fontSize: 18,
-                        background: "transparent",
-                        color: "#888",
-                      }}
-                      $variant={undefined}
-                      type="button"
-                      onClick={() =>
-                        setSelectedDevCompanies((prev) =>
-                          prev.filter((c) => c.company.id !== company.id)
-                        )
-                      }
-                      aria-label="삭제"
-                    >
-                      ×
-                    </Button>
-                  </CompanyCardHeader>
-                  <CompanyCardMembers>
-                    선택된 멤버: {members.length}명
-                  </CompanyCardMembers>
-                </CompanyCard>
-              ))}
-            </div>
-            <div style={{ flex: 1 }}>
-              <CompanyCardHeader>
-                <span style={{ fontWeight: 500 }}>고객사 선택 *</span>
-                <Button
-                  style={{ marginLeft: 12 }}
-                  $variant="primary"
-                  type="button"
-                  onClick={() => {
-                    openCompanyMemberModal("client", true);
-                  }}
-                >
-                  + 고객사 추가
-                </Button>
-              </CompanyCardHeader>
-              {/* 여러 고객사/멤버 표시 (이동) */}
-              {selectedClientCompanies.map(({ company, members }) => (
-                <CompanyCard key={company.id} $type="client">
-                  <CompanyCardHeader>
-                    <CompanyCardTitle>
-                      선택된 고객사: {company.name}
-                    </CompanyCardTitle>
-                    <Button
-                      style={{ marginLeft: 8 }}
-                      $variant="secondary"
-                      type="button"
-                      onClick={() => {
-                        setEditCompany(company);
-                        setEditMembers(members);
-                        openCompanyMemberModal("client", false);
-                      }}
-                    >
-                      수정
-                    </Button>
-                    <Button
-                      style={{
-                        marginLeft: 8,
-                        fontSize: 18,
-                        background: "transparent",
-                        color: "#888",
-                      }}
-                      $variant={undefined}
-                      type="button"
-                      onClick={() =>
-                        setSelectedClientCompanies((prev) =>
-                          prev.filter((c) => c.company.id !== company.id)
-                        )
-                      }
-                      aria-label="삭제"
-                    >
-                      ×
-                    </Button>
-                  </CompanyCardHeader>
-                  <CompanyCardMembers>
-                    선택된 멤버: {members.length}명
-                  </CompanyCardMembers>
-                </CompanyCard>
-              ))}
-            </div>
-          </CompanyRow>
+        {/* 개발사/고객사 선택을 한 줄에 가로배치 */}
+        <div
+          style={{
+            display: "flex",
+            gap: 16,
+            alignItems: "flex-end",
+            marginTop: 18,
+          }}
+        >
+          <div style={{ flex: 1 }}>
+            <FieldLabel>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <FiUsers size={18} color="#fdb924" style={{ flexShrink: 0 }} />
+                <span>개발사 선택</span>
+              </div>
+            </FieldLabel>
+            <CompanyRow>
+              <div style={{ flex: 1 }}>{/* 개발사 목록 등 */}</div>
+              <Button
+                $variant="primary"
+                onClick={openCompanyMemberModal}
+                style={{
+                  padding: "4px 10px",
+                  fontSize: "0.95rem",
+                  minWidth: 0,
+                  height: 32,
+                }}
+              >
+                개발사 추가
+              </Button>
+            </CompanyRow>
+          </div>
+          <div style={{ flex: 1 }}>
+            <FieldLabel>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <FiBriefcase
+                  size={18}
+                  color="#fdb924"
+                  style={{ flexShrink: 0 }}
+                />
+                <span>고객사 선택</span>
+              </div>
+            </FieldLabel>
+            <CompanyRow>
+              <div style={{ flex: 1 }}>{/* 고객사 목록 등 */}</div>
+              <Button
+                $variant="primary"
+                onClick={openCompanyMemberModal}
+                style={{
+                  padding: "4px 10px",
+                  fontSize: "0.95rem",
+                  minWidth: 0,
+                  height: 32,
+                }}
+              >
+                고객사 추가
+              </Button>
+            </CompanyRow>
+          </div>
         </div>
         {/* 하단 버튼 */}
         <div
