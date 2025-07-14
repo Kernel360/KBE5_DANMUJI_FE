@@ -247,6 +247,13 @@ export default function KanbanBoard({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedStepId]);
 
+  // selectedStepId가 바뀌면 stepFilter도 동기화
+  useEffect(() => {
+    if (selectedStepId && stepFilter !== selectedStepId) {
+      setStepFilter(selectedStepId);
+    }
+  }, [selectedStepId]);
+
   // 카드 클릭 핸들러
   const handleCardClick = async (checklistId: number) => {
     setDetailLoading(true);
@@ -304,9 +311,44 @@ export default function KanbanBoard({
   // 단계 필터 변경 시 selectedStepId도 변경(상위에서 prop으로 내려줄 수도 있음)
   useEffect(() => {
     if (stepFilter !== "ALL" && typeof stepFilter === "number") {
-      // TODO: 필요시 상위에 알림
+      // stepFilter가 바뀌면 selectedStepId를 변경
+      if (stepFilter !== selectedStepId) {
+        // selectedStepId를 변경하는 함수가 상위에 있으면 prop으로 받아서 호출해야 함
+        // 여기서는 prop이므로 상위에서 내려주는 setSelectedStepId가 없으니, fetchCards를 stepFilter 기준으로 호출
+        fetchCardsByStepFilter(stepFilter);
+      }
     }
   }, [stepFilter]);
+
+  // stepFilter로 체크리스트 목록을 불러오는 함수
+  const fetchCardsByStepFilter = async (stepId: number) => {
+    setLoading(true);
+    try {
+      const res = await api.get(`/api/checklists/${stepId}`);
+      const apiCards = Array.isArray(res.data.data) ? res.data.data : [];
+      setCards(
+        apiCards.map((item: any) => ({
+          id: String(item.id),
+          title: item.title || "",
+          userId: item.userId,
+          username: item.username || "",
+          createdAt: item.createdAt ? item.createdAt.slice(0, 10) : "",
+          status:
+            item.status === "PENDING"
+              ? "waiting"
+              : item.status === "APPROVED"
+              ? "approved"
+              : "rejected",
+        }))
+      );
+    } catch {
+      setCards([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 기존 fetchCards는 selectedStepId 기준이므로, stepFilter가 바뀌면 fetchCardsByStepFilter를 사용
 
   return (
     <div style={{ width: "100%" }}>
