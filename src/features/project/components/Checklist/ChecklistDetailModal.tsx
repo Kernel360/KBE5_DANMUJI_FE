@@ -27,12 +27,27 @@ import {
   ApprovalButton,
   ApprovalButtonSecondary,
 } from "./ChecklistDetailModal.styled";
+import { showErrorToast, showSuccessToast } from "@/utils/errorHandler";
+import {
+  FiFileText,
+  FiAlignLeft,
+  FiUser,
+  FiCheckCircle,
+  FiCalendar,
+  FiCheckSquare,
+  FiAlertTriangle,
+  FiXCircle,
+  FiAlertCircle,
+  FiEdit,
+  FiTrash2,
+} from "react-icons/fi";
+import { RiUserSettingsLine } from "react-icons/ri";
 
 const statusMap: Record<string, string> = {
-  PENDING: "대기 중",
+  PENDING: "대기",
   APPROVED: "승인",
   REJECTED: "반려",
-  waiting: "대기 중",
+  waiting: "대기",
   approved: "승인",
   rejected: "반려",
 };
@@ -46,10 +61,17 @@ const statusColor: Record<string, string> = {
 };
 function formatDate(dateStr?: string | null) {
   if (!dateStr) return "-";
-  return (
-    dateStr.slice(0, 10) +
-    (dateStr.length > 10 ? " " + dateStr.slice(11, 16) : "")
-  );
+  const date = new Date(dateStr);
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const day = date.getDate().toString().padStart(2, "0");
+  let hour = date.getHours();
+  const minute = date.getMinutes().toString().padStart(2, "0");
+  const isAM = hour < 12;
+  const ampm = isAM ? "오전" : "오후";
+  if (!isAM && hour > 12) hour -= 12;
+  if (hour === 0) hour = 12;
+  return `${year}.${month}.${day} (${ampm} ${hour}:${minute})`;
 }
 
 interface ChecklistDetailModalProps {
@@ -67,7 +89,7 @@ const ChecklistDetailModal = ({
   onClose,
   onRefresh,
 }: ChecklistDetailModalProps) => {
-  const { user } = useAuth();
+  const { user, role } = useAuth();
   // 승인/반려 UI 상태를 approval별로 관리
   const [rejectStates, setRejectStates] = useState<{
     [approvalId: number]: boolean;
@@ -79,6 +101,10 @@ const ChecklistDetailModal = ({
     [approvalId: number]: boolean;
   }>({});
   const [localApprovals, setLocalApprovals] = useState<any[] | null>(null);
+  const [editMode, setEditMode] = useState(false);
+  const [editTitle, setEditTitle] = useState("");
+  const [editContent, setEditContent] = useState("");
+  const [editLoading, setEditLoading] = useState(false);
 
   // ESC 키로 모달 닫기
   React.useEffect(() => {
@@ -144,6 +170,7 @@ const ChecklistDetailModal = ({
       if (onRefresh) {
         onRefresh();
       }
+      if (onClose) onClose(); // 승인 성공 시 모달 닫기
     } catch (e) {
       let msg = "승인 처리에 실패했습니다.";
       if (e && typeof e === "object") {
@@ -197,9 +224,14 @@ const ChecklistDetailModal = ({
       if (onRefresh) {
         onRefresh();
       }
-    } catch (e) {
+      if (onClose) onClose(); // 반려 성공 시 모달 닫기
+    } catch (e: any) {
+      // errors.reason 추출
       let msg = "반려 처리에 실패했습니다.";
-      if (e && typeof e === "object") {
+      if (e?.response?.data?.data?.errors) {
+        const errors = e.response.data.data.errors;
+        msg = errors.map((err: any) => err.reason).join("\n");
+      } else if (e && typeof e === "object") {
         const err = e as any;
         if (
           "response" in err &&
@@ -214,11 +246,81 @@ const ChecklistDetailModal = ({
           msg = err.message as string;
         }
       }
-      alert(msg);
+      showErrorToast(msg);
     } finally {
       setActionLoading((prev) => ({ ...prev, [approvalId]: false }));
     }
   };
+
+  // 체크리스트 삭제 함수
+  const handleDeleteChecklist = async () => {
+    if (!data?.id) return;
+    if (!window.confirm("정말로 이 체크리스트를 삭제하시겠습니까?")) return;
+    try {
+      await api.delete(`/api/checklists/${data.id}`);
+      showSuccessToast("체크리스트가 성공적으로 삭제되었습니다.");
+      if (onClose) onClose();
+      if (onRefresh) onRefresh();
+    } catch (e: any) {
+      let msg = "체크리스트 삭제에 실패했습니다.";
+      if (e?.response?.data?.data?.errors) {
+        const errors = e.response.data.data.errors;
+        msg = errors.map((err: any) => err.reason).join("\n");
+      } else if (e?.response?.data?.message) {
+        msg = e.response.data.message;
+      }
+      showErrorToast(msg);
+    }
+  };
+
+  // 수정 버튼 클릭 시 폼에 값 세팅
+  const handleEditClick = () => {
+    setEditTitle(data?.title || "");
+    setEditContent(data?.content || "");
+    setEditMode(true);
+  };
+
+  // 수정 취소
+  const handleEditCancel = () => {
+    setEditMode(false);
+    setEditTitle("");
+    setEditContent("");
+  };
+
+  // 체크리스트 수정 함수
+  const handleUpdateChecklist = async () => {
+    if (!data?.id) return;
+    setEditLoading(true);
+    try {
+      await api.put(`/api/checklists/${data.id}`, {
+        title: editTitle,
+        content: editContent,
+      });
+      showSuccessToast("체크리스트가 성공적으로 수정되었습니다.");
+      setEditMode(false);
+      if (onClose) onClose();
+      if (onRefresh) onRefresh();
+    } catch (e: any) {
+      let msg = "체크리스트 수정에 실패했습니다.";
+      if (e?.response?.data?.data?.errors) {
+        const errors = e.response.data.data.errors;
+        msg = errors.map((err: any) => err.reason).join("\n");
+      } else if (e?.response?.data?.message) {
+        msg = e.response.data.message;
+      }
+      showErrorToast(msg);
+      // onClose 호출하지 않음
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
+  // 버튼 노출 조건
+  const isAdmin =
+    (role && role.toUpperCase() === "ADMIN") ||
+    (role && role.toLowerCase().includes("admin"));
+  const canEditOrDelete =
+    (user?.id && data?.userId && user?.id === data.userId) || isAdmin;
 
   if (!open) return null;
   const approvals =
@@ -250,36 +352,283 @@ const ChecklistDetailModal = ({
             <ModalContent>
               {/* 왼쪽: 체크리스트 정보 */}
               <InfoSection>
-                <InfoRow>
-                  <InfoLabel>제목</InfoLabel>
-                  <InfoValue>{data.title}</InfoValue>
-                </InfoRow>
-                <InfoRow>
-                  <InfoLabel>내용</InfoLabel>
-                  <InfoValue>{data.content}</InfoValue>
-                </InfoRow>
-                <InfoRow>
-                  <InfoLabel>작성자</InfoLabel>
-                  <InfoValue>{data.username}</InfoValue>
-                </InfoRow>
-                <InfoRow>
-                  <InfoLabel>상태</InfoLabel>
-                  <InfoValue>
-                    <ApprovalStatusBadge
-                      color={statusColor[data.status] || "#bbb"}
-                    >
-                      {statusMap[data.status] || data.status}
-                    </ApprovalStatusBadge>
-                  </InfoValue>
-                </InfoRow>
-                <InfoRow>
-                  <InfoLabel>생성일</InfoLabel>
-                  <InfoValue>{formatDate(data.createdAt)}</InfoValue>
-                </InfoRow>
-                <InfoRow>
-                  <InfoLabel>완료일</InfoLabel>
-                  <InfoValue>{formatDate(data.completedAt)}</InfoValue>
-                </InfoRow>
+                {editMode ? (
+                  <>
+                    <InfoRow>
+                      <InfoLabel>제목</InfoLabel>
+                      <InfoValue>
+                        <input
+                          type="text"
+                          value={editTitle}
+                          onChange={(e) => setEditTitle(e.target.value)}
+                          maxLength={30}
+                          style={{
+                            width: "100%",
+                            padding: "8px 12px",
+                            border: "1.5px solid #e5e7eb",
+                            borderRadius: 8,
+                            fontSize: "1.05rem",
+                            color: "#22223b",
+                            background: "#fafbfc",
+                          }}
+                        />
+                      </InfoValue>
+                    </InfoRow>
+                    <InfoRow>
+                      <InfoLabel>내용</InfoLabel>
+                      <InfoValue>
+                        <textarea
+                          value={editContent}
+                          onChange={(e) => setEditContent(e.target.value)}
+                          maxLength={500}
+                          rows={5}
+                          style={{
+                            width: "100%",
+                            padding: "8px 12px",
+                            border: "1.5px solid #e5e7eb",
+                            borderRadius: 8,
+                            fontSize: "1.01rem",
+                            color: "#22223b",
+                            background: "#fafbfc",
+                            resize: "vertical",
+                          }}
+                        />
+                      </InfoValue>
+                    </InfoRow>
+                    <InfoRow>
+                      <InfoLabel />
+                      <InfoValue style={{ display: "flex", gap: 8 }}>
+                        <button
+                          onClick={handleUpdateChecklist}
+                          disabled={editLoading}
+                          style={{
+                            background: "#10b981",
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: 8,
+                            padding: "7px 18px",
+                            fontWeight: 600,
+                            fontSize: "1rem",
+                            cursor: "pointer",
+                          }}
+                        >
+                          {editLoading ? "저장 중..." : "저장"}
+                        </button>
+                        <button
+                          onClick={handleEditCancel}
+                          disabled={editLoading}
+                          style={{
+                            background: "#f3f4f6",
+                            color: "#374151",
+                            border: "none",
+                            borderRadius: 8,
+                            padding: "7px 18px",
+                            fontWeight: 600,
+                            fontSize: "1rem",
+                            cursor: "pointer",
+                          }}
+                        >
+                          취소
+                        </button>
+                      </InfoValue>
+                    </InfoRow>
+                  </>
+                ) : (
+                  <>
+                    <InfoRow>
+                      <InfoLabel
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                        }}
+                      >
+                        <FiFileText style={{ color: "#fdb924" }} /> 제목
+                      </InfoLabel>
+                      <InfoValue>{data.title}</InfoValue>
+                    </InfoRow>
+                    <InfoRow>
+                      <InfoLabel
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                        }}
+                      >
+                        <FiAlignLeft style={{ color: "#fdb924" }} /> 내용
+                      </InfoLabel>
+                      <InfoValue>{data.content}</InfoValue>
+                    </InfoRow>
+                    <InfoRow>
+                      <InfoLabel
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                        }}
+                      >
+                        <FiUser style={{ color: "#fdb924" }} /> 작성자
+                      </InfoLabel>
+                      <InfoValue
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                        }}
+                      >
+                        {data.username === "관리자" ? (
+                          <RiUserSettingsLine
+                            size={16}
+                            style={{ color: "#8b5cf6" }}
+                          />
+                        ) : (
+                          <FiUser size={16} style={{ color: "#3b82f6" }} />
+                        )}
+                        {data.name}
+                        {data.username && (
+                          <span
+                            style={{
+                              color: "#888",
+                              fontWeight: 400,
+                              marginLeft: -3,
+                              fontSize: 13,
+                            }}
+                          >
+                            ({data.username})
+                          </span>
+                        )}
+                      </InfoValue>
+                    </InfoRow>
+                    {/* 상태 InfoRow의 아이콘을 FiAlertCircle(노란색)로 변경 */}
+                    <InfoRow>
+                      <InfoLabel
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                        }}
+                      >
+                        <FiAlertCircle style={{ color: "#fdb924" }} /> 상태
+                      </InfoLabel>
+                      <InfoValue>
+                        <ApprovalStatusBadge
+                          color={statusColor[data.status] || "#bbb"}
+                        >
+                          {statusMap[data.status] || data.status}
+                        </ApprovalStatusBadge>
+                      </InfoValue>
+                    </InfoRow>
+                    <InfoRow>
+                      <InfoLabel
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                        }}
+                      >
+                        <FiCalendar style={{ color: "#fdb924" }} /> 생성일
+                      </InfoLabel>
+                      <InfoValue>{formatDate(data.createdAt)}</InfoValue>
+                    </InfoRow>
+                    {/* 완료일 InfoRow의 아이콘을 FiCheckCircle(노란색)로 변경 */}
+                    <InfoRow>
+                      <InfoLabel
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                        }}
+                      >
+                        <FiCheckCircle style={{ color: "#fdb924" }} /> 완료일
+                      </InfoLabel>
+                      <InfoValue>{formatDate(data.completedAt)}</InfoValue>
+                    </InfoRow>
+                    {/* 수정/삭제 버튼에 아이콘 추가 및 스타일 변경 (더 작게) */}
+                    {canEditOrDelete &&
+                      (isAdmin ||
+                        (user?.id &&
+                          data?.userId &&
+                          user?.id === data.userId)) && (
+                        <InfoRow>
+                          <InfoLabel />
+                          <InfoValue style={{ display: "flex", gap: 5 }}>
+                            {/* 작성자 본인: 수정/삭제, 관리자: 삭제만 */}
+                            {user?.id &&
+                              data?.userId &&
+                              user?.id === data.userId && (
+                                <button
+                                  style={{
+                                    background: "#fff",
+                                    color: "#3b82f6",
+                                    border: "1.2px solid #d1d5db",
+                                    borderRadius: 7,
+                                    padding: "3px 8px",
+                                    fontWeight: 600,
+                                    fontSize: "0.93rem",
+                                    cursor: "pointer",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 3,
+                                    transition: "all 0.15s",
+                                  }}
+                                  onMouseOver={(e) => {
+                                    e.currentTarget.style.background =
+                                      "#f3f4f6";
+                                    e.currentTarget.style.borderColor =
+                                      "#3b82f6";
+                                    e.currentTarget.style.color = "#2563eb";
+                                  }}
+                                  onMouseOut={(e) => {
+                                    e.currentTarget.style.background = "#fff";
+                                    e.currentTarget.style.borderColor =
+                                      "#d1d5db";
+                                    e.currentTarget.style.color = "#3b82f6";
+                                  }}
+                                  onClick={handleEditClick}
+                                >
+                                  <FiEdit
+                                    style={{ marginRight: 2, fontSize: 15 }}
+                                  />{" "}
+                                  수정
+                                </button>
+                              )}
+                            <button
+                              style={{
+                                background: "#fff",
+                                color: "#ef4444",
+                                border: "1.2px solid #d1d5db",
+                                borderRadius: 7,
+                                padding: "3px 8px",
+                                fontWeight: 600,
+                                fontSize: "0.93rem",
+                                cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 3,
+                                transition: "all 0.15s",
+                              }}
+                              onMouseOver={(e) => {
+                                e.currentTarget.style.background = "#fee2e2";
+                                e.currentTarget.style.borderColor = "#ef4444";
+                                e.currentTarget.style.color = "#b91c1c";
+                              }}
+                              onMouseOut={(e) => {
+                                e.currentTarget.style.background = "#fff";
+                                e.currentTarget.style.borderColor = "#d1d5db";
+                                e.currentTarget.style.color = "#ef4444";
+                              }}
+                              onClick={handleDeleteChecklist}
+                            >
+                              <FiTrash2
+                                style={{ marginRight: 2, fontSize: 15 }}
+                              />{" "}
+                              삭제
+                            </button>
+                          </InfoValue>
+                        </InfoRow>
+                      )}
+                  </>
+                )}
               </InfoSection>
               {/* 오른쪽: 승인자 카드 목록 */}
               <ApprovalsSection>
@@ -288,21 +637,101 @@ const ChecklistDetailModal = ({
                     fontWeight: 700,
                     fontSize: "1.08rem",
                     marginBottom: 12,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 7,
                   }}
                 >
-                  승인자 목록
+                  <FiUser style={{ color: "#fdb924" }} /> 승인자 목록
                 </div>
                 <ApprovalCardList>
                   {Array.isArray(approvals) && approvals.length > 0 ? (
                     approvals.map((appr: any) => (
                       <ApprovalCard key={appr.id}>
                         <ApprovalCardHeader>
-                          <ApprovalName>{appr.username}</ApprovalName>
-                          <ApprovalStatusBadge
-                            color={statusColor[appr.status] || "#bbb"}
+                          {/* 승인자 이름 왼쪽에 아이콘 추가 */}
+                          <ApprovalName
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 6,
+                            }}
                           >
-                            {statusMap[appr.status] || appr.status}
-                          </ApprovalStatusBadge>
+                            {appr.username === "관리자" ? (
+                              <RiUserSettingsLine
+                                size={16}
+                                style={{ color: "#8b5cf6" }}
+                              />
+                            ) : (
+                              <FiUser size={16} style={{ color: "#3b82f6" }} />
+                            )}
+                            {appr.name}
+                            {appr.username && (
+                              <span
+                                style={{
+                                  color: "#888",
+                                  fontWeight: 400,
+                                  marginLeft: -3,
+                                  fontSize: 13,
+                                }}
+                              >
+                                ({appr.username})
+                              </span>
+                            )}
+                          </ApprovalName>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 4,
+                              fontWeight: 600,
+                              fontSize: "0.98rem",
+                            }}
+                          >
+                            {/* 승인자목록 상태 텍스트 색상도 아이콘 색상과 일치하게 변경 */}
+                            {(appr.status === "waiting" ||
+                              appr.status === "PENDING") && (
+                              <>
+                                <FiAlertTriangle
+                                  size={16}
+                                  style={{ color: "#fbbf24" }}
+                                />
+                                <span
+                                  style={{ marginLeft: 2, color: "#fbbf24" }}
+                                >
+                                  대기
+                                </span>
+                              </>
+                            )}
+                            {(appr.status === "approved" ||
+                              appr.status === "APPROVED") && (
+                              <>
+                                <FiCheckCircle
+                                  size={16}
+                                  style={{ color: "#10b981" }}
+                                />
+                                <span
+                                  style={{ marginLeft: 2, color: "#10b981" }}
+                                >
+                                  승인
+                                </span>
+                              </>
+                            )}
+                            {(appr.status === "rejected" ||
+                              appr.status === "REJECTED") && (
+                              <>
+                                <FiXCircle
+                                  size={16}
+                                  style={{ color: "#ef4444" }}
+                                />
+                                <span
+                                  style={{ marginLeft: 2, color: "#ef4444" }}
+                                >
+                                  반려
+                                </span>
+                              </>
+                            )}
+                          </div>
                         </ApprovalCardHeader>
                         <ApprovalCardBody>
                           {appr.message && (
@@ -313,7 +742,7 @@ const ChecklistDetailModal = ({
                           <ApprovalDate>
                             {appr.respondedAt
                               ? `응답일: ${formatDate(appr.respondedAt)}`
-                              : "응답 대기"}
+                              : "승인 대기"}
                           </ApprovalDate>
                           {/* 승인/반려 UI: 대기 상태이고 본인이 할당된 승인자일 때만 노출 */}
                           {appr.status === "PENDING" &&

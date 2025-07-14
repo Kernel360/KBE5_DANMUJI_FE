@@ -23,6 +23,7 @@ import {
   UserInfoBlock,
 } from "./ChecklistCreateModal.styled";
 import { FaCheckCircle } from "react-icons/fa";
+import { FiFileText, FiAlignLeft, FiUser, FiHome } from "react-icons/fi";
 // import CompanyMemberSelectModal from '../CompanyMemberSelectModal';
 import { getProjectClientUsers } from "@/features/project/services/projectService";
 import type { ProjectClientUserResponse } from "@/features/project/services/projectService";
@@ -84,6 +85,19 @@ export default function ChecklistCreateModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const approvalIds = users.filter((u) => selected[u.id]).map((u) => u.id);
+    // 필수 validation: 제목, 내용, 승인자
+    if (!title.trim()) {
+      alert("제목을 입력하세요");
+      return;
+    }
+    if (!content.trim()) {
+      alert("내용을 입력하세요");
+      return;
+    }
+    if (approvalIds.length === 0) {
+      alert("승인자를 1명 이상 선택하세요");
+      return;
+    }
     onSubmit({
       title,
       content,
@@ -111,7 +125,12 @@ export default function ChecklistCreateModal({
 
         <Form onSubmit={handleSubmit}>
           <FormGroup>
-            <Label htmlFor="title">제목 *</Label>
+            <Label
+              htmlFor="title"
+              style={{ display: "flex", alignItems: "center", gap: 6 }}
+            >
+              <FiFileText style={{ color: "#fdb924" }} /> 제목
+            </Label>
             <Input
               id="title"
               type="text"
@@ -123,7 +142,12 @@ export default function ChecklistCreateModal({
           </FormGroup>
 
           <FormGroup>
-            <Label htmlFor="content">내용 *</Label>
+            <Label
+              htmlFor="content"
+              style={{ display: "flex", alignItems: "center", gap: 6 }}
+            >
+              <FiAlignLeft style={{ color: "#fdb924" }} /> 내용
+            </Label>
             <TextArea
               id="content"
               value={content}
@@ -134,7 +158,9 @@ export default function ChecklistCreateModal({
           </FormGroup>
 
           <FormGroup>
-            <Label>승인자 선택</Label>
+            <Label style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <FiUser style={{ color: "#fdb924" }} /> 승인자 선택
+            </Label>
             {loadingUsers ? (
               <div style={{ color: "#888", fontSize: "0.98rem" }}>
                 유저 목록 불러오는 중...
@@ -159,7 +185,12 @@ export default function ChecklistCreateModal({
                   }, {} as Record<string, { companyName: string; users: typeof users }>)
                 ).map(([key, group]) => (
                   <CompanySection key={key}>
-                    <CompanyNameHeader>{group.companyName}</CompanyNameHeader>
+                    <CompanyNameHeader
+                      style={{ display: "flex", alignItems: "center", gap: 6 }}
+                    >
+                      <FiHome style={{ color: "#fdb924" }} />
+                      {group.companyName}
+                    </CompanyNameHeader>
                     {group.users.map((user) => (
                       <UserCard
                         key={user.id}
@@ -169,7 +200,15 @@ export default function ChecklistCreateModal({
                         <CheckCircle selected={!!selected[user.id]}>
                           {selected[user.id] && <FaCheckCircle />}
                         </CheckCircle>
-                        <UserName>
+                        <UserName
+                          style={{
+                            marginLeft: -20,
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 5,
+                          }}
+                        >
+                          <FiUser style={{ color: "#3b82f6" }} />
                           {user.name}{" "}
                           <UserUsername>({user.username})</UserUsername>
                         </UserName>

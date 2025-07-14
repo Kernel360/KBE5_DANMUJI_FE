@@ -44,12 +44,22 @@ export const ModalHeader = styled.div`
   margin-bottom: 28px;
 `;
 
-export const ModalTitle = styled.h2`
-  font-size: 1.45rem;
-  font-weight: 700;
-  color: #1a202c; /* gray-900 */
-  letter-spacing: -0.5px;
-  margin: 0;
+export const ModalTitle = styled.div`
+  font-size: 1.22rem;
+  font-weight: 500;
+  position: relative;
+  padding-left: 16px;
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 1.2em;
+    background: #fdb924;
+    border-radius: 2px;
+  }
 `;
 
 export const CloseButton = styled.button`
@@ -126,14 +136,13 @@ export const TextArea = styled.textarea`
 `;
 
 export const UserListWrap = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  margin-top: -10px;
+  margin-bottom: 0;
+  padding: 0;
 `;
 
 export const CompanySection = styled.div`
-  margin-top: 18px;
-  margin-bottom: 8px;
+  margin-bottom: 20px;
 `;
 
 export const CompanyNameHeader = styled.div`
