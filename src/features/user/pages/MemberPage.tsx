@@ -474,6 +474,7 @@ export default function MemberPage() {
   const [selectedCompanyId, setSelectedCompanyId] = useState<number | null>(null);
   // 검색어 상태 추가
   const [searchKeyword, setSearchKeyword] = useState<string>("");
+  const [pendingSearchKeyword, setPendingSearchKeyword] = useState<string>("");
 
   // 전체 직책 목록 불러오기
   const fetchAllPositions = async () => {
@@ -572,14 +573,33 @@ export default function MemberPage() {
     fetchAllPositions(); // 직책 목록도 함께 불러오기
   }, []);
 
-  // 페이지 변경 시 회원 목록 새로고침
+  // 필터/검색이 없으면 allUsers, 있으면 filtering API 사용
   useEffect(() => {
-    if (searchKeyword || selectedCompanyId !== null || selectedPosition) {
-      fetchFilteredMembers(currentPage);
-    } else {
+    setCurrentPage(0);
+    if (!selectedCompanyId && !selectedPosition) {
       fetchMembers();
+    } else {
+      fetchFilteredMembers(0);
     }
-  }, [currentPage, pageSize]);
+  }, [selectedCompanyId, selectedPosition]);
+
+  // 이름 검색어가 바뀔 때만 요청 (엔터/돋보기 클릭 시)
+  useEffect(() => {
+    setCurrentPage(0);
+    if (searchKeyword === "") {
+      fetchMembers();
+    } else {
+      fetchFilteredMembers(0);
+    }
+  }, [searchKeyword]);
+
+  useEffect(() => {
+    if (!selectedCompanyId && !selectedPosition) {
+      fetchMembers();
+    } else {
+      fetchFilteredMembers(currentPage);
+    }
+  }, [currentPage]);
 
   // 필터링된 회원 목록
   // 서버에서 이미 페이징된 데이터만 오므로, filtered는 members 그대로 사용
@@ -706,10 +726,7 @@ export default function MemberPage() {
   };
 
   // 검색 버튼 클릭 핸들러
-  const handleSearch = () => {
-    setCurrentPage(0);
-    fetchFilteredMembers(0);
-  };
+  // handleSearch는 더 이상 사용하지 않음
 
   if (loading)
     return (
@@ -754,7 +771,7 @@ export default function MemberPage() {
         <FilterGroup>
           <FilterLabel>업체</FilterLabel>
           <SelectButton
-            $hasValue={false}
+            $hasValue={selectedCompanyId !== null}
             onClick={() => setCompanyDropdownOpen(!companyDropdownOpen)}
             className={companyDropdownOpen ? "open" : ""}
           >
@@ -768,7 +785,7 @@ export default function MemberPage() {
           </SelectButton>
           <SelectDropdown $isOpen={companyDropdownOpen}>
             <SelectOption
-              $isSelected={false}
+              $isSelected={selectedCompanyId === null}
               onClick={() => {
                 setSelectedCompanyId(null);
                 setCompanyDropdownOpen(false);
@@ -784,7 +801,7 @@ export default function MemberPage() {
               (Array.isArray(companies) ? companies : []).map((company) => (
                 <SelectOption
                   key={company.id}
-                  $isSelected={false}
+                  $isSelected={selectedCompanyId === company.id}
                   onClick={() => {
                     setSelectedCompanyId(company.id);
                     setCompanyDropdownOpen(false);
@@ -799,7 +816,7 @@ export default function MemberPage() {
         <FilterGroup>
           <FilterLabel>직책</FilterLabel>
           <SelectButton
-            $hasValue={false}
+            $hasValue={!!selectedPosition}
             onClick={() => setPositionDropdownOpen(!positionDropdownOpen)}
             className={positionDropdownOpen ? "open" : ""}
           >
@@ -811,7 +828,7 @@ export default function MemberPage() {
           </SelectButton>
           <SelectDropdown $isOpen={positionDropdownOpen}>
             <SelectOption
-              $isSelected={false}
+              $isSelected={selectedPosition === ""}
               onClick={() => {
                 setSelectedPosition("");
                 setPositionDropdownOpen(false);
@@ -822,7 +839,7 @@ export default function MemberPage() {
             {allPositions.map((position) => (
               <SelectOption
                 key={position}
-                $isSelected={false}
+                $isSelected={selectedPosition === position}
                 onClick={() => {
                   setSelectedPosition(position);
                   setPositionDropdownOpen(false);
@@ -839,11 +856,11 @@ export default function MemberPage() {
             <SearchInput
               type="text"
               placeholder="회원 이름 검색..."
-              value={searchKeyword}
-              onChange={(e) => setSearchKeyword(e.target.value)}
+              value={pendingSearchKeyword}
+              onChange={(e) => setPendingSearchKeyword(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
-                  // 검색 버튼 클릭과 동일하게 처리할 수 있음
+                  setSearchKeyword(pendingSearchKeyword);
                 }
               }}
             />
@@ -857,7 +874,7 @@ export default function MemberPage() {
                 alignItems: "center",
                 justifyContent: "center",
               }}
-              onClick={handleSearch}
+              onClick={() => setSearchKeyword(pendingSearchKeyword)}
             >
               <FiSearch size={16} />
             </NewButton>
@@ -866,6 +883,7 @@ export default function MemberPage() {
                 setSelectedCompanyId(null);
                 setSelectedPosition("");
                 setSearchKeyword("");
+                setPendingSearchKeyword("");
                 setCurrentPage(0);
                 fetchMembers();
               }}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import {
@@ -176,8 +176,8 @@ const FilterLabel = styled.label`
 `;
 
 const SearchInput = styled.input`
-  min-width: 120px;
-  max-width: 220px;
+  min-width: 180px;
+  max-width: 300px;
   padding: 7px 16px;
   font-size: 14px;
   border: 2px solid #e5e7eb;
@@ -456,7 +456,7 @@ function InquiryFilterBar({
                 className={statusDropdownOpen ? "open" : ""}
                 style={{
                   padding: "0 12px",
-                  width: 123,
+                  width: 150,
                   height: 36,
                   minHeight: 36,
                   display: "flex",
@@ -506,7 +506,7 @@ function InquiryFilterBar({
               </SelectButton>
               <SelectDropdown
                 $isOpen={statusDropdownOpen}
-                style={{ minWidth: 100 }}
+                style={{ minWidth: 150 }}
               >
                 {STATUS_OPTIONS.map((option) => (
                   <SelectOption
@@ -740,7 +740,7 @@ function InquiryFilterBar({
                 className={searchFieldDropdownOpen ? "open" : ""}
                 style={{
                   padding: "0 12px",
-                  width: 110,
+                  width: 130,
                   height: 36,
                   minHeight: 36,
                   display: "flex",
@@ -773,7 +773,7 @@ function InquiryFilterBar({
               </SelectButton>
               <SelectDropdown
                 $isOpen={searchFieldDropdownOpen}
-                style={{ minWidth: 100 }}
+                style={{ minWidth: 130 }}
               >
                 {SEARCH_FIELD_OPTIONS.map((option) => (
                   <SelectOption
@@ -896,6 +896,10 @@ export default function InquiryPage() {
   });
   const navigate = useNavigate();
 
+  // debounce용 ref
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
+  const prevSearchValue = useRef(filters.searchValue);
+
   const fetchInquiries = async (pageNumber = 0) => {
     try {
       const response = await api.get(
@@ -950,6 +954,36 @@ export default function InquiryPage() {
   useEffect(() => {
     fetchInquiries();
   }, []);
+
+  // 필터 변경 시 자동 요청 (searchValue는 debounce)
+  useEffect(() => {
+    // searchValue가 바뀔 때만 debounce, 나머지는 즉시
+    if (
+      prevSearchValue.current !== filters.searchValue
+    ) {
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
+      debounceTimer.current = setTimeout(() => {
+        fetchFilteredInquiries(0);
+      }, 300);
+      prevSearchValue.current = filters.searchValue;
+    } else {
+      // searchValue 외의 필터 변경(상태, 날짜 등)은 즉시
+      fetchFilteredInquiries(0);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters.status, filters.startDate, filters.endDate, filters.searchField]);
+
+  // searchValue만 따로 감시해서 debounce
+  useEffect(() => {
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    debounceTimer.current = setTimeout(() => {
+      fetchFilteredInquiries(0);
+    }, 300);
+    return () => {
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters.searchValue]);
 
   const handleTitleClick = (id: number) => {
     navigate(`/inquiry/${id}`);
