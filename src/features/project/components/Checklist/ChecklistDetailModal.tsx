@@ -292,8 +292,11 @@ const ChecklistDetailModal = ({
   };
 
   // 버튼 노출 조건
+  const isAdmin =
+    (role && role.toUpperCase() === "ADMIN") ||
+    (role && role.toLowerCase().includes("admin"));
   const canEditOrDelete =
-    (user?.id && data?.userId && user?.id === data.userId) || role === "ADMIN";
+    (user?.id && data?.userId && user?.id === data.userId) || isAdmin;
 
   if (!open) return null;
   const approvals =
@@ -439,43 +442,52 @@ const ChecklistDetailModal = ({
                       <InfoValue>{formatDate(data.completedAt)}</InfoValue>
                     </InfoRow>
                     {/* 수정/삭제 버튼 */}
-                    {canEditOrDelete && (
-                      <InfoRow>
-                        <InfoLabel />
-                        <InfoValue style={{ display: "flex", gap: 8 }}>
-                          <button
-                            style={{
-                              background: "#3b82f6",
-                              color: "#fff",
-                              border: "none",
-                              borderRadius: 8,
-                              padding: "7px 18px",
-                              fontWeight: 600,
-                              fontSize: "1rem",
-                              cursor: "pointer",
-                            }}
-                            onClick={handleEditClick}
-                          >
-                            수정
-                          </button>
-                          <button
-                            style={{
-                              background: "#ef4444",
-                              color: "#fff",
-                              border: "none",
-                              borderRadius: 8,
-                              padding: "7px 18px",
-                              fontWeight: 600,
-                              fontSize: "1rem",
-                              cursor: "pointer",
-                            }}
-                            onClick={handleDeleteChecklist}
-                          >
-                            삭제
-                          </button>
-                        </InfoValue>
-                      </InfoRow>
-                    )}
+                    {canEditOrDelete &&
+                      (isAdmin ||
+                        (user?.id &&
+                          data?.userId &&
+                          user?.id === data.userId)) && (
+                        <InfoRow>
+                          <InfoLabel />
+                          <InfoValue style={{ display: "flex", gap: 8 }}>
+                            {/* 작성자 본인: 수정/삭제, 관리자: 삭제만 */}
+                            {user?.id &&
+                              data?.userId &&
+                              user?.id === data.userId && (
+                                <button
+                                  style={{
+                                    background: "#3b82f6",
+                                    color: "#fff",
+                                    border: "none",
+                                    borderRadius: 8,
+                                    padding: "7px 18px",
+                                    fontWeight: 600,
+                                    fontSize: "1rem",
+                                    cursor: "pointer",
+                                  }}
+                                  onClick={handleEditClick}
+                                >
+                                  수정
+                                </button>
+                              )}
+                            <button
+                              style={{
+                                background: "#ef4444",
+                                color: "#fff",
+                                border: "none",
+                                borderRadius: 8,
+                                padding: "7px 18px",
+                                fontWeight: 600,
+                                fontSize: "1rem",
+                                cursor: "pointer",
+                              }}
+                              onClick={handleDeleteChecklist}
+                            >
+                              삭제
+                            </button>
+                          </InfoValue>
+                        </InfoRow>
+                      )}
                   </>
                 )}
               </InfoSection>
