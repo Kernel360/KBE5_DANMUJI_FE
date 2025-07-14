@@ -391,7 +391,7 @@ export default function DashboardPage() {
           onClick={() => (window.location.href = "/members")}
           onMouseOver={(e) =>
             (e.currentTarget.style.background =
-              "linear-gradient(135deg, #ffffff 0%, #fefdf4 100%)")
+              "linear-gradient(135deg, #ffffff 0%, #fef3c7 100%)")
           }
           onMouseOut={(e) => (e.currentTarget.style.background = "#ffffff")}
         >
@@ -406,8 +406,8 @@ export default function DashboardPage() {
               style={{
                 fontSize: "24px",
                 color: "#fdb924",
-                background: "#ffffff",
-                border: "2px solid #fdb924",
+                background: "#fef3c7",
+                border: "none",
                 borderRadius: "10px",
                 padding: "12px",
                 marginRight: "16px",
@@ -469,8 +469,8 @@ export default function DashboardPage() {
               style={{
                 fontSize: "24px",
                 color: "#fdb924",
-                background: "#ffffff",
-                border: "2px solid #fdb924",
+                background: "#fef3c7",
+                border: "none",
                 borderRadius: "10px",
                 padding: "12px",
                 marginRight: "16px",
@@ -532,8 +532,8 @@ export default function DashboardPage() {
               style={{
                 fontSize: "24px",
                 color: "#fdb924",
-                background: "#ffffff",
-                border: "2px solid #fdb924",
+                background: "#fef3c7",
+                border: "none",
                 borderRadius: "10px",
                 padding: "12px",
                 marginRight: "16px",
@@ -610,7 +610,7 @@ export default function DashboardPage() {
           onClick={() => (window.location.href = "/inquiry")}
           onMouseOver={(e) =>
             (e.currentTarget.style.background =
-              "linear-gradient(135deg, #ffffff 0%, #fefdf4 100%)")
+              "linear-gradient(135deg, #ffffff 0%, #fef3c7 100%)")
           }
           onMouseOut={(e) => (e.currentTarget.style.background = "#ffffff")}
         >
@@ -625,8 +625,8 @@ export default function DashboardPage() {
               style={{
                 fontSize: "24px",
                 color: "#fdb924",
-                background: "#ffffff",
-                border: "2px solid #fdb924",
+                background: "#fef3c7",
+                border: "none",
                 borderRadius: "10px",
                 padding: "12px",
                 marginRight: "16px",
