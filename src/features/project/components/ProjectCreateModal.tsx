@@ -39,7 +39,18 @@ import type { ProjectDetailResponse } from "../services/projectService";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { FaArchive } from "react-icons/fa";
-import { FiPlus } from "react-icons/fi";
+import {
+  FiFileText,
+  FiCalendar,
+  FiAlignLeft,
+  FiUsers,
+  FiBriefcase,
+  FiPlus,
+  FiUser,
+  FiUserCheck,
+} from "react-icons/fi";
+import { TbMoneybag, TbUserCode } from "react-icons/tb";
+import { RiUserSettingsLine } from "react-icons/ri";
 
 type SelectedDevCompany = {
   company: { id: number; name: string };
@@ -94,7 +105,11 @@ function formatDate(date?: string | Date | null) {
   if (!date) return "";
   const d = typeof date === "string" ? parseDate(date) : date;
   if (!d) return "";
-  return d.toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" });
+  return d.toLocaleDateString("ko-KR", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
 }
 
 // 날짜를 YYYY-MM-DD로 변환 (로컬 기준)
@@ -392,9 +407,7 @@ export default function ProjectCreateModal({
       <ModalPanel>
         <ModalHeader>
           <ModalTitle>
-            {/* 아이콘 등 추가 가능 */}
-            <FiPlus size={20} style={{ color: "#fdb924", marginRight: 8, verticalAlign: "middle" }} />
-            {editMode ? "프로젝트 수정" : "프로젝트 등록"}
+            {editMode ? "프로젝트 수정" : "새 프로젝트 생성"}
           </ModalTitle>
         </ModalHeader>
         <ModalDescription>
@@ -402,13 +415,16 @@ export default function ProjectCreateModal({
             ? "프로젝트 정보를 수정해주세요"
             : "새로운 프로젝트의 정보를 입력해주세요"}
         </ModalDescription>
-        <SectionTitle as="div" style={{ fontWeight: 400, marginBottom: 0, gap: 0 }} />
+        <SectionTitle
+          as="div"
+          style={{ fontWeight: 400, marginBottom: 0, gap: 0 }}
+        />
         <div>
           {/* 프로젝트명, 개요 */}
           <FieldLabel>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <FaArchive size={16} color="#fdb924" />
-              <span>프로젝트명 *</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <FiFileText size={18} color="#fdb924" style={{ flexShrink: 0 }} />
+              <span>프로젝트명</span>
             </div>
           </FieldLabel>
           <Input
@@ -418,33 +434,35 @@ export default function ProjectCreateModal({
             maxLength={255}
           />
           <FieldLabel>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <SiGoogledocs size={16} color="#fdb924" />
-              <span>개요 *</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <FiAlignLeft
+                size={18}
+                color="#fdb924"
+                style={{ flexShrink: 0 }}
+              />
+              <span>개요</span>
             </div>
           </FieldLabel>
           <TextArea
-            placeholder="프로젝트 개요를 상세히 입력하세요..."
+            placeholder="프로젝트 개요를 상세히 입력하세요"
             value={form.description}
-            onChange={(e) =>
-              setForm({ ...form, description: e.target.value })
-            }
+            onChange={(e) => setForm({ ...form, description: e.target.value })}
             rows={4}
             maxLength={255}
           />
         </div>
-        {/* 프로젝트 금액 */}
+        {/* 프로젝트 예산 */}
         <div>
           <FieldLabel>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <FaSackDollar size={16} color="#fdb924" />
-              <span>프로젝트 금액</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <TbMoneybag size={18} color="#fdb924" style={{ flexShrink: 0 }} />
+              <span>프로젝트 예산</span>
             </div>
           </FieldLabel>
           <Input
             type="text"
-            placeholder="프로젝트 금액을 입력하세요"
-            value={form.projectCost ? Number(form.projectCost).toLocaleString() : ""}
+            placeholder="프로젝트 예산을 입력하세요"
+            value={Number(form.projectCost).toLocaleString()}
             onChange={(e) => {
               const value = e.target.value.replace(/,/g, "");
               if (!isNaN(Number(value))) {
@@ -456,15 +474,14 @@ export default function ProjectCreateModal({
         </div>
         {/* 프로젝트 기간 */}
         <div>
-        
           <FieldLabel>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <IoCalendarNumber size={16} color="#fdb924" />
-              <span>프로젝트 기간 *</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <FiCalendar size={18} color="#fdb924" style={{ flexShrink: 0 }} />
+              <span>프로젝트 기간</span>
             </div>
           </FieldLabel>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{ flex: 1, position: 'relative' }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+            <div style={{ flex: 1, position: "relative" }}>
               <DateButton
                 type="button"
                 onClick={handleStartDateClick}
@@ -474,183 +491,365 @@ export default function ProjectCreateModal({
                 <span className="date-value">{formatDate(form.startDate)}</span>
               </DateButton>
               {startDateOpen && (
-                <div style={{ position: "absolute", top: "100%", left: 0, zIndex: 1000, marginTop: 4 }}>
-                  <DatePickerWrapper>
-                    <DatePicker
-                      selected={form.startDate ? parseDate(form.startDate) : null}
-                      onChange={handleStartDateChange}
-                      selectsStart
-                      startDate={form.startDate ? parseDate(form.startDate) : null}
-                      endDate={form.endDate ? parseDate(form.endDate) : null}
-                      dateFormat="yyyy-MM-dd"
-                      placeholderText="시작일 선택"
-                      inline
-                      onClickOutside={() => setStartDateOpen(false)}
-                      onKeyDown={(e) => { if (e.key === "Escape") setStartDateOpen(false); }}
-                    />
-                  </DatePickerWrapper>
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "100%",
+                    left: 0,
+                    zIndex: 1000,
+                    marginTop: 4,
+                  }}
+                >
+                  <DatePicker
+                    selected={form.startDate ? parseDate(form.startDate) : null}
+                    onChange={handleStartDateChange}
+                    selectsStart
+                    startDate={
+                      form.startDate ? parseDate(form.startDate) : null
+                    }
+                    endDate={form.endDate ? parseDate(form.endDate) : null}
+                    dateFormat="yyyy-MM-dd"
+                    placeholderText="시작일 선택"
+                    inline
+                    onClickOutside={() => setStartDateOpen(false)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Escape") setStartDateOpen(false);
+                    }}
+                  />
                 </div>
               )}
             </div>
             <DateSeparator>~</DateSeparator>
-            <div style={{ flex: 1, position: 'relative' }}>
+            <div style={{ flex: 1, position: "relative" }}>
               <DateButton
                 type="button"
                 onClick={handleEndDateClick}
                 $hasValue={!!form.endDate}
               >
-                <span>마감일</span>
+                <span>종료일</span>
                 <span className="date-value">{formatDate(form.endDate)}</span>
               </DateButton>
               {endDateOpen && (
-                <div style={{ position: "absolute", top: "100%", left: 0, zIndex: 1000, marginTop: 4 }}>
-                  <DatePickerWrapper>
-                    <DatePicker
-                      selected={form.endDate ? parseDate(form.endDate) : null}
-                      onChange={handleEndDateChange}
-                      selectsEnd
-                      startDate={form.startDate ? parseDate(form.startDate) : null}
-                      endDate={form.endDate ? parseDate(form.endDate) : null}
-                      minDate={form.startDate ? parseDate(form.startDate) ?? undefined : undefined}
-                      dateFormat="yyyy-MM-dd"
-                      placeholderText="마감일 선택"
-                      inline
-                      onClickOutside={() => setEndDateOpen(false)}
-                      onKeyDown={(e) => { if (e.key === "Escape") setEndDateOpen(false); }}
-                      popperPlacement="bottom-start"
-                    />
-                  </DatePickerWrapper>
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "100%",
+                    left: 0,
+                    zIndex: 1000,
+                    marginTop: 4,
+                  }}
+                >
+                  <DatePicker
+                    selected={form.endDate ? parseDate(form.endDate) : null}
+                    onChange={handleEndDateChange}
+                    selectsEnd
+                    startDate={
+                      form.startDate ? parseDate(form.startDate) : null
+                    }
+                    endDate={form.endDate ? parseDate(form.endDate) : null}
+                    minDate={
+                      form.startDate ? parseDate(form.startDate) : undefined
+                    }
+                    dateFormat="yyyy-MM-dd"
+                    placeholderText="종료일 선택"
+                    inline
+                    onClickOutside={() => setEndDateOpen(false)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Escape") setEndDateOpen(false);
+                    }}
+                  />
                 </div>
               )}
             </div>
           </div>
         </div>
-        {/* 담당 정보 */}
-        <div>
-          {/* <FieldLabel>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <MdPeople size={16} color="#fdb924" />
-              <span>담당 정보</span>
-            </div>
-          </FieldLabel> */}
-          <CompanyRow>
-            <div style={{ flex: 1 }}>
-              <CompanyCardHeader>
-                <CompanySectionLabel>
-                  <IoPerson size={16} color="#fdb924" />
-                  개발사 선택 *
-                </CompanySectionLabel>
-                <AddCompanyButton
-                  type="button"
-                  onClick={() => {
-                    openCompanyMemberModal("dev", true);
+        {/* 개발사/고객사 선택을 한 줄에 가로배치 */}
+        <div
+          style={{
+            display: "flex",
+            gap: 16,
+            alignItems: "flex-start",
+            marginTop: 18,
+          }}
+        >
+          <div style={{ flex: 1 }}>
+            <div style={{ minHeight: 32 }}>
+              <FieldLabel>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    minHeight: 32,
                   }}
                 >
-                  + 개발사
-                </AddCompanyButton>
-              </CompanyCardHeader>
-              {/* 여러 개발사/멤버 표시 (이동) */}
-              {selectedDevCompanies.map(({ company, members }) => (
-                   <CompanyCard key={company.id} $type="dev">
+                  <FiUsers
+                    size={18}
+                    color="#fdb924"
+                    style={{ flexShrink: 0 }}
+                  />
+                  <span>개발사 선택</span>
+                  <Button
+                    $variant="primary"
+                    onClick={() => openCompanyMemberModal("dev")}
+                    style={{
+                      padding: "4px 8px",
+                      fontSize: 13,
+                      minWidth: 0,
+                      height: 28,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      marginLeft: 8,
+                    }}
+                  >
+                    <FiPlus size={16} />
+                  </Button>
+                </div>
+              </FieldLabel>
+            </div>
+            <CompanyRow>
+              <div
+                style={{
+                  flex: 1,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 8,
+                }}
+              >
+                {selectedDevCompanies.length === 0 && (
+                  <span style={{ color: "#aaa", fontSize: 13 }}>
+                    개발사를 추가하세요
+                  </span>
+                )}
+                {selectedDevCompanies.map((dev) => (
+                  <CompanyCard key={dev.company.id}>
                     <CompanyCardHeader>
-                      <CompanyCardTitle><HiBuildingOffice2 size={16} color="#fdb924" />  {company.name}</CompanyCardTitle>
-                      <ButtonGroup>
-                        <EditButton
-                          type="button"
-                          onClick={() => {
-                            setEditCompany(company);
-                            setEditMembers(members);
-                            openCompanyMemberModal("dev", false);
+                      <CompanyCardTitle>
+                        {/* 개발사 업체 아이콘 */}
+                        <FiUsers
+                          size={15}
+                          style={{ marginRight: 4, color: "#3b82f6" }}
+                        />
+                        {dev.company.name}
+                      </CompanyCardTitle>
+                    </CompanyCardHeader>
+                    <CompanyCardMembers>
+                      {dev.members.map((m) => (
+                        <span
+                          key={m.id}
+                          style={{
+                            marginRight: 8,
+                            display: "inline-flex",
+                            alignItems: "center",
+                            fontSize: 13,
                           }}
                         >
-                          수정
-                        </EditButton>
-                        <DeleteButton
-                          type="button"
-                          onClick={() =>
-                            setSelectedDevCompanies((prev) =>
-                              prev.filter((c) => c.company.id !== company.id)
-                            )
-                          }
-                          aria-label="삭제"
-                        >
-                          삭제
-                        </DeleteButton>
-                      </ButtonGroup>
-                    </CompanyCardHeader>
-                    <CompanyCardMembers style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <MdPeople size={16} color="#fdb924" /> {members.map(member => member.name).join(', ')}
+                          {m.type === "admin" ? (
+                            <RiUserSettingsLine
+                              size={14}
+                              style={{ color: "#8b5cf6", marginRight: 2 }}
+                            />
+                          ) : m.type === "manager" ? (
+                            <FiUserCheck
+                              size={14}
+                              style={{ color: "#ec4899", marginRight: 2 }}
+                            />
+                          ) : m.type === "dev_employee" ? (
+                            <TbUserCode
+                              size={14}
+                              style={{ color: "#3b82f6", marginRight: 2 }}
+                            />
+                          ) : (
+                            <FiUser
+                              size={14}
+                              style={{ color: "#6b7280", marginRight: 2 }}
+                            />
+                          )}
+                          {m.name}({m.position})
+                          {m.type === "manager" && (
+                            <span
+                              style={{
+                                color: "#ec4899",
+                                fontWeight: 600,
+                                marginLeft: 3,
+                              }}
+                            >
+                              담당자
+                            </span>
+                          )}
+                        </span>
+                      ))}
                     </CompanyCardMembers>
                   </CompanyCard>
-              ))}
-            </div>
-            <div style={{ flex: 1 }}>
-              <CompanyCardHeader>
-                <CompanySectionLabel>
-                  <IoPerson size={16} color="#fdb924" />
-                  고객사 선택 *
-                </CompanySectionLabel>
-                <AddCompanyButton
-                  type="button"
-                  onClick={() => {
-                    openCompanyMemberModal("client", true);
+                ))}
+              </div>
+            </CompanyRow>
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ minHeight: 32 }}>
+              <FieldLabel>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    minHeight: 32,
                   }}
                 >
-                  + 고객사
-                </AddCompanyButton>
-              </CompanyCardHeader>
-              {/* 여러 고객사/멤버 표시 (이동) */}
-              {selectedClientCompanies.map(({ company, members }) => (
-                                                    <CompanyCard key={company.id} $type="client">
+                  <FiBriefcase
+                    size={18}
+                    color="#fdb924"
+                    style={{ flexShrink: 0 }}
+                  />
+                  <span>고객사 선택</span>
+                  <Button
+                    $variant="primary"
+                    onClick={() => openCompanyMemberModal("client")}
+                    style={{
+                      padding: "4px 8px",
+                      fontSize: 13,
+                      minWidth: 0,
+                      height: 28,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      marginLeft: 8,
+                    }}
+                  >
+                    <FiPlus size={16} />
+                  </Button>
+                </div>
+              </FieldLabel>
+            </div>
+            <CompanyRow>
+              <div
+                style={{
+                  flex: 1,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 8,
+                }}
+              >
+                {selectedClientCompanies.length === 0 && (
+                  <span style={{ color: "#aaa", fontSize: 13 }}>
+                    고객사를 추가하세요
+                  </span>
+                )}
+                {selectedClientCompanies.map((client) => (
+                  <CompanyCard key={client.company.id}>
                     <CompanyCardHeader>
-                      <CompanyCardTitle><HiBuildingOffice2 size={16} color="#fdb924" />  {company.name}</CompanyCardTitle>
-                      <ButtonGroup>
-                        <EditButton
-                          type="button"
-                          onClick={() => {
-                            setEditCompany(company);
-                            setEditMembers(members);
-                            openCompanyMemberModal("client", false);
+                      <CompanyCardTitle>
+                        {/* 고객사 업체 아이콘 */}
+                        <FiBriefcase
+                          size={15}
+                          style={{ marginRight: 4, color: "#10b981" }}
+                        />
+                        {client.company.name}
+                      </CompanyCardTitle>
+                    </CompanyCardHeader>
+                    <CompanyCardMembers>
+                      {client.members.map((m) => (
+                        <span
+                          key={m.id}
+                          style={{
+                            marginRight: 8,
+                            display: "inline-flex",
+                            alignItems: "center",
+                            fontSize: 13,
                           }}
                         >
-                          수정
-                        </EditButton>
-                        <DeleteButton
-                          type="button"
-                          onClick={() =>
-                            setSelectedClientCompanies((prev) =>
-                              prev.filter((c) => c.company.id !== company.id)
-                            )
-                          }
-                          aria-label="삭제"
-                        >
-                          <IoClose />
-                        </DeleteButton>
-                      </ButtonGroup>
-                    </CompanyCardHeader>
-                    <CompanyCardMembers style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <MdPeople size={16} color="#fdb924" /> {members.map(member => member.name).join(', ')}
+                          {m.type === "admin" ? (
+                            <RiUserSettingsLine
+                              size={14}
+                              style={{ color: "#8b5cf6", marginRight: 2 }}
+                            />
+                          ) : m.type === "manager" ? (
+                            <FiUserCheck
+                              size={14}
+                              style={{ color: "#ec4899", marginRight: 2 }}
+                            />
+                          ) : m.type === "dev_employee" ? (
+                            <TbUserCode
+                              size={14}
+                              style={{ color: "#3b82f6", marginRight: 2 }}
+                            />
+                          ) : (
+                            <FiUser
+                              size={14}
+                              style={{ color: "#6b7280", marginRight: 2 }}
+                            />
+                          )}
+                          {m.name}({m.position})
+                          {m.type === "manager" && (
+                            <span
+                              style={{
+                                color: "#ec4899",
+                                fontWeight: 600,
+                                marginLeft: 3,
+                              }}
+                            >
+                              담당자
+                            </span>
+                          )}
+                        </span>
+                      ))}
                     </CompanyCardMembers>
                   </CompanyCard>
-              ))}
-            </div>
-          </CompanyRow>
+                ))}
+              </div>
+            </CompanyRow>
+          </div>
         </div>
         {/* 하단 버튼 */}
-        <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, marginTop: 40 }}>
-          <CancelButton onClick={onClose}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            gap: 12,
+            marginTop: 40,
+          }}
+        >
+          <Button
+            $variant={undefined}
+            onClick={onClose}
+            style={{
+              padding: "6px 16px",
+              fontSize: 14,
+              height: 32,
+              minWidth: 0,
+            }}
+          >
             취소
-          </CancelButton>
-          <Button $variant="secondary" onClick={handleReset}>
+          </Button>
+          <Button
+            $variant="secondary"
+            onClick={handleReset}
+            style={{
+              padding: "6px 16px",
+              fontSize: 14,
+              height: 32,
+              minWidth: 0,
+            }}
+          >
             초기화
           </Button>
-          <ProjectCreateButton onClick={handleCreateProject}>
+          <Button
+            $variant="primary"
+            onClick={handleCreateProject}
+            style={{
+              padding: "6px 16px",
+              fontSize: 14,
+              height: 32,
+              minWidth: 0,
+            }}
+          >
             {editMode ? "편집" : "프로젝트 생성"}
-          </ProjectCreateButton>
+          </Button>
         </div>
         {/* 닫기 버튼 (오른쪽 상단) */}
         <CloseButton onClick={onClose} aria-label="닫기">
-        <IoClose />
+          <IoClose />
         </CloseButton>
         {showCompanyMemberModal && (
           <CompanyMemberSelectModal
@@ -660,15 +859,17 @@ export default function ProjectCreateModal({
                 ? handleDevCompanyDone
                 : handleClientCompanyDone
             }
-            selectedCompany={editCompany ? { ...editCompany, userCount: 0 } : undefined}
+            selectedCompany={
+              editCompany ? { ...editCompany, userCount: 0 } : undefined
+            }
             selectedMembers={editMembers}
-            selectedDevCompanies={selectedDevCompanies.map(dev => ({
+            selectedDevCompanies={selectedDevCompanies.map((dev) => ({
               ...dev,
-              company: { ...dev.company, userCount: 0 }
+              company: { ...dev.company, userCount: 0 },
             }))}
-            selectedClientCompanies={selectedClientCompanies.map(client => ({
+            selectedClientCompanies={selectedClientCompanies.map((client) => ({
               ...client,
-              company: { ...client.company, userCount: 0 }
+              company: { ...client.company, userCount: 0 },
             }))}
           />
         )}

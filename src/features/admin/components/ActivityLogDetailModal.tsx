@@ -431,7 +431,7 @@ export default function ActivityLogDetailModal({
           showErrorToast("복구 중 오류가 발생했습니다.");
         }
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("데이터 복구 실패:", err);
       // catch 블록에서는 네트워크 에러나 예상치 못한 에러만 처리
       // 백엔드에서 반환하는 에러 메시지는 위의 else 블록에서 처리됨

@@ -12,6 +12,8 @@ import {
   FiSearch,
   FiAlertCircle,
   FiRotateCcw,
+  FiFileText,
+  FiUsers,
 } from "react-icons/fi";
 import { formatDateOnly } from "@/utils/dateUtils";
 import {
@@ -47,10 +49,25 @@ const SORT_OPTIONS = [
   { value: "oldest", label: "오래된순" },
 ];
 
-const SEARCH_CATEGORY_OPTIONS = [ // all 일때로 나중에 수정
-  { value: "all", label: "전체" },
-  { value: "projectName", label: "제목" },
-  { value: "companyName", label: "업체" },
+const SEARCH_CATEGORY_OPTIONS = [
+  {
+    value: "projectName",
+    label: "제목",
+    icon: (color: string) => (
+      <FiFileText size={16} style={{ marginRight: 8, color, flexShrink: 0 }} />
+    ),
+    color: "#f59e0b",
+    gray: "#6b7280",
+  },
+  {
+    value: "companyName",
+    label: "업체",
+    icon: (color: string) => (
+      <FiUsers size={16} style={{ marginRight: 8, color, flexShrink: 0 }} />
+    ),
+    color: "#2563eb",
+    gray: "#6b7280",
+  },
 ];
 
 interface ProjectFilterBarProps {
@@ -144,10 +161,15 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
   };
 
   const formatDate = (dateString: string) => {
-    if (!dateString) return "연도.연.월";
-    const date = parseDate(dateString);
-    if (!date) return "연도.연.월";
-    return formatDateOnly(date.toISOString());
+    if (!dateString) return "선택";
+    // 기존: 2024.05.01 → '선택'으로, 선택 시 yyyy-MM-dd로
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "선택";
+    return date.toLocaleDateString("ko-KR", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
   };
 
   // 날짜 변환
@@ -476,16 +498,88 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
                   type="button"
                   onClick={() => setCategoryDropdownOpen((prev) => !prev)}
                   $hasValue={!!filters.category}
-                  $color="#3b82f6"
+                  $color={(() => {
+                    const selected = SEARCH_CATEGORY_OPTIONS.find(
+                      (opt) => opt.value === filters.category
+                    );
+                    if (selected && filters.category) {
+                      return selected.color;
+                    }
+                    return "#e5e7eb";
+                  })()}
                   className={categoryDropdownOpen ? "open" : ""}
-                  style={{ paddingLeft: 10, paddingRight: 10, minWidth: 90 }}
+                  style={{
+                    paddingLeft: 10,
+                    paddingRight: 10,
+                    minWidth: 90,
+                    background:
+                      filters.category &&
+                      SEARCH_CATEGORY_OPTIONS.find(
+                        (opt) => opt.value === filters.category
+                      )
+                        ? `${
+                            SEARCH_CATEGORY_OPTIONS.find(
+                              (opt) => opt.value === filters.category
+                            )?.color
+                          }15`
+                        : "#fff",
+                    color:
+                      filters.category &&
+                      SEARCH_CATEGORY_OPTIONS.find(
+                        (opt) => opt.value === filters.category
+                      )
+                        ? SEARCH_CATEGORY_OPTIONS.find(
+                            (opt) => opt.value === filters.category
+                          )?.color
+                        : "#374151",
+                    border:
+                      filters.category &&
+                      SEARCH_CATEGORY_OPTIONS.find(
+                        (opt) => opt.value === filters.category
+                      )
+                        ? `2px solid ${
+                            SEARCH_CATEGORY_OPTIONS.find(
+                              (opt) => opt.value === filters.category
+                            )?.color
+                          }`
+                        : "2px solid #e5e7eb",
+                  }}
                 >
+                  {(() => {
+                    const selected = SEARCH_CATEGORY_OPTIONS.find(
+                      (opt) => opt.value === filters.category
+                    );
+                    if (selected) {
+                      return selected.icon(
+                        filters.category ? selected.color : selected.gray
+                      );
+                    }
+                    // 기본값(제목)
+                    return SEARCH_CATEGORY_OPTIONS[0].icon(
+                      filters.category
+                        ? SEARCH_CATEGORY_OPTIONS[0].color
+                        : SEARCH_CATEGORY_OPTIONS[0].gray
+                    );
+                  })()}
                   <span className="select-value">
                     {SEARCH_CATEGORY_OPTIONS.find(
                       (opt) => opt.value === filters.category
                     )?.label || "제목"}
                   </span>
-                  <FiChevronDown size={16} />
+                  <FiChevronDown
+                    size={16}
+                    style={{
+                      color:
+                        filters.category &&
+                        SEARCH_CATEGORY_OPTIONS.find(
+                          (opt) => opt.value === filters.category
+                        )
+                          ? SEARCH_CATEGORY_OPTIONS.find(
+                              (opt) => opt.value === filters.category
+                            )?.color
+                          : "#bdbdbd",
+                    }}
+                  />
                 </SelectButton>
                 <SelectDropdown $isOpen={categoryDropdownOpen}>
                   {SEARCH_CATEGORY_OPTIONS.map((option) => (
@@ -497,6 +591,23 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
                         setCategoryDropdownOpen(false);
                       }}
                     >
+                      <span
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          marginRight: 6,
+                          color:
+                            filters.category === option.value
+                              ? option.color
+                              : option.gray,
+                        }}
+                      >
+                        {option.icon(
+                          filters.category === option.value
+                            ? option.color
+                            : option.gray
+                        )}
+                      </span>
                       {option.label}
                     </SelectOption>
                   ))}

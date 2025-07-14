@@ -30,21 +30,36 @@ const CommentForm: React.FC<CommentFormProps> = ({
   title = "댓글 작성",
 }) => {
   const [content, setContent] = useState(initialValue);
+  const [error, setError] = useState<string>("");
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (content.trim() && !isSubmitting) {
-      onSubmit(content.trim());
-      setContent("");
+    // 프론트 validation: 1~50자, 필수
+    if (!content.trim()) {
+      setError("내용을 입력해주세요.");
+      return;
+    } else if (content.trim().length > 50) {
+      setError("댓글 내용은 50자 이하로 입력해주세요.");
+      return;
+    }
+    setError("");
+    if (!isSubmitting) {
+      // onSubmit에서 서버 validation 에러 메시지를 받을 수 있도록 콜백 패턴 확장
+      onSubmit(content.trim(), (serverError?: string) => {
+        if (serverError) setError(serverError);
+        else setContent("");
+      });
     }
   };
 
   const handleContentChange = (newContent: string) => {
     setContent(newContent);
+    setError("");
   };
 
   const handleCancel = () => {
     setContent("");
+    setError("");
     onCancel?.();
   };
 
@@ -59,6 +74,11 @@ const CommentForm: React.FC<CommentFormProps> = ({
           disabled={isSubmitting}
           rows={3}
         />
+        {error && (
+          <div style={{ color: "#ef4444", fontSize: "12px", marginTop: 4 }}>
+            {error}
+          </div>
+        )}
         <CommentFormActions>
           <CommentSubmitButton
             type="submit"
