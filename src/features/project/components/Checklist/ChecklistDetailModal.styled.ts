@@ -125,6 +125,8 @@ export const ApprovalCardList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 18px;
+  max-height: 320px;
+  overflow-y: auto;
 `;
 
 export const ApprovalCard = styled.div`
