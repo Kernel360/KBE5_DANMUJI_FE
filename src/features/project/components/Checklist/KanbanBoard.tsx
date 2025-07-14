@@ -22,7 +22,11 @@ import {
   FiCheckCircle,
   FiFlag,
   FiXCircle,
+  FiUser,
+  FiCalendar,
+  FiShield,
 } from "react-icons/fi";
+import { RiUserSettingsLine } from "react-icons/ri";
 
 // 카드 타입 명확화
 export type ChecklistCardType = {
@@ -69,6 +73,23 @@ function getInitials(name: string) {
     .slice(0, 2);
 }
 
+// 날짜 포맷팅 함수
+const formatDate = (dateString: string) => {
+  if (!dateString) return "";
+
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = date.getHours();
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+
+  const ampm = hours >= 12 ? "오후" : "오전";
+  const displayHours = hours > 12 ? hours - 12 : hours === 0 ? 12 : hours;
+
+  return `${year}.${month}.${day} (${ampm} ${displayHours}:${minutes})`;
+};
+
 // 카드 컴포넌트에 클릭 핸들러 추가 (정의 위치 이동)
 function ChecklistCard({
   card,
@@ -113,8 +134,21 @@ function ChecklistCard({
         </StatusBadge>
       </CardTop>
       <CardMeta>
-        <span>{card.username}</span>
-        <span>{card.createdAt}</span>
+        <span>
+          {card.username === "관리자" ? (
+            <RiUserSettingsLine
+              size={14}
+              style={{ marginRight: 4, color: "#8b5cf6" }}
+            />
+          ) : (
+            <FiUser size={14} style={{ marginRight: 4 }} />
+          )}
+          {card.username}
+        </span>
+        <span>
+          <FiCalendar size={14} style={{ marginRight: 4 }} />
+          {card.createdAt}
+        </span>
       </CardMeta>
       {/* 반려 사유 표시 */}
       {card.status === "rejected" && card.rejectReason && (
@@ -226,7 +260,7 @@ export default function KanbanBoard({
           title: item.title || "",
           userId: item.userId,
           username: item.username || "",
-          createdAt: item.createdAt ? item.createdAt.slice(0, 10) : "",
+          createdAt: item.createdAt ? formatDate(item.createdAt) : "",
           status:
             item.status === "PENDING"
               ? "waiting"
@@ -311,12 +345,8 @@ export default function KanbanBoard({
   // 단계 필터 변경 시 selectedStepId도 변경(상위에서 prop으로 내려줄 수도 있음)
   useEffect(() => {
     if (stepFilter !== "ALL" && typeof stepFilter === "number") {
-      // stepFilter가 바뀌면 selectedStepId를 변경
-      if (stepFilter !== selectedStepId) {
-        // selectedStepId를 변경하는 함수가 상위에 있으면 prop으로 받아서 호출해야 함
-        // 여기서는 prop이므로 상위에서 내려주는 setSelectedStepId가 없으니, fetchCards를 stepFilter 기준으로 호출
-        fetchCardsByStepFilter(stepFilter);
-      }
+      // stepFilter가 바뀌면 항상 해당 단계의 체크리스트 목록을 조회
+      fetchCardsByStepFilter(stepFilter);
     }
   }, [stepFilter]);
 
@@ -332,7 +362,7 @@ export default function KanbanBoard({
           title: item.title || "",
           userId: item.userId,
           username: item.username || "",
-          createdAt: item.createdAt ? item.createdAt.slice(0, 10) : "",
+          createdAt: item.createdAt ? formatDate(item.createdAt) : "",
           status:
             item.status === "PENDING"
               ? "waiting"
