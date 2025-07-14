@@ -136,14 +136,13 @@ export const TextArea = styled.textarea`
 `;
 
 export const UserListWrap = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  margin-top: -10px;
+  margin-bottom: 0;
+  padding: 0;
 `;
 
 export const CompanySection = styled.div`
-  margin-top: 18px;
-  margin-bottom: 8px;
+  margin-bottom: 20px;
 `;
 
 export const CompanyNameHeader = styled.div`
