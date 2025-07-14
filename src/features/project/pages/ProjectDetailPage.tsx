@@ -89,6 +89,7 @@ const ProjectDetailPage = () => {
   const [viewType, setViewType] = useState<"post" | "checklist">("post");
   const location = useLocation();
   const openPostId = location.state?.openPostId as number | undefined;
+  const openChecklistId = location.state?.openChecklistId as number | undefined;
   // 프로젝트 상세 정보 가져오기
   const fetchProjectDetail = async () => {
     if (!projectId) {

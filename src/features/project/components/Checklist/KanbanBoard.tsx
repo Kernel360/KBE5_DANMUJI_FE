@@ -219,6 +219,7 @@ interface KanbanBoardProps {
   selectedStepId: number;
   canEditStep?: boolean;
   projectSteps?: ProjectDetailStep[]; // 단계 목록 추가
+  openChecklistId?: number;
 }
 
 export default function KanbanBoard({
@@ -226,6 +227,7 @@ export default function KanbanBoard({
   selectedStepId,
   canEditStep,
   projectSteps = [],
+  openChecklistId,
 }: KanbanBoardProps) {
   // 필터 상태 추가
   const [typeFilter, setTypeFilter] = useState<"ALL" | string>("ALL");
@@ -379,6 +381,13 @@ export default function KanbanBoard({
   };
 
   // 기존 fetchCards는 selectedStepId 기준이므로, stepFilter가 바뀌면 fetchCardsByStepFilter를 사용
+
+  // openChecklistId가 있으면 모달 자동 오픈
+  useEffect(() => {
+    if (openChecklistId) {
+      handleCardClick(openChecklistId);
+    }
+  }, [openChecklistId]);
 
   return (
     <div style={{ width: "100%" }}>

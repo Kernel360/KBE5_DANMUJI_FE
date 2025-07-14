@@ -218,10 +218,15 @@ const MentionedPostsSection = () => {
       }
     }
 
+    // 체크리스트 알림이면 체크리스트 탭으로만 이동 (모달X)
+    if (mention.type.startsWith("CHECKLIST_") && mention.projectId) {
+      navigate(`/projects/${mention.projectId}/detail?tab=checklist`);
+      return;
+    }
+
     // 체크리스트/게시글 알림: 프로젝트 상세로 이동 후 게시글 모달 오픈
     if (
-      (mention.type.startsWith("CHECKLIST_") ||
-        mention.type === "PROJECT_POST_CREATED") &&
+      mention.type === "PROJECT_POST_CREATED" &&
       mention.projectId &&
       mention.postId
     ) {
