@@ -68,7 +68,7 @@ const ChecklistDetailModal = ({
   onClose,
   onRefresh,
 }: ChecklistDetailModalProps) => {
-  const { user } = useAuth();
+  const { user, role } = useAuth();
   // 승인/반려 UI 상태를 approval별로 관리
   const [rejectStates, setRejectStates] = useState<{
     [approvalId: number]: boolean;
@@ -291,6 +291,10 @@ const ChecklistDetailModal = ({
     }
   };
 
+  // 버튼 노출 조건
+  const canEditOrDelete =
+    (user?.id && data?.userId && user?.id === data.userId) || role === "ADMIN";
+
   if (!open) return null;
   const approvals =
     localApprovals ??
@@ -435,41 +439,43 @@ const ChecklistDetailModal = ({
                       <InfoValue>{formatDate(data.completedAt)}</InfoValue>
                     </InfoRow>
                     {/* 수정/삭제 버튼 */}
-                    <InfoRow>
-                      <InfoLabel />
-                      <InfoValue style={{ display: "flex", gap: 8 }}>
-                        <button
-                          style={{
-                            background: "#3b82f6",
-                            color: "#fff",
-                            border: "none",
-                            borderRadius: 8,
-                            padding: "7px 18px",
-                            fontWeight: 600,
-                            fontSize: "1rem",
-                            cursor: "pointer",
-                          }}
-                          onClick={handleEditClick}
-                        >
-                          수정
-                        </button>
-                        <button
-                          style={{
-                            background: "#ef4444",
-                            color: "#fff",
-                            border: "none",
-                            borderRadius: 8,
-                            padding: "7px 18px",
-                            fontWeight: 600,
-                            fontSize: "1rem",
-                            cursor: "pointer",
-                          }}
-                          onClick={handleDeleteChecklist}
-                        >
-                          삭제
-                        </button>
-                      </InfoValue>
-                    </InfoRow>
+                    {canEditOrDelete && (
+                      <InfoRow>
+                        <InfoLabel />
+                        <InfoValue style={{ display: "flex", gap: 8 }}>
+                          <button
+                            style={{
+                              background: "#3b82f6",
+                              color: "#fff",
+                              border: "none",
+                              borderRadius: 8,
+                              padding: "7px 18px",
+                              fontWeight: 600,
+                              fontSize: "1rem",
+                              cursor: "pointer",
+                            }}
+                            onClick={handleEditClick}
+                          >
+                            수정
+                          </button>
+                          <button
+                            style={{
+                              background: "#ef4444",
+                              color: "#fff",
+                              border: "none",
+                              borderRadius: 8,
+                              padding: "7px 18px",
+                              fontWeight: 600,
+                              fontSize: "1rem",
+                              cursor: "pointer",
+                            }}
+                            onClick={handleDeleteChecklist}
+                          >
+                            삭제
+                          </button>
+                        </InfoValue>
+                      </InfoRow>
+                    )}
                   </>
                 )}
               </InfoSection>
