@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams, useLocation } from "react-router-dom";
 import ProjectHeader from "../components/Header/ProjectHeader";
 import ProjectProgress from "../components/Progress/ProjectProgress";
 import ProjectBoard from "../components/Board/ProjectBoard";
@@ -87,6 +87,8 @@ const ProjectDetailPage = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const { role } = useAuth();
   const [viewType, setViewType] = useState<"post" | "checklist">("post");
+  const location = useLocation();
+  const openPostId = location.state?.openPostId as number | undefined;
   // 프로젝트 상세 정보 가져오기
   const fetchProjectDetail = async () => {
     if (!projectId) {
@@ -264,6 +266,7 @@ const ProjectDetailPage = () => {
           <ProjectBoard
             projectId={projectDetail.id}
             selectedStepId={selectedStepId}
+            openPostId={openPostId}
           />
         ) : (
           <KanbanBoard

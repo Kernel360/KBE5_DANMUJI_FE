@@ -16,11 +16,13 @@ import { useNavigate } from "react-router-dom";
 interface ProjectBoardProps {
   projectId: number;
   selectedStepId?: number;
+  openPostId?: number;
 }
 
 const ProjectBoard: React.FC<ProjectBoardProps> = ({
   projectId,
   selectedStepId,
+  openPostId,
 }) => {
   const [posts, setPosts] = useState<PostSummaryReadResponse[]>([]);
   const [loading, setLoading] = useState(false);
@@ -204,6 +206,14 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
   useEffect(() => {
     fetchProjectSteps();
   }, [projectId]);
+
+  // openPostId가 있으면 모달 자동 오픈
+  useEffect(() => {
+    if (openPostId) {
+      setSelectedPostId(openPostId);
+      setDetailModalOpen(true);
+    }
+  }, [openPostId]);
 
   const handleRowClick = (postId: number) => {
     setSelectedPostId(postId);
