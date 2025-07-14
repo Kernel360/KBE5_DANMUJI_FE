@@ -49,7 +49,11 @@ const getStatusStyle = (status: Step["projectStepStatus"]) => {
   }
 };
 
-const StepOrderModal: React.FC<StepOrderModalProps> = ({ projectId, onClose, onSaved }) => {
+const StepOrderModal: React.FC<StepOrderModalProps> = ({
+  projectId,
+  onClose,
+  onSaved,
+}) => {
   const [stepList, setStepList] = useState<Step[]>([]);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
@@ -62,17 +66,21 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ projectId, onClose, onS
 
   useEffect(() => {
     if (!projectId) return;
-    api.get(`/api/project-steps/${projectId}`)
-      .then(res => {
-        const sorted = [...res.data.data].sort((a, b) => a.stepOrder - b.stepOrder);
+    api
+      .get(`/api/project-steps/${projectId}`)
+      .then((res) => {
+        const sorted = [...res.data.data].sort(
+          (a, b) => a.stepOrder - b.stepOrder
+        );
         setStepList(sorted);
       })
       .catch(console.error);
   }, [projectId]);
 
   const reorderSteps = (newSteps: Step[]) => {
-    const ids = newSteps.map(step => step.id);
-    api.put(`/api/project-steps/${projectId}/reorder`, ids)
+    const ids = newSteps.map((step) => step.id);
+    api
+      .put(`/api/project-steps/${projectId}/reorder`, ids)
       .then(() => {
         setStepList(newSteps);
         onSaved?.();
@@ -81,9 +89,10 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ projectId, onClose, onS
   };
 
   const createStep = (name: string) => {
-    api.post(`/api/project-steps?projectId=${projectId}`, { name })
+    api
+      .post(`/api/project-steps?projectId=${projectId}`, { name })
       .then(() => api.get(`/api/project-steps/${projectId}`))
-      .then(res => setStepList(res.data.data))
+      .then((res) => setStepList(res.data.data))
       .catch(console.error);
   };
 
@@ -98,7 +107,8 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ projectId, onClose, onS
     }
     const temp = [...stepList];
     const [moved] = temp.splice(dragIndex, 1);
-    const insertAt = dragIndex < dragOverIndex ? dragOverIndex - 1 : dragOverIndex;
+    const insertAt =
+      dragIndex < dragOverIndex ? dragOverIndex - 1 : dragOverIndex;
     temp.splice(insertAt, 0, moved);
     return temp;
   };
@@ -110,7 +120,8 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ projectId, onClose, onS
       dragOverIndex == null ||
       dragIndex === dragOverIndex ||
       dragOverIndex === dragIndex + 1
-    ) return;
+    )
+      return;
 
     const updated = getVirtualStepList();
     setStepList(updated);
@@ -120,13 +131,13 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ projectId, onClose, onS
 
   const handleDragStart = (e: React.DragEvent, idx: number) => {
     setDragIndex(idx);
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/html', '');
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/html", "");
   };
 
   const handleDragOver = (e: React.DragEvent, idx: number) => {
     e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
+    e.dataTransfer.dropEffect = "move";
     setDragOverIndex(idx);
   };
 
@@ -146,9 +157,17 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ projectId, onClose, onS
   const handleSave = async () => {
     try {
       // 이름이 변경된 단계만 찾아서 PUT 요청
-      const changedSteps = stepList.filter((step, idx) => step.name !== originalStepList[idx]?.name);
+      const changedSteps = stepList.filter(
+        (step, idx) => step.name !== originalStepList[idx]?.name
+      );
       for (const step of changedSteps) {
-        await api.put(`/api/project-steps/${step.id}`, { name: step.name });
+        await api.put(
+          `/api/project-steps/${step.id}`,
+          { name: step.name },
+          {
+            params: { projectId },
+          }
+        );
       }
       await reorderSteps(stepList);
       onClose();
@@ -164,16 +183,23 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ projectId, onClose, onS
   const virtualList = getVirtualStepList();
 
   return (
-    <ModalOverlay onClick={() => { onClose(); window.location.reload(); }}>
-      <ModalBox onClick={e => e.stopPropagation()}>
+    <ModalOverlay
+      onClick={() => {
+        onClose();
+        window.location.reload();
+      }}
+    >
+      <ModalBox onClick={(e) => e.stopPropagation()}>
         <ModalHeader>
           <ModalTitle>단계 수정</ModalTitle>
-          <ModalDescription>단계의 순서를 변경하고, 이름을 수정하거나 삭제할 수 있습니다.</ModalDescription>
+          <ModalDescription>
+            단계의 순서를 변경하고, 이름을 수정하거나 삭제할 수 있습니다.
+          </ModalDescription>
         </ModalHeader>
 
         <StepList>
           {virtualList.map((step, idx) => {
-            const originalIdx = stepList.findIndex(s => s.id === step.id);
+            const originalIdx = stepList.findIndex((s) => s.id === step.id);
             const isDragging = originalIdx === dragIndex;
             const isDropTarget =
               dragOverIndex === idx &&
@@ -186,16 +212,21 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ projectId, onClose, onS
             return (
               <div
                 key={step.id}
-                onDragOver={e => handleDragOver(e, idx)}
+                onDragOver={(e) => handleDragOver(e, idx)}
                 onDrop={handleDrop}
                 style={{ position: "relative" }}
               >
                 {isDropTarget && dragIndex !== null && (
-                  <StepItem style={{
-                    opacity: 0.5,
-                    position: "absolute",
-                    left: 0, right: 0, top: 0, zIndex: 1
-                  }}>
+                  <StepItem
+                    style={{
+                      opacity: 0.5,
+                      position: "absolute",
+                      left: 0,
+                      right: 0,
+                      top: 0,
+                      zIndex: 1,
+                    }}
+                  >
                     <StepLeft>
                       <StepOrderNumber>{idx + 1}</StepOrderNumber>
                       <FaGripVertical size={13} color="#fbbf24" />
@@ -205,27 +236,40 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ projectId, onClose, onS
                 )}
                 <StepItem
                   draggable
-                  onDragStart={e => handleDragStart(e, originalIdx)}
+                  onDragStart={(e) => handleDragStart(e, originalIdx)}
                   onDragEnd={handleDragEnd}
                   isDragging={isDragging}
                 >
                   <StepLeft>
                     <StepOrderNumber>{idx + 1}</StepOrderNumber>
-                    <FaGripVertical size={13} color={isDragging ? "#fbbf24" : "#d1d5db"} />
+                    <FaGripVertical
+                      size={13}
+                      color={isDragging ? "#fbbf24" : "#d1d5db"}
+                    />
                     {editingIdx === originalIdx ? (
                       <AddStepInput
                         ref={editingInputRef}
                         value={editingName}
-                        onChange={e => setEditingName(e.target.value)}
+                        onChange={(e) => setEditingName(e.target.value)}
                         onBlur={() => {
                           const name = editingName.trim();
-                          if (name) setStepList(list => list.map((s, i) => i === originalIdx ? { ...s, name } : s));
+                          if (name)
+                            setStepList((list) =>
+                              list.map((s, i) =>
+                                i === originalIdx ? { ...s, name } : s
+                              )
+                            );
                           setEditingIdx(null);
                         }}
-                        onKeyDown={e => {
+                        onKeyDown={(e) => {
                           if (e.key === "Enter") {
                             const name = editingName.trim();
-                            if (name) setStepList(list => list.map((s, i) => i === originalIdx ? { ...s, name } : s));
+                            if (name)
+                              setStepList((list) =>
+                                list.map((s, i) =>
+                                  i === originalIdx ? { ...s, name } : s
+                                )
+                              );
                             setEditingIdx(null);
                           } else if (e.key === "Escape") {
                             setEditingIdx(null);
@@ -238,34 +282,56 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ projectId, onClose, onS
                       <>
                         <StepName>{step.name}</StepName>
                         <EditIcon>
-                          <RiEdit2Fill size={15} title="이름 수정" onClick={() => {
-                            setEditingIdx(originalIdx);
-                            setEditingName(step.name);
-                            setTimeout(() => editingInputRef.current?.focus(), 0);
-                          }} />
+                          <RiEdit2Fill
+                            size={15}
+                            title="이름 수정"
+                            onClick={() => {
+                              setEditingIdx(originalIdx);
+                              setEditingName(step.name);
+                              setTimeout(
+                                () => editingInputRef.current?.focus(),
+                                0
+                              );
+                            }}
+                          />
                         </EditIcon>
                       </>
                     )}
                   </StepLeft>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  {(step.projectStepStatus === 'IN_PROGRESS' || step.projectStepStatus === 'COMPLETED') && (
+                  <div
+                    style={{ display: "flex", alignItems: "center", gap: 6 }}
+                  >
+                    {(step.projectStepStatus === "IN_PROGRESS" ||
+                      step.projectStepStatus === "COMPLETED") && (
                       <button
                         style={{
                           marginLeft: 8,
-                          padding: '2px 10px',
+                          padding: "2px 10px",
                           borderRadius: 6,
-                          border: '1px solid #e5e7eb',
-                          background: '#f3f4f6',
-                          color: '#6b7280',
+                          border: "1px solid #e5e7eb",
+                          background: "#f3f4f6",
+                          color: "#6b7280",
                           fontSize: 13,
-                          cursor: 'pointer',
+                          cursor: "pointer",
                         }}
                         title="예정으로 되돌리기"
                         onClick={async () => {
                           try {
-                            await api.put(`/api/project-steps/${step.id}/revert`);
-                            setStepList(list => list.map(s => s.id === step.id ? { ...s, projectStepStatus: 'PENDING' } : s));
-                            showSuccessToast('예정 상태로 되돌렸습니다');
+                            await api.put(
+                              `/api/project-steps/${step.id}/revert`,
+                              null,
+                              {
+                                params: { projectId },
+                              }
+                            );
+                            setStepList((list) =>
+                              list.map((s) =>
+                                s.id === step.id
+                                  ? { ...s, projectStepStatus: "PENDING" }
+                                  : s
+                              )
+                            );
+                            showSuccessToast("예정 상태로 되돌렸습니다");
                           } catch (e) {
                             showErrorToast(e);
                           }
@@ -280,14 +346,30 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ projectId, onClose, onS
                       onClick={async () => {
                         try {
                           // 상태 토글: PENDING -> IN_PROGRESS -> COMPLETED -> IN_PROGRESS ...
-                          let newStatus = 'IN_PROGRESS';
-                          if (step.projectStepStatus === 'IN_PROGRESS') newStatus = 'COMPLETED';
-                          else if (step.projectStepStatus === 'COMPLETED') newStatus = 'IN_PROGRESS';
-                          await api.put(`/api/project-steps/${step.id}/status`, null, {
-                            params: { projectId }
-                          });
-                          setStepList(list => list.map(s => s.id === step.id ? { ...s, projectStepStatus: newStatus as Step['projectStepStatus'] } : s));
-                          showSuccessToast('상태가 변경되었습니다');
+                          let newStatus = "IN_PROGRESS";
+                          if (step.projectStepStatus === "IN_PROGRESS")
+                            newStatus = "COMPLETED";
+                          else if (step.projectStepStatus === "COMPLETED")
+                            newStatus = "IN_PROGRESS";
+                          await api.put(
+                            `/api/project-steps/${step.id}/status`,
+                            null,
+                            {
+                              params: { projectId },
+                            }
+                          );
+                          setStepList((list) =>
+                            list.map((s) =>
+                              s.id === step.id
+                                ? {
+                                    ...s,
+                                    projectStepStatus:
+                                      newStatus as Step["projectStepStatus"],
+                                  }
+                                : s
+                            )
+                          );
+                          showSuccessToast("상태가 변경되었습니다");
                         } catch (e) {
                           showErrorToast(e);
                         }
@@ -295,21 +377,31 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ projectId, onClose, onS
                     >
                       {text}
                     </StepStatusBadge>
-                    
+
                     <TrashIcon>
-                      <FaTrashAlt size={14} color="#e11d48" title="단계 삭제" onClick={async () => {
-                        if (window.confirm("단계를 정말 삭제할까요?")) {
-                          try {
-                            await api.delete(`/api/project-steps/${step.id}`, {
-                              params: { projectId: projectId }
-                            });
-                            setStepList(list => list.filter((s) => s.id !== step.id));
-                            showSuccessToast("삭제되었습니다");
-                          } catch (e) {
-                            // 실패 시 에러 토스트 등 필요시 추가
+                      <FaTrashAlt
+                        size={14}
+                        color="#e11d48"
+                        title="단계 삭제"
+                        onClick={async () => {
+                          if (window.confirm("단계를 정말 삭제할까요?")) {
+                            try {
+                              await api.delete(
+                                `/api/project-steps/${step.id}`,
+                                {
+                                  params: { projectId: projectId },
+                                }
+                              );
+                              setStepList((list) =>
+                                list.filter((s) => s.id !== step.id)
+                              );
+                              showSuccessToast("삭제되었습니다");
+                            } catch (e) {
+                              // 실패 시 에러 토스트 등 필요시 추가
+                            }
                           }
-                        }
-                      }} />
+                        }}
+                      />
                     </TrashIcon>
                   </div>
                 </StepItem>
@@ -330,9 +422,9 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ projectId, onClose, onS
                 <AddStepInput
                   ref={inputRef}
                   value={newStepName}
-                  onChange={e => setNewStepName(e.target.value)}
+                  onChange={(e) => setNewStepName(e.target.value)}
                   onBlur={handleAddStepConfirm}
-                  onKeyDown={e => {
+                  onKeyDown={(e) => {
                     if (e.key === "Enter") handleAddStepConfirm();
                     if (e.key === "Escape") {
                       setAdding(false);
@@ -342,10 +434,15 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ projectId, onClose, onS
                   placeholder="새 단계 이름"
                   maxLength={20}
                 />
-                <FaTimes size={13} color="#bdbdbd" style={{ marginLeft: 6, cursor: "pointer" }} onMouseDown={() => {
-                  setAdding(false);
-                  setNewStepName("");
-                }} />
+                <FaTimes
+                  size={13}
+                  color="#bdbdbd"
+                  style={{ marginLeft: 6, cursor: "pointer" }}
+                  onMouseDown={() => {
+                    setAdding(false);
+                    setNewStepName("");
+                  }}
+                />
               </StepLeft>
             </StepItem>
           )}
@@ -355,7 +452,9 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({ projectId, onClose, onS
 
         <ModalFooter>
           <CancelButton onClick={onClose}>취소</CancelButton>
-          <SaveButton type="button" onClick={handleSave}>저장</SaveButton>
+          <SaveButton type="button" onClick={handleSave}>
+            저장
+          </SaveButton>
         </ModalFooter>
       </ModalBox>
     </ModalOverlay>
