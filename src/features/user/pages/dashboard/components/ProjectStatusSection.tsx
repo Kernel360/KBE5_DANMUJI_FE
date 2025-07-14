@@ -45,8 +45,6 @@ export interface ProjectStatusSectionProps {
 
 const STATUS_TABS = [
   { key: "IN_PROGRESS", label: "진행중" },
-  { key: "DUE_SOON", label: "기한임박" },
-  { key: "DELAY", label: "지연" },
   { key: "COMPLETED", label: "완료" },
 ];
 
@@ -177,17 +175,53 @@ const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
                       {project.name}
                     </S.ProjectTitle>
                   </div>
-                  <S.StatusBadge $status={project.status}>
-                    {getStatusIcon(project.status)}
-                    {project.status === "COMPLETED" && "완료"}
-                    {project.status === "IN_PROGRESS" && "진행중"}
-                    {project.status === "DELAY" && "지연"}
-                    {project.status === "DUE_SOON" && "기한임박"}
-                    {project.status !== "COMPLETED" &&
-                      project.status !== "IN_PROGRESS" &&
-                      project.status !== "DELAY" &&
-                      project.status !== "DUE_SOON" &&
-                      project.status}
+                  <S.StatusBadge
+                    $status={project.status}
+                    style={{
+                      background: "none",
+                      color:
+                        project.status === "COMPLETED"
+                          ? "#10b981"
+                          : project.status === "IN_PROGRESS"
+                          ? "#3b82f6"
+                          : "#fdb924",
+                      fontWeight: 600,
+                      fontSize: "0.85rem",
+                      borderRadius: 0,
+                      padding: 0,
+                      letterSpacing: 0.5,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 4,
+                    }}
+                  >
+                    {project.status === "COMPLETED" && (
+                      <FiCheckCircle
+                        size={14}
+                        style={{ color: "#10b981", marginRight: 2 }}
+                      />
+                    )}
+                    {project.status === "IN_PROGRESS" && (
+                      <FiClock
+                        size={14}
+                        style={{ color: "#3b82f6", marginRight: 2 }}
+                      />
+                    )}
+                    <span
+                      style={{
+                        color:
+                          project.status === "COMPLETED"
+                            ? "#10b981"
+                            : project.status === "IN_PROGRESS"
+                            ? "#3b82f6"
+                            : undefined,
+                        fontWeight: 600,
+                        fontSize: "0.85rem",
+                      }}
+                    >
+                      {project.status === "COMPLETED" && "완료"}
+                      {project.status === "IN_PROGRESS" && "진행중"}
+                    </span>
                   </S.StatusBadge>
                 </S.ProjectHeaderRow>
                 <div
@@ -206,57 +240,104 @@ const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
                     {project.endDate.replace(/-/g, ".")}
                   </span>
                 </div>
-                {selectedStatusTab === "IN_PROGRESS" ? (
-                  <S.ProjectProgressInfo>
-                    <div style={{ flex: 1 }}>
+                <S.ProjectProgressInfo>
+                  <div style={{ flex: 1 }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        marginBottom: 3,
+                      }}
+                    >
                       <div
                         style={{
                           display: "flex",
                           alignItems: "center",
-                          justifyContent: "space-between",
-                          marginBottom: 3,
+                          gap: 8,
                         }}
                       >
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "4px",
-                          }}
-                        >
-                          <FiLayers size={12} style={{ color: "#6366f1" }} />
-                          <S.ProjectProgressStep style={{ fontSize: "0.8rem" }}>
-                            {/* {project.steps.find(
-                              (s) => s.projectStepStatus === "IN_PROGRESS"
-                            )?.name || "진행중"} */}
-                          </S.ProjectProgressStep>
-                        </div>
-                        <S.ProjectProgressPercent $percent={percent}>
-                          {percent}%
-                        </S.ProjectProgressPercent>
+                        {project.steps &&
+                          project.steps.length > 0 &&
+                          project.steps
+                            .sort((a, b) => a.stepOrder - b.stepOrder)
+                            .map((step, idx) => (
+                              <div
+                                key={step.id}
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 2,
+                                }}
+                              >
+                                {step.projectStepStatus === "COMPLETED" ? (
+                                  <FiCheckCircle
+                                    size={14}
+                                    style={{ color: "#10b981" }}
+                                  />
+                                ) : step.projectStepStatus === "IN_PROGRESS" ? (
+                                  <span
+                                    style={{
+                                      display: "inline-block",
+                                      width: 12,
+                                      height: 12,
+                                      borderRadius: "50%",
+                                      background: "#fdb924",
+                                      border: "2px solid #fdb924",
+                                      marginRight: 1,
+                                    }}
+                                  />
+                                ) : (
+                                  <span
+                                    style={{
+                                      display: "inline-block",
+                                      width: 12,
+                                      height: 12,
+                                      borderRadius: "50%",
+                                      background: "#e5e7eb",
+                                      border: "2px solid #e5e7eb",
+                                      marginRight: 1,
+                                    }}
+                                  />
+                                )}
+                                <span
+                                  style={{
+                                    fontSize: 12,
+                                    color: "#374151",
+                                    fontWeight: 500,
+                                  }}
+                                >
+                                  {step.name}
+                                </span>
+                                {idx !== project.steps.length - 1 && (
+                                  <span
+                                    style={{
+                                      color: "#bdbdbd",
+                                      margin: "0 2px",
+                                    }}
+                                  >
+                                    &rarr;
+                                  </span>
+                                )}
+                              </div>
+                            ))}
+                        <S.ProjectProgressStep style={{ fontSize: "0.8rem" }}>
+                          {/* {project.steps.find((s) => s.projectStepStatus === "IN_PROGRESS")?.name || "진행중"} */}
+                        </S.ProjectProgressStep>
                       </div>
-                      <S.ProgressBarWrap style={{ marginTop: 0 }}>
+                    </div>
+                    <div
+                      style={{ display: "flex", alignItems: "center", gap: 10 }}
+                    >
+                      <S.ProgressBarWrap style={{ marginTop: 0, flex: 1 }}>
                         <S.ProgressBar $percent={percent} />
                       </S.ProgressBarWrap>
+                      <S.ProjectProgressPercent $percent={percent}>
+                        {percent}%
+                      </S.ProjectProgressPercent>
                     </div>
-                  </S.ProjectProgressInfo>
-                ) : (
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "6px",
-                      fontSize: "0.8rem",
-                      color: "#6b7280",
-                    }}
-                  >
-                    <FiHome size={12} />
-                    {/* <span>
-                      고객사: {project.clientCompany} / 개발사:{" "}
-                      {project.developerCompany}
-                    </span> */}
                   </div>
-                )}
+                </S.ProjectProgressInfo>
               </S.ProjectCard>
             );
           })}
