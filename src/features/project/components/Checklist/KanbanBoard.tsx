@@ -17,7 +17,12 @@ import ChecklistCreateModal from "./ChecklistCreateModal";
 import ChecklistDetailModal from "./ChecklistDetailModal";
 import ProjectBoardFilters from "../Board/ProjectBoardFilters";
 import type { ProjectDetailStep } from "../../services/projectService";
-import { FiAlertTriangle, FiCheckCircle, FiFlag } from "react-icons/fi";
+import {
+  FiAlertTriangle,
+  FiCheckCircle,
+  FiFlag,
+  FiXCircle,
+} from "react-icons/fi";
 
 // 카드 타입 명확화
 export type ChecklistCardType = {
@@ -86,7 +91,9 @@ function ChecklistCard({
         <FiCheckCircle size={16} style={{ color: "#10b981", marginRight: 8 }} />
       );
     if (status === "rejected")
-      return <FiFlag size={16} style={{ color: "#ef4444", marginRight: 8 }} />;
+      return (
+        <FiXCircle size={16} style={{ color: "#ef4444", marginRight: 8 }} />
+      );
     return null;
   };
   return (
@@ -136,7 +143,7 @@ function Column({
     if (key === "approved")
       return <FiCheckCircle size={16} style={{ color: "#10b981" }} />;
     if (key === "rejected")
-      return <FiFlag size={16} style={{ color: "#ef4444" }} />;
+      return <FiXCircle size={16} style={{ color: "#ef4444" }} />;
     return null;
   };
   return (

@@ -28,6 +28,7 @@ import {
   FiPlus,
   FiTarget,
   FiCheckCircle,
+  FiXCircle,
 } from "react-icons/fi";
 import { PostPriority, PostType } from "../../../project-d/types/post";
 import type { ProjectDetailStep } from "../../services/projectService";
@@ -351,7 +352,7 @@ const ProjectBoardFilters: React.FC<ProjectBoardFiltersProps> = ({
                 ) : priorityFilter === "approved" ? (
                   <FiCheckCircle size={16} />
                 ) : priorityFilter === "rejected" ? (
-                  <FiFlag size={16} />
+                  <FiXCircle size={16} />
                 ) : (
                   <FiGrid size={16} />
                 )
@@ -433,7 +434,7 @@ const ProjectBoardFilters: React.FC<ProjectBoardFiltersProps> = ({
                       setIsPriorityDropdownOpen(false);
                     }}
                   >
-                    <FiFlag size={16} />
+                    <FiXCircle size={16} />
                     <span>반려</span>
                   </DropdownItem>
                 </>
