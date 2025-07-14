@@ -98,7 +98,9 @@ export const CardTitle = styled.div`
   font-weight: 700;
   font-size: 1.05rem;
   color: #23272f;
-  flex: 1;
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 220px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
