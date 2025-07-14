@@ -20,7 +20,11 @@ import {
   FiPackage,
   FiPieChart,
   FiUsers,
+  FiGrid,
 } from "react-icons/fi";
+import { PiBuildingOffice } from "react-icons/pi";
+import { RxHome } from "react-icons/rx";
+import { TbBuildingBurjAlArab } from "react-icons/tb";
 
 import { useAuth } from "@/hooks/useAuth";
 
@@ -53,7 +57,7 @@ export const Sidebar: React.FC = () => {
       <Divider />
       <MainMenu>
         <MenuItem
-          icon={FiPieChart}
+          icon={RxHome}
           text="대시보드"
           isActive={location.pathname === "/dashboard"}
           onClick={() => handleMenuItemClick("대시보드", "/dashboard")}
@@ -67,7 +71,7 @@ export const Sidebar: React.FC = () => {
         {role === "ROLE_ADMIN" ? (
           <>
             <MenuItem
-              icon={FiHome}
+              icon={PiBuildingOffice}
               text="업체 관리"
               isActive={location.pathname.startsWith("/company")}
               onClick={() => handleMenuItemClick("업체 관리", "/company")}

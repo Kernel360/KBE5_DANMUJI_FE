@@ -389,10 +389,7 @@ export default function DashboardPage() {
             transition: "background 0.2s ease",
           }}
           onClick={() => (window.location.href = "/members")}
-          onMouseOver={(e) =>
-            (e.currentTarget.style.background =
-              "linear-gradient(135deg, #ffffff 0%, #fef3c7 100%)")
-          }
+          onMouseOver={(e) => (e.currentTarget.style.background = "#fffbe6")}
           onMouseOut={(e) => (e.currentTarget.style.background = "#ffffff")}
         >
           <div
@@ -452,10 +449,7 @@ export default function DashboardPage() {
             transition: "background 0.2s ease",
           }}
           onClick={() => (window.location.href = "/company")}
-          onMouseOver={(e) =>
-            (e.currentTarget.style.background =
-              "linear-gradient(135deg, #ffffff 0%, #fefdf4 100%)")
-          }
+          onMouseOver={(e) => (e.currentTarget.style.background = "#fffbe6")}
           onMouseOut={(e) => (e.currentTarget.style.background = "#ffffff")}
         >
           <div
@@ -515,10 +509,7 @@ export default function DashboardPage() {
             transition: "background 0.2s ease",
           }}
           onClick={() => (window.location.href = "/projects")}
-          onMouseOver={(e) =>
-            (e.currentTarget.style.background =
-              "linear-gradient(135deg, #ffffff 0%, #fefdf4 100%)")
-          }
+          onMouseOver={(e) => (e.currentTarget.style.background = "#fffbe6")}
           onMouseOut={(e) => (e.currentTarget.style.background = "#ffffff")}
         >
           <div
@@ -608,10 +599,7 @@ export default function DashboardPage() {
             transition: "background 0.2s ease",
           }}
           onClick={() => (window.location.href = "/inquiry")}
-          onMouseOver={(e) =>
-            (e.currentTarget.style.background =
-              "linear-gradient(135deg, #ffffff 0%, #fef3c7 100%)")
-          }
+          onMouseOver={(e) => (e.currentTarget.style.background = "#fffbe6")}
           onMouseOut={(e) => (e.currentTarget.style.background = "#ffffff")}
         >
           <div
