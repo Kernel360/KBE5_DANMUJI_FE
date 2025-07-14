@@ -170,6 +170,7 @@ const ChecklistDetailModal = ({
       if (onRefresh) {
         onRefresh();
       }
+      if (onClose) onClose(); // 승인 성공 시 모달 닫기
     } catch (e) {
       let msg = "승인 처리에 실패했습니다.";
       if (e && typeof e === "object") {
@@ -223,6 +224,7 @@ const ChecklistDetailModal = ({
       if (onRefresh) {
         onRefresh();
       }
+      if (onClose) onClose(); // 반려 성공 시 모달 닫기
     } catch (e: any) {
       // errors.reason 추출
       let msg = "반려 처리에 실패했습니다.";
