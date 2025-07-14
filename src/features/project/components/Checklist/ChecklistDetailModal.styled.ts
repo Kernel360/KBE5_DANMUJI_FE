@@ -156,11 +156,11 @@ export const ApprovalStatusBadge = styled.div<{ color: string }>`
   display: inline-block;
   background: ${({ color }) => color || "#eee"};
   color: #fff;
-  font-size: 0.98rem;
+  font-size: 0.89rem;
   font-weight: 600;
-  border-radius: 8px;
-  padding: 2px 14px 2px 14px;
-  min-width: 56px;
+  border-radius: 7px;
+  padding: 1.5px 8px 1.5px 8px;
+  min-width: 36px;
   text-align: center;
 `;
 

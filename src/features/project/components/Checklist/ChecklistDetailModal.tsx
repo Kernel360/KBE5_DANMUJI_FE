@@ -37,13 +37,16 @@ import {
   FiCheckSquare,
   FiAlertTriangle,
   FiXCircle,
+  FiAlertCircle,
+  FiEdit,
+  FiTrash2,
 } from "react-icons/fi";
 
 const statusMap: Record<string, string> = {
-  PENDING: "대기 중",
+  PENDING: "대기",
   APPROVED: "승인",
   REJECTED: "반려",
-  waiting: "대기 중",
+  waiting: "대기",
   approved: "승인",
   rejected: "반려",
 };
@@ -457,6 +460,7 @@ const ChecklistDetailModal = ({
                       </InfoLabel>
                       <InfoValue>{data.username}</InfoValue>
                     </InfoRow>
+                    {/* 상태 InfoRow의 아이콘을 FiAlertCircle(노란색)로 변경 */}
                     <InfoRow>
                       <InfoLabel
                         style={{
@@ -465,7 +469,7 @@ const ChecklistDetailModal = ({
                           gap: 6,
                         }}
                       >
-                        <FiCheckCircle style={{ color: "#fdb924" }} /> 상태
+                        <FiAlertCircle style={{ color: "#fdb924" }} /> 상태
                       </InfoLabel>
                       <InfoValue>
                         <ApprovalStatusBadge
@@ -487,6 +491,7 @@ const ChecklistDetailModal = ({
                       </InfoLabel>
                       <InfoValue>{formatDate(data.createdAt)}</InfoValue>
                     </InfoRow>
+                    {/* 완료일 InfoRow의 아이콘을 FiCheckCircle(노란색)로 변경 */}
                     <InfoRow>
                       <InfoLabel
                         style={{
@@ -495,11 +500,11 @@ const ChecklistDetailModal = ({
                           gap: 6,
                         }}
                       >
-                        <FiCheckSquare style={{ color: "#fdb924" }} /> 완료일
+                        <FiCheckCircle style={{ color: "#fdb924" }} /> 완료일
                       </InfoLabel>
                       <InfoValue>{formatDate(data.completedAt)}</InfoValue>
                     </InfoRow>
-                    {/* 수정/삭제 버튼 */}
+                    {/* 수정/삭제 버튼에 아이콘 추가 및 스타일 변경 (더 작게) */}
                     {canEditOrDelete &&
                       (isAdmin ||
                         (user?.id &&
@@ -507,40 +512,77 @@ const ChecklistDetailModal = ({
                           user?.id === data.userId)) && (
                         <InfoRow>
                           <InfoLabel />
-                          <InfoValue style={{ display: "flex", gap: 8 }}>
+                          <InfoValue style={{ display: "flex", gap: 5 }}>
                             {/* 작성자 본인: 수정/삭제, 관리자: 삭제만 */}
                             {user?.id &&
                               data?.userId &&
                               user?.id === data.userId && (
                                 <button
                                   style={{
-                                    background: "#3b82f6",
-                                    color: "#fff",
-                                    border: "none",
-                                    borderRadius: 8,
-                                    padding: "7px 18px",
+                                    background: "#fff",
+                                    color: "#3b82f6",
+                                    border: "1.2px solid #d1d5db",
+                                    borderRadius: 7,
+                                    padding: "3px 8px",
                                     fontWeight: 600,
-                                    fontSize: "1rem",
+                                    fontSize: "0.93rem",
                                     cursor: "pointer",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 3,
+                                    transition: "all 0.15s",
+                                  }}
+                                  onMouseOver={(e) => {
+                                    e.currentTarget.style.background =
+                                      "#f3f4f6";
+                                    e.currentTarget.style.borderColor =
+                                      "#3b82f6";
+                                    e.currentTarget.style.color = "#2563eb";
+                                  }}
+                                  onMouseOut={(e) => {
+                                    e.currentTarget.style.background = "#fff";
+                                    e.currentTarget.style.borderColor =
+                                      "#d1d5db";
+                                    e.currentTarget.style.color = "#3b82f6";
                                   }}
                                   onClick={handleEditClick}
                                 >
+                                  <FiEdit
+                                    style={{ marginRight: 2, fontSize: 15 }}
+                                  />{" "}
                                   수정
                                 </button>
                               )}
                             <button
                               style={{
-                                background: "#ef4444",
-                                color: "#fff",
-                                border: "none",
-                                borderRadius: 8,
-                                padding: "7px 18px",
+                                background: "#fff",
+                                color: "#ef4444",
+                                border: "1.2px solid #d1d5db",
+                                borderRadius: 7,
+                                padding: "3px 8px",
                                 fontWeight: 600,
-                                fontSize: "1rem",
+                                fontSize: "0.93rem",
                                 cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 3,
+                                transition: "all 0.15s",
+                              }}
+                              onMouseOver={(e) => {
+                                e.currentTarget.style.background = "#fee2e2";
+                                e.currentTarget.style.borderColor = "#ef4444";
+                                e.currentTarget.style.color = "#b91c1c";
+                              }}
+                              onMouseOut={(e) => {
+                                e.currentTarget.style.background = "#fff";
+                                e.currentTarget.style.borderColor = "#d1d5db";
+                                e.currentTarget.style.color = "#ef4444";
                               }}
                               onClick={handleDeleteChecklist}
                             >
+                              <FiTrash2
+                                style={{ marginRight: 2, fontSize: 15 }}
+                              />{" "}
                               삭제
                             </button>
                           </InfoValue>
@@ -575,38 +617,49 @@ const ChecklistDetailModal = ({
                               fontSize: "0.98rem",
                             }}
                           >
+                            {/* 승인자목록 상태 텍스트 색상도 아이콘 색상과 일치하게 변경 */}
                             {(appr.status === "waiting" ||
                               appr.status === "PENDING") && (
-                              <FiAlertTriangle
-                                size={16}
-                                style={{ color: "#fbbf24" }}
-                              />
+                              <>
+                                <FiAlertTriangle
+                                  size={16}
+                                  style={{ color: "#fbbf24" }}
+                                />
+                                <span
+                                  style={{ marginLeft: 2, color: "#fbbf24" }}
+                                >
+                                  대기
+                                </span>
+                              </>
                             )}
                             {(appr.status === "approved" ||
                               appr.status === "APPROVED") && (
-                              <FiCheckCircle
-                                size={16}
-                                style={{ color: "#10b981" }}
-                              />
+                              <>
+                                <FiCheckCircle
+                                  size={16}
+                                  style={{ color: "#10b981" }}
+                                />
+                                <span
+                                  style={{ marginLeft: 2, color: "#10b981" }}
+                                >
+                                  승인
+                                </span>
+                              </>
                             )}
                             {(appr.status === "rejected" ||
                               appr.status === "REJECTED") && (
-                              <FiXCircle
-                                size={16}
-                                style={{ color: "#ef4444" }}
-                              />
+                              <>
+                                <FiXCircle
+                                  size={16}
+                                  style={{ color: "#ef4444" }}
+                                />
+                                <span
+                                  style={{ marginLeft: 2, color: "#ef4444" }}
+                                >
+                                  반려
+                                </span>
+                              </>
                             )}
-                            <span style={{ marginLeft: 2 }}>
-                              {(appr.status === "waiting" ||
-                                appr.status === "PENDING") &&
-                                "대기"}
-                              {(appr.status === "approved" ||
-                                appr.status === "APPROVED") &&
-                                "승인"}
-                              {(appr.status === "rejected" ||
-                                appr.status === "REJECTED") &&
-                                "반려"}
-                            </span>
                           </div>
                         </ApprovalCardHeader>
                         <ApprovalCardBody>
