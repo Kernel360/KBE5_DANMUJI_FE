@@ -27,6 +27,7 @@ import {
   ApprovalButton,
   ApprovalButtonSecondary,
 } from "./ChecklistDetailModal.styled";
+import { showErrorToast, showSuccessToast } from "@/utils/errorHandler";
 
 const statusMap: Record<string, string> = {
   PENDING: "대기 중",
@@ -79,6 +80,10 @@ const ChecklistDetailModal = ({
     [approvalId: number]: boolean;
   }>({});
   const [localApprovals, setLocalApprovals] = useState<any[] | null>(null);
+  const [editMode, setEditMode] = useState(false);
+  const [editTitle, setEditTitle] = useState("");
+  const [editContent, setEditContent] = useState("");
+  const [editLoading, setEditLoading] = useState(false);
 
   // ESC 키로 모달 닫기
   React.useEffect(() => {
@@ -197,9 +202,13 @@ const ChecklistDetailModal = ({
       if (onRefresh) {
         onRefresh();
       }
-    } catch (e) {
+    } catch (e: any) {
+      // errors.reason 추출
       let msg = "반려 처리에 실패했습니다.";
-      if (e && typeof e === "object") {
+      if (e?.response?.data?.data?.errors) {
+        const errors = e.response.data.data.errors;
+        msg = errors.map((err: any) => err.reason).join("\n");
+      } else if (e && typeof e === "object") {
         const err = e as any;
         if (
           "response" in err &&
@@ -214,9 +223,71 @@ const ChecklistDetailModal = ({
           msg = err.message as string;
         }
       }
-      alert(msg);
+      showErrorToast(msg);
     } finally {
       setActionLoading((prev) => ({ ...prev, [approvalId]: false }));
+    }
+  };
+
+  // 체크리스트 삭제 함수
+  const handleDeleteChecklist = async () => {
+    if (!data?.id) return;
+    if (!window.confirm("정말로 이 체크리스트를 삭제하시겠습니까?")) return;
+    try {
+      await api.delete(`/api/checklists/${data.id}`);
+      showSuccessToast("체크리스트가 성공적으로 삭제되었습니다.");
+      if (onClose) onClose();
+      if (onRefresh) onRefresh();
+    } catch (e: any) {
+      let msg = "체크리스트 삭제에 실패했습니다.";
+      if (e?.response?.data?.data?.errors) {
+        const errors = e.response.data.data.errors;
+        msg = errors.map((err: any) => err.reason).join("\n");
+      } else if (e?.response?.data?.message) {
+        msg = e.response.data.message;
+      }
+      showErrorToast(msg);
+    }
+  };
+
+  // 수정 버튼 클릭 시 폼에 값 세팅
+  const handleEditClick = () => {
+    setEditTitle(data?.title || "");
+    setEditContent(data?.content || "");
+    setEditMode(true);
+  };
+
+  // 수정 취소
+  const handleEditCancel = () => {
+    setEditMode(false);
+    setEditTitle("");
+    setEditContent("");
+  };
+
+  // 체크리스트 수정 함수
+  const handleUpdateChecklist = async () => {
+    if (!data?.id) return;
+    setEditLoading(true);
+    try {
+      await api.put(`/api/checklists/${data.id}`, {
+        title: editTitle,
+        content: editContent,
+      });
+      showSuccessToast("체크리스트가 성공적으로 수정되었습니다.");
+      setEditMode(false);
+      if (onClose) onClose();
+      if (onRefresh) onRefresh();
+    } catch (e: any) {
+      let msg = "체크리스트 수정에 실패했습니다.";
+      if (e?.response?.data?.data?.errors) {
+        const errors = e.response.data.data.errors;
+        msg = errors.map((err: any) => err.reason).join("\n");
+      } else if (e?.response?.data?.message) {
+        msg = e.response.data.message;
+      }
+      showErrorToast(msg);
+    } finally {
+      setEditLoading(false);
     }
   };
 
@@ -250,36 +321,157 @@ const ChecklistDetailModal = ({
             <ModalContent>
               {/* 왼쪽: 체크리스트 정보 */}
               <InfoSection>
-                <InfoRow>
-                  <InfoLabel>제목</InfoLabel>
-                  <InfoValue>{data.title}</InfoValue>
-                </InfoRow>
-                <InfoRow>
-                  <InfoLabel>내용</InfoLabel>
-                  <InfoValue>{data.content}</InfoValue>
-                </InfoRow>
-                <InfoRow>
-                  <InfoLabel>작성자</InfoLabel>
-                  <InfoValue>{data.username}</InfoValue>
-                </InfoRow>
-                <InfoRow>
-                  <InfoLabel>상태</InfoLabel>
-                  <InfoValue>
-                    <ApprovalStatusBadge
-                      color={statusColor[data.status] || "#bbb"}
-                    >
-                      {statusMap[data.status] || data.status}
-                    </ApprovalStatusBadge>
-                  </InfoValue>
-                </InfoRow>
-                <InfoRow>
-                  <InfoLabel>생성일</InfoLabel>
-                  <InfoValue>{formatDate(data.createdAt)}</InfoValue>
-                </InfoRow>
-                <InfoRow>
-                  <InfoLabel>완료일</InfoLabel>
-                  <InfoValue>{formatDate(data.completedAt)}</InfoValue>
-                </InfoRow>
+                {editMode ? (
+                  <>
+                    <InfoRow>
+                      <InfoLabel>제목</InfoLabel>
+                      <InfoValue>
+                        <input
+                          type="text"
+                          value={editTitle}
+                          onChange={(e) => setEditTitle(e.target.value)}
+                          maxLength={30}
+                          style={{
+                            width: "100%",
+                            padding: "8px 12px",
+                            border: "1.5px solid #e5e7eb",
+                            borderRadius: 8,
+                            fontSize: "1.05rem",
+                            color: "#22223b",
+                            background: "#fafbfc",
+                          }}
+                        />
+                      </InfoValue>
+                    </InfoRow>
+                    <InfoRow>
+                      <InfoLabel>내용</InfoLabel>
+                      <InfoValue>
+                        <textarea
+                          value={editContent}
+                          onChange={(e) => setEditContent(e.target.value)}
+                          maxLength={500}
+                          rows={5}
+                          style={{
+                            width: "100%",
+                            padding: "8px 12px",
+                            border: "1.5px solid #e5e7eb",
+                            borderRadius: 8,
+                            fontSize: "1.01rem",
+                            color: "#22223b",
+                            background: "#fafbfc",
+                            resize: "vertical",
+                          }}
+                        />
+                      </InfoValue>
+                    </InfoRow>
+                    <InfoRow>
+                      <InfoLabel />
+                      <InfoValue style={{ display: "flex", gap: 8 }}>
+                        <button
+                          onClick={handleUpdateChecklist}
+                          disabled={editLoading}
+                          style={{
+                            background: "#10b981",
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: 8,
+                            padding: "7px 18px",
+                            fontWeight: 600,
+                            fontSize: "1rem",
+                            cursor: "pointer",
+                          }}
+                        >
+                          {editLoading ? "저장 중..." : "저장"}
+                        </button>
+                        <button
+                          onClick={handleEditCancel}
+                          disabled={editLoading}
+                          style={{
+                            background: "#f3f4f6",
+                            color: "#374151",
+                            border: "none",
+                            borderRadius: 8,
+                            padding: "7px 18px",
+                            fontWeight: 600,
+                            fontSize: "1rem",
+                            cursor: "pointer",
+                          }}
+                        >
+                          취소
+                        </button>
+                      </InfoValue>
+                    </InfoRow>
+                  </>
+                ) : (
+                  <>
+                    <InfoRow>
+                      <InfoLabel>제목</InfoLabel>
+                      <InfoValue>{data.title}</InfoValue>
+                    </InfoRow>
+                    <InfoRow>
+                      <InfoLabel>내용</InfoLabel>
+                      <InfoValue>{data.content}</InfoValue>
+                    </InfoRow>
+                    <InfoRow>
+                      <InfoLabel>작성자</InfoLabel>
+                      <InfoValue>{data.username}</InfoValue>
+                    </InfoRow>
+                    <InfoRow>
+                      <InfoLabel>상태</InfoLabel>
+                      <InfoValue>
+                        <ApprovalStatusBadge
+                          color={statusColor[data.status] || "#bbb"}
+                        >
+                          {statusMap[data.status] || data.status}
+                        </ApprovalStatusBadge>
+                      </InfoValue>
+                    </InfoRow>
+                    <InfoRow>
+                      <InfoLabel>생성일</InfoLabel>
+                      <InfoValue>{formatDate(data.createdAt)}</InfoValue>
+                    </InfoRow>
+                    <InfoRow>
+                      <InfoLabel>완료일</InfoLabel>
+                      <InfoValue>{formatDate(data.completedAt)}</InfoValue>
+                    </InfoRow>
+                    {/* 수정/삭제 버튼 */}
+                    <InfoRow>
+                      <InfoLabel />
+                      <InfoValue style={{ display: "flex", gap: 8 }}>
+                        <button
+                          style={{
+                            background: "#3b82f6",
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: 8,
+                            padding: "7px 18px",
+                            fontWeight: 600,
+                            fontSize: "1rem",
+                            cursor: "pointer",
+                          }}
+                          onClick={handleEditClick}
+                        >
+                          수정
+                        </button>
+                        <button
+                          style={{
+                            background: "#ef4444",
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: 8,
+                            padding: "7px 18px",
+                            fontWeight: 600,
+                            fontSize: "1rem",
+                            cursor: "pointer",
+                          }}
+                          onClick={handleDeleteChecklist}
+                        >
+                          삭제
+                        </button>
+                      </InfoValue>
+                    </InfoRow>
+                  </>
+                )}
               </InfoSection>
               {/* 오른쪽: 승인자 카드 목록 */}
               <ApprovalsSection>

@@ -27,6 +27,7 @@ import {
   FiShield,
 } from "react-icons/fi";
 import { RiUserSettingsLine } from "react-icons/ri";
+import { showErrorToast } from "@/utils/errorHandler";
 
 // 카드 타입 명확화
 export type ChecklistCardType = {
@@ -325,8 +326,23 @@ export default function KanbanBoard({
       // 체크리스트 생성 성공 시 카드 목록 새로고침
       await fetchCards();
       setIsModalOpen(false);
-    } catch (e) {
-      console.log(data);
+    } catch (e: any) {
+      // 에러 응답에서 errors.reason 추출하여 토스트로 노출
+      let message = "체크리스트 생성에 실패했습니다.";
+      let shouldShowToast = true;
+      if (e?.response?.data?.data?.errors) {
+        const errors = e.response.data.data.errors;
+        message = errors.map((err: any) => err.reason).join("\n");
+      } else if (
+        e?.response?.data?.message &&
+        e.response.data.message !== "Invalid input type"
+      ) {
+        message = e.response.data.message;
+      } else if (e?.response?.data?.message === "Invalid input type") {
+        shouldShowToast = false;
+      }
+      // 토스트 알림
+      if (shouldShowToast) showErrorToast(message);
       console.error("체크리스트 생성 실패", e);
     }
   };

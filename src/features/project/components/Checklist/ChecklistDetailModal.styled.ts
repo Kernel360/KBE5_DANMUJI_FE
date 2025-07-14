@@ -1,9 +1,12 @@
-import styled from 'styled-components';
+import styled from "styled-components";
 
 export const ModalOverlay = styled.div`
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.25);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.25);
   z-index: 1000;
   display: flex;
   align-items: center;
@@ -13,7 +16,7 @@ export const ModalOverlay = styled.div`
 export const ModalContainer = styled.div`
   background: #fff;
   border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
   width: 760px;
   max-width: 98vw;
   padding: 0;
@@ -21,8 +24,14 @@ export const ModalContainer = styled.div`
   animation: fadeIn 0.2s;
 
   @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 `;
 
@@ -46,7 +55,9 @@ export const ModalCloseButton = styled.button`
   color: #bbb;
   cursor: pointer;
   transition: color 0.15s;
-  &:hover { color: #f59e0b; }
+  &:hover {
+    color: #f59e0b;
+  }
 `;
 
 export const ModalBody = styled.div`
@@ -106,7 +117,7 @@ export const ApprovalCardList = styled.div`
 export const ApprovalCard = styled.div`
   background: #fafbfc;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   padding: 18px 20px 16px 20px;
   display: flex;
   flex-direction: column;
@@ -128,7 +139,7 @@ export const ApprovalName = styled.div`
 
 export const ApprovalStatusBadge = styled.div<{ color: string }>`
   display: inline-block;
-  background: ${({ color }) => color || '#eee'};
+  background: ${({ color }) => color || "#eee"};
   color: #fff;
   font-size: 0.98rem;
   font-weight: 600;
@@ -146,7 +157,7 @@ export const ApprovalCardBody = styled.div`
 
 export const ApprovalMessage = styled.div`
   font-size: 0.99rem;
-  color: #6366f1;
+  color: #22223b;
   margin-bottom: 2px;
 `;
 
@@ -172,6 +183,7 @@ export const ApprovalTextarea = styled.textarea`
   margin-bottom: 2px;
   resize: vertical;
   background: #fff;
+  color: #22223b;
 `;
 
 export const ApprovalButton = styled.button<{ disabled?: boolean }>`
@@ -184,9 +196,11 @@ export const ApprovalButton = styled.button<{ disabled?: boolean }>`
   font-size: 1.01rem;
   cursor: pointer;
   opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
-  pointer-events: ${({ disabled }) => (disabled ? 'none' : 'auto')};
+  pointer-events: ${({ disabled }) => (disabled ? "none" : "auto")};
   transition: background 0.15s;
-  &:hover:not(:disabled) { background: #059669; }
+  &:hover:not(:disabled) {
+    background: #059669;
+  }
 `;
 
 export const ApprovalButtonSecondary = styled.button`
@@ -199,5 +213,8 @@ export const ApprovalButtonSecondary = styled.button`
   font-size: 1.01rem;
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
-  &:hover { background: #fee2e2; color: #b91c1c; }
-`; 
+  &:hover {
+    background: #fee2e2;
+    color: #b91c1c;
+  }
+`;
