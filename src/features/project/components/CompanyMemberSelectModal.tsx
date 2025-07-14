@@ -1,10 +1,24 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { IoPeopleOutline, IoClose } from "react-icons/io5";
+import {
+  FiSearch,
+  FiHome,
+  FiRotateCcw,
+  FiUser,
+  FiUsers,
+  FiBriefcase,
+} from "react-icons/fi";
+import { FaUserPlus } from "react-icons/fa";
 import api from "@/api/axios";
 import CompanyRegisterModal from "@/features/company/components/CompanyRegisterModal/CompanyRegisterModal";
 import MemberRegisterModal from "@/features/user/components/MemberRegisterModal/MemberRegisterModal";
-import styled from "styled-components";
 import { ModalTitle, Button as ModalButton } from "./ProjectCreateModal.styled";
-import { FiHome, FiUser, FiUsers, FiBriefcase } from "react-icons/fi";
+import {
+  CompanyItem,
+  CompanyList,
+  PaginationContainer,
+  PaginationButton,
+} from "./CompanyMemberSelectModal.styled";
 
 type Member = {
   id: number;
@@ -55,6 +69,7 @@ const CompanyMemberSelectModal: React.FC<CompanyMemberSelectModalProps> = ({
   const [memberModalOpen, setMemberModalOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0); // 업체 목록 강제 새로고침용
   const [memberRefreshKey, setMemberRefreshKey] = useState(0); // 멤버 목록 강제 새로고침용
+  const companyListRef = useRef<HTMLDivElement>(null);
 
   // ✅ 검색 버튼 or Enter 입력 시 호출되는 함수
   const handleSearch = () => {
@@ -154,6 +169,13 @@ const CompanyMemberSelectModal: React.FC<CompanyMemberSelectModalProps> = ({
   // 모달 외부 클릭 시 닫기
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) onClose();
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+    setTimeout(() => {
+      companyListRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+    }, 0);
   };
 
   return (
@@ -321,7 +343,7 @@ const CompanyMemberSelectModal: React.FC<CompanyMemberSelectModalProps> = ({
                     )
                 )
                 .map((c) => (
-                  <div
+                  <CompanyItem
                     key={c.id}
                     style={{
                       padding: 14,
@@ -367,7 +389,7 @@ const CompanyMemberSelectModal: React.FC<CompanyMemberSelectModalProps> = ({
                       <FiUser size={15} style={{ marginRight: 2 }} />
                       회원수: {c.userCount}
                     </span>
-                  </div>
+                  </CompanyItem>
                 ))}
               {!loading && companies.length > 0 && (
                 // ✅ 페이지네이션
@@ -392,7 +414,7 @@ const CompanyMemberSelectModal: React.FC<CompanyMemberSelectModalProps> = ({
                       color: page === 0 ? "#bbb" : "#222",
                     }}
                     disabled={page === 0}
-                    onClick={() => setPage(page - 1)}
+                    onClick={() => handlePageChange(page - 1)}
                   >
                     이전
                   </button>
@@ -412,9 +434,9 @@ const CompanyMemberSelectModal: React.FC<CompanyMemberSelectModalProps> = ({
                       color: page + 1 >= totalPages ? "#bbb" : "#222",
                     }}
                     disabled={page + 1 >= totalPages}
-                    onClick={() => setPage(page + 1)}
+                    onClick={() => handlePageChange(page + 1)}
                   >
-                    다음
+                    다음 ▶
                   </button>
                 </div>
               )}
@@ -629,10 +651,24 @@ const CompanyMemberSelectModal: React.FC<CompanyMemberSelectModalProps> = ({
             onClose={() => setMemberModalOpen(false)}
             onRegister={async (memberData) => {
               try {
-                await api.post("/api/admin", memberData);
+                const response = await api.post("/api/admin", memberData);
+                // 파일 저장 로직 추가
+                const { username, password } = response.data.data || {};
+                if (username && password) {
+                  const fileContent = `Username: ${username}\nPassword: ${password}`;
+                  const blob = new Blob([fileContent], { type: "text/plain" });
+                  const fileUrl = URL.createObjectURL(blob);
+                  const link = document.createElement("a");
+                  link.href = fileUrl;
+                  link.download = "member_credentials.txt";
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                }
                 setMemberModalOpen(false);
                 setMemberRefreshKey((k) => k + 1); // 멤버 목록 강제 새로고침
-                // 성공 알림 등 필요시 추가
+                setRefreshKey((k) => k + 1); // 회사 목록 강제 새로고침
+                alert("멤버가 성공적으로 등록되었습니다.");
               } catch (e) {
                 alert("멤버 등록에 실패했습니다.");
               }

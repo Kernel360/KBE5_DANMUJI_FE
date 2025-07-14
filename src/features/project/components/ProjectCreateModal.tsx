@@ -2,6 +2,11 @@ import React, { useState, useEffect } from "react";
 import api from "@/api/axios";
 import CompanyMemberSelectModal from "./CompanyMemberSelectModal";
 import useCompanyMemberSelect from "./useCompanyMemberSelect.ts";
+import { SiGoogledocs } from "react-icons/si";
+import { FaSackDollar } from "react-icons/fa6";
+import { IoCalendarNumber, IoClose, IoPerson } from "react-icons/io5";
+import { MdPeople } from "react-icons/md";
+import { HiBuildingOffice2 } from "react-icons/hi2";
 import {
   ModalOverlay,
   ModalPanel,
@@ -21,6 +26,14 @@ import {
   CompanyCardMembers,
   DateButton,
   DateSeparator,
+  DatePickerWrapper,
+  CompanySectionLabel,
+  AddCompanyButton,
+  EditButton,
+  DeleteButton,
+  ProjectCreateButton,
+  CancelButton,
+  ButtonGroup,
 } from "./ProjectCreateModal.styled";
 import type { ProjectDetailResponse } from "../services/projectService";
 import DatePicker from "react-datepicker";
@@ -836,7 +849,7 @@ export default function ProjectCreateModal({
         </div>
         {/* 닫기 버튼 (오른쪽 상단) */}
         <CloseButton onClick={onClose} aria-label="닫기">
-          ×
+          <IoClose />
         </CloseButton>
         {showCompanyMemberModal && (
           <CompanyMemberSelectModal

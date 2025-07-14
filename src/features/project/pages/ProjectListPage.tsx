@@ -38,7 +38,7 @@ export default function ProjectListPage() {
     startDate: "",
     endDate: "",
     keyword: "",
-    category: "",
+    category: "all",
   });
   const [showCreateModal, setShowCreateModal] = useState(false);
   const navigate = useNavigate();
@@ -114,6 +114,7 @@ export default function ProjectListPage() {
       setLoading(true);
       setError(null);
 
+    
       // 검색 파라미터 구성
       const searchParams: any = {
         ...filters,
@@ -203,6 +204,16 @@ export default function ProjectListPage() {
     }
   }, [currentPage]);
 
+  // filters가 바뀔 때마다 즉시 API 호출 (keyword, category 제외)
+  useEffect(() => {
+    const { keyword, category, ...rest } = filters;
+    // rest 필드만 바뀔 때만 호출
+    const restString = JSON.stringify(rest);
+    searchProjects(0);
+    setCurrentPage(1);
+    // eslint-disable-next-line
+  }, [JSON.stringify({ ...filters, keyword: undefined, category: undefined })]);
+
   const handleInputChange = (field: string, value: string) => {
     setFilters((prev) => {
       const newFilters = { ...prev, [field]: value };
@@ -247,7 +258,7 @@ export default function ProjectListPage() {
       startDate: "",
       endDate: "",
       keyword: "",
-      category: "projectName",
+      category: "all",
     });
     fetchProjects(0); // 초기화 시 기본 API 사용
     setCurrentPage(1);
