@@ -45,7 +45,20 @@ export const ModalHeader = styled.div`
 
 export const ModalTitle = styled.div`
   font-size: 1.22rem;
-  font-weight: 700;
+  font-weight: 500;
+  position: relative;
+  padding-left: 16px;
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 1.2em;
+    background: #fdb924;
+    border-radius: 2px;
+  }
 `;
 
 export const ModalCloseButton = styled.button`

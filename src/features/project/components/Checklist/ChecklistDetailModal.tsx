@@ -28,6 +28,14 @@ import {
   ApprovalButtonSecondary,
 } from "./ChecklistDetailModal.styled";
 import { showErrorToast, showSuccessToast } from "@/utils/errorHandler";
+import {
+  FiFileText,
+  FiAlignLeft,
+  FiUser,
+  FiCheckCircle,
+  FiCalendar,
+  FiCheckSquare,
+} from "react-icons/fi";
 
 const statusMap: Record<string, string> = {
   PENDING: "대기 중",
@@ -412,19 +420,51 @@ const ChecklistDetailModal = ({
                 ) : (
                   <>
                     <InfoRow>
-                      <InfoLabel>제목</InfoLabel>
+                      <InfoLabel
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                        }}
+                      >
+                        <FiFileText style={{ color: "#fdb924" }} /> 제목
+                      </InfoLabel>
                       <InfoValue>{data.title}</InfoValue>
                     </InfoRow>
                     <InfoRow>
-                      <InfoLabel>내용</InfoLabel>
+                      <InfoLabel
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                        }}
+                      >
+                        <FiAlignLeft style={{ color: "#fdb924" }} /> 내용
+                      </InfoLabel>
                       <InfoValue>{data.content}</InfoValue>
                     </InfoRow>
                     <InfoRow>
-                      <InfoLabel>작성자</InfoLabel>
+                      <InfoLabel
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                        }}
+                      >
+                        <FiUser style={{ color: "#fdb924" }} /> 작성자
+                      </InfoLabel>
                       <InfoValue>{data.username}</InfoValue>
                     </InfoRow>
                     <InfoRow>
-                      <InfoLabel>상태</InfoLabel>
+                      <InfoLabel
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                        }}
+                      >
+                        <FiCheckCircle style={{ color: "#fdb924" }} /> 상태
+                      </InfoLabel>
                       <InfoValue>
                         <ApprovalStatusBadge
                           color={statusColor[data.status] || "#bbb"}
@@ -434,11 +474,27 @@ const ChecklistDetailModal = ({
                       </InfoValue>
                     </InfoRow>
                     <InfoRow>
-                      <InfoLabel>생성일</InfoLabel>
+                      <InfoLabel
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                        }}
+                      >
+                        <FiCalendar style={{ color: "#fdb924" }} /> 생성일
+                      </InfoLabel>
                       <InfoValue>{formatDate(data.createdAt)}</InfoValue>
                     </InfoRow>
                     <InfoRow>
-                      <InfoLabel>완료일</InfoLabel>
+                      <InfoLabel
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                        }}
+                      >
+                        <FiCheckSquare style={{ color: "#fdb924" }} /> 완료일
+                      </InfoLabel>
                       <InfoValue>{formatDate(data.completedAt)}</InfoValue>
                     </InfoRow>
                     {/* 수정/삭제 버튼 */}

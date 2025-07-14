@@ -54,7 +54,7 @@ export const ProjectPeriod = styled.div`
   font-weight: 500;
 `;
 
-export const ProjectStatusBadge = styled.div<{ status: string }>`
+export const ProjectStatusBadge = styled.div<{ $status: string }>`
   display: flex;
   align-items: center;
   gap: 6px;
@@ -65,8 +65,8 @@ export const ProjectStatusBadge = styled.div<{ status: string }>`
   text-transform: uppercase;
   letter-spacing: 0.5px;
 
-  ${({ status }) => {
-    switch (status) {
+  ${({ $status }) => {
+    switch ($status) {
       case "IN_PROGRESS":
         return `
           background: #dbeafe;
@@ -411,8 +411,8 @@ export const CompanyLabel = styled.span`
   margin-right: 6px;
 `;
 
-export const CompanyName = styled.span<{ $type: 'client' | 'dev' }>`
-  color: ${({ $type }) => ($type === 'client' ? '#2563eb' : '#19c37d')};
+export const CompanyName = styled.span<{ $type: "client" | "dev" }>`
+  color: ${({ $type }) => ($type === "client" ? "#2563eb" : "#19c37d")};
   font-weight: 600;
   cursor: pointer;
   margin-right: 8px;
@@ -434,7 +434,7 @@ export const MemberListModalOverlay = styled.div`
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0,0,0,0.3);
+  background: rgba(0, 0, 0, 0.3);
   z-index: 3000;
   display: flex;
   align-items: center;

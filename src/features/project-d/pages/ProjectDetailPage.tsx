@@ -305,7 +305,7 @@ export default function ProjectDetailPage() {
                   <FiCalendar size={16} />
                   {project.startDate} ~ {project.endDate}
                 </S.ProjectPeriod>
-                <S.ProjectStatusBadge status={project.projectStatus}>
+                <S.ProjectStatusBadge $status={project.projectStatus}>
                   <FiPlay size={14} />
                   {project.projectStatus === "COMPLETED" && "완료"}
                   {project.projectStatus === "IN_PROGRESS" && "진행중"}
