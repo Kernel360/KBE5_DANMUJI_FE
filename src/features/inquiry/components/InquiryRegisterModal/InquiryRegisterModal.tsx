@@ -12,7 +12,6 @@ const ModalOverlay = styled.div`
   align-items: center;
   justify-content: center;
   background-color: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(2px);
 `;
 
 const ModalContent = styled.div`
@@ -182,7 +181,6 @@ const SubmitButton = styled.button`
   }
 `;
 
-
 interface Props {
   onClose: () => void;
   onSuccess: () => void;
@@ -197,7 +195,7 @@ export default function InquiryRegisterModal({ onClose, onSuccess }: Props) {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await api.post('/api/inquiries', { title, content });
+      await api.post("/api/inquiries", { title, content });
       showSuccessToast("문의가 성공적으로 등록되었습니다.");
       onSuccess();
     } catch (error) {
@@ -255,4 +253,4 @@ export default function InquiryRegisterModal({ onClose, onSuccess }: Props) {
       </ModalContent>
     </ModalOverlay>
   );
-} 
+}
