@@ -692,7 +692,7 @@ export default function DashboardPage() {
             </RecentActivityTitle>
             <div style={{ height: "260px" }}>
               <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
+                <PieChart style={{ cursor: "pointer" }}>
                   <Pie
                     data={projectStatusData}
                     dataKey="value"
@@ -721,6 +721,7 @@ export default function DashboardPage() {
                         setSelectedStatus(statusKey);
                       }
                     }}
+                    style={{ cursor: "pointer" }}
                   >
                     {projectStatusData.map((entry, index) => (
                       <Cell
