@@ -54,7 +54,7 @@ export const ModalTitle = styled.div`
     left: 0;
     top: 50%;
     transform: translateY(-50%);
-    width: 4px;
+    width: 3px;
     height: 1.2em;
     background: #fdb924;
     border-radius: 2px;

@@ -84,6 +84,19 @@ export default function ChecklistCreateModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const approvalIds = users.filter((u) => selected[u.id]).map((u) => u.id);
+    // 필수 validation: 제목, 내용, 승인자
+    if (!title.trim()) {
+      alert("제목을 입력하세요");
+      return;
+    }
+    if (!content.trim()) {
+      alert("내용을 입력하세요");
+      return;
+    }
+    if (approvalIds.length === 0) {
+      alert("승인자를 1명 이상 선택하세요");
+      return;
+    }
     onSubmit({
       title,
       content,

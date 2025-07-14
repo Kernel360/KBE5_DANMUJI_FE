@@ -307,6 +307,7 @@ const ChecklistDetailModal = ({
         msg = e.response.data.message;
       }
       showErrorToast(msg);
+      // onClose 호출하지 않음
     } finally {
       setEditLoading(false);
     }
