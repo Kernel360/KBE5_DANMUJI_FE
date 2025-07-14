@@ -32,6 +32,9 @@ import {
   FiCheckCircle,
   FiAlertTriangle,
   FiAlertCircle,
+  FiUsers,
+  FiHome,
+  FiHelpCircle,
 } from "react-icons/fi";
 import CompanyDetailModal from "@/features/company/components/CompanyDetailModal/CompanyDetailModal";
 import { useNavigate } from "react-router-dom";
@@ -381,10 +384,16 @@ export default function DashboardPage() {
             padding: "24px",
             border: "1px solid #e5e7eb",
             borderRadius: "12px",
-            background: "linear-gradient(135deg, #ffffff 0%, #fefdf4 100%)",
+            background: "#ffffff",
             cursor: "pointer",
+            transition: "background 0.2s ease",
           }}
           onClick={() => (window.location.href = "/members")}
+          onMouseOver={(e) =>
+            (e.currentTarget.style.background =
+              "linear-gradient(135deg, #ffffff 0%, #fefdf4 100%)")
+          }
+          onMouseOut={(e) => (e.currentTarget.style.background = "#ffffff")}
         >
           <div
             style={{
@@ -397,7 +406,8 @@ export default function DashboardPage() {
               style={{
                 fontSize: "24px",
                 color: "#fdb924",
-                background: "#fef3c7",
+                background: "#ffffff",
+                border: "2px solid #fdb924",
                 borderRadius: "10px",
                 padding: "12px",
                 marginRight: "16px",
@@ -406,7 +416,7 @@ export default function DashboardPage() {
                 justifyContent: "center",
               }}
             >
-              <FaUsers />
+              <FiUsers />
             </div>
             <div>
               <div
@@ -437,10 +447,16 @@ export default function DashboardPage() {
             padding: "24px",
             border: "1px solid #e5e7eb",
             borderRadius: "12px",
-            background: "linear-gradient(135deg, #ffffff 0%, #fefdf4 100%)",
+            background: "#ffffff",
             cursor: "pointer",
+            transition: "background 0.2s ease",
           }}
           onClick={() => (window.location.href = "/company")}
+          onMouseOver={(e) =>
+            (e.currentTarget.style.background =
+              "linear-gradient(135deg, #ffffff 0%, #fefdf4 100%)")
+          }
+          onMouseOut={(e) => (e.currentTarget.style.background = "#ffffff")}
         >
           <div
             style={{
@@ -453,7 +469,8 @@ export default function DashboardPage() {
               style={{
                 fontSize: "24px",
                 color: "#fdb924",
-                background: "#fef3c7",
+                background: "#ffffff",
+                border: "2px solid #fdb924",
                 borderRadius: "10px",
                 padding: "12px",
                 marginRight: "16px",
@@ -462,7 +479,7 @@ export default function DashboardPage() {
                 justifyContent: "center",
               }}
             >
-              <FaBuilding />
+              <FiHome />
             </div>
             <div>
               <div
@@ -493,10 +510,16 @@ export default function DashboardPage() {
             padding: "24px",
             border: "1px solid #e5e7eb",
             borderRadius: "12px",
-            background: "linear-gradient(135deg, #ffffff 0%, #fefdf4 100%)",
+            background: "#ffffff",
             cursor: "pointer",
+            transition: "background 0.2s ease",
           }}
           onClick={() => (window.location.href = "/projects")}
+          onMouseOver={(e) =>
+            (e.currentTarget.style.background =
+              "linear-gradient(135deg, #ffffff 0%, #fefdf4 100%)")
+          }
+          onMouseOut={(e) => (e.currentTarget.style.background = "#ffffff")}
         >
           <div
             style={{
@@ -509,7 +532,8 @@ export default function DashboardPage() {
               style={{
                 fontSize: "24px",
                 color: "#fdb924",
-                background: "#fef3c7",
+                background: "#ffffff",
+                border: "2px solid #fdb924",
                 borderRadius: "10px",
                 padding: "12px",
                 marginRight: "16px",
@@ -579,10 +603,16 @@ export default function DashboardPage() {
             padding: "24px",
             border: "1px solid #e5e7eb",
             borderRadius: "12px",
-            background: "linear-gradient(135deg, #ffffff 0%, #fefdf4 100%)",
+            background: "#ffffff",
             cursor: "pointer",
+            transition: "background 0.2s ease",
           }}
           onClick={() => (window.location.href = "/inquiry")}
+          onMouseOver={(e) =>
+            (e.currentTarget.style.background =
+              "linear-gradient(135deg, #ffffff 0%, #fefdf4 100%)")
+          }
+          onMouseOut={(e) => (e.currentTarget.style.background = "#ffffff")}
         >
           <div
             style={{
@@ -595,7 +625,8 @@ export default function DashboardPage() {
               style={{
                 fontSize: "24px",
                 color: "#fdb924",
-                background: "#fef3c7",
+                background: "#ffffff",
+                border: "2px solid #fdb924",
                 borderRadius: "10px",
                 padding: "12px",
                 marginRight: "16px",
@@ -604,7 +635,7 @@ export default function DashboardPage() {
                 justifyContent: "center",
               }}
             >
-              <FaQuestionCircle />
+              <FiHelpCircle />
             </div>
             <div>
               <div
@@ -635,17 +666,15 @@ export default function DashboardPage() {
               color: "#6b7280",
             }}
           >
-            <span>
+            <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+              <FiAlertCircle size={15} style={{ color: "#ef4444" }} />
               답변 대기:{" "}
-              <span style={{ color: "#ef4444", fontWeight: 600 }}>
-                {waitingInquiryCount}
-              </span>
+              <span style={{ fontWeight: 600 }}>{waitingInquiryCount}</span>
             </span>
-            <span>
+            <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+              <FiCheckCircle size={15} style={{ color: "#10b981" }} />
               답변 완료:{" "}
-              <span style={{ color: "#10b981", fontWeight: 600 }}>
-                {answeredInquiryCount}
-              </span>
+              <span style={{ fontWeight: 600 }}>{answeredInquiryCount}</span>
             </span>
           </div>
         </RecentActivityCard>
