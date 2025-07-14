@@ -313,7 +313,7 @@ export const restoreCompany = async (
       `/api/companies/${companyId}/restore`
     );
     return response.data;
-  } catch (error: any) {
+  } catch (error) {
     console.error("회사 복구 실패:", error);
     // 에러를 그대로 throw하여 상위에서 처리하도록 함
     throw error;
@@ -329,7 +329,7 @@ export const restoreProject = async (
       `/api/projects/${projectId}/restore`
     );
     return response.data;
-  } catch (error: any) {
+  } catch (error) {
     console.error("프로젝트 복구 실패:", error);
     // 에러를 그대로 throw하여 상위에서 처리하도록 함
     throw error;

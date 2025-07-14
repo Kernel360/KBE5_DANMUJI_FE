@@ -12,7 +12,7 @@ const blinkAnimation = keyframes`
 const blinkBorderAnimation = keyframes`
   0%, 50% {
     border-color: ${({ $status }: { $status?: string }) =>
-      $status === "DELAYED"
+      $status === "DELAY"
         ? "#ef4444"
         : $status === "DUE_SOON"
         ? "#f59e0b"
@@ -20,7 +20,7 @@ const blinkBorderAnimation = keyframes`
   }
   51%, 100% {
     border-color: ${({ $status }: { $status?: string }) =>
-      $status === "DELAYED"
+      $status === "DELAY"
         ? "#fca5a5"
         : $status === "DUE_SOON"
         ? "#fcd34d"
@@ -42,7 +42,7 @@ export const ProjectCard = styled.div<{ $status?: string }>`
   transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
   border: 2px solid transparent;
   ${({ $status }) =>
-    ($status === "DELAYED" || $status === "DUE_SOON") &&
+    ($status === "DELAY" || $status === "DUE_SOON") &&
     css`
       animation: ${blinkBorderAnimation} 0.8s ease-in-out infinite;
     `}
@@ -97,7 +97,7 @@ export const Badge = styled.span<{ $color: string; $status?: string }>`
   align-items: center;
   gap: 4px;
   ${({ $status }) =>
-    ($status === "DELAYED" || $status === "DUE_SOON") &&
+    ($status === "DELAY" || $status === "DUE_SOON") &&
     css`
       animation: ${blinkAnimation} 0.8s ease-in-out infinite;
     `}

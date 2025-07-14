@@ -373,11 +373,17 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
 
   const validateForm = () => {
     const errors: Record<string, string> = {};
+    // 제목: 필수, 1~50자
     if (!formData.title.trim()) {
       errors.title = "제목을 입력해주세요.";
+    } else if (formData.title.trim().length > 50) {
+      errors.title = "게시글 제목은 50자 이하로 입력해주세요.";
     }
+    // 내용: 필수, 1~1000자
     if (!formData.content.trim()) {
       errors.content = "내용을 입력해주세요.";
+    } else if (formData.content.trim().length > 1000) {
+      errors.content = "게시글 내용은 1,000자 이하로 입력해주세요.";
     }
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
@@ -413,6 +419,10 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
           onClose();
           return response;
         } else {
+          // 서버 validation 에러 메시지 노출
+          if (response.message) {
+            setError(response.message);
+          }
           throw new Error(response.message || "게시글 생성에 실패했습니다.");
         }
       } else if (mode === "edit" && postId) {
@@ -466,6 +476,10 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
           onClose();
           return response;
         } else {
+          // 서버 validation 에러 메시지 노출
+          if (response.message) {
+            setError(response.message);
+          }
           throw new Error(response.message || "게시글 수정에 실패했습니다.");
         }
       }
@@ -473,9 +487,11 @@ const PostFormModal: React.FC<PostFormModalProps> = ({
 
     // withErrorHandling에서 null이 반환되면 에러가 발생한 것이므로 직접 에러 토스트 표시
     if (result === null) {
-      showErrorToast(
-        `게시글 ${mode === "create" ? "생성" : "수정"}에 실패했습니다.`
-      );
+      if (!error) {
+        showErrorToast(
+          `게시글 ${mode === "create" ? "생성" : "수정"}에 실패했습니다.`
+        );
+      }
     }
 
     setLoading(false);

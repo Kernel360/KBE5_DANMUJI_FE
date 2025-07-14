@@ -26,7 +26,13 @@ import {
   FaChartPie,
   FaQuestionCircle,
 } from "react-icons/fa";
-import { FiPackage } from "react-icons/fi";
+import {
+  FiPackage,
+  FiClock,
+  FiCheckCircle,
+  FiAlertTriangle,
+  FiAlertCircle,
+} from "react-icons/fi";
 import CompanyDetailModal from "@/features/company/components/CompanyDetailModal/CompanyDetailModal";
 import { useNavigate } from "react-router-dom";
 
@@ -67,7 +73,7 @@ const CustomLabel = ({
   outerRadius,
   name,
   value,
-}: Omit<CustomLabelProps, 'innerRadius'>) => {
+}: Omit<CustomLabelProps, "innerRadius">) => {
   const RADIAN = Math.PI / 180;
   const radius = outerRadius + 20;
   const x = cx + radius * Math.cos(-midAngle * RADIAN);
@@ -93,7 +99,7 @@ const CustomLabel = ({
 };
 
 // Define ProjectStatusKey
-type ProjectStatusKey = 'DUE_SOON' | 'IN_PROGRESS' | 'COMPLETED' | 'DELAY';
+type ProjectStatusKey = "DUE_SOON" | "IN_PROGRESS" | "COMPLETED" | "DELAY";
 
 // 프로젝트 리스트 아이템 타입
 interface ProjectListItem {
@@ -102,6 +108,31 @@ interface ProjectListItem {
   startDate: string;
   endDate: string;
 }
+
+// 프로젝트 상태별 아이콘 반환 함수 (ProjectListPage와 동일하게)
+const getStatusIcon = (status: string) => {
+  switch (status) {
+    case "IN_PROGRESS":
+      return <FiClock size={15} style={{ marginRight: 6, color: "#3b82f6" }} />;
+    case "COMPLETED":
+      return (
+        <FiCheckCircle size={15} style={{ marginRight: 6, color: "#10b981" }} />
+      );
+    case "DELAY":
+      return (
+        <FiAlertTriangle
+          size={15}
+          style={{ marginRight: 6, color: "#ef4444" }}
+        />
+      );
+    case "DUE_SOON":
+      return (
+        <FiAlertCircle size={15} style={{ marginRight: 6, color: "#f59e0b" }} />
+      );
+    default:
+      return null;
+  }
+};
 
 export default function DashboardPage() {
   const [companyCount, setCompanyCount] = useState(0);
@@ -118,8 +149,11 @@ export default function DashboardPage() {
   const [recentProjects, setRecentProjects] = useState<RecentProject[]>([]);
   const [recentInquiries, setRecentInquiries] = useState<RecentPost[]>([]);
   const [companyDetailModalOpen, setCompanyDetailModalOpen] = useState(false);
-  const [selectedCompanyId, setSelectedCompanyId] = useState<number | null>(null);
-  const [selectedStatus, setSelectedStatus] = useState<ProjectStatusKey>("DUE_SOON");
+  const [selectedCompanyId, setSelectedCompanyId] = useState<number | null>(
+    null
+  );
+  const [selectedStatus, setSelectedStatus] =
+    useState<ProjectStatusKey>("DUE_SOON");
   const [projectList, setProjectList] = useState<ProjectListItem[]>([]);
   const [loadingProjects, setLoadingProjects] = useState(false);
   const [projectListError, setProjectListError] = useState<string | null>(null);
@@ -134,34 +168,63 @@ export default function DashboardPage() {
       fill: "#dbeafe",
       stroke: "#3b82f6",
     },
-    { name: "완료", value: completedProjectCount, fill: "#d1fae5", stroke: "#10b981" },
-    { name: "지연", value: delayedProjectCount, fill: "#fef3c7", stroke: "#f59e0b" },
-    { name: "마감임박", value: dueSoonProjectCount, fill: "#fee2e2", stroke: "#ef4444" },
+    {
+      name: "완료",
+      value: completedProjectCount,
+      fill: "#d1fae5",
+      stroke: "#10b981",
+    },
+    {
+      name: "지연",
+      value: delayedProjectCount,
+      fill: "#fef3c7",
+      stroke: "#f59e0b",
+    },
+    {
+      name: "마감임박",
+      value: dueSoonProjectCount,
+      fill: "#fee2e2",
+      stroke: "#ef4444",
+    },
   ];
 
   // 전체 프로젝트 수(퍼센티지 계산용)
   const totalForPercent =
-    inProgressProjectCount + completedProjectCount + delayedProjectCount + dueSoonProjectCount;
+    inProgressProjectCount +
+    completedProjectCount +
+    delayedProjectCount +
+    dueSoonProjectCount;
 
   // 커스텀 툴팁
-  const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: { payload: { name: string; value: number } }[] }) => {
+  const CustomTooltip = ({
+    active,
+    payload,
+  }: {
+    active?: boolean;
+    payload?: { payload: { name: string; value: number } }[];
+  }) => {
     if (active && payload && payload.length) {
       const { name, value } = payload[0].payload;
-      const percent = totalForPercent > 0 ? ((value / totalForPercent) * 100).toFixed(1) : 0;
+      const percent =
+        totalForPercent > 0 ? ((value / totalForPercent) * 100).toFixed(1) : 0;
       return (
-        <div style={{
-          background: '#fff',
-          border: '1px solid #e5e7eb',
-          borderRadius: 8,
-          padding: '10px 16px',
-          fontWeight: 600,
-          fontSize: 14,
-          color: '#374151',
-          boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'
-        }}>
+        <div
+          style={{
+            background: "#fff",
+            border: "1px solid #e5e7eb",
+            borderRadius: 8,
+            padding: "10px 16px",
+            fontWeight: 600,
+            fontSize: 14,
+            color: "#374151",
+            boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)",
+          }}
+        >
           <div>{name}</div>
-          <div style={{ color: '#fdb924', fontWeight: 700 }}>{value.toLocaleString()}건</div>
-          <div style={{ color: '#3b82f6', fontWeight: 600 }}>{percent}%</div>
+          <div style={{ color: "#fdb924", fontWeight: 700 }}>
+            {value.toLocaleString()}건
+          </div>
+          <div style={{ color: "#3b82f6", fontWeight: 600 }}>{percent}%</div>
         </div>
       );
     }
@@ -170,7 +233,8 @@ export default function DashboardPage() {
 
   // Pie의 activeShape(섹터 확대)
   const renderActiveShape = (props: any) => {
-    const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } = props;
+    const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } =
+      props;
     return (
       <g tabIndex={-1}>
         <Sector
@@ -228,9 +292,15 @@ export default function DashboardPage() {
         setMemberCount(memberResponse.data?.data || 0);
 
         // Fetch Project Counts
-        const projectCountsResponse = await api.get("/api/projects/status-count");
-        type ProjectStatusCount = { projectStatus: string; statusCount: number };
-        const content: ProjectStatusCount[] = projectCountsResponse.data?.data || [];
+        const projectCountsResponse = await api.get(
+          "/api/projects/status-count"
+        );
+        type ProjectStatusCount = {
+          projectStatus: string;
+          statusCount: number;
+        };
+        const content: ProjectStatusCount[] =
+          projectCountsResponse.data?.data || [];
         const statusMap = content.reduce((acc, cur) => {
           acc[cur.projectStatus] = cur.statusCount;
           return acc;
@@ -241,9 +311,9 @@ export default function DashboardPage() {
         setDueSoonProjectCount(statusMap["DUE_SOON"] || 0);
         setTotalProjectCount(
           (statusMap["IN_PROGRESS"] || 0) +
-          (statusMap["COMPLETED"] || 0) +
-          (statusMap["DELAY"] || 0) +
-          (statusMap["DUE_SOON"] || 0)
+            (statusMap["COMPLETED"] || 0) +
+            (statusMap["DELAY"] || 0) +
+            (statusMap["DUE_SOON"] || 0)
         );
 
         // Fetch Recent Companies
@@ -257,13 +327,19 @@ export default function DashboardPage() {
 
         // Fetch Inquiry Count (실제 데이터)
         const inquiriesResponse = await api.get("/api/inquiries/counts");
-        const inquiryCounts = inquiriesResponse.data?.data || { total: 0, waitingCnt: 0, answeredCnt: 0 };
+        const inquiryCounts = inquiriesResponse.data?.data || {
+          total: 0,
+          waitingCnt: 0,
+          answeredCnt: 0,
+        };
         setInquiryCount(inquiryCounts.total || 0);
         setWaitingInquiryCount(inquiryCounts.waitingCnt || 0);
         setAnsweredInquiryCount(inquiryCounts.answeredCnt || 0);
 
         // Fetch Recent Inquiries
-        const recentInquiriesResponse = await api.get("/api/inquiries/recent-inquiries");
+        const recentInquiriesResponse = await api.get(
+          "/api/inquiries/recent-inquiries"
+        );
         setRecentInquiries(recentInquiriesResponse.data?.data || []);
 
         // Fetch Project List
@@ -590,7 +666,14 @@ export default function DashboardPage() {
           marginBottom: "32px",
         }}
       >
-        <div style={{ display: "flex", gap: 32, flexWrap: "wrap", justifyContent: "space-between" }}>
+        <div
+          style={{
+            display: "flex",
+            gap: 32,
+            flexWrap: "wrap",
+            justifyContent: "space-between",
+          }}
+        >
           {/* 프로젝트 상태 분포 */}
           <div style={{ flex: 1, minWidth: 320 }}>
             <RecentActivityTitle
@@ -629,7 +712,12 @@ export default function DashboardPage() {
                     onMouseLeave={() => setActiveIndex(-1)}
                     onClick={(_, idx) => {
                       if (typeof idx === "number" && idx >= 0) {
-                        const statusKey = ["IN_PROGRESS", "COMPLETED", "DELAY", "DUE_SOON"][idx] as ProjectStatusKey;
+                        const statusKey = [
+                          "IN_PROGRESS",
+                          "COMPLETED",
+                          "DELAY",
+                          "DUE_SOON",
+                        ][idx] as ProjectStatusKey;
                         setSelectedStatus(statusKey);
                       }
                     }}
@@ -665,21 +753,36 @@ export default function DashboardPage() {
             >
               {(() => {
                 switch (selectedStatus) {
-                  case "DUE_SOON": return "마감 임박 프로젝트";
-                  case "IN_PROGRESS": return "진행중 프로젝트";
-                  case "COMPLETED": return "완료 프로젝트";
-                  case "DELAY": return "지연 프로젝트";
-                  default: return "프로젝트 리스트";
+                  case "DUE_SOON":
+                    return "마감 임박 프로젝트";
+                  case "IN_PROGRESS":
+                    return "진행중 프로젝트";
+                  case "COMPLETED":
+                    return "완료 프로젝트";
+                  case "DELAY":
+                    return "지연 프로젝트";
+                  default:
+                    return "프로젝트 리스트";
                 }
               })()}
             </RecentActivityTitle>
-            <div style={{ height: 260, overflow: 'auto' }}>
+            <div style={{ height: 260, overflow: "auto" }}>
               {loadingProjects ? (
-                <div style={{ textAlign: "center", padding: 12 }}>로딩중...</div>
+                <div style={{ textAlign: "center", padding: 12 }}>
+                  로딩중...
+                </div>
               ) : projectListError ? (
-                <div style={{ textAlign: "center", color: "#ef4444", padding: 12 }}>{projectListError}</div>
+                <div
+                  style={{ textAlign: "center", color: "#ef4444", padding: 12 }}
+                >
+                  {projectListError}
+                </div>
               ) : projectList.length === 0 ? (
-                <div style={{ textAlign: "center", color: "#aaa", padding: 12 }}>프로젝트가 없습니다.</div>
+                <div
+                  style={{ textAlign: "center", color: "#aaa", padding: 12 }}
+                >
+                  프로젝트가 없습니다.
+                </div>
               ) : (
                 projectList.map((project) => (
                   <RecentActivityItem
@@ -694,15 +797,31 @@ export default function DashboardPage() {
                       transition: "background 0.15s",
                     }}
                     onClick={() => navigate(`/projects/${project.id}/detail`)}
-                    onMouseOver={e => (e.currentTarget.style.background = "#f9fafb")}
-                    onMouseOut={e => (e.currentTarget.style.background = "")}
+                    onMouseOver={(e) =>
+                      (e.currentTarget.style.background = "#f9fafb")
+                    }
+                    onMouseOut={(e) => (e.currentTarget.style.background = "")}
                   >
-                    <span style={{ fontSize: "14px", color: "#374151", fontWeight: 600 }}>
+                    <span
+                      style={{
+                        fontSize: "14px",
+                        color: "#374151",
+                        fontWeight: 600,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 4,
+                      }}
+                    >
+                      {getStatusIcon(selectedStatus)}
                       {project.name.length > 25
                         ? project.name.slice(0, 25) + "..."
                         : project.name}
                     </span>
-                    <span style={{ fontSize: "13px", color: "#888", marginTop: 2 }}>{project.startDate} ~ {project.endDate}</span>
+                    <span
+                      style={{ fontSize: "13px", color: "#888", marginTop: 2 }}
+                    >
+                      {project.startDate} ~ {project.endDate}
+                    </span>
                   </RecentActivityItem>
                 ))
               )}
@@ -767,9 +886,13 @@ export default function DashboardPage() {
                     cursor: "pointer",
                     transition: "background 0.15s",
                   }}
-                  onClick={() => (window.location.href = `/inquiry/${inquiry.id}`)}
-                  onMouseOver={e => (e.currentTarget.style.background = "#f9fafb")}
-                  onMouseOut={e => (e.currentTarget.style.background = "")}
+                  onClick={() =>
+                    (window.location.href = `/inquiry/${inquiry.id}`)
+                  }
+                  onMouseOver={(e) =>
+                    (e.currentTarget.style.background = "#f9fafb")
+                  }
+                  onMouseOut={(e) => (e.currentTarget.style.background = "")}
                 >
                   <span style={{ fontSize: "14px", color: "#374151" }}>
                     {inquiry.title.length > 25
@@ -849,10 +972,14 @@ export default function DashboardPage() {
                     setSelectedCompanyId(company.id);
                     setCompanyDetailModalOpen(true);
                   }}
-                  onMouseOver={e => (e.currentTarget.style.background = "#f9fafb")}
-                  onMouseOut={e => (e.currentTarget.style.background = "")}
+                  onMouseOver={(e) =>
+                    (e.currentTarget.style.background = "#f9fafb")
+                  }
+                  onMouseOut={(e) => (e.currentTarget.style.background = "")}
                 >
-                  <span style={{ fontSize: "14px", color: "#374151" }}>{company.name}</span>
+                  <span style={{ fontSize: "14px", color: "#374151" }}>
+                    {company.name}
+                  </span>
                   <RecentActivityDate style={{ fontSize: "12px" }}>
                     {new Date(company.createdAt).toLocaleDateString()}
                   </RecentActivityDate>
@@ -932,8 +1059,10 @@ export default function DashboardPage() {
                     transition: "background 0.15s",
                   }}
                   onClick={() => navigate(`/projects/${project.id}/detail`)}
-                  onMouseOver={e => (e.currentTarget.style.background = "#f9fafb")}
-                  onMouseOut={e => (e.currentTarget.style.background = "")}
+                  onMouseOver={(e) =>
+                    (e.currentTarget.style.background = "#f9fafb")
+                  }
+                  onMouseOut={(e) => (e.currentTarget.style.background = "")}
                 >
                   <span style={{ fontSize: "14px", color: "#374151" }}>
                     {project.name.length > 25

@@ -75,8 +75,10 @@ export const Select = styled.select`
 export const NewButton = styled.button`
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 10px 20px;
+  justify-content: center;
+  padding: 0;
+  width: 40px;
+  height: 40px;
   background: #f9fafb;
   color: #374151;
   font-size: 14px;

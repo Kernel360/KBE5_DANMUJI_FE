@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import api from '@/api/axios';
+import React, { useState, useEffect } from "react";
+import api from "@/api/axios";
 import {
   BoardWrapper,
   ColumnBox,
@@ -11,15 +11,12 @@ import {
   CardTop,
   CardTitle,
   CardMeta,
-  Avatar,
   StatusBadge,
-  CardActions,
-  ApproveButton,
-  RejectButton,
-  RejectInput,
-} from './ChecklistBoard.styled';
-import ChecklistCreateModal from './ChecklistCreateModal';
-import ChecklistDetailModal from './ChecklistDetailModal';
+} from "./ChecklistBoard.styled";
+import ChecklistCreateModal from "./ChecklistCreateModal";
+import ChecklistDetailModal from "./ChecklistDetailModal";
+import ProjectBoardFilters from "../Board/ProjectBoardFilters";
+import type { ProjectDetailStep } from "../../services/projectService";
 
 // 카드 타입 명확화
 export type ChecklistCardType = {
@@ -28,7 +25,7 @@ export type ChecklistCardType = {
   assignee: string;
   username: string;
   createdAt: string;
-  status: 'waiting' | 'approved' | 'rejected';
+  status: "waiting" | "approved" | "rejected";
   approvalRequest?: boolean;
   rejectReason?: string;
 };
@@ -36,43 +33,56 @@ export type ChecklistCardType = {
 // 상태별 컬럼 정보
 const COLUMNS = [
   {
-    key: 'waiting',
-    title: '대기',
-    bg: '#fffbea',
-    dot: '#fbbf24',
+    key: "waiting",
+    title: "대기",
+    bg: "#fffbea",
+    dot: "#fbbf24",
   },
   {
-    key: 'approved',
-    title: '승인',
-    bg: '#ecfdf5',
-    dot: '#10b981',
+    key: "approved",
+    title: "승인",
+    bg: "#ecfdf5",
+    dot: "#10b981",
   },
   {
-    key: 'rejected',
-    title: '반려',
-    bg: '#fef2f2',
-    dot: '#ef4444',
+    key: "rejected",
+    title: "반려",
+    bg: "#fef2f2",
+    dot: "#ef4444",
   },
 ];
 
 // 담당자 이니셜 생성
 function getInitials(name: string) {
-  if (!name) return '';
-  const parts = name.split(' ');
+  if (!name) return "";
+  const parts = name.split(" ");
   if (parts.length === 1) return name.slice(0, 2);
-  return parts.map((p) => p[0]).join('').slice(0, 2);
+  return parts
+    .map((p) => p[0])
+    .join("")
+    .slice(0, 2);
 }
 
 // 카드 컴포넌트에 클릭 핸들러 추가 (정의 위치 이동)
-function ChecklistCard({ card, onClick }: { card: ChecklistCardType; onClick: (id: number) => void }) {
+function ChecklistCard({
+  card,
+  onClick,
+}: {
+  card: ChecklistCardType;
+  onClick: (id: number) => void;
+}) {
   return (
-    <CardBox $status={card.status} onClick={() => onClick(card.id)} style={{ cursor: 'pointer' }}>
+    <CardBox
+      $status={card.status}
+      onClick={() => onClick(card.id)}
+      style={{ cursor: "pointer" }}
+    >
       <CardTop>
         <CardTitle>{card.title}</CardTitle>
         <StatusBadge status={card.status}>
-          {card.status === 'waiting' && '대기'}
-          {card.status === 'approved' && '승인'}
-          {card.status === 'rejected' && '반려'}
+          {card.status === "waiting" && "대기"}
+          {card.status === "approved" && "승인"}
+          {card.status === "rejected" && "반려"}
         </StatusBadge>
       </CardTop>
       <CardMeta>
@@ -80,8 +90,8 @@ function ChecklistCard({ card, onClick }: { card: ChecklistCardType; onClick: (i
         <span>{card.createdAt}</span>
       </CardMeta>
       {/* 반려 사유 표시 */}
-      {card.status === 'rejected' && card.rejectReason && (
-        <div style={{ color: '#ef4444', fontSize: '0.95rem', marginTop: 4 }}>
+      {card.status === "rejected" && card.rejectReason && (
+        <div style={{ color: "#ef4444", fontSize: "0.95rem", marginTop: 4 }}>
           사유: {card.rejectReason}
         </div>
       )}
@@ -90,16 +100,34 @@ function ChecklistCard({ card, onClick }: { card: ChecklistCardType; onClick: (i
 }
 
 // 컬럼 컴포넌트
-function Column({ column, cards, onCardClick }: { column: typeof COLUMNS[number]; cards: ChecklistCardType[]; onCardClick: (id: number) => void }) {
+function Column({
+  column,
+  cards,
+  onCardClick,
+}: {
+  column: (typeof COLUMNS)[number];
+  cards: ChecklistCardType[];
+  onCardClick: (id: number) => void;
+}) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', alignSelf: 'stretch', flex: 1 }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        alignSelf: "stretch",
+        flex: 1,
+      }}
+    >
       <ColumnHeader>
         <StatusDot color={column.dot} />
         <ColumnTitle>{column.title}</ColumnTitle>
         <ColumnCount>{cards.length}</ColumnCount>
       </ColumnHeader>
       <ColumnBox $bg={column.bg}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14, flex: 1 }}>
+        <div
+          style={{ display: "flex", flexDirection: "column", gap: 14, flex: 1 }}
+        >
           {cards.map((card) => (
             <ChecklistCard
               key={card.id}
@@ -118,9 +146,27 @@ interface KanbanBoardProps {
   projectId: number;
   selectedStepId: number;
   canEditStep?: boolean;
+  projectSteps?: ProjectDetailStep[]; // 단계 목록 추가
 }
 
-export default function KanbanBoard({ projectId, selectedStepId, canEditStep }: KanbanBoardProps) {
+export default function KanbanBoard({
+  projectId,
+  selectedStepId,
+  canEditStep,
+  projectSteps = [],
+}: KanbanBoardProps) {
+  // 필터 상태 추가
+  const [typeFilter, setTypeFilter] = useState<"ALL" | string>("ALL");
+  // 상태 필터: ALL | waiting | approved | rejected
+  const [statusFilter, setStatusFilter] = useState<
+    "ALL" | "waiting" | "approved" | "rejected"
+  >("ALL");
+  const [stepFilter, setStepFilter] = useState<number | "ALL">(
+    selectedStepId || "ALL"
+  );
+  const [keywordType, setKeywordType] = useState<"title" | "writer">("title");
+  const [keyword, setKeyword] = useState("");
+
   const [cards, setCards] = useState<ChecklistCardType[]>([]);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -136,19 +182,21 @@ export default function KanbanBoard({ projectId, selectedStepId, canEditStep }: 
     try {
       const res = await api.get(`/api/checklists/${selectedStepId}`);
       const apiCards = Array.isArray(res.data.data) ? res.data.data : [];
-      setCards(apiCards.map((item: any) => ({
-        id: String(item.id),
-        title: item.title || '',
-        userId: item.userId,
-        username: item.username || '',
-        createdAt: item.createdAt ? item.createdAt.slice(0, 10) : '',
-        status:
-          item.status === 'PENDING'
-            ? 'waiting'
-            : item.status === 'APPROVED'
-            ? 'approved'
-            : 'rejected',
-      })));
+      setCards(
+        apiCards.map((item: any) => ({
+          id: String(item.id),
+          title: item.title || "",
+          userId: item.userId,
+          username: item.username || "",
+          createdAt: item.createdAt ? item.createdAt.slice(0, 10) : "",
+          status:
+            item.status === "PENDING"
+              ? "waiting"
+              : item.status === "APPROVED"
+              ? "approved"
+              : "rejected",
+        }))
+      );
     } catch {
       setCards([]);
     } finally {
@@ -195,44 +243,82 @@ export default function KanbanBoard({ projectId, selectedStepId, canEditStep }: 
       await fetchCards();
       setIsModalOpen(false);
     } catch (e) {
-      console.log(data)
-      console.error('체크리스트 생성 실패', e);
+      console.log(data);
+      console.error("체크리스트 생성 실패", e);
     }
   };
 
+  // 필터 핸들러 (실제 카드 필터링은 추후 구현 가능)
+  const handleSearch = () => {
+    // TODO: 필터 적용하여 카드 목록 새로고침
+    // 현재는 전체 카드만 불러옴
+    fetchCards();
+  };
+  const handleResetFilters = () => {
+    setTypeFilter("ALL");
+    setStatusFilter("ALL");
+    setStepFilter("ALL");
+    setKeywordType("title");
+    setKeyword("");
+    fetchCards();
+  };
+
+  // 단계 필터 변경 시 selectedStepId도 변경(상위에서 prop으로 내려줄 수도 있음)
+  useEffect(() => {
+    if (stepFilter !== "ALL" && typeof stepFilter === "number") {
+      // TODO: 필요시 상위에 알림
+    }
+  }, [stepFilter]);
+
   return (
-    <div style={{ width: '100%' }}>
-      {canEditStep && (
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'flex-end', 
-          marginBottom: '16px',
-          padding: '0 24px'
-        }}>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            style={{
-              backgroundColor: '#fdb924',
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              padding: '8px 16px',
-              fontSize: '14px',
-              fontWeight: '500',
-              cursor: 'pointer',
-              transition: 'background-color 0.2s'
-            }}
-            onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f59e0b'}
-            onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#fdb924'}
-          >
-            체크리스트 작성
-          </button>
-        </div>
-      )}
-      
+    <div style={{ width: "100%" }}>
+      {/* 필터/버튼 UI 상단에 추가 */}
+      <div
+        style={{
+          padding: "0 24px",
+          maxWidth: 1200,
+          margin: "24px auto 0 auto",
+        }}
+      >
+        <ProjectBoardFilters
+          typeFilter={typeFilter}
+          setTypeFilter={setTypeFilter}
+          // 상태 필터를 priorityFilter prop에 맞춰 전달
+          priorityFilter={statusFilter}
+          setPriorityFilter={setStatusFilter}
+          stepFilter={stepFilter}
+          setStepFilter={setStepFilter}
+          keywordType={keywordType}
+          setKeywordType={setKeywordType}
+          keyword={keyword}
+          setKeyword={setKeyword}
+          projectSteps={projectSteps}
+          onSearch={handleSearch}
+          onResetFilters={handleResetFilters}
+          onCreatePost={() => {}}
+          onCreateChecklist={() => setIsModalOpen(true)}
+          showChecklistButton={true}
+          showTypeFilter={false}
+          showCreatePost={false}
+          showKeywordFilter={false}
+          showSearchButton={false}
+          checklistMode={true}
+        />
+      </div>
+      {/* 기존 체크리스트 작성 버튼 영역 삭제 */}
       <BoardWrapper>
         {loading ? (
-          <div style={{ width: '100%', textAlign: 'center', padding: '48px 0', color: '#bbb', fontSize: '1.1rem' }}>로딩 중...</div>
+          <div
+            style={{
+              width: "100%",
+              textAlign: "center",
+              padding: "48px 0",
+              color: "#bbb",
+              fontSize: "1.1rem",
+            }}
+          >
+            로딩 중...
+          </div>
         ) : (
           COLUMNS.map((col) => (
             <Column
@@ -244,7 +330,6 @@ export default function KanbanBoard({ projectId, selectedStepId, canEditStep }: 
           ))
         )}
       </BoardWrapper>
-
       <ChecklistCreateModal
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -262,4 +347,4 @@ export default function KanbanBoard({ projectId, selectedStepId, canEditStep }: 
       />
     </div>
   );
-} 
+}

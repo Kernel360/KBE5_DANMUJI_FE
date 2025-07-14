@@ -1,7 +1,18 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
-import { FiSearch, FiRotateCcw, FiChevronDown, FiPlus } from "react-icons/fi";
+import {
+  FiSearch,
+  FiRotateCcw,
+  FiChevronDown,
+  FiPlus,
+  FiFileText,
+  FiUser,
+  FiList,
+  FiCheckCircle,
+  FiClock,
+  FiCalendar,
+} from "react-icons/fi";
 import {
   SelectButton,
   SelectDropdown,
@@ -204,6 +215,39 @@ const SEARCH_FIELD_OPTIONS = [
   { value: "author", label: "작성자" },
 ];
 
+const STATUS_OPTION_META = {
+  "": {
+    color: "#6b7280",
+    bg: "#f3f4f6",
+    icon: (
+      <FiList
+        size={16}
+        style={{ marginRight: 8, color: "#6b7280", flexShrink: 0 }}
+      />
+    ),
+  },
+  답변완료: {
+    color: "#10b981",
+    bg: "#ecfdf5",
+    icon: (
+      <FiCheckCircle
+        size={16}
+        style={{ marginRight: 8, color: "#10b981", flexShrink: 0 }}
+      />
+    ),
+  },
+  답변대기: {
+    color: "#f59e0b",
+    bg: "#fffbe8",
+    icon: (
+      <FiClock
+        size={16}
+        style={{ marginRight: 8, color: "#f59e0b", flexShrink: 0 }}
+      />
+    ),
+  },
+};
+
 const ActionButtons = styled.div`
   margin-left: auto;
 `;
@@ -301,8 +345,8 @@ function InquiryFilterBar({
   const handleStartDateChange = (date: Date | null) => {
     if (date) {
       const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
       const formattedDate = `${year}-${month}-${day}`;
       onChange("startDate", formattedDate);
     }
@@ -311,8 +355,8 @@ function InquiryFilterBar({
   const handleEndDateChange = (date: Date | null) => {
     if (date) {
       const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
       const formattedDate = `${year}-${month}-${day}`;
       onChange("endDate", formattedDate);
     }
@@ -353,13 +397,71 @@ function InquiryFilterBar({
                 type="button"
                 onClick={() => setSearchFieldDropdownOpen((prev) => !prev)}
                 className={searchFieldDropdownOpen ? "open" : ""}
-                style={{ paddingLeft: 10, paddingRight: 10, width: 100 }}
-                $hasValue={false}
+                style={{
+                  padding: "0 12px",
+                  width: 110,
+                  height: 36,
+                  minHeight: 36,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 0,
+                  background:
+                    filters.searchField === "title"
+                      ? "#fffbe8"
+                      : filters.searchField === "author"
+                      ? "#e0f2fe"
+                      : "#fff",
+                  color:
+                    filters.searchField === "title"
+                      ? "#f59e0b"
+                      : filters.searchField === "author"
+                      ? "#2563eb"
+                      : "#374151",
+                  border:
+                    filters.searchField === "title"
+                      ? "2px solid #fdb924"
+                      : filters.searchField === "author"
+                      ? "2px solid #2563eb"
+                      : "2px solid #e5e7eb",
+                  fontWeight: filters.searchField ? 700 : 500,
+                  transition: "all 0.18s",
+                }}
+                $hasValue={!!filters.searchField}
               >
-                <span className="select-value">
+                {filters.searchField === "title" ? (
+                  <FiFileText
+                    size={16}
+                    style={{ marginRight: 8, color: "#f59e0b", flexShrink: 0 }}
+                  />
+                ) : (
+                  <FiUser
+                    size={16}
+                    style={{ marginRight: 8, color: "#2563eb", flexShrink: 0 }}
+                  />
+                )}
+                <span
+                  className="select-value"
+                  style={{
+                    marginRight: 8,
+                    minWidth: 36,
+                    textAlign: "left",
+                    display: "inline-block",
+                  }}
+                >
                   {getSearchFieldLabel(filters.searchField)}
                 </span>
-                <FiChevronDown size={16} />
+                <FiChevronDown
+                  size={16}
+                  style={{
+                    flexShrink: 0,
+                    color:
+                      filters.searchField === "title"
+                        ? "#f59e0b"
+                        : filters.searchField === "author"
+                        ? "#2563eb"
+                        : "#bdbdbd",
+                  }}
+                />
               </SelectButton>
               <SelectDropdown
                 $isOpen={searchFieldDropdownOpen}
@@ -399,13 +501,43 @@ function InquiryFilterBar({
               type="button"
               onClick={() => setStatusDropdownOpen((prev) => !prev)}
               className={statusDropdownOpen ? "open" : ""}
-              style={{ paddingLeft: 10, paddingRight: 10, width: 100 }}
-              $hasValue={false}
+              style={{
+                padding: "0 12px",
+                width: 110,
+                height: 36,
+                minHeight: 36,
+                display: "flex",
+                alignItems: "center",
+                gap: 0,
+                background: STATUS_OPTION_META[filters.status]?.bg,
+                color: STATUS_OPTION_META[filters.status]?.color,
+                border: `2px solid ${
+                  STATUS_OPTION_META[filters.status]?.color || "#e5e7eb"
+                }`,
+                fontWeight: filters.status ? 700 : 500,
+                transition: "all 0.18s",
+              }}
+              $hasValue={!!filters.status}
             >
-              <span className="select-value">
+              {STATUS_OPTION_META[filters.status]?.icon}
+              <span
+                className="select-value"
+                style={{
+                  marginRight: 8,
+                  minWidth: 36,
+                  textAlign: "left",
+                  display: "inline-block",
+                }}
+              >
                 {getStatusLabel(filters.status)}
               </span>
-              <FiChevronDown size={16} />
+              <FiChevronDown
+                size={16}
+                style={{
+                  flexShrink: 0,
+                  color: STATUS_OPTION_META[filters.status]?.color || "#bdbdbd",
+                }}
+              />
             </SelectButton>
             <SelectDropdown
               $isOpen={statusDropdownOpen}
@@ -437,7 +569,12 @@ function InquiryFilterBar({
                   setStartDateOpen((prev) => !prev);
                 }}
                 $hasValue={!!filters.startDate}
+                style={{ display: "flex", alignItems: "center", gap: 6 }}
               >
+                <FiCalendar
+                  size={16}
+                  style={{ color: "#fdb924", marginRight: 4 }}
+                />
                 <span>시작일</span>
                 <span className="date-value">
                   {formatDate(filters.startDate)}
@@ -495,7 +632,12 @@ function InquiryFilterBar({
                   setEndDateOpen((prev) => !prev);
                 }}
                 $hasValue={!!filters.endDate}
+                style={{ display: "flex", alignItems: "center", gap: 6 }}
               >
+                <FiCalendar
+                  size={16}
+                  style={{ color: "#fdb924", marginRight: 4 }}
+                />
                 <span>종료일</span>
                 <span className="date-value">
                   {formatDate(filters.endDate)}
@@ -659,7 +801,9 @@ export default function UserInquiryPage() {
 
   const fetchInquiries = async (pageNumber = 0) => {
     try {
-      const response = await api.get(`/api/inquiries/my?page=${pageNumber}&size=10&sort=createdAt,desc`);
+      const response = await api.get(
+        `/api/inquiries/my?page=${pageNumber}&size=10&sort=createdAt,desc`
+      );
       const data = response.data.data;
       setInquiries(data.content);
       setPageInfo(data.page);
@@ -693,7 +837,9 @@ export default function UserInquiryPage() {
       if (filters.endDate) {
         params.append("endDate", filters.endDate);
       }
-      const response = await api.get(`/api/inquiries/my/filtering?${params.toString()}`);
+      const response = await api.get(
+        `/api/inquiries/my/filtering?${params.toString()}`
+      );
       const data = response.data.data;
       setInquiries(data.content);
       setPageInfo(data.page);
@@ -718,7 +864,10 @@ export default function UserInquiryPage() {
   const getPaginationInfo = () => {
     if (pageInfo.totalElements === 0) return "표시할 문의가 없습니다.";
     const start = pageInfo.number * pageInfo.size + 1;
-    const end = Math.min((pageInfo.number + 1) * pageInfo.size, pageInfo.totalElements);
+    const end = Math.min(
+      (pageInfo.number + 1) * pageInfo.size,
+      pageInfo.totalElements
+    );
     return `총 ${pageInfo.totalElements}개의 문의 중 ${start}-${end}개 표시`;
   };
 
@@ -772,13 +921,13 @@ export default function UserInquiryPage() {
                 <TableRow
                   key={inq.id}
                   onClick={() => handleTitleClick(inq.id)}
-                  style={{ cursor: 'pointer' }}
-                  onMouseOver={e => (e.currentTarget.style.background = '#f9fafb')}
-                  onMouseOut={e => (e.currentTarget.style.background = '')}
+                  style={{ cursor: "pointer" }}
+                  onMouseOver={(e) =>
+                    (e.currentTarget.style.background = "#f9fafb")
+                  }
+                  onMouseOut={(e) => (e.currentTarget.style.background = "")}
                 >
-                  <InquiryTitleCell>
-                    {inq.title}
-                  </InquiryTitleCell>
+                  <InquiryTitleCell>{inq.title}</InquiryTitleCell>
                   <TableCell>{inq.authorName}</TableCell>
                   <TableCell>{formattedDate}</TableCell>
                   <TableCell>
@@ -866,7 +1015,9 @@ export default function UserInquiryPage() {
 
             {/* 마지막 페이지로 이동 버튼 */}
             {page < pageInfo.totalPages - 1 && (
-              <PaginationButton onClick={() => fetchInquiries(pageInfo.totalPages - 1)}>
+              <PaginationButton
+                onClick={() => fetchInquiries(pageInfo.totalPages - 1)}
+              >
                 맨 마지막
               </PaginationButton>
             )}

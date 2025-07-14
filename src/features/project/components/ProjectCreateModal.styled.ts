@@ -6,7 +6,7 @@ export const ModalOverlay = styled.div`
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0,0,0,0.3);
+  background: rgba(0, 0, 0, 0.3);
   z-index: 1000;
   display: flex;
   align-items: center;
@@ -16,13 +16,13 @@ export const ModalOverlay = styled.div`
 export const ModalPanel = styled.div`
   background: #fff;
   border-radius: 16px;
-  padding: 40px;
-  min-width: 900px;
-  max-width: 1100px;
-  width: 90vw;
-  max-height: 900px;
+  padding: 32px;
+  min-width: 480px;
+  max-width: 600px;
+  width: 96vw;
+  max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 2px 32px rgba(0,0,0,0.18);
+  box-shadow: 0 2px 32px rgba(0, 0, 0, 0.18);
   position: relative;
 `;
 
@@ -36,16 +36,29 @@ export const ModalHeader = styled.div`
 export const ModalTitle = styled.h2`
   font-size: 20px;
   font-weight: 700;
-  margin-bottom: 20px;
+  color: #111827;
   display: flex;
   align-items: center;
-  gap: 8px;
-  color: #1e293b;
-
+  gap: 10px;
+  position: relative;
+  padding-left: 14px;
+  &::before {
+    content: "";
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 1.2em;
+    background: #fdb924;
+    border-radius: 2px;
+  }
 `;
 
 export const ModalDescription = styled.div`
   color: #888;
+  margin-top: -20px;
   margin-bottom: 32px;
 `;
 
@@ -60,12 +73,12 @@ export const Input = styled.input`
   background: #ffffff;
   color: #374151;
   transition: border 0.2s;
- &:focus {
+  &:focus {
     outline: none;
     border-color: #fdb924;
     box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.1);
   }
-    &::placeholder {
+  &::placeholder {
     color: #9ca3af;
   }
 `;
@@ -85,17 +98,20 @@ export const TextArea = styled.textarea`
   color: #374151;
   font-size: 0.875rem;
   transition: border 0.2s;
+  margin-bottom: 18px;
   &:focus {
     outline: none;
     border-color: #fdb924;
     box-shadow: 0 0 0 3px rgba(253, 185, 36, 0.1);
   }
-    &::placeholder {
+  &::placeholder {
     color: #9ca3af;
   }
 `;
 
-export const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
+export const Button = styled.button<{
+  $variant?: "primary" | "secondary" | "danger";
+}>`
   padding: 10px 28px;
   border-radius: 6px;
   border: 0;
@@ -103,18 +119,29 @@ export const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'dang
   font-size: 16px;
   cursor: pointer;
   background: ${({ $variant }) =>
-    $variant === 'primary' ? '#fdb924' :
-    $variant === 'secondary' ? '#aaa' :
-    $variant === 'danger' ? '#ef4444' : '#fff'};
+    $variant === "primary"
+      ? "#fdb924"
+      : $variant === "secondary"
+      ? "#aaa"
+      : $variant === "danger"
+      ? "#ef4444"
+      : "#fff"};
   color: ${({ $variant }) =>
-    $variant === 'primary' || $variant === 'secondary' || $variant === 'danger' ? '#fff' : '#222'};
-  border: ${({ $variant }) => $variant === undefined ? '1px solid #eee' : 'none'};
+    $variant === "primary" || $variant === "secondary" || $variant === "danger"
+      ? "#fff"
+      : "#222"};
+  border: ${({ $variant }) =>
+    $variant === undefined ? "1px solid #eee" : "none"};
   transition: background 0.2s, color 0.2s;
   &:hover {
     background: ${({ $variant }) =>
-      $variant === 'primary' ? '#3730a3' :
-      $variant === 'secondary' ? '#888' :
-      $variant === 'danger' ? '#dc2626' : '#f3f4f6'};
+      $variant === "primary"
+        ? "#3730a3"
+        : $variant === "secondary"
+        ? "#888"
+        : $variant === "danger"
+        ? "#dc2626"
+        : "#f3f4f6"};
     color: #fff;
   }
 `;
@@ -131,7 +158,7 @@ export const CloseButton = styled.button`
   &:hover {
     color: #ef4444;
   }
-`; 
+`;
 
 export const DateButton = styled.button<{ $hasValue: boolean }>`
   display: flex;
@@ -276,15 +303,16 @@ export const FormActions = styled.div`
   margin-top: 40px;
 `;
 
-export const CompanySection = styled.div`  flex: 1;
+export const CompanySection = styled.div`
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 12px;
 `;
 
-export const CompanyCard = styled.div<{ $type: 'dev' | 'client' }>`
+export const CompanyCard = styled.div<{ $type: "dev" | "client" }>`
   margin-bottom: 8px;
-  background: #ffffff;
+  background: ${({ $type }) => ($type === "dev" ? "#f4f6fa" : "#eaf6ff")};
   border-radius: 8px;
   padding: 16px;
   position: relative;
@@ -364,15 +392,15 @@ export const CompanySectionLabel = styled.div`
   align-items: center;
   gap: 6px;
   position: relative;
-  
+
   &::after {
-    content: '';
+    content: "";
     position: absolute;
     bottom: -2px;
     left: 0;
     width: 100%;
     height: 1px;
-    
+
     border-radius: 0.5px;
   }
 `;
@@ -455,7 +483,7 @@ export const EditButton = styled.button`
 export const DeleteButton = styled.button`
   padding: 6px 12px;
   border-radius: 4px;
- border: 2px solid #e5e7eb;
+  border: 2px solid #e5e7eb;
   background: #f9fafb;
   color: #374151;
   font-size: 12px;
