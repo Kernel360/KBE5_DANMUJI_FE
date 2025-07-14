@@ -35,6 +35,8 @@ import {
   FiCheckCircle,
   FiCalendar,
   FiCheckSquare,
+  FiAlertTriangle,
+  FiXCircle,
 } from "react-icons/fi";
 
 const statusMap: Record<string, string> = {
@@ -564,11 +566,48 @@ const ChecklistDetailModal = ({
                       <ApprovalCard key={appr.id}>
                         <ApprovalCardHeader>
                           <ApprovalName>{appr.username}</ApprovalName>
-                          <ApprovalStatusBadge
-                            color={statusColor[appr.status] || "#bbb"}
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 4,
+                              fontWeight: 600,
+                              fontSize: "0.98rem",
+                            }}
                           >
-                            {statusMap[appr.status] || appr.status}
-                          </ApprovalStatusBadge>
+                            {(appr.status === "waiting" ||
+                              appr.status === "PENDING") && (
+                              <FiAlertTriangle
+                                size={16}
+                                style={{ color: "#fbbf24" }}
+                              />
+                            )}
+                            {(appr.status === "approved" ||
+                              appr.status === "APPROVED") && (
+                              <FiCheckCircle
+                                size={16}
+                                style={{ color: "#10b981" }}
+                              />
+                            )}
+                            {(appr.status === "rejected" ||
+                              appr.status === "REJECTED") && (
+                              <FiXCircle
+                                size={16}
+                                style={{ color: "#ef4444" }}
+                              />
+                            )}
+                            <span style={{ marginLeft: 2 }}>
+                              {(appr.status === "waiting" ||
+                                appr.status === "PENDING") &&
+                                "대기"}
+                              {(appr.status === "approved" ||
+                                appr.status === "APPROVED") &&
+                                "승인"}
+                              {(appr.status === "rejected" ||
+                                appr.status === "REJECTED") &&
+                                "반려"}
+                            </span>
+                          </div>
                         </ApprovalCardHeader>
                         <ApprovalCardBody>
                           {appr.message && (
