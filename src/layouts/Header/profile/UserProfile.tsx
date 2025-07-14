@@ -11,6 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { IoPersonSharp } from "react-icons/io5";
 import { RiUserSettingsLine } from "react-icons/ri";
 import { FiUser } from "react-icons/fi";
+import { FiHome } from "react-icons/fi";
 
 export const UserProfile: React.FC = () => {
   const { user } = useAuth();
@@ -52,8 +53,7 @@ export const UserProfile: React.FC = () => {
                 color: "#6b7280",
               }}
             >
-              <FaBuilding />{" "}
-              <UserCompany> {user?.companyName ?? ""}, </UserCompany>
+              <FiHome /> <UserCompany> {user?.companyName ?? ""}, </UserCompany>
               <UserRole> {user?.position ?? ""} </UserRole>
             </div>
           </div>
