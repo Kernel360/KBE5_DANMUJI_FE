@@ -200,7 +200,7 @@ export default function KanbanBoard({
     "ALL" | "waiting" | "approved" | "rejected"
   >("ALL");
   const [stepFilter, setStepFilter] = useState<number | "ALL">(
-    selectedStepId || "ALL"
+    selectedStepId || (projectSteps.length > 0 ? projectSteps[0].id : "ALL")
   );
   const [keywordType, setKeywordType] = useState<"title" | "writer">("title");
   const [keyword, setKeyword] = useState("");
@@ -382,6 +382,7 @@ export default function KanbanBoard({
           showCreatePost={false}
           showKeywordFilter={false}
           showSearchButton={false}
+          showPriorityFilter={false}
           checklistMode={true}
         />
       </div>

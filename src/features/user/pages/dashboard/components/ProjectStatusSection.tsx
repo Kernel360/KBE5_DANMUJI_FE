@@ -1,9 +1,6 @@
 import * as S from "../styled/UserDashboardPage.styled";
-import { MdOutlineViewHeadline } from "react-icons/md";
 import {
-  FiLayers,
   FiCalendar,
-  FiHome,
   FiGrid,
   FiPackage,
   FiClock,
@@ -11,7 +8,6 @@ import {
   FiAlertTriangle,
   FiAlertCircle,
 } from "react-icons/fi";
-import React, { useState, useEffect } from "react";
 import type { ProjectStatusResponse } from "@/features/project/services/projectService";
 
 // 타입 정의 추가
