@@ -505,7 +505,8 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
                     if (selected && filters.category) {
                       return selected.color;
                     }
-                    return "#e5e7eb";
+                    // 기본값(제목)일 때 노란색
+                    return "#f59e0b";
                   })()}
                   className={categoryDropdownOpen ? "open" : ""}
                   style={{
@@ -522,7 +523,7 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
                               (opt) => opt.value === filters.category
                             )?.color
                           }15`
-                        : "#fff",
+                        : "#fefbe8",
                     color:
                       filters.category &&
                       SEARCH_CATEGORY_OPTIONS.find(
@@ -531,7 +532,7 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
                         ? SEARCH_CATEGORY_OPTIONS.find(
                             (opt) => opt.value === filters.category
                           )?.color
-                        : "#374151",
+                        : "#f59e0b",
                     border:
                       filters.category &&
                       SEARCH_CATEGORY_OPTIONS.find(
@@ -542,7 +543,7 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
                               (opt) => opt.value === filters.category
                             )?.color
                           }`
-                        : "2px solid #e5e7eb",
+                        : "2px solid #f59e0b",
                   }}
                 >
                   {(() => {
@@ -555,11 +556,7 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
                       );
                     }
                     // 기본값(제목)
-                    return SEARCH_CATEGORY_OPTIONS[0].icon(
-                      filters.category
-                        ? SEARCH_CATEGORY_OPTIONS[0].color
-                        : SEARCH_CATEGORY_OPTIONS[0].gray
-                    );
+                    return SEARCH_CATEGORY_OPTIONS[0].icon("#f59e0b");
                   })()}
                   <span className="select-value">
                     {SEARCH_CATEGORY_OPTIONS.find(
@@ -577,7 +574,7 @@ const ProjectFilterBar: React.FC<ProjectFilterBarProps> = ({
                           ? SEARCH_CATEGORY_OPTIONS.find(
                               (opt) => opt.value === filters.category
                             )?.color
-                          : "#bdbdbd",
+                          : "#f59e0b",
                     }}
                   />
                 </SelectButton>
