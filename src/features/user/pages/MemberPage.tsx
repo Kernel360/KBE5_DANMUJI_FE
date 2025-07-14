@@ -409,7 +409,7 @@ export const formatTelNo = (telNo: string) => {
   const cleaned = ("" + telNo).replace(/\D/g, "");
   // 대표번호(8자리) 15881588 -> 1588-1588
   if (/^1[0-9]{3}[0-9]{4}$/.test(cleaned)) {
-    return cleaned.replace(/(\d{4})(\d{4})/, '$1-$2');
+    return cleaned.replace(/(\d{4})(\d{4})/, "$1-$2");
   }
   // 11자리(휴대폰) 01012345678 -> 010-1234-5678
   if (cleaned.length === 11) {
@@ -471,7 +471,9 @@ export default function MemberPage() {
   // 선택된 직책 상태 추가
   const [selectedPosition, setSelectedPosition] = useState<string>("");
   // 선택된 업체 상태 추가
-  const [selectedCompanyId, setSelectedCompanyId] = useState<number | null>(null);
+  const [selectedCompanyId, setSelectedCompanyId] = useState<number | null>(
+    null
+  );
   // 검색어 상태 추가
   const [searchKeyword, setSearchKeyword] = useState<string>("");
 
@@ -480,7 +482,9 @@ export default function MemberPage() {
     try {
       const response = await api.get("/api/admin/positions");
       if (Array.isArray(response.data.data)) {
-        setAllPositions(response.data.data.map((item: { position: string }) => item.position));
+        setAllPositions(
+          response.data.data.map((item: { position: string }) => item.position)
+        );
       } else {
         setAllPositions([]);
       }
@@ -497,7 +501,11 @@ export default function MemberPage() {
         params: { page: currentPage, size: pageSize },
       });
       const pageData = response.data.data.page;
-      setMembers(Array.isArray(response.data.data.content) ? response.data.data.content : []);
+      setMembers(
+        Array.isArray(response.data.data.content)
+          ? response.data.data.content
+          : []
+      );
       setTotalMembers(pageData?.totalElements ?? 0);
       // console.log("Current members:", response.data.data.content);
     } catch (err: unknown) {
@@ -516,10 +524,14 @@ export default function MemberPage() {
     try {
       const response = await api.get("/api/companies/name");
       if (Array.isArray(response.data.data)) {
-        setCompanies(response.data.data.map((item: { companyId: number, companyName: string }) => ({
-          id: item.companyId,
-          name: item.companyName
-        })));
+        setCompanies(
+          response.data.data.map(
+            (item: { companyId: number; companyName: string }) => ({
+              id: item.companyId,
+              name: item.companyName,
+            })
+          )
+        );
       } else {
         setCompanies([]);
       }
@@ -551,7 +563,11 @@ export default function MemberPage() {
       if (searchKeyword) params.name = searchKeyword;
       const response = await api.get("/api/admin/filtering", { params });
       const pageData = response.data.data.page;
-      setMembers(Array.isArray(response.data.data.content) ? response.data.data.content : []);
+      setMembers(
+        Array.isArray(response.data.data.content)
+          ? response.data.data.content
+          : []
+      );
       setTotalMembers(pageData?.totalElements ?? 0);
     } catch (err: unknown) {
       let errorMessage = "An unknown error occurred";
@@ -762,7 +778,7 @@ export default function MemberPage() {
             <span className="select-value">
               {selectedCompanyId === null
                 ? "모든 업체"
-                : (companies.find((c) => c.id === selectedCompanyId)?.name || "")}
+                : companies.find((c) => c.id === selectedCompanyId)?.name || ""}
             </span>
             <FiChevronDown size={16} />
           </SelectButton>
@@ -903,163 +919,173 @@ export default function MemberPage() {
           </TableHead>
           <TableBody>
             {filtered.map((member) => (
-                <TableRow key={member.id}>
-                  <TableCell>
+              <TableRow key={member.id}>
+                <TableCell>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => handleMemberClick(member)}
+                  >
+                    {member.position === "admin" ||
+                    member.position === "시스템 관리자" ? (
+                      <LuUserRoundCog size={14} style={{ color: "#8b5cf6" }} />
+                    ) : member.position === "팀장" ? (
+                      <LuUserRoundCheck
+                        size={14}
+                        style={{ color: "#3b82f6" }}
+                      />
+                    ) : member.position === "developer" ||
+                      member.position === "개발자" ||
+                      member.position === "백엔드 개발자" ||
+                      member.position === "프론트엔드 개발자" ? (
+                      <FiUser size={14} style={{ color: "#3b82f6" }} />
+                    ) : member.position === "client" ||
+                      member.position === "고객" ? (
+                      <FiUser size={14} style={{ color: "#10b981" }} />
+                    ) : (
+                      <FiUser size={14} style={{ color: "#6b7280" }} />
+                    )}
+                    <span
+                      style={{
+                        fontWeight: "500",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        maxWidth: "150px",
+                        display: "block",
+                      }}
+                    >
+                      {member.name}
+                    </span>
+                    <span style={{ fontSize: "12px", color: "#6b7280" }}>
+                      ({member.username})
+                    </span>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => handleMemberClick(member)}
+                  >
+                    <FiHome size={14} style={{ color: "#8b5cf6" }} />
+                    <span
+                      style={{
+                        fontWeight: "500",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        maxWidth: "150px",
+                        display: "block",
+                      }}
+                    >
+                      {(companies &&
+                        companies.find((c) => c.id === member.companyId)
+                          ?.name) ||
+                        "N/A"}
+                    </span>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => handleMemberClick(member)}
+                  >
+                    {member.position === "admin" ||
+                    member.position === "시스템 관리자" ? (
+                      <LuUserRoundCog size={14} style={{ color: "#8b5cf6" }} />
+                    ) : member.position === "팀장" ? (
+                      <LuUserRoundCheck
+                        size={14}
+                        style={{ color: "#3b82f6" }}
+                      />
+                    ) : member.position === "developer" ||
+                      member.position === "개발자" ||
+                      member.position === "백엔드 개발자" ||
+                      member.position === "프론트엔드 개발자" ? (
+                      <FiUser size={14} style={{ color: "#3b82f6" }} />
+                    ) : member.position === "client" ||
+                      member.position === "고객" ? (
+                      <FiUser size={14} style={{ color: "#10b981" }} />
+                    ) : (
+                      <FiUser size={14} style={{ color: "#6b7280" }} />
+                    )}
+                    <span
+                      style={{
+                        fontWeight: "500",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        maxWidth: "150px",
+                        display: "block",
+                      }}
+                    >
+                      {member.position}
+                    </span>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => handleMemberClick(member)}
+                  >
+                    <FiPhone size={14} style={{ color: "#10b981" }} />
+                    <span style={{ fontSize: "14px", color: "#374151" }}>
+                      {formatTelNo(member.phone)}
+                    </span>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => handleMemberClick(member)}
+                  >
+                    <FiCalendar size={14} style={{ color: "#8b5cf6" }} />
                     <div
                       style={{
                         display: "flex",
                         alignItems: "center",
-                        gap: "8px",
-                        cursor: "pointer",
+                        gap: "4px",
                       }}
-                      onClick={() => handleMemberClick(member)}
                     >
-                      {member.position === "admin" ||
-                      member.position === "시스템 관리자" ? (
-                        <LuUserRoundCog
-                          size={14}
-                          style={{ color: "#8b5cf6" }}
-                        />
-                      ) : member.position === "팀장" ? (
-                        <LuUserRoundCheck
-                          size={14}
-                          style={{ color: "#3b82f6" }}
-                        />
-                      ) : member.position === "developer" ||
-                        member.position === "개발자" ||
-                        member.position === "백엔드 개발자" ||
-                        member.position === "프론트엔드 개발자" ? (
-                        <FiUser size={14} style={{ color: "#3b82f6" }} />
-                      ) : member.position === "client" ||
-                        member.position === "고객" ? (
-                        <FiUser size={14} style={{ color: "#10b981" }} />
-                      ) : (
-                        <FiUser size={14} style={{ color: "#6b7280" }} />
-                      )}
-                      <span style={{ fontWeight: "500", whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '150px', display: 'block' }}>{member.name}</span>
-                      <span style={{ fontSize: "12px", color: "#6b7280" }}>
-                        ({member.username})
-                      </span>
-                      <span style={{ fontSize: "12px", color: "#6b7280" }}>
-                        (
-                        {member.position === "admin" ||
-                        member.position === "시스템 관리자"
-                          ? "관리자"
-                          : member.position === "developer" ||
-                            member.position === "개발자" ||
-                            member.position === "백엔드 개발자" ||
-                            member.position === "프론트엔드 개발자"
-                          ? "개발사 직원"
-                          : member.position === "client" ||
-                            member.position === "고객"
-                          ? "고객사 직원"
-                          : "사용자"}
-                        )
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                        cursor: "pointer",
-                      }}
-                      onClick={() => handleMemberClick(member)}
-                    >
-                      <FiHome size={14} style={{ color: "#8b5cf6" }} />
-                      <span style={{ fontWeight: "500", whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '150px', display: 'block' }}>
-                        {(companies && companies.find((c) => c.id === member.companyId)?.name) || 'N/A'}
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                        cursor: "pointer",
-                      }}
-                      onClick={() => handleMemberClick(member)}
-                    >
-                      {member.position === "admin" ||
-                      member.position === "시스템 관리자" ? (
-                        <LuUserRoundCog
-                          size={14}
-                          style={{ color: "#8b5cf6" }}
-                        />
-                      ) : member.position === "팀장" ? (
-                        <LuUserRoundCheck
-                          size={14}
-                          style={{ color: "#3b82f6" }}
-                        />
-                      ) : member.position === "developer" ||
-                        member.position === "개발자" ||
-                        member.position === "백엔드 개발자" ||
-                        member.position === "프론트엔드 개발자" ? (
-                        <FiUser size={14} style={{ color: "#3b82f6" }} />
-                      ) : member.position === "client" ||
-                        member.position === "고객" ? (
-                        <FiUser size={14} style={{ color: "#10b981" }} />
-                      ) : (
-                        <FiUser size={14} style={{ color: "#6b7280" }} />
-                      )}
-                      <span style={{ fontWeight: "500", whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '150px', display: 'block' }}>
-                        {member.position}
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                        cursor: "pointer",
-                      }}
-                      onClick={() => handleMemberClick(member)}
-                    >
-                      <FiPhone size={14} style={{ color: "#10b981" }} />
                       <span style={{ fontSize: "14px", color: "#374151" }}>
-                        {formatTelNo(member.phone)}
+                        {member.createdAt
+                          ? formatDateOnly(member.createdAt)
+                          : "N/A"}
                       </span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                        cursor: "pointer",
-                      }}
-                      onClick={() => handleMemberClick(member)}
-                    >
-                      <FiCalendar size={14} style={{ color: "#8b5cf6" }} />
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "4px",
-                        }}
-                      >
-                        <span style={{ fontSize: "14px", color: "#374151" }}>
-                          {member.createdAt
-                            ? formatDateOnly(member.createdAt)
-                            : "N/A"}
+                      {member.createdAt && (
+                        <span style={{ fontSize: "12px", color: "#6b7280" }}>
+                          {formatTimeOnly(member.createdAt)}
                         </span>
-                        {member.createdAt && (
-                          <span style={{ fontSize: "12px", color: "#6b7280" }}>
-                            {formatTimeOnly(member.createdAt)}
-                          </span>
-                        )}
-                      </div>
+                      )}
                     </div>
-                  </TableCell>
-                </TableRow>
-              ))}
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
       </TableContainer>
