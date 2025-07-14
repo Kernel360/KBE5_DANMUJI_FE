@@ -175,14 +175,14 @@ export default function DashboardPage() {
       stroke: "#10b981",
     },
     {
-      name: "지연",
-      value: delayedProjectCount,
+      name: "마감임박",
+      value: dueSoonProjectCount,
       fill: "#fef3c7",
       stroke: "#f59e0b",
     },
     {
-      name: "마감임박",
-      value: dueSoonProjectCount,
+      name: "지연",
+      value: delayedProjectCount,
       fill: "#fee2e2",
       stroke: "#ef4444",
     },
@@ -545,34 +545,30 @@ export default function DashboardPage() {
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(2, 1fr)",
-              gap: "4px",
+              gap: "8px",
               fontSize: "14px",
               color: "#6b7280",
             }}
           >
-            <span>
+            <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+              {getStatusIcon("IN_PROGRESS")}
               진행 중:{" "}
-              <span style={{ color: "#3b82f6", fontWeight: 600 }}>
-                {inProgressProjectCount}
-              </span>
+              <span style={{ fontWeight: 600 }}>{inProgressProjectCount}</span>
             </span>
-            <span>
+            <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+              {getStatusIcon("DUE_SOON")}
               마감 임박:{" "}
-              <span style={{ color: "#ef4444", fontWeight: 600 }}>
-                {dueSoonProjectCount}
-              </span>
+              <span style={{ fontWeight: 600 }}>{dueSoonProjectCount}</span>
             </span>
-            <span>
+            <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+              {getStatusIcon("DELAY")}
               지연:{" "}
-              <span style={{ color: "#f59e0b", fontWeight: 600 }}>
-                {delayedProjectCount}
-              </span>
+              <span style={{ fontWeight: 600 }}>{delayedProjectCount}</span>
             </span>
-            <span>
+            <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+              {getStatusIcon("COMPLETED")}
               완료:{" "}
-              <span style={{ color: "#10b981", fontWeight: 600 }}>
-                {completedProjectCount}
-              </span>
+              <span style={{ fontWeight: 600 }}>{completedProjectCount}</span>
             </span>
           </div>
         </RecentActivityCard>
@@ -715,8 +711,8 @@ export default function DashboardPage() {
                         const statusKey = [
                           "IN_PROGRESS",
                           "COMPLETED",
-                          "DELAY",
                           "DUE_SOON",
+                          "DELAY",
                         ][idx] as ProjectStatusKey;
                         setSelectedStatus(statusKey);
                       }
