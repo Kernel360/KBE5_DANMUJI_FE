@@ -73,7 +73,6 @@ const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
   projectTabs,
   selectedStatusTab,
   setSelectedStatusTab,
-  getProgressPercent,
   navigate,
 }) => {
   // 필터링 로직 (선택된 탭과 status가 일치하는 프로젝트만)

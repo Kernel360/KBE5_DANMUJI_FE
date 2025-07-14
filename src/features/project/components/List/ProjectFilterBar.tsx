@@ -15,7 +15,6 @@ import {
   FiFileText,
   FiUsers,
 } from "react-icons/fi";
-import { formatDateOnly } from "@/utils/dateUtils";
 import {
   FilterBar,
   FilterGroup,

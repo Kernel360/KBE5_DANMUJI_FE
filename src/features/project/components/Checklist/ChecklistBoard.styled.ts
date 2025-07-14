@@ -1,4 +1,4 @@
-import styled, { css } from 'styled-components';
+import styled, { css } from "styled-components";
 
 export const BoardWrapper = styled.div`
   display: flex;
@@ -17,10 +17,12 @@ export const BoardWrapper = styled.div`
 export const ColumnBox = styled.div<{ $bg: string }>`
   background: ${({ $bg }) => $bg};
   border-radius: 18px;
-  box-shadow: 0 4px 16px 0 rgba(80, 80, 120, 0.10);
+  box-shadow: 0 4px 16px 0 rgba(80, 80, 120, 0.1);
   width: 100%;
   flex: 1;
   min-height: 400px;
+  max-height: 600px;
+  overflow-y: auto;
   padding: 18px 14px 22px 14px;
   display: flex;
   flex-direction: column;
@@ -29,6 +31,8 @@ export const ColumnBox = styled.div<{ $bg: string }>`
   @media (max-width: 768px) {
     width: 100%;
     min-height: 200px;
+    max-height: none;
+    overflow-y: visible;
     flex: none;
   }
 `;
@@ -69,7 +73,7 @@ export const ColumnCount = styled.span`
 export const CardBox = styled.div<{ $status?: string }>`
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
   border: 1.5px solid #f3f4f6;
   padding: 16px 14px;
   display: flex;
@@ -128,17 +132,17 @@ export const StatusBadge = styled.span<{ status: string }>`
   padding: 2px 10px;
   ${({ status }) => {
     switch (status) {
-      case 'approved':
+      case "approved":
         return css`
           background: #ecfdf5;
           color: #10b981;
         `;
-      case 'rejected':
+      case "rejected":
         return css`
           background: #fef2f2;
           color: #ef4444;
         `;
-      case 'waiting':
+      case "waiting":
       default:
         return css`
           background: #fffbea;
@@ -197,4 +201,4 @@ export const RejectInput = styled.input`
     border-color: #f59e0b;
     box-shadow: 0 0 0 2px #fef3c7;
   }
-`; 
+`;
