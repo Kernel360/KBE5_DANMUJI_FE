@@ -167,7 +167,7 @@ const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
                       marginBottom: "4px",
                     }}
                   >
-                    <FiPackage size={13} style={{ color: "#8b5cf6" }} />
+                    <FiPackage size={13} style={{ color: "#10b981" }} />
                     <S.ProjectTitle style={{ fontSize: "0.9rem" }}>
                       {project.name}
                     </S.ProjectTitle>

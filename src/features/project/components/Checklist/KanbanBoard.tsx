@@ -134,21 +134,23 @@ function ChecklistCard({
         </StatusBadge>
       </CardTop>
       <CardMeta>
-        <span>
-          {card.username === "관리자" ? (
-            <RiUserSettingsLine
-              size={14}
-              style={{ marginRight: 4, color: "#8b5cf6" }}
-            />
-          ) : (
-            <FiUser size={14} style={{ marginRight: 4 }} />
-          )}
-          {card.username}
-        </span>
-        <span>
-          <FiCalendar size={14} style={{ marginRight: 4 }} />
-          {card.createdAt}
-        </span>
+        <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            {card.username === "관리자" ? (
+              <RiUserSettingsLine
+                size={14}
+                style={{ marginRight: 4, color: "#8b5cf6" }}
+              />
+            ) : (
+              <FiUser size={14} style={{ marginRight: 4, color: "#3b82f6" }} />
+            )}
+            {card.username}
+          </span>
+          <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <FiCalendar size={14} style={{ marginRight: 4 }} />
+            {card.createdAt}
+          </span>
+        </div>
       </CardMeta>
       {/* 반려 사유 표시 */}
       {card.status === "rejected" && card.rejectReason && (
