@@ -1,13 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import {
   FiSearch,
   FiRotateCcw,
-  FiChevronDown,
   FiPlus,
-  FiFileText,
-  FiUser,
   FiList,
   FiCheckCircle,
   FiClock,
@@ -182,8 +179,8 @@ const FilterLabel = styled.label`
 `;
 
 const SearchInput = styled.input`
-  min-width: 120px;
-  max-width: 220px;
+  min-width: 180px;
+  max-width: 300px;
   padding: 10px 16px;
   font-size: 14px;
   border: 2px solid #e5e7eb;
@@ -210,12 +207,7 @@ const STATUS_OPTIONS = [
   { value: "답변완료", label: "답변완료" },
 ];
 
-const SEARCH_FIELD_OPTIONS = [
-  { value: "title", label: "제목" },
-  { value: "author", label: "작성자" },
-];
-
-const STATUS_OPTION_META = {
+const STATUS_OPTION_META: Record<string, { color: string; bg: string; icon: React.ReactElement }> = {
   "": {
     color: "#6b7280",
     bg: "#f3f4f6",
@@ -333,10 +325,6 @@ function InquiryFilterBar({
     };
   }, [statusDropdownOpen]);
 
-  const getSearchFieldLabel = (value: string) => {
-    const option = SEARCH_FIELD_OPTIONS.find((opt) => opt.value === value);
-    return option ? option.label : "제목";
-  };
   const getStatusLabel = (value: string) => {
     const option = STATUS_OPTIONS.find((opt) => opt.value === value);
     return option ? option.label : "전체";
@@ -392,102 +380,10 @@ function InquiryFilterBar({
               gap: 8,
             }}
           >
-            <div style={{ position: "relative" }} ref={searchFieldDropdownRef}>
-              <SelectButton
-                type="button"
-                onClick={() => setSearchFieldDropdownOpen((prev) => !prev)}
-                className={searchFieldDropdownOpen ? "open" : ""}
-                style={{
-                  padding: "0 12px",
-                  width: 110,
-                  height: 36,
-                  minHeight: 36,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 0,
-                  background:
-                    filters.searchField === "title"
-                      ? "#fffbe8"
-                      : filters.searchField === "author"
-                      ? "#e0f2fe"
-                      : "#fff",
-                  color:
-                    filters.searchField === "title"
-                      ? "#f59e0b"
-                      : filters.searchField === "author"
-                      ? "#2563eb"
-                      : "#374151",
-                  border:
-                    filters.searchField === "title"
-                      ? "2px solid #fdb924"
-                      : filters.searchField === "author"
-                      ? "2px solid #2563eb"
-                      : "2px solid #e5e7eb",
-                  fontWeight: filters.searchField ? 700 : 500,
-                  transition: "all 0.18s",
-                }}
-                $hasValue={!!filters.searchField}
-              >
-                {filters.searchField === "title" ? (
-                  <FiFileText
-                    size={16}
-                    style={{ marginRight: 8, color: "#f59e0b", flexShrink: 0 }}
-                  />
-                ) : (
-                  <FiUser
-                    size={16}
-                    style={{ marginRight: 8, color: "#2563eb", flexShrink: 0 }}
-                  />
-                )}
-                <span
-                  className="select-value"
-                  style={{
-                    marginRight: 8,
-                    minWidth: 36,
-                    textAlign: "left",
-                    display: "inline-block",
-                  }}
-                >
-                  {getSearchFieldLabel(filters.searchField)}
-                </span>
-                <FiChevronDown
-                  size={16}
-                  style={{
-                    flexShrink: 0,
-                    color:
-                      filters.searchField === "title"
-                        ? "#f59e0b"
-                        : filters.searchField === "author"
-                        ? "#2563eb"
-                        : "#bdbdbd",
-                  }}
-                />
-              </SelectButton>
-              <SelectDropdown
-                $isOpen={searchFieldDropdownOpen}
-                style={{ minWidth: 100 }}
-              >
-                {SEARCH_FIELD_OPTIONS.map((option) => (
-                  <SelectOption
-                    key={option.value}
-                    $isSelected={filters.searchField === option.value}
-                    onClick={() => {
-                      onChange("searchField", option.value);
-                      setSearchFieldDropdownOpen(false);
-                    }}
-                  >
-                    {option.label}
-                  </SelectOption>
-                ))}
-              </SelectDropdown>
-            </div>
+            {/* 검색필드 드롭다운 제거, 제목만 사용 */}
             <SearchInput
               type="text"
-              placeholder={
-                filters.searchField === "title"
-                  ? "제목을 입력하세요"
-                  : "작성자를 입력하세요"
-              }
+              placeholder="제목을 입력하세요"
               value={filters.searchValue}
               onChange={(e) => onChange("searchValue", e.target.value)}
               onKeyDown={onKeyDown}
@@ -503,23 +399,21 @@ function InquiryFilterBar({
               className={statusDropdownOpen ? "open" : ""}
               style={{
                 padding: "0 12px",
-                width: 110,
+                width: 150,
                 height: 36,
                 minHeight: 36,
                 display: "flex",
                 alignItems: "center",
                 gap: 0,
-                background: STATUS_OPTION_META[filters.status]?.bg,
-                color: STATUS_OPTION_META[filters.status]?.color,
-                border: `2px solid ${
-                  STATUS_OPTION_META[filters.status]?.color || "#e5e7eb"
-                }`,
+                background: STATUS_OPTION_META[filters.status as keyof typeof STATUS_OPTION_META]?.bg,
+                color: STATUS_OPTION_META[filters.status as keyof typeof STATUS_OPTION_META]?.color,
+                border: `2px solid ${STATUS_OPTION_META[filters.status as keyof typeof STATUS_OPTION_META]?.color || "#e5e7eb"}`,
                 fontWeight: filters.status ? 700 : 500,
                 transition: "all 0.18s",
               }}
               $hasValue={!!filters.status}
             >
-              {STATUS_OPTION_META[filters.status]?.icon}
+              {STATUS_OPTION_META[filters.status as keyof typeof STATUS_OPTION_META]?.icon}
               <span
                 className="select-value"
                 style={{
@@ -531,17 +425,10 @@ function InquiryFilterBar({
               >
                 {getStatusLabel(filters.status)}
               </span>
-              <FiChevronDown
-                size={16}
-                style={{
-                  flexShrink: 0,
-                  color: STATUS_OPTION_META[filters.status]?.color || "#bdbdbd",
-                }}
-              />
             </SelectButton>
             <SelectDropdown
               $isOpen={statusDropdownOpen}
-              style={{ minWidth: 100 }}
+              style={{ minWidth: 150 }}
             >
               {STATUS_OPTIONS.map((option) => (
                 <SelectOption
@@ -552,6 +439,16 @@ function InquiryFilterBar({
                     setStatusDropdownOpen(false);
                   }}
                 >
+                  <span
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      marginRight: 6,
+                      color: STATUS_OPTION_META[option.value as keyof typeof STATUS_OPTION_META]?.color,
+                    }}
+                  >
+                    {STATUS_OPTION_META[option.value as keyof typeof STATUS_OPTION_META]?.icon}
+                  </span>
                   {option.label}
                 </SelectOption>
               ))}
@@ -799,6 +696,10 @@ export default function UserInquiryPage() {
   const navigate = useNavigate();
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
 
+  // debounce용 ref
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
+  const prevSearchValue = useRef(filters.searchValue);
+
   const fetchInquiries = async (pageNumber = 0) => {
     try {
       const response = await api.get(
@@ -819,11 +720,8 @@ export default function UserInquiryPage() {
       params.append("page", String(pageNumber));
       params.append("size", "10");
       params.append("sort", "createdAt,desc");
-      if (filters.searchField === "title" && filters.searchValue) {
+      if (filters.searchValue) {
         params.append("title", filters.searchValue);
-      }
-      if (filters.searchField === "author" && filters.searchValue) {
-        params.append("authorName", filters.searchValue);
       }
       let statusParam = filters.status;
       if (statusParam === "답변완료") statusParam = "ANSWERED";
@@ -852,6 +750,31 @@ export default function UserInquiryPage() {
   useEffect(() => {
     fetchInquiries();
   }, []);
+
+  // 필터 변경 시 자동 요청 (searchValue는 debounce)
+  useEffect(() => {
+    if (prevSearchValue.current !== filters.searchValue) {
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
+      debounceTimer.current = setTimeout(() => {
+        fetchFilteredInquiries(0);
+      }, 300);
+      prevSearchValue.current = filters.searchValue;
+    } else {
+      fetchFilteredInquiries(0);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters.status, filters.startDate, filters.endDate, filters.searchField]);
+
+  useEffect(() => {
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    debounceTimer.current = setTimeout(() => {
+      fetchFilteredInquiries(0);
+    }, 300);
+    return () => {
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters.searchValue]);
 
   const handleTitleClick = (id: number) => {
     navigate(`/inquiry/${id}`);
