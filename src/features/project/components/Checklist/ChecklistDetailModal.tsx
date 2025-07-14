@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import api from '@/api/axios';
-import { useAuth } from '@/hooks/useAuth';
+import React, { useState } from "react";
+import api from "@/api/axios";
+import { useAuth } from "@/hooks/useAuth";
 import {
   ModalOverlay,
   ModalContainer,
@@ -26,27 +26,30 @@ import {
   ApprovalTextarea,
   ApprovalButton,
   ApprovalButtonSecondary,
-} from './ChecklistDetailModal.styled';
+} from "./ChecklistDetailModal.styled";
 
 const statusMap: Record<string, string> = {
-  PENDING: '대기 중',
-  APPROVED: '승인',
-  REJECTED: '반려',
-  waiting: '대기 중',
-  approved: '승인',
-  rejected: '반려',
+  PENDING: "대기 중",
+  APPROVED: "승인",
+  REJECTED: "반려",
+  waiting: "대기 중",
+  approved: "승인",
+  rejected: "반려",
 };
 const statusColor: Record<string, string> = {
-  PENDING: '#fbbf24',
-  APPROVED: '#10b981',
-  REJECTED: '#ef4444',
-  waiting: '#fbbf24',
-  approved: '#10b981',
-  rejected: '#ef4444',
+  PENDING: "#fbbf24",
+  APPROVED: "#10b981",
+  REJECTED: "#ef4444",
+  waiting: "#fbbf24",
+  approved: "#10b981",
+  rejected: "#ef4444",
 };
 function formatDate(dateStr?: string | null) {
-  if (!dateStr) return '-';
-  return dateStr.slice(0, 10) + (dateStr.length > 10 ? ' ' + dateStr.slice(11, 16) : '');
+  if (!dateStr) return "-";
+  return (
+    dateStr.slice(0, 10) +
+    (dateStr.length > 10 ? " " + dateStr.slice(11, 16) : "")
+  );
 }
 
 interface ChecklistDetailModalProps {
@@ -57,13 +60,39 @@ interface ChecklistDetailModalProps {
   onRefresh?: () => void;
 }
 
-const ChecklistDetailModal = ({ open, loading, data, onClose, onRefresh }: ChecklistDetailModalProps) => {
+const ChecklistDetailModal = ({
+  open,
+  loading,
+  data,
+  onClose,
+  onRefresh,
+}: ChecklistDetailModalProps) => {
   const { user } = useAuth();
   // 승인/반려 UI 상태를 approval별로 관리
-  const [rejectStates, setRejectStates] = useState<{ [approvalId: number]: boolean }>({});
-  const [rejectReasons, setRejectReasons] = useState<{ [approvalId: number]: string }>({});
-  const [actionLoading, setActionLoading] = useState<{ [approvalId: number]: boolean }>({});
+  const [rejectStates, setRejectStates] = useState<{
+    [approvalId: number]: boolean;
+  }>({});
+  const [rejectReasons, setRejectReasons] = useState<{
+    [approvalId: number]: string;
+  }>({});
+  const [actionLoading, setActionLoading] = useState<{
+    [approvalId: number]: boolean;
+  }>({});
   const [localApprovals, setLocalApprovals] = useState<any[] | null>(null);
+
+  // ESC 키로 모달 닫기
+  React.useEffect(() => {
+    if (!open) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [open, onClose]);
 
   React.useEffect(() => {
     // 모달 열릴 때마다 approval 상태 초기화
@@ -80,7 +109,7 @@ const ChecklistDetailModal = ({ open, loading, data, onClose, onRefresh }: Check
   };
   const handleHideReject = (approvalId: number) => {
     setRejectStates((prev) => ({ ...prev, [approvalId]: false }));
-    setRejectReasons((prev) => ({ ...prev, [approvalId]: '' }));
+    setRejectReasons((prev) => ({ ...prev, [approvalId]: "" }));
   };
   const handleRejectReasonChange = (approvalId: number, value: string) => {
     setRejectReasons((prev) => ({ ...prev, [approvalId]: value }));
@@ -91,34 +120,44 @@ const ChecklistDetailModal = ({ open, loading, data, onClose, onRefresh }: Check
     setActionLoading((prev) => ({ ...prev, [approvalId]: true }));
     try {
       await api.put(`/api/checklists/approvals/${approvalId}`, {
-        status: 'APPROVED',
-        message: '',
+        status: "APPROVED",
+        message: "",
       });
       // UI 갱신: localApprovals 상태 변경
       setLocalApprovals((prev) =>
         prev
           ? prev.map((a) =>
               a.id === approvalId
-                ? { ...a, status: 'APPROVED', message: '', respondedAt: new Date().toISOString() }
+                ? {
+                    ...a,
+                    status: "APPROVED",
+                    message: "",
+                    respondedAt: new Date().toISOString(),
+                  }
                 : a
             )
           : prev
       );
       setRejectStates((prev) => ({ ...prev, [approvalId]: false }));
-      setRejectReasons((prev) => ({ ...prev, [approvalId]: '' }));
+      setRejectReasons((prev) => ({ ...prev, [approvalId]: "" }));
       // 체크리스트 목록 새로고침
       if (onRefresh) {
         onRefresh();
       }
     } catch (e) {
-      let msg = '승인 처리에 실패했습니다.';
-      if (e && typeof e === 'object') {
+      let msg = "승인 처리에 실패했습니다.";
+      if (e && typeof e === "object") {
         const err = e as any;
-        if ('response' in err && err.response && err.response.data && err.response.data.message) {
+        if (
+          "response" in err &&
+          err.response &&
+          err.response.data &&
+          err.response.data.message
+        ) {
           msg = err.response.data.message;
-        } else if ('data' in err && err.data && err.data.message) {
+        } else if ("data" in err && err.data && err.data.message) {
           msg = err.data.message;
-        } else if ('message' in err) {
+        } else if ("message" in err) {
           msg = err.message as string;
         }
       }
@@ -130,37 +169,48 @@ const ChecklistDetailModal = ({ open, loading, data, onClose, onRefresh }: Check
 
   // 반려 처리
   const handleReject = async (approvalId: number) => {
-    if (!rejectReasons[approvalId] || rejectReasons[approvalId].trim() === '') return;
+    if (!rejectReasons[approvalId] || rejectReasons[approvalId].trim() === "")
+      return;
     setActionLoading((prev) => ({ ...prev, [approvalId]: true }));
     try {
       await api.put(`/api/checklists/approvals/${approvalId}`, {
-        status: 'REJECTED',
+        status: "REJECTED",
         message: rejectReasons[approvalId],
       });
       setLocalApprovals((prev) =>
         prev
           ? prev.map((a) =>
               a.id === approvalId
-                ? { ...a, status: 'REJECTED', message: rejectReasons[approvalId], respondedAt: new Date().toISOString() }
+                ? {
+                    ...a,
+                    status: "REJECTED",
+                    message: rejectReasons[approvalId],
+                    respondedAt: new Date().toISOString(),
+                  }
                 : a
             )
           : prev
       );
       setRejectStates((prev) => ({ ...prev, [approvalId]: false }));
-      setRejectReasons((prev) => ({ ...prev, [approvalId]: '' }));
+      setRejectReasons((prev) => ({ ...prev, [approvalId]: "" }));
       // 체크리스트 목록 새로고침
       if (onRefresh) {
         onRefresh();
       }
     } catch (e) {
-      let msg = '반려 처리에 실패했습니다.';
-      if (e && typeof e === 'object') {
+      let msg = "반려 처리에 실패했습니다.";
+      if (e && typeof e === "object") {
         const err = e as any;
-        if ('response' in err && err.response && err.response.data && err.response.data.message) {
+        if (
+          "response" in err &&
+          err.response &&
+          err.response.data &&
+          err.response.data.message
+        ) {
           msg = err.response.data.message;
-        } else if ('data' in err && err.data && err.data.message) {
+        } else if ("data" in err && err.data && err.data.message) {
           msg = err.data.message;
-        } else if ('message' in err) {
+        } else if ("message" in err) {
           msg = err.message as string;
         }
       }
@@ -171,7 +221,9 @@ const ChecklistDetailModal = ({ open, loading, data, onClose, onRefresh }: Check
   };
 
   if (!open) return null;
-  const approvals = localApprovals ?? (data && Array.isArray(data.approvals) ? data.approvals : []);
+  const approvals =
+    localApprovals ??
+    (data && Array.isArray(data.approvals) ? data.approvals : []);
   return (
     <ModalOverlay>
       <ModalContainer>
@@ -181,9 +233,19 @@ const ChecklistDetailModal = ({ open, loading, data, onClose, onRefresh }: Check
         </ModalHeader>
         <ModalBody>
           {loading ? (
-            <div style={{ textAlign: 'center', padding: '32px 0' }}>로딩 중...</div>
+            <div style={{ textAlign: "center", padding: "32px 0" }}>
+              로딩 중...
+            </div>
           ) : !data ? (
-            <div style={{ textAlign: 'center', padding: '32px 0', color: '#ef4444' }}>데이터를 불러올 수 없습니다.</div>
+            <div
+              style={{
+                textAlign: "center",
+                padding: "32px 0",
+                color: "#ef4444",
+              }}
+            >
+              데이터를 불러올 수 없습니다.
+            </div>
           ) : (
             <ModalContent>
               {/* 왼쪽: 체크리스트 정보 */}
@@ -203,7 +265,9 @@ const ChecklistDetailModal = ({ open, loading, data, onClose, onRefresh }: Check
                 <InfoRow>
                   <InfoLabel>상태</InfoLabel>
                   <InfoValue>
-                    <ApprovalStatusBadge color={statusColor[data.status] || '#bbb'}>
+                    <ApprovalStatusBadge
+                      color={statusColor[data.status] || "#bbb"}
+                    >
                       {statusMap[data.status] || data.status}
                     </ApprovalStatusBadge>
                   </InfoValue>
@@ -219,73 +283,111 @@ const ChecklistDetailModal = ({ open, loading, data, onClose, onRefresh }: Check
               </InfoSection>
               {/* 오른쪽: 승인자 카드 목록 */}
               <ApprovalsSection>
-                <div style={{ fontWeight: 700, fontSize: '1.08rem', marginBottom: 12 }}>승인자 목록</div>
+                <div
+                  style={{
+                    fontWeight: 700,
+                    fontSize: "1.08rem",
+                    marginBottom: 12,
+                  }}
+                >
+                  승인자 목록
+                </div>
                 <ApprovalCardList>
                   {Array.isArray(approvals) && approvals.length > 0 ? (
                     approvals.map((appr: any) => (
                       <ApprovalCard key={appr.id}>
                         <ApprovalCardHeader>
                           <ApprovalName>{appr.username}</ApprovalName>
-                          <ApprovalStatusBadge color={statusColor[appr.status] || '#bbb'}>
+                          <ApprovalStatusBadge
+                            color={statusColor[appr.status] || "#bbb"}
+                          >
                             {statusMap[appr.status] || appr.status}
                           </ApprovalStatusBadge>
                         </ApprovalCardHeader>
                         <ApprovalCardBody>
-                          {appr.message && <ApprovalMessage>메시지: {appr.message}</ApprovalMessage>}
+                          {appr.message && (
+                            <ApprovalMessage>
+                              메시지: {appr.message}
+                            </ApprovalMessage>
+                          )}
                           <ApprovalDate>
-                            {appr.respondedAt ? `응답일: ${formatDate(appr.respondedAt)}` : '응답 대기'}
+                            {appr.respondedAt
+                              ? `응답일: ${formatDate(appr.respondedAt)}`
+                              : "응답 대기"}
                           </ApprovalDate>
                           {/* 승인/반려 UI: 대기 상태이고 본인이 할당된 승인자일 때만 노출 */}
-                          {appr.status === 'PENDING' && appr.userId === user?.id && (
-                            <ApprovalActions>
-                              {!rejectStates[appr.id] ? (
-                                <>
-                                  <ApprovalButton
-                                    disabled={!!actionLoading[appr.id]}
-                                    onClick={() => handleApprove(appr.id)}
-                                  >
-                                    {actionLoading[appr.id] ? '처리 중...' : '승인'}
-                                  </ApprovalButton>
-                                  <ApprovalButtonSecondary
-                                    disabled={!!actionLoading[appr.id]}
-                                    onClick={() => handleShowReject(appr.id)}
-                                  >
-                                    반려
-                                  </ApprovalButtonSecondary>
-                                </>
-                              ) : (
-                                <>
-                                  <ApprovalTextarea
-                                    value={rejectReasons[appr.id] || ''}
-                                    onChange={e => handleRejectReasonChange(appr.id, e.target.value)}
-                                    placeholder="반려 사유 입력"
-                                    disabled={!!actionLoading[appr.id]}
-                                  />
-                                  <div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
+                          {appr.status === "PENDING" &&
+                            appr.userId === user?.id && (
+                              <ApprovalActions>
+                                {!rejectStates[appr.id] ? (
+                                  <>
+                                    <ApprovalButton
+                                      disabled={!!actionLoading[appr.id]}
+                                      onClick={() => handleApprove(appr.id)}
+                                    >
+                                      {actionLoading[appr.id]
+                                        ? "처리 중..."
+                                        : "승인"}
+                                    </ApprovalButton>
                                     <ApprovalButtonSecondary
                                       disabled={!!actionLoading[appr.id]}
-                                      onClick={() => handleHideReject(appr.id)}
+                                      onClick={() => handleShowReject(appr.id)}
                                     >
-                                      취소
+                                      반려
                                     </ApprovalButtonSecondary>
-                                    <ApprovalButton
-                                      disabled={
-                                        !!actionLoading[appr.id] || !rejectReasons[appr.id] || rejectReasons[appr.id].trim() === ''
+                                  </>
+                                ) : (
+                                  <>
+                                    <ApprovalTextarea
+                                      value={rejectReasons[appr.id] || ""}
+                                      onChange={(e) =>
+                                        handleRejectReasonChange(
+                                          appr.id,
+                                          e.target.value
+                                        )
                                       }
-                                      onClick={() => handleReject(appr.id)}
+                                      placeholder="반려 사유 입력"
+                                      disabled={!!actionLoading[appr.id]}
+                                    />
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        gap: 8,
+                                        marginTop: 6,
+                                      }}
                                     >
-                                      {actionLoading[appr.id] ? '처리 중...' : '반려 제출'}
-                                    </ApprovalButton>
-                                  </div>
-                                </>
-                              )}
-                            </ApprovalActions>
-                          )}
+                                      <ApprovalButtonSecondary
+                                        disabled={!!actionLoading[appr.id]}
+                                        onClick={() =>
+                                          handleHideReject(appr.id)
+                                        }
+                                      >
+                                        취소
+                                      </ApprovalButtonSecondary>
+                                      <ApprovalButton
+                                        disabled={
+                                          !!actionLoading[appr.id] ||
+                                          !rejectReasons[appr.id] ||
+                                          rejectReasons[appr.id].trim() === ""
+                                        }
+                                        onClick={() => handleReject(appr.id)}
+                                      >
+                                        {actionLoading[appr.id]
+                                          ? "처리 중..."
+                                          : "반려 제출"}
+                                      </ApprovalButton>
+                                    </div>
+                                  </>
+                                )}
+                              </ApprovalActions>
+                            )}
                         </ApprovalCardBody>
                       </ApprovalCard>
                     ))
                   ) : (
-                    <div style={{ color: '#bbb', fontSize: '0.98rem' }}>승인자가 없습니다.</div>
+                    <div style={{ color: "#bbb", fontSize: "0.98rem" }}>
+                      승인자가 없습니다.
+                    </div>
                   )}
                 </ApprovalCardList>
               </ApprovalsSection>
@@ -297,4 +399,4 @@ const ChecklistDetailModal = ({ open, loading, data, onClose, onRefresh }: Check
   );
 };
 
-export default ChecklistDetailModal; 
+export default ChecklistDetailModal;

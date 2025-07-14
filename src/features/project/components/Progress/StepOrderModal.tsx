@@ -397,7 +397,7 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({
                               );
                               showSuccessToast("삭제되었습니다");
                             } catch (e) {
-                              // 실패 시 에러 토스트 등 필요시 추가
+                              console.error(e);
                             }
                           }
                         }}

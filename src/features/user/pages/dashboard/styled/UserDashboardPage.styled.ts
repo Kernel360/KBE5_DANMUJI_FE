@@ -448,7 +448,7 @@ export const SectionTitle = styled.div<{ color?: string }>`
 `;
 
 // 프로젝트 카드 및 관련 컴포넌트
-export const ProjectCard = styled.div`
+export const ProjectCard = styled.div<{ $warning?: boolean }>`
   background: #fff;
   border-radius: 8px;
   border: 1px solid #e5e7eb;
@@ -466,8 +466,10 @@ export const ProjectCard = styled.div`
 
   &:hover {
     background: #f9fafb;
-    border-color: #3b82f6;
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+    border-color: ${({ $warning }) => ($warning ? "#ef4444" : "#10b981")};
+    box-shadow: 0 2px 8px
+      ${({ $warning }) =>
+        $warning ? "rgba(239, 68, 68, 0.12)" : "rgba(16, 185, 129, 0.12)"};
     transform: translateY(-1px);
   }
 `;

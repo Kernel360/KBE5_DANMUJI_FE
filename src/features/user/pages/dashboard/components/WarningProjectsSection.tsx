@@ -26,7 +26,8 @@ const WarningProjectsSection: React.FC<WarningProjectsSectionProps> = ({
 }) => {
   const delayCount = delayedProjects.length;
   const dueSoonCount = deadlineProjects.length;
-  const projectTabs = selectedWarningTab === "DELAY" ? delayedProjects : deadlineProjects;
+  const projectTabs =
+    selectedWarningTab === "DELAY" ? delayedProjects : deadlineProjects;
 
   return (
     <S.Section>
@@ -53,20 +54,27 @@ const WarningProjectsSection: React.FC<WarningProjectsSectionProps> = ({
           $selected={selectedWarningTab === "DELAY"}
           onClick={() => setSelectedWarningTab("DELAY")}
         >
-          지연 상태 <span style={{ color: '#dc2626', marginLeft: 4 }}>({delayCount}개)</span>
+          지연 상태{" "}
+          <span style={{ color: "#dc2626", marginLeft: 4 }}>
+            ({delayCount}개)
+          </span>
         </S.WarningTabButton>
         <S.WarningTabButton
           $selected={selectedWarningTab === "DUE_SOON"}
           onClick={() => setSelectedWarningTab("DUE_SOON")}
         >
-          마감 7일 이내 <span style={{ color: '#f59e0b', marginLeft: 4 }}>({dueSoonCount}개)</span>
+          마감 7일 이내{" "}
+          <span style={{ color: "#f59e0b", marginLeft: 4 }}>
+            ({dueSoonCount}개)
+          </span>
         </S.WarningTabButton>
       </div>
       {(() => {
         const filtered = projectTabs.filter((project) => {
           const today = new Date();
           const end = new Date(project.endDate);
-          const diff = (end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+          const diff =
+            (end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
           if (selectedWarningTab === "DELAY") {
             return project.status === "DELAY";
           } else {
@@ -89,27 +97,48 @@ const WarningProjectsSection: React.FC<WarningProjectsSectionProps> = ({
             {filtered.map((project, idx) => {
               const today = new Date();
               const end = new Date(project.endDate);
-              
+
               // 날짜만 비교하기 위해 시간을 00:00:00으로 설정
-              const todayNormalized = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-              const endNormalized = new Date(end.getFullYear(), end.getMonth(), end.getDate());
-              
-              let dayInfo = '';
+              const todayNormalized = new Date(
+                today.getFullYear(),
+                today.getMonth(),
+                today.getDate()
+              );
+              const endNormalized = new Date(
+                end.getFullYear(),
+                end.getMonth(),
+                end.getDate()
+              );
+
+              let dayInfo = "";
               if (project.status === "DELAY") {
-                const diff = Math.ceil((todayNormalized.getTime() - endNormalized.getTime()) / (1000 * 60 * 60 * 24));
-                dayInfo = diff > 0 ? `${diff}일 지연` : '지연';
+                const diff = Math.ceil(
+                  (todayNormalized.getTime() - endNormalized.getTime()) /
+                    (1000 * 60 * 60 * 24)
+                );
+                dayInfo = diff > 0 ? `${diff}일 지연` : "지연";
               } else if (project.status === "DUE_SOON") {
-                const diff = Math.ceil((endNormalized.getTime() - todayNormalized.getTime()) / (1000 * 60 * 60 * 24));
-                dayInfo = diff > 0 ? `D-${diff}` : '오늘 마감';
+                const diff = Math.ceil(
+                  (endNormalized.getTime() - todayNormalized.getTime()) /
+                    (1000 * 60 * 60 * 24)
+                );
+                dayInfo = diff > 0 ? `D-${diff}` : "오늘 마감";
               }
               return (
                 <S.ProjectCard
                   key={`warning-project-${project.id}-${idx}`}
+                  $warning
                   onClick={() =>
                     window.location.assign(`/projects/${project.id}/detail`)
                   }
                 >
-                  <S.ProjectHeaderRow style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <S.ProjectHeaderRow
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
                     <div
                       style={{
                         display: "flex",
@@ -124,13 +153,18 @@ const WarningProjectsSection: React.FC<WarningProjectsSectionProps> = ({
                       </S.ProjectTitle>
                     </div>
                     {dayInfo && (
-                      <span style={{
-                        fontSize: '0.8rem',
-                        color: project.status === 'DELAY' ? '#dc2626' : '#f59e0b',
-                        marginLeft: 8,
-                        fontWeight: 500,
-                        whiteSpace: 'nowrap',
-                      }}>{dayInfo}</span>
+                      <span
+                        style={{
+                          fontSize: "0.8rem",
+                          color:
+                            project.status === "DELAY" ? "#dc2626" : "#f59e0b",
+                          marginLeft: 8,
+                          fontWeight: 500,
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {dayInfo}
+                      </span>
                     )}
                   </S.ProjectHeaderRow>
                   <div
@@ -146,7 +180,6 @@ const WarningProjectsSection: React.FC<WarningProjectsSectionProps> = ({
                     <FiCalendar size={12} />
                     <span>마감일: {project.endDate.replace(/-/g, ".")}</span>
                   </div>
-{/* 
                   <S.ProjectProgressInfo>
                     <div style={{ flex: 1 }}>
                       <div
@@ -166,31 +199,33 @@ const WarningProjectsSection: React.FC<WarningProjectsSectionProps> = ({
                         >
                           <FiLayers size={12} style={{ color: "#6366f1" }} />
                           <S.ProjectProgressStep style={{ fontSize: "0.8rem" }}>
-                            {project.steps.find(
-                              (s) => s.projectStepStatus === "IN_PROGRESS"
-                            )?.name || "진행중"}
+                            {project.steps && Array.isArray(project.steps)
+                              ? project.steps.find(
+                                  (s) => s.projectStepStatus === "IN_PROGRESS"
+                                )?.name || "진행중"
+                              : "진행중"}
                           </S.ProjectProgressStep>
                         </div>
                         <S.ProjectProgressPercent
-                          $percent={getProgressPercent(project.steps)}
+                          $percent={project.progress ?? 0}
                           style={{
-                            color:
-                              project.status === "DELAYED"
-                                ? "#dc2626"
-                                : "#f59e0b",
+                            color: "#dc2626",
                           }}
                         >
-                          {getProgressPercent(project.steps)}%
+                          {project.progress ?? 0}%
                         </S.ProjectProgressPercent>
                       </div>
                       <S.ProgressBarWrap style={{ marginTop: 0 }}>
                         <S.WarningProgressBar
-                          $percent={getProgressPercent(project.steps)}
+                          $percent={project.progress ?? 0}
                           $status={project.status}
+                          style={{
+                            background: "#dc2626",
+                          }}
                         />
                       </S.ProgressBarWrap>
                     </div>
-                  </S.ProjectProgressInfo> */}
+                  </S.ProjectProgressInfo>
                 </S.ProjectCard>
               );
             })}

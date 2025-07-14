@@ -13,12 +13,18 @@ import {
 import styled from "styled-components";
 
 // Import necessary icons from react-icons
-import { HiBuildingOffice2 } from "react-icons/hi2";
-import { HiUsers } from "react-icons/hi2";
-import { FaArchive } from "react-icons/fa";
-import { FiHelpCircle } from "react-icons/fi";
 import { FaHistory } from "react-icons/fa";
-import { IoHome } from "react-icons/io5";
+import {
+  FiHelpCircle,
+  FiHome,
+  FiPackage,
+  FiPieChart,
+  FiUsers,
+  FiGrid,
+} from "react-icons/fi";
+import { PiBuildingOffice } from "react-icons/pi";
+import { RxHome } from "react-icons/rx";
+import { GrHistory } from "react-icons/gr";
 
 import { useAuth } from "@/hooks/useAuth";
 
@@ -51,13 +57,13 @@ export const Sidebar: React.FC = () => {
       <Divider />
       <MainMenu>
         <MenuItem
-          icon={IoHome}
+          icon={RxHome}
           text="대시보드"
           isActive={location.pathname === "/dashboard"}
           onClick={() => handleMenuItemClick("대시보드", "/dashboard")}
         />
         <MenuItem
-          icon={FaArchive}
+          icon={FiPackage}
           text="프로젝트 목록"
           isActive={location.pathname.startsWith("/projects")}
           onClick={() => handleMenuItemClick("프로젝트 목록", "/projects")}
@@ -65,19 +71,19 @@ export const Sidebar: React.FC = () => {
         {role === "ROLE_ADMIN" ? (
           <>
             <MenuItem
-              icon={HiBuildingOffice2}
+              icon={PiBuildingOffice}
               text="업체 관리"
               isActive={location.pathname.startsWith("/company")}
               onClick={() => handleMenuItemClick("업체 관리", "/company")}
             />
             <MenuItem
-              icon={HiUsers}
+              icon={FiUsers}
               text="회원 관리"
               isActive={location.pathname.startsWith("/member")}
               onClick={() => handleMenuItemClick("회원 관리", "/members")}
             />
             <MenuItem
-              icon={FaHistory}
+              icon={GrHistory}
               text="이력 관리"
               isActive={location.pathname === "/activity-log"}
               onClick={() => handleMenuItemClick("이력 관리", "/activity-log")}
@@ -93,7 +99,10 @@ export const Sidebar: React.FC = () => {
           <MenuItem
             icon={FiHelpCircle}
             text="관리자에게 문의하기"
-            isActive={location.pathname.startsWith("/my-inquiry") || location.pathname.startsWith("/inquiry/")}
+            isActive={
+              location.pathname.startsWith("/my-inquiry") ||
+              location.pathname.startsWith("/inquiry/")
+            }
             onClick={() =>
               handleMenuItemClick("관리자에게 문의하기", "/my-inquiry")
             }

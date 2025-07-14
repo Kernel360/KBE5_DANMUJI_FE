@@ -18,6 +18,7 @@ import type { MyMentionListResponse } from "@/features/admin/types/activityLog";
 import { formatRelativeTime } from "@/utils/dateUtils";
 import ProjectPostDetailModal from "@/features/board/components/Post/components/DetailModal/ProjectPostDetailModal";
 import styled, { keyframes } from "styled-components";
+import { useNavigate } from "react-router-dom";
 
 const blinkAnimation = keyframes`
   0%, 50% {
@@ -104,6 +105,8 @@ const MentionedPostsSection = () => {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     const fetchMentions = async () => {
       setLoading(true);
@@ -127,6 +130,10 @@ const MentionedPostsSection = () => {
   };
 
   const getNotificationIcon = (type: string, content: string) => {
+    // 체크리스트 관련 알림이면 무조건 체크리스트 아이콘
+    if (type.startsWith("CHECKLIST_")) {
+      return <FiCheckSquare size={14} style={{ color: "#fdb924" }} />;
+    }
     switch (type) {
       case "MENTIONED":
         return <FiAtSign size={14} style={{ color: "#3b82f6" }} />;
@@ -141,7 +148,7 @@ const MentionedPostsSection = () => {
       case "POST_RESTORED":
         return <FiRotateCcw size={14} style={{ color: "#8b5cf6" }} />;
       case "STEP_APPROVAL_REQUEST":
-        return <FiCheckSquare size={14} style={{ color: "#f59e0b" }} />;
+        return <FiCheckSquare size={14} style={{ color: "#fdb924" }} />;
       case "STEP_APPROVAL_ACCEPTED":
         return <FiCheck size={14} style={{ color: "#10b981" }} />;
       case "STEP_APPROVAL_REJECTED":
@@ -211,58 +218,38 @@ const MentionedPostsSection = () => {
       }
     }
 
-    // 타입에 따라 다른 처리
+    // 체크리스트 알림이면 체크리스트 탭으로만 이동 (모달X)
+    if (mention.type.startsWith("CHECKLIST_") && mention.projectId) {
+      navigate(`/projects/${mention.projectId}/detail?tab=checklist`);
+      return;
+    }
+
+    // 체크리스트/게시글 알림: 프로젝트 상세로 이동 후 게시글 모달 오픈
+    if (
+      mention.type === "PROJECT_POST_CREATED" &&
+      mention.projectId &&
+      mention.postId
+    ) {
+      navigate(`/projects/${mention.projectId}/detail`, {
+        state: { openPostId: mention.postId },
+      });
+      return;
+    }
+
+    // 기존 멘션/댓글/답글 등은 기존대로 처리
     switch (mention.type) {
       case "MENTIONED":
-        // 멘션된 게시글로 이동
-        if (mention.referenceId) {
-          setSelectedPostId(mention.referenceId);
-          setIsDetailModalOpen(true);
-        }
-        break;
-
       case "COMMENT_POST_CREATED":
-        // 내 게시글에 댓글이 달린 경우
-        if (mention.referenceId) {
-          setSelectedPostId(mention.referenceId);
-          setIsDetailModalOpen(true);
-        }
-        break;
-
       case "COMMENT_REPLY_CREATED":
-        // 내 댓글에 대댓글이 달린 경우 - 해당 게시글 상세로 이동
-        if (mention.referenceId) {
-          setSelectedPostId(mention.referenceId);
-          setIsDetailModalOpen(true);
-        }
-        break;
-
       case "POST_REPLY_CREATED":
-        // 내 게시글에 답글이 달린 경우 - 해당 게시글 상세로 이동
-        if (mention.referenceId) {
-          setSelectedPostId(mention.referenceId);
-          setIsDetailModalOpen(true);
-        }
-        break;
-
       case "PROJECT_POST_CREATED":
-        // 프로젝트에 새로운 게시글이 등록된 경우 - 게시글 상세로 이동
-        if (mention.referenceId) {
-          setSelectedPostId(mention.referenceId);
-          setIsDetailModalOpen(true);
-        }
-        break;
-
       case "POST_RESTORED":
-        // 게시글이 복구된 경우 - 해당 게시글 상세로 이동
         if (mention.referenceId) {
           setSelectedPostId(mention.referenceId);
           setIsDetailModalOpen(true);
         }
         break;
-
       default:
-        // 알 수 없는 알림 타입은 무시
         break;
     }
   };

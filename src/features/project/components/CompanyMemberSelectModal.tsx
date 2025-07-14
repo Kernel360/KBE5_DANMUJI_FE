@@ -1,24 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
-import { IoPeopleOutline, IoClose } from "react-icons/io5";
-import {
-  FiSearch,
-  FiHome,
-  FiRotateCcw,
-  FiUser,
-  FiUsers,
-  FiBriefcase,
-} from "react-icons/fi";
-import { FaUserPlus } from "react-icons/fa";
+import { FiHome, FiUser, FiUsers, FiBriefcase } from "react-icons/fi";
 import api from "@/api/axios";
 import CompanyRegisterModal from "@/features/company/components/CompanyRegisterModal/CompanyRegisterModal";
 import MemberRegisterModal from "@/features/user/components/MemberRegisterModal/MemberRegisterModal";
 import { ModalTitle, Button as ModalButton } from "./ProjectCreateModal.styled";
-import {
-  CompanyItem,
-  CompanyList,
-  PaginationContainer,
-  PaginationButton,
-} from "./CompanyMemberSelectModal.styled";
+import { CompanyItem } from "./CompanyMemberSelectModal.styled";
 
 type Member = {
   id: number;
@@ -93,8 +79,7 @@ const CompanyMemberSelectModal: React.FC<CompanyMemberSelectModalProps> = ({
         // ✅ content 설정
         setCompanies(
           result.filter(
-            (c: any) =>
-              c && typeof c.id === "number" && typeof c.name === "string"
+            (c) => c && typeof c.id === "number" && typeof c.name === "string"
           )
         );
 

@@ -17,6 +17,16 @@ import ChecklistCreateModal from "./ChecklistCreateModal";
 import ChecklistDetailModal from "./ChecklistDetailModal";
 import ProjectBoardFilters from "../Board/ProjectBoardFilters";
 import type { ProjectDetailStep } from "../../services/projectService";
+import {
+  FiAlertTriangle,
+  FiCheckCircle,
+  FiFlag,
+  FiXCircle,
+  FiUser,
+  FiCalendar,
+  FiShield,
+} from "react-icons/fi";
+import { RiUserSettingsLine } from "react-icons/ri";
 
 // 카드 타입 명확화
 export type ChecklistCardType = {
@@ -63,6 +73,23 @@ function getInitials(name: string) {
     .slice(0, 2);
 }
 
+// 날짜 포맷팅 함수
+const formatDate = (dateString: string) => {
+  if (!dateString) return "";
+
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = date.getHours();
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+
+  const ampm = hours >= 12 ? "오후" : "오전";
+  const displayHours = hours > 12 ? hours - 12 : hours === 0 ? 12 : hours;
+
+  return `${year}.${month}.${day} (${ampm} ${displayHours}:${minutes})`;
+};
+
 // 카드 컴포넌트에 클릭 핸들러 추가 (정의 위치 이동)
 function ChecklistCard({
   card,
@@ -71,6 +98,25 @@ function ChecklistCard({
   card: ChecklistCardType;
   onClick: (id: number) => void;
 }) {
+  // 상태별 아이콘 매핑
+  const getStatusIcon = (status: string) => {
+    if (status === "waiting")
+      return (
+        <FiAlertTriangle
+          size={16}
+          style={{ color: "#fbbf24", marginRight: 8 }}
+        />
+      );
+    if (status === "approved")
+      return (
+        <FiCheckCircle size={16} style={{ color: "#10b981", marginRight: 8 }} />
+      );
+    if (status === "rejected")
+      return (
+        <FiXCircle size={16} style={{ color: "#ef4444", marginRight: 8 }} />
+      );
+    return null;
+  };
   return (
     <CardBox
       $status={card.status}
@@ -78,6 +124,8 @@ function ChecklistCard({
       style={{ cursor: "pointer" }}
     >
       <CardTop>
+        {/* 상태 아이콘 추가 */}
+        {getStatusIcon(card.status)}
         <CardTitle>{card.title}</CardTitle>
         <StatusBadge status={card.status}>
           {card.status === "waiting" && "대기"}
@@ -86,8 +134,23 @@ function ChecklistCard({
         </StatusBadge>
       </CardTop>
       <CardMeta>
-        <span>{card.username}</span>
-        <span>{card.createdAt}</span>
+        <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            {card.username === "관리자" ? (
+              <RiUserSettingsLine
+                size={14}
+                style={{ marginRight: 4, color: "#8b5cf6" }}
+              />
+            ) : (
+              <FiUser size={14} style={{ marginRight: 4, color: "#3b82f6" }} />
+            )}
+            {card.username}
+          </span>
+          <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <FiCalendar size={14} style={{ marginRight: 4 }} />
+            {card.createdAt}
+          </span>
+        </div>
       </CardMeta>
       {/* 반려 사유 표시 */}
       {card.status === "rejected" && card.rejectReason && (
@@ -109,6 +172,16 @@ function Column({
   cards: ChecklistCardType[];
   onCardClick: (id: number) => void;
 }) {
+  // 상태별 컬럼 아이콘 매핑
+  const getColumnIcon = (key: string) => {
+    if (key === "waiting")
+      return <FiAlertTriangle size={16} style={{ color: "#fbbf24" }} />;
+    if (key === "approved")
+      return <FiCheckCircle size={16} style={{ color: "#10b981" }} />;
+    if (key === "rejected")
+      return <FiXCircle size={16} style={{ color: "#ef4444" }} />;
+    return null;
+  };
   return (
     <div
       style={{
@@ -120,7 +193,8 @@ function Column({
       }}
     >
       <ColumnHeader>
-        <StatusDot color={column.dot} />
+        {/* <StatusDot color={column.dot} /> */}
+        {getColumnIcon(column.key)}
         <ColumnTitle>{column.title}</ColumnTitle>
         <ColumnCount>{cards.length}</ColumnCount>
       </ColumnHeader>
@@ -147,6 +221,7 @@ interface KanbanBoardProps {
   selectedStepId: number;
   canEditStep?: boolean;
   projectSteps?: ProjectDetailStep[]; // 단계 목록 추가
+  openChecklistId?: number;
 }
 
 export default function KanbanBoard({
@@ -154,6 +229,7 @@ export default function KanbanBoard({
   selectedStepId,
   canEditStep,
   projectSteps = [],
+  openChecklistId,
 }: KanbanBoardProps) {
   // 필터 상태 추가
   const [typeFilter, setTypeFilter] = useState<"ALL" | string>("ALL");
@@ -162,7 +238,7 @@ export default function KanbanBoard({
     "ALL" | "waiting" | "approved" | "rejected"
   >("ALL");
   const [stepFilter, setStepFilter] = useState<number | "ALL">(
-    selectedStepId || "ALL"
+    selectedStepId || (projectSteps.length > 0 ? projectSteps[0].id : "ALL")
   );
   const [keywordType, setKeywordType] = useState<"title" | "writer">("title");
   const [keyword, setKeyword] = useState("");
@@ -188,7 +264,7 @@ export default function KanbanBoard({
           title: item.title || "",
           userId: item.userId,
           username: item.username || "",
-          createdAt: item.createdAt ? item.createdAt.slice(0, 10) : "",
+          createdAt: item.createdAt ? formatDate(item.createdAt) : "",
           status:
             item.status === "PENDING"
               ? "waiting"
@@ -207,6 +283,13 @@ export default function KanbanBoard({
   useEffect(() => {
     fetchCards();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedStepId]);
+
+  // selectedStepId가 바뀌면 stepFilter도 동기화
+  useEffect(() => {
+    if (selectedStepId && stepFilter !== selectedStepId) {
+      setStepFilter(selectedStepId);
+    }
   }, [selectedStepId]);
 
   // 카드 클릭 핸들러
@@ -266,9 +349,47 @@ export default function KanbanBoard({
   // 단계 필터 변경 시 selectedStepId도 변경(상위에서 prop으로 내려줄 수도 있음)
   useEffect(() => {
     if (stepFilter !== "ALL" && typeof stepFilter === "number") {
-      // TODO: 필요시 상위에 알림
+      // stepFilter가 바뀌면 항상 해당 단계의 체크리스트 목록을 조회
+      fetchCardsByStepFilter(stepFilter);
     }
   }, [stepFilter]);
+
+  // stepFilter로 체크리스트 목록을 불러오는 함수
+  const fetchCardsByStepFilter = async (stepId: number) => {
+    setLoading(true);
+    try {
+      const res = await api.get(`/api/checklists/${stepId}`);
+      const apiCards = Array.isArray(res.data.data) ? res.data.data : [];
+      setCards(
+        apiCards.map((item: any) => ({
+          id: String(item.id),
+          title: item.title || "",
+          userId: item.userId,
+          username: item.username || "",
+          createdAt: item.createdAt ? formatDate(item.createdAt) : "",
+          status:
+            item.status === "PENDING"
+              ? "waiting"
+              : item.status === "APPROVED"
+              ? "approved"
+              : "rejected",
+        }))
+      );
+    } catch {
+      setCards([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 기존 fetchCards는 selectedStepId 기준이므로, stepFilter가 바뀌면 fetchCardsByStepFilter를 사용
+
+  // openChecklistId가 있으면 모달 자동 오픈
+  useEffect(() => {
+    if (openChecklistId) {
+      handleCardClick(openChecklistId);
+    }
+  }, [openChecklistId]);
 
   return (
     <div style={{ width: "100%" }}>
@@ -302,6 +423,7 @@ export default function KanbanBoard({
           showCreatePost={false}
           showKeywordFilter={false}
           showSearchButton={false}
+          showPriorityFilter={false}
           checklistMode={true}
         />
       </div>
