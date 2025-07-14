@@ -41,6 +41,7 @@ import {
   FiEdit,
   FiTrash2,
 } from "react-icons/fi";
+import { RiUserSettingsLine } from "react-icons/ri";
 
 const statusMap: Record<string, string> = {
   PENDING: "대기",
@@ -60,10 +61,17 @@ const statusColor: Record<string, string> = {
 };
 function formatDate(dateStr?: string | null) {
   if (!dateStr) return "-";
-  return (
-    dateStr.slice(0, 10) +
-    (dateStr.length > 10 ? " " + dateStr.slice(11, 16) : "")
-  );
+  const date = new Date(dateStr);
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const day = date.getDate().toString().padStart(2, "0");
+  let hour = date.getHours();
+  const minute = date.getMinutes().toString().padStart(2, "0");
+  const isAM = hour < 12;
+  const ampm = isAM ? "오전" : "오후";
+  if (!isAM && hour > 12) hour -= 12;
+  if (hour === 0) hour = 12;
+  return `${year}.${month}.${day} (${ampm} ${hour}:${minute})`;
 }
 
 interface ChecklistDetailModalProps {
@@ -458,7 +466,35 @@ const ChecklistDetailModal = ({
                       >
                         <FiUser style={{ color: "#fdb924" }} /> 작성자
                       </InfoLabel>
-                      <InfoValue>{data.username}</InfoValue>
+                      <InfoValue
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                        }}
+                      >
+                        {data.username === "관리자" ? (
+                          <RiUserSettingsLine
+                            size={16}
+                            style={{ color: "#8b5cf6" }}
+                          />
+                        ) : (
+                          <FiUser size={16} style={{ color: "#3b82f6" }} />
+                        )}
+                        {data.name}
+                        {data.username && (
+                          <span
+                            style={{
+                              color: "#888",
+                              fontWeight: 400,
+                              marginLeft: -3,
+                              fontSize: 13,
+                            }}
+                          >
+                            ({data.username})
+                          </span>
+                        )}
+                      </InfoValue>
                     </InfoRow>
                     {/* 상태 InfoRow의 아이콘을 FiAlertCircle(노란색)로 변경 */}
                     <InfoRow>
@@ -598,16 +634,48 @@ const ChecklistDetailModal = ({
                     fontWeight: 700,
                     fontSize: "1.08rem",
                     marginBottom: 12,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 7,
                   }}
                 >
-                  승인자 목록
+                  <FiUser style={{ color: "#fdb924" }} /> 승인자 목록
                 </div>
                 <ApprovalCardList>
                   {Array.isArray(approvals) && approvals.length > 0 ? (
                     approvals.map((appr: any) => (
                       <ApprovalCard key={appr.id}>
                         <ApprovalCardHeader>
-                          <ApprovalName>{appr.username}</ApprovalName>
+                          {/* 승인자 이름 왼쪽에 아이콘 추가 */}
+                          <ApprovalName
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 6,
+                            }}
+                          >
+                            {appr.username === "관리자" ? (
+                              <RiUserSettingsLine
+                                size={16}
+                                style={{ color: "#8b5cf6" }}
+                              />
+                            ) : (
+                              <FiUser size={16} style={{ color: "#3b82f6" }} />
+                            )}
+                            {appr.name}
+                            {appr.username && (
+                              <span
+                                style={{
+                                  color: "#888",
+                                  fontWeight: 400,
+                                  marginLeft: -3,
+                                  fontSize: 13,
+                                }}
+                              >
+                                ({appr.username})
+                              </span>
+                            )}
+                          </ApprovalName>
                           <div
                             style={{
                               display: "flex",
@@ -671,7 +739,7 @@ const ChecklistDetailModal = ({
                           <ApprovalDate>
                             {appr.respondedAt
                               ? `응답일: ${formatDate(appr.respondedAt)}`
-                              : "응답 대기"}
+                              : "승인 대기"}
                           </ApprovalDate>
                           {/* 승인/반려 UI: 대기 상태이고 본인이 할당된 승인자일 때만 노출 */}
                           {appr.status === "PENDING" &&
