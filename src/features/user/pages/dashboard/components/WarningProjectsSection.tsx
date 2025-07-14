@@ -127,6 +127,7 @@ const WarningProjectsSection: React.FC<WarningProjectsSectionProps> = ({
               return (
                 <S.ProjectCard
                   key={`warning-project-${project.id}-${idx}`}
+                  $warning
                   onClick={() =>
                     window.location.assign(`/projects/${project.id}/detail`)
                   }

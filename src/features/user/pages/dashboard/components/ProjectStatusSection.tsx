@@ -154,6 +154,7 @@ const ProjectStatusSection: React.FC<ProjectStatusSectionProps> = ({
             return (
               <S.ProjectCard
                 key={`project-${project.id}-${idx}`}
+                $warning={false}
                 onClick={() => navigate(`/projects/${project.id}/detail`)}
                 style={{ cursor: "pointer" }}
               >

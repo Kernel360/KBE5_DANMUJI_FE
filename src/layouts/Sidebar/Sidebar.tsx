@@ -24,7 +24,7 @@ import {
 } from "react-icons/fi";
 import { PiBuildingOffice } from "react-icons/pi";
 import { RxHome } from "react-icons/rx";
-import { TbBuildingBurjAlArab } from "react-icons/tb";
+import { GrHistory } from "react-icons/gr";
 
 import { useAuth } from "@/hooks/useAuth";
 
@@ -83,7 +83,7 @@ export const Sidebar: React.FC = () => {
               onClick={() => handleMenuItemClick("회원 관리", "/members")}
             />
             <MenuItem
-              icon={FaHistory}
+              icon={GrHistory}
               text="이력 관리"
               isActive={location.pathname === "/activity-log"}
               onClick={() => handleMenuItemClick("이력 관리", "/activity-log")}

@@ -35,6 +35,7 @@ import {
   FiUsers,
   FiHome,
   FiHelpCircle,
+  FiRotateCcw,
 } from "react-icons/fi";
 import CompanyDetailModal from "@/features/company/components/CompanyDetailModal/CompanyDetailModal";
 import { useNavigate } from "react-router-dom";
@@ -282,6 +283,30 @@ export default function DashboardPage() {
     }
   }, []);
 
+  // 최근 문의사항 목록 새로고침 함수
+  const fetchRecentInquiries = useCallback(async () => {
+    try {
+      const recentInquiriesResponse = await api.get(
+        "/api/inquiries/recent-inquiries"
+      );
+      setRecentInquiries(recentInquiriesResponse.data?.data || []);
+    } catch (error) {
+      console.error("Failed to fetch recent inquiries:", error);
+    }
+  }, []);
+
+  // 최근 프로젝트 목록 새로고침 함수
+  const fetchRecentProjects = useCallback(async () => {
+    try {
+      const recentProjectsResponse = await api.get(
+        "/api/projects/recent-projects"
+      );
+      setRecentProjects(recentProjectsResponse.data?.data || []);
+    } catch (error) {
+      console.error("Failed to fetch recent projects:", error);
+    }
+  }, []);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -323,10 +348,7 @@ export default function DashboardPage() {
         await fetchRecentCompanies();
 
         // Fetch Recent Projects
-        const recentProjectsResponse = await api.get(
-          "/api/projects/recent-projects"
-        );
-        setRecentProjects(recentProjectsResponse.data?.data || []);
+        await fetchRecentProjects();
 
         // Fetch Inquiry Count (실제 데이터)
         const inquiriesResponse = await api.get("/api/inquiries/counts");
@@ -340,10 +362,7 @@ export default function DashboardPage() {
         setAnsweredInquiryCount(inquiryCounts.answeredCnt || 0);
 
         // Fetch Recent Inquiries
-        const recentInquiriesResponse = await api.get(
-          "/api/inquiries/recent-inquiries"
-        );
-        setRecentInquiries(recentInquiriesResponse.data?.data || []);
+        await fetchRecentInquiries();
 
         // Fetch Project List
         await fetchProjectList(selectedStatus);
@@ -353,7 +372,12 @@ export default function DashboardPage() {
     };
 
     fetchData();
-  }, [fetchRecentCompanies, fetchProjectList]);
+  }, [
+    fetchRecentCompanies,
+    fetchProjectList,
+    fetchRecentInquiries,
+    fetchRecentProjects,
+  ]);
 
   // 최초 및 상태 변경 시 fetch
   useEffect(() => {
@@ -870,21 +894,54 @@ export default function DashboardPage() {
               <FaQuestionCircle style={{ color: "#fdb924" }} />
               최근 등록된 문의사항
             </span>
-            <button
-              style={{
-                background: "#fdb924",
-                color: "#fff",
-                border: "none",
-                borderRadius: "6px",
-                padding: "6px 16px",
-                fontWeight: 600,
-                cursor: "pointer",
-                fontSize: "14px",
-              }}
-              onClick={() => (window.location.href = "/inquiry")}
-            >
-              더보기
-            </button>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <button
+                style={{
+                  background: "#fff",
+                  color: "#fdb924",
+                  border: "1px solid #fdb924",
+                  borderRadius: "6px",
+                  padding: "6px 16px",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  fontSize: "14px",
+                  transition: "all 0.18s",
+                  marginRight: "6px",
+                }}
+                onClick={() => (window.location.href = "/inquiry")}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.background = "#fdb924";
+                  e.currentTarget.style.color = "#fff";
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.background = "#fff";
+                  e.currentTarget.style.color = "#fdb924";
+                }}
+              >
+                전체보기
+              </button>
+              <button
+                style={{
+                  background: "#fff",
+                  border: "none",
+                  borderRadius: "6px",
+                  padding: "6px",
+                  cursor: "pointer",
+                  transition: "background 0.18s",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+                title="목록 새로고침"
+                onClick={fetchRecentInquiries}
+                onMouseOver={(e) =>
+                  (e.currentTarget.style.background = "#f3f4f6")
+                }
+                onMouseOut={(e) => (e.currentTarget.style.background = "#fff")}
+              >
+                <FiRotateCcw size={18} color="#fdb924" />
+              </button>
+            </div>
           </RecentActivityTitle>
           <RecentActivityList>
             {recentInquiries.length > 0 ? (
@@ -949,24 +1006,57 @@ export default function DashboardPage() {
             }}
           >
             <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <FaBuilding style={{ color: "#fdb924" }} />
+              <FiHome style={{ color: "#fdb924" }} />
               최근 등록된 업체
             </span>
-            <button
-              style={{
-                background: "#fdb924",
-                color: "#fff",
-                border: "none",
-                borderRadius: "6px",
-                padding: "6px 16px",
-                fontWeight: 600,
-                cursor: "pointer",
-                fontSize: "14px",
-              }}
-              onClick={() => (window.location.href = "/company")}
-            >
-              더보기
-            </button>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <button
+                style={{
+                  background: "#fff",
+                  color: "#fdb924",
+                  border: "1px solid #fdb924",
+                  borderRadius: "6px",
+                  padding: "6px 16px",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  fontSize: "14px",
+                  transition: "all 0.18s",
+                  marginRight: "6px",
+                }}
+                onClick={() => (window.location.href = "/company")}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.background = "#fdb924";
+                  e.currentTarget.style.color = "#fff";
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.background = "#fff";
+                  e.currentTarget.style.color = "#fdb924";
+                }}
+              >
+                전체보기
+              </button>
+              <button
+                style={{
+                  background: "#fff",
+                  border: "none",
+                  borderRadius: "6px",
+                  padding: "6px",
+                  cursor: "pointer",
+                  transition: "background 0.18s",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+                title="목록 새로고침"
+                onClick={fetchRecentCompanies}
+                onMouseOver={(e) =>
+                  (e.currentTarget.style.background = "#f3f4f6")
+                }
+                onMouseOut={(e) => (e.currentTarget.style.background = "#fff")}
+              >
+                <FiRotateCcw size={18} color="#fdb924" />
+              </button>
+            </div>
           </RecentActivityTitle>
           <RecentActivityList>
             {recentCompanies.length > 0 ? (
@@ -1042,21 +1132,54 @@ export default function DashboardPage() {
               <FiPackage style={{ color: "#fdb924" }} />
               최근 등록된 프로젝트
             </span>
-            <button
-              style={{
-                background: "#fdb924",
-                color: "#fff",
-                border: "none",
-                borderRadius: "6px",
-                padding: "6px 16px",
-                fontWeight: 600,
-                cursor: "pointer",
-                fontSize: "14px",
-              }}
-              onClick={() => (window.location.href = "/projects")}
-            >
-              더보기
-            </button>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <button
+                style={{
+                  background: "#fff",
+                  color: "#fdb924",
+                  border: "1px solid #fdb924",
+                  borderRadius: "6px",
+                  padding: "6px 16px",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  fontSize: "14px",
+                  transition: "all 0.18s",
+                  marginRight: "6px",
+                }}
+                onClick={() => (window.location.href = "/projects")}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.background = "#fdb924";
+                  e.currentTarget.style.color = "#fff";
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.background = "#fff";
+                  e.currentTarget.style.color = "#fdb924";
+                }}
+              >
+                전체보기
+              </button>
+              <button
+                style={{
+                  background: "#fff",
+                  border: "none",
+                  borderRadius: "6px",
+                  padding: "6px",
+                  cursor: "pointer",
+                  transition: "background 0.18s",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+                title="목록 새로고침"
+                onClick={fetchRecentProjects}
+                onMouseOver={(e) =>
+                  (e.currentTarget.style.background = "#f3f4f6")
+                }
+                onMouseOut={(e) => (e.currentTarget.style.background = "#fff")}
+              >
+                <FiRotateCcw size={18} color="#fdb924" />
+              </button>
+            </div>
           </RecentActivityTitle>
           <RecentActivityList>
             {recentProjects.length > 0 ? (
