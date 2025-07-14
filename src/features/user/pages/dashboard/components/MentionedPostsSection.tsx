@@ -127,6 +127,10 @@ const MentionedPostsSection = () => {
   };
 
   const getNotificationIcon = (type: string, content: string) => {
+    // 체크리스트 관련 알림이면 무조건 체크리스트 아이콘
+    if (type.startsWith("CHECKLIST_")) {
+      return <FiCheckSquare size={14} style={{ color: "#fdb924" }} />;
+    }
     switch (type) {
       case "MENTIONED":
         return <FiAtSign size={14} style={{ color: "#3b82f6" }} />;
@@ -141,7 +145,7 @@ const MentionedPostsSection = () => {
       case "POST_RESTORED":
         return <FiRotateCcw size={14} style={{ color: "#8b5cf6" }} />;
       case "STEP_APPROVAL_REQUEST":
-        return <FiCheckSquare size={14} style={{ color: "#f59e0b" }} />;
+        return <FiCheckSquare size={14} style={{ color: "#fdb924" }} />;
       case "STEP_APPROVAL_ACCEPTED":
         return <FiCheck size={14} style={{ color: "#10b981" }} />;
       case "STEP_APPROVAL_REJECTED":
