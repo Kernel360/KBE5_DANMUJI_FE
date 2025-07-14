@@ -17,6 +17,7 @@ import ChecklistCreateModal from "./ChecklistCreateModal";
 import ChecklistDetailModal from "./ChecklistDetailModal";
 import ProjectBoardFilters from "../Board/ProjectBoardFilters";
 import type { ProjectDetailStep } from "../../services/projectService";
+import { FiAlertTriangle, FiCheckCircle, FiFlag } from "react-icons/fi";
 
 // 카드 타입 명확화
 export type ChecklistCardType = {
@@ -71,6 +72,23 @@ function ChecklistCard({
   card: ChecklistCardType;
   onClick: (id: number) => void;
 }) {
+  // 상태별 아이콘 매핑
+  const getStatusIcon = (status: string) => {
+    if (status === "waiting")
+      return (
+        <FiAlertTriangle
+          size={16}
+          style={{ color: "#fbbf24", marginRight: 8 }}
+        />
+      );
+    if (status === "approved")
+      return (
+        <FiCheckCircle size={16} style={{ color: "#10b981", marginRight: 8 }} />
+      );
+    if (status === "rejected")
+      return <FiFlag size={16} style={{ color: "#ef4444", marginRight: 8 }} />;
+    return null;
+  };
   return (
     <CardBox
       $status={card.status}
@@ -78,6 +96,8 @@ function ChecklistCard({
       style={{ cursor: "pointer" }}
     >
       <CardTop>
+        {/* 상태 아이콘 추가 */}
+        {getStatusIcon(card.status)}
         <CardTitle>{card.title}</CardTitle>
         <StatusBadge status={card.status}>
           {card.status === "waiting" && "대기"}
@@ -109,6 +129,16 @@ function Column({
   cards: ChecklistCardType[];
   onCardClick: (id: number) => void;
 }) {
+  // 상태별 컬럼 아이콘 매핑
+  const getColumnIcon = (key: string) => {
+    if (key === "waiting")
+      return <FiAlertTriangle size={16} style={{ color: "#fbbf24" }} />;
+    if (key === "approved")
+      return <FiCheckCircle size={16} style={{ color: "#10b981" }} />;
+    if (key === "rejected")
+      return <FiFlag size={16} style={{ color: "#ef4444" }} />;
+    return null;
+  };
   return (
     <div
       style={{
@@ -120,7 +150,8 @@ function Column({
       }}
     >
       <ColumnHeader>
-        <StatusDot color={column.dot} />
+        {/* <StatusDot color={column.dot} /> */}
+        {getColumnIcon(column.key)}
         <ColumnTitle>{column.title}</ColumnTitle>
         <ColumnCount>{cards.length}</ColumnCount>
       </ColumnHeader>
