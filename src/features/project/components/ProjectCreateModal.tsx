@@ -22,6 +22,9 @@ import {
   CompanyCardMembers,
   DateButton,
   DateSeparator,
+  ButtonGroup,
+  EditButton,
+  DeleteButton,
 } from "./ProjectCreateModal.styled";
 import type { ProjectDetailResponse } from "../services/projectService";
 import DatePicker from "react-datepicker";
@@ -146,6 +149,13 @@ export default function ProjectCreateModal({
   const [selectedClientCompanies, setSelectedClientCompanies] = useState<
     SelectedClientCompany[]
   >([]);
+  useEffect(() => {
+    console.log('devUserId:', form.devUserId);
+    console.log('clientUserId:', form.clientUserId);
+    console.log('devManagerId:', form.devManagerId);
+    console.log('clientManagerId:', form.clientManagerId);
+  }, [form.devUserId, form.clientUserId]);
+
 
   // DatePicker 팝업 상태
   const [startDateOpen, setStartDateOpen] = useState(false);
@@ -610,7 +620,7 @@ export default function ProjectCreateModal({
                   </span>
                 )}
                 {selectedDevCompanies.map((dev) => (
-                  <CompanyCard key={dev.company.id}>
+                  <CompanyCard key={dev.company.id} $type="dev">
                     <CompanyCardHeader>
                       <CompanyCardTitle>
                         {/* 개발사 업체 아이콘 */}
@@ -620,6 +630,29 @@ export default function ProjectCreateModal({
                         />
                         {dev.company.name}
                       </CompanyCardTitle>
+                      <ButtonGroup>
+                        <EditButton
+                          type="button"
+                          onClick={() => {
+                            setEditCompany(dev.company);
+                            setEditMembers(dev.members);
+                            openCompanyMemberModal("dev", false);
+                          }}
+                        >
+                          수정
+                        </EditButton>
+                        <DeleteButton
+                          type="button"
+                          onClick={() =>
+                            setSelectedDevCompanies((prev) =>
+                              prev.filter((c) => c.company.id !== dev.company.id)
+                            )
+                          }
+                          aria-label="삭제"
+                        >
+                          삭제
+                        </DeleteButton>
+                      </ButtonGroup>
                     </CompanyCardHeader>
                     <CompanyCardMembers>
                       {dev.members.map((m) => (
@@ -724,7 +757,7 @@ export default function ProjectCreateModal({
                   </span>
                 )}
                 {selectedClientCompanies.map((client) => (
-                  <CompanyCard key={client.company.id}>
+                  <CompanyCard key={client.company.id} $type="client">
                     <CompanyCardHeader>
                       <CompanyCardTitle>
                         {/* 고객사 업체 아이콘 */}
@@ -734,6 +767,29 @@ export default function ProjectCreateModal({
                         />
                         {client.company.name}
                       </CompanyCardTitle>
+                      <ButtonGroup>
+                        <EditButton
+                          type="button"
+                          onClick={() => {
+                            setEditCompany(client.company);
+                            setEditMembers(client.members);
+                            openCompanyMemberModal("client", false);
+                          }}
+                        >
+                          수정
+                        </EditButton>
+                        <DeleteButton
+                          type="button"
+                          onClick={() =>
+                            setSelectedClientCompanies((prev) =>
+                              prev.filter((c) => c.company.id !== client.company.id)
+                            )
+                          }
+                          aria-label="삭제"
+                        >
+                          삭제
+                        </DeleteButton>
+                      </ButtonGroup>
                     </CompanyCardHeader>
                     <CompanyCardMembers>
                       {client.members.map((m) => (
