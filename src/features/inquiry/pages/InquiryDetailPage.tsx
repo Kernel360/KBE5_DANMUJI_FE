@@ -1,6 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
-import { FiX } from "react-icons/fi";
+import {
+  FiX,
+  FiUser,
+  FiCalendar,
+  FiCheckCircle,
+  FiEdit2,
+  FiBookOpen,
+  FiFileText,
+} from "react-icons/fi";
 import { useAuth } from "@/hooks/useAuth";
 import api from "@/api/axios";
 
@@ -36,6 +44,12 @@ const ModalPanel = styled.div`
     }
   }
 `;
+const ModalContent = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+`;
 const ModalHeader = styled.div`
   padding: 1rem 1rem 0.7rem 1rem;
   border-bottom: 1px solid #e5e7eb;
@@ -63,6 +77,16 @@ const ModalBody = styled.div`
   flex: 1;
   padding: 1rem;
   overflow-y: auto;
+`;
+
+const TitleBar = styled.span`
+  display: inline-block;
+  width: 4px;
+  height: 1.3em;
+  background: #fdb924;
+  border-radius: 3px;
+  margin-right: 10px;
+  vertical-align: middle;
 `;
 
 interface InquiryDetailModalProps {
@@ -308,15 +332,19 @@ const InquiryDetailModal: React.FC<InquiryDetailModalProps> = ({
   const isAdmin = role === "ROLE_ADMIN";
   const isWaiting = inquiry?.inquiryStatus === "WAITING";
 
-  // 날짜 포맷 (YYYY-MM-DD HH:mm)
+  // 날짜 포맷 (YYYY.MM.DD 오전/오후 HH:MM)
   function formatDate(dateString: string) {
     const date = new Date(dateString);
     const yyyy = date.getFullYear();
     const mm = String(date.getMonth() + 1).padStart(2, "0");
     const dd = String(date.getDate()).padStart(2, "0");
-    const hh = String(date.getHours()).padStart(2, "0");
+    let hour = date.getHours();
     const min = String(date.getMinutes()).padStart(2, "0");
-    return `${yyyy}.${mm}.${dd} ${hh}:${min}`;
+    const isAM = hour < 12;
+    const ampm = isAM ? "오전" : "오후";
+    if (!isAM) hour = hour === 12 ? 12 : hour - 12;
+    if (isAM && hour === 0) hour = 12;
+    return `${yyyy}.${mm}.${dd} ${ampm} ${hour}:${min}`;
   }
 
   return (
@@ -327,7 +355,10 @@ const InquiryDetailModal: React.FC<InquiryDetailModalProps> = ({
     >
       <ModalPanel>
         <ModalHeader>
-          <ModalTitle>문의 상세</ModalTitle>
+          <div style={{ display: "flex", alignItems: "center", flex: 1 }}>
+            <TitleBar />
+            <ModalTitle>문의 상세</ModalTitle>
+          </div>
           <CloseButton onClick={onClose}>
             <FiX />
           </CloseButton>
@@ -335,20 +366,143 @@ const InquiryDetailModal: React.FC<InquiryDetailModalProps> = ({
         <ModalBody>
           {inquiry ? (
             <>
-              <h3 style={{ fontWeight: 700, fontSize: 20 }}>{inquiry.title}</h3>
-              <div style={{ color: "#6b7280", marginBottom: 12 }}>
-                작성자: {inquiry.authorName}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  justifyContent: "space-between",
+                  marginBottom: 18,
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  {/* <FiBookOpen style={{ color: "#2563eb", fontSize: 22 }} /> */}
+                  <h3 style={{ fontWeight: 700, fontSize: 20, margin: 0 }}>
+                    {inquiry.title}
+                  </h3>
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "flex-end",
+                    minWidth: 120,
+                  }}
+                >
+                  {inquiry.inquiryStatus === "WAITING" ? (
+                    <span
+                      style={{
+                        background: "#fef9c3",
+                        color: "#a16207",
+                        fontWeight: 600,
+                        fontSize: 14,
+                        borderRadius: 6,
+                        padding: "2px 12px",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 4,
+                        marginBottom: isAdmin && isWaiting ? 8 : 0,
+                      }}
+                    >
+                      <FiCheckCircle style={{ marginRight: 2 }} /> 답변대기
+                    </span>
+                  ) : (
+                    <span
+                      style={{
+                        background: "#d1fae5",
+                        color: "#059669",
+                        fontWeight: 600,
+                        fontSize: 14,
+                        borderRadius: 6,
+                        padding: "2px 12px",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 4,
+                        marginBottom: isAdmin && !isWaiting ? 8 : 0,
+                      }}
+                    >
+                      <FiCheckCircle style={{ marginRight: 2 }} /> 답변완료
+                    </span>
+                  )}
+                  {/* 답변완료하기/다시하기 버튼 세련된 스타일 */}
+                  {isAdmin && isWaiting && (
+                    <button
+                      onClick={handleCompleteInquiry}
+                      style={{
+                        padding: "6px 14px",
+                        borderRadius: 6,
+                        border: "1px solid #22c55e",
+                        background: "#22c55e",
+                        color: "#fff",
+                        fontWeight: 600,
+                        fontSize: 14,
+                        boxShadow: "none",
+                        cursor: "pointer",
+                        marginTop: 6,
+                        transition: "background 0.18s, box-shadow 0.18s",
+                      }}
+                      onMouseOver={undefined}
+                      onMouseOut={undefined}
+                    >
+                      답변 완료하기
+                    </button>
+                  )}
+                  {isAdmin && !isWaiting && (
+                    <button
+                      onClick={handleReopenInquiry}
+                      style={{
+                        padding: "6px 14px",
+                        borderRadius: 6,
+                        border: "1px solid #fbbf24",
+                        background: "#fbbf24",
+                        color: "#fff",
+                        fontWeight: 600,
+                        fontSize: 14,
+                        boxShadow: "none",
+                        cursor: "pointer",
+                        marginTop: 6,
+                        transition: "background 0.18s, box-shadow 0.18s",
+                      }}
+                      onMouseOver={undefined}
+                      onMouseOut={undefined}
+                    >
+                      답변 다시하기
+                    </button>
+                  )}
+                </div>
               </div>
-              <div style={{ margin: "16px 0", color: "#374151", fontSize: 16 }}>
-                {inquiry.content}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 18,
+                  color: "#6b7280",
+                  fontSize: 14,
+                  marginBottom: 10,
+                  flexWrap: "wrap",
+                }}
+              >
+                <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                  <FiUser /> {inquiry.authorName}
+                </span>
+                <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                  <FiCalendar /> {formatDate(inquiry.createdAt)}
+                </span>
               </div>
-              <div style={{ color: "#6b7280", marginTop: 16 }}>
-                작성일: {formatDate(inquiry.createdAt)}
+              <div
+                style={{
+                  color: "#374151",
+                  fontSize: 16,
+                  margin: "18px 0 24px 0",
+                  whiteSpace: "pre-line",
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: 8,
+                }}
+              >
+                {/* <FiFileText style={{ color: "#2563eb", fontSize: 19, marginTop: 2 }} /> */}
+                <span>{inquiry.content}</span>
               </div>
-              <div style={{ color: "#6b7280", marginTop: 16 }}>
-                상태:{" "}
-                {inquiry.inquiryStatus === "WAITING" ? "답변 대기" : "답변완료"}
-              </div>
+              {/* 이하 기존 답변 목록, 버튼 등은 그대로 */}
 
               {isEditing ? (
                 <div
@@ -432,7 +586,7 @@ const InquiryDetailModal: React.FC<InquiryDetailModalProps> = ({
               ) : (
                 <>
                   {/* 답변 대기 상태: 답변 완료하기, 답변완료 상태: 답변 다시하기 */}
-                  {isAdmin && isWaiting && (
+                  {isAdmin && isWaiting && false && (
                     <button
                       onClick={handleCompleteInquiry}
                       style={{
@@ -447,23 +601,6 @@ const InquiryDetailModal: React.FC<InquiryDetailModalProps> = ({
                       }}
                     >
                       답변 완료하기
-                    </button>
-                  )}
-                  {isAdmin && !isWaiting && (
-                    <button
-                      onClick={handleReopenInquiry}
-                      style={{
-                        padding: "8px 16px",
-                        borderRadius: 6,
-                        border: "1px solid #d1d5db",
-                        background: "#fff",
-                        color: "#4b5565",
-                        fontWeight: 600,
-                        cursor: "pointer",
-                        transition: "opacity 0.2s",
-                      }}
-                    >
-                      답변 다시하기
                     </button>
                   )}
                   {/* 일반 사용자만 수정/삭제 버튼 노출: inquiryStatus가 WAITING일 때만 */}
@@ -735,7 +872,11 @@ const InquiryDetailModal: React.FC<InquiryDetailModalProps> = ({
                   }}
                 >
                   <h4
-                    style={{ fontSize: 18, fontWeight: 600, color: "#1f2937" }}
+                    style={{
+                      fontSize: 18,
+                      fontWeight: 600,
+                      color: "#1f2937",
+                    }}
                   >
                     답변 작성
                   </h4>
