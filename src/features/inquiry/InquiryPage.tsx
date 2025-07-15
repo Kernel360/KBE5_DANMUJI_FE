@@ -200,8 +200,8 @@ const SearchInput = styled.input`
 
 const STATUS_OPTIONS = [
   { value: "", label: "전체" },
-  { value: "대기", label: "답변대기" },
-  { value: "완료", label: "답변완료" },
+  { value: "대기", label: "대기" },
+  { value: "완료", label: "완료" },
 ];
 
 const STATUS_OPTION_META = {
@@ -253,11 +253,63 @@ const SEARCH_FIELD_OPTIONS = [
   },
   {
     value: "author",
-    label: "작성자",
+    label: "작성자이름",
     icon: () => (
       <FiUser
         size={16}
         style={{ marginRight: 8, color: "#2563eb", flexShrink: 0 }}
+      />
+    ),
+  },
+  {
+    value: "authorUsername",
+    label: "작성자아이디",
+    icon: () => (
+      <FiUser
+        size={16}
+        style={{ marginRight: 8, color: "#a21caf", flexShrink: 0 }}
+      />
+    ),
+  },
+];
+
+const ROLE_OPTIONS = [
+  {
+    value: "",
+    label: "전체",
+    color: "#374151",
+    bg: "#fff",
+    border: "2px solid #e5e7eb",
+    icon: () => (
+      <FiGrid
+        size={16}
+        style={{ marginRight: 8, color: "#6b7280", flexShrink: 0 }}
+      />
+    ),
+  },
+  {
+    value: "USER",
+    label: "사용자",
+    color: "#2563eb",
+    bg: "#e0f2fe",
+    border: "2px solid #2563eb",
+    icon: () => (
+      <FiUser
+        size={16}
+        style={{ marginRight: 8, color: "#2563eb", flexShrink: 0 }}
+      />
+    ),
+  },
+  {
+    value: "ADMIN",
+    label: "관리자",
+    color: "#a21caf",
+    bg: "#f3e8ff",
+    border: "2px solid #a21caf",
+    icon: () => (
+      <FiUser
+        size={16}
+        style={{ marginRight: 8, color: "#a21caf", flexShrink: 0 }}
       />
     ),
   },
@@ -299,6 +351,8 @@ function InquiryFilterBar({
   const statusDropdownRef = React.useRef<HTMLDivElement>(null);
   const [startDateOpen, setStartDateOpen] = React.useState(false);
   const [endDateOpen, setEndDateOpen] = React.useState(false);
+  const [roleDropdownOpen, setRoleDropdownOpen] = React.useState(false);
+  const roleDropdownRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     if (!searchFieldDropdownOpen) return;
@@ -342,6 +396,27 @@ function InquiryFilterBar({
     };
   }, [statusDropdownOpen]);
 
+  React.useEffect(() => {
+    if (!roleDropdownOpen) return;
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setRoleDropdownOpen(false);
+    };
+    const handleClick = (e: MouseEvent) => {
+      if (
+        roleDropdownRef.current &&
+        !roleDropdownRef.current.contains(e.target as Node)
+      ) {
+        setRoleDropdownOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleEsc);
+    document.addEventListener("mousedown", handleClick);
+    return () => {
+      window.removeEventListener("keydown", handleEsc);
+      document.removeEventListener("mousedown", handleClick);
+    };
+  }, [roleDropdownOpen]);
+
   const getSearchFieldLabel = (value: string) => {
     const option = SEARCH_FIELD_OPTIONS.find((opt) => opt.value === value);
     return option ? option.label : "제목";
@@ -378,6 +453,19 @@ function InquiryFilterBar({
           />
         ),
         chevron: "#2563eb",
+      };
+    } else if (field === "authorUsername") {
+      return {
+        border: "2px solid #a21caf",
+        color: "#a21caf",
+        bg: "#f0e0ff",
+        icon: (
+          <FiUser
+            size={16}
+            style={{ marginRight: 8, color: "#a21caf", flexShrink: 0 }}
+          />
+        ),
+        chevron: "#a21caf",
       };
     }
     return {
@@ -434,16 +522,16 @@ function InquiryFilterBar({
           flexDirection: "row",
           alignItems: "flex-end",
           justifyContent: "space-between",
-          gap: 24,
+          gap: 12,
         }}
       >
-        {/* 왼쪽: 답변상태, 날짜, 초기화 */}
+        {/* 왼쪽: 답변상태, 날짜, role, 초기화 */}
         <div
           style={{
             display: "flex",
             flexDirection: "row",
             alignItems: "flex-end",
-            gap: 20,
+            gap: 10,
           }}
         >
           {/* 답변상태 필터 */}
@@ -455,8 +543,8 @@ function InquiryFilterBar({
                 onClick={() => setStatusDropdownOpen((prev) => !prev)}
                 className={statusDropdownOpen ? "open" : ""}
                 style={{
-                  padding: "0 12px",
-                  width: 150,
+                  padding: "0 8px",
+                  width: 120,
                   height: 36,
                   minHeight: 36,
                   display: "flex",
@@ -506,7 +594,7 @@ function InquiryFilterBar({
               </SelectButton>
               <SelectDropdown
                 $isOpen={statusDropdownOpen}
-                style={{ minWidth: 150 }}
+                style={{ minWidth: 100 }}
               >
                 {STATUS_OPTIONS.map((option) => (
                   <SelectOption
@@ -553,10 +641,101 @@ function InquiryFilterBar({
               </SelectDropdown>
             </div>
           </FilterGroup>
+          {/* 역할 필터 */}
+          <FilterGroup>
+            <FilterLabel>역할</FilterLabel>
+            <div style={{ position: "relative" }} ref={roleDropdownRef}>
+              <SelectButton
+                type="button"
+                onClick={() => setRoleDropdownOpen((prev) => !prev)}
+                className={roleDropdownOpen ? "open" : ""}
+                style={{
+                  padding: "0 8px",
+                  width: 120,
+                  height: 36,
+                  minHeight: 36,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 0,
+                  background: ROLE_OPTIONS.find(
+                    (opt) => opt.value === filters.role
+                  )?.bg,
+                  color: ROLE_OPTIONS.find((opt) => opt.value === filters.role)
+                    ?.color,
+                  border: ROLE_OPTIONS.find((opt) => opt.value === filters.role)
+                    ?.border,
+                  fontWeight: filters.role ? 700 : 500,
+                  transition: "all 0.18s",
+                }}
+                $hasValue={!!filters.role}
+              >
+                {ROLE_OPTIONS.find(
+                  (opt) => opt.value === filters.role
+                )?.icon?.()}
+                <span
+                  className="select-value"
+                  style={{
+                    marginRight: 8,
+                    minWidth: 36,
+                    textAlign: "left",
+                    display: "inline-block",
+                  }}
+                >
+                  {ROLE_OPTIONS.find((opt) => opt.value === filters.role)
+                    ?.label || "전체"}
+                </span>
+                <FiChevronDown
+                  size={16}
+                  style={{
+                    flexShrink: 0,
+                    color:
+                      ROLE_OPTIONS.find((opt) => opt.value === filters.role)
+                        ?.color || "#bdbdbd",
+                  }}
+                />
+              </SelectButton>
+              <SelectDropdown
+                $isOpen={roleDropdownOpen}
+                style={{ minWidth: 120 }}
+              >
+                {ROLE_OPTIONS.map((option) => (
+                  <SelectOption
+                    key={option.value}
+                    $isSelected={filters.role === option.value}
+                    onClick={() => {
+                      onChange("role", option.value);
+                      setRoleDropdownOpen(false);
+                    }}
+                    style={
+                      filters.role === option.value
+                        ? {
+                            background: option.bg,
+                            color: option.color,
+                            fontWeight: 700,
+                          }
+                        : {}
+                    }
+                  >
+                    <span
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        marginRight: 6,
+                        color: option.color,
+                      }}
+                    >
+                      {option.icon?.()}
+                    </span>
+                    {option.label}
+                  </SelectOption>
+                ))}
+              </SelectDropdown>
+            </div>
+          </FilterGroup>
           {/* 날짜 필터 */}
           <FilterGroup>
             <FilterLabel>작성일</FilterLabel>
-            <DateRangeGroup>
+            <DateRangeGroup style={{ gap: 4 }}>
               <div style={{ position: "relative" }}>
                 <DateButton
                   type="button"
@@ -620,7 +799,7 @@ function InquiryFilterBar({
                   color: "#6b7280",
                   fontWeight: 600,
                   fontSize: "0.9rem",
-                  padding: "0 8px 0 8px",
+                  padding: "0 4px 0 4px",
                 }}
               >
                 ~
@@ -691,32 +870,8 @@ function InquiryFilterBar({
               </div>
             </DateRangeGroup>
           </FilterGroup>
-          {/* 초기화 버튼 */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              marginLeft: "-10px",
-            }}
-          >
-            <NewButton
-              style={{
-                minWidth: "auto",
-                padding: "10px",
-                width: "40px",
-                height: "40px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-              onClick={onReset}
-              title="초기화"
-            >
-              <FiRotateCcw size={16} />
-            </NewButton>
-          </div>
         </div>
-        {/* 오른쪽: 검색 옵션 드롭다운+검색창, 검색버튼 */}
+        {/* 오른쪽: 검색 옵션 드롭다운+검색창, 검색버튼, 리셋버튼 */}
         <div
           style={{
             display: "flex",
@@ -740,7 +895,7 @@ function InquiryFilterBar({
                 className={searchFieldDropdownOpen ? "open" : ""}
                 style={{
                   padding: "0 12px",
-                  width: 130,
+                  width: 150,
                   height: 36,
                   minHeight: 36,
                   display: "flex",
@@ -803,7 +958,9 @@ function InquiryFilterBar({
               placeholder={
                 filters.searchField === "title"
                   ? "제목을 입력하세요"
-                  : "작성자를 입력하세요"
+                  : filters.searchField === "author"
+                  ? "작성자 이름을 입력하세요"
+                  : "작성자 아이디를 입력하세요"
               }
               value={filters.searchValue}
               onChange={(e) => onChange("searchValue", e.target.value)}
@@ -823,6 +980,21 @@ function InquiryFilterBar({
             onClick={onSearch}
           >
             <FiSearch size={16} />
+          </NewButton>
+          <NewButton
+            style={{
+              minWidth: "auto",
+              padding: "10px",
+              width: "40px",
+              height: "40px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+            onClick={onReset}
+            title="초기화"
+          >
+            <FiRotateCcw size={16} />
           </NewButton>
         </div>
       </FilterBar>
@@ -926,6 +1098,9 @@ export default function InquiryPage() {
       if (filters.searchField === "author" && filters.searchValue) {
         params.append("authorName", filters.searchValue);
       }
+      if (filters.searchField === "authorUsername" && filters.searchValue) {
+        params.append("authorUsername", filters.searchValue);
+      }
       // 답변 상태 변환
       let statusParam = filters.status;
       if (statusParam === "완료") statusParam = "ANSWERED";
@@ -1014,15 +1189,13 @@ export default function InquiryPage() {
   return (
     <Container>
       <HeaderSection>
-        <Title>문의사항 관리</Title>
-        <Subtitle>문의사항을 한눈에 확인하세요</Subtitle>
+        <Title>문의사항 목록</Title>
+        <Subtitle>모든 문의사항을 확인하고 관리할 수 있습니다.</Subtitle>
       </HeaderSection>
       <InquiryFilterBar
         filters={filters}
         onChange={handleFilterChange}
-        onSearch={() => {
-          fetchFilteredInquiries(0);
-        }}
+        onSearch={() => fetchFilteredInquiries(0)}
         onReset={() => {
           setFilters({
             searchField: "title",
@@ -1045,129 +1218,57 @@ export default function InquiryPage() {
         <Table>
           <TableHead>
             <TableRow>
+              <TableHeader>번호</TableHeader>
               <TableHeader>제목</TableHeader>
               <TableHeader>작성자</TableHeader>
+              <TableHeader>답변상태</TableHeader>
               <TableHeader>작성일</TableHeader>
-              <TableHeader>상태</TableHeader>
             </TableRow>
           </TableHead>
           <TableBody>
-            {inquiries.map((inq) => {
-              const statusText =
-                inq.inquiryStatus === "WAITING" ? "대기" : "완료";
-              const formattedDate = new Date(inq.createdAt).toLocaleDateString(
-                "ko-KR"
-              );
-              return (
-                <TableRow
-                  key={inq.id}
-                  onClick={() => handleTitleClick(inq.id)}
-                  style={{ cursor: "pointer" }}
-                  onMouseOver={(e) =>
-                    (e.currentTarget.style.background = "#f9fafb")
-                  }
-                  onMouseOut={(e) => (e.currentTarget.style.background = "")}
-                >
-                  <InquiryTitleCell>{inq.title}</InquiryTitleCell>
-                  <TableCell>{inq.authorName}</TableCell>
-                  <TableCell>{formattedDate}</TableCell>
-                  <TableCell>
-                    <StatusBadge $status={statusText}>{statusText}</StatusBadge>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-            {Array.from({ length: pageInfo.size - inquiries.length }).map(
-              (_, idx) => (
-                <TableRow key={`empty-${idx}`}>
-                  <TableCell
-                    colSpan={4}
-                    style={{
-                      height: 48,
-                      background: "#f9fafb",
-                      borderBottom: "1px solid #f3f4f6",
-                    }}
-                  />
-                </TableRow>
-              )
-            )}
+            {inquiries.map((inquiry) => (
+              <TableRow key={inquiry.id}>
+                <TableCell>{inquiry.id}</TableCell>
+                <InquiryTitleCell onClick={() => handleTitleClick(inquiry.id)}>
+                  {inquiry.title}
+                </InquiryTitleCell>
+                <TableCell>{inquiry.authorName}</TableCell>
+                <TableCell>
+                  <StatusBadge $status={inquiry.inquiryStatus}>
+                    {inquiry.inquiryStatus}
+                  </StatusBadge>
+                </TableCell>
+                <TableCell>{inquiry.createdAt}</TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
       </TableContainer>
       <PaginationContainer>
-        {pageInfo.totalElements > 0 && (
-          <PaginationNav>
-            {/* 첫 페이지로 이동 버튼 */}
-            {page > 0 && (
-              <PaginationButton onClick={() => handleFilteredPageChange(0)}>
-                맨 처음
-              </PaginationButton>
-            )}
-
-            {/* 10개씩 뒤로 가기 버튼 */}
-            {page >= 10 && (
-              <PaginationButton
-                onClick={() => handleFilteredPageChange(Math.max(page - 10, 0))}
-              >
-                -10
-              </PaginationButton>
-            )}
-
-            {page > 0 && (
-              <PaginationButton
-                onClick={() => handleFilteredPageChange(page - 1)}
-              >
-                이전
-              </PaginationButton>
-            )}
-            {Array.from({ length: pageInfo.totalPages }, (_, idx) =>
-              idx === page ? (
-                <PaginationButton key={idx} $active>
-                  {idx + 1}
-                </PaginationButton>
-              ) : (
-                <PaginationButton
-                  key={idx}
-                  onClick={() => handleFilteredPageChange(idx)}
-                >
-                  {idx + 1}
-                </PaginationButton>
-              )
-            )}
-            {page + 1 < pageInfo.totalPages && (
-              <PaginationButton
-                onClick={() => handleFilteredPageChange(page + 1)}
-              >
-                다음
-              </PaginationButton>
-            )}
-
-            {/* 10개씩 앞으로 가기 버튼 */}
-            {page + 10 < pageInfo.totalPages && (
-              <PaginationButton
-                onClick={() =>
-                  handleFilteredPageChange(
-                    Math.min(page + 10, pageInfo.totalPages - 1)
-                  )
-                }
-              >
-                +10
-              </PaginationButton>
-            )}
-
-            {/* 마지막 페이지로 이동 버튼 */}
-            {page + 1 < pageInfo.totalPages && (
-              <PaginationButton
-                onClick={() =>
-                  handleFilteredPageChange(pageInfo.totalPages - 1)
-                }
-              >
-                맨 마지막
-              </PaginationButton>
-            )}
-          </PaginationNav>
-        )}
         <PaginationInfo>{getPaginationInfo()}</PaginationInfo>
+        <PaginationNav>
+          <PaginationButton
+            onClick={() => handleFilteredPageChange(page - 1)}
+            disabled={page === 0}
+          >
+            이전
+          </PaginationButton>
+          {Array.from({ length: pageInfo.totalPages }, (_, i) => (
+            <PaginationButton
+              key={i}
+              onClick={() => handleFilteredPageChange(i)}
+              $active={page === i}
+            >
+              {i + 1}
+            </PaginationButton>
+          ))}
+          <PaginationButton
+            onClick={() => handleFilteredPageChange(page + 1)}
+            disabled={page === pageInfo.totalPages - 1}
+          >
+            다음
+          </PaginationButton>
+        </PaginationNav>
       </PaginationContainer>
     </Container>
   );
