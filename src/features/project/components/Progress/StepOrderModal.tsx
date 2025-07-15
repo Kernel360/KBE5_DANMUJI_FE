@@ -205,12 +205,28 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({
               fontSize: 12,
               color: "#6b7280",
               margin: "4px 0 12px 18px",
+              lineHeight: 1.7,
             }}
           >
-            상태뱃지 <span style={{ fontWeight: 600 }}>→</span> 상태변경
-            &nbsp;|&nbsp; 초기화 <span style={{ fontWeight: 600 }}>→</span>{" "}
-            예정상태 &nbsp;|&nbsp; 휴지통{" "}
-            <span style={{ fontWeight: 600 }}>→</span> 삭제
+            <div>
+              <b>상태뱃지</b> <span style={{ fontWeight: 600 }}>:</span>{" "}
+              <span style={{ color: "#2563eb" }}>예정</span> →{" "}
+              <span style={{ color: "#b45309" }}>진행중</span> →{" "}
+              <span style={{ color: "#15803d" }}>완료</span> →{" "}
+              <span style={{ color: "#b45309" }}>진행중</span>
+            </div>
+            <div>
+              <b>초기화</b> <span style={{ fontWeight: 600 }}>:</span>{" "}
+              <span style={{ color: "#b45309" }}>진행중</span> 또는{" "}
+              <span style={{ color: "#15803d" }}>완료</span> →{" "}
+              <span style={{ color: "#6b7280" }}>예정</span>
+            </div>
+            <div>
+              <b>연필</b> <span style={{ fontWeight: 600 }}>:</span> 단계 수정
+            </div>
+            <div>
+              <b>휴지통</b> <span style={{ fontWeight: 600 }}>:</span> 단계 삭제
+            </div>
           </div>
         </ModalHeader>
 
