@@ -22,9 +22,12 @@ import {
   TrashIcon,
 } from "./StepOrderModal.styled";
 
-import { FaGripVertical, FaPlus, FaTimes, FaTrashAlt } from "react-icons/fa";
+import { FaGripVertical, FaPlus, FaTimes } from "react-icons/fa";
+import { FiTrash2 } from "react-icons/fi";
+import { StatusButton } from "../Board/ProjectBoard.styled";
 import { RiEdit2Fill } from "react-icons/ri";
 import { showErrorToast, showSuccessToast } from "@/utils/errorHandler";
+import { motion } from "framer-motion";
 
 interface Step {
   id: number;
@@ -211,7 +214,8 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({
             const { text, color, bg } = getStatusStyle(step.projectStepStatus);
 
             return (
-              <div
+              <motion.div
+                layout
                 key={step.id}
                 onDragOver={(e) => handleDragOver(e, idx)}
                 onDrop={handleDrop}
@@ -306,16 +310,14 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({
                   >
                     {(step.projectStepStatus === "IN_PROGRESS" ||
                       step.projectStepStatus === "COMPLETED") && (
-                      <button
+                      <StatusButton
+                        $active={false}
+                        $color="#6b7280"
                         style={{
                           marginLeft: 8,
-                          padding: "2px 10px",
-                          borderRadius: 6,
-                          border: "1px solid #e5e7eb",
-                          background: "#f3f4f6",
-                          color: "#6b7280",
+                          minWidth: 60,
+                          padding: "4px 12px",
                           fontSize: 13,
-                          cursor: "pointer",
                         }}
                         title="예정으로 되돌리기"
                         onClick={async () => {
@@ -341,7 +343,7 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({
                         }}
                       >
                         초기화
-                      </button>
+                      </StatusButton>
                     )}
                     <StepStatusBadge
                       style={{ backgroundColor: bg, color }}
@@ -382,10 +384,11 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({
                     </StepStatusBadge>
 
                     <TrashIcon>
-                      <FaTrashAlt
-                        size={14}
+                      <FiTrash2
+                        size={17}
                         color="#e11d48"
                         title="단계 삭제"
+                        style={{ cursor: "pointer", marginLeft: 2 }}
                         onClick={async () => {
                           if (window.confirm("단계를 정말 삭제할까요?")) {
                             try {
@@ -408,9 +411,40 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({
                     </TrashIcon>
                   </div>
                 </StepItem>
-              </div>
+              </motion.div>
             );
           })}
+          {/* 마지막 요소 아래 드롭 타겟 (motion.div로 감싸서 FLIP 애니메이션 적용) */}
+          <motion.div layout>
+            <div
+              style={{ height: 32 }}
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = "move";
+                setDragOverIndex(stepList.length);
+              }}
+              onDrop={handleDrop}
+            >
+              {dragOverIndex === stepList.length && dragIndex !== null && (
+                <StepItem
+                  isDropTarget
+                  style={{
+                    position: "relative",
+                    left: 0,
+                    right: 0,
+                    zIndex: 2,
+                    pointerEvents: "none",
+                  }}
+                >
+                  <StepLeft>
+                    <StepOrderNumber>{stepList.length}</StepOrderNumber>
+                    <FaGripVertical size={13} color="#2563eb" />
+                    <StepName>{stepList[dragIndex].name}</StepName>
+                  </StepLeft>
+                </StepItem>
+              )}
+            </div>
+          </motion.div>
 
           {!adding && (
             <AddStepButton type="button" onClick={() => setAdding(true)}>
