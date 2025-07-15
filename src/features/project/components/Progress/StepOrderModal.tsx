@@ -195,6 +195,7 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({
           <ModalDescription>
             단계의 순서를 변경하고, 이름을 수정하거나 삭제할 수 있습니다.
           </ModalDescription>
+          <DragGuide>드래그로 순서를 변경할 수 있습니다.</DragGuide>
         </ModalHeader>
 
         <StepList>
@@ -218,18 +219,19 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({
               >
                 {isDropTarget && dragIndex !== null && (
                   <StepItem
+                    isDropTarget
                     style={{
-                      opacity: 0.5,
                       position: "absolute",
                       left: 0,
                       right: 0,
                       top: 0,
-                      zIndex: 1,
+                      zIndex: 2,
+                      pointerEvents: "none",
                     }}
                   >
                     <StepLeft>
                       <StepOrderNumber>{idx + 1}</StepOrderNumber>
-                      <FaGripVertical size={13} color="#fbbf24" />
+                      <FaGripVertical size={13} color="#2563eb" />
                       <StepName>{stepList[dragIndex].name}</StepName>
                     </StepLeft>
                   </StepItem>
@@ -239,6 +241,7 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({
                   onDragStart={(e) => handleDragStart(e, originalIdx)}
                   onDragEnd={handleDragEnd}
                   isDragging={isDragging}
+                  isDropTarget={isDropTarget}
                 >
                   <StepLeft>
                     <StepOrderNumber>{idx + 1}</StepOrderNumber>
@@ -447,8 +450,6 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({
             </StepItem>
           )}
         </StepList>
-
-        <DragGuide>드래그로 순서를 변경할 수 있습니다.</DragGuide>
 
         <ModalFooter>
           <CancelButton onClick={onClose}>취소</CancelButton>

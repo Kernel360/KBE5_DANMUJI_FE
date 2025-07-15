@@ -2,7 +2,8 @@ import styled from "styled-components";
 
 export const ModalOverlay = styled.div`
   position: fixed;
-  top: 0; left: 0;
+  top: 0;
+  left: 0;
   width: 100vw;
   height: 100vh;
   background: rgba(0, 0, 0, 0.25);
@@ -28,6 +29,19 @@ export const ModalTitle = styled.div`
   font-weight: 700;
   color: #111827;
   margin-bottom: 6px;
+  padding-left: 16px;
+  position: relative;
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 1.4rem;
+    background: #fdb924;
+    border-radius: 2px;
+  }
 `;
 
 export const ModalDescription = styled.div`
@@ -44,20 +58,38 @@ export const StepList = styled.div`
 `;
 
 export const StepItem = styled.div.withConfig({
-  shouldForwardProp: (prop) => prop !== 'isDragging'
-})<{ isDragging?: boolean }>`
+  shouldForwardProp: (prop) => prop !== "isDragging" && prop !== "isDropTarget",
+})<{ isDragging?: boolean; isDropTarget?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: ${({ isDragging }) => (isDragging ? '#fef3c7' : '#fff')};
-  border: ${({ isDragging }) => (isDragging ? '2px solid #fde68a' : '1.5px solid #e5e7eb')};
-  box-shadow: ${({ isDragging }) => (isDragging ? '0 2px 8px #fde68a33' : 'none')};
+  background: ${({ isDragging, isDropTarget }) =>
+    isDragging ? "#fde68a" : isDropTarget ? "#dbeafe" : "#fff"};
+  border: ${({ isDragging, isDropTarget }) =>
+    isDragging
+      ? "2.5px solid #fbbf24"
+      : isDropTarget
+      ? "2.5px solid #2563eb"
+      : "1.5px solid #e5e7eb"};
+  box-shadow: ${({ isDragging, isDropTarget }) =>
+    isDragging
+      ? "0 6px 24px 0 #fbbf2477, 0 0 0 5px #fde68a88"
+      : isDropTarget
+      ? "0 4px 16px 0 #2563eb33, 0 0 0 4px #dbeafe88"
+      : "none"};
+  opacity: ${({ isDragging, isDropTarget }) =>
+    isDragging ? 0.97 : isDropTarget ? 0.95 : 1};
+  transform: ${({ isDragging, isDropTarget }) =>
+    isDragging ? "scale(1.06)" : isDropTarget ? "scale(1.02)" : "none"};
+  z-index: ${({ isDragging, isDropTarget }) =>
+    isDragging ? 20 : isDropTarget ? 15 : 1};
   min-height: 48px;
   border-radius: 7px;
   padding: 8px 13px;
-  transition: all 0.15s;
+  transition: transform 0.38s cubic-bezier(0.22, 0.61, 0.36, 1),
+    box-shadow 0.18s, background 0.18s, border 0.18s, opacity 0.18s;
   margin-bottom: 1px;
-  cursor: ${({ isDragging }) => (isDragging ? 'grabbing' : 'grab')};
+  cursor: ${({ isDragging }) => (isDragging ? "grabbing" : "grab")};
 `;
 
 export const StepLeft = styled.div`
@@ -75,13 +107,13 @@ export const StepName = styled.span`
 `;
 
 export const StepStatusBadge = styled.span.withConfig({
-  shouldForwardProp: (prop) => prop !== 'clickable'
+  shouldForwardProp: (prop) => prop !== "clickable",
 })<{ clickable?: boolean }>`
   font-size: 13px;
   padding: 2px 10px;
   border-radius: 7px;
-  border: ${({ clickable }) => (clickable ? '1px solid #fde68a' : 'none')};
-  cursor: ${({ clickable }) => (clickable ? 'pointer' : 'default')};
+  border: ${({ clickable }) => (clickable ? "1px solid #fde68a" : "none")};
+  cursor: ${({ clickable }) => (clickable ? "pointer" : "default")};
   opacity: ${({ clickable }) => (clickable ? 1 : 0.85)};
   transition: background 0.15s, color 0.15s;
 `;
