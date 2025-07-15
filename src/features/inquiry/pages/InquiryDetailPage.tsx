@@ -1,204 +1,88 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
-import { useParams, useNavigate } from "react-router-dom";
-import { FiEdit, FiTrash2, FiArrowLeft } from "react-icons/fi";
+import { FiX } from "react-icons/fi";
 import { useAuth } from "@/hooks/useAuth";
 import api from "@/api/axios";
 
-// Styled Components
-const PageContainer = styled.div`
-  max-width: 900px;
-  margin: 40px auto;
-  padding: 32px;
-  background-color: #fff;
-  border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-`;
-
-const Header = styled.div`
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 2000;
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: flex-start;
-  border-bottom: 1px solid #e5e7eb;
-  padding-bottom: 24px;
-  margin-bottom: 24px;
-  gap: 24px;
+  justify-content: flex-end;
 `;
-
-const HeaderInfo = styled.div`
-  flex: 1 1 0;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-`;
-
-const StatusBadges = styled.div`
-  display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
-`;
-
-const Badge = styled.span<{ $type: "status" | "role" }>`
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 600;
-  color: ${({ $type, children }) =>
-    $type === "status"
-      ? children === "답변완료"
-        ? "#16a34a"
-        : "#d97706"
-      : "#4f46e5"};
-  background-color: ${({ $type, children }) =>
-    $type === "status"
-      ? children === "답변완료"
-        ? "#dcfce7"
-        : "#fef3c7"
-      : "#e0e7ff"};
-`;
-
-const MetaInfo = styled.div`
-  font-size: 14px;
-  color: #6b7280;
-  margin-top: 16px;
-  & > span:not(:last-child)::after {
-    content: "|";
-    margin: 0 12px;
-  }
-`;
-
-const HeaderActions = styled.div`
-  display: flex;
-  flex-direction: row;
-  gap: 12px;
-  align-items: flex-start;
-  margin-left: 16px;
-  white-space: nowrap;
-`;
-
-const ActionButton = styled.button<{ $variant: "primary" | "danger" | "default" }>`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 16px;
-  border-radius: 8px;
-  border: 1px solid transparent;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  ${({ $variant }) => {
-    if ($variant === "primary")
-      return "background-color: #22c55e; color: #fff; border-color: #22c55e;";
-    if ($variant === "danger")
-      return "background-color: #ef4444; color: #fff; border-color: #ef4444;";
-    return "background-color: #fff; color: #4b5565; border-color: #d1d5db;";
-  }}
-  &:hover {
-    opacity: 0.9;
-  }
-`;
-
-const ContentSection = styled.div`
-  font-size: 16px;
-  line-height: 1.7;
-  color: #374151;
-  padding: 16px 0;
-  min-height: 150px;
-`;
-
-// 답변 작성 폼 관련 스타일 복구
-const AnswerForm = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-`;
-
-const TextArea = styled.textarea`
+const ModalPanel = styled.div`
+  background: #fff;
   width: 100%;
-  min-height: 120px;
-  padding: 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  font-size: 15px;
-  resize: vertical;
-  &:focus {
-    outline: none;
-    border-color: #a5b4fc;
-    box-shadow: 0 0 0 3px #e0e7ff;
-  }
-`;
-
-const SubmitButton = styled(ActionButton)`
-  align-self: flex-end;
-`;
-
-const Section = styled.section`
-  margin-top: 40px;
-`;
-
-const SectionTitle = styled.h2`
-  font-size: 20px;
-  font-weight: 600;
-  color: #1f2937;
-  margin-bottom: 20px;
-  border-bottom: 1px solid #e5e7eb;
-  padding-bottom: 12px;
-`;
-
-// 타입 정의 추가
-interface InquiryDetail {
-  id: number;
-  authorName: string;
-  title: string;
-  content: string;
-  inquiryStatus: 'WAITING' | 'COMPLETED';
-  createdAt: string;
-  // answers?: Answer[]; // 답변 API 연동 시 추가
-}
-
-// 답변 목록 타입 정의
-interface Answer {
-  id: number;
-  inquiryId: number;
-  authorName: string;
-  content: string;
-  createdAt: string;
-}
-
-const BackButton = styled.button`
+  max-width: 600px;
+  height: 100%;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
   display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  margin-left: 0;
-  margin-bottom: 16px;
-  background: #ffffff;
-  color: #4b5563;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  font-size: 0.925rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s ease-in-out;
-
-  &:hover {
-    background: #f9fafb;
-    color: #111827;
-    border-color: #d1d5db;
+  flex-direction: column;
+  border-radius: 12px 0 0 12px;
+  animation: slideIn 0.32s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  @keyframes slideIn {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
   }
 `;
+const ModalHeader = styled.div`
+  padding: 1rem 1rem 0.7rem 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+const ModalTitle = styled.h2`
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+`;
+const CloseButton = styled.button`
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #6b7280;
+  cursor: pointer;
+  &:hover {
+    color: #1f2937;
+  }
+`;
+const ModalBody = styled.div`
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+`;
 
-export default function InquiryDetailPage() {
-  const { inquiryId } = useParams();
+interface InquiryDetailModalProps {
+  open: boolean;
+  onClose: () => void;
+  inquiryId: number;
+}
+
+const InquiryDetailModal: React.FC<InquiryDetailModalProps> = ({
+  open,
+  onClose,
+  inquiryId,
+}) => {
   const { role } = useAuth();
-  const [inquiry, setInquiry] = useState<InquiryDetail | null>(null);
+  const [inquiry, setInquiry] = useState<any>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState("");
   const [editedContent, setEditedContent] = useState("");
   const [answerContent, setAnswerContent] = useState("");
-  const [answers, setAnswers] = useState<Answer[]>([]);
+  const [answers, setAnswers] = useState<any[]>([]);
   const [answerPage, setAnswerPage] = useState({
     size: 10,
     number: 0,
@@ -207,43 +91,36 @@ export default function InquiryDetailPage() {
   });
   const answerListRef = useRef<HTMLDivElement | null>(null);
   const answerFormRef = useRef<HTMLFormElement | null>(null);
-  
+
   // 답변 수정 상태
   const [editingAnswerId, setEditingAnswerId] = useState<number | null>(null);
   const [editedAnswerContent, setEditedAnswerContent] = useState<string>("");
-  
-  const navigate = useNavigate();
-  
-  // 답변 목록 조회
-  const fetchAnswers = async (page = 0) => {
-    try {
-      const res = await api.get(`/api/answers/${inquiryId}?page=${page}`);
-      setAnswers(res.data.data.content);
-      setAnswerPage(res.data.data.page);
-    } catch {
-      setAnswers([]);
-      setAnswerPage({ size: 10, number: 0, totalElements: 0, totalPages: 1 });
-    }
-  };
 
-  // 문의 상세, 답변 목록 동시 조회
   useEffect(() => {
+    if (!open) return;
     async function fetchInquiry() {
       try {
         const res = await api.get(`/api/inquiries/${inquiryId}`);
-        const data = res.data.data;
-        setInquiry(data);
-        setEditedTitle(data.title);
-        setEditedContent(data.content);
+        setInquiry(res.data.data);
+        setEditedTitle(res.data.data.title);
+        setEditedContent(res.data.data.content);
       } catch {
         setInquiry(null);
       }
     }
-    if (inquiryId) {
-      fetchInquiry();
-      fetchAnswers(0);
-    }
-  }, [inquiryId]);
+    fetchInquiry();
+  }, [open, inquiryId]);
+
+  useEffect(() => {
+    if (!open) return;
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, [open, onClose]);
+
+  if (!open) return null;
 
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
@@ -276,7 +153,7 @@ export default function InquiryDetailPage() {
     setEditedTitle(inquiry?.title || "");
     setEditedContent(inquiry?.content || "");
   };
-  
+
   // 답변 등록 핸들러
   const handleSubmitAnswer = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -297,7 +174,7 @@ export default function InquiryDetailPage() {
 
   // 문의사항 수정 취소
   const handleAnswerKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       // 등록
       if (answerContent.trim()) {
@@ -305,7 +182,7 @@ export default function InquiryDetailPage() {
       }
     }
   };
-  
+
   // 페이지네이션 핸들러
   const handlePageChange = (newPage: number) => {
     fetchAnswers(newPage);
@@ -313,11 +190,13 @@ export default function InquiryDetailPage() {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }, 100);
   };
-  
+
   // 답변 완료 처리 (관리자만)
   const handleCompleteInquiry = async () => {
     try {
-      await api.put(`/api/inquiries/${inquiryId}/admin`, { status: 'ANSWERED' });
+      await api.put(`/api/inquiries/${inquiryId}/admin`, {
+        status: "ANSWERED",
+      });
       // 완료 후 상세 정보 갱신
       if (inquiryId) {
         const res = await api.get(`/api/inquiries/${inquiryId}`);
@@ -327,7 +206,7 @@ export default function InquiryDetailPage() {
         setEditedContent(data.content);
       }
     } catch {
-      alert('답변 완료 처리에 실패했습니다.');
+      alert("답변 완료 처리에 실패했습니다.");
     }
   };
 
@@ -340,7 +219,9 @@ export default function InquiryDetailPage() {
   // 답변 수정 저장
   const handleSaveAnswer = async (answerId: number) => {
     try {
-      await api.put(`/api/answers/${answerId}`, { content: editedAnswerContent });
+      await api.put(`/api/answers/${answerId}`, {
+        content: editedAnswerContent,
+      });
       setEditingAnswerId(null);
       setEditedAnswerContent("");
       fetchAnswers(answerPage.number); // 현재 페이지 새로고침
@@ -358,7 +239,7 @@ export default function InquiryDetailPage() {
   // 답변 다시하기 (관리자만)
   const handleReopenInquiry = async () => {
     try {
-      await api.put(`/api/inquiries/${inquiryId}/admin`, { status: 'WAITING' });
+      await api.put(`/api/inquiries/${inquiryId}/admin`, { status: "WAITING" });
       // 상태 변경 후 상세 정보 갱신
       if (inquiryId) {
         const res = await api.get(`/api/inquiries/${inquiryId}`);
@@ -368,7 +249,7 @@ export default function InquiryDetailPage() {
         setEditedContent(data.content);
       }
     } catch {
-      alert('답변 다시하기 처리에 실패했습니다.');
+      alert("답변 다시하기 처리에 실패했습니다.");
     }
   };
 
@@ -378,10 +259,10 @@ export default function InquiryDetailPage() {
     try {
       await api.delete(`/api/inquiries/${inquiryId}`);
       // 일반 유저는 my-inquiry로, 관리자는 inquiry로 이동
-      if (role === 'ROLE_USER') {
-        navigate("/my-inquiry");
+      if (role === "ROLE_USER") {
+        onClose(); // 모달 닫기
       } else {
-        navigate("/inquiry");
+        onClose(); // 모달 닫기
       }
     } catch {
       alert("문의사항 삭제에 실패했습니다.");
@@ -406,261 +287,506 @@ export default function InquiryDetailPage() {
     }
   };
 
-  // 목록으로 버튼 핸들러
-  const handleBack = () => {
-    if (role === "ROLE_ADMIN") {
-      navigate("/inquiry");
-    } else {
-      navigate("/my-inquiry");
+  // 답변 목록 조회
+  const fetchAnswers = async (page = 0) => {
+    try {
+      const res = await api.get(`/api/answers/${inquiryId}?page=${page}`);
+      setAnswers(res.data.data.content);
+      setAnswerPage(res.data.data.page);
+    } catch {
+      setAnswers([]);
+      setAnswerPage({ size: 10, number: 0, totalElements: 0, totalPages: 1 });
     }
   };
 
-  if (!inquiry) {
-    return <PageContainer>문의사항을 찾을 수 없습니다.</PageContainer>;
-  }
+  useEffect(() => {
+    if (inquiryId) {
+      fetchAnswers(0);
+    }
+  }, [inquiryId]);
 
-  const isAdmin = role === 'ROLE_ADMIN';
-  const isWaiting = inquiry.inquiryStatus === 'WAITING';
+  const isAdmin = role === "ROLE_ADMIN";
+  const isWaiting = inquiry?.inquiryStatus === "WAITING";
 
   // 날짜 포맷 (YYYY-MM-DD HH:mm)
   function formatDate(dateString: string) {
     const date = new Date(dateString);
     const yyyy = date.getFullYear();
-    const mm = String(date.getMonth() + 1).padStart(2, '0');
-    const dd = String(date.getDate()).padStart(2, '0');
-    const hh = String(date.getHours()).padStart(2, '0');
-    const min = String(date.getMinutes()).padStart(2, '0');
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const dd = String(date.getDate()).padStart(2, "0");
+    const hh = String(date.getHours()).padStart(2, "0");
+    const min = String(date.getMinutes()).padStart(2, "0");
     return `${yyyy}.${mm}.${dd} ${hh}:${min}`;
   }
 
   return (
-    <PageContainer>
-      <BackButton onClick={handleBack}>
-        <FiArrowLeft size={16} /> 목록으로
-      </BackButton>
-      <Header>
-        <HeaderInfo>
-          <StatusBadges>
-            <Badge $type="status">
-              {inquiry.inquiryStatus === 'WAITING' ? "답변 대기" : "답변완료"}
-            </Badge>
-          </StatusBadges>
-          {isEditing ? (
-            <input
-              type="text"
-              value={editedTitle}
-              onChange={(e) => setEditedTitle(e.target.value)}
-              style={{
-                width: '100%',
-                fontSize: '28px',
-                fontWeight: 700,
-                border: '1px solid #ccc',
-                borderRadius: '8px',
-                padding: '8px',
-                fontFamily: 'Pretendard, Noto Sans KR, Roboto, Arial, sans-serif',
-                lineHeight: 1.2
-              }}
-              maxLength={100}
-            />
-          ) : (
+    <ModalOverlay
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <ModalPanel>
+        <ModalHeader>
+          <ModalTitle>문의 상세</ModalTitle>
+          <CloseButton onClick={onClose}>
+            <FiX />
+          </CloseButton>
+        </ModalHeader>
+        <ModalBody>
+          {inquiry ? (
             <>
-              <div style={{
-                fontSize: '28px',
-                fontWeight: 700,
-                fontFamily: 'Pretendard, Noto Sans KR, Roboto, Arial, sans-serif',
-                lineHeight: 1.2
-              }}>{inquiry.title}</div>
-              <MetaInfo>
-                <span>작성자 {inquiry.authorName}</span>
-                <span>작성일 {formatDate(inquiry.createdAt)}</span>
-              </MetaInfo>
-            </>
-          )}
-        </HeaderInfo>
-        <HeaderActions>
-          {isEditing ? (
-            <>
-              <ActionButton $variant="primary" onClick={handleSaveChanges}>저장하기</ActionButton>
-              <ActionButton $variant="default" onClick={handleCancelEdit}>취소</ActionButton>
-            </>
-          ) : (
-            <>
-              {/* 답변 대기 상태: 답변 완료하기, 답변완료 상태: 답변 다시하기 */}
-              {isAdmin && isWaiting && (
-                <ActionButton $variant="primary" onClick={handleCompleteInquiry}>답변 완료하기</ActionButton>
-              )}
-              {isAdmin && !isWaiting && (
-                <ActionButton $variant="default" onClick={handleReopenInquiry}>답변 다시하기</ActionButton>
-              )}
-              {/* 일반 사용자만 수정/삭제 버튼 노출: inquiryStatus가 WAITING일 때만 */}
-              {!isAdmin && inquiry.inquiryStatus === "WAITING" && (
+              <h3 style={{ fontWeight: 700, fontSize: 20 }}>{inquiry.title}</h3>
+              <div style={{ color: "#6b7280", marginBottom: 12 }}>
+                작성자: {inquiry.authorName}
+              </div>
+              <div style={{ margin: "16px 0", color: "#374151", fontSize: 16 }}>
+                {inquiry.content}
+              </div>
+              <div style={{ color: "#6b7280", marginTop: 16 }}>
+                작성일: {formatDate(inquiry.createdAt)}
+              </div>
+              <div style={{ color: "#6b7280", marginTop: 16 }}>
+                상태:{" "}
+                {inquiry.inquiryStatus === "WAITING" ? "답변 대기" : "답변완료"}
+              </div>
+
+              {isEditing ? (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "8px",
+                    marginTop: 20,
+                  }}
+                >
+                  <input
+                    type="text"
+                    value={editedTitle}
+                    onChange={(e) => setEditedTitle(e.target.value)}
+                    style={{
+                      width: "100%",
+                      fontSize: "18px",
+                      fontWeight: 700,
+                      border: "1px solid #ccc",
+                      borderRadius: "8px",
+                      padding: "8px",
+                      fontFamily:
+                        "Pretendard, Noto Sans KR, Roboto, Arial, sans-serif",
+                      lineHeight: 1.2,
+                    }}
+                    maxLength={100}
+                  />
+                  <textarea
+                    value={editedContent}
+                    onChange={(e) => setEditedContent(e.target.value)}
+                    style={{
+                      minHeight: 120,
+                      width: "100%",
+                      padding: "8px",
+                      border: "1px solid #ccc",
+                      borderRadius: "8px",
+                      fontSize: "15px",
+                      resize: "vertical",
+                    }}
+                    maxLength={255}
+                  />
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "8px",
+                      justifyContent: "flex-end",
+                    }}
+                  >
+                    <button
+                      onClick={handleSaveChanges}
+                      style={{
+                        padding: "8px 16px",
+                        borderRadius: 6,
+                        border: "1px solid #22c55e",
+                        background: "#22c55e",
+                        color: "#fff",
+                        fontWeight: 600,
+                        cursor: "pointer",
+                        transition: "opacity 0.2s",
+                      }}
+                    >
+                      저장하기
+                    </button>
+                    <button
+                      onClick={handleCancelEdit}
+                      style={{
+                        padding: "8px 16px",
+                        borderRadius: 6,
+                        border: "1px solid #d1d5db",
+                        background: "#fff",
+                        color: "#4b5565",
+                        fontWeight: 600,
+                        cursor: "pointer",
+                        transition: "opacity 0.2s",
+                      }}
+                    >
+                      취소
+                    </button>
+                  </div>
+                </div>
+              ) : (
                 <>
-                  <ActionButton $variant="default" onClick={handleEditToggle}>
-                    <FiEdit />
-                    문의사항 수정
-                  </ActionButton>
-                  <ActionButton $variant="danger" onClick={handleDeleteInquiry}>
-                    <FiTrash2 />
-                    문의사항 삭제
-                  </ActionButton>
+                  {/* 답변 대기 상태: 답변 완료하기, 답변완료 상태: 답변 다시하기 */}
+                  {isAdmin && isWaiting && (
+                    <button
+                      onClick={handleCompleteInquiry}
+                      style={{
+                        padding: "8px 16px",
+                        borderRadius: 6,
+                        border: "1px solid #22c55e",
+                        background: "#22c55e",
+                        color: "#fff",
+                        fontWeight: 600,
+                        cursor: "pointer",
+                        transition: "opacity 0.2s",
+                      }}
+                    >
+                      답변 완료하기
+                    </button>
+                  )}
+                  {isAdmin && !isWaiting && (
+                    <button
+                      onClick={handleReopenInquiry}
+                      style={{
+                        padding: "8px 16px",
+                        borderRadius: 6,
+                        border: "1px solid #d1d5db",
+                        background: "#fff",
+                        color: "#4b5565",
+                        fontWeight: 600,
+                        cursor: "pointer",
+                        transition: "opacity 0.2s",
+                      }}
+                    >
+                      답변 다시하기
+                    </button>
+                  )}
+                  {/* 일반 사용자만 수정/삭제 버튼 노출: inquiryStatus가 WAITING일 때만 */}
+                  {!isAdmin && inquiry.inquiryStatus === "WAITING" && (
+                    <>
+                      <button
+                        onClick={handleEditToggle}
+                        style={{
+                          padding: "8px 16px",
+                          borderRadius: 6,
+                          border: "1px solid #4f46e5",
+                          background: "#4f46e5",
+                          color: "#fff",
+                          fontWeight: 600,
+                          cursor: "pointer",
+                          transition: "opacity 0.2s",
+                        }}
+                      >
+                        문의사항 수정
+                      </button>
+                      <button
+                        onClick={handleDeleteInquiry}
+                        style={{
+                          padding: "8px 16px",
+                          borderRadius: 6,
+                          border: "1px solid #ef4444",
+                          background: "#ef4444",
+                          color: "#fff",
+                          fontWeight: 600,
+                          cursor: "pointer",
+                          transition: "opacity 0.2s",
+                        }}
+                      >
+                        문의사항 삭제
+                      </button>
+                    </>
+                  )}
                 </>
               )}
-            </>
-          )}
-        </HeaderActions>
-      </Header>
 
-      <ContentSection>
-        {isEditing ? (
-          <TextArea
-            value={editedContent}
-            onChange={e => setEditedContent(e.target.value)}
-            style={{minHeight: 120}}
-            maxLength={255}
-          />
-        ) : (
-          <p>{inquiry.content}</p>
-        )}
-      </ContentSection>
-
-      {/* 답변 목록 */}
-      <Section>
-        <SectionTitle>답변 목록</SectionTitle>
-        <AnswerList ref={answerListRef}>
-          {answers.length === 0 ? (
-            <div style={{ color: '#888', padding: '16px 0' }}>아직 등록된 답변이 없습니다.</div>
-          ) : (
-            answers.map((answer) => (
-              <AnswerItem key={answer.id}>
-                <AnswerHeader>
-                  <AnswerMeta>
-                    <Badge $type="role">관리자</Badge>
-                    <span>{answer.authorName}</span>
-                    <span>{formatDate(answer.createdAt)}</span>
-                  </AnswerMeta>
-                  {/* 답변완료 상태가 아니고, 관리자일 때만 수정/삭제 버튼 노출 */}
-                  {isAdmin && isWaiting && (
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      {editingAnswerId === answer.id ? null : (
-                        <ActionButton
-                          $variant="default"
-                          style={{ padding: '6px 10px', fontSize: '13px' }}
-                          onClick={() => handleEditAnswer(answer.id, answer.content)}
-                        >
-                          <FiEdit /> 수정
-                        </ActionButton>
+              <div
+                style={{
+                  marginTop: 20,
+                  borderBottom: "1px solid #e5e7eb",
+                  paddingBottom: 12,
+                }}
+              >
+                <h4 style={{ fontSize: 18, fontWeight: 600, color: "#1f2937" }}>
+                  답변 목록
+                </h4>
+              </div>
+              {answers.length === 0 ? (
+                <div style={{ color: "#888", padding: "16px 0" }}>
+                  아직 등록된 답변이 없습니다.
+                </div>
+              ) : (
+                answers.map((answer) => (
+                  <div
+                    key={answer.id}
+                    style={{
+                      background: "#f9fafb",
+                      padding: 20,
+                      borderRadius: 12,
+                      border: "1px solid #f3f4f6",
+                      marginTop: 10,
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        marginBottom: 12,
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 12,
+                          fontSize: 14,
+                          color: "#4b5565",
+                        }}
+                      >
+                        <span style={{ fontWeight: 600 }}>관리자</span>
+                        <span>{answer.authorName}</span>
+                        <span>{formatDate(answer.createdAt)}</span>
+                      </div>
+                      {isAdmin && isWaiting && (
+                        <div style={{ display: "flex", gap: "8px" }}>
+                          {editingAnswerId === answer.id ? null : (
+                            <button
+                              onClick={() =>
+                                handleEditAnswer(answer.id, answer.content)
+                              }
+                              style={{
+                                padding: "6px 10px",
+                                borderRadius: 6,
+                                border: "1px solid #4f46e5",
+                                background: "#4f46e5",
+                                color: "#fff",
+                                fontSize: "13px",
+                                fontWeight: 600,
+                                cursor: "pointer",
+                                transition: "opacity 0.2s",
+                              }}
+                            >
+                              수정
+                            </button>
+                          )}
+                          <button
+                            onClick={() => handleDeleteAnswer(answer.id)}
+                            style={{
+                              padding: "6px 10px",
+                              borderRadius: 6,
+                              border: "1px solid #ef4444",
+                              background: "#ef4444",
+                              color: "#fff",
+                              fontSize: "13px",
+                              fontWeight: 600,
+                              cursor: "pointer",
+                              transition: "opacity 0.2s",
+                            }}
+                          >
+                            삭제
+                          </button>
+                        </div>
                       )}
-                      <ActionButton $variant="danger" style={{ padding: '6px 10px', fontSize: '13px' }} onClick={() => handleDeleteAnswer(answer.id)}>
-                        <FiTrash2 /> 삭제
-                      </ActionButton>
                     </div>
-                  )}
-                </AnswerHeader>
-                {editingAnswerId === answer.id ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <TextArea
-                      value={editedAnswerContent}
-                      onChange={e => setEditedAnswerContent(e.target.value)}
-                      rows={4}
-                      maxLength={255}
-                    />
-                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                      <ActionButton $variant="primary" onClick={() => handleSaveAnswer(answer.id)}>
-                        저장
-                      </ActionButton>
-                      <ActionButton $variant="default" onClick={handleCancelEditAnswer}>
-                        취소
-                      </ActionButton>
-                    </div>
+                    {editingAnswerId === answer.id ? (
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "8px",
+                        }}
+                      >
+                        <textarea
+                          value={editedAnswerContent}
+                          onChange={(e) =>
+                            setEditedAnswerContent(e.target.value)
+                          }
+                          rows={4}
+                          style={{
+                            width: "100%",
+                            padding: "8px",
+                            border: "1px solid #ccc",
+                            borderRadius: "8px",
+                            fontSize: "15px",
+                            resize: "vertical",
+                          }}
+                          maxLength={255}
+                        />
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: "8px",
+                            justifyContent: "flex-end",
+                          }}
+                        >
+                          <button
+                            onClick={() => handleSaveAnswer(answer.id)}
+                            style={{
+                              padding: "8px 16px",
+                              borderRadius: 6,
+                              border: "1px solid #22c55e",
+                              background: "#22c55e",
+                              color: "#fff",
+                              fontWeight: 600,
+                              cursor: "pointer",
+                              transition: "opacity 0.2s",
+                            }}
+                          >
+                            저장
+                          </button>
+                          <button
+                            onClick={handleCancelEditAnswer}
+                            style={{
+                              padding: "8px 16px",
+                              borderRadius: 6,
+                              border: "1px solid #d1d5db",
+                              background: "#fff",
+                              color: "#4b5565",
+                              fontWeight: 600,
+                              cursor: "pointer",
+                              transition: "opacity 0.2s",
+                            }}
+                          >
+                            취소
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <p
+                        style={{
+                          fontSize: 15,
+                          color: "#374151",
+                          lineHeight: 1.6,
+                        }}
+                      >
+                        {answer.content}
+                      </p>
+                    )}
                   </div>
+                ))
+              )}
+              {/* 페이지네이션 UI */}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  gap: 16,
+                  marginTop: 24,
+                }}
+              >
+                {answers.length === 0 ? (
+                  <span style={{ fontWeight: 600 }}>1</span>
                 ) : (
-                  <AnswerContent>{answer.content}</AnswerContent>
+                  <>
+                    <button
+                      onClick={() => handlePageChange(answerPage.number - 1)}
+                      disabled={answerPage.number === 0}
+                      style={{
+                        padding: "6px 14px",
+                        borderRadius: 6,
+                        border: "1px solid #ddd",
+                        background:
+                          answerPage.number === 0 ? "#f3f4f6" : "#fff",
+                        cursor:
+                          answerPage.number === 0 ? "not-allowed" : "pointer",
+                      }}
+                    >
+                      이전
+                    </button>
+                    <span style={{ fontWeight: 600 }}>
+                      {answerPage.number + 1} / {answerPage.totalPages}
+                    </span>
+                    <button
+                      onClick={() => handlePageChange(answerPage.number + 1)}
+                      disabled={answerPage.number + 1 >= answerPage.totalPages}
+                      style={{
+                        padding: "6px 14px",
+                        borderRadius: 6,
+                        border: "1px solid #ddd",
+                        background:
+                          answerPage.number + 1 >= answerPage.totalPages
+                            ? "#f3f4f6"
+                            : "#fff",
+                        cursor:
+                          answerPage.number + 1 >= answerPage.totalPages
+                            ? "not-allowed"
+                            : "pointer",
+                      }}
+                    >
+                      다음
+                    </button>
+                  </>
                 )}
-              </AnswerItem>
-            ))
-          )}
-        </AnswerList>
-        {/* 페이지네이션 UI */}
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 16, marginTop: 24 }}>
-          {answers.length === 0 ? (
-            <span style={{ fontWeight: 600 }}>1</span>
-          ) : (
-            <>
-              <button
-                onClick={() => handlePageChange(answerPage.number - 1)}
-                disabled={answerPage.number === 0}
-                style={{ padding: '6px 14px', borderRadius: 6, border: '1px solid #ddd', background: answerPage.number === 0 ? '#f3f4f6' : '#fff', cursor: answerPage.number === 0 ? 'not-allowed' : 'pointer' }}
-              >
-                이전
-              </button>
-              <span style={{ fontWeight: 600 }}>
-                {answerPage.number + 1} / {answerPage.totalPages}
-              </span>
-              <button
-                onClick={() => handlePageChange(answerPage.number + 1)}
-                disabled={answerPage.number + 1 >= answerPage.totalPages}
-                style={{ padding: '6px 14px', borderRadius: 6, border: '1px solid #ddd', background: answerPage.number + 1 >= answerPage.totalPages ? '#f3f4f6' : '#fff', cursor: answerPage.number + 1 >= answerPage.totalPages ? 'not-allowed' : 'pointer' }}
-              >
-                다음
-              </button>
+              </div>
+
+              {/* 답변 작성 UI (관리자만, 그리고 WAITING 상태일 때만) */}
+              {isAdmin && inquiry.inquiryStatus === "WAITING" && (
+                <div
+                  style={{
+                    marginTop: 20,
+                    borderBottom: "1px solid #e5e7eb",
+                    paddingBottom: 12,
+                  }}
+                >
+                  <h4
+                    style={{ fontSize: 18, fontWeight: 600, color: "#1f2937" }}
+                  >
+                    답변 작성
+                  </h4>
+                </div>
+              )}
+              {isAdmin && inquiry.inquiryStatus === "WAITING" && (
+                <form ref={answerFormRef} onSubmit={handleSubmitAnswer}>
+                  <textarea
+                    placeholder="답변을 입력해주세요... (최대 255자)"
+                    value={answerContent}
+                    onChange={(e) => setAnswerContent(e.target.value)}
+                    style={{
+                      minHeight: 120,
+                      width: "100%",
+                      padding: "8px",
+                      border: "1px solid #ccc",
+                      borderRadius: "8px",
+                      fontSize: "15px",
+                      resize: "vertical",
+                    }}
+                    maxLength={255}
+                    onKeyDown={handleAnswerKeyDown}
+                  />
+                  <button
+                    type="submit"
+                    style={{
+                      padding: "8px 16px",
+                      borderRadius: 6,
+                      border: "1px solid #22c55e",
+                      background: "#22c55e",
+                      color: "#fff",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      transition: "opacity 0.2s",
+                      marginTop: 10,
+                    }}
+                  >
+                    답변 등록
+                  </button>
+                </form>
+              )}
             </>
+          ) : (
+            <div style={{ color: "#888", textAlign: "center", padding: 40 }}>
+              로딩 중...
+            </div>
           )}
-        </div>
-      </Section>
-
-      {/* 답변 작성 UI (관리자만, 그리고 WAITING 상태일 때만) */}
-      {isAdmin && inquiry.inquiryStatus === "WAITING" && (
-        <Section>
-          <SectionTitle>답변 작성</SectionTitle>
-          <AnswerForm ref={answerFormRef} onSubmit={handleSubmitAnswer}>
-            <TextArea
-              placeholder="답변을 입력해주세요... (최대 255자)"
-              value={answerContent}
-              onChange={e => setAnswerContent(e.target.value)}
-              maxLength={255}
-              onKeyDown={handleAnswerKeyDown}
-            />
-            <SubmitButton $variant="primary" type="submit">
-              답변 등록
-            </SubmitButton>
-          </AnswerForm>
-        </Section>
-      )}
-    </PageContainer>
+        </ModalBody>
+      </ModalPanel>
+    </ModalOverlay>
   );
-}
+};
 
-// 답변 목록 스타일 복구
-const AnswerList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-`;
-
-const AnswerItem = styled.div`
-  background-color: #f9fafb;
-  padding: 20px;
-  border-radius: 12px;
-  border: 1px solid #f3f4f6;
-`;
-
-const AnswerHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-`;
-
-const AnswerMeta = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 14px;
-  color: #4b5565;
-`;
-
-const AnswerContent = styled.p`
-  font-size: 15px;
-  color: #374151;
-  line-height: 1.6;
-`; 
+export default InquiryDetailModal;

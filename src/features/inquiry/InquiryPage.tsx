@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
+import InquiryDetailModal from "./pages/InquiryDetailPage";
 import {
   FiSearch,
   FiRotateCcw,
@@ -11,7 +12,9 @@ import {
   FiClock,
   FiCalendar,
   FiGrid,
+  FiShield,
 } from "react-icons/fi";
+import { formatDateOnly, formatTimeOnly } from "../../utils/dateUtils";
 import {
   SelectButton,
   SelectDropdown,
@@ -134,9 +137,9 @@ const InquiryTitleCell = styled(TableCell)`
 
 const StatusBadge = styled.span<{ $status: string }>`
   display: inline-block;
-  padding: 4px 12px;
-  border-radius: 8px;
-  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
   font-weight: 600;
   color: ${({ $status }: { $status: string }) =>
     $status === "완료"
@@ -200,8 +203,8 @@ const SearchInput = styled.input`
 
 const STATUS_OPTIONS = [
   { value: "", label: "전체" },
-  { value: "대기", label: "답변대기" },
-  { value: "완료", label: "답변완료" },
+  { value: "대기", label: "대기" },
+  { value: "완료", label: "완료" },
 ];
 
 const STATUS_OPTION_META = {
@@ -253,7 +256,7 @@ const SEARCH_FIELD_OPTIONS = [
   },
   {
     value: "author",
-    label: "작성자",
+    label: "작성자이름",
     icon: () => (
       <FiUser
         size={16}
@@ -261,13 +264,29 @@ const SEARCH_FIELD_OPTIONS = [
       />
     ),
   },
+  {
+    value: "authorUsername",
+    label: "작성자아이디",
+    icon: () => (
+      <FiUser
+        size={16}
+        style={{ marginRight: 8, color: "#a21caf", flexShrink: 0 }}
+      />
+    ),
+  },
 ];
 
+// 역할 컬럼/필터 완전 제거
+
+// Update Inquiry interface to match backend fields
 interface Inquiry {
-  id: number;
-  authorName: string;
+  inquiryId: number;
+  authorId: number;
+  name: string;
+  username: string;
+  role: string;
   title: string;
-  inquiryStatus: string;
+  status: string;
   createdAt: string;
 }
 
@@ -299,6 +318,7 @@ function InquiryFilterBar({
   const statusDropdownRef = React.useRef<HTMLDivElement>(null);
   const [startDateOpen, setStartDateOpen] = React.useState(false);
   const [endDateOpen, setEndDateOpen] = React.useState(false);
+  // 역할 필터 관련 상태 제거
 
   React.useEffect(() => {
     if (!searchFieldDropdownOpen) return;
@@ -342,6 +362,8 @@ function InquiryFilterBar({
     };
   }, [statusDropdownOpen]);
 
+  // 역할 필터 관련 효과 제거
+
   const getSearchFieldLabel = (value: string) => {
     const option = SEARCH_FIELD_OPTIONS.find((opt) => opt.value === value);
     return option ? option.label : "제목";
@@ -378,6 +400,19 @@ function InquiryFilterBar({
           />
         ),
         chevron: "#2563eb",
+      };
+    } else if (field === "authorUsername") {
+      return {
+        border: "2px solid #a21caf",
+        color: "#a21caf",
+        bg: "#f0e0ff",
+        icon: (
+          <FiUser
+            size={16}
+            style={{ marginRight: 8, color: "#a21caf", flexShrink: 0 }}
+          />
+        ),
+        chevron: "#a21caf",
       };
     }
     return {
@@ -434,16 +469,16 @@ function InquiryFilterBar({
           flexDirection: "row",
           alignItems: "flex-end",
           justifyContent: "space-between",
-          gap: 24,
+          gap: 12,
         }}
       >
-        {/* 왼쪽: 답변상태, 날짜, 초기화 */}
+        {/* 왼쪽: 답변상태, 날짜, role, 초기화 */}
         <div
           style={{
             display: "flex",
             flexDirection: "row",
             alignItems: "flex-end",
-            gap: 20,
+            gap: 10,
           }}
         >
           {/* 답변상태 필터 */}
@@ -455,8 +490,8 @@ function InquiryFilterBar({
                 onClick={() => setStatusDropdownOpen((prev) => !prev)}
                 className={statusDropdownOpen ? "open" : ""}
                 style={{
-                  padding: "0 12px",
-                  width: 150,
+                  padding: "0 8px",
+                  width: 120,
                   height: 36,
                   minHeight: 36,
                   display: "flex",
@@ -506,7 +541,7 @@ function InquiryFilterBar({
               </SelectButton>
               <SelectDropdown
                 $isOpen={statusDropdownOpen}
-                style={{ minWidth: 150 }}
+                style={{ minWidth: 100 }}
               >
                 {STATUS_OPTIONS.map((option) => (
                   <SelectOption
@@ -556,7 +591,7 @@ function InquiryFilterBar({
           {/* 날짜 필터 */}
           <FilterGroup>
             <FilterLabel>작성일</FilterLabel>
-            <DateRangeGroup>
+            <DateRangeGroup style={{ gap: 4 }}>
               <div style={{ position: "relative" }}>
                 <DateButton
                   type="button"
@@ -620,7 +655,7 @@ function InquiryFilterBar({
                   color: "#6b7280",
                   fontWeight: 600,
                   fontSize: "0.9rem",
-                  padding: "0 8px 0 8px",
+                  padding: "0 4px 0 4px",
                 }}
               >
                 ~
@@ -691,32 +726,8 @@ function InquiryFilterBar({
               </div>
             </DateRangeGroup>
           </FilterGroup>
-          {/* 초기화 버튼 */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              marginLeft: "-10px",
-            }}
-          >
-            <NewButton
-              style={{
-                minWidth: "auto",
-                padding: "10px",
-                width: "40px",
-                height: "40px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-              onClick={onReset}
-              title="초기화"
-            >
-              <FiRotateCcw size={16} />
-            </NewButton>
-          </div>
         </div>
-        {/* 오른쪽: 검색 옵션 드롭다운+검색창, 검색버튼 */}
+        {/* 오른쪽: 검색 옵션 드롭다운+검색창, 검색버튼, 리셋버튼 */}
         <div
           style={{
             display: "flex",
@@ -740,7 +751,7 @@ function InquiryFilterBar({
                 className={searchFieldDropdownOpen ? "open" : ""}
                 style={{
                   padding: "0 12px",
-                  width: 130,
+                  width: 150,
                   height: 36,
                   minHeight: 36,
                   display: "flex",
@@ -803,7 +814,9 @@ function InquiryFilterBar({
               placeholder={
                 filters.searchField === "title"
                   ? "제목을 입력하세요"
-                  : "작성자를 입력하세요"
+                  : filters.searchField === "author"
+                  ? "작성자 이름을 입력하세요"
+                  : "작성자 아이디를 입력하세요"
               }
               value={filters.searchValue}
               onChange={(e) => onChange("searchValue", e.target.value)}
@@ -823,6 +836,21 @@ function InquiryFilterBar({
             onClick={onSearch}
           >
             <FiSearch size={16} />
+          </NewButton>
+          <NewButton
+            style={{
+              minWidth: "auto",
+              padding: "10px",
+              width: "40px",
+              height: "40px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+            onClick={onReset}
+            title="초기화"
+          >
+            <FiRotateCcw size={16} />
           </NewButton>
         </div>
       </FilterBar>
@@ -893,8 +921,14 @@ export default function InquiryPage() {
     startDate: "",
     endDate: "",
     status: "",
+    authorUsername: "",
+    role: "",
   });
   const navigate = useNavigate();
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [selectedInquiryId, setSelectedInquiryId] = useState<number | null>(
+    null
+  );
 
   // debounce용 ref
   const debounceTimer = useRef<NodeJS.Timeout | null>(null);
@@ -918,13 +952,14 @@ export default function InquiryPage() {
     try {
       const params = new URLSearchParams();
       params.append("page", String(pageNumber));
-      params.append("size", "10");
-      params.append("sort", "createdAt,desc");
       if (filters.searchField === "title" && filters.searchValue) {
         params.append("title", filters.searchValue);
       }
       if (filters.searchField === "author" && filters.searchValue) {
         params.append("authorName", filters.searchValue);
+      }
+      if (filters.searchField === "authorUsername" && filters.searchValue) {
+        params.append("authorUsername", filters.searchValue);
       }
       // 답변 상태 변환
       let statusParam = filters.status;
@@ -939,8 +974,12 @@ export default function InquiryPage() {
       if (filters.endDate) {
         params.append("endDate", filters.endDate);
       }
+      if (filters.authorUsername) {
+        params.append("authorUsername", filters.authorUsername);
+      }
+      // 역할 필터 관련 코드 제거
       const response = await api.get(
-        `/api/inquiries/filtering?${params.toString()}`
+        `/api/inquiries/search?${params.toString()}`
       );
       const data = response.data.data;
       setInquiries(data.content);
@@ -952,15 +991,13 @@ export default function InquiryPage() {
   };
 
   useEffect(() => {
-    fetchInquiries();
+    fetchFilteredInquiries(0);
   }, []);
 
   // 필터 변경 시 자동 요청 (searchValue는 debounce)
   useEffect(() => {
     // searchValue가 바뀔 때만 debounce, 나머지는 즉시
-    if (
-      prevSearchValue.current !== filters.searchValue
-    ) {
+    if (prevSearchValue.current !== filters.searchValue) {
       if (debounceTimer.current) clearTimeout(debounceTimer.current);
       debounceTimer.current = setTimeout(() => {
         fetchFilteredInquiries(0);
@@ -971,7 +1008,13 @@ export default function InquiryPage() {
       fetchFilteredInquiries(0);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters.status, filters.startDate, filters.endDate, filters.searchField]);
+  }, [
+    filters.status,
+    filters.startDate,
+    filters.endDate,
+    filters.searchField,
+    // filters.role, // 역할 필터 제거
+  ]);
 
   // searchValue만 따로 감시해서 debounce
   useEffect(() => {
@@ -986,7 +1029,8 @@ export default function InquiryPage() {
   }, [filters.searchValue]);
 
   const handleTitleClick = (id: number) => {
-    navigate(`/inquiry/${id}`);
+    setSelectedInquiryId(id);
+    setDetailModalOpen(true);
   };
 
   const handleFilterChange = (field: string, value: string) => {
@@ -1010,15 +1054,13 @@ export default function InquiryPage() {
   return (
     <Container>
       <HeaderSection>
-        <Title>문의사항 관리</Title>
-        <Subtitle>문의사항을 한눈에 확인하세요</Subtitle>
+        <Title>문의사항 목록</Title>
+        <Subtitle>모든 문의사항을 확인하고 관리할 수 있습니다.</Subtitle>
       </HeaderSection>
       <InquiryFilterBar
         filters={filters}
         onChange={handleFilterChange}
-        onSearch={() => {
-          fetchFilteredInquiries(0);
-        }}
+        onSearch={() => fetchFilteredInquiries(0)}
         onReset={() => {
           setFilters({
             searchField: "title",
@@ -1026,8 +1068,10 @@ export default function InquiryPage() {
             startDate: "",
             endDate: "",
             status: "",
+            authorUsername: "",
+            role: "",
           });
-          fetchInquiries(0);
+          fetchFilteredInquiries(0);
         }}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
@@ -1039,34 +1083,69 @@ export default function InquiryPage() {
         <Table>
           <TableHead>
             <TableRow>
-              <TableHeader>제목</TableHeader>
-              <TableHeader>작성자</TableHeader>
-              <TableHeader>작성일</TableHeader>
-              <TableHeader>상태</TableHeader>
+              <TableHeader style={{ width: 56 }}>번호</TableHeader>
+              <TableHeader style={{ width: "28ch" }}>제목</TableHeader>
+              <TableHeader style={{ width: "18ch" }}>작성자</TableHeader>
+              <TableHeader style={{ width: "7ch" }}>답변상태</TableHeader>
+              <TableHeader style={{ width: "18ch" }}>작성일</TableHeader>
             </TableRow>
           </TableHead>
           <TableBody>
-            {inquiries.map((inq) => {
-              const statusText =
-                inq.inquiryStatus === "WAITING" ? "대기" : "완료";
-              const formattedDate = new Date(inq.createdAt).toLocaleDateString(
-                "ko-KR"
-              );
+            {inquiries.map((inq, idx) => {
+              const statusText = inq.status === "WAITING" ? "대기" : "완료";
+              // 역할 컬럼/필터 완전 제거
               return (
                 <TableRow
-                  key={inq.id}
-                  onClick={() => handleTitleClick(inq.id)}
+                  key={inq.inquiryId}
+                  onClick={() => handleTitleClick(inq.inquiryId)}
                   style={{ cursor: "pointer" }}
                   onMouseOver={(e) =>
                     (e.currentTarget.style.background = "#f9fafb")
                   }
                   onMouseOut={(e) => (e.currentTarget.style.background = "")}
                 >
-                  <InquiryTitleCell>{inq.title}</InquiryTitleCell>
-                  <TableCell>{inq.authorName}</TableCell>
-                  <TableCell>{formattedDate}</TableCell>
-                  <TableCell>
+                  <TableCell style={{ width: 56 }}>
+                    {pageInfo.totalElements -
+                      (pageInfo.number * pageInfo.size + idx)}
+                  </TableCell>
+                  <InquiryTitleCell style={{ width: "28ch" }}>
+                    {inq.title}
+                  </InquiryTitleCell>
+                  <TableCell style={{ width: "18ch" }}>
+                    <span
+                      style={{ display: "flex", alignItems: "center", gap: 6 }}
+                    >
+                      <FiUser
+                        size={15}
+                        style={{ color: "#2563eb", marginRight: 2 }}
+                      />
+                      <span style={{ fontWeight: 500 }}>{inq.name}</span>
+                      <span
+                        style={{
+                          fontSize: 12,
+                          color: "#9ca3af",
+                          marginLeft: 4,
+                        }}
+                      >
+                        ({inq.username})
+                      </span>
+                    </span>
+                  </TableCell>
+                  <TableCell style={{ width: "7ch" }}>
                     <StatusBadge $status={statusText}>{statusText}</StatusBadge>
+                  </TableCell>
+                  <TableCell style={{ width: "18ch" }}>
+                    <span
+                      style={{ display: "flex", alignItems: "center", gap: 6 }}
+                    >
+                      <FiCalendar size={15} style={{ color: "#8b5cf6" }} />
+                      <span style={{ fontSize: 14, color: "#374151" }}>
+                        {formatDateOnly(inq.createdAt)}
+                      </span>
+                      <span style={{ fontSize: 12, color: "#6b7280" }}>
+                        {formatTimeOnly(inq.createdAt)}
+                      </span>
+                    </span>
                   </TableCell>
                 </TableRow>
               );
@@ -1075,7 +1154,7 @@ export default function InquiryPage() {
               (_, idx) => (
                 <TableRow key={`empty-${idx}`}>
                   <TableCell
-                    colSpan={4}
+                    colSpan={5}
                     style={{
                       height: 48,
                       background: "#f9fafb",
@@ -1089,80 +1168,135 @@ export default function InquiryPage() {
         </Table>
       </TableContainer>
       <PaginationContainer>
-        {pageInfo.totalElements > 0 && (
-          <PaginationNav>
-            {/* 첫 페이지로 이동 버튼 */}
-            {page > 0 && (
-              <PaginationButton onClick={() => handleFilteredPageChange(0)}>
-                맨 처음
-              </PaginationButton>
-            )}
+        <PaginationNav>
+          {/* 첫 페이지로 이동 버튼 */}
+          {page > 0 && (
+            <PaginationButton onClick={() => handleFilteredPageChange(0)}>
+              맨 처음
+            </PaginationButton>
+          )}
 
-            {/* 10개씩 뒤로 가기 버튼 */}
-            {page >= 10 && (
-              <PaginationButton
-                onClick={() => handleFilteredPageChange(Math.max(page - 10, 0))}
-              >
-                -10
-              </PaginationButton>
-            )}
+          {/* 10개씩 뒤로 가기 버튼 */}
+          {page >= 10 && (
+            <PaginationButton
+              onClick={() => handleFilteredPageChange(Math.max(page - 10, 0))}
+            >
+              -10
+            </PaginationButton>
+          )}
 
-            {page > 0 && (
-              <PaginationButton
-                onClick={() => handleFilteredPageChange(page - 1)}
-              >
-                이전
-              </PaginationButton>
-            )}
-            {Array.from({ length: pageInfo.totalPages }, (_, idx) =>
-              idx === page ? (
-                <PaginationButton key={idx} $active>
-                  {idx + 1}
-                </PaginationButton>
-              ) : (
+          {/* 이전 버튼 */}
+          {page > 0 && (
+            <PaginationButton
+              onClick={() => handleFilteredPageChange(page - 1)}
+            >
+              이전
+            </PaginationButton>
+          )}
+
+          {/* 스마트 페이지네이션 번호 */}
+          {(() => {
+            const totalPages = pageInfo.totalPages;
+            const current = page;
+            const pages: (number | string)[] = [];
+
+            if (totalPages <= 7) {
+              for (let i = 0; i < totalPages; i++) {
+                pages.push(i);
+              }
+            } else {
+              if (current <= 3) {
+                for (let i = 0; i <= 4; i++) {
+                  pages.push(i);
+                }
+                pages.push("...");
+                pages.push(totalPages - 1);
+              } else if (current >= totalPages - 4) {
+                pages.push(0);
+                pages.push("...");
+                for (let i = totalPages - 5; i < totalPages; i++) {
+                  pages.push(i);
+                }
+              } else {
+                pages.push(0);
+                pages.push("...");
+                for (let i = current - 1; i <= current + 1; i++) {
+                  pages.push(i);
+                }
+                pages.push("...");
+                pages.push(totalPages - 1);
+              }
+            }
+
+            return pages.map((p, idx) => {
+              if (p === "...") {
+                return (
+                  <span
+                    key={`ellipsis-${idx}`}
+                    style={{
+                      padding: "8px 12px",
+                      color: "#6b7280",
+                      fontSize: "14px",
+                      fontWeight: "500",
+                    }}
+                  >
+                    ...
+                  </span>
+                );
+              }
+              const pageNum = p as number;
+              return (
                 <PaginationButton
-                  key={idx}
-                  onClick={() => handleFilteredPageChange(idx)}
+                  key={pageNum}
+                  $active={page === pageNum}
+                  onClick={() => handleFilteredPageChange(pageNum)}
                 >
-                  {idx + 1}
+                  {pageNum + 1}
                 </PaginationButton>
-              )
-            )}
-            {page + 1 < pageInfo.totalPages && (
-              <PaginationButton
-                onClick={() => handleFilteredPageChange(page + 1)}
-              >
-                다음
-              </PaginationButton>
-            )}
+              );
+            });
+          })()}
 
-            {/* 10개씩 앞으로 가기 버튼 */}
-            {page + 10 < pageInfo.totalPages && (
-              <PaginationButton
-                onClick={() =>
-                  handleFilteredPageChange(
-                    Math.min(page + 10, pageInfo.totalPages - 1)
-                  )
-                }
-              >
-                +10
-              </PaginationButton>
-            )}
+          {/* 다음 버튼 */}
+          {page + 1 < pageInfo.totalPages && (
+            <PaginationButton
+              onClick={() => handleFilteredPageChange(page + 1)}
+            >
+              다음
+            </PaginationButton>
+          )}
 
-            {/* 마지막 페이지로 이동 버튼 */}
-            {page + 1 < pageInfo.totalPages && (
-              <PaginationButton
-                onClick={() =>
-                  handleFilteredPageChange(pageInfo.totalPages - 1)
-                }
-              >
-                맨 마지막
-              </PaginationButton>
-            )}
-          </PaginationNav>
-        )}
+          {/* 10개씩 앞으로 가기 버튼 */}
+          {page + 10 < pageInfo.totalPages && (
+            <PaginationButton
+              onClick={() =>
+                handleFilteredPageChange(
+                  Math.min(page + 10, pageInfo.totalPages - 1)
+                )
+              }
+            >
+              +10
+            </PaginationButton>
+          )}
+
+          {/* 마지막 페이지로 이동 버튼 */}
+          {page + 1 < pageInfo.totalPages && (
+            <PaginationButton
+              onClick={() => handleFilteredPageChange(pageInfo.totalPages - 1)}
+            >
+              맨 마지막
+            </PaginationButton>
+          )}
+        </PaginationNav>
         <PaginationInfo>{getPaginationInfo()}</PaginationInfo>
       </PaginationContainer>
+      {detailModalOpen && selectedInquiryId && (
+        <InquiryDetailModal
+          open={detailModalOpen}
+          onClose={() => setDetailModalOpen(false)}
+          inquiryId={selectedInquiryId}
+        />
+      )}
     </Container>
   );
 }

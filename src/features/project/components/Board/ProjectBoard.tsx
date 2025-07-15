@@ -72,7 +72,9 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
 
   // fetchPosts 함수
   const fetchPosts = async () => {
-    if (!selectedStepId) {
+    // stepFilter가 'ALL'이면 전체 단계 조회, 아니면 해당 단계만 조회
+    const stepIdToUse = stepFilter === "ALL" ? null : stepFilter;
+    if (stepIdToUse === null && !projectId) {
       setPosts([]);
       setTotalPages(0);
       setTotalElements(0);
@@ -105,19 +107,9 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
         }
       }
 
-      // 단계별 필터링 처리
-      let targetStepId: number | null;
-      if (stepFilter !== "ALL") {
-        // 특정 단계 선택 시
-        targetStepId = stepFilter;
-      } else {
-        // "전체" 선택 시 - 모든 단계에서 검색
-        targetStepId = null;
-      }
-
       const response = await searchPosts(
         projectId,
-        targetStepId,
+        stepIdToUse,
         searchParams,
         currentPage,
         10
