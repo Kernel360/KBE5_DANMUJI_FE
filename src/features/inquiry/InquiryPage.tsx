@@ -1156,7 +1156,13 @@ export default function InquiryPage() {
       fetchFilteredInquiries(0);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters.status, filters.startDate, filters.endDate, filters.searchField]);
+  }, [
+    filters.status,
+    filters.startDate,
+    filters.endDate,
+    filters.searchField,
+    filters.role,
+  ]);
 
   // searchValue만 따로 감시해서 debounce
   useEffect(() => {
