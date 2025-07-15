@@ -312,7 +312,7 @@ export const CompanySection = styled.div`
 
 export const CompanyCard = styled.div<{ $type: "dev" | "client" }>`
   margin-bottom: 8px;
-  background: ${({ $type }) => ($type === "dev" ? "#f4f6fa" : "#eaf6ff")};
+  background: ${({ $type }) => ($type === "dev" ? "#eaf6ff" : "#eaffea")};
   border-radius: 8px;
   padding: 16px;
   position: relative;
@@ -411,24 +411,24 @@ export const AddCompanyButton = styled.button`
   border: 1.2px solid #fdb924;
   background: #fff;
   color: #fdb924;
-  font-size: 9.5px;
+  font-size: 10px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.18s;
   display: flex;
   align-items: center;
-  gap: 1px;
+  gap: 0;
   margin-left: 6px;
   height: 14px;
-  min-width: 14px;
+  min-width: 10px;
   box-shadow: none;
 
   svg {
     color: #fdb924;
     transition: color 0.18s;
-    font-size: 11px;
-    min-width: 11px;
-    min-height: 11px;
+    font-size: 10px;
+    min-width: 10px;
+    min-height: 10px;
   }
 
   &:hover {

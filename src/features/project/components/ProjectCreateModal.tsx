@@ -24,8 +24,6 @@ import {
   DateSeparator,
   AddCompanyButton,
   ButtonGroup,
-  EditButton,
-  DeleteButton,
 } from "./ProjectCreateModal.styled";
 import type { ProjectDetailResponse } from "../services/projectService";
 import DatePicker from "react-datepicker";
@@ -593,11 +591,10 @@ export default function ProjectCreateModal({
                     onClick={() => openCompanyMemberModal("dev")}
                     as={AddCompanyButton}
                     style={{
-                      padding: "3px 7px",
+                      padding: "3px 5px",
                       fontSize: 13,
-                      minWidth: 0,
                       height: 26,
-                      marginLeft: 8,
+                      marginLeft: 2,
                       boxShadow: "none",
                     }}
                   >
@@ -632,18 +629,43 @@ export default function ProjectCreateModal({
                         {dev.company.name}
                       </CompanyCardTitle>
                       <ButtonGroup>
-                        <EditButton
+                        <button
                           type="button"
+                          title="수정"
+                          aria-label="수정"
+                          style={{
+                            border: "none",
+                            background: "none",
+                            padding: 2,
+                            marginRight: 2,
+                            cursor: "pointer",
+                            color: "#888",
+                            fontSize: 17,
+                            display: "flex",
+                            alignItems: "center",
+                          }}
                           onClick={() => {
                             setEditCompany(dev.company);
                             setEditMembers(dev.members);
                             openCompanyMemberModal("dev", false);
                           }}
                         >
-                          수정
-                        </EditButton>
-                        <DeleteButton
+                          <FiEdit2 />
+                        </button>
+                        <button
                           type="button"
+                          title="삭제"
+                          aria-label="삭제"
+                          style={{
+                            border: "none",
+                            background: "none",
+                            padding: 2,
+                            cursor: "pointer",
+                            color: "#ef4444",
+                            fontSize: 17,
+                            display: "flex",
+                            alignItems: "center",
+                          }}
                           onClick={() =>
                             setSelectedDevCompanies((prev) =>
                               prev.filter(
@@ -651,10 +673,9 @@ export default function ProjectCreateModal({
                               )
                             )
                           }
-                          aria-label="삭제"
                         >
-                          삭제
-                        </DeleteButton>
+                          <FiTrash2 />
+                        </button>
                       </ButtonGroup>
                     </CompanyCardHeader>
                     <CompanyCardMembers>
@@ -702,37 +723,6 @@ export default function ProjectCreateModal({
                               담당자
                             </span>
                           )}
-                          {/* 수정/삭제 버튼 */}
-                          <button
-                            style={{
-                              border: "none",
-                              background: "none",
-                              padding: 2,
-                              marginLeft: 2,
-                              cursor: "pointer",
-                              color: "#888",
-                              fontSize: 15,
-                            }}
-                            title="수정"
-                            onClick={() => alert(`멤버 수정: ${m.name}`)}
-                          >
-                            <FiEdit2 />
-                          </button>
-                          <button
-                            style={{
-                              border: "none",
-                              background: "none",
-                              padding: 2,
-                              marginLeft: 2,
-                              cursor: "pointer",
-                              color: "#ef4444",
-                              fontSize: 15,
-                            }}
-                            title="삭제"
-                            onClick={() => alert(`멤버 삭제: ${m.name}`)}
-                          >
-                            <FiTrash2 />
-                          </button>
                         </span>
                       ))}
                     </CompanyCardMembers>
@@ -763,11 +753,10 @@ export default function ProjectCreateModal({
                     onClick={() => openCompanyMemberModal("client")}
                     as={AddCompanyButton}
                     style={{
-                      padding: "3px 7px",
+                      padding: "3px 5px",
                       fontSize: 13,
-                      minWidth: 0,
                       height: 26,
-                      marginLeft: 8,
+                      marginLeft: 2,
                       boxShadow: "none",
                     }}
                   >
@@ -802,18 +791,43 @@ export default function ProjectCreateModal({
                         {client.company.name}
                       </CompanyCardTitle>
                       <ButtonGroup>
-                        <EditButton
+                        <button
                           type="button"
+                          title="수정"
+                          aria-label="수정"
+                          style={{
+                            border: "none",
+                            background: "none",
+                            padding: 2,
+                            marginRight: 2,
+                            cursor: "pointer",
+                            color: "#888",
+                            fontSize: 17,
+                            display: "flex",
+                            alignItems: "center",
+                          }}
                           onClick={() => {
                             setEditCompany(client.company);
                             setEditMembers(client.members);
                             openCompanyMemberModal("client", false);
                           }}
                         >
-                          수정
-                        </EditButton>
-                        <DeleteButton
+                          <FiEdit2 />
+                        </button>
+                        <button
                           type="button"
+                          title="삭제"
+                          aria-label="삭제"
+                          style={{
+                            border: "none",
+                            background: "none",
+                            padding: 2,
+                            cursor: "pointer",
+                            color: "#ef4444",
+                            fontSize: 17,
+                            display: "flex",
+                            alignItems: "center",
+                          }}
                           onClick={() =>
                             setSelectedClientCompanies((prev) =>
                               prev.filter(
@@ -821,10 +835,9 @@ export default function ProjectCreateModal({
                               )
                             )
                           }
-                          aria-label="삭제"
                         >
-                          삭제
-                        </DeleteButton>
+                          <FiTrash2 />
+                        </button>
                       </ButtonGroup>
                     </CompanyCardHeader>
                     <CompanyCardMembers>
@@ -872,37 +885,6 @@ export default function ProjectCreateModal({
                               담당자
                             </span>
                           )}
-                          {/* 수정/삭제 버튼 */}
-                          <button
-                            style={{
-                              border: "none",
-                              background: "none",
-                              padding: 2,
-                              marginLeft: 2,
-                              cursor: "pointer",
-                              color: "#888",
-                              fontSize: 15,
-                            }}
-                            title="수정"
-                            onClick={() => alert(`멤버 수정: ${m.name}`)}
-                          >
-                            <FiEdit2 />
-                          </button>
-                          <button
-                            style={{
-                              border: "none",
-                              background: "none",
-                              padding: 2,
-                              marginLeft: 2,
-                              cursor: "pointer",
-                              color: "#ef4444",
-                              fontSize: 15,
-                            }}
-                            title="삭제"
-                            onClick={() => alert(`멤버 삭제: ${m.name}`)}
-                          >
-                            <FiTrash2 />
-                          </button>
                         </span>
                       ))}
                     </CompanyCardMembers>
