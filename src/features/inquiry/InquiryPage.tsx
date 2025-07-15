@@ -893,6 +893,8 @@ export default function InquiryPage() {
     startDate: "",
     endDate: "",
     status: "",
+    authorUsername: "",
+    role: "",
   });
   const navigate = useNavigate();
 
@@ -919,7 +921,6 @@ export default function InquiryPage() {
       const params = new URLSearchParams();
       params.append("page", String(pageNumber));
       params.append("size", "10");
-      params.append("sort", "createdAt,desc");
       if (filters.searchField === "title" && filters.searchValue) {
         params.append("title", filters.searchValue);
       }
@@ -939,8 +940,14 @@ export default function InquiryPage() {
       if (filters.endDate) {
         params.append("endDate", filters.endDate);
       }
+      if (filters.authorUsername) {
+        params.append("authorUsername", filters.authorUsername);
+      }
+      if (filters.role) {
+        params.append("role", filters.role);
+      }
       const response = await api.get(
-        `/api/inquiries/filtering?${params.toString()}`
+        `/api/inquiries/search?${params.toString()}`
       );
       const data = response.data.data;
       setInquiries(data.content);
@@ -958,9 +965,7 @@ export default function InquiryPage() {
   // 필터 변경 시 자동 요청 (searchValue는 debounce)
   useEffect(() => {
     // searchValue가 바뀔 때만 debounce, 나머지는 즉시
-    if (
-      prevSearchValue.current !== filters.searchValue
-    ) {
+    if (prevSearchValue.current !== filters.searchValue) {
       if (debounceTimer.current) clearTimeout(debounceTimer.current);
       debounceTimer.current = setTimeout(() => {
         fetchFilteredInquiries(0);
