@@ -311,8 +311,8 @@ export const CompanySection = styled.div`
 `;
 
 export const CompanyCard = styled.div<{ $type: "dev" | "client" }>`
-  margin-bottom: 8px;
-  background: ${({ $type }) => ($type === "dev" ? "#eaf6ff" : "#eaffea")};
+  margin-bottom: 4px;
+  background: ${({ $type }) => ($type === "dev" ? "#f5fbff" : "#f6fff5")};
   border-radius: 8px;
   padding: 16px;
   position: relative;
