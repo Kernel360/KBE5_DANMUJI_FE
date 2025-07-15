@@ -920,7 +920,6 @@ export default function InquiryPage() {
     try {
       const params = new URLSearchParams();
       params.append("page", String(pageNumber));
-      params.append("size", "10");
       if (filters.searchField === "title" && filters.searchValue) {
         params.append("title", filters.searchValue);
       }
@@ -959,7 +958,7 @@ export default function InquiryPage() {
   };
 
   useEffect(() => {
-    fetchInquiries();
+    fetchFilteredInquiries(0);
   }, []);
 
   // 필터 변경 시 자동 요청 (searchValue는 debounce)
@@ -1031,8 +1030,10 @@ export default function InquiryPage() {
             startDate: "",
             endDate: "",
             status: "",
+            authorUsername: "",
+            role: "",
           });
-          fetchInquiries(0);
+          fetchFilteredInquiries(0);
         }}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
