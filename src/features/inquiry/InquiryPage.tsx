@@ -12,6 +12,8 @@ import {
   FiCalendar,
   FiGrid,
 } from "react-icons/fi";
+import { LuUserRoundCog } from "react-icons/lu";
+import { formatDateOnly, formatTimeOnly } from "../../utils/dateUtils";
 import {
   SelectButton,
   SelectDropdown,
@@ -134,9 +136,9 @@ const InquiryTitleCell = styled(TableCell)`
 
 const StatusBadge = styled.span<{ $status: string }>`
   display: inline-block;
-  padding: 4px 12px;
-  border-radius: 8px;
-  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
   font-weight: 600;
   color: ${({ $status }: { $status: string }) =>
     $status === "완료"
@@ -315,11 +317,15 @@ const ROLE_OPTIONS = [
   },
 ];
 
+// Update Inquiry interface to match backend fields
 interface Inquiry {
-  id: number;
-  authorName: string;
+  inquiryId: number;
+  authorId: number;
+  name: string;
+  username: string;
+  role: string;
   title: string;
-  inquiryStatus: string;
+  status: string;
   createdAt: string;
 }
 
@@ -1218,29 +1224,111 @@ export default function InquiryPage() {
         <Table>
           <TableHead>
             <TableRow>
-              <TableHeader>번호</TableHeader>
-              <TableHeader>제목</TableHeader>
-              <TableHeader>작성자</TableHeader>
-              <TableHeader>답변상태</TableHeader>
-              <TableHeader>작성일</TableHeader>
+              <TableHeader style={{ width: 60 }}>번호</TableHeader>
+              <TableHeader style={{ width: 240 }}>제목</TableHeader>
+              <TableHeader style={{ width: 180 }}>작성자</TableHeader>
+              <TableHeader style={{ width: 110 }}>역할</TableHeader>
+              <TableHeader style={{ width: 90 }}>답변상태</TableHeader>
+              <TableHeader style={{ width: 180 }}>작성일</TableHeader>
             </TableRow>
           </TableHead>
           <TableBody>
-            {inquiries.map((inquiry) => (
-              <TableRow key={inquiry.id}>
-                <TableCell>{inquiry.id}</TableCell>
-                <InquiryTitleCell onClick={() => handleTitleClick(inquiry.id)}>
-                  {inquiry.title}
-                </InquiryTitleCell>
-                <TableCell>{inquiry.authorName}</TableCell>
-                <TableCell>
-                  <StatusBadge $status={inquiry.inquiryStatus}>
-                    {inquiry.inquiryStatus}
-                  </StatusBadge>
-                </TableCell>
-                <TableCell>{inquiry.createdAt}</TableCell>
-              </TableRow>
-            ))}
+            {inquiries.map((inq, idx) => {
+              const statusText = inq.status === "WAITING" ? "대기" : "완료";
+              const roleText =
+                inq.role === "ROLE_ADMIN"
+                  ? "관리자"
+                  : inq.role === "ROLE_USER"
+                  ? "사용자"
+                  : inq.role;
+              return (
+                <TableRow
+                  key={inq.inquiryId}
+                  onClick={() => handleTitleClick(inq.inquiryId)}
+                  style={{ cursor: "pointer" }}
+                  onMouseOver={(e) =>
+                    (e.currentTarget.style.background = "#f9fafb")
+                  }
+                  onMouseOut={(e) => (e.currentTarget.style.background = "")}
+                >
+                  <TableCell style={{ width: 60 }}>
+                    {pageInfo.totalElements -
+                      (pageInfo.number * pageInfo.size + idx)}
+                  </TableCell>
+                  <InquiryTitleCell style={{ width: 240 }}>
+                    {inq.title}
+                  </InquiryTitleCell>
+                  <TableCell style={{ width: 180 }}>
+                    <span
+                      style={{ display: "flex", alignItems: "center", gap: 6 }}
+                    >
+                      <FiUser
+                        size={15}
+                        style={{ color: "#2563eb", marginRight: 2 }}
+                      />
+                      <span style={{ fontWeight: 500 }}>{inq.name}</span>
+                      <span
+                        style={{
+                          fontSize: 12,
+                          color: "#9ca3af",
+                          marginLeft: 4,
+                        }}
+                      >
+                        ({inq.username})
+                      </span>
+                    </span>
+                  </TableCell>
+                  <TableCell style={{ width: 110 }}>
+                    <span
+                      style={{ display: "flex", alignItems: "center", gap: 6 }}
+                    >
+                      {inq.role === "ROLE_ADMIN" ? (
+                        <LuUserRoundCog
+                          size={15}
+                          style={{ color: "#8b5cf6", marginRight: 2 }}
+                        />
+                      ) : (
+                        <FiUser
+                          size={15}
+                          style={{ color: "#2563eb", marginRight: 2 }}
+                        />
+                      )}
+                      <span style={{ fontWeight: 500 }}>{roleText}</span>
+                    </span>
+                  </TableCell>
+                  <TableCell style={{ width: 90 }}>
+                    <StatusBadge $status={statusText}>{statusText}</StatusBadge>
+                  </TableCell>
+                  <TableCell style={{ width: 180 }}>
+                    <span
+                      style={{ display: "flex", alignItems: "center", gap: 6 }}
+                    >
+                      <FiCalendar size={15} style={{ color: "#8b5cf6" }} />
+                      <span style={{ fontSize: 14, color: "#374151" }}>
+                        {formatDateOnly(inq.createdAt)}
+                      </span>
+                      <span style={{ fontSize: 12, color: "#6b7280" }}>
+                        {formatTimeOnly(inq.createdAt)}
+                      </span>
+                    </span>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+            {Array.from({ length: pageInfo.size - inquiries.length }).map(
+              (_, idx) => (
+                <TableRow key={`empty-${idx}`}>
+                  <TableCell
+                    colSpan={6}
+                    style={{
+                      height: 48,
+                      background: "#f9fafb",
+                      borderBottom: "1px solid #f3f4f6",
+                    }}
+                  />
+                </TableRow>
+              )
+            )}
           </TableBody>
         </Table>
       </TableContainer>
@@ -1251,22 +1339,22 @@ export default function InquiryPage() {
             onClick={() => handleFilteredPageChange(page - 1)}
             disabled={page === 0}
           >
-            이전
+            &lt;
           </PaginationButton>
-          {Array.from({ length: pageInfo.totalPages }, (_, i) => (
+          {Array.from({ length: pageInfo.totalPages }).map((_, index) => (
             <PaginationButton
-              key={i}
-              onClick={() => handleFilteredPageChange(i)}
-              $active={page === i}
+              key={index}
+              onClick={() => handleFilteredPageChange(index)}
+              $active={page === index}
             >
-              {i + 1}
+              {index + 1}
             </PaginationButton>
           ))}
           <PaginationButton
             onClick={() => handleFilteredPageChange(page + 1)}
             disabled={page === pageInfo.totalPages - 1}
           >
-            다음
+            &gt;
           </PaginationButton>
         </PaginationNav>
       </PaginationContainer>
