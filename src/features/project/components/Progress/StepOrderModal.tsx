@@ -20,6 +20,7 @@ import {
   StepOrderNumber,
   EditIcon,
   TrashIcon,
+  EditStepBtn,
 } from "./StepOrderModal.styled";
 
 import { FaGripVertical, FaPlus, FaTimes } from "react-icons/fa";
@@ -198,7 +199,19 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({
           <ModalDescription>
             단계의 순서를 변경하고, 이름을 수정하거나 삭제할 수 있습니다.
           </ModalDescription>
-          <DragGuide>드래그로 순서를 변경할 수 있습니다.</DragGuide>
+          <DragGuide>드래그&드랍하여 순서를 변경할 수 있습니다.</DragGuide>
+          <div
+            style={{
+              fontSize: 12,
+              color: "#6b7280",
+              margin: "4px 0 12px 18px",
+            }}
+          >
+            상태뱃지 <span style={{ fontWeight: 600 }}>→</span> 상태변경
+            &nbsp;|&nbsp; 초기화 <span style={{ fontWeight: 600 }}>→</span>{" "}
+            예정상태 &nbsp;|&nbsp; 휴지통{" "}
+            <span style={{ fontWeight: 600 }}>→</span> 삭제
+          </div>
         </ModalHeader>
 
         <StepList>
@@ -286,23 +299,7 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({
                         autoFocus
                       />
                     ) : (
-                      <>
-                        <StepName>{step.name}</StepName>
-                        <EditIcon>
-                          <RiEdit2Fill
-                            size={15}
-                            title="이름 수정"
-                            onClick={() => {
-                              setEditingIdx(originalIdx);
-                              setEditingName(step.name);
-                              setTimeout(
-                                () => editingInputRef.current?.focus(),
-                                0
-                              );
-                            }}
-                          />
-                        </EditIcon>
-                      </>
+                      <StepName>{step.name}</StepName>
                     )}
                   </StepLeft>
                   <div
@@ -383,6 +380,18 @@ const StepOrderModal: React.FC<StepOrderModalProps> = ({
                       {text}
                     </StepStatusBadge>
 
+                    <EditStepBtn
+                      type="button"
+                      title="단계 이름 수정"
+                      onClick={() => {
+                        setEditingIdx(originalIdx);
+                        setEditingName(step.name);
+                        setTimeout(() => editingInputRef.current?.focus(), 0);
+                      }}
+                      tabIndex={-1}
+                    >
+                      <RiEdit2Fill size={17} />
+                    </EditStepBtn>
                     <TrashIcon>
                       <FiTrash2
                         size={17}

@@ -106,6 +106,26 @@ export const StepName = styled.span`
   margin-right: 2px;
 `;
 
+// 수정(텍스트) 버튼용 클래스
+export const EditStepBtn = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  font-size: 17px;
+  padding: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin: 0 2px;
+  border-radius: 50%;
+  transition: background 0.15s, color 0.15s;
+  &:hover {
+    background: #f3f4f6;
+    color: #2563eb;
+  }
+`;
+
 export const StepStatusBadge = styled.span.withConfig({
   shouldForwardProp: (prop) => prop !== "clickable",
 })<{ clickable?: boolean }>`
@@ -116,6 +136,10 @@ export const StepStatusBadge = styled.span.withConfig({
   cursor: ${({ clickable }) => (clickable ? "pointer" : "default")};
   opacity: ${({ clickable }) => (clickable ? 1 : 0.85)};
   transition: background 0.15s, color 0.15s;
+  &:hover {
+    background: ${({ clickable }) => (clickable ? "#f3f4f6" : "inherit")};
+    color: ${({ clickable }) => (clickable ? "#2563eb" : "inherit")};
+  }
 `;
 
 export const DragGuide = styled.div`
@@ -134,16 +158,6 @@ export const ModalFooter = styled.div`
   margin-top: 6px;
 `;
 
-export const CancelButton = styled.button`
-  background: #f3f4f6;
-  color: #23272f;
-  cursor: pointer;
-  padding: 8px 22px;
-  font-size: 15px;
-  border-radius: 7px;
-  border: none;
-`;
-
 export const SaveButton = styled.button`
   background: #fbbf24;
   color: #fff;
@@ -152,6 +166,26 @@ export const SaveButton = styled.button`
   font-size: 15px;
   border-radius: 7px;
   border: none;
+  transition: background 0.15s, color 0.15s;
+  &:hover {
+    background: #f59e0b;
+    color: #fff;
+  }
+`;
+
+export const CancelButton = styled.button`
+  background: #f3f4f6;
+  color: #23272f;
+  cursor: pointer;
+  padding: 8px 22px;
+  font-size: 15px;
+  border-radius: 7px;
+  border: none;
+  transition: background 0.15s, color 0.15s;
+  &:hover {
+    background: #e5e7eb;
+    color: #2563eb;
+  }
 `;
 
 export const AddStepButton = styled.button`
@@ -168,6 +202,11 @@ export const AddStepButton = styled.button`
   padding: 8px 18px;
   box-shadow: 0 1px 4px #fde68a33;
   cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  &:hover {
+    background: #fde68a;
+    color: #b45309;
+  }
 `;
 
 export const AddStepInput = styled.input`

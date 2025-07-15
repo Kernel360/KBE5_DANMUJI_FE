@@ -290,7 +290,7 @@ export const StatusButton = styled.button<{ $active: boolean; $color: string }>`
   font-weight: 600;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   min-width: fit-content;
   white-space: nowrap;
 
@@ -307,17 +307,19 @@ export const StatusButton = styled.button<{ $active: boolean; $color: string }>`
     background: ${({ $active, $color }) =>
       $active ? `${$color}25` : "#f9fafb"};
     border-color: ${({ $active, $color }) => ($active ? $color : "#d1d5db")};
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    color: ${({ $active, $color }) => ($active ? $color : "#2563eb")};
+    transform: translateY(-1px) scale(1.04);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1), 0 2px 8px #f3f4f633;
   }
 
   &:active {
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
+    box-shadow: 0 2px 4px rgba(251, 191, 36, 0.12);
   }
 
   &:focus {
     outline: none;
-    box-shadow: none;
+    box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.13);
   }
 `;
 
