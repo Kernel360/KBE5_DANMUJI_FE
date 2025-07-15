@@ -1339,30 +1339,127 @@ export default function InquiryPage() {
         </Table>
       </TableContainer>
       <PaginationContainer>
-        <PaginationInfo>{getPaginationInfo()}</PaginationInfo>
         <PaginationNav>
-          <PaginationButton
-            onClick={() => handleFilteredPageChange(page - 1)}
-            disabled={page === 0}
-          >
-            &lt;
-          </PaginationButton>
-          {Array.from({ length: pageInfo.totalPages }).map((_, index) => (
-            <PaginationButton
-              key={index}
-              onClick={() => handleFilteredPageChange(index)}
-              $active={page === index}
-            >
-              {index + 1}
+          {/* 첫 페이지로 이동 버튼 */}
+          {page > 0 && (
+            <PaginationButton onClick={() => handleFilteredPageChange(0)}>
+              맨 처음
             </PaginationButton>
-          ))}
-          <PaginationButton
-            onClick={() => handleFilteredPageChange(page + 1)}
-            disabled={page === pageInfo.totalPages - 1}
-          >
-            &gt;
-          </PaginationButton>
+          )}
+
+          {/* 10개씩 뒤로 가기 버튼 */}
+          {page >= 10 && (
+            <PaginationButton
+              onClick={() => handleFilteredPageChange(Math.max(page - 10, 0))}
+            >
+              -10
+            </PaginationButton>
+          )}
+
+          {/* 이전 버튼 */}
+          {page > 0 && (
+            <PaginationButton
+              onClick={() => handleFilteredPageChange(page - 1)}
+            >
+              이전
+            </PaginationButton>
+          )}
+
+          {/* 스마트 페이지네이션 번호 */}
+          {(() => {
+            const totalPages = pageInfo.totalPages;
+            const current = page;
+            const pages: (number | string)[] = [];
+
+            if (totalPages <= 7) {
+              for (let i = 0; i < totalPages; i++) {
+                pages.push(i);
+              }
+            } else {
+              if (current <= 3) {
+                for (let i = 0; i <= 4; i++) {
+                  pages.push(i);
+                }
+                pages.push("...");
+                pages.push(totalPages - 1);
+              } else if (current >= totalPages - 4) {
+                pages.push(0);
+                pages.push("...");
+                for (let i = totalPages - 5; i < totalPages; i++) {
+                  pages.push(i);
+                }
+              } else {
+                pages.push(0);
+                pages.push("...");
+                for (let i = current - 1; i <= current + 1; i++) {
+                  pages.push(i);
+                }
+                pages.push("...");
+                pages.push(totalPages - 1);
+              }
+            }
+
+            return pages.map((p, idx) => {
+              if (p === "...") {
+                return (
+                  <span
+                    key={`ellipsis-${idx}`}
+                    style={{
+                      padding: "8px 12px",
+                      color: "#6b7280",
+                      fontSize: "14px",
+                      fontWeight: "500",
+                    }}
+                  >
+                    ...
+                  </span>
+                );
+              }
+              const pageNum = p as number;
+              return (
+                <PaginationButton
+                  key={pageNum}
+                  $active={page === pageNum}
+                  onClick={() => handleFilteredPageChange(pageNum)}
+                >
+                  {pageNum + 1}
+                </PaginationButton>
+              );
+            });
+          })()}
+
+          {/* 다음 버튼 */}
+          {page + 1 < pageInfo.totalPages && (
+            <PaginationButton
+              onClick={() => handleFilteredPageChange(page + 1)}
+            >
+              다음
+            </PaginationButton>
+          )}
+
+          {/* 10개씩 앞으로 가기 버튼 */}
+          {page + 10 < pageInfo.totalPages && (
+            <PaginationButton
+              onClick={() =>
+                handleFilteredPageChange(
+                  Math.min(page + 10, pageInfo.totalPages - 1)
+                )
+              }
+            >
+              +10
+            </PaginationButton>
+          )}
+
+          {/* 마지막 페이지로 이동 버튼 */}
+          {page + 1 < pageInfo.totalPages && (
+            <PaginationButton
+              onClick={() => handleFilteredPageChange(pageInfo.totalPages - 1)}
+            >
+              맨 마지막
+            </PaginationButton>
+          )}
         </PaginationNav>
+        <PaginationInfo>{getPaginationInfo()}</PaginationInfo>
       </PaginationContainer>
     </Container>
   );

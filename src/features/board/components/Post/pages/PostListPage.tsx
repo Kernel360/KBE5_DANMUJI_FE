@@ -4,10 +4,7 @@ import {
   AiOutlineSearch,
   AiOutlineReload,
 } from "react-icons/ai";
-import {
-  getPostsWithComments,
-  searchPosts,
-} from "@/features/project-d/services/postService";
+import { getPostsWithComments } from "@/features/project-d/services/postService";
 import type {
   Post,
   PostStatus,
