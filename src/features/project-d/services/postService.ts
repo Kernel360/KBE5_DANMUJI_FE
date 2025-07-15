@@ -523,7 +523,7 @@ export const searchPosts = async (
 
     const response = await api.get<
       ApiResponse<PageResponse<PostSummaryReadResponse>>
-    >(`/api/posts/search/with-count-query`, {
+    >(`/api/posts/search`, {
       params: requestParams,
     });
 
