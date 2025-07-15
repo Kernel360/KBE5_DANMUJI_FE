@@ -22,6 +22,7 @@ import {
   CompanyCardMembers,
   DateButton,
   DateSeparator,
+  AddCompanyButton,
 } from "./ProjectCreateModal.styled";
 import type { ProjectDetailResponse } from "../services/projectService";
 import DatePicker from "react-datepicker";
@@ -35,6 +36,8 @@ import {
   FiPlus,
   FiUser,
   FiUserCheck,
+  FiEdit2,
+  FiTrash2,
 } from "react-icons/fi";
 import { TbMoneybag, TbUserCode } from "react-icons/tb";
 import { RiUserSettingsLine } from "react-icons/ri";
@@ -579,18 +582,17 @@ export default function ProjectCreateModal({
                   <Button
                     $variant="primary"
                     onClick={() => openCompanyMemberModal("dev")}
+                    as={AddCompanyButton}
                     style={{
-                      padding: "4px 8px",
+                      padding: "3px 7px",
                       fontSize: 13,
                       minWidth: 0,
-                      height: 28,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
+                      height: 26,
                       marginLeft: 8,
+                      boxShadow: "none",
                     }}
                   >
-                    <FiPlus size={16} />
+                    <FiPlus size={15} />
                   </Button>
                 </div>
               </FieldLabel>
@@ -630,6 +632,7 @@ export default function ProjectCreateModal({
                             display: "inline-flex",
                             alignItems: "center",
                             fontSize: 13,
+                            gap: 4,
                           }}
                         >
                           {m.type === "admin" ? (
@@ -665,6 +668,37 @@ export default function ProjectCreateModal({
                               담당자
                             </span>
                           )}
+                          {/* 수정/삭제 버튼 */}
+                          <button
+                            style={{
+                              border: "none",
+                              background: "none",
+                              padding: 2,
+                              marginLeft: 2,
+                              cursor: "pointer",
+                              color: "#888",
+                              fontSize: 15,
+                            }}
+                            title="수정"
+                            onClick={() => alert(`멤버 수정: ${m.name}`)}
+                          >
+                            <FiEdit2 />
+                          </button>
+                          <button
+                            style={{
+                              border: "none",
+                              background: "none",
+                              padding: 2,
+                              marginLeft: 2,
+                              cursor: "pointer",
+                              color: "#ef4444",
+                              fontSize: 15,
+                            }}
+                            title="삭제"
+                            onClick={() => alert(`멤버 삭제: ${m.name}`)}
+                          >
+                            <FiTrash2 />
+                          </button>
                         </span>
                       ))}
                     </CompanyCardMembers>
@@ -693,18 +727,17 @@ export default function ProjectCreateModal({
                   <Button
                     $variant="primary"
                     onClick={() => openCompanyMemberModal("client")}
+                    as={AddCompanyButton}
                     style={{
-                      padding: "4px 8px",
+                      padding: "3px 7px",
                       fontSize: 13,
                       minWidth: 0,
-                      height: 28,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
+                      height: 26,
                       marginLeft: 8,
+                      boxShadow: "none",
                     }}
                   >
-                    <FiPlus size={16} />
+                    <FiPlus size={15} />
                   </Button>
                 </div>
               </FieldLabel>
@@ -744,6 +777,7 @@ export default function ProjectCreateModal({
                             display: "inline-flex",
                             alignItems: "center",
                             fontSize: 13,
+                            gap: 4,
                           }}
                         >
                           {m.type === "admin" ? (
@@ -779,6 +813,37 @@ export default function ProjectCreateModal({
                               담당자
                             </span>
                           )}
+                          {/* 수정/삭제 버튼 */}
+                          <button
+                            style={{
+                              border: "none",
+                              background: "none",
+                              padding: 2,
+                              marginLeft: 2,
+                              cursor: "pointer",
+                              color: "#888",
+                              fontSize: 15,
+                            }}
+                            title="수정"
+                            onClick={() => alert(`멤버 수정: ${m.name}`)}
+                          >
+                            <FiEdit2 />
+                          </button>
+                          <button
+                            style={{
+                              border: "none",
+                              background: "none",
+                              padding: 2,
+                              marginLeft: 2,
+                              cursor: "pointer",
+                              color: "#ef4444",
+                              fontSize: 15,
+                            }}
+                            title="삭제"
+                            onClick={() => alert(`멤버 삭제: ${m.name}`)}
+                          >
+                            <FiTrash2 />
+                          </button>
                         </span>
                       ))}
                     </CompanyCardMembers>
