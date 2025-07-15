@@ -105,19 +105,16 @@ const ProjectBoard: React.FC<ProjectBoardProps> = ({
         }
       }
 
-      // 단계별 필터링 처리
-      let targetStepId: number | null;
-      if (stepFilter !== "ALL") {
-        // 특정 단계 선택 시
-        targetStepId = stepFilter;
-      } else {
-        // "전체" 선택 시 - 모든 단계에서 검색
-        targetStepId = null;
+      // stepId가 없으면 호출하지 않음
+      if (!selectedStepId) {
+        setPosts([]);
+        setTotalPages(0);
+        setTotalElements(0);
+        return;
       }
-
       const response = await searchPosts(
         projectId,
-        targetStepId,
+        selectedStepId,
         searchParams,
         currentPage,
         10

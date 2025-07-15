@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
+import InquiryDetailModal from "./pages/InquiryDetailPage";
 import {
   FiSearch,
   FiRotateCcw,
@@ -11,8 +12,8 @@ import {
   FiClock,
   FiCalendar,
   FiGrid,
+  FiShield,
 } from "react-icons/fi";
-import { LuUserRoundCog } from "react-icons/lu";
 import { formatDateOnly, formatTimeOnly } from "../../utils/dateUtils";
 import {
   SelectButton,
@@ -275,47 +276,7 @@ const SEARCH_FIELD_OPTIONS = [
   },
 ];
 
-const ROLE_OPTIONS = [
-  {
-    value: "",
-    label: "전체",
-    color: "#374151",
-    bg: "#fff",
-    border: "2px solid #e5e7eb",
-    icon: () => (
-      <FiGrid
-        size={16}
-        style={{ marginRight: 8, color: "#6b7280", flexShrink: 0 }}
-      />
-    ),
-  },
-  {
-    value: "USER",
-    label: "사용자",
-    color: "#2563eb",
-    bg: "#e0f2fe",
-    border: "2px solid #2563eb",
-    icon: () => (
-      <FiUser
-        size={16}
-        style={{ marginRight: 8, color: "#2563eb", flexShrink: 0 }}
-      />
-    ),
-  },
-  {
-    value: "ADMIN",
-    label: "관리자",
-    color: "#a21caf",
-    bg: "#f3e8ff",
-    border: "2px solid #a21caf",
-    icon: () => (
-      <FiUser
-        size={16}
-        style={{ marginRight: 8, color: "#a21caf", flexShrink: 0 }}
-      />
-    ),
-  },
-];
+// 역할 컬럼/필터 완전 제거
 
 // Update Inquiry interface to match backend fields
 interface Inquiry {
@@ -357,8 +318,7 @@ function InquiryFilterBar({
   const statusDropdownRef = React.useRef<HTMLDivElement>(null);
   const [startDateOpen, setStartDateOpen] = React.useState(false);
   const [endDateOpen, setEndDateOpen] = React.useState(false);
-  const [roleDropdownOpen, setRoleDropdownOpen] = React.useState(false);
-  const roleDropdownRef = React.useRef<HTMLDivElement>(null);
+  // 역할 필터 관련 상태 제거
 
   React.useEffect(() => {
     if (!searchFieldDropdownOpen) return;
@@ -402,26 +362,7 @@ function InquiryFilterBar({
     };
   }, [statusDropdownOpen]);
 
-  React.useEffect(() => {
-    if (!roleDropdownOpen) return;
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setRoleDropdownOpen(false);
-    };
-    const handleClick = (e: MouseEvent) => {
-      if (
-        roleDropdownRef.current &&
-        !roleDropdownRef.current.contains(e.target as Node)
-      ) {
-        setRoleDropdownOpen(false);
-      }
-    };
-    window.addEventListener("keydown", handleEsc);
-    document.addEventListener("mousedown", handleClick);
-    return () => {
-      window.removeEventListener("keydown", handleEsc);
-      document.removeEventListener("mousedown", handleClick);
-    };
-  }, [roleDropdownOpen]);
+  // 역할 필터 관련 효과 제거
 
   const getSearchFieldLabel = (value: string) => {
     const option = SEARCH_FIELD_OPTIONS.find((opt) => opt.value === value);
@@ -640,97 +581,6 @@ function InquiryFilterBar({
                       {STATUS_OPTION_META[
                         option.value as keyof typeof STATUS_OPTION_META
                       ]?.icon?.()}
-                    </span>
-                    {option.label}
-                  </SelectOption>
-                ))}
-              </SelectDropdown>
-            </div>
-          </FilterGroup>
-          {/* 역할 필터 */}
-          <FilterGroup>
-            <FilterLabel>역할</FilterLabel>
-            <div style={{ position: "relative" }} ref={roleDropdownRef}>
-              <SelectButton
-                type="button"
-                onClick={() => setRoleDropdownOpen((prev) => !prev)}
-                className={roleDropdownOpen ? "open" : ""}
-                style={{
-                  padding: "0 8px",
-                  width: 120,
-                  height: 36,
-                  minHeight: 36,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 0,
-                  background: ROLE_OPTIONS.find(
-                    (opt) => opt.value === filters.role
-                  )?.bg,
-                  color: ROLE_OPTIONS.find((opt) => opt.value === filters.role)
-                    ?.color,
-                  border: ROLE_OPTIONS.find((opt) => opt.value === filters.role)
-                    ?.border,
-                  fontWeight: filters.role ? 700 : 500,
-                  transition: "all 0.18s",
-                }}
-                $hasValue={!!filters.role}
-              >
-                {ROLE_OPTIONS.find(
-                  (opt) => opt.value === filters.role
-                )?.icon?.()}
-                <span
-                  className="select-value"
-                  style={{
-                    marginRight: 8,
-                    minWidth: 36,
-                    textAlign: "left",
-                    display: "inline-block",
-                  }}
-                >
-                  {ROLE_OPTIONS.find((opt) => opt.value === filters.role)
-                    ?.label || "전체"}
-                </span>
-                <FiChevronDown
-                  size={16}
-                  style={{
-                    flexShrink: 0,
-                    color:
-                      ROLE_OPTIONS.find((opt) => opt.value === filters.role)
-                        ?.color || "#bdbdbd",
-                  }}
-                />
-              </SelectButton>
-              <SelectDropdown
-                $isOpen={roleDropdownOpen}
-                style={{ minWidth: 120 }}
-              >
-                {ROLE_OPTIONS.map((option) => (
-                  <SelectOption
-                    key={option.value}
-                    $isSelected={filters.role === option.value}
-                    onClick={() => {
-                      onChange("role", option.value);
-                      setRoleDropdownOpen(false);
-                    }}
-                    style={
-                      filters.role === option.value
-                        ? {
-                            background: option.bg,
-                            color: option.color,
-                            fontWeight: 700,
-                          }
-                        : {}
-                    }
-                  >
-                    <span
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        marginRight: 6,
-                        color: option.color,
-                      }}
-                    >
-                      {option.icon?.()}
                     </span>
                     {option.label}
                   </SelectOption>
@@ -1075,6 +925,10 @@ export default function InquiryPage() {
     role: "",
   });
   const navigate = useNavigate();
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [selectedInquiryId, setSelectedInquiryId] = useState<number | null>(
+    null
+  );
 
   // debounce용 ref
   const debounceTimer = useRef<NodeJS.Timeout | null>(null);
@@ -1123,9 +977,7 @@ export default function InquiryPage() {
       if (filters.authorUsername) {
         params.append("authorUsername", filters.authorUsername);
       }
-      if (filters.role) {
-        params.append("role", filters.role);
-      }
+      // 역할 필터 관련 코드 제거
       const response = await api.get(
         `/api/inquiries/search?${params.toString()}`
       );
@@ -1161,7 +1013,7 @@ export default function InquiryPage() {
     filters.startDate,
     filters.endDate,
     filters.searchField,
-    filters.role,
+    // filters.role, // 역할 필터 제거
   ]);
 
   // searchValue만 따로 감시해서 debounce
@@ -1177,7 +1029,8 @@ export default function InquiryPage() {
   }, [filters.searchValue]);
 
   const handleTitleClick = (id: number) => {
-    navigate(`/inquiry/${id}`);
+    setSelectedInquiryId(id);
+    setDetailModalOpen(true);
   };
 
   const handleFilterChange = (field: string, value: string) => {
@@ -1230,23 +1083,17 @@ export default function InquiryPage() {
         <Table>
           <TableHead>
             <TableRow>
-              <TableHeader style={{ width: 60 }}>번호</TableHeader>
-              <TableHeader style={{ width: 240 }}>제목</TableHeader>
-              <TableHeader style={{ width: 180 }}>작성자</TableHeader>
-              <TableHeader style={{ width: 110 }}>역할</TableHeader>
-              <TableHeader style={{ width: 90 }}>답변상태</TableHeader>
-              <TableHeader style={{ width: 180 }}>작성일</TableHeader>
+              <TableHeader style={{ width: 56 }}>번호</TableHeader>
+              <TableHeader style={{ width: "28ch" }}>제목</TableHeader>
+              <TableHeader style={{ width: "18ch" }}>작성자</TableHeader>
+              <TableHeader style={{ width: "7ch" }}>답변상태</TableHeader>
+              <TableHeader style={{ width: "18ch" }}>작성일</TableHeader>
             </TableRow>
           </TableHead>
           <TableBody>
             {inquiries.map((inq, idx) => {
               const statusText = inq.status === "WAITING" ? "대기" : "완료";
-              const roleText =
-                inq.role === "ROLE_ADMIN"
-                  ? "관리자"
-                  : inq.role === "ROLE_USER"
-                  ? "사용자"
-                  : inq.role;
+              // 역할 컬럼/필터 완전 제거
               return (
                 <TableRow
                   key={inq.inquiryId}
@@ -1257,14 +1104,14 @@ export default function InquiryPage() {
                   }
                   onMouseOut={(e) => (e.currentTarget.style.background = "")}
                 >
-                  <TableCell style={{ width: 60 }}>
+                  <TableCell style={{ width: 56 }}>
                     {pageInfo.totalElements -
                       (pageInfo.number * pageInfo.size + idx)}
                   </TableCell>
-                  <InquiryTitleCell style={{ width: 240 }}>
+                  <InquiryTitleCell style={{ width: "28ch" }}>
                     {inq.title}
                   </InquiryTitleCell>
-                  <TableCell style={{ width: 180 }}>
+                  <TableCell style={{ width: "18ch" }}>
                     <span
                       style={{ display: "flex", alignItems: "center", gap: 6 }}
                     >
@@ -1284,28 +1131,10 @@ export default function InquiryPage() {
                       </span>
                     </span>
                   </TableCell>
-                  <TableCell style={{ width: 110 }}>
-                    <span
-                      style={{ display: "flex", alignItems: "center", gap: 6 }}
-                    >
-                      {inq.role === "ROLE_ADMIN" ? (
-                        <LuUserRoundCog
-                          size={15}
-                          style={{ color: "#8b5cf6", marginRight: 2 }}
-                        />
-                      ) : (
-                        <FiUser
-                          size={15}
-                          style={{ color: "#2563eb", marginRight: 2 }}
-                        />
-                      )}
-                      <span style={{ fontWeight: 500 }}>{roleText}</span>
-                    </span>
-                  </TableCell>
-                  <TableCell style={{ width: 90 }}>
+                  <TableCell style={{ width: "7ch" }}>
                     <StatusBadge $status={statusText}>{statusText}</StatusBadge>
                   </TableCell>
-                  <TableCell style={{ width: 180 }}>
+                  <TableCell style={{ width: "18ch" }}>
                     <span
                       style={{ display: "flex", alignItems: "center", gap: 6 }}
                     >
@@ -1325,7 +1154,7 @@ export default function InquiryPage() {
               (_, idx) => (
                 <TableRow key={`empty-${idx}`}>
                   <TableCell
-                    colSpan={6}
+                    colSpan={5}
                     style={{
                       height: 48,
                       background: "#f9fafb",
@@ -1461,6 +1290,13 @@ export default function InquiryPage() {
         </PaginationNav>
         <PaginationInfo>{getPaginationInfo()}</PaginationInfo>
       </PaginationContainer>
+      {detailModalOpen && selectedInquiryId && (
+        <InquiryDetailModal
+          open={detailModalOpen}
+          onClose={() => setDetailModalOpen(false)}
+          inquiryId={selectedInquiryId}
+        />
+      )}
     </Container>
   );
 }
