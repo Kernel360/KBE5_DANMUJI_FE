@@ -311,8 +311,8 @@ export const CompanySection = styled.div`
 `;
 
 export const CompanyCard = styled.div<{ $type: "dev" | "client" }>`
-  margin-bottom: 8px;
-  background: ${({ $type }) => ($type === "dev" ? "#f4f6fa" : "#eaf6ff")};
+  margin-bottom: 4px;
+  background: ${({ $type }) => ($type === "dev" ? "#f5fbff" : "#f6fff5")};
   border-radius: 8px;
   padding: 16px;
   position: relative;
@@ -406,25 +406,38 @@ export const CompanySectionLabel = styled.div`
 `;
 
 export const AddCompanyButton = styled.button`
-  padding: 6px 12px;
-  border-radius: 6px;
-  border: 1px solid #fdb924;
-  background: linear-gradient(135deg, #fdb924 0%, #fbbf24 100%);
-  color: white;
-  font-size: 13px;
+  padding: 0;
+  border-radius: 5px;
+  border: 1.2px solid #fdb924;
+  background: #fff;
+  color: #fdb924;
+  font-size: 10px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.18s;
   display: flex;
   align-items: center;
-  gap: 4px;
-  margin-left: 12px;
-  box-shadow: 0 1px 3px rgba(253, 185, 36, 0.2);
+  gap: 0;
+  margin-left: 6px;
+  height: 14px;
+  min-width: 10px;
+  box-shadow: none;
+
+  svg {
+    color: #fdb924;
+    transition: color 0.18s;
+    font-size: 10px;
+    min-width: 10px;
+    min-height: 10px;
+  }
 
   &:hover {
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-    transform: translateY(-1px);
-    box-shadow: 0 2px 6px rgba(253, 185, 36, 0.3);
+    background: #fdb924;
+    color: #fff;
+    border-color: #fdb924;
+    svg {
+      color: #fff;
+    }
   }
 
   &:active {
@@ -433,7 +446,7 @@ export const AddCompanyButton = styled.button`
 
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 2px rgba(253, 185, 36, 0.3);
+    box-shadow: 0 0 0 2px rgba(253, 185, 36, 0.18);
   }
 `;
 

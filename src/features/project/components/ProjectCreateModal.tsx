@@ -22,6 +22,8 @@ import {
   CompanyCardMembers,
   DateButton,
   DateSeparator,
+  AddCompanyButton,
+  ButtonGroup,
 } from "./ProjectCreateModal.styled";
 import type { ProjectDetailResponse } from "../services/projectService";
 import DatePicker from "react-datepicker";
@@ -35,6 +37,8 @@ import {
   FiPlus,
   FiUser,
   FiUserCheck,
+  FiEdit2,
+  FiTrash2,
 } from "react-icons/fi";
 import { TbMoneybag, TbUserCode } from "react-icons/tb";
 import { RiUserSettingsLine } from "react-icons/ri";
@@ -146,6 +150,12 @@ export default function ProjectCreateModal({
   const [selectedClientCompanies, setSelectedClientCompanies] = useState<
     SelectedClientCompany[]
   >([]);
+  useEffect(() => {
+    console.log("devUserId:", form.devUserId);
+    console.log("clientUserId:", form.clientUserId);
+    console.log("devManagerId:", form.devManagerId);
+    console.log("clientManagerId:", form.clientManagerId);
+  }, [form.devUserId, form.clientUserId]);
 
   // DatePicker 팝업 상태
   const [startDateOpen, setStartDateOpen] = useState(false);
@@ -579,18 +589,16 @@ export default function ProjectCreateModal({
                   <Button
                     $variant="primary"
                     onClick={() => openCompanyMemberModal("dev")}
+                    as={AddCompanyButton}
                     style={{
-                      padding: "4px 8px",
+                      padding: "3px 5px",
                       fontSize: 13,
-                      minWidth: 0,
-                      height: 28,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      marginLeft: 8,
+                      height: 26,
+                      marginLeft: 2,
+                      boxShadow: "none",
                     }}
                   >
-                    <FiPlus size={16} />
+                    <FiPlus size={15} />
                   </Button>
                 </div>
               </FieldLabel>
@@ -610,7 +618,7 @@ export default function ProjectCreateModal({
                   </span>
                 )}
                 {selectedDevCompanies.map((dev) => (
-                  <CompanyCard key={dev.company.id}>
+                  <CompanyCard key={dev.company.id} $type="dev">
                     <CompanyCardHeader>
                       <CompanyCardTitle>
                         {/* 개발사 업체 아이콘 */}
@@ -620,6 +628,55 @@ export default function ProjectCreateModal({
                         />
                         {dev.company.name}
                       </CompanyCardTitle>
+                      <ButtonGroup>
+                        <button
+                          type="button"
+                          title="수정"
+                          aria-label="수정"
+                          style={{
+                            border: "none",
+                            background: "none",
+                            padding: 2,
+                            marginRight: 2,
+                            cursor: "pointer",
+                            color: "#888",
+                            fontSize: 17,
+                            display: "flex",
+                            alignItems: "center",
+                          }}
+                          onClick={() => {
+                            setEditCompany(dev.company);
+                            setEditMembers(dev.members);
+                            openCompanyMemberModal("dev", false);
+                          }}
+                        >
+                          <FiEdit2 />
+                        </button>
+                        <button
+                          type="button"
+                          title="삭제"
+                          aria-label="삭제"
+                          style={{
+                            border: "none",
+                            background: "none",
+                            padding: 2,
+                            cursor: "pointer",
+                            color: "#ef4444",
+                            fontSize: 17,
+                            display: "flex",
+                            alignItems: "center",
+                          }}
+                          onClick={() =>
+                            setSelectedDevCompanies((prev) =>
+                              prev.filter(
+                                (c) => c.company.id !== dev.company.id
+                              )
+                            )
+                          }
+                        >
+                          <FiTrash2 />
+                        </button>
+                      </ButtonGroup>
                     </CompanyCardHeader>
                     <CompanyCardMembers>
                       {dev.members.map((m) => (
@@ -630,6 +687,7 @@ export default function ProjectCreateModal({
                             display: "inline-flex",
                             alignItems: "center",
                             fontSize: 13,
+                            gap: 4,
                           }}
                         >
                           {m.type === "admin" ? (
@@ -693,18 +751,16 @@ export default function ProjectCreateModal({
                   <Button
                     $variant="primary"
                     onClick={() => openCompanyMemberModal("client")}
+                    as={AddCompanyButton}
                     style={{
-                      padding: "4px 8px",
+                      padding: "3px 5px",
                       fontSize: 13,
-                      minWidth: 0,
-                      height: 28,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      marginLeft: 8,
+                      height: 26,
+                      marginLeft: 2,
+                      boxShadow: "none",
                     }}
                   >
-                    <FiPlus size={16} />
+                    <FiPlus size={15} />
                   </Button>
                 </div>
               </FieldLabel>
@@ -724,7 +780,7 @@ export default function ProjectCreateModal({
                   </span>
                 )}
                 {selectedClientCompanies.map((client) => (
-                  <CompanyCard key={client.company.id}>
+                  <CompanyCard key={client.company.id} $type="client">
                     <CompanyCardHeader>
                       <CompanyCardTitle>
                         {/* 고객사 업체 아이콘 */}
@@ -734,6 +790,55 @@ export default function ProjectCreateModal({
                         />
                         {client.company.name}
                       </CompanyCardTitle>
+                      <ButtonGroup>
+                        <button
+                          type="button"
+                          title="수정"
+                          aria-label="수정"
+                          style={{
+                            border: "none",
+                            background: "none",
+                            padding: 2,
+                            marginRight: 2,
+                            cursor: "pointer",
+                            color: "#888",
+                            fontSize: 17,
+                            display: "flex",
+                            alignItems: "center",
+                          }}
+                          onClick={() => {
+                            setEditCompany(client.company);
+                            setEditMembers(client.members);
+                            openCompanyMemberModal("client", false);
+                          }}
+                        >
+                          <FiEdit2 />
+                        </button>
+                        <button
+                          type="button"
+                          title="삭제"
+                          aria-label="삭제"
+                          style={{
+                            border: "none",
+                            background: "none",
+                            padding: 2,
+                            cursor: "pointer",
+                            color: "#ef4444",
+                            fontSize: 17,
+                            display: "flex",
+                            alignItems: "center",
+                          }}
+                          onClick={() =>
+                            setSelectedClientCompanies((prev) =>
+                              prev.filter(
+                                (c) => c.company.id !== client.company.id
+                              )
+                            )
+                          }
+                        >
+                          <FiTrash2 />
+                        </button>
+                      </ButtonGroup>
                     </CompanyCardHeader>
                     <CompanyCardMembers>
                       {client.members.map((m) => (
@@ -744,6 +849,7 @@ export default function ProjectCreateModal({
                             display: "inline-flex",
                             alignItems: "center",
                             fontSize: 13,
+                            gap: 4,
                           }}
                         >
                           {m.type === "admin" ? (
