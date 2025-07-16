@@ -12,7 +12,7 @@ type Member = {
   position: string;
 };
 
-type Company = { id: number; name: string; userCount: number };
+export type Company = { id: number; name: string; userCount: number };
 
 type SelectedMember = {
   id: number;
@@ -162,6 +162,14 @@ const CompanyMemberSelectModal: React.FC<CompanyMemberSelectModalProps> = ({
       companyListRef.current?.scrollTo({ top: 0, behavior: "smooth" });
     }, 0);
   };
+
+  // 동기화: props가 바뀔 때마다 내부 state도 갱신
+  useEffect(() => {
+    setSelectedCompanyState(selectedCompany ?? null);
+  }, [selectedCompany]);
+  useEffect(() => {
+    setSelectedMembersState(selectedMembers ?? []);
+  }, [selectedMembers]);
 
   return (
     <div
@@ -318,16 +326,15 @@ const CompanyMemberSelectModal: React.FC<CompanyMemberSelectModalProps> = ({
                 </div>
               )}
               {companies
-                .filter(
-                  (c) =>
-                    !selectedDevCompanies.some(
-                      (dev) => dev.company.id === c.id
-                    ) &&
-                    !selectedClientCompanies.some(
-                      (cli) => cli.company.id === c.id
-                    )
+                .filter((c: Company) =>
+                  !selectedDevCompanies.some(
+                    (dev) => dev.company.id === c.id
+                  ) &&
+                  !selectedClientCompanies.some(
+                    (cli) => cli.company.id === c.id
+                  )
                 )
-                .map((c) => (
+                .map((c: Company) => (
                   <CompanyItem
                     key={c.id}
                     style={{
