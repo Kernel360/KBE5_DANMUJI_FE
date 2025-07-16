@@ -79,7 +79,7 @@ interface ChecklistDetailModalProps {
   loading: boolean;
   data: any;
   onClose: () => void;
-  onRefresh?: () => void;
+  onRefresh?: () => void | Promise<void>;
 }
 
 const ChecklistDetailModal = ({
@@ -259,8 +259,10 @@ const ChecklistDetailModal = ({
     try {
       await api.delete(`/api/checklists/${data.id}`);
       showSuccessToast("체크리스트가 성공적으로 삭제되었습니다.");
+      if (onRefresh) {
+        await Promise.resolve(onRefresh());
+      }
       if (onClose) onClose();
-      if (onRefresh) onRefresh();
     } catch (e: any) {
       let msg = "체크리스트 삭제에 실패했습니다.";
       if (e?.response?.data?.data?.errors) {
@@ -298,8 +300,10 @@ const ChecklistDetailModal = ({
       });
       showSuccessToast("체크리스트가 성공적으로 수정되었습니다.");
       setEditMode(false);
+      if (onRefresh) {
+        await Promise.resolve(onRefresh());
+      }
       if (onClose) onClose();
-      if (onRefresh) onRefresh();
     } catch (e: any) {
       let msg = "체크리스트 수정에 실패했습니다.";
       if (e?.response?.data?.data?.errors) {
