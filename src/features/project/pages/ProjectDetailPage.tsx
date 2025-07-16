@@ -244,7 +244,7 @@ const ProjectDetailPage = () => {
           onStepSelect={handleStepSelect}
           selectedStepId={selectedStepId}
           canEditStep={
-            // projectDetail.myUserType === "MANAGER" &&
+            projectDetail.myUserType === "MANAGER" ||
             projectDetail.myCompanyType === "DEVELOPER" || role === "ROLE_ADMIN"
           }
           onStepOrderSaved={fetchProjectDetail}
